@@ -1,6 +1,6 @@
 {
   "nativescript": {
-    "id": "org.nativescript.nsapp",
+    "id": "org.nativescript.fieldkit",
     "tns-android": {
       "version": "5.3.1"
     },
