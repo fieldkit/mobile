@@ -1,12 +1,12 @@
 const http = require("tns-core-modules/http");
 import Config from "../config";
 
-var ACCESS_TOKEN = null;
+var accessToken = null;
 
 export default class UserAuth {
 
     isLoggedIn() {
-        return ACCESS_TOKEN;
+        return accessToken;
     }
 
     login(user) {
@@ -26,7 +26,7 @@ export default class UserAuth {
         function handleResponse(response){
             if(response.statusCode == "204") {
                 // success
-                ACCESS_TOKEN = response.headers.Authorization;
+                accessToken = response.headers.Authorization;
                 return
             } else {
                 var content = response.content.toJSON();
@@ -53,7 +53,7 @@ export default class UserAuth {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": ACCESS_TOKEN,
+                    "Authorization": accessToken,
                  }
             })
             .then(handleResponse)
@@ -61,7 +61,7 @@ export default class UserAuth {
 
         function handleResponse(response){
             if(response.statusCode == "204") {
-                ACCESS_TOKEN = null;
+                accessToken = null;
                 return
             } else {
                 throw new Error(response);
