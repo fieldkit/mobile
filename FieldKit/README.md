@@ -16,3 +16,8 @@ tns run ios --bundle
 tns build android --bundle
 tns build ios --bundle
 ```
+
+### Run tests
+```
+npm run test
+```

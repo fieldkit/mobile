@@ -1,4 +1,4 @@
-const http = require("tns-core-modules/http");
+import * as http from "tns-core-modules/http";
 import Config from "../config";
 
 var accessToken = null;
