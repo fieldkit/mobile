@@ -6,7 +6,7 @@
 
         <StackLayout>
             <Label class="body m-20" :text="message" textWrap="true"></Label>
-            <Button class="btn btn-primary" text="Log out" @tap="logout"></Button>
+            <Button class="btn btn-primary" :text="_L('logOut')" @tap="logout"></Button>
         </StackLayout>
     </Page>
 </template>
@@ -17,7 +17,7 @@
     export default {
         data() {
             return {
-                message: "You have successfully authenticated."
+                message: _L("authenticated")
             };
         },
         methods: {

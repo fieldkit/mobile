@@ -39,16 +39,16 @@
                     <ActivityIndicator rowSpan="4" :busy="processing"></ActivityIndicator>
                 </GridLayout>
 
-                <Button :text="isLoggingIn ? 'Log In' : 'Sign Up'" :isEnabled="!processing"
+                <Button :text="isLoggingIn ? _L('logIn') : _L('signUp')" :isEnabled="!processing"
                     @tap="submit" class="btn btn-primary m-t-20"></Button>
-                <Label *v-show="isLoggingIn" text="Forgot your password?"
+                <Label *v-show="isLoggingIn" :text="_L('forgotLink')"
                     class="login-label" @tap="forgotPassword()"></Label>
             </StackLayout>
 
             <Label class="login-label sign-up-label" @tap="toggleForm">
                 <FormattedString>
-                    <Span :text="isLoggingIn ? 'Don’t have an account? ' : 'Back to Login'"></Span>
-                    <Span :text="isLoggingIn ? 'Sign up' : ''" class="bold"></Span>
+                    <Span :text="isLoggingIn ? _L('needAccount') : _L('backToLogin')"></Span>
+                    <Span :text="isLoggingIn ? _L('signUp') : ''" class="bold"></Span>
                 </FormattedString>
             </Label>
         </FlexboxLayout>
@@ -64,10 +64,10 @@
                 isLoggingIn: true,
                 processing: false,
                 user: {
-                    name: "Your name",
-                    email: "Your email address",
-                    password: "Your password",
-                    confirmPassword: "Your password"
+                    name: _L("yourName"),
+                    email: _L("yourEmail"),
+                    password: _L("yourPassword"),
+                    confirmPassword: _L("yourPassword")
                 }
             };
         },
@@ -79,7 +79,7 @@
             submit() {
                 if (!this.user.email || !this.user.password) {
                     this.alert(
-                        "Please provide both an email address and password."
+                        _L("provideBoth")
                     );
                     return;
                 }
@@ -109,7 +109,7 @@
 
             register() {
                 if (this.user.password != this.user.confirmPassword) {
-                    this.alert("Your passwords do not match.");
+                    this.alert(_L("noMatch"));
                     this.processing = false;
                     return;
                 }
@@ -119,37 +119,37 @@
                     .then(() => {
                         this.processing = false;
                         this.alert(
-                            "Your account was successfully created.");
+                            _L("accountCreated"));
                         this.isLoggingIn = true;
                     })
                     .catch(() => {
                         this.processing = false;
                         this.alert(
-                            "Unfortunately we were unable to create your account."
+                            _L("accountCreateFailed")
                         );
                     });
             },
 
             forgotPassword() {
                 prompt({
-                    title: "Forgot Password",
-                    message: "Enter the email address you used to register for FieldKit to reset your password.",
+                    title: _L("forgotTitle"),
+                    message: _L("forgotInstruction"),
                     inputType: "email",
                     defaultText: "",
-                    okButtonText: "Ok",
-                    cancelButtonText: "Cancel"
+                    okButtonText: _L("ok"),
+                    cancelButtonText: _L("cancel")
                 }).then(data => {
                     if (data.result) {
                         this.$userAuth
                             .resetPassword(data.text.trim())
                             .then(() => {
                                 this.alert(
-                                    "Your password was successfully reset. Please check your email for instructions on choosing a new password."
+                                    _L("passwordResetSucceeded")
                                 );
                             })
                             .catch(() => {
                                 this.alert(
-                                    "Unfortunately, an error occurred resetting your password."
+                                    _L("passwordResetFailed")
                                 );
                             });
                     }
@@ -168,7 +168,7 @@
             alert(message) {
                 return alert({
                     title: "FieldKit",
-                    okButtonText: "OK",
+                    okButtonText: _L("ok"),
                     message: message
                 });
             }
