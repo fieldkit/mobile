@@ -21,3 +21,19 @@ tns build ios --bundle
 ```
 npm run test
 ```
+
+## Troubleshooting
+
+If you get errors about XCode being setup incorrectly and running xcodebuild -version gives you an error like this:
+
+```
+xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance
+```
+
+Then you probably need to do:
+
+```
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+```
+
+https://stackoverflow.com/questions/17980759/xcode-select-active-developer-directory-error
