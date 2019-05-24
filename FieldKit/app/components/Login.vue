@@ -64,10 +64,10 @@
                 isLoggingIn: true,
                 processing: false,
                 user: {
-                    name: _L("yourName"),
-                    email: _L("yourEmail"),
-                    password: _L("yourPassword"),
-                    confirmPassword: _L("yourPassword")
+                    name: "",
+                    email: "",
+                    password: "",
+                    confirmPassword: ""
                 }
             };
         },
