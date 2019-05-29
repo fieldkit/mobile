@@ -10,17 +10,11 @@ export default class UserAuth {
     }
 
     login(user) {
-        // extract digits and letters and shorten to < 40
-        // to meet api.fkdev requirements
-        var tempUsername = user.email.match(/([\dA-Za-z]+)/g).join("");
-        tempUsername = tempUsername.slice(0, 39);
-
         return axios({
                 method: 'POST',
                 url: Config.baseUri+"/login",
                 headers: { "Content-Type": "application/json" },
                 data: {
-                    username: tempUsername,
                     email: user.email,
                     password: user.password,
                 }
@@ -42,15 +36,7 @@ export default class UserAuth {
             if (error.response) {
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
-                var details = error.response.data.detail.split("; ");
-                // do not display their password!
-                var cleaned = details.map(function(d) {
-                    if(d.indexOf("length of request.password") == 0) {
-                        d = "Password length must be greater than or equal to 10."
-                    }
-                    return d;
-                });
-                throw new Error(cleaned.join("\n\n"));
+                // console.log("error.response", error.response);
             } else if (error.request) {
                 // The request was made but no response was received
                 // `error.request` is an instance of XMLHttpRequest in the browser
@@ -93,23 +79,13 @@ export default class UserAuth {
     }
 
     register(user) {
-        // extract digits and letters and shorten to < 40
-        // to meet api.fkdev requirements
-        var tempUsername = user.email.match(/([\dA-Za-z]+)/g).join("");
-        tempUsername = tempUsername.slice(0, 39);
-
         return axios({
                 method: 'POST',
                 url: Config.baseUri+"/users",
                 headers: { "Content-Type": "application/json" },
                 data: {
-                    // temp
-                    "bio": "blank bio",
-                    "invite_token": "XQaQVxNJRANDjNUKYXLpjQ",
-                    // end temp
                     "name": user.name,
                     "email": user.email,
-                    "username": tempUsername,
                     "password": user.password,
                 }
             })
