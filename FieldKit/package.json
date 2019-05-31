@@ -40,5 +40,14 @@
   "readme": "NativeScript Application",
   "scripts": {
     "test": "jest"
+  },
+  "jest": {
+    "modulePaths": [
+      "<rootDir>/node_modules",
+      "<rootDir>/app"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ]
   }
 }
