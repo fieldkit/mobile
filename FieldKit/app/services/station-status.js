@@ -1,4 +1,4 @@
-import Sqlite from 'wrappers/sqlite';
+import Sqlite from '../wrappers/sqlite';
 
 // temp seed data...
 const stations = [
