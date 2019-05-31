@@ -44,14 +44,15 @@
   },
   "jest": {
     "globals": {
-      "__ENV__": "test"
+      "__ENV__": "test",
+      "TNS_ENV": "test"
     },
     "setupFiles": [
       "./app/tests/setup.js"
     ],
     "modulePaths": [
-      "<rootDir>/node_modules",
-      "<rootDir>/app"
+      "<rootDir>/app",
+      "<rootDir>/node_modules"
     ],
     "moduleDirectories": [
       "node_modules"

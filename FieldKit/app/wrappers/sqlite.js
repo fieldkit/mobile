@@ -2,7 +2,7 @@
  *
  *
  */
-if (window["__ENV__"] === "test") {
+if (TNS_ENV === 'test') {
     module.exports = require('./sqlite.node');
 }
 else {
