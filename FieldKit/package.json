@@ -14,6 +14,7 @@
   "dependencies": {
     "ajv": "^6.10.0",
     "axios": "^0.18.0",
+    "nativescript-sqlite": "^2.3.3",
     "nativescript-theme-core": "~1.0.4",
     "nativescript-vue": "~2.2.0",
     "tns-core-modules": "^5.4.0",

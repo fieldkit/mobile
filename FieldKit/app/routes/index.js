@@ -1,8 +1,10 @@
-import Login from "../components/Login";
-import Home from "../components/Home";
+import Login from "../components/LoginView";
+import Home from "../components/HomeView";
+import Stations from "../components/StationsView";
 
 const routes = {
     login: Login,
-    home: Home
+    home: Home,
+    stations: Stations
 }
 export default routes;

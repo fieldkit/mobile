@@ -1,5 +1,5 @@
 module.exports = {
-    // Login.vue
+    // LoginView.vue
     logIn: "Log In",
     signUp: "Sign Up",
     forgotLink: "Forgot your password?",
@@ -15,7 +15,8 @@ module.exports = {
     cancel: "Cancel",
     passwordResetSucceeded: "Your password was successfully reset. Please check your email for instructions on choosing a new password.",
     passwordResetFailed: "Unfortunately, an error occurred resetting your password.",
-    // Home.vue
+    // HomeView.vue
+    viewStations: "View stations",
     logOut: "Log out",
     authenticated: "You have successfully authenticated."
 };

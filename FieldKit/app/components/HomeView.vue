@@ -6,13 +6,15 @@
 
         <StackLayout>
             <Label class="body m-20" :text="message" textWrap="true"></Label>
-            <Button class="btn btn-primary" :text="_L('logOut')" @tap="logout"></Button>
+            <Button class="btn btn-primary" :text="_L('viewStations')" @tap="viewStations"></Button>
+            <Button class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
         </StackLayout>
     </Page>
 </template>
 
 <script>
-    import Login from "./Login";
+    import Login from "./LoginView";
+    import Stations from "./StationsView";
 
     export default {
         data() {
@@ -26,6 +28,9 @@
                 this.$navigateTo(Login, {
                     clearHistory: true
                 });
+            },
+            viewStations() {
+                this.$navigateTo(Stations);
             }
         }
     };

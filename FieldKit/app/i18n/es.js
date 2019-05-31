@@ -1,5 +1,5 @@
 module.exports = {
-    // Login.vue
+    // LoginView.vue
     logIn: "Iniciar sesión",
     signUp: "Regístrate",
     forgotLink: "¿Se te olvidó tu contraseña?",
@@ -15,7 +15,8 @@ module.exports = {
     cancel: "Cancelar",
     passwordResetSucceeded: "Su contraseña fue restablecida con éxito. Por favor, consulte su correo electrónico para obtener instrucciones sobre cómo elegir una nueva contraseña.",
     passwordResetFailed: "Desafortunadamente, se produjo un error al restablecer su contraseña.",
-    // Home.vue
+    // HomeView.vue
+    viewStations: "Ver estaciones",
     logOut: "Cerrar sesión",
     authenticated: "Has autenticado con éxito."
 };
