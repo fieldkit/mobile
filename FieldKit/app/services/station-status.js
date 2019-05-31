@@ -1,4 +1,4 @@
-import sqlite from 'nativescript-sqlite';
+import Sqlite from 'wrappers/sqlite';
 
 // temp seed data...
 const stations = [
@@ -7,9 +7,13 @@ const stations = [
     {"name": "Evanger Station", "status": "Deployed", "updated": "2018-01-01 09:32:09"},
     {"name": "Finse Station", "status": "Ready to deploy", "updated": "2017-09-17 13:23:09"},
     {"name": "FieldKit Station 3421", "status": "Configure sensor", "updated": ""},
-]
+];
 
-var database = "";
+const sqlite = new Sqlite();
+
+console.log(sqlite);
+
+let database = "";
 
 export default class StationStatus {
     constructor() {

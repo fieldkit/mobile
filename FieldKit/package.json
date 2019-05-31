@@ -34,6 +34,7 @@
     "nativescript-vue-template-compiler": "~2.2.0",
     "node-sass": "~4.11.0",
     "prettier": "1.17.1",
+    "sqlite3": "^4.0.8",
     "vue-loader": "~15.4.0"
   },
   "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
@@ -42,6 +43,12 @@
     "test": "jest"
   },
   "jest": {
+    "globals": {
+      "__ENV__": "test"
+    },
+    "setupFiles": [
+      "./app/tests/setup.js"
+    ],
     "modulePaths": [
       "<rootDir>/node_modules",
       "<rootDir>/app"
