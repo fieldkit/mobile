@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Config from "../config";
 
-var accessToken = null;
+let accessToken = null;
 
 export default class UserAuth {
 

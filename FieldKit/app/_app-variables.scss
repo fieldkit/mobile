@@ -3,61 +3,58 @@
 // for example '~nativescript-theme-core/scss/dark'.
 @import '~nativescript-theme-core/scss/light';
 
-// Custom colors
-$background-dark: #F8F8F8 !default;
-$background-light: #FFFFFF !default;
 
-// FieldKit gray
-$gray-dark: #2C3E50 !default;
-
-// FieldKit red
-$accent-dark: #CE596B !default;
-
-$success-dark: #06CE6A !default;
-$success-light: #00E676 !default;
-
-$warning-dark: #f39c11 !default;
-$warning-light: #F2C112 !default;
-
-$error-dark: #D84039 !default;
-$error-light: #ED473F !default;
-
-$midnight-dark: #0F336D !default;
-$midnight-light: #14418B !default;
-
-$night-dark: #023141 !default;
-$night-light: #01526C !default;
+// ** FieldKit colors **
+// Primary
+$fk-primary-blue: #1B80C9; // sky blue
+$fk-primary-black: #2C3E50; // almost black
+$fk-primary-red: #CE596B; // mauve/red
+// Secondary
+$fk-secondary-blue: #52B5E4; // turquoise
+$fk-secondary-light-blue: #A0DBE1; // light turquoise
+$fk-secondary-salmon: #F48E84; // salmon
+$fk-secondary-peach: #FCDFCA; // light peach
+// Tertiary
+$fk-tertiary-red: #C42C44; // red
+$fk-tertiary-green: #3F8530; // green
+$fk-tertiary-blue: #3F0B9B; // blue
+$fk-tertiary-yellow: #3F0B9B; // yellow
+$fk-tertiary-gray: #EDE9E6; // light gray
+$fk-tertiary-black: #464C51; // almost black
+// Gray colors
+$fk-gray-dark: #6B6D6F; // dark gray
+$fk-gray-light: #CCCDCF; // light gray
+$fk-gray-lighter: #D8DCE0; // lighter gray
+$fk-gray-lightest: #F4F5F7; // lightest gray
+$fk-gray-white: #FCFCFC; // almost white
+$fk-gray-hint: #6A6D71; // for hint text
+$fk-gray-border: #D8DEC0; // under input fields
 
 // Sizes
-$base-font-size: 11;
+$base-font-size: 16;
 
 $border-width: 1;
 $border-radius: 3;
-
 
 /**
  * Theme variables overrides
 **/
 
 // Colors
-$background: #fff;
-$primary: lighten(#000, 13%);
-$secondary: lighten(#000, 46%);
-$disabled: lighten(#000, 62%);
-$accent: $accent-dark;
-$error: $error-light;
+$background: $white;
+$accent: $fk-primary-red;
 
 // SideDrawer
 $item-color-android : #737373;
 $item-active-background: #F8F8F8;
 $item-active-color: $accent;
 $item-active-icon-color: $item-active-color;
-$item-color-ios: $gray-dark;
-$item-color-android: $gray-dark;
+$item-color-ios: $fk-primary-black;
+$item-color-android: $fk-primary-black;
 
 $side-drawer-header-background: #fafafa;
 $side-drawer-header-brand: #737373;
-$side-drawer-background: #FFFFFF;
+$side-drawer-background: $white;
 
 // ActionBar
 $ab-background: $accent;
@@ -66,10 +63,8 @@ $ab-color: $white;
 // Buttons
 $btn-color-inverse: $white;
 $btn-color: $accent;
-$btn-color-secondary: darken($btn-color, 10%);
-$btn-color-outline-highlighted: lighten($btn-color, 10%);
 
 //Text colors
-$headings-color: $gray-dark;
-$secondary: $gray-dark;
-$text-color: $gray-dark;
+$headings-color: $fk-primary-black;
+$secondary: $fk-primary-black;
+$text-color: $fk-primary-black;

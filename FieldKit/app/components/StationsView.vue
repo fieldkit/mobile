@@ -31,10 +31,10 @@
             },
 
             createStationElements(stations) {
-                var layout = this.page.getViewById("stations-list");
+                let layout = this.page.getViewById("stations-list");
 
                 if(stations.length == 0) {
-                    var noneLabel = new Label();
+                    let noneLabel = new Label();
                     noneLabel.text = "No stations found.";
                     noneLabel.className = "m-10 p-10 text-center";
                     noneLabel.style = "font-size: 20;";

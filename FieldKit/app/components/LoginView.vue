@@ -1,15 +1,16 @@
 <template>
-    <Page actionBarHidden="true">
+    <Page actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <FlexboxLayout class="page" justifyContent="space-between">
+                <Image class="logo" src="~/images/logo.png"></Image>
                 <StackLayout class="form">
-                    <Image class="logo" src="~/images/logo.png"></Image>
-
                     <GridLayout rows="auto, auto, auto, auto">
                         <StackLayout row="0" v-show="!isLoggingIn" class="input-field">
                             <TextField
+                                id="name-field"
                                 class="input"
                                 hint="Name"
+                                horizontalAlignment="left"
                                 :isEnabled="!processing"
                                 keyboardType="name"
                                 autocorrect="false"
@@ -17,8 +18,9 @@
                                 v-model="user.name"
                                 returnKeyType="next"
                                 @returnPress="focusPassword"
+                                @focus="showActive"
                                 @blur="checkName"></TextField>
-                            <StackLayout class="hr-light"></StackLayout>
+                            <StackLayout class="spacer-top" id="name-field-spacer"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-name"
@@ -40,18 +42,30 @@
                         </StackLayout>
 
                         <StackLayout row="1" class="input-field">
-                            <TextField
-                                class="input"
-                                hint="Email"
-                                :isEnabled="!processing"
-                                keyboardType="email"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                v-model="user.email"
-                                returnKeyType="next"
-                                @returnPress="focusPassword"
-                                @blur="checkEmail"></TextField>
-                            <StackLayout class="hr-light"></StackLayout>
+                            <GridLayout rows="auto" columns="*">
+                                <TextField
+                                    row="0"
+                                    id="email-field"
+                                    class="input"
+                                    hint="Email"
+                                    horizontalAlignment="left"
+                                    :isEnabled="!processing"
+                                    keyboardType="email"
+                                    autocorrect="false"
+                                    autocapitalizationType="none"
+                                    v-model="user.email"
+                                    returnKeyType="next"
+                                    @focus="showActive"
+                                    @returnPress="focusPassword"
+                                    @blur="checkEmail"></TextField>
+                                <Image
+                                    row="0"
+                                    width="25"
+                                    horizontalAlignment="right"
+                                    v-show="isLoggingIn"
+                                    src="~/images/email.png"></Image>
+                            </GridLayout>
+                            <StackLayout class="spacer-top" id="email-field-spacer"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-email"
@@ -67,17 +81,28 @@
                         </StackLayout>
 
                         <StackLayout row="2" class="input-field">
-                            <TextField
-                                class="input"
-                                hint="Password"
-                                secure="true"
-                                ref="password"
-                                :isEnabled="!processing"
-                                v-model="user.password"
-                                :returnKeyType="isLoggingIn ? 'done' : 'next'"
-                                @returnPress="focusConfirmPassword"
-                                @blur="checkPassword"></TextField>
-                            <StackLayout class="hr-light"></StackLayout>
+                            <GridLayout rows="auto" columns="*">
+                                <TextField
+                                    id="password-field"
+                                    class="input"
+                                    hint="Password"
+                                    secure="true"
+                                    ref="password"
+                                    horizontalAlignment="left"
+                                    :isEnabled="!processing"
+                                    v-model="user.password"
+                                    :returnKeyType="isLoggingIn ? 'done' : 'next'"
+                                    @focus="showActive"
+                                    @returnPress="focusConfirmPassword"
+                                    @blur="checkPassword"></TextField>
+                                <Image
+                                    row="0"
+                                    width="25"
+                                    horizontalAlignment="right"
+                                    v-show="isLoggingIn"
+                                    src="~/images/lock.png"></Image>
+                            </GridLayout>
+                            <StackLayout class="spacer-top" id="password-field-spacer"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-password"
@@ -90,19 +115,28 @@
                                 text="Password must be at least 10 characters."
                                 textWrap="true"
                                 :visibility="passwordTooShort ? 'visible' : 'collapsed'"></Label>
+                            <Label
+                                class="m-t-5"
+                                horizontalAlignment="right"
+                                v-show="isLoggingIn"
+                                :text="_L('forgotLink')"
+                                @tap="forgotPassword()"></Label>
                         </StackLayout>
 
                         <StackLayout row="3" v-show="!isLoggingIn" class="input-field">
                             <TextField
+                                id="confirm-password-field"
                                 class="input"
                                 hint="Confirm password"
                                 secure="true"
                                 ref="confirmPassword"
+                                horizontalAlignment="left"
                                 :isEnabled="!processing"
                                 v-model="user.confirmPassword"
                                 returnKeyType="done"
+                                @focus="showActive"
                                 @blur="checkConfirmPassword"></TextField>
-                            <StackLayout class="hr-light"></StackLayout>
+                            <StackLayout class="spacer-top" id="confirm-password-field-spacer"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="passwords-not-match"
@@ -119,17 +153,11 @@
                         :text="isLoggingIn ? _L('logIn') : _L('signUp')"
                         :isEnabled="!processing"
                         @tap="submit"></Button>
-                    <Label
-                        class="login-label"
-                        v-show="isLoggingIn"
-                        :text="_L('forgotLink')"
-                        @tap="forgotPassword()"></Label>
                 </StackLayout>
 
-                <Label class="login-label sign-up-label" @tap="toggleForm">
+                <Label class="sign-up-label" @tap="toggleForm">
                     <FormattedString>
                         <Span :text="isLoggingIn ? _L('needAccount') : _L('backToLogin')"></Span>
-                        <Span :text="isLoggingIn ? _L('signUp') : ''" class="bold"></Span>
                     </FormattedString>
                 </Label>
             </FlexboxLayout>
@@ -162,32 +190,49 @@
             };
         },
         methods: {
+            onPageLoaded(args) {
+                this.page = args.object;
+            },
+
             toggleForm() {
                 this.isLoggingIn = !this.isLoggingIn;
             },
 
+            showActive(event) {
+                let spacer = this.page.getViewById(event.object.id+"-spacer");
+                spacer.className = "spacer-top active";
+            },
+
             checkName(event) {
+                let spacer = this.page.getViewById("name-field-spacer");
+                spacer.className = "spacer-top";
                 this.noName = !this.user.name || this.user.name.length == 0;
                 if(this.noName) {return}
-                var matches = this.user.name.match(/\s/g);
+                let matches = this.user.name.match(/\s/g);
                 this.nameHasSpace = matches && matches.length > 0;
                 this.nameTooLong = this.user.name.length > 255;
             },
 
             checkEmail(event) {
+                let spacer = this.page.getViewById("email-field-spacer");
+                spacer.className = "spacer-top";
                 this.noEmail = !this.user.email || this.user.email.length == 0;
                 if(this.noEmail) {return}
-                var emailPattern = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+                let emailPattern = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
                 this.emailNotValid = !emailPattern.test(this.user.email);
             },
 
             checkPassword(event) {
+                let spacer = this.page.getViewById("password-field-spacer");
+                spacer.className = "spacer-top";
                 this.noPassword = !this.user.password || this.user.password.length == 0;
                 if(this.noPassword) {return}
                 this.passwordTooShort = this.user.password.length < 10;
             },
 
             checkConfirmPassword(event) {
+                let spacer = this.page.getViewById("confirm-password-field-spacer");
+                spacer.className = "spacer-top";
                 this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
             },
 
@@ -297,21 +342,31 @@
     // End custom common variables
 
     .page {
+        color: $fk-primary-black;
+        font-size: 16;
         align-items: center;
         flex-direction: column;
     }
 
     .form {
-        margin-left: 30;
-        margin-right: 30;
+        margin-left: 5;
+        margin-right: 5;
         flex-grow: 2;
-        vertical-align: middle;
+        vertical-align: center;
     }
 
     .logo {
-        margin-top: 42;
-        margin-bottom: 42;
+        margin-top: 50;
         height: 47;
+    }
+
+    .spacer-top {
+        border-top-color: $fk-gray-border;
+        border-top-width: 2;
+    }
+
+    .active {
+        border-top-color: $fk-secondary-blue;
     }
 
     .input-field {
@@ -319,38 +374,31 @@
     }
 
     .input {
-        color: $gray-dark;
+        width: 100%;
         font-size: 16;
-        placeholder-color: #7E8083;
+        color: $fk-primary-black;
+        placeholder-color: $fk-gray-hint;
     }
 
     .input:disabled {
-        background-color: white;
         opacity: 0.5;
     }
 
     .btn-primary {
+        font-size: 18;
         margin: 20 5 15 5;
-    }
-
-    .login-label {
-        horizontal-align: center;
-        color: #A8A8A8;
-        font-size: 16;
-    }
-
-    .sign-up-label {
-        margin-bottom: 10;
-    }
-
-    .bold {
-        color: $accent-dark;
+        text-transform: none;
         font-weight: bold;
     }
 
+    .sign-up-label {
+        horizontal-align: center;
+        margin-bottom: 10;
+    }
+
     .validation-error {
-        color: darkred;
-        border-top-color: darkred;
-        border-top-width: 1;
+        color: $fk-tertiary-red;
+        border-top-color: $fk-tertiary-red;
+        border-top-width: 2;
     }
 </style>
