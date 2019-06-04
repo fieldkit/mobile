@@ -1,4 +1,5 @@
 import Sqlite from '../wrappers/sqlite';
+const sqlite = new Sqlite();
 
 // temp seed data...
 const stations = [
@@ -8,10 +9,6 @@ const stations = [
     {"name": "Finse Station", "status": "Ready to deploy", "updated": "2017-09-17 13:23:09"},
     {"name": "FieldKit Station 3421", "status": "Configure sensor", "updated": ""},
 ];
-
-const sqlite = new Sqlite();
-
-console.log(sqlite);
 
 let database = "";
 
@@ -28,7 +25,7 @@ export default class StationStatus {
     }
 
     createDB() {
-        new sqlite("FieldKitStations")
+        sqlite.open("FieldKitStations")
             .then(db => {
                 if(db.isOpen()) {
                     database = db;
@@ -68,17 +65,7 @@ export default class StationStatus {
     }
 
     getAll() {
-        // return promise (chain)
-        return new sqlite("FieldKitStations")
-            .then(db => {
-                db.resultType(sqlite.RESULTSASOBJECT);
-                return db.all('SELECT * FROM Stations', function(err, resultSet) {
-                    return resultSet;
-                })
-            }, error => {
-                // console.log("Error retrieving data", error);
-                Promise.resolve([]);
-            });
+        return sqlite.getRecords("FieldKitStations", "SELECT * FROM Stations");
     }
 
 }
