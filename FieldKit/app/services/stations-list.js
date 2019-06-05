@@ -12,7 +12,7 @@ const stations = [
 
 let database = "";
 
-export default class StationStatus {
+export default class StationsList {
     constructor() {
         if(!this.checkForDB()) {
             this.createDB();
@@ -46,15 +46,14 @@ export default class StationStatus {
 
         // temporarily seed some data
         function seedTable() {
-            stations.forEach(function(s) {
-                database.execSQL("INSERT INTO stations (name, status, updated) VALUES (?, ?, ?)", [s.name, s.status, s.updated])
-                .then(id => {
-                    if(id == stations.length) {
-                        database.close();
-                    }
-                }, error => {
-                    // console.log("Data was not inserted", error)
-                })
+            let result = stations.reduce( (previousPromise, nextStation) => {
+                return previousPromise.then(() => {
+                    return database.execSQL("INSERT INTO stations (name, status, updated) VALUES (?, ?, ?)", [nextStation.name, nextStation.status, nextStation.updated]);
+                });
+            }, Promise.resolve() );
+
+            result.then(e => {
+              database.close();
             });
         }
 
@@ -65,7 +64,7 @@ export default class StationStatus {
     }
 
     getAll() {
-        return sqlite.getRecords("FieldKitStations", "SELECT * FROM Stations");
+        return sqlite.getRecords("FieldKitStations", "SELECT * FROM stations");
     }
 
 }

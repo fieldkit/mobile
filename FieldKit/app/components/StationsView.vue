@@ -11,8 +11,8 @@
 <script>
     import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
     import { Label } from "tns-core-modules/ui/label/label";
-    import StationStatus from "../services/station-status";
-    const stationStatus = new StationStatus();
+    import StationsList from "../services/stations-list";
+    const stationsList = new StationsList();
 
     export default {
         data() {
@@ -23,7 +23,7 @@
         methods: {
             onPageLoaded(args) {
                 this.page = args.object;
-                stationStatus.getAll().then(result => {
+                stationsList.getAll().then(result => {
                     this.createStationElements(result);
                 }, error => {
                     // console.log("error getting stations data", error)
@@ -53,7 +53,7 @@
                     stationStack.addChild(nameLabel);
                     var statusLabel = new Label();
                     statusLabel.text = r.status;
-                    statusLabel.className = "station-status " + r.status.replace(/ /g, '');
+                    statusLabel.className = "stations-list " + r.status.replace(/ /g, '');
                     stationStack.addChild(statusLabel);
 
                     layout.addChild(stationStack);
@@ -67,7 +67,7 @@
                         border-width: 1;}"
                 );
                 this.page.addCss(".station-name {font-size: 18; color: black;}");
-                this.page.addCss(".station-status {font-size: 16;}");
+                this.page.addCss(".stations-list {font-size: 16;}");
                 this.page.addCss(".Readytodeploy {color: green}");
                 this.page.addCss(".Deployed {color: black}");
                 this.page.addCss(".Configuresensor {color: gray}");
