@@ -16,7 +16,7 @@ module.exports = {
     passwordResetSucceeded: "Your password was successfully reset. Please check your email for instructions on choosing a new password.",
     passwordResetFailed: "Unfortunately, an error occurred resetting your password.",
     // HomeView.vue
-    viewStations: "View stations",
-    logOut: "Log out",
+    viewStations: "View Stations",
+    logOut: "Log Out",
     authenticated: "You have successfully authenticated."
 };

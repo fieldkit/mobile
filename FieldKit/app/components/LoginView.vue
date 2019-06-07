@@ -385,10 +385,7 @@
     }
 
     .btn-primary {
-        font-size: 18;
         margin: 20 5 15 5;
-        text-transform: none;
-        font-weight: bold;
     }
 
     .sign-up-label {

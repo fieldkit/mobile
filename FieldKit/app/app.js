@@ -4,8 +4,12 @@ import * as i18n from "tns-i18n";
 i18n("en");
 
 import routes from "./routes";
+import CreateDB from "./services/create-db";
 import UserAuth from "./services/user-auth";
 import Vue from "nativescript-vue";
+
+// temp create and seed db
+const createDB = new CreateDB();
 
 // Pass i18n's global variable to Vue
 Vue.prototype._L = _L;

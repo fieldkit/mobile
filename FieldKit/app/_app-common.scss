@@ -1,6 +1,74 @@
 // Place any CSS rules you want to apply on both iOS and Android here.
 // This is where the vast majority of your CSS code goes.
 
+* {
+    font-family: "Avenir LT Pro", "AvenirLTPro-Medium", "Avenir";
+}
+
+/* these are the only two styles action-bar accepts */
+.action-bar {
+    background-color: $fk-primary-red;
+    color: white;
+}
+
+.plain {
+    color: $fk-primary-black;
+    font-size: 16;
+}
+
+.bold {
+    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-weight: bold;
+}
+
+h1 {
+    color: $fk-primary-black;
+    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-weight: bold;
+    font-size: 24;
+}
+
+.fk-h2 {
+    color: $fk-primary-black;
+    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-weight: bold;
+    font-size: 22;
+}
+
+.btn-primary {
+    font-size: 18;
+    text-transform: none;
+    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-weight: bold;
+}
+
+.btn-secondary {
+    font-size: 18;
+    text-transform: none;
+    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-weight: bold;
+}
+
+.station-container, .module-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
+.station-name {
+    font-size: 18;
+    color: black;
+}
+.stations-list {font-size: 16;}
+.Readytodeploy {color: green}
+.module-labels {margin-left: 50;}
+.module-name {font-size: 20;}
+.sensor-name {
+    font-size: 18;
+    font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
+}
+.sensor-reading, .deploy {font-size: 22;}
+
+
 //Font icon
 .fa {
    font-family: "FontAwesome";

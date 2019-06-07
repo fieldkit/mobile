@@ -11,29 +11,43 @@
 <script>
     import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
     import { Label } from "tns-core-modules/ui/label/label";
-    import StationsList from "../services/stations-list";
-    const stationsList = new StationsList();
+    import StationDetail from "./StationDetailView";
+    import StationData from "../services/station-data";
+    const stationData = new StationData();
 
     export default {
         data() {
             return {
-                message: "FieldKit Stations"
+                message: "FieldKit Stations",
+                stations: null
             };
         },
         methods: {
             onPageLoaded(args) {
                 this.page = args.object;
-                stationsList.getAll().then(result => {
-                    this.createStationElements(result);
-                }, error => {
-                    // console.log("error getting stations data", error)
+                if(!this.stations) {
+                    stationData.getAll().then(result => {
+                        this.stations = result;
+                        this.createStationElements();
+                    }, error => {
+                        // console.log("error getting stations data", error)
+                    });
+                }
+            },
+
+            goToDetail(event) {
+                this.$navigateTo(StationDetail, {
+                    props: {
+                        // remove the "station-" prefix
+                        stationId: event.object.id.split("station-")[1]
+                    }
                 });
             },
 
-            createStationElements(stations) {
+            createStationElements() {
                 let layout = this.page.getViewById("stations-list");
 
-                if(stations.length == 0) {
+                if(this.stations.length == 0) {
                     let noneLabel = new Label();
                     noneLabel.text = "No stations found.";
                     noneLabel.className = "m-10 p-10 text-center";
@@ -42,35 +56,27 @@
                     return
                 }
 
-                stations.forEach(function(r,i) {
-                    var stationStack = new StackLayout();
+                // define here in order to reference in loop
+                let detailNav = this.goToDetail;
+
+                this.stations.forEach(function(r,i) {
+                    let stationStack = new StackLayout();
+                    stationStack.id = "station-"+r.id;
                     stationStack.orientation = "vertical";
                     stationStack.className = "station-container m-y-5 m-x-15 p-10";
+                    stationStack.on("tap", detailNav)
 
-                    var nameLabel = new Label();
+                    let nameLabel = new Label();
                     nameLabel.text = r.name;
                     nameLabel.className = "station-name";
                     stationStack.addChild(nameLabel);
-                    var statusLabel = new Label();
+                    let statusLabel = new Label();
                     statusLabel.text = r.status;
                     statusLabel.className = "stations-list " + r.status.replace(/ /g, '');
                     stationStack.addChild(statusLabel);
 
                     layout.addChild(stationStack);
                 });
-                // custom styles are not picked up if defined before element added
-                // (but there must be a way?)
-                this.page.addCss(
-                    ".station-container { \
-                        border-radius: 4; \
-                        border-color: gray; \
-                        border-width: 1;}"
-                );
-                this.page.addCss(".station-name {font-size: 18; color: black;}");
-                this.page.addCss(".stations-list {font-size: 16;}");
-                this.page.addCss(".Readytodeploy {color: green}");
-                this.page.addCss(".Deployed {color: black}");
-                this.page.addCss(".Configuresensor {color: gray}");
             }
         }
     };

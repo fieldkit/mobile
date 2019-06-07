@@ -1,11 +1,7 @@
 <template>
-    <Page class="page">
-        <ActionBar class="action-bar">
-            <Label class="action-bar-title" text="FieldKit"></Label>
-        </ActionBar>
-
+    <Page class="page" actionBarHidden="true">
         <StackLayout>
-            <Label class="body m-20" :text="message" textWrap="true"></Label>
+            <Label class="plain m-20 text-center" :text="message" textWrap="true"></Label>
             <Button class="btn btn-primary" :text="_L('viewStations')" @tap="viewStations"></Button>
             <Button class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
         </StackLayout>
