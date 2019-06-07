@@ -35,11 +35,11 @@
                     </StackLayout>
                 </GridLayout>
 
-                <GridLayout class="memory-bar-container" rows="auto" columns="*">
+                <GridLayout class="memory-bar-container" rows="auto, auto" columns="*">
                     <StackLayout row="0" class="memory-bar"></StackLayout>
                     <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
-                    <Label row="1" class="m-t-15" horizontalAlignment="left" text="Available Memory"></Label>
-                    <Label row="1" class="m-t-15" horizontalAlignment="right" :text="station.availableMemory"></Label>
+                    <Label row="1" class="m-t-5" horizontalAlignment="left" text="Available Memory"></Label>
+                    <Label row="1" class="m-t-5" horizontalAlignment="right" :text="station.availableMemory"></Label>
                 </GridLayout>
 
                 <StackLayout id="station-detail"></StackLayout>
@@ -215,13 +215,13 @@
     }
 
     .memory-bar {
-        border-top-color: $fk-gray-lightest;
-        border-top-width: 8;
+        height: 8;
+        background: $fk-gray-light;
         border-radius: 4;
     }
 
     #station-memory-bar {
-        border-top-color: $fk-tertiary-green;
+        background: $fk-tertiary-green;
     }
 
     .footer {
