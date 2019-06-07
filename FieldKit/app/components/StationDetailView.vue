@@ -96,26 +96,33 @@
                 this.page = args.object;
 
                 stationData.getStation(this.stationId)
-                    .then(station => {
-                        this.station = station[0];
-                        stationData.getModules(this.station.modules)
-                            .then(modules => {
-                                this.station.moduleObjects = modules;
-                                let result = this.station.moduleObjects.reduce( (previousPromise, nextModule, i) => {
-                                    return previousPromise.then(prevResult => {
-                                        if(prevResult) {
-                                            this.station.moduleObjects[i-1].sensorObjects = prevResult;
-                                        }
-                                        return stationData.getSensors(nextModule.sensors)
-                                    });
-                                }, Promise.resolve() );
+                    .then(this.getModules)
+                    .then(this.setupModules)
+                    .then(this.createStationElements);
+            },
 
-                                return result.then(lastResult => {
-                                    this.station.moduleObjects[this.station.moduleObjects.length-1].sensorObjects = lastResult;
-                                    this.createStationElements();
-                                });
-                            });
-                    })
+            getModules(station) {
+                this.station = station[0];
+                return stationData.getModules(this.station.modules)
+            },
+
+            linkModulesAndSensors(results) {
+                results.forEach(function(r) {
+                    r.resultPromise.then(sensors => {
+                        r.module.sensorObjects = sensors;
+                    });
+                });
+            },
+
+            getSensors(moduleObject) {
+                let result = stationData.getSensors(moduleObject.sensors);
+                return {resultPromise: result, module: moduleObject};
+            },
+
+            setupModules(modules) {
+                this.station.moduleObjects = modules;
+                return Promise.all(this.station.moduleObjects.map(this.getSensors))
+                    .then(this.linkModulesAndSensors);
             },
 
             goBack() {
