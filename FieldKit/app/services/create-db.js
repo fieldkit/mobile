@@ -32,6 +32,7 @@ export default class CreateDB {
                         "CREATE TABLE IF NOT EXISTS sensors (\
                             id INTEGER PRIMARY KEY AUTOINCREMENT, \
                             name TEXT, \
+                            unit TEXT, \
                             currentReading NUMERIC, \
                             created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                             updated DATETIME DEFAULT CURRENT_TIMESTAMP)")
@@ -66,17 +67,25 @@ export default class CreateDB {
     }
 
     seedSensorsTable() {
-        const sensorTypes = ["pH Sensor", "DO Sensor", "Conductivity Sensor", "Temperature Sensor", "Wind Sensor", "Rain Sensor", "Unconfigured"];
+        const sensorTypes = [
+            {"name": "pH Sensor", "unit" : ""},
+            {"name": "DO Sensor", "unit" : "mg/L"},
+            {"name": "Conductivity Sensor", "unit" : "S/m"},
+            {"name": "Temperature Sensor", "unit" : "°C"},
+            {"name": "Wind Sensor", "unit" : "m/s"},
+            {"name": "Rain Sensor", "unit" : "mm/h"},
+            {"name": "Configure Sensor", "unit" : ""},
+        ];
         let sensors = [];
         sensorTypes.forEach(function(s) {
-            sensors.push(new Sensor(s));
+            sensors.push(new Sensor(s.name, s.unit));
         });
 
         let result = sensors.reduce( (previousPromise, nextSensor, i) => {
             // kludge alert - hard-coding the ids to match sqlite ids
             createdSensors.push({name: nextSensor.name, id: i+1});
             return previousPromise.then(() => {
-                return database.execSQL("INSERT INTO sensors (name, currentReading) VALUES (?, ?)", [nextSensor.name, nextSensor.currentReading]);
+                return database.execSQL("INSERT INTO sensors (name, unit, currentReading) VALUES (?, ?, ?)", [nextSensor.name, nextSensor.unit, nextSensor.currentReading]);
             });
         }, Promise.resolve() );
 
@@ -91,7 +100,7 @@ export default class CreateDB {
             "Water Module 1": ["pH Sensor"],
             "Water Module 2": ["DO Sensor", "Conductivity Sensor"],
             "Weather Module": ["Temperature Sensor", "Wind Sensor", "Rain Sensor"],
-            "Generic Module": ["Unconfigured"]
+            "Generic Module": ["Configure Sensor"]
         };
         let modules = [];
         names.forEach(function(n) {
@@ -156,9 +165,10 @@ export default class CreateDB {
 }
 
 class Sensor {
-    constructor(name) {
+    constructor(name, unit) {
         // id, created_at, and updated_at will be generated
         this.name = name;
+        this.unit = unit;
         this.currentReading = this.generateReading(name);
     }
 

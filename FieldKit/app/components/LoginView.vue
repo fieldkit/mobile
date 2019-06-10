@@ -63,7 +63,7 @@
                                     width="25"
                                     horizontalAlignment="right"
                                     v-show="isLoggingIn"
-                                    src="~/images/email.png"></Image>
+                                    src="~/images/Icon_Email_login.png"></Image>
                             </GridLayout>
                             <StackLayout class="spacer-top" id="email-field-spacer"></StackLayout>
                             <Label
@@ -100,7 +100,7 @@
                                     width="25"
                                     horizontalAlignment="right"
                                     v-show="isLoggingIn"
-                                    src="~/images/lock.png"></Image>
+                                    src="~/images/Icon_Password_login.png"></Image>
                             </GridLayout>
                             <StackLayout class="spacer-top" id="password-field-spacer"></StackLayout>
                             <Label

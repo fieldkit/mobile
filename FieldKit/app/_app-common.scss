@@ -16,36 +16,64 @@
     font-size: 16;
 }
 
+.light {
+    font-family: "Avenir LT Pro", "AvenirLTPro-Book";
+    font-weight: 100;
+}
+
 .bold {
-    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     font-weight: bold;
 }
 
 h1 {
     color: $fk-primary-black;
-    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     font-weight: bold;
     font-size: 24;
 }
 
 .fk-h2 {
     color: $fk-primary-black;
-    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     font-weight: bold;
     font-size: 22;
+}
+
+.title {
+    color: $fk-primary-black;
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
+    font-weight: bold;
+    font-size: 16;
+}
+
+.size-10 {
+    font-size: 10;
+}
+.size-12 {
+    font-size: 12;
+}
+.size-14 {
+    font-size: 14;
+}
+.size-16 {
+    font-size: 16;
+}
+.size-24 {
+    font-size: 24;
 }
 
 .btn-primary {
     font-size: 18;
     text-transform: none;
-    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     font-weight: bold;
 }
 
 .btn-secondary {
     font-size: 18;
     text-transform: none;
-    font-family: "AvenirLTPro-Heavy", "Avenir LT Pro";
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     font-weight: bold;
 }
 
@@ -61,13 +89,9 @@ h1 {
 .stations-list {font-size: 16;}
 .Readytodeploy {color: green}
 .module-labels {margin-left: 50;}
-.module-name {font-size: 20;}
 .sensor-name {
-    font-size: 18;
     font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
 }
-.sensor-reading, .deploy {font-size: 22;}
-
 
 //Font icon
 .fa {
