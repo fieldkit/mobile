@@ -1,23 +1,27 @@
-import Sqlite from '../wrappers/sqlite';
-const sqlite = new Sqlite();
+import CreateDB from './create-db';
 
 export default class StationData {
     constructor() {
+        this.databasePromise = new CreateDB().getDatabase();
+    }
+
+    getDatabase() {
+        return this.databasePromise;
     }
 
     getAll() {
-        return sqlite.getRecords("FieldKitStations", "SELECT * FROM stations");
+        return this.getDatabase().then(db => db.query("SELECT * FROM stations"));
     }
 
     getStation(id) {
-        return sqlite.getRecords("FieldKitStations", "SELECT * FROM stations WHERE id="+id);
+        return this.getDatabase().then(db => db.query("SELECT * FROM stations WHERE id=" + id));
     }
 
     getModules(ids) {
-        return sqlite.getRecords("FieldKitStations", "SELECT * FROM modules WHERE id IN ("+ids+")");
+        return this.getDatabase().then(db => db.query("SELECT * FROM modules WHERE id IN (" + ids + ")"));
     }
 
     getSensors(ids) {
-        return sqlite.getRecords("FieldKitStations", "SELECT * FROM sensors WHERE id IN ("+ids+")");
+        return this.getDatabase().then(db => db.query("SELECT * FROM sensors WHERE id IN (" + ids + ")"));
     }
 }

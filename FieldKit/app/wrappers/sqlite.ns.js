@@ -1,37 +1,34 @@
-import sqlite from 'nativescript-sqlite';
+import Sqlite from 'nativescript-sqlite';
 
-export default class SqliteNativeScript {
-    constructor() {
+class DatabaseWrapper {
+    constructor(db) {
+        this.db = db;
+        this.db.resultType(Sqlite.RESULTSASOBJECT);
     }
 
-    deleteDatabase(name) {
-        sqlite.deleteDatabase(name);
-    }
-
-    exists(name) {
-        return sqlite.exists(name);
-    }
-
-    getRecords(name, sql) {
-        return new sqlite(name).then(db => {
-            db.resultType(sqlite.RESULTSASOBJECT);
-            return db.all(sql)
-                .then(resultSet => {
-                    return resultSet;
-                }, error => {return [];})
-        }, error => {
-            reject(error);
+    query(sql, params) {
+        return this.db.all(sql, params).then(rows => {
+            return rows;
         });
     }
 
+    execute(sql, params) {
+        return this.db.execSQL(sql, params).then(r => {
+            return this;
+        });
+    }
+}
+
+export default class SqliteNativeScript {
     open(name) {
-        return new Promise(function(resolve, reject) {
-            new sqlite(name).then(db => {
-                resolve(db);
-            }, error => {
-                reject(error);
+        return new Promise((resolve, reject) => {
+            new Sqlite(name, (err, db) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(new DatabaseWrapper(db));
             });
         });
     }
-
 }

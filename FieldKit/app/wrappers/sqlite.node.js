@@ -1,32 +1,45 @@
-import sqlite from 'sqlite3';
+import sqlite3 from 'sqlite3';
 
-export default class SqliteNodeJs {
-    constructor() {
+class DatabaseWrapper {
+    constructor(db) {
+        this.db = db;
     }
 
-    exists() {
-        // sqlite OPEN_CREATE makes this unnecessary
-        return true;
-    }
-
-    getRecords(name, sql) {
-       var db = new sqlite.Database("TEST_DB", sqlite.OPEN_READONLY, (error) => {
-            db.all("SELECT * FROM lorem", (err, rows) => {
-                // this fails because it needs a callback function
-                return rows
+    query(sql, params) {
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(rows);
             });
         });
     }
 
-    open(name) {
-        return new Promise(function(resolve, reject) {
-            var db = new sqlite.Database(name, (error) => {
-                if(error) {reject(error);}
-                resolve(db);
+    execute(sql, params) {
+        return new Promise((resolve, reject) => {
+            this.db.run(sql, params, (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(this);
             });
-        })
+        });
     }
 }
 
-
-
+export default class SqliteNodeJs {
+    open(name) {
+        return new Promise((resolve, reject) => {
+            const db = new sqlite3.Database(name, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(new DatabaseWrapper(db));
+            });
+        });
+    }
+}

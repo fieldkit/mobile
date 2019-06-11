@@ -1,18 +1,19 @@
 import StationData from "services/station-data";
-const stationData = new StationData();
 
 describe("StationData", () => {
+    let stationData;
 
     beforeAll(() => {
-        // seed the database
+        stationData = new StationData();
     });
 
-    test("should check for FieldKitStations database", () => {
-        expect(stationData.checkForDB()).toEqual(true);
+    test("getDatabase should create and return a new database", () => {
+        return expect(stationData.getDatabase()).resolves.toBeDefined();
     });
 
-    test("should get all stations", () => {
-        console.log(stationData.getAll());
+    test("getAll should get all stations", async () => {
+        const data = await stationData.getAll();
+        expect(data).toHaveLength(5);
     });
 
 });

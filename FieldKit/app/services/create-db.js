@@ -1,59 +1,62 @@
 import Sqlite from '../wrappers/sqlite';
+
 const sqlite = new Sqlite();
 
-let createdSensors = [];
-let createdModules = [];
-let database = "";
+let databasePromise;
 
 export default class CreateDB {
     constructor() {
-        if(!this.checkForDB()) {
-            this.createSensorsTable()
-                .then(this.seedSensorsTable)
-                .then(this.createModulesTable)
-                .then(this.seedModulesTable)
-                .then(this.createStationsTable)
-                .then(this.seedStationsTable);
-        }
+        this.createdSensors = [];
+        this.createdModules = [];
+        this.databasePromise = databasePromise = this.openDatabase()
+            .then(this.createSensorsTable.bind(this))
+            .then(this.seedSensorsTable.bind(this))
+            .then(this.createModulesTable.bind(this))
+            .then(this.seedModulesTable.bind(this))
+            .then(this.createStationsTable.bind(this))
+            .then(this.seedStationsTable.bind(this));
     }
 
-    checkForDB() {
-        sqlite.deleteDatabase("FieldKitStations");
-        return sqlite.exists("FieldKitStations");
+    getDatabaseName() {
+        if (TNS_ENV === 'test') {
+            return ":memory:";
+        }
+        return "fieldkit.sqlite3";
+    }
+
+    openDatabase() {
+        return sqlite.open(this.getDatabaseName()).then(db => {
+            return this.database = db;
+        });
+    }
+
+    getDatabase() {
+        return databasePromise;
     }
 
     createSensorsTable() {
-        return sqlite.open("FieldKitStations")
-            .then(db => {
-                if(db.isOpen()) {
-                    database = db;
-                    // new db, create table
-                    return db.execSQL(
-                        "CREATE TABLE IF NOT EXISTS sensors (\
-                            id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                            name TEXT, \
-                            unit TEXT, \
-                            currentReading NUMERIC, \
-                            created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                            updated DATETIME DEFAULT CURRENT_TIMESTAMP)")
-                }
-            }, error => {
-                // console.log("Failed to open database", error);
-            });
+        return this.database.execute(
+            "CREATE TABLE IF NOT EXISTS sensors (\
+                id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                name TEXT, \
+                unit TEXT, \
+                currentReading NUMERIC, \
+                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP)");
     }
 
     createModulesTable() {
-        return database.execSQL(
+        return this.database.execute(
             "CREATE TABLE IF NOT EXISTS modules (\
                 id INTEGER PRIMARY KEY AUTOINCREMENT, \
                 name TEXT, \
                 sensors TEXT, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP)")
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP)");
     }
 
     createStationsTable() {
-        return database.execSQL(
+        return this.database.execute(
             "CREATE TABLE IF NOT EXISTS stations (\
                 id INTEGER PRIMARY KEY AUTOINCREMENT, \
                 name TEXT, \
@@ -63,7 +66,7 @@ export default class CreateDB {
                 availableMemory NUMERIC, \
                 modules TEXT, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP)")
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP)");
     }
 
     seedSensorsTable() {
@@ -83,15 +86,13 @@ export default class CreateDB {
 
         let result = sensors.reduce( (previousPromise, nextSensor, i) => {
             // kludge alert - hard-coding the ids to match sqlite ids
-            createdSensors.push({name: nextSensor.name, id: i+1});
+            this.createdSensors.push({name: nextSensor.name, id: i+1});
             return previousPromise.then(() => {
-                return database.execSQL("INSERT INTO sensors (name, unit, currentReading) VALUES (?, ?, ?)", [nextSensor.name, nextSensor.unit, nextSensor.currentReading]);
+                return this.database.execute("INSERT INTO sensors (name, unit, currentReading) VALUES (?, ?, ?)", [nextSensor.name, nextSensor.unit, nextSensor.currentReading]);
             });
-        }, Promise.resolve() );
+        }, Promise.resolve());
 
-        return result.then(e => {
-          return Promise.resolve();
-        });
+        return result;
     }
 
     seedModulesTable() {
@@ -103,10 +104,10 @@ export default class CreateDB {
             "Generic Module": ["Configure Sensor"]
         };
         let modules = [];
-        names.forEach(function(n) {
+        names.forEach((n) => {
             let mod = new Module(n);
-            moduleSensors[n].forEach(function(sensorName) {
-                let sensor = createdSensors.find(function(c) {
+            moduleSensors[n].forEach((sensorName) => {
+                let sensor = this.createdSensors.find(function(c) {
                     return c.name == sensorName;
                 });
                 mod.sensors += mod.sensors == "" ? sensor.id : ","+sensor.id;
@@ -116,51 +117,47 @@ export default class CreateDB {
 
         let result = modules.reduce( (previousPromise, nextModule, i) => {
             // kludge alert - hard-coding the ids to match sqlite ids
-            createdModules.push({name: nextModule.name, id: i+1});
+            this.createdModules.push({name: nextModule.name, id: i+1});
             return previousPromise.then(() => {
-                return database.execSQL("INSERT INTO modules (name, sensors) VALUES (?, ?)", [nextModule.name, nextModule.sensors]);
+                return this.database.execute("INSERT INTO modules (name, sensors) VALUES (?, ?)", [nextModule.name, nextModule.sensors]);
             });
         }, Promise.resolve() );
 
-        return result.then(e => {
-          return Promise.resolve();
-        });
+        return result;
     }
 
     seedStationsTable() {
         const names = ["Drammen Station", "Eggjareid Station", "Evanger Station", "Finse Station", null];
         let stations = [];
-        names.forEach(function(n,i) {
+        names.forEach((n,i) => {
             let station = new Station(n);
             if(i == 0) {
                 station.status = "Ready to deploy";
                 // give the first station all the modules
-                createdModules.forEach(function(m) {
+                this.createdModules.forEach(function(m) {
                     station.modules += station.modules == "" ? m.id : ","+m.id;
-                })
+                });
             } else {
                 station.status = "Deployed";
                 // other stations get generic module
-                let mod = createdModules.find(function(m) {
+                let mod = this.createdModules.find(function(m) {
                     return m.name == "Generic Module";
                 });
                 station.modules = mod.id;
             }
             stations.push(station);
-        })
+        });
 
         let result = stations.reduce( (previousPromise, nextStn) => {
             return previousPromise.then(() => {
-                return database.execSQL(
+                return this.database.execute(
                     "INSERT INTO stations (name, status, batteryLevel, connected, availableMemory, modules) \
                     VALUES (?, ?, ?, ?, ?, ?)",
                     [nextStn.name, nextStn.status, nextStn.batteryLevel, nextStn.connected, nextStn.availableMemory, nextStn.modules]);
             });
         }, Promise.resolve() );
 
-        result.then(e => {
-          database.close();
-        });
+        return result;
     }
 }
 
@@ -219,4 +216,3 @@ class Station {
         this.modules = ""; // comma-delimited list of module ids
     }
 }
-
