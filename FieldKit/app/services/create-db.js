@@ -9,6 +9,7 @@ export default class CreateDB {
         this.createdSensors = [];
         this.createdModules = [];
         this.databasePromise = databasePromise = this.openDatabase()
+            .then(this.dropTables.bind(this))
             .then(this.createSensorsTable.bind(this))
             .then(this.seedSensorsTable.bind(this))
             .then(this.createModulesTable.bind(this))
@@ -32,6 +33,16 @@ export default class CreateDB {
 
     getDatabase() {
         return databasePromise;
+    }
+
+    dropTables() {
+        return Promise.resolve().then(() => {
+            return this.database.execute("DROP TABLE IF EXISTS modules");
+        }).then(() => {
+            return this.database.execute("DROP TABLE IF EXISTS sensors");
+        }).then(() => {
+            return this.database.execute("DROP TABLE IF EXISTS stations");
+        });
     }
 
     createSensorsTable() {
