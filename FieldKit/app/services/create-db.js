@@ -8,14 +8,17 @@ export default class CreateDB {
     constructor() {
         this.createdSensors = [];
         this.createdModules = [];
-        this.databasePromise = databasePromise = this.openDatabase()
-            .then(this.dropTables.bind(this))
-            .then(this.createSensorsTable.bind(this))
-            .then(this.seedSensorsTable.bind(this))
-            .then(this.createModulesTable.bind(this))
-            .then(this.seedModulesTable.bind(this))
-            .then(this.createStationsTable.bind(this))
-            .then(this.seedStationsTable.bind(this));
+        if (databasePromise == null) {
+            databasePromise = this.openDatabase()
+                .then(this.dropTables.bind(this))
+                .then(this.createSensorsTable.bind(this))
+                .then(this.seedSensorsTable.bind(this))
+                .then(this.createModulesTable.bind(this))
+                .then(this.seedModulesTable.bind(this))
+                .then(this.createStationsTable.bind(this))
+                .then(this.seedStationsTable.bind(this));
+        }
+        this.databasePromise = databasePromise;
     }
 
     getDatabaseName() {
