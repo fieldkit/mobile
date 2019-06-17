@@ -12,6 +12,7 @@ export default class QueryDevice {
         const message = WireMessageQuery.create({type:QueryType.values.QUERY_STATUS});
         return this.deviceQuery("https://localhost:2382", message).then(r => {
             console.log("reply", r)
+            return r;
         }, e=> {
             console.log("error", e)
         });
@@ -21,6 +22,7 @@ export default class QueryDevice {
         const message = WireMessageQuery.create({type: QueryType.values.QUERY_CAPABILITIES});
         return this.deviceQuery("https://localhost:2382", message).then(r => {
             console.log("reply", r)
+            return r;
         }, e=> {
             console.log("error", e)
         });
@@ -33,7 +35,7 @@ export default class QueryDevice {
      */
     deviceQuery(url, message) {
         const binaryQuery = WireMessageQuery.encodeDelimited(message).finish();
-        const requestBody = new Buffer(binaryQuery).toString('hex');
+        const requestBody = new Buffer.from(binaryQuery).toString('hex');
         return axios({
             method: 'POST',
             url: url,
