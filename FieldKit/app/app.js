@@ -7,14 +7,22 @@ import routes from "./routes";
 import CreateDB from "./services/create-db";
 import UserAuth from "./services/user-auth";
 import QueryDevice from "./services/query-device";
+import DiscoverStation from "./services/discover-station";
 import Vue from "nativescript-vue";
 
 // temp create and seed db
 const createDB = new CreateDB();
 
 // temp, just checking
-const queryDevice = new QueryDevice();
-queryDevice.queryStatus();
+// const queryDevice = new QueryDevice();
+// queryDevice.queryStatus();
+
+// temp, just checking
+const discoverStation = new DiscoverStation();
+setTimeout(() => {
+    // Needs 400 ms, minimum. (why?)
+    discoverStation.startServiceDiscovery();
+}, 2000);
 
 // Pass i18n's global variable to Vue
 Vue.prototype._L = _L;

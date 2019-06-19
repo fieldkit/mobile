@@ -1,10 +1,10 @@
 {
   "nativescript": {
     "id": "org.nativescript.fieldkit",
-    "tns-android": {
+    "tns-ios": {
       "version": "5.3.1"
     },
-    "tns-ios": {
+    "tns-android": {
       "version": "5.3.1"
     }
   },
@@ -18,8 +18,9 @@
     "nativescript-sqlite": "^2.3.3",
     "nativescript-theme-core": "~1.0.4",
     "nativescript-vue": "~2.2.0",
+    "nativescript-zeroconf": "^1.0.1",
     "protobufjs": "^6.8.8",
-    "tns-core-modules": "^5.4.0",
+    "tns-core-modules": "^5.4.2",
     "tns-i18n": "0.0.10",
     "typescript": "^3.4.5"
   },
