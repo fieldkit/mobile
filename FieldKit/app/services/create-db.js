@@ -16,7 +16,8 @@ export default class CreateDB {
                 .then(this.createModulesTable.bind(this))
                 .then(this.seedModulesTable.bind(this))
                 .then(this.createStationsTable.bind(this))
-                .then(this.seedStationsTable.bind(this));
+                .then(this.seedStationsTable.bind(this))
+                .then(this.createConfigLogTable.bind(this));
         }
         this.databasePromise = databasePromise;
     }
@@ -79,6 +80,19 @@ export default class CreateDB {
                 connected TEXT, \
                 availableMemory NUMERIC, \
                 modules TEXT, \
+                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP)");
+    }
+
+    createConfigLogTable() {
+        return this.database.execute(
+            "CREATE TABLE IF NOT EXISTS config (\
+                id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                station_id INTEGER, \
+                before TEXT, \
+                after TEXT, \
+                affected_field TEXT, \
+                author TEXT, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)");
     }

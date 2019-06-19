@@ -8,19 +8,83 @@
                         class="m-10"
                         width="21"
                         horizontalAlignment="left"
+                        v-show="!isEditingName"
                         @tap="goBack"
                         src="~/images/Icon_backarrow.png"></Image>
+                    <Image
+                        row="0"
+                        class="m-10"
+                        width="17"
+                        horizontalAlignment="left"
+                        v-show="isEditingName"
+                        @tap="cancelRename"
+                        src="~/images/Icon_Close.png"></Image>
                     <Label
                         row="0"
                         class="title m-y-20 text-center"
                         :text="station.name"
+                        v-show="!isEditingName"
                         textWrap="true"></Label>
+                    <!-- Edit name form -->
+                    <StackLayout row="0" id="station-name-field" class="input-field m-y-20 text-left">
+                        <FlexboxLayout>
+                            <TextField
+                                class="input"
+                                :isEnabled="true"
+                                keyboardType="name"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                horizontalAlignment="left"
+                                v-model="station.name"
+                                v-show="isEditingName"
+                                returnKeyType="next"
+                                @blur="checkName"></TextField>
+                            <Label
+                                class="size-10 char-count"
+                                horizontalAlignment="right"
+                                :text="station.name.length"
+                                v-show="isEditingName"></Label>
+                        </FlexboxLayout>
+                        <StackLayout class="spacer-top" id="name-field-spacer"></StackLayout>
+                        <Label
+                            class="validation-error"
+                            id="no-name"
+                            horizontalAlignment="left"
+                            text="Name is a required field."
+                            textWrap="true"
+                            :visibility="noName ? 'visible' : 'collapsed'"></Label>
+                        <Label
+                            class="validation-error"
+                            id="name-too-long"
+                            horizontalAlignment="left"
+                            text="Name has a 40-character maximum."
+                            textWrap="true"
+                            :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
+                        <Label
+                            class="validation-error"
+                            id="name-not-printable"
+                            horizontalAlignment="left"
+                            text="Name must be printable."
+                            textWrap="true"
+                            :visibility="nameNotPrintable ? 'visible' : 'collapsed'"></Label>
+                    </StackLayout>
+                    <!-- end edit name form -->
                     <Image
                         row="0"
                         class="m-10"
-                        width="16"
+                        width="14"
                         horizontalAlignment="right"
-                        src="~/images/Icon_menu.png"></Image>
+                        v-show="!isEditingName"
+                        @tap="toggleRename"
+                        src="~/images/Icon_Edit.png"></Image>
+                    <Image
+                        row="0"
+                        class="m-10"
+                        width="17"
+                        horizontalAlignment="right"
+                        v-show="isEditingName"
+                        @tap="saveStationName"
+                        src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
                 <GridLayout rows="auto" columns="*">
@@ -84,18 +148,23 @@
     import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
     import { Label } from "tns-core-modules/ui/label/label";
     import { Image } from "tns-core-modules/ui/image";
+    import StationsView from "./StationsView";
     import StationData from "../services/station-data";
     const stationData = new StationData();
 
     export default {
         data() {
             return {
+                isEditingName: false,
+                noName: false,
+                nameTooLong: false,
+                nameNotPrintable: false,
                 station: {
-                    name: "Station Details",
+                    name: "FieldKit Station",
                     connected: "false",
                     battery: "0",
                     availableMemory: "0",
-
+                    origName: "FieldKit Station"
                 }
             };
         },
@@ -103,16 +172,56 @@
         methods: {
             goBack() {
                 clearInterval(this.intervalTimer);
-                this.page.frame.goBack();
+                this.$navigateTo(StationsView);
             },
 
             onPageLoaded(args) {
                 this.page = args.object;
 
+                this.$userAuth.getCurrentUser()
+                    .then(response => {
+                        this.user = response;
+                    });
+
                 stationData.getStation(this.stationId)
                     .then(this.getModules)
                     .then(this.setupModules)
                     .then(this.createStationElements);
+            },
+
+            toggleRename() {
+                this.isEditingName = true;
+            },
+
+            checkName() {
+                this.noName = !this.station.name || this.station.name.length == 0;
+                if(this.noName) {return false}
+                let matches = this.station.name.match(/^[ \w~!@#$%^&*()-.]*$/);
+                this.nameNotPrintable = !matches || matches.length == 0;
+                this.nameTooLong = this.station.name.length > 40;
+                return !this.nameTooLong && !this.nameNotPrintable;
+            },
+
+            saveStationName() {
+                let valid = this.checkName();
+                if(valid) {
+                    this.isEditingName = false;
+                    stationData.setStationName(this.station);
+                    let configChange = {
+                        station_id: this.station.id,
+                        before: this.station.origName,
+                        after: this.station.name,
+                        affected_field: "name",
+                        author: this.user.name
+                    };
+                    stationData.recordConfigChange(configChange);
+                    this.station.origName = this.station.name;
+                }
+            },
+
+            cancelRename() {
+                this.isEditingName = false;
+                this.station.name = this.station.origName;
             },
 
             getModules(station) {
@@ -140,6 +249,7 @@
             },
 
             createStationElements() {
+                this.station.origName = this.station.name;
                 this.station.connected = this.station.connected != "false";
                 this.station.batteryLevel+="%";
                 this.station.occupiedMemory = 100 - this.station.availableMemory;
@@ -275,6 +385,37 @@
     // End custom common variables
 
     // Custom styles
+    #station-name-field {
+        width: 225;
+        font-size: 16;
+        color: $fk-primary-black;
+    }
+
+    #station-name-field .input {
+        width: 195;
+        border-bottom-color: $fk-primary-black;
+        border-bottom-width: 1;
+        padding-top: 3;
+        padding-bottom: 2;
+        padding-left: 0;
+        padding-right: 0;
+        margin: 0;
+    }
+
+    #station-name-field .char-count {
+        width: 25;
+        margin-top: 15;
+        margin-left: 5;
+    }
+
+    .validation-error {
+        width: 195;
+        font-size: 12;
+        color: $fk-tertiary-red;
+        border-top-color: $fk-tertiary-red;
+        border-top-width: 2;
+    }
+
     .col {
         width: 50%;
         border-width: 1;

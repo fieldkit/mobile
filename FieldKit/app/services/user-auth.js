@@ -5,6 +5,31 @@ let accessToken = null;
 
 export default class UserAuth {
 
+    getCurrentUser() {
+        return axios({
+                method: 'GET',
+                url: Config.baseUri+"/user",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": accessToken,
+                },
+            })
+            .then(handleResponse)
+            .catch(handleError)
+
+        function handleResponse(response){
+            if(response.status == "200") {
+                return response.data;
+            } else {
+                throw new Error(response);
+            }
+        }
+
+        function handleError(error){
+            throw error;
+        }
+    }
+
     isLoggedIn() {
         return accessToken;
     }
