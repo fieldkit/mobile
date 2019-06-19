@@ -21,7 +21,7 @@
                         src="~/images/Icon_Close.png"></Image>
                     <Label
                         row="0"
-                        class="title m-y-20 text-center"
+                        class="title m-y-20 text-center station-name"
                         :text="station.name"
                         v-show="!isEditingName"
                         textWrap="true"></Label>
@@ -194,6 +194,11 @@
             },
 
             checkName() {
+                // reset these first
+                this.noName = false;
+                this.nameNotPrintable = false;
+                this.nameTooLong = false;
+                // then check
                 this.noName = !this.station.name || this.station.name.length == 0;
                 if(this.noName) {return false}
                 let matches = this.station.name.match(/^[ \w~!@#$%^&*()-.]*$/);
@@ -221,6 +226,9 @@
 
             cancelRename() {
                 this.isEditingName = false;
+                this.noName = false;
+                this.nameNotPrintable = false;
+                this.nameTooLong = false;
                 this.station.name = this.station.origName;
             },
 
@@ -406,6 +414,10 @@
         width: 25;
         margin-top: 15;
         margin-left: 5;
+    }
+
+    .station-name {
+        width: 195;
     }
 
     .validation-error {
