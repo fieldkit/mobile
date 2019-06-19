@@ -11,7 +11,7 @@ afterEach(() => {
   axios.mockReset();
 });
 
-describe("query", () => {
+describe("QueryDevice", () => {
     it("should retrieve a device status", () => {
         const queryDevice = new QueryDevice();
         const binaryResponse = WireMessageReply.encodeDelimited({errors: [], type: 15, status: {}}).finish();
