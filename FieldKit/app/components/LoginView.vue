@@ -9,7 +9,7 @@
                             <TextField
                                 id="name-field"
                                 class="input"
-                                hint="Name"
+                                :hint="_L('name')"
                                 horizontalAlignment="left"
                                 :isEnabled="!processing"
                                 keyboardType="name"
@@ -24,19 +24,19 @@
                             <Label
                                 class="validation-error"
                                 id="no-name"
-                                text="Name is a required field."
+                                :text="_L('nameRequired')"
                                 textWrap="true"
                                 :visibility="noName ? 'visible' : 'collapsed'"></Label>
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
-                                text="Name must be less than 256 letters."
+                                :text="_L('nameOver255')"
                                 textWrap="true"
                                 :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
                             <Label
                                 class="validation-error"
                                 id="name-has-space"
-                                text="Name must not contain spaces."
+                                :text="_L('nameNoSpaces')"
                                 textWrap="true"
                                 :visibility="nameHasSpace ? 'visible' : 'collapsed'"></Label>
                         </StackLayout>
@@ -47,7 +47,7 @@
                                     row="0"
                                     id="email-field"
                                     class="input"
-                                    hint="Email"
+                                    :hint="_L('email')"
                                     horizontalAlignment="left"
                                     :isEnabled="!processing"
                                     keyboardType="email"
@@ -69,13 +69,13 @@
                             <Label
                                 class="validation-error"
                                 id="no-email"
-                                text="Email is a required field."
+                                :text="_L('emailRequired')"
                                 textWrap="true"
                                 :visibility="noEmail ? 'visible' : 'collapsed'"></Label>
                             <Label
                                 class="validation-error"
                                 id="email-not-valid"
-                                text="Must be a valid email address."
+                                :text="_L('emailNotValid')"
                                 textWrap="true"
                                 :visibility="emailNotValid ? 'visible' : 'collapsed'"></Label>
                         </StackLayout>
@@ -85,7 +85,7 @@
                                 <TextField
                                     id="password-field"
                                     class="input"
-                                    hint="Password"
+                                    :hint="_L('password')"
                                     secure="true"
                                     ref="password"
                                     horizontalAlignment="left"
@@ -106,13 +106,13 @@
                             <Label
                                 class="validation-error"
                                 id="no-password"
-                                text="Password is a required field."
+                                :text="_L('passwordRequired')"
                                 textWrap="true"
                                 :visibility="noPassword ? 'visible' : 'collapsed'"></Label>
                             <Label
                                 class="validation-error"
                                 id="password-too-short"
-                                text="Password must be at least 10 characters."
+                                :text="_L('passwordTooShort')"
                                 textWrap="true"
                                 :visibility="passwordTooShort ? 'visible' : 'collapsed'"></Label>
                             <Label
@@ -127,7 +127,7 @@
                             <TextField
                                 id="confirm-password-field"
                                 class="input"
-                                hint="Confirm password"
+                                :hint="_L('confirmPassword')"
                                 secure="true"
                                 ref="confirmPassword"
                                 horizontalAlignment="left"
@@ -397,5 +397,6 @@
         color: $fk-tertiary-red;
         border-top-color: $fk-tertiary-red;
         border-top-width: 2;
+        padding-top: 5;
     }
 </style>

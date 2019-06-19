@@ -50,21 +50,21 @@
                             class="validation-error"
                             id="no-name"
                             horizontalAlignment="left"
-                            text="Name is a required field."
+                            :text="_L('nameRequired')"
                             textWrap="true"
                             :visibility="noName ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="name-too-long"
                             horizontalAlignment="left"
-                            text="Name has a 40-character maximum."
+                            :text="_L('nameOver40')"
                             textWrap="true"
                             :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="name-not-printable"
                             horizontalAlignment="left"
-                            text="Name must be printable."
+                            :text="_L('nameNotPrintable')"
                             textWrap="true"
                             :visibility="nameNotPrintable ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
@@ -92,7 +92,7 @@
                             row="0"
                             class="col left-col"
                             horizontalAlignment="left">
-                            <Label class="text-center m-y-5 size-14" text="Connected"></Label>
+                            <Label class="text-center m-y-5 size-14" :text="_L('connected')"></Label>
                             <Image width="25" v-show="station.connected" src="~/images/Icon_Connected.png"></Image>
                             <Label class="text-center red" v-show="!station.connected">✘</Label>
                         </StackLayout>
@@ -100,7 +100,7 @@
                             row="0"
                             class="col right-col"
                             horizontalAlignment="right">
-                            <Label class="text-center m-y-5 size-14" text="Battery"></Label>
+                            <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
                             <FlexboxLayout justifyContent="center">
                                 <Label class="m-r-5 size-12" :text="station.batteryLevel"></Label>
                                 <Image width="25" src="~/images/Icon_Battery.png"></Image>
@@ -111,7 +111,7 @@
                     <GridLayout class="memory-bar-container" rows="auto, auto" columns="*">
                         <StackLayout row="0" class="memory-bar"></StackLayout>
                         <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
-                        <Label row="1" class="m-t-5 size-12" horizontalAlignment="left" text="Available Memory"></Label>
+                        <Label row="1" class="m-t-5 size-12" horizontalAlignment="left" :text="_L('availableMemory')"></Label>
                         <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="station.availableMemory"></Label>
                     </GridLayout>
 
@@ -120,21 +120,21 @@
                     <StackLayout class="module-container m-10 p-10">
                         <Label
                             :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
-                            :text="station.status == 'Ready to deploy' ? 'Deploy' : 'Deployed 01/01/19'"></Label>
+                            :text="station.status == 'Ready to deploy' ? _L('deploy') : _L('deployed')+' 01/01/19'"></Label>
                     </StackLayout>
 
                     <FlexboxLayout justifyContent="space-between" class="size-12 p-x-30 footer">
                         <StackLayout>
                             <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
-                            <Label class="bold">Station</Label>
+                            <Label class="bold m-t-2" :text="_L('station')"></Label>
                         </StackLayout>
                         <StackLayout>
                             <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
-                            <Label class="light">Data</Label>
+                            <Label class="light m-t-2" :text="_L('data')"></Label>
                         </StackLayout>
                         <StackLayout>
                             <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
-                            <Label class="light">Settings</Label>
+                            <Label class="light m-t-2" :text="_L('settings')"></Label>
                         </StackLayout>
                     </FlexboxLayout>
                 </StackLayout> <!-- end fade-container -->
@@ -202,7 +202,7 @@
                 // then check
                 this.noName = !this.station.name || this.station.name.length == 0;
                 if(this.noName) {return false}
-                let matches = this.station.name.match(/^[ \w~!@#$%^&*()-.]*$/);
+                let matches = this.station.name.match(/^[ \w~!@#$%^&*()-.']*$/);
                 this.nameNotPrintable = !matches || matches.length == 0;
                 this.nameTooLong = this.station.name.length > 40;
                 return !this.nameTooLong && !this.nameNotPrintable;
@@ -427,6 +427,7 @@
         color: $fk-tertiary-red;
         border-top-color: $fk-tertiary-red;
         border-top-width: 2;
+        padding-top: 5;
     }
 
     #fade-container.faded {
