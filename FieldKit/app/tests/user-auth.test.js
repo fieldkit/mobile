@@ -15,7 +15,7 @@ test("should not have a user logged in by default", () => {
 test("should log user in", () => {
     const accessToken = "Bearer 34234324234";
     const user = {name: "realuser", email: "realuser@user.com", password: "realuserspassword"};
-    const mockResponse = {status: "204", headers: {Authorization: accessToken}};
+    const mockResponse = {status: "204", headers: {authorization: accessToken}};
     axios.mockImplementation(() => Promise.resolve(mockResponse));
     return userAuth.login(user).then(resp => expect(userAuth.isLoggedIn()).toEqual(accessToken));
 });

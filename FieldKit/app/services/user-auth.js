@@ -25,7 +25,7 @@ export default class UserAuth {
         function handleResponse(response){
             if(response.status == "204") {
                 // success
-                accessToken = response.headers.Authorization;
+                accessToken = response.headers.authorization ? response.headers.authorization : response.headers.Authorization;
                 return
             } else {
                 throw new Error("Log in failed")
