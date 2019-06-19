@@ -86,57 +86,58 @@
                         @tap="saveStationName"
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
+                <StackLayout id="fade-container" :class="isEditingName ? 'faded' : ''">
+                    <GridLayout rows="auto" columns="*">
+                        <StackLayout
+                            row="0"
+                            class="col left-col"
+                            horizontalAlignment="left">
+                            <Label class="text-center m-y-5 size-14" text="Connected"></Label>
+                            <Image width="25" v-show="station.connected" src="~/images/Icon_Connected.png"></Image>
+                            <Label class="text-center red" v-show="!station.connected">✘</Label>
+                        </StackLayout>
+                        <StackLayout
+                            row="0"
+                            class="col right-col"
+                            horizontalAlignment="right">
+                            <Label class="text-center m-y-5 size-14" text="Battery"></Label>
+                            <FlexboxLayout justifyContent="center">
+                                <Label class="m-r-5 size-12" :text="station.batteryLevel"></Label>
+                                <Image width="25" src="~/images/Icon_Battery.png"></Image>
+                            </FlexboxLayout>
+                        </StackLayout>
+                    </GridLayout>
 
-                <GridLayout rows="auto" columns="*">
-                    <StackLayout
-                        row="0"
-                        class="col left-col"
-                        horizontalAlignment="left">
-                        <Label class="text-center m-y-5 size-14" text="Connected"></Label>
-                        <Image width="25" v-show="station.connected" src="~/images/Icon_Connected.png"></Image>
-                        <Label class="text-center red" v-show="!station.connected">✘</Label>
-                    </StackLayout>
-                    <StackLayout
-                        row="0"
-                        class="col right-col"
-                        horizontalAlignment="right">
-                        <Label class="text-center m-y-5 size-14" text="Battery"></Label>
-                        <FlexboxLayout justifyContent="center">
-                            <Label class="m-r-5 size-12" :text="station.batteryLevel"></Label>
-                            <Image width="25" src="~/images/Icon_Battery.png"></Image>
-                        </FlexboxLayout>
-                    </StackLayout>
-                </GridLayout>
+                    <GridLayout class="memory-bar-container" rows="auto, auto" columns="*">
+                        <StackLayout row="0" class="memory-bar"></StackLayout>
+                        <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
+                        <Label row="1" class="m-t-5 size-12" horizontalAlignment="left" text="Available Memory"></Label>
+                        <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="station.availableMemory"></Label>
+                    </GridLayout>
 
-                <GridLayout class="memory-bar-container" rows="auto, auto" columns="*">
-                    <StackLayout row="0" class="memory-bar"></StackLayout>
-                    <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
-                    <Label row="1" class="m-t-5 size-12" horizontalAlignment="left" text="Available Memory"></Label>
-                    <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="station.availableMemory"></Label>
-                </GridLayout>
+                    <StackLayout id="station-detail"></StackLayout>
 
-                <StackLayout id="station-detail"></StackLayout>
+                    <StackLayout class="module-container m-10 p-10">
+                        <Label
+                            :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
+                            :text="station.status == 'Ready to deploy' ? 'Deploy' : 'Deployed 01/01/19'"></Label>
+                    </StackLayout>
 
-                <StackLayout class="module-container m-10 p-10">
-                    <Label
-                        :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
-                        :text="station.status == 'Ready to deploy' ? 'Deploy' : 'Deployed 01/01/19'"></Label>
-                </StackLayout>
-
-                <FlexboxLayout justifyContent="space-between" class="size-12 p-x-30 footer">
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
-                        <Label class="bold">Station</Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
-                        <Label class="light">Data</Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
-                        <Label class="light">Settings</Label>
-                    </StackLayout>
-                </FlexboxLayout>
+                    <FlexboxLayout justifyContent="space-between" class="size-12 p-x-30 footer">
+                        <StackLayout>
+                            <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
+                            <Label class="bold">Station</Label>
+                        </StackLayout>
+                        <StackLayout>
+                            <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
+                            <Label class="light">Data</Label>
+                        </StackLayout>
+                        <StackLayout>
+                            <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
+                            <Label class="light">Settings</Label>
+                        </StackLayout>
+                    </FlexboxLayout>
+                </StackLayout> <!-- end fade-container -->
 
             </StackLayout>
         </ScrollView>
@@ -426,6 +427,10 @@
         color: $fk-tertiary-red;
         border-top-color: $fk-tertiary-red;
         border-top-width: 2;
+    }
+
+    #fade-container.faded {
+        opacity: 0.5;
     }
 
     .col {
