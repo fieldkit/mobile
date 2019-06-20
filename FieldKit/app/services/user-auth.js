@@ -1,31 +1,30 @@
-import axios from 'axios';
+import axios from "axios";
 import Config from "../config";
 
 let accessToken = null;
 
 export default class UserAuth {
-
     getCurrentUser() {
         return axios({
-                method: 'GET',
-                url: Config.baseUri+"/user",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": accessToken,
-                },
-            })
+            method: "GET",
+            url: Config.baseUri + "/user",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: accessToken
+            }
+        })
             .then(handleResponse)
-            .catch(handleError)
+            .catch(handleError);
 
-        function handleResponse(response){
-            if(response.status == "200") {
+        function handleResponse(response) {
+            if (response.status == "200") {
                 return response.data;
             } else {
                 throw new Error(response);
             }
         }
 
-        function handleError(error){
+        function handleError(error) {
             throw error;
         }
     }
@@ -36,28 +35,30 @@ export default class UserAuth {
 
     login(user) {
         return axios({
-                method: 'POST',
-                url: Config.baseUri+"/login",
-                headers: { "Content-Type": "application/json" },
-                data: {
-                    email: user.email,
-                    password: user.password,
-                }
-            })
+            method: "POST",
+            url: Config.baseUri + "/login",
+            headers: { "Content-Type": "application/json" },
+            data: {
+                email: user.email,
+                password: user.password
+            }
+        })
             .then(handleResponse)
-            .catch(handleError)
+            .catch(handleError);
 
-        function handleResponse(response){
-            if(response.status == "204") {
+        function handleResponse(response) {
+            if (response.status == "204") {
                 // success
-                accessToken = response.headers.authorization ? response.headers.authorization : response.headers.Authorization;
-                return
+                accessToken = response.headers.authorization
+                    ? response.headers.authorization
+                    : response.headers.Authorization;
+                return;
             } else {
-                throw new Error("Log in failed")
+                throw new Error("Log in failed");
             }
         }
 
-        function handleError(error){
+        function handleError(error) {
             if (error.response) {
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
@@ -79,53 +80,53 @@ export default class UserAuth {
 
     logout() {
         return axios({
-                method: 'POST',
-                url: Config.baseUri+"/logout",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": accessToken,
-                },
-            })
+            method: "POST",
+            url: Config.baseUri + "/logout",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: accessToken
+            }
+        })
             .then(handleResponse)
-            .catch(handleError)
+            .catch(handleError);
 
-        function handleResponse(response){
-            if(response.status == "204") {
+        function handleResponse(response) {
+            if (response.status == "204") {
                 accessToken = null;
-                return
+                return;
             } else {
                 throw new Error(response);
             }
         }
 
-        function handleError(error){
+        function handleError(error) {
             throw error;
         }
     }
 
     register(user) {
         return axios({
-                method: 'POST',
-                url: Config.baseUri+"/users",
-                headers: { "Content-Type": "application/json" },
-                data: {
-                    "name": user.name,
-                    "email": user.email,
-                    "password": user.password,
-                }
-            })
+            method: "POST",
+            url: Config.baseUri + "/users",
+            headers: { "Content-Type": "application/json" },
+            data: {
+                name: user.name,
+                email: user.email,
+                password: user.password
+            }
+        })
             .then(handleResponse)
-            .catch(handleError)
+            .catch(handleError);
 
-        function handleResponse(response){
-            if(response.status == "200") {
-                return "Account created"
+        function handleResponse(response) {
+            if (response.status == "200") {
+                return "Account created";
             } else {
                 throw new Error("Account not created");
             }
         }
 
-        function handleError(error){
+        function handleError(error) {
             // this request doesn't display error responses to user
             if (error.response) {
                 // The request was made and the server responded with a status code
@@ -146,7 +147,5 @@ export default class UserAuth {
         }
     }
 
-    resetPassword(email) {
-    }
+    resetPassword(email) {}
 }
-

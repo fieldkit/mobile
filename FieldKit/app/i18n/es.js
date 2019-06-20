@@ -5,16 +5,20 @@ module.exports = {
     forgotLink: "Restablecer la contraseña",
     needAccount: "Crea una cuenta",
     backToLogin: "Atrás para iniciar sesión",
-    provideBoth: "Por favor, proporcione una dirección de correo electrónico y una contraseña.",
+    provideBoth:
+        "Por favor, proporcione una dirección de correo electrónico y una contraseña.",
     noMatch: "Tus contraseñas no coinciden.",
     accountCreated: "Tu cuenta fue creada exitosamente.",
     accountCreateFailed: "Lamentablemente no hemos podido crear su cuenta.",
     forgotTitle: "Restablecer la contraseña",
-    forgotInstruction: "Ingrese la dirección de correo electrónico que usó para registrarse en FieldKit para restablecer su contraseña.",
+    forgotInstruction:
+        "Ingrese la dirección de correo electrónico que usó para registrarse en FieldKit para restablecer su contraseña.",
     ok: "OK",
     cancel: "Cancelar",
-    passwordResetSucceeded: "Su contraseña fue restablecida con éxito. Por favor, consulte su correo electrónico para obtener instrucciones sobre cómo elegir una nueva contraseña.",
-    passwordResetFailed: "Desafortunadamente, se produjo un error al restablecer su contraseña.",
+    passwordResetSucceeded:
+        "Su contraseña fue restablecida con éxito. Por favor, consulte su correo electrónico para obtener instrucciones sobre cómo elegir una nueva contraseña.",
+    passwordResetFailed:
+        "Desafortunadamente, se produjo un error al restablecer su contraseña.",
     name: "Nombre",
     nameRequired: "El nombre es un campo obligatorio.",
     nameOver255: "El nombre debe tener menos de 256 letras.",

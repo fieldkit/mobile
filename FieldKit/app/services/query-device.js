@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 import protobuf from "protobufjs";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
@@ -9,23 +9,33 @@ const ReplyType = appRoot.lookup("fk_app.ReplyType");
 
 export default class QueryDevice {
     queryStatus() {
-        const message = WireMessageQuery.create({type:QueryType.values.QUERY_STATUS});
-        return this.deviceQuery("https://localhost:2382", message).then(r => {
-            console.log("reply", r)
-            return r;
-        }, e=> {
-            console.log("error", e)
+        const message = WireMessageQuery.create({
+            type: QueryType.values.QUERY_STATUS
         });
+        return this.deviceQuery("https://localhost:2382", message).then(
+            r => {
+                console.log("reply", r);
+                return r;
+            },
+            e => {
+                console.log("error", e);
+            }
+        );
     }
 
     queryCapabilities() {
-        const message = WireMessageQuery.create({type: QueryType.values.QUERY_CAPABILITIES});
-        return this.deviceQuery("https://localhost:2382", message).then(r => {
-            console.log("reply", r)
-            return r;
-        }, e=> {
-            console.log("error", e)
+        const message = WireMessageQuery.create({
+            type: QueryType.values.QUERY_CAPABILITIES
         });
+        return this.deviceQuery("https://localhost:2382", message).then(
+            r => {
+                console.log("reply", r);
+                return r;
+            },
+            e => {
+                console.log("error", e);
+            }
+        );
     }
 
     /**
@@ -35,18 +45,18 @@ export default class QueryDevice {
      */
     deviceQuery(url, message) {
         const binaryQuery = WireMessageQuery.encodeDelimited(message).finish();
-        const requestBody = new Buffer.from(binaryQuery).toString('hex');
+        const requestBody = new Buffer.from(binaryQuery).toString("hex");
         return axios({
-            method: 'POST',
+            method: "POST",
             url: url,
             headers: {
                 /* When we get rid of this hex encoding nonsense we'll fix this, too */
                 // 'Content-Type': 'application/octet-stream',
-                'Content-Type': 'text/plain',
+                "Content-Type": "text/plain"
             },
             data: requestBody
         }).then(response => {
-            const binaryReply = Buffer.from(response.data, 'hex');
+            const binaryReply = Buffer.from(response.data, "hex");
             return WireMessageReply.decodeDelimited(binaryReply);
         });
     }

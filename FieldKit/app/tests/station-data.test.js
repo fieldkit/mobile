@@ -15,5 +15,4 @@ describe("StationData", () => {
         const data = await stationData.getAll();
         expect(data).toHaveLength(5);
     });
-
 });

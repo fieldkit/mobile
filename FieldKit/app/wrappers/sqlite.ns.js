@@ -1,4 +1,4 @@
-import Sqlite from 'nativescript-sqlite';
+import Sqlite from "nativescript-sqlite";
 
 class DatabaseWrapper {
     constructor(db) {

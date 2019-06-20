@@ -10,11 +10,14 @@ module.exports = {
     accountCreated: "Your account was successfully created.",
     accountCreateFailed: "Unfortunately we were unable to create your account.",
     forgotTitle: "Reset password",
-    forgotInstruction: "Enter the email address you used to register for FieldKit to reset your password.",
+    forgotInstruction:
+        "Enter the email address you used to register for FieldKit to reset your password.",
     ok: "OK",
     cancel: "Cancel",
-    passwordResetSucceeded: "Your password was successfully reset. Please check your email for instructions on choosing a new password.",
-    passwordResetFailed: "Unfortunately, an error occurred resetting your password.",
+    passwordResetSucceeded:
+        "Your password was successfully reset. Please check your email for instructions on choosing a new password.",
+    passwordResetFailed:
+        "Unfortunately, an error occurred resetting your password.",
     name: "Name",
     nameRequired: "Name is a required field.",
     nameOver255: "Name must be less than 256 letters.",

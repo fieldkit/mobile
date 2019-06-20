@@ -1,4 +1,4 @@
-import CreateDB from './create-db';
+import CreateDB from "./create-db";
 
 export default class StationData {
     constructor() {
@@ -6,7 +6,9 @@ export default class StationData {
     }
 
     getConfigs(stationId) {
-        return this.getDatabase().then(db => db.query("SELECT * FROM config WHERE station_id=" + stationId));
+        return this.getDatabase().then(db =>
+            db.query("SELECT * FROM config WHERE station_id=" + stationId)
+        );
     }
 
     getDatabase() {
@@ -14,29 +16,52 @@ export default class StationData {
     }
 
     getAll() {
-        return this.getDatabase().then(db => db.query("SELECT * FROM stations"));
+        return this.getDatabase().then(db =>
+            db.query("SELECT * FROM stations")
+        );
     }
 
     getStation(stationId) {
-        return this.getDatabase().then(db => db.query("SELECT * FROM stations WHERE id=" + stationId));
+        return this.getDatabase().then(db =>
+            db.query("SELECT * FROM stations WHERE id=" + stationId)
+        );
     }
 
     getModules(moduleIds) {
-        return this.getDatabase().then(db => db.query("SELECT * FROM modules WHERE id IN (" + moduleIds + ")"));
+        return this.getDatabase().then(db =>
+            db.query("SELECT * FROM modules WHERE id IN (" + moduleIds + ")")
+        );
     }
 
     getSensors(sensorIds) {
-        return this.getDatabase().then(db => db.query("SELECT * FROM sensors WHERE id IN (" + sensorIds + ")"));
+        return this.getDatabase().then(db =>
+            db.query("SELECT * FROM sensors WHERE id IN (" + sensorIds + ")")
+        );
     }
 
     setStationName(station) {
-        return this.getDatabase().then(db => db.query("UPDATE stations SET name='" + station.name + "' WHERE id=" + station.id));
-
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET name='" +
+                    station.name +
+                    "' WHERE id=" +
+                    station.id
+            )
+        );
     }
 
     recordConfigChange(config) {
-        return this.getDatabase().then(db => db.query("INSERT INTO config (station_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
-            [config.station_id, config.before, config.after, config.affected_field, config.author]));
+        return this.getDatabase().then(db =>
+            db.query(
+                "INSERT INTO config (station_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
+                [
+                    config.station_id,
+                    config.before,
+                    config.after,
+                    config.affected_field,
+                    config.author
+                ]
+            )
+        );
     }
-
 }

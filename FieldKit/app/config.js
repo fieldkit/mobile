@@ -1,8 +1,7 @@
-
 const configs = {
     default: {
-        baseUri: "https://api.fkdev.org",
+        baseUri: "https://api.fkdev.org"
     }
-}
+};
 
 export default configs["default"];

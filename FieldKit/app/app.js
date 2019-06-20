@@ -34,5 +34,6 @@ Vue.prototype.$userAuth = userAuth;
 // Vue.config.silent = false;
 
 new Vue({
-    render: h => h("frame", [h(userAuth.isLoggedIn() ? routes.home : routes.login)])
+    render: h =>
+        h("frame", [h(userAuth.isLoggedIn() ? routes.home : routes.login)])
 }).$start();

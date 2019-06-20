@@ -8,5 +8,5 @@ const routes = {
     home: Home,
     stations: Stations,
     stationDetail: StationDetail
-}
+};
 export default routes;
