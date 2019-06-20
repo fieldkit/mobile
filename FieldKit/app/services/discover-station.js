@@ -9,7 +9,7 @@ export default class DiscoverStation {
         zeroconf.on(Observable.propertyChangeEvent, (data) => {
             switch(data.propertyName.toString()) {
                 case 'serviceFound': {
-                    // data.value.host, data.value.port,
+                    // data.value.host, data.value.port
                     console.log("found service:", data.value.type, data.value.name);
                     services.push(data.value);
                     break;
