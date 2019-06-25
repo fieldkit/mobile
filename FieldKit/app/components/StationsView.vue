@@ -72,7 +72,7 @@
                     stationStack.addChild(nameLabel);
                     let statusLabel = new Label();
                     statusLabel.text = r.status;
-                    statusLabel.className = "stations-list " + r.status.replace(/ /g, '');
+                    statusLabel.className = "stations-list " + (r.status ? r.status.replace(/ /g, '') : '');
                     stationStack.addChild(statusLabel);
 
                     layout.addChild(stationStack);

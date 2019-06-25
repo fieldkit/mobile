@@ -23,6 +23,21 @@ export default class QueryDevice {
         );
     }
 
+    queryIdentity() {
+        const message = WireMessageQuery.create({
+            type: QueryType.values.QUERY_IDENTITY
+        });
+        return this.deviceQuery("https://localhost:2382", message).then(
+            r => {
+                console.log("reply", r);
+                return r;
+            },
+            e => {
+                console.log("error", e);
+            }
+        );
+    }
+
     queryCapabilities() {
         const message = WireMessageQuery.create({
             type: QueryType.values.QUERY_CAPABILITIES

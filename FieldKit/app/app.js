@@ -10,19 +10,19 @@ import QueryDevice from "./services/query-device";
 import DiscoverStation from "./services/discover-station";
 import Vue from "nativescript-vue";
 
-// temp create and seed db
-const createDB = new CreateDB();
+// temp: query device and then create database
+const queryDevice = new QueryDevice();
+queryDevice.queryIdentity()
+    .then((response) => {
+        const createDB = new CreateDB(response);
+    });
 
 // temp, just checking
-// const queryDevice = new QueryDevice();
-// queryDevice.queryStatus();
-
-// temp, just checking
-const discoverStation = new DiscoverStation();
-setTimeout(() => {
-    // Needs 400 ms, minimum. (why?)
-    discoverStation.startServiceDiscovery();
-}, 2000);
+// const discoverStation = new DiscoverStation();
+// setTimeout(() => {
+//     // Needs 400 ms, minimum. (why?)
+//     discoverStation.startServiceDiscovery();
+// }, 1000);
 
 // Pass i18n's global variable to Vue
 Vue.prototype._L = _L;

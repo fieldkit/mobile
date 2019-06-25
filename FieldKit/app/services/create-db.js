@@ -5,7 +5,10 @@ const sqlite = new Sqlite();
 let databasePromise;
 
 export default class CreateDB {
-    constructor() {
+    constructor(deviceIdentity) {
+        if(deviceIdentity) {
+            this.deviceIdentity = deviceIdentity;
+        }
         this.createdSensors = [];
         this.createdModules = [];
         if (databasePromise == null) {
@@ -20,6 +23,10 @@ export default class CreateDB {
                 .then(this.createConfigLogTable.bind(this));
         }
         this.databasePromise = databasePromise;
+        if(deviceIdentity) {
+            // make sure device has been added to db
+            this.checkForDevice();
+        }
     }
 
     getDatabaseName() {
@@ -52,6 +59,30 @@ export default class CreateDB {
             });
     }
 
+    checkForDevice() {
+        let name = this.deviceIdentity.identity.device;
+        let id = this.deviceIdentity.identity.deviceId;
+        let result = [];
+        for (let i = 0; i < id.length; i++) {
+            result.push(id[i]);
+        }
+        let deviceId = result.join("-");
+        this.databasePromise
+            .then(db => db.query("SELECT * FROM stations WHERE deviceId=" + deviceId)
+                .then(response => {
+                    if(response.length == 0) {
+                        // add to db
+                        db.execute("INSERT INTO stations (deviceId, name) VALUES (?, ?)",
+                            [deviceId, name]
+                        )
+                    }
+                     else {
+                        // device already exists in db...
+                     }
+                })
+            )
+    }
+
     createSensorsTable() {
         return this.database.execute(
             "CREATE TABLE IF NOT EXISTS sensors (\
@@ -79,6 +110,7 @@ export default class CreateDB {
         return this.database.execute(
             "CREATE TABLE IF NOT EXISTS stations (\
                 id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                deviceId TEXT, \
                 name TEXT, \
                 status TEXT, \
                 batteryLevel NUMERIC, \
@@ -191,6 +223,7 @@ export default class CreateDB {
         let stations = [];
         names.forEach((n, i) => {
             let station = new Station(n);
+            station.deviceId = "device_"+i;
             if (i == 0) {
                 station.status = "Ready to deploy";
                 // give the first station all the modules
@@ -208,13 +241,19 @@ export default class CreateDB {
             }
             stations.push(station);
         });
+        if(this.deviceIdentity) {
+            let station = new Station(deviceIdentity.identity.device);
+            station.deviceId = deviceIdentity.identity.deviceId;
+            stations.push(station);
+        }
 
         let result = stations.reduce((previousPromise, nextStn) => {
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO stations (name, status, batteryLevel, connected, availableMemory, modules) \
-                    VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO stations (deviceId, name, status, batteryLevel, connected, availableMemory, modules) \
+                    VALUES (?, ?, ?, ?, ?, ?, ?)",
                     [
+                        "deviceId",
                         nextStn.name,
                         nextStn.status,
                         nextStn.batteryLevel,
@@ -281,6 +320,7 @@ class Station {
             ? name
             : "FieldKit Station " +
               Math.floor(Math.random() * Math.floor(9000));
+        this.deviceId = "";
         this.status = "";
         this.batteryLevel = Math.floor(Math.random() * Math.floor(100));
         this.connected = "true";
