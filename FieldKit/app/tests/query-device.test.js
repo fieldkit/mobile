@@ -1,4 +1,4 @@
-import QueryDevice from "services/query-device";
+import QueryStation from "services/query-station";
 import axios from "axios";
 import protobuf from "protobufjs";
 
@@ -11,9 +11,9 @@ afterEach(() => {
     axios.mockReset();
 });
 
-describe("QueryDevice", () => {
-    it("should retrieve a device status", () => {
-        const queryDevice = new QueryDevice();
+describe("QueryStation", () => {
+    it("should retrieve a station status", () => {
+        const queryStation = new QueryStation();
         const binaryResponse = WireMessageReply.encodeDelimited({
             errors: [],
             type: 15,
@@ -23,13 +23,13 @@ describe("QueryDevice", () => {
             data: new Buffer.from(binaryResponse).toString("hex")
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryDevice
+        return queryStation
             .queryStatus()
             .then(resp => expect(resp.status).toBeDefined());
     });
 
-    it("should retrieve device capabilities", () => {
-        const queryDevice = new QueryDevice();
+    it("should retrieve station capabilities", () => {
+        const queryStation = new QueryStation();
         const binaryResponse = WireMessageReply.encodeDelimited({
             errors: [],
             type: 4,
@@ -44,7 +44,7 @@ describe("QueryDevice", () => {
             data: new Buffer.from(binaryResponse).toString("hex")
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryDevice
+        return queryStation
             .queryCapabilities()
             .then(resp => expect(resp.capabilities).toBeDefined());
     });

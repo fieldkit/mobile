@@ -1,18 +1,18 @@
 import * as i18n from "tns-i18n";
-// Note: i18n detects the preferred language on the device,
+// Note: i18n detects the preferred language on the station,
 // and this default language initialization does not override that
 i18n("en");
 
 import routes from "./routes";
 import CreateDB from "./services/create-db";
 import UserAuth from "./services/user-auth";
-import QueryDevice from "./services/query-device";
+import QueryStation from "./services/query-station";
 import DiscoverStation from "./services/discover-station";
 import Vue from "nativescript-vue";
 
-// temp: query device and then create database
-const queryDevice = new QueryDevice();
-queryDevice.queryIdentity()
+// temp: query station and then create database
+const queryStation = new QueryStation();
+queryStation.queryIdentity()
     .then((response) => {
         const createDB = new CreateDB(response);
     });

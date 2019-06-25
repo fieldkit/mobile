@@ -5,9 +5,9 @@ const sqlite = new Sqlite();
 let databasePromise;
 
 export default class CreateDB {
-    constructor(deviceIdentity) {
-        if(deviceIdentity) {
-            this.deviceIdentity = deviceIdentity;
+    constructor(stationIdentity) {
+        if(stationIdentity) {
+            this.stationIdentity = stationIdentity;
         }
         this.createdSensors = [];
         this.createdModules = [];
@@ -23,9 +23,9 @@ export default class CreateDB {
                 .then(this.createConfigLogTable.bind(this));
         }
         this.databasePromise = databasePromise;
-        if(deviceIdentity) {
-            // make sure device has been added to db
-            this.checkForDevice();
+        if(stationIdentity) {
+            // make sure station has been added to db
+            this.checkForStation();
         }
     }
 
@@ -59,9 +59,9 @@ export default class CreateDB {
             });
     }
 
-    checkForDevice() {
-        let name = this.deviceIdentity.identity.device;
-        let id = this.deviceIdentity.identity.deviceId;
+    checkForStation() {
+        let name = this.stationIdentity.identity.device;
+        let id = this.stationIdentity.identity.deviceId;
         let result = [];
         for (let i = 0; i < id.length; i++) {
             result.push(id[i]);
@@ -241,9 +241,9 @@ export default class CreateDB {
             }
             stations.push(station);
         });
-        if(this.deviceIdentity) {
-            let station = new Station(deviceIdentity.identity.device);
-            station.deviceId = deviceIdentity.identity.deviceId;
+        if(this.stationIdentity) {
+            let station = new Station(stationIdentity.identity.device);
+            station.deviceId = stationIdentity.identity.deviceId;
             stations.push(station);
         }
 
