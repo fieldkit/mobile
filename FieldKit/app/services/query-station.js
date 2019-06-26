@@ -8,47 +8,47 @@ const QueryType = appRoot.lookup("fk_app.QueryType");
 const ReplyType = appRoot.lookup("fk_app.ReplyType");
 
 export default class QueryStation {
-    queryStatus() {
+    queryStatus(address) {
         const message = WireMessageQuery.create({
             type: QueryType.values.QUERY_STATUS
         });
-        return this.stationQuery("https://localhost:2382", message).then(
+        return this.stationQuery(address, message).then(
             r => {
-                console.log("reply", r);
+                console.log(address, "reply", r);
                 return r;
             },
             e => {
-                console.log("error", e);
+                console.log(address, "error", e);
             }
         );
     }
 
-    queryIdentity() {
+    queryIdentity(address) {
         const message = WireMessageQuery.create({
             type: QueryType.values.QUERY_IDENTITY
         });
-        return this.stationQuery("https://localhost:2382", message).then(
+        return this.stationQuery(address, message).then(
             r => {
-                console.log("reply", r);
+                console.log(address, "reply", r);
                 return r;
             },
             e => {
-                console.log("error", e);
+                console.log(address, "error", e);
             }
         );
     }
 
-    queryCapabilities() {
+    queryCapabilities(address) {
         const message = WireMessageQuery.create({
             type: QueryType.values.QUERY_CAPABILITIES
         });
-        return this.stationQuery("https://localhost:2382", message).then(
+        return this.stationQuery(address, message).then(
             r => {
-                console.log("reply", r);
+                console.log(address, "reply", r);
                 return r;
             },
             e => {
-                console.log("error", e);
+                console.log(address, "error", e);
             }
         );
     }

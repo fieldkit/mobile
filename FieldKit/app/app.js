@@ -12,7 +12,13 @@ import Vue from "nativescript-vue";
 
 // temp: query station and then create database
 const queryStation = new QueryStation();
-queryStation.queryIdentity()
+
+queryStation.queryIdentity("http://192.168.0.100:2380")
+    .then((response) => {
+        const createDB = new CreateDB(response);
+    });
+
+queryStation.queryIdentity("https://192.168.0.100:2382")
     .then((response) => {
         const createDB = new CreateDB(response);
     });
