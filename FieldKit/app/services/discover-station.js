@@ -4,42 +4,75 @@ import {
 } from "tns-core-modules/data/observable";
 import { Zeroconf } from "nativescript-zeroconf";
 
-const zeroconf = new Zeroconf("_fk._tcp");
-const services = [];
+class Station {
+    constructor(info) {
+        this.scheme = "http";
+        this.type = info.type;
+        this.name = info.name;
+        this.host = info.host;
+        this.port = info.port;
+        this.url = this.scheme + "://" + this.host + ":" + this.port + "/fk/v1";
+    }
+};
 
 export default class DiscoverStation {
-    constructor() {
-        zeroconf.on(
+    constructor(queryStation) {
+        this.zeroconf_ = new Zeroconf("_fk._tcp");
+        this.queryStation_ = queryStation;
+        this.stations_ = {};
+    }
+
+    startServiceDiscovery() {
+        this.zeroconf_.on(
             Observable.propertyChangeEvent,
             data => {
                 switch (data.propertyName.toString()) {
-                    case "serviceFound": {
-                        console.log("found service:", data.value.type, data.value.name, data.value.host, data.value.port);
-                        services.push(data.value);
-                        break;
-                    }
-                    case "serviceLost": {
-                        console.log("lost service:", data.value.type, data.value.name);
-                        break;
-                    }
-                    default: {
-                        console.log(data.propertyName.toString() + " " + data.value.toString());
-                        break;
-                    }
+                case "serviceFound": {
+                    this.stationFound(data.value);
+                    break;
+                }
+                case "serviceLost": {
+                    this.stationLost(data.value);
+                    break;
+                }
+                default: {
+                    console.log(data.propertyName.toString() + " " + data.value.toString());
+                    break;
+                }
                 }
             },
             error => {
                 console.log("propertyChangeEvent error", error);
             }
         );
-    }
-
-    startServiceDiscovery() {
-        zeroconf.startServiceDiscovery();
+        this.zeroconf_.startServiceDiscovery();
     }
 
     stopServiceDiscovery() {
-        zeroconf.stopServiceDiscovery();
-        services = [];
+        this.zeroconf_.stopServiceDiscovery();
+        this.stations_ = {};
+    }
+
+    stationFound(info) {
+        console.log("found service:", info.type, info.name, info.host, info.port);
+
+        const key = this.makeKey(info);
+        const station = new Station(info);
+        this.stations_[key] = station;
+
+        // NOTE: This is just here to demonstrate how things flow together.
+        this.queryStation_.queryIdentity(station.url).then((response) => {
+
+        });
+    }
+
+    stationLost(info) {
+        console.log("lost service:", info.type, info.name);
+        const key = this.makeKey(info);
+        delete this.stations_[key];
+    }
+
+    makeKey(station) {
+        return station.name + station.type;
     }
 }

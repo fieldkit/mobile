@@ -10,21 +10,8 @@ import QueryStation from "./services/query-station";
 import DiscoverStation from "./services/discover-station";
 import Vue from "nativescript-vue";
 
-// temp: query station and then create database
 const queryStation = new QueryStation();
-
-queryStation.queryIdentity("http://192.168.0.100:2380")
-    .then((response) => {
-        const createDB = new CreateDB(response);
-    });
-
-queryStation.queryIdentity("https://192.168.0.100:2382")
-    .then((response) => {
-        const createDB = new CreateDB(response);
-    });
-
-// temp, just checking
-const discoverStation = new DiscoverStation();
+const discoverStation = new DiscoverStation(queryStation);
 discoverStation.startServiceDiscovery();
 
 // Pass i18n's global variable to Vue
