@@ -24,11 +24,8 @@ queryStation.queryIdentity("https://192.168.0.100:2382")
     });
 
 // temp, just checking
-// const discoverStation = new DiscoverStation();
-// setTimeout(() => {
-//     // Needs 400 ms, minimum. (why?)
-//     discoverStation.startServiceDiscovery();
-// }, 1000);
+const discoverStation = new DiscoverStation();
+discoverStation.startServiceDiscovery();
 
 // Pass i18n's global variable to Vue
 Vue.prototype._L = _L;

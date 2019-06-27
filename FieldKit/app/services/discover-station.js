@@ -14,21 +14,16 @@ export default class DiscoverStation {
             data => {
                 switch (data.propertyName.toString()) {
                     case "serviceFound": {
-                        // data.value.host, data.value.port
-                        console.log(
-                            "found service:",
-                            data.value.type,
-                            data.value.name
-                        );
+                        console.log("found service:", data.value.type, data.value.name, data.value.host, data.value.port);
                         services.push(data.value);
                         break;
                     }
+                    case "serviceLost": {
+                        console.log("lost service:", data.value.type, data.value.name);
+                        break;
+                    }
                     default: {
-                        console.log(
-                            data.propertyName.toString() +
-                                " " +
-                                data.value.toString()
-                        );
+                        console.log(data.propertyName.toString() + " " + data.value.toString());
                         break;
                     }
                 }
