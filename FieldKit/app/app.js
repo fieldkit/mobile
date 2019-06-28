@@ -4,7 +4,6 @@ import * as i18n from "tns-i18n";
 i18n("en");
 
 import routes from "./routes";
-import CreateDB from "./services/create-db";
 import UserAuth from "./services/user-auth";
 import QueryStation from "./services/query-station";
 import DiscoverStation from "./services/discover-station";

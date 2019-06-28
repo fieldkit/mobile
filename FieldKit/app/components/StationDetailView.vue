@@ -214,7 +214,7 @@
                     this.isEditingName = false;
                     stationData.setStationName(this.station);
                     let configChange = {
-                        station_id: this.station.id,
+                        device_id: this.station.device_id,
                         before: this.station.origName,
                         after: this.station.name,
                         affected_field: "name",
@@ -235,7 +235,7 @@
 
             getModules(station) {
                 this.station = station[0];
-                return stationData.getModules(this.station.modules)
+                return stationData.getModules(this.station.device_id)
             },
 
             linkModulesAndSensors(results) {
@@ -247,7 +247,7 @@
             },
 
             getSensors(moduleObject) {
-                let result = stationData.getSensors(moduleObject.sensors);
+                let result = stationData.getSensors(moduleObject.module_id);
                 return {resultPromise: result, module: moduleObject};
             },
 

@@ -1,6 +1,8 @@
 const configs = {
     default: {
-        baseUri: "https://api.fkdev.org"
+        baseUri: "https://api.fkdev.org",
+        seedDB: true,
+        dropTables: true
     }
 };
 

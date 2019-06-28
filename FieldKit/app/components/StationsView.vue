@@ -61,7 +61,7 @@
 
                 this.stations.forEach(function(r,i) {
                     let stationStack = new StackLayout();
-                    stationStack.id = "station-"+r.id;
+                    stationStack.id = "station-"+r.device_id;
                     stationStack.orientation = "vertical";
                     stationStack.className = "station-container m-y-5 m-x-15 p-10";
                     stationStack.on("tap", detailNav)

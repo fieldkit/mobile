@@ -13,6 +13,6 @@ describe("StationData", () => {
 
     test("getAll should get all stations", async () => {
         const data = await stationData.getAll();
-        expect(data).toHaveLength(5);
+        expect(data.length).toBeGreaterThan(4);
     });
 });

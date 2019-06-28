@@ -5,9 +5,9 @@ export default class StationData {
         this.databasePromise = new CreateDB().getDatabase();
     }
 
-    getConfigs(stationId) {
+    getConfigs(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM config WHERE station_id=" + stationId)
+            db.query("SELECT * FROM config WHERE device_id=" + deviceId)
         );
     }
 
@@ -21,21 +21,21 @@ export default class StationData {
         );
     }
 
-    getStation(stationId) {
+    getStation(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM stations WHERE id=" + stationId)
+            db.query("SELECT * FROM stations WHERE device_id='" + deviceId + "'")
         );
     }
 
-    getModules(moduleIds) {
+    getModules(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM modules WHERE id IN (" + moduleIds + ")")
+            db.query("SELECT * FROM modules WHERE device_id IN ('" + deviceId + "')")
         );
     }
 
-    getSensors(sensorIds) {
+    getSensors(moduleId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM sensors WHERE id IN (" + sensorIds + ")")
+            db.query("SELECT * FROM sensors WHERE module_id IN ('" + moduleId + "')")
         );
     }
 
@@ -53,9 +53,9 @@ export default class StationData {
     recordConfigChange(config) {
         return this.getDatabase().then(db =>
             db.query(
-                "INSERT INTO config (station_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO config (device_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
                 [
-                    config.station_id,
+                    config.device_id,
                     config.before,
                     config.after,
                     config.affected_field,

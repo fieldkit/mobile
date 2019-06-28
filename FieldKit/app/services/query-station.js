@@ -14,11 +14,12 @@ export default class QueryStation {
         });
         return this.stationQuery(address, message).then(
             r => {
-                console.log(address, "reply", r);
+                // console.log(address, "reply", r);
                 return r;
             },
             e => {
-                console.log(address, "error", e);
+                // console.log(address, "error", e);
+                throw e;
             }
         );
     }
@@ -29,11 +30,12 @@ export default class QueryStation {
         });
         return this.stationQuery(address, message).then(
             r => {
-                console.log(address, "reply", r);
+                // console.log(address, "reply", r);
                 return r;
             },
             e => {
-                console.log(address, "error", e);
+                // console.log(address, "error", e);
+                throw e;
             }
         );
     }
@@ -44,11 +46,12 @@ export default class QueryStation {
         });
         return this.stationQuery(address, message).then(
             r => {
-                console.log(address, "reply", r);
+                // console.log(address, "reply", r);
                 return r;
             },
             e => {
-                console.log(address, "error", e);
+                // console.log(address, "error", e);
+                throw e;
             }
         );
     }
