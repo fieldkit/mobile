@@ -71,6 +71,10 @@ export default class QueryStation {
             },
             data: requestBody
         }).then(response => {
+            if (response.data.length == 0) {
+                console.log("Empty reply");
+                return {};
+            }
             const binaryReply = Buffer.from(response.data, "hex");
             return WireMessageReply.decodeDelimited(binaryReply);
         });
