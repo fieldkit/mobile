@@ -6,6 +6,7 @@ const queryStation = new QueryStation();
 const sqlite = new Sqlite();
 
 let databasePromise;
+let foundStations = [];
 
 export default class CreateDB {
     constructor() {
@@ -24,7 +25,6 @@ export default class CreateDB {
                 .then(this.createModulesTable.bind(this))
                 .then(this.createStationsTable.bind(this))
                 .then(this.createConfigLogTable.bind(this))
-                .then(this.checkForStation.bind(this))
                 .then(() => {
                     if (Config.seedDB) {
                         return Promise.resolve()
@@ -45,6 +45,7 @@ export default class CreateDB {
                     }
                 });
         }
+        this.checkForStation();
         this.databasePromise = databasePromise;
     }
 
@@ -116,6 +117,13 @@ export default class CreateDB {
             result.push(id[i]);
         }
         let deviceId = result.join("-");
+
+        // check to see if this station has already been added
+        // to do: compare/update data instead of returning
+        if (foundStations.indexOf(deviceId) > -1) {
+            return;
+        }
+
         let station = {
             deviceId: deviceId,
             name: name,
@@ -155,9 +163,9 @@ export default class CreateDB {
         });
 
         return Promise.resolve()
-            .then(this.insertIntoSensorsTable.bind(this, newSensors))
+            .then(this.insertIntoStationsTable.bind(this, [station]))
             .then(this.insertIntoModulesTable.bind(this, newModules))
-            .then(this.insertIntoStationsTable.bind(this, [station]));
+            .then(this.insertIntoSensorsTable.bind(this, newSensors));
     }
 
     createSensorsTable() {
@@ -293,6 +301,9 @@ export default class CreateDB {
         let result = stationsToInsert.reduce((previousPromise, nextStn) => {
             let newStation = new Station(nextStn);
             return previousPromise.then(() => {
+                // save this deviceId
+                foundStations.push(newStation.deviceId);
+
                 return this.database.execute(
                     "INSERT INTO stations (device_id, name, status, batteryLevel, connected, availableMemory, modules) \
                     VALUES (?, ?, ?, ?, ?, ?, ?)",
