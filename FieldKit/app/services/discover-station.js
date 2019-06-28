@@ -13,7 +13,7 @@ class Station {
         this.port = info.port;
         this.url = this.scheme + "://" + this.host + ":" + this.port + "/fk/v1";
     }
-};
+}
 
 export default class DiscoverStation {
     constructor(queryStation) {
@@ -27,18 +27,22 @@ export default class DiscoverStation {
             Observable.propertyChangeEvent,
             data => {
                 switch (data.propertyName.toString()) {
-                case "serviceFound": {
-                    this.stationFound(data.value);
-                    break;
-                }
-                case "serviceLost": {
-                    this.stationLost(data.value);
-                    break;
-                }
-                default: {
-                    console.log(data.propertyName.toString() + " " + data.value.toString());
-                    break;
-                }
+                    case "serviceFound": {
+                        this.stationFound(data.value);
+                        break;
+                    }
+                    case "serviceLost": {
+                        this.stationLost(data.value);
+                        break;
+                    }
+                    default: {
+                        console.log(
+                            data.propertyName.toString() +
+                                " " +
+                                data.value.toString()
+                        );
+                        break;
+                    }
                 }
             },
             error => {
@@ -54,16 +58,20 @@ export default class DiscoverStation {
     }
 
     stationFound(info) {
-        console.log("found service:", info.type, info.name, info.host, info.port);
+        console.log(
+            "found service:",
+            info.type,
+            info.name,
+            info.host,
+            info.port
+        );
 
         const key = this.makeKey(info);
         const station = new Station(info);
         this.stations_[key] = station;
 
         // NOTE: This is just here to demonstrate how things flow together.
-        this.queryStation_.queryIdentity(station.url).then((response) => {
-
-        });
+        this.queryStation_.queryIdentity(station.url).then(response => {});
     }
 
     stationLost(info) {

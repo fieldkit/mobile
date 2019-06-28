@@ -23,19 +23,25 @@ export default class StationData {
 
     getStation(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM stations WHERE device_id='" + deviceId + "'")
+            db.query(
+                "SELECT * FROM stations WHERE device_id='" + deviceId + "'"
+            )
         );
     }
 
     getModules(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM modules WHERE device_id IN ('" + deviceId + "')")
+            db.query(
+                "SELECT * FROM modules WHERE device_id IN ('" + deviceId + "')"
+            )
         );
     }
 
     getSensors(moduleId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM sensors WHERE module_id IN ('" + moduleId + "')")
+            db.query(
+                "SELECT * FROM sensors WHERE module_id IN ('" + moduleId + "')"
+            )
         );
     }
 

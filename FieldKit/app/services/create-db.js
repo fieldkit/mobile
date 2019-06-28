@@ -12,8 +12,10 @@ export default class CreateDB {
         if (databasePromise == null) {
             databasePromise = this.openDatabase()
                 .then(() => {
-                    if(Config.dropTables) {
-                        return Promise.resolve().then(this.dropTables.bind(this));
+                    if (Config.dropTables) {
+                        return Promise.resolve().then(
+                            this.dropTables.bind(this)
+                        );
                     } else {
                         return Promise.resolve(this.database);
                     }
@@ -24,10 +26,20 @@ export default class CreateDB {
                 .then(this.createConfigLogTable.bind(this))
                 .then(this.checkForStation.bind(this))
                 .then(() => {
-                    if(Config.seedDB) {
-                        return Promise.resolve().then(this.insertIntoSensorsTable.bind(this, sensors))
-                            .then(this.insertIntoModulesTable.bind(this, modules))
-                            .then(this.insertIntoStationsTable.bind(this, stations))
+                    if (Config.seedDB) {
+                        return Promise.resolve()
+                            .then(
+                                this.insertIntoSensorsTable.bind(this, sensors)
+                            )
+                            .then(
+                                this.insertIntoModulesTable.bind(this, modules)
+                            )
+                            .then(
+                                this.insertIntoStationsTable.bind(
+                                    this,
+                                    stations
+                                )
+                            );
                     } else {
                         return Promise.resolve(this.database);
                     }
@@ -73,19 +85,26 @@ export default class CreateDB {
 
         return new Promise(function(resolve, reject) {
             let result = queryStation.queryIdentity(address);
-            return result.then(r => {
-                resolve(r.identity)
-            }).catch(e => {
-                resolve();
-            })
+            return result
+                .then(r => {
+                    resolve(r.identity);
+                })
+                .catch(e => {
+                    resolve();
+                });
         }).then(function(identity) {
-            if(!identity) {Promise.resolve(thisDB.database); return}
-            let result = queryStation.queryCapabilities(address);
-            return result.then(r => {
-                return thisDB.addStation(identity, r.capabilities);
-            }).catch(e => {
+            if (!identity) {
                 Promise.resolve(thisDB.database);
-            })
+                return;
+            }
+            let result = queryStation.queryCapabilities(address);
+            return result
+                .then(r => {
+                    return thisDB.addStation(identity, r.capabilities);
+                })
+                .catch(e => {
+                    Promise.resolve(thisDB.database);
+                });
         });
     }
 
@@ -97,19 +116,37 @@ export default class CreateDB {
             result.push(id[i]);
         }
         let deviceId = result.join("-");
-        let station = {"deviceId": deviceId, "name": name, "status": "Ready to deploy", "modules": ""};
+        let station = {
+            deviceId: deviceId,
+            name: name,
+            status: "Ready to deploy",
+            modules: ""
+        };
         let generateReading = this.generateReading;
 
         let newModules = [];
         let newSensors = [];
-        capabilities.modules.forEach(function(m,i) {
+        capabilities.modules.forEach(function(m, i) {
             let moduleId = deviceId + "-module-" + i;
-            let mod = {"moduleId": moduleId, "deviceId": deviceId, "name": m.name, "sensors": ""};
-            let modSensors = capabilities.sensors.filter(function(s) {return s.module == m.id;});
-            modSensors.forEach(function(s,j) {
+            let mod = {
+                moduleId: moduleId,
+                deviceId: deviceId,
+                name: m.name,
+                sensors: ""
+            };
+            let modSensors = capabilities.sensors.filter(function(s) {
+                return s.module == m.id;
+            });
+            modSensors.forEach(function(s, j) {
                 let sensorId = moduleId + "-sensor-" + j;
                 mod.sensors += j == 0 ? sensorId : "," + sensorId;
-                let sensor = {"sensorId": sensorId, "moduleId": moduleId, "name": s.name, "unit": s.unitOfMeasure, "frequency": s.frequency};
+                let sensor = {
+                    sensorId: sensorId,
+                    moduleId: moduleId,
+                    name: s.name,
+                    unit: s.unitOfMeasure,
+                    frequency: s.frequency
+                };
                 sensor.currentReading = generateReading(sensor.name);
                 newSensors.push(sensor);
             });
@@ -117,7 +154,8 @@ export default class CreateDB {
             station.modules += i == 0 ? moduleId : "," + moduleId;
         });
 
-        return Promise.resolve().then(this.insertIntoSensorsTable.bind(this, newSensors))
+        return Promise.resolve()
+            .then(this.insertIntoSensorsTable.bind(this, newSensors))
             .then(this.insertIntoModulesTable.bind(this, newModules))
             .then(this.insertIntoStationsTable.bind(this, [station]));
     }
@@ -238,7 +276,12 @@ export default class CreateDB {
             return previousPromise.then(() => {
                 return this.database.execute(
                     "INSERT INTO modules (module_id, device_id, name, sensors) VALUES (?, ?, ?, ?)",
-                    [nextModule.moduleId, nextModule.deviceId, nextModule.name, nextModule.sensors]
+                    [
+                        nextModule.moduleId,
+                        nextModule.deviceId,
+                        nextModule.name,
+                        nextModule.sensors
+                    ]
                 );
             });
         }, Promise.resolve());
@@ -287,32 +330,155 @@ class Station {
 }
 
 const sensors = [
-    {"sensorId": "seeded-device-0-module-0-sensor-0", "moduleId": "seeded-device-0-module-0", "name": "pH Sensor", "unit": "", "frequency": "60" },
-    {"sensorId": "seeded-device-0-module-1-sensor-0", "moduleId": "seeded-device-0-module-1", "name": "DO Sensor", "unit": "mg/L", "frequency": "60" },
-    {"sensorId": "seeded-device-0-module-1-sensor-1", "moduleId": "seeded-device-0-module-1", "name": "Conductivity Sensor", "unit": "S/m", "frequency": "60" },
-    {"sensorId": "seeded-device-0-module-2-sensor-0", "moduleId": "seeded-device-0-module-2", "name": "Temperature Sensor", "unit": "°C", "frequency": "60" },
-    {"sensorId": "seeded-device-0-module-2-sensor-1", "moduleId": "seeded-device-0-module-2", "name": "Wind Sensor", "unit": "m/s", "frequency": "60" },
-    {"sensorId": "seeded-device-0-module-2-sensor-2", "moduleId": "seeded-device-0-module-2", "name": "Rain Sensor", "unit": "mm/h", "frequency": "60" },
-    {"sensorId": "seeded-device-1-module-0-sensor-0", "moduleId": "seeded-device-1-module-0", "name": "Configure Sensor", "unit": "", "frequency": "60" },
-    {"sensorId": "seeded-device-2-module-0-sensor-0", "moduleId": "seeded-device-2-module-0", "name": "Configure Sensor", "unit": "", "frequency": "60" },
-    {"sensorId": "seeded-device-3-module-0-sensor-0", "moduleId": "seeded-device-3-module-0", "name": "Configure Sensor", "unit": "", "frequency": "60" },
-    {"sensorId": "seeded-device-4-module-0-sensor-0", "moduleId": "seeded-device-4-module-0", "name": "Configure Sensor", "unit": "", "frequency": "60" }
+    {
+        sensorId: "seeded-device-0-module-0-sensor-0",
+        moduleId: "seeded-device-0-module-0",
+        name: "pH Sensor",
+        unit: "",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-0-module-1-sensor-0",
+        moduleId: "seeded-device-0-module-1",
+        name: "DO Sensor",
+        unit: "mg/L",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-0-module-1-sensor-1",
+        moduleId: "seeded-device-0-module-1",
+        name: "Conductivity Sensor",
+        unit: "S/m",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-0-module-2-sensor-0",
+        moduleId: "seeded-device-0-module-2",
+        name: "Temperature Sensor",
+        unit: "°C",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-0-module-2-sensor-1",
+        moduleId: "seeded-device-0-module-2",
+        name: "Wind Sensor",
+        unit: "m/s",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-0-module-2-sensor-2",
+        moduleId: "seeded-device-0-module-2",
+        name: "Rain Sensor",
+        unit: "mm/h",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-1-module-0-sensor-0",
+        moduleId: "seeded-device-1-module-0",
+        name: "Configure Sensor",
+        unit: "",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-2-module-0-sensor-0",
+        moduleId: "seeded-device-2-module-0",
+        name: "Configure Sensor",
+        unit: "",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-3-module-0-sensor-0",
+        moduleId: "seeded-device-3-module-0",
+        name: "Configure Sensor",
+        unit: "",
+        frequency: "60"
+    },
+    {
+        sensorId: "seeded-device-4-module-0-sensor-0",
+        moduleId: "seeded-device-4-module-0",
+        name: "Configure Sensor",
+        unit: "",
+        frequency: "60"
+    }
 ];
 
 const modules = [
-    {"moduleId": "seeded-device-0-module-0", "deviceId": "seeded-device-0", "name": "Water Module 1", "sensors": "seeded-device-0-module-0-sensor-0"},
-    {"moduleId": "seeded-device-0-module-1", "deviceId": "seeded-device-0", "name": "Water Module 2", "sensors": "seeded-device-0-module-1-sensor-0,seeded-device-0-module-1-sensor-1"},
-    {"moduleId": "seeded-device-0-module-2", "deviceId": "seeded-device-0", "name": "Weather Module", "sensors": "seeded-device-0-module-2-sensor-0,seeded-device-0-module-2-sensor-1,seeded-device-0-module-2-sensor-2"},
-    {"moduleId": "seeded-device-1-module-0", "deviceId": "seeded-device-1", "name": "Generic Module", "sensors": "seeded-device-1-module-0-sensor-0"},
-    {"moduleId": "seeded-device-2-module-0", "deviceId": "seeded-device-2", "name": "Generic Module", "sensors": "seeded-device-2-module-0-sensor-0"},
-    {"moduleId": "seeded-device-3-module-0", "deviceId": "seeded-device-3", "name": "Generic Module", "sensors": "seeded-device-3-module-0-sensor-0"},
-    {"moduleId": "seeded-device-4-module-0", "deviceId": "seeded-device-4", "name": "Generic Module", "sensors": "seeded-device-4-module-0-sensor-0"}
+    {
+        moduleId: "seeded-device-0-module-0",
+        deviceId: "seeded-device-0",
+        name: "Water Module 1",
+        sensors: "seeded-device-0-module-0-sensor-0"
+    },
+    {
+        moduleId: "seeded-device-0-module-1",
+        deviceId: "seeded-device-0",
+        name: "Water Module 2",
+        sensors:
+            "seeded-device-0-module-1-sensor-0,seeded-device-0-module-1-sensor-1"
+    },
+    {
+        moduleId: "seeded-device-0-module-2",
+        deviceId: "seeded-device-0",
+        name: "Weather Module",
+        sensors:
+            "seeded-device-0-module-2-sensor-0,seeded-device-0-module-2-sensor-1,seeded-device-0-module-2-sensor-2"
+    },
+    {
+        moduleId: "seeded-device-1-module-0",
+        deviceId: "seeded-device-1",
+        name: "Generic Module",
+        sensors: "seeded-device-1-module-0-sensor-0"
+    },
+    {
+        moduleId: "seeded-device-2-module-0",
+        deviceId: "seeded-device-2",
+        name: "Generic Module",
+        sensors: "seeded-device-2-module-0-sensor-0"
+    },
+    {
+        moduleId: "seeded-device-3-module-0",
+        deviceId: "seeded-device-3",
+        name: "Generic Module",
+        sensors: "seeded-device-3-module-0-sensor-0"
+    },
+    {
+        moduleId: "seeded-device-4-module-0",
+        deviceId: "seeded-device-4",
+        name: "Generic Module",
+        sensors: "seeded-device-4-module-0-sensor-0"
+    }
 ];
 
 const stations = [
-    {"deviceId": "seeded-device-0", "name": "Drammen Station", "status": "Ready to deploy", "modules": "seeded-device-0-module-0,seeded-device-0-module-1,seeded-device-0-module-2"},
-    {"deviceId": "seeded-device-1", "name": "Eggjareid Station", "status": "Deployed", "modules": "seeded-device-1-module-0"},
-    {"deviceId": "seeded-device-2", "name": "Evanger Station", "status": "Deployed", "modules": "seeded-device-2-module-0"},
-    {"deviceId": "seeded-device-3", "name": "Finse Station", "status": "Deployed", "modules": "seeded-device-3-module-0"},
-    {"deviceId": "seeded-device-4", "name": null, "status": "Deployed", "modules": "seeded-device-4-module-0"},
+    {
+        deviceId: "seeded-device-0",
+        name: "Drammen Station",
+        status: "Ready to deploy",
+        modules:
+            "seeded-device-0-module-0,seeded-device-0-module-1,seeded-device-0-module-2"
+    },
+    {
+        deviceId: "seeded-device-1",
+        name: "Eggjareid Station",
+        status: "Deployed",
+        modules: "seeded-device-1-module-0"
+    },
+    {
+        deviceId: "seeded-device-2",
+        name: "Evanger Station",
+        status: "Deployed",
+        modules: "seeded-device-2-module-0"
+    },
+    {
+        deviceId: "seeded-device-3",
+        name: "Finse Station",
+        status: "Deployed",
+        modules: "seeded-device-3-module-0"
+    },
+    {
+        deviceId: "seeded-device-4",
+        name: null,
+        status: "Deployed",
+        modules: "seeded-device-4-module-0"
+    }
 ];
