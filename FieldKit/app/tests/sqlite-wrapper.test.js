@@ -1,5 +1,5 @@
 import Sqlite from "wrappers/sqlite";
-import CreateDB from "services/create-db";
+import DatabaseInterface from "services/db-interface";
 
 describe("Sqlite Wrapper", () => {
     let sqlite;
@@ -124,7 +124,7 @@ describe("Sqlite Wrapper", () => {
             expect.assertions(1);
 
             return expect(
-                new CreateDB().getDatabase(db => {
+                new DatabaseInterface().getDatabase(db => {
                     console.log(db);
                     return db;
                 })

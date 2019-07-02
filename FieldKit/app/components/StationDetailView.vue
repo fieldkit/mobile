@@ -150,8 +150,8 @@
     import { Label } from "tns-core-modules/ui/label/label";
     import { Image } from "tns-core-modules/ui/image";
     import StationsView from "./StationsView";
-    import StationData from "../services/station-data";
-    const stationData = new StationData();
+    import DatabaseInterface from "../services/db-interface";
+    const dbInterface = new DatabaseInterface();
 
     export default {
         data() {
@@ -184,7 +184,7 @@
                         this.user = response;
                     });
 
-                stationData.getStation(this.stationId)
+                dbInterface.getStation(this.stationId)
                     .then(this.getModules)
                     .then(this.setupModules)
                     .then(this.createStationElements);
@@ -212,7 +212,7 @@
                 let valid = this.checkName();
                 if(valid) {
                     this.isEditingName = false;
-                    stationData.setStationName(this.station);
+                    dbInterface.setStationName(this.station);
                     let configChange = {
                         device_id: this.station.device_id,
                         before: this.station.origName,
@@ -220,7 +220,7 @@
                         affected_field: "name",
                         author: this.user.name
                     };
-                    stationData.recordConfigChange(configChange);
+                    dbInterface.recordConfigChange(configChange);
                     this.station.origName = this.station.name;
                 }
             },
@@ -235,7 +235,7 @@
 
             getModules(station) {
                 this.station = station[0];
-                return stationData.getModules(this.station.device_id)
+                return dbInterface.getModules(this.station.device_id)
             },
 
             linkModulesAndSensors(results) {
@@ -247,7 +247,7 @@
             },
 
             getSensors(moduleObject) {
-                let result = stationData.getSensors(moduleObject.module_id);
+                let result = dbInterface.getSensors(moduleObject.module_id);
                 return {resultPromise: result, module: moduleObject};
             },
 

@@ -2,6 +2,9 @@ import Config from "../config";
 import QueryStation from "./query-station";
 import Sqlite from "../wrappers/sqlite";
 
+import DatabaseInterface from "./db-interface";
+const dbInterface = new DatabaseInterface();
+
 const queryStation = new QueryStation();
 const sqlite = new Sqlite();
 
@@ -10,48 +13,37 @@ let foundStations = [];
 
 export default class CreateDB {
     constructor() {
-        if (databasePromise == null) {
-            databasePromise = this.openDatabase()
-                .then(() => {
-                    if (Config.dropTables) {
-                        return Promise.resolve().then(
-                            this.dropTables.bind(this)
-                        );
-                    } else {
-                        return Promise.resolve(this.database);
-                    }
-                })
-                .then(this.createSensorsTable.bind(this))
-                .then(this.createModulesTable.bind(this))
-                .then(this.createStationsTable.bind(this))
-                .then(this.createConfigLogTable.bind(this))
-                .then(() => {
-                    if (Config.seedDB) {
-                        return Promise.resolve()
-                            .then(
-                                this.insertIntoSensorsTable.bind(this, sensors)
-                            )
-                            .then(
-                                this.insertIntoModulesTable.bind(this, modules)
-                            )
-                            .then(
-                                this.insertIntoStationsTable.bind(
-                                    this,
-                                    stations
-                                )
-                            );
-                    } else {
-                        return Promise.resolve(this.database);
-                    }
-                });
-        }
-        this.checkForStation();
+        databasePromise = this.openDatabase();
         this.databasePromise = databasePromise;
+    }
+
+    initialize() {
+        return this.openDatabase()
+            .then(() => {
+                if (Config.dropTables) {
+                    return this.dropTables();
+                } else {
+                    return Promise.resolve(this.database);
+                }
+            })
+            .then(this.createSensorsTable.bind(this))
+            .then(this.createModulesTable.bind(this))
+            .then(this.createStationsTable.bind(this))
+            .then(this.createConfigLogTable.bind(this))
+            .then(() => {
+                if (Config.seedDB) {
+                    return dbInterface.insertIntoSensorsTable(sensors)
+                        .then(dbInterface.insertIntoModulesTable(modules))
+                        .then(dbInterface.insertIntoStationsTable(stations));
+                } else {
+                    return Promise.resolve(this.database);
+                }
+            });
     }
 
     getDatabaseName() {
         if (TNS_ENV === "test") {
-            return ":memory:";
+            return "test_fieldkit.sqlite3";
         }
         return "fieldkit.sqlite3";
     }
@@ -62,110 +54,10 @@ export default class CreateDB {
         });
     }
 
-    getDatabase() {
-        return databasePromise;
-    }
-
     dropTables() {
-        return Promise.resolve()
-            .then(() => {
-                return this.database.execute("DROP TABLE IF EXISTS modules");
-            })
-            .then(() => {
-                return this.database.execute("DROP TABLE IF EXISTS sensors");
-            })
-            .then(() => {
-                return this.database.execute("DROP TABLE IF EXISTS stations");
-            });
-    }
-
-    checkForStation() {
-        // let address = "https://localhost:2382";
-        let address = "http://192.168.1.5:2380";
-        let thisDB = this;
-
-        return new Promise(function(resolve, reject) {
-            let result = queryStation.queryIdentity(address);
-            return result
-                .then(r => {
-                    resolve(r.identity);
-                })
-                .catch(e => {
-                    resolve();
-                });
-        }).then(function(identity) {
-            if (!identity) {
-                Promise.resolve(thisDB.database);
-                return;
-            }
-            let result = queryStation.queryCapabilities(address);
-            return result
-                .then(r => {
-                    return thisDB.addStation(identity, r.capabilities);
-                })
-                .catch(e => {
-                    Promise.resolve(thisDB.database);
-                });
-        });
-    }
-
-    addStation(identity, capabilities) {
-        let name = identity.device;
-        let id = identity.deviceId;
-        let result = [];
-        for (let i = 0; i < id.length; i++) {
-            result.push(id[i]);
-        }
-        let deviceId = result.join("-");
-
-        // check to see if this station has already been added
-        // to do: compare/update data instead of returning
-        if (foundStations.indexOf(deviceId) > -1) {
-            return;
-        }
-
-        let station = {
-            deviceId: deviceId,
-            name: name,
-            status: "Ready to deploy",
-            modules: ""
-        };
-        let generateReading = this.generateReading;
-
-        let newModules = [];
-        let newSensors = [];
-        capabilities.modules.forEach(function(m, i) {
-            let moduleId = deviceId + "-module-" + i;
-            let mod = {
-                moduleId: moduleId,
-                deviceId: deviceId,
-                name: m.name,
-                sensors: ""
-            };
-            let modSensors = capabilities.sensors.filter(function(s) {
-                return s.module == m.id;
-            });
-            modSensors.forEach(function(s, j) {
-                let sensorId = moduleId + "-sensor-" + j;
-                mod.sensors += j == 0 ? sensorId : "," + sensorId;
-                let sensor = {
-                    sensorId: sensorId,
-                    moduleId: moduleId,
-                    name: s.name,
-                    unit: s.unitOfMeasure,
-                    frequency: s.frequency
-                };
-                sensor.currentReading = generateReading(sensor.name);
-                newSensors.push(sensor);
-            });
-            newModules.push(mod);
-            station.modules += i == 0 ? moduleId : "," + moduleId;
-        });
-
-        return Promise.resolve()
-            .then(this.insertIntoStationsTable.bind(this, [station]))
-            .then(this.insertIntoModulesTable.bind(this, newModules))
-            .then(this.insertIntoSensorsTable.bind(this, newSensors));
+        return this.database.execute("DROP TABLE IF EXISTS modules")
+            .then(this.database.execute("DROP TABLE IF EXISTS sensors"))
+            .then(this.database.execute("DROP TABLE IF EXISTS stations"));
     }
 
     createSensorsTable() {
@@ -226,117 +118,16 @@ export default class CreateDB {
         );
     }
 
-    generateReading(name) {
-        let reading = 0;
-        switch (name) {
-            case "pH Sensor":
-                reading = Math.random() * Math.floor(14);
-                break;
-            case "DO Sensor":
-                reading = Math.random() * Math.floor(15);
-                break;
-            case "Conductivity Sensor":
-            case "Conductivity":
-                reading = Math.random() * Math.floor(20000);
-                break;
-            case "Temperature Sensor":
-            case "Temperature":
-                reading = Math.random() * Math.floor(200);
-                break;
-            case "Wind Sensor":
-                reading = Math.random() * Math.floor(200);
-                break;
-            case "Rain Sensor":
-                reading = Math.random() * Math.floor(10);
-                break;
-            case "Depth":
-                reading = Math.random() * Math.floor(2000);
-                break;
-            default:
-                reading = Math.random() * Math.floor(10);
-        }
-        return reading.toFixed(2);
+    getSeededSensors() {
+        return sensors;
     }
 
-    insertIntoSensorsTable(sensorsToInsert) {
-        let result = sensorsToInsert.reduce((previousPromise, nextSensor) => {
-            nextSensor.currentReading = this.generateReading(nextSensor.name);
-            return previousPromise.then(() => {
-                return this.database.execute(
-                    "INSERT INTO sensors (sensor_id, module_id, name, unit, frequency, currentReading) VALUES (?, ?, ?, ?, ?, ?)",
-                    [
-                        nextSensor.sensorId,
-                        nextSensor.moduleId,
-                        nextSensor.name,
-                        nextSensor.unit,
-                        nextSensor.frequency,
-                        nextSensor.currentReading
-                    ]
-                );
-            });
-        }, Promise.resolve());
-
-        return result;
+    getSeededModules() {
+        return modules;
     }
 
-    insertIntoModulesTable(modulesToInsert) {
-        let result = modulesToInsert.reduce((previousPromise, nextModule) => {
-            return previousPromise.then(() => {
-                return this.database.execute(
-                    "INSERT INTO modules (module_id, device_id, name, sensors) VALUES (?, ?, ?, ?)",
-                    [
-                        nextModule.moduleId,
-                        nextModule.deviceId,
-                        nextModule.name,
-                        nextModule.sensors
-                    ]
-                );
-            });
-        }, Promise.resolve());
-
-        return result;
-    }
-
-    insertIntoStationsTable(stationsToInsert) {
-        let result = stationsToInsert.reduce((previousPromise, nextStn) => {
-            let newStation = new Station(nextStn);
-            return previousPromise.then(() => {
-                // save this deviceId
-                foundStations.push(newStation.deviceId);
-
-                return this.database.execute(
-                    "INSERT INTO stations (device_id, name, status, batteryLevel, connected, availableMemory, modules) \
-                    VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [
-                        newStation.deviceId,
-                        newStation.name,
-                        newStation.status,
-                        newStation.batteryLevel,
-                        newStation.connected,
-                        newStation.availableMemory,
-                        newStation.modules
-                    ]
-                );
-            });
-        }, Promise.resolve());
-
-        return result;
-    }
-}
-
-class Station {
-    constructor(_station) {
-        // created_at, and updated_at will be generated
-        this.deviceId = _station.deviceId;
-        this.name = _station.name
-            ? _station.name
-            : "FieldKit Station " +
-              Math.floor(Math.random() * Math.floor(9000));
-        this.status = _station.status;
-        this.batteryLevel = Math.floor(Math.random() * Math.floor(100));
-        this.connected = "true";
-        this.availableMemory = Math.floor(Math.random() * Math.floor(100));
-        this.modules = _station.modules; // comma-delimited list of module ids
+    getSeededStations() {
+        return stations;
     }
 }
 

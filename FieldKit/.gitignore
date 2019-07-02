@@ -32,3 +32,6 @@ typings/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Databases
+test_fieldkit.sqlite3

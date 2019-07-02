@@ -3,6 +3,9 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 import { Zeroconf } from "nativescript-zeroconf";
+import DatabaseInterface from "./db-interface";
+
+const dbInterface = new DatabaseInterface();
 
 class Station {
     constructor(info) {
@@ -71,7 +74,7 @@ export default class DiscoverStation {
         this.stations_[key] = station;
 
         // NOTE: This is just here to demonstrate how things flow together.
-        this.queryStation_.queryIdentity(station.url).then(response => {});
+        dbInterface.checkForStation(station.url);
     }
 
     stationLost(info) {

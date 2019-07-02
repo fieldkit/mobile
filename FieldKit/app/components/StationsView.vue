@@ -12,8 +12,8 @@
     import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
     import { Label } from "tns-core-modules/ui/label/label";
     import StationDetail from "./StationDetailView";
-    import StationData from "../services/station-data";
-    const stationData = new StationData();
+    import DatabaseInterface from "../services/db-interface";
+    const dbInterface = new DatabaseInterface();
 
     export default {
         data() {
@@ -26,7 +26,7 @@
             onPageLoaded(args) {
                 this.page = args.object;
                 if(!this.stations) {
-                    stationData.getAll().then(result => {
+                    dbInterface.getAll().then(result => {
                         this.stations = result;
                         this.createStationElements();
                     }, error => {
