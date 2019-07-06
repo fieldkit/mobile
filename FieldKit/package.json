@@ -1,10 +1,10 @@
 {
   "nativescript": {
     "id": "org.nativescript.fieldkit",
-    "tns-ios": {
+    "tns-android": {
       "version": "5.3.1"
     },
-    "tns-android": {
+    "tns-ios": {
       "version": "5.3.1"
     }
   },
@@ -15,12 +15,13 @@
     "ajv": "^6.10.0",
     "axios": "^0.19.0",
     "fk-app-protocol": "https://github.com/fieldkit/app-protocol.git",
+    "nativescript-download-progress": "^1.2.0",
     "nativescript-sqlite": "^2.3.3",
     "nativescript-theme-core": "~1.0.4",
     "nativescript-vue": "~2.2.0",
     "nativescript-zeroconf": "file:third-party/nativescript-zeroconf",
     "protobufjs": "^6.8.8",
-    "tns-core-modules": "^5.4.2",
+    "tns-core-modules": "^5.4.3",
     "tns-i18n": "0.0.10",
     "typescript": "^3.4.5"
   },

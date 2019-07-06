@@ -128,7 +128,7 @@
                             <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
                             <Label class="bold m-t-2" :text="_L('station')"></Label>
                         </StackLayout>
-                        <StackLayout>
+                        <StackLayout @tap="goToData">
                             <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
                             <Label class="light m-t-2" :text="_L('data')"></Label>
                         </StackLayout>
@@ -149,7 +149,7 @@
     import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
     import { Label } from "tns-core-modules/ui/label/label";
     import { Image } from "tns-core-modules/ui/image";
-    import StationsView from "./StationsView";
+    import routes from "../routes";
     import DatabaseInterface from "../services/db-interface";
     const dbInterface = new DatabaseInterface();
 
@@ -173,7 +173,17 @@
         methods: {
             goBack() {
                 clearInterval(this.intervalTimer);
-                this.$navigateTo(StationsView);
+                this.$navigateTo(routes.stations);
+            },
+
+            goToData(event) {
+                this.$navigateTo(routes.dataDownload, {
+                    props: {
+                        stationId: this.stationId,
+                        url: this.station.url,
+                        stationName: this.station.name
+                    }
+                });
             },
 
             onPageLoaded(args) {

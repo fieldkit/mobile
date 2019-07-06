@@ -115,17 +115,18 @@ export default class DatabaseInterface {
                         if(result.length > 0) {
                             // already have this station in db - update?
                         } else {
-                            this.addStation(deviceId, idResult.identity.device, capResult.capabilities);
+                            this.addStation(deviceId, address, idResult.identity.device, capResult.capabilities);
                         }
                     });
             });
         });
     }
 
-    addStation(deviceId, deviceName, capabilities) {
+    addStation(deviceId, address, deviceName, capabilities) {
         let station = {
             deviceId: deviceId,
             name: deviceName,
+            url: address,
             status: "Ready to deploy",
             modules: ""
         };
@@ -242,11 +243,12 @@ export default class DatabaseInterface {
             let newStation = new Station(nextStn);
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO stations (device_id, name, status, batteryLevel, connected, availableMemory, modules) \
-                    VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO stations (device_id, name, url, status, batteryLevel, connected, availableMemory, modules) \
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         newStation.deviceId,
                         newStation.name,
+                        newStation.url,
                         newStation.status,
                         newStation.batteryLevel,
                         newStation.connected,
@@ -269,6 +271,9 @@ class Station {
             ? _station.name
             : "FieldKit Station " +
               Math.floor(Math.random() * Math.floor(9000));
+        this.url = _station.url
+            ? _station.url
+            : "no_url";
         this.status = _station.status;
         this.batteryLevel = Math.floor(Math.random() * Math.floor(100));
         this.connected = "true";

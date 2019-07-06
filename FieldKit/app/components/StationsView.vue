@@ -11,7 +11,7 @@
 <script>
     import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
     import { Label } from "tns-core-modules/ui/label/label";
-    import StationDetail from "./StationDetailView";
+    import routes from "../routes";
     import DatabaseInterface from "../services/db-interface";
     const dbInterface = new DatabaseInterface();
 
@@ -36,7 +36,7 @@
             },
 
             goToDetail(event) {
-                this.$navigateTo(StationDetail, {
+                this.$navigateTo(routes.stationDetail, {
                     props: {
                         // remove the "station-" prefix
                         stationId: event.object.id.split("station-")[1]

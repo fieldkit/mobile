@@ -94,6 +94,7 @@ export default class CreateDB {
                 id INTEGER PRIMARY KEY AUTOINCREMENT, \
                 device_id TEXT, \
                 name TEXT, \
+                url TEXT, \
                 status TEXT, \
                 batteryLevel NUMERIC, \
                 connected TEXT, \
