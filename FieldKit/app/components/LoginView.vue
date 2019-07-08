@@ -262,7 +262,7 @@
                     .catch((error) => {
                         this.processing = false;
                         this.alert(
-                            error.toString()
+                            _L("loginFailed")
                         );
                     });
             },
