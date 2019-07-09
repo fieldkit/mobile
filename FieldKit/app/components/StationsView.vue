@@ -3,6 +3,7 @@
         <ScrollView>
             <StackLayout id="stations-list">
                 <Label class="h2 m-y-20 text-center" :text="message" textWrap="true"></Label>
+                <Label v-if="stations.length == 0" :text="_L('noStations')" class="m-10 p-10 text-center size-20" />
                 <StackLayout v-for="s in stations" orientation="vertical" :key="s.device_id" :id="'station-'+s.device_id" class="station-container m-y-5 m-x-15 p-10" @tap=goToDetail>
                     <Label :text="s.name" class="station-name" />
                     <Label :text="s.status" :class="'stations-list '+(s.status ? s.status.replace(/ /g, '') : '')" />
@@ -23,14 +24,13 @@
         data() {
             return {
                 message: "FieldKit Stations",
-                stations: null,
-                stutions: [{"name": "first-name"}, {"name": "second-name"}, {"name": "third-name"}]
+                stations: []
             };
         },
         methods: {
             onPageLoaded(args) {
                 this.page = args.object;
-                if(!this.stations) {
+                if(this.stations.length == 0) {
                     dbInterface.getAll().then(result => {
                         this.stations = result;
                     }, error => {

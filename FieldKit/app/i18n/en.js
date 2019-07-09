@@ -35,6 +35,8 @@ module.exports = {
     viewStations: "View Stations",
     logOut: "Log Out",
     authenticated: "You have successfully authenticated.",
+    // StationsView
+    noStations: "No stations found.",
     // StationDetailView
     nameOver40: "Name has a 40-character maximum.",
     nameNotPrintable: "Name must be printable.",
