@@ -10,7 +10,8 @@ module.exports = {
     noMatch: "Tus contraseñas no coinciden.",
     accountCreated: "Tu cuenta fue creada exitosamente.",
     accountCreateFailed: "Lamentablemente no hemos podido crear su cuenta.",
-    loginFailed: "Lamentablemente no hemos podido iniciar sesión. Compruebe sus credenciales e inténtelo de nuevo.",
+    loginFailed:
+        "Lamentablemente no hemos podido iniciar sesión. Compruebe sus credenciales e inténtelo de nuevo.",
     forgotTitle: "Restablecer la contraseña",
     forgotInstruction:
         "Ingrese la dirección de correo electrónico que usó para registrarse en FieldKit para restablecer su contraseña.",

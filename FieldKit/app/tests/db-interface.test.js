@@ -4,7 +4,7 @@ const dbInterface = new DatabaseInterface();
 const createDB = new CreateDB();
 
 describe("DatabaseInterface", () => {
-    beforeAll(async (done) => {
+    beforeAll(async done => {
         await createDB.initialize();
         done();
     });
@@ -29,5 +29,4 @@ describe("DatabaseInterface", () => {
         const data = await dbInterface.getModules(module.deviceId);
         expect(data.length).toBeGreaterThan(0);
     });
-
 });

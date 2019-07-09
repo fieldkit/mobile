@@ -9,7 +9,8 @@ module.exports = {
     noMatch: "Your passwords do not match.",
     accountCreated: "Your account was successfully created.",
     accountCreateFailed: "Unfortunately we were unable to create your account.",
-    loginFailed: "Unfortunately we were unable to log you in. Please check your credentials and try again.",
+    loginFailed:
+        "Unfortunately we were unable to log you in. Please check your credentials and try again.",
     forgotTitle: "Reset password",
     forgotInstruction:
         "Enter the email address you used to register for FieldKit to reset your password.",

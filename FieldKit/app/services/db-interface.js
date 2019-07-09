@@ -30,7 +30,6 @@ export default class DatabaseInterface {
         return databasePromise;
     }
 
-
     getConfigs(deviceId) {
         return this.getDatabase().then(db =>
             db.query("SELECT * FROM config WHERE device_id=" + deviceId)
@@ -110,12 +109,22 @@ export default class DatabaseInterface {
                 let deviceId = result.join("-");
                 // check to see if we already have it - and
                 // TO DO: update it?
-                this.database.query("SELECT * FROM stations WHERE device_id='" + deviceId + "'")
+                this.database
+                    .query(
+                        "SELECT * FROM stations WHERE device_id='" +
+                            deviceId +
+                            "'"
+                    )
                     .then(result => {
-                        if(result.length > 0) {
+                        if (result.length > 0) {
                             // already have this station in db - update?
                         } else {
-                            this.addStation(deviceId, address, idResult.identity.device, capResult.capabilities);
+                            this.addStation(
+                                deviceId,
+                                address,
+                                idResult.identity.device,
+                                capResult.capabilities
+                            );
                         }
                     });
             });
@@ -271,9 +280,7 @@ class Station {
             ? _station.name
             : "FieldKit Station " +
               Math.floor(Math.random() * Math.floor(9000));
-        this.url = _station.url
-            ? _station.url
-            : "no_url";
+        this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
         this.batteryLevel = Math.floor(Math.random() * Math.floor(100));
         this.connected = "true";
@@ -281,4 +288,3 @@ class Station {
         this.modules = _station.modules; // comma-delimited list of module ids
     }
 }
-

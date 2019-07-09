@@ -32,7 +32,8 @@ export default class CreateDB {
             .then(this.createConfigLogTable.bind(this))
             .then(() => {
                 if (Config.seedDB) {
-                    return dbInterface.insertIntoSensorsTable(sensors)
+                    return dbInterface
+                        .insertIntoSensorsTable(sensors)
                         .then(dbInterface.insertIntoModulesTable(modules))
                         .then(dbInterface.insertIntoStationsTable(stations));
                 } else {
@@ -55,7 +56,8 @@ export default class CreateDB {
     }
 
     dropTables() {
-        return this.database.execute("DROP TABLE IF EXISTS modules")
+        return this.database
+            .execute("DROP TABLE IF EXISTS modules")
             .then(this.database.execute("DROP TABLE IF EXISTS sensors"))
             .then(this.database.execute("DROP TABLE IF EXISTS stations"));
     }
