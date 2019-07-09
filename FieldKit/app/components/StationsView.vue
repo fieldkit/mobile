@@ -3,6 +3,10 @@
         <ScrollView>
             <StackLayout id="stations-list">
                 <Label class="h2 m-y-20 text-center" :text="message" textWrap="true"></Label>
+                <StackLayout v-for="s in stations" orientation="vertical" :key="s.device_id" :id="'station-'+s.device_id" class="station-container m-y-5 m-x-15 p-10" @tap=goToDetail>
+                    <Label :text="s.name" class="station-name" />
+                    <Label :text="s.status" :class="'stations-list '+(s.status ? s.status.replace(/ /g, '') : '')" />
+                </StackLayout>
             </StackLayout>
         </ScrollView>
     </Page>
@@ -19,7 +23,8 @@
         data() {
             return {
                 message: "FieldKit Stations",
-                stations: null
+                stations: null,
+                stutions: [{"name": "first-name"}, {"name": "second-name"}, {"name": "third-name"}]
             };
         },
         methods: {
@@ -28,7 +33,6 @@
                 if(!this.stations) {
                     dbInterface.getAll().then(result => {
                         this.stations = result;
-                        this.createStationElements();
                     }, error => {
                         // console.log("error getting stations data", error)
                     });
@@ -36,46 +40,15 @@
             },
 
             goToDetail(event) {
+                // Change background color when pressed
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+
                 this.$navigateTo(routes.stationDetail, {
                     props: {
                         // remove the "station-" prefix
                         stationId: event.object.id.split("station-")[1]
                     }
-                });
-            },
-
-            createStationElements() {
-                let layout = this.page.getViewById("stations-list");
-
-                if(this.stations.length == 0) {
-                    let noneLabel = new Label();
-                    noneLabel.text = "No stations found.";
-                    noneLabel.className = "m-10 p-10 text-center";
-                    noneLabel.style = "font-size: 20;";
-                    layout.addChild(noneLabel);
-                    return
-                }
-
-                // define here in order to reference in loop
-                let detailNav = this.goToDetail;
-
-                this.stations.forEach(function(r,i) {
-                    let stationStack = new StackLayout();
-                    stationStack.id = "station-"+r.device_id;
-                    stationStack.orientation = "vertical";
-                    stationStack.className = "station-container m-y-5 m-x-15 p-10";
-                    stationStack.on("tap", detailNav)
-
-                    let nameLabel = new Label();
-                    nameLabel.text = r.name;
-                    nameLabel.className = "station-name";
-                    stationStack.addChild(nameLabel);
-                    let statusLabel = new Label();
-                    statusLabel.text = r.status;
-                    statusLabel.className = "stations-list " + (r.status ? r.status.replace(/ /g, '') : '');
-                    stationStack.addChild(statusLabel);
-
-                    layout.addChild(stationStack);
                 });
             }
         }
@@ -88,4 +61,15 @@
     // End custom common variables
 
     // Custom styles
+    .station-container {
+        border-radius: 4;
+        border-color: $fk-gray-lighter;
+        border-width: 1;
+    }
+    .station-name {
+        font-size: 18;
+        color: black;
+    }
+    .stations-list {font-size: 16;}
+    .Readytodeploy {color: green}
 </style>

@@ -77,17 +77,11 @@ h1 {
     font-weight: bold;
 }
 
-.station-container, .module-container {
+.module-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
     border-width: 1;
 }
-.station-name {
-    font-size: 18;
-    color: black;
-}
-.stations-list {font-size: 16;}
-.Readytodeploy {color: green}
 .module-labels {margin-left: 50;}
 .sensor-name {
     font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
