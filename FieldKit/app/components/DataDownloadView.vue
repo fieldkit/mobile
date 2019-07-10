@@ -5,8 +5,8 @@
                 <Label class="h2 m-y-20 text-center" :text="message" textWrap="true"></Label>
 
                 <StackLayout id="download-container">
-                    <FlexboxLayout justifyContent="center" @tap="startDownload">
-                        <Label class="btn btn-primary" text="Start download"></Label>
+                    <FlexboxLayout justifyContent="center">
+                        <Button class="btn btn-primary" text="Start download" @tap="startDownload"></Button>
                     </FlexboxLayout>
                     <GridLayout v-show="isDownloading" class="progress-bar-container" rows="auto, auto, auto" columns="*">
                         <StackLayout row="0" class="progress-bar"></StackLayout>

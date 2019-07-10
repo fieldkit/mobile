@@ -1,16 +1,15 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <ScrollView>
-            <StackLayout>
+            <FlexboxLayout flexDirection="column" justifyContent="space-between">
                 <GridLayout rows="auto" columns="*">
-                    <Image
-                        row="0"
-                        class="m-10"
-                        width="21"
-                        horizontalAlignment="left"
-                        v-show="!isEditingName"
-                        @tap="goBack"
-                        src="~/images/Icon_backarrow.png"></Image>
+                    <StackLayout row="0" class="round m-y-10" @tap="goBack" horizontalAlignment="left">
+                        <Image
+                            width="21"
+                            class="m-t-10"
+                            v-show="!isEditingName"
+                            src="~/images/Icon_backarrow.png"></Image>
+                    </StackLayout>
                     <Image
                         row="0"
                         class="m-10"
@@ -86,60 +85,60 @@
                         @tap="saveStationName"
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
-                <StackLayout id="fade-container" :class="isEditingName ? 'faded' : ''">
-                    <GridLayout rows="auto" columns="*">
-                        <StackLayout
-                            row="0"
-                            class="col left-col"
-                            horizontalAlignment="left">
-                            <Label class="text-center m-y-5 size-14" :text="_L('connected')"></Label>
-                            <Image width="25" v-show="station.connected" src="~/images/Icon_Connected.png"></Image>
-                            <Label class="text-center red" v-show="!station.connected">✘</Label>
-                        </StackLayout>
-                        <StackLayout
-                            row="0"
-                            class="col right-col"
-                            horizontalAlignment="right">
-                            <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
-                            <FlexboxLayout justifyContent="center">
-                                <Label class="m-r-5 size-12" :text="station.batteryLevel"></Label>
-                                <Image width="25" src="~/images/Icon_Battery.png"></Image>
-                            </FlexboxLayout>
-                        </StackLayout>
-                    </GridLayout>
 
-                    <GridLayout class="memory-bar-container" rows="auto, auto" columns="*">
-                        <StackLayout row="0" class="memory-bar"></StackLayout>
-                        <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
-                        <Label row="1" class="m-t-5 size-12" horizontalAlignment="left" :text="_L('availableMemory')"></Label>
-                        <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="station.availableMemory"></Label>
-                    </GridLayout>
-
-                    <StackLayout id="station-detail"></StackLayout>
-
-                    <StackLayout class="module-container m-10 p-10">
-                        <Label
-                            :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
-                            :text="station.status == 'Ready to deploy' ? _L('deploy') : _L('deployed')+' 01/01/19'"></Label>
+                <GridLayout rows="auto" columns="*" :class="isEditingName ? 'faded' : ''">
+                    <StackLayout
+                        row="0"
+                        class="col left-col"
+                        horizontalAlignment="left">
+                        <Label class="text-center m-y-5 size-14" :text="_L('connected')"></Label>
+                        <Image width="25" v-show="station.connected" src="~/images/Icon_Connected.png"></Image>
+                        <Label class="text-center red" v-show="!station.connected">✘</Label>
                     </StackLayout>
+                    <StackLayout
+                        row="0"
+                        class="col right-col"
+                        horizontalAlignment="right">
+                        <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
+                        <FlexboxLayout justifyContent="center">
+                            <Label class="m-r-5 size-12" :text="station.batteryLevel"></Label>
+                            <Image width="25" src="~/images/Icon_Battery.png"></Image>
+                        </FlexboxLayout>
+                    </StackLayout>
+                </GridLayout>
 
-                    <FlexboxLayout justifyContent="space-between" class="size-12 p-x-30 footer">
-                        <StackLayout>
-                            <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
-                            <Label class="bold m-t-2" :text="_L('station')"></Label>
-                        </StackLayout>
-                        <StackLayout @tap="goToData">
-                            <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
-                            <Label class="light m-t-2" :text="_L('data')"></Label>
-                        </StackLayout>
-                        <StackLayout>
-                            <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
-                            <Label class="light m-t-2" :text="_L('settings')"></Label>
-                        </StackLayout>
-                    </FlexboxLayout>
-                </StackLayout> <!-- end fade-container -->
+                <GridLayout :class="'memory-bar-container ' + (isEditingName ? 'faded' : '')" rows="auto, auto" columns="*">
+                    <StackLayout row="0" class="memory-bar"></StackLayout>
+                    <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
+                    <Label row="1" class="m-t-5 size-12" horizontalAlignment="left" :text="_L('availableMemory')"></Label>
+                    <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="station.availableMemory"></Label>
+                </GridLayout>
 
-            </StackLayout>
+                <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''"></StackLayout>
+
+                <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')">
+                    <Label
+                        :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
+                        :text="station.status == 'Ready to deploy' ? _L('deploy') : _L('deployed')+' 01/01/19'"></Label>
+                </StackLayout>
+
+                <!-- footer -->
+                <FlexboxLayout justifyContent="space-between" :class="'size-12 p-30 footer ' + (isEditingName ? 'faded' : '')">
+                    <StackLayout>
+                        <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
+                        <Label class="bold m-t-2" :text="_L('station')"></Label>
+                    </StackLayout>
+                    <StackLayout @tap="goToData">
+                        <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
+                        <Label class="light m-t-2" :text="_L('data')"></Label>
+                    </StackLayout>
+                    <StackLayout>
+                        <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
+                        <Label class="light m-t-2" :text="_L('settings')"></Label>
+                    </StackLayout>
+                </FlexboxLayout>
+
+            </FlexboxLayout>
         </ScrollView>
     </Page>
 </template>
@@ -171,7 +170,10 @@
         },
         props: ['stationId'],
         methods: {
-            goBack() {
+            goBack(event) {
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+
                 clearInterval(this.intervalTimer);
                 this.$navigateTo(routes.stations);
             },
@@ -440,7 +442,12 @@
         padding-top: 5;
     }
 
-    #fade-container.faded {
+    .round {
+        width: 40;
+        border-radius: 20;
+    }
+
+    .faded {
         opacity: 0.5;
     }
 
@@ -494,7 +501,7 @@
         border-top-color: $fk-gray-lightest;
         border-top-width: 2;
         margin-top: 10;
-        margin-bottom: 30;
+        margin-bottom: 5;
         padding-top: 10;
     }
 
