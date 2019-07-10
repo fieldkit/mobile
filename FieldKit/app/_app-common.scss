@@ -86,14 +86,12 @@ h1 {
     font-weight: bold;
 }
 
-.module-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-}
-.module-labels {margin-left: 50;}
-.sensor-name {
-    font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
+.footer {
+    border-top-color: $fk-gray-lightest;
+    border-top-width: 2;
+    margin-top: 10;
+    margin-bottom: 5;
+    padding-top: 10;
 }
 
 //Font icon

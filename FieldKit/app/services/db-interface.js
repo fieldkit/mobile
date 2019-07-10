@@ -54,6 +54,14 @@ export default class DatabaseInterface {
         );
     }
 
+    getModule(moduleId) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "SELECT * FROM modules WHERE module_id='" + moduleId + "'"
+            )
+        );
+    }
+
     getModules(deviceId) {
         return this.getDatabase().then(db =>
             db.query(

@@ -1,14 +1,16 @@
-import Login from "../components/LoginView";
-import Home from "../components/HomeView";
-import Stations from "../components/StationsView";
-import StationDetail from "../components/StationDetailView";
 import DataDownload from "../components/DataDownloadView";
+import Home from "../components/HomeView";
+import Login from "../components/LoginView";
+import Module from "../components/ModuleView";
+import StationDetail from "../components/StationDetailView";
+import Stations from "../components/StationsView";
 
 const routes = {
-    login: Login,
+    dataDownload: DataDownload,
     home: Home,
-    stations: Stations,
+    login: Login,
+    module: Module,
     stationDetail: StationDetail,
-    dataDownload: DataDownload
+    stations: Stations
 };
 export default routes;

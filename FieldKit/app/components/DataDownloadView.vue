@@ -40,7 +40,6 @@
 </template>
 
 <script>
-    import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
     import { Label } from "tns-core-modules/ui/label/label";
     import { knownFolders } from "tns-core-modules/file-system";
     import { DownloadProgress } from "nativescript-download-progress"
@@ -132,13 +131,5 @@
 
     #download-progress-bar {
         background: $fk-secondary-blue;
-    }
-
-    .footer {
-        border-top-color: $fk-gray-lightest;
-        border-top-width: 2;
-        margin-top: 10;
-        margin-bottom: 5;
-        padding-top: 10;
     }
 </style>

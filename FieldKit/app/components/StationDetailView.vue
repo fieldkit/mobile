@@ -114,7 +114,31 @@
                     <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="station.availableMemory"></Label>
                 </GridLayout>
 
-                <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''"></StackLayout>
+                <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
+                    <GridLayout rows="auto" columns="*" v-for="m in modules" :key="m.module_id" class="module-container m-10 p-10">
+                        <Image width="40" horizontalAlignment="left" :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
+                                                m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
+                                                '~/images/Icon_Generic_Module.png')"></Image>
+                        <StackLayout :id="'m_id-' + m.module_id" orientation="vertical" class="module-labels" @tap="goToModule">
+                            <Label :text="m.name" class="module-name size-16" />
+                            <Label :id="'sensor-label-' + m.module_id" :text="m.sensorObjects[0].name" class="sensor-name size-14" />
+                        </StackLayout>
+
+                        <template v-if="m.name.indexOf('Generic') > -1 ">
+                            <Image width="30" src="~/images/Icon_Congfigure.png" horizontalAlignment="right"></Image>
+                        </template>
+                        <template v-else>
+                            <!-- faux current reading, with trend arrow and units -->
+                            <StackLayout :id="'sensors-of-' + m.module_id" horizontalAlignment="right" verticalAlignment="center" orientation="vertical" class="sensor-labels">
+                                <GridLayout rows="auto" columns="auto, auto">
+                                    <Image col="0" width="7" class="m-r-2" src="~/images/Icon_Decrease.png"></Image>
+                                    <Label col="1" :id="'sensor-reading-' + m.module_id" :text="m.sensorObjects[0].currentReading.toFixed(1)" class="size-24" />
+                                </GridLayout>
+                                <Label :id="'sensor-unit-' + m.module_id" :text="m.sensorObjects[0].unit" class="size-10 text-right" />
+                            </StackLayout>
+                        </template>
+                    </GridLayout>
+                </StackLayout>
 
                 <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')">
                     <Label
@@ -144,10 +168,6 @@
 </template>
 
 <script>
-    import { GridLayout } from "tns-core-modules/ui/layouts/grid-layout";
-    import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
-    import { Label } from "tns-core-modules/ui/label/label";
-    import { Image } from "tns-core-modules/ui/image";
     import routes from "../routes";
     import DatabaseInterface from "../services/db-interface";
     const dbInterface = new DatabaseInterface();
@@ -165,7 +185,8 @@
                     battery: "0",
                     availableMemory: "0",
                     origName: "FieldKit Station"
-                }
+                },
+                modules: []
             };
         },
         props: ['stationId'],
@@ -188,6 +209,16 @@
                 });
             },
 
+            goToModule(event) {
+                this.$navigateTo(routes.module, {
+                    props: {
+                        // remove the "m_id-" prefix
+                        moduleId: event.object.id.split("m_id-")[1],
+                        stationId: this.stationId
+                    }
+                });
+            },
+
             onPageLoaded(args) {
                 this.page = args.object;
 
@@ -199,7 +230,7 @@
                 dbInterface.getStation(this.stationId)
                     .then(this.getModules)
                     .then(this.setupModules)
-                    .then(this.createStationElements);
+                    .then(this.completeSetup);
             },
 
             toggleRename() {
@@ -269,7 +300,8 @@
                     .then(this.linkModulesAndSensors);
             },
 
-            createStationElements() {
+            completeSetup() {
+                this.modules = this.station.moduleObjects;
                 this.station.origName = this.station.name;
                 this.station.connected = this.station.connected != "false";
                 this.station.batteryLevel+="%";
@@ -277,88 +309,18 @@
                 this.station.availableMemory+="%";
                 this.page.addCss("#station-memory-bar {width: "+this.station.occupiedMemory+"%;}");
 
-                let layout = this.page.getViewById("station-detail");
-
                 let sensorsToCycle = [];
                 this.station.moduleObjects.forEach(function(mod) {
-                    let grid = new GridLayout();
-                    grid.rows = "auto";
-                    grid.columns = "*";
-                    grid.className = "module-container m-10 p-10";
-
-                    let icon = new Image();
-                    icon.src = mod.name.indexOf("Water") > -1 ? "~/images/Icon_Water_Module.png" :
-                        mod.name.indexOf("Weather") > -1 ? "~/images/Icon_Weather_Module.png" :
-                        "~/images/Icon_Generic_Module.png";
-                    icon.width = "40";
-                    icon.horizontalAlignment = "left";
-                    grid.addChild(icon);
-
-                    let stack = new StackLayout();
-                    stack.orientation = "vertical";
-                    stack.className = "module-labels";
-                    let modLabel = new Label();
-                    modLabel.text = mod.name;
-                    modLabel.className = "module-name size-16";
-                    stack.addChild(modLabel);
-                    let sensorLabel = new Label();
-                    sensorLabel.text = mod.sensorObjects[0].name;
-                    sensorLabel.className = "sensor-name size-14";
-                    stack.addChild(sensorLabel);
-                    grid.addChild(stack);
-
-                    if(mod.name.indexOf("Generic") > -1) {
-                        // gear icon
-                        let gearIcon = new Image();
-                        gearIcon.src = "~/images/Icon_Congfigure.png";
-                        gearIcon.width = "30";
-                        gearIcon.horizontalAlignment = "right";
-                        grid.addChild(gearIcon);
-
-                    } else {
-                        // current reading, with trend and units
-                        let sensorStack = new StackLayout();
-                        sensorStack.orientation = "vertical";
-                        sensorStack.className = "sensor-labels";
-                        sensorStack.horizontalAlignment = "right";
-                        sensorStack.verticalAlignment = "center";
-
-                        let readingGrid = new GridLayout();
-                        readingGrid.rows = "auto";
-                        readingGrid.columns = "auto, auto";
-
-                        let trendIcon = new Image();
-                        trendIcon.src = Math.random() > 0.5 ? "~/images/Icon_Decrease.png" : "~/images/Icon_Increase.png";
-                        trendIcon.width = "7";
-                        trendIcon.col = "0";
-                        trendIcon.className = "m-r-2";
-                        readingGrid.addChild(trendIcon);
-
-                        let sensorReading = new Label();
-                        sensorReading.text = mod.sensorObjects[0].currentReading.toFixed(1);
-                        sensorReading.className = "size-24";
-                        sensorReading.col = "1";
-                        readingGrid.addChild(sensorReading);
-                        sensorStack.addChild(readingGrid);
-
-                        let sensorUnit = new Label();
-                        sensorUnit.text = mod.sensorObjects[0].unit;
-                        sensorUnit.className = "size-10 text-right";
-                        sensorStack.addChild(sensorUnit);
-
-                        if(mod.sensorObjects.length > 1) {
-                            sensorsToCycle.push({
-                                "sensorLabel":sensorLabel,
-                                "sensorReading":sensorReading,
-                                "sensorUnit":sensorUnit,
-                                "sensorStack":sensorStack,
-                                "module":mod,
-                                "currentIndex":0
-                            });
-                        }
-                        grid.addChild(sensorStack);
+                    if(mod.sensorObjects.length > 1) {
+                        sensorsToCycle.push({
+                            "stackId": "sensors-of-" + mod.module_id,
+                            "sensorLabelId": "sensor-label-" + mod.module_id,
+                            "sensorReadingId": "sensor-reading-" + mod.module_id,
+                            "sensorUnitId": "sensor-unit-" + mod.module_id,
+                            "module": mod,
+                            "currentIndex": 0
+                        });
                     }
-                    layout.addChild(grid);
                 });
 
                 this.sensorsToCycle = sensorsToCycle;
@@ -366,26 +328,31 @@
             },
 
             cycleSensorReadings() {
+                let page = this.page;
                 this.sensorsToCycle.forEach(function(s) {
+                    let stack = page.getViewById(s.stackId);
+                    let sensorLabel = page.getViewById(s.sensorLabelId);
+                    let sensorReading = page.getViewById(s.sensorReadingId);
+                    let sensorUnit = page.getViewById(s.sensorUnitId);
+
                     s.currentIndex = s.currentIndex == s.module.sensorObjects.length-1 ? 0 : s.currentIndex+1;
-                    s.sensorLabel.animate({
+                    sensorLabel.animate({
                         opacity: 0,
                         duration: 1000
                     }).then(function() {
-                        s.sensorLabel.text = s.module.sensorObjects[s.currentIndex].name;
-                        return s.sensorLabel.animate({
+                        sensorLabel.text = s.module.sensorObjects[s.currentIndex].name;
+                        return sensorLabel.animate({
                             opacity: 1,
                             duration: 500
                         });
                     });
-
-                    s.sensorStack.animate({
+                    stack.animate({
                         opacity: 0,
                         duration: 1000
                     }).then(function() {
-                        s.sensorReading.text = s.module.sensorObjects[s.currentIndex].currentReading.toFixed(1);
-                        s.sensorUnit.text = s.module.sensorObjects[s.currentIndex].unit;
-                        return s.sensorStack.animate({
+                        sensorReading.text = s.module.sensorObjects[s.currentIndex].currentReading.toFixed(1);
+                        sensorUnit.text = s.module.sensorObjects[s.currentIndex].unit;
+                        return stack.animate({
                             opacity: 1,
                             duration: 500
                         });
@@ -393,7 +360,7 @@
                 });
             },
 
-            navigatingFrom() {
+            onNavigatingFrom() {
                 clearInterval(this.intervalTimer);
             }
         }
@@ -497,12 +464,15 @@
         background: $fk-tertiary-green;
     }
 
-    .footer {
-        border-top-color: $fk-gray-lightest;
-        border-top-width: 2;
-        margin-top: 10;
-        margin-bottom: 5;
-        padding-top: 10;
+    .module-container {
+        border-radius: 4;
+        border-color: $fk-gray-lighter;
+        border-width: 1;
     }
 
+    .module-labels {margin-left: 50;}
+
+    .sensor-name {
+        font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
+    }
 </style>

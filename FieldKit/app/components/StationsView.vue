@@ -14,8 +14,6 @@
 </template>
 
 <script>
-    import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
-    import { Label } from "tns-core-modules/ui/label/label";
     import routes from "../routes";
     import DatabaseInterface from "../services/db-interface";
     const dbInterface = new DatabaseInterface();
