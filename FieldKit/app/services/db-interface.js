@@ -56,9 +56,7 @@ export default class DatabaseInterface {
 
     getModule(moduleId) {
         return this.getDatabase().then(db =>
-            db.query(
-                "SELECT * FROM modules WHERE module_id='" + moduleId + "'"
-            )
+            db.query("SELECT * FROM modules WHERE module_id='" + moduleId + "'")
         );
     }
 
@@ -89,12 +87,49 @@ export default class DatabaseInterface {
         );
     }
 
-    recordConfigChange(config) {
+    setModuleName(module) {
         return this.getDatabase().then(db =>
             db.query(
-                "INSERT INTO config (device_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
+                "UPDATE modules SET name='" +
+                    module.name +
+                    "' WHERE id=" +
+                    module.id
+            )
+        );
+    }
+
+    setModuleGraphs(module) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE modules SET graphs='" +
+                    module.graphs +
+                    "' WHERE id=" +
+                    module.id
+            )
+        );
+    }
+
+    recordStationConfigChange(config) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "INSERT INTO stations_config (device_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
                 [
                     config.device_id,
+                    config.before,
+                    config.after,
+                    config.affected_field,
+                    config.author
+                ]
+            )
+        );
+    }
+
+    recordModuleConfigChange(config) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "INSERT INTO modules_config (module_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
+                [
+                    config.module_id,
                     config.before,
                     config.after,
                     config.affected_field,

@@ -115,11 +115,11 @@
                 </GridLayout>
 
                 <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
-                    <GridLayout rows="auto" columns="*" v-for="m in modules" :key="m.module_id" class="module-container m-10 p-10">
+                    <GridLayout :id="'m_id-' + m.module_id" rows="auto" columns="*" v-for="m in modules" :key="m.module_id" class="module-container m-10 p-10" @tap="goToModule">
                         <Image width="40" horizontalAlignment="left" :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
                                                 m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
                                                 '~/images/Icon_Generic_Module.png')"></Image>
-                        <StackLayout :id="'m_id-' + m.module_id" orientation="vertical" class="module-labels" @tap="goToModule">
+                        <StackLayout orientation="vertical" class="module-labels">
                             <Label :text="m.name" class="module-name size-16" />
                             <Label :id="'sensor-label-' + m.module_id" :text="m.sensorObjects[0].name" class="sensor-name size-14" />
                         </StackLayout>
@@ -210,6 +210,10 @@
             },
 
             goToModule(event) {
+                // Change background color when pressed
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+
                 this.$navigateTo(routes.module, {
                     props: {
                         // remove the "m_id-" prefix
@@ -263,7 +267,7 @@
                         affected_field: "name",
                         author: this.user.name
                     };
-                    dbInterface.recordConfigChange(configChange);
+                    dbInterface.recordStationConfigChange(configChange);
                     this.station.origName = this.station.name;
                 }
             },

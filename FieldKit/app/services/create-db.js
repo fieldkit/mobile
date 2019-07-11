@@ -29,7 +29,8 @@ export default class CreateDB {
             .then(this.createSensorsTable.bind(this))
             .then(this.createModulesTable.bind(this))
             .then(this.createStationsTable.bind(this))
-            .then(this.createConfigLogTable.bind(this))
+            .then(this.createStationConfigLogTable.bind(this))
+            .then(this.createModuleConfigLogTable.bind(this))
             .then(() => {
                 if (Config.seedDB) {
                     return dbInterface
@@ -85,6 +86,7 @@ export default class CreateDB {
                 device_id TEXT, \
                 name TEXT, \
                 sensors TEXT, \
+                graphs TEXT, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
         );
@@ -107,11 +109,25 @@ export default class CreateDB {
         );
     }
 
-    createConfigLogTable() {
+    createStationConfigLogTable() {
         return this.database.execute(
-            "CREATE TABLE IF NOT EXISTS config (\
+            "CREATE TABLE IF NOT EXISTS stations_config (\
                 id INTEGER PRIMARY KEY AUTOINCREMENT, \
                 device_id INTEGER, \
+                before TEXT, \
+                after TEXT, \
+                affected_field TEXT, \
+                author TEXT, \
+                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
+        );
+    }
+
+    createModuleConfigLogTable() {
+        return this.database.execute(
+            "CREATE TABLE IF NOT EXISTS modules_config (\
+                id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                module_id INTEGER, \
                 before TEXT, \
                 after TEXT, \
                 affected_field TEXT, \
