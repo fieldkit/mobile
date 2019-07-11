@@ -86,13 +86,40 @@
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
-                <GridLayout class="m-x-10" rows="auto, auto, auto, auto, auto" columns="*">
-                    <Label row="0" class="size-20" text="Data capture interval"></Label>
-                    <Label row="1" class="size-14" text="More frequent data reduces the battery quicker"></Label>
-                    <Label row="2" class="size-16 text-center m-t-15" :text="'Current value: ' + displayInterval"></Label>
-                    <Slider id="interval-slider" row="3" class="m-t-15" :value="currentInterval" @valueChange="onValueChanged" :minValue="intervalMin" :maxValue="intervalMax"></Slider>
-                    <Label row="4" class="size-12" horizontalAlignment="left" text="Sec" textWrap="true"></Label>
-                    <Label row="4" class="size-12" horizontalAlignment="right" text="Weeks" textWrap="true"></Label>
+                <GridLayout rows="auto,auto,auto,auto" columns="50*,50*" class="m-x-10">
+                    <Label row="0" colSpan="2" class="size-20" text="Data capture interval"></Label>
+                    <Label row="1" colSpan="2" class="size-14 m-y-5" text="More frequent data reduces the battery quicker"></Label>
+                    <TextField
+                        row="2"
+                        col="0"
+                        horizontalAlignment="left"
+                        verticalAligment="bottom"
+                        class="input interval-input"
+                        :isEnabled="true"
+                        keyboardType="name"
+                        autocorrect="false"
+                        autocapitalizationType="none"
+                        v-model="currentInterval"
+                        @blur="checkInterval"></TextField>
+                    <StackLayout row="2" col="1" horizontalAlignment="right" id="drop-down-container">
+                        <DropDown :items="timeUnits" @selectedIndexChanged="onSelectedIndexChanged" backgroundColor="#F4F5F7" width="100%" class="drop-down" selectedIndex="2" ></DropDown>
+                    </StackLayout>
+                    <StackLayout row="3">
+                        <Label
+                            class="validation-error"
+                            id="no-interval"
+                            horizontalAlignment="left"
+                            text="Interval must not be blank"
+                            textWrap="true"
+                            :visibility="noInterval ? 'visible' : 'collapsed'"></Label>
+                        <Label
+                            class="validation-error"
+                            id="interval-not-numeric"
+                            horizontalAlignment="left"
+                            text="Interval must be a number"
+                            textWrap="true"
+                            :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
+                    </StackLayout>
                 </GridLayout>
 
                 <!-- footer -->
@@ -124,18 +151,19 @@
     export default {
         data() {
             return {
-                currentInterval: 76610,
-                displayInterval: "21 hours",
-                intervalMin: 30, // 30 seconds
-                intervalMax: 1209600, // 2 weeks in seconds
+                currentInterval: 1,
+                currentUnit: "hours",
                 isEditingName: false,
                 noName: false,
                 nameNotPrintable: false,
                 nameTooLong: false,
+                noInterval: false,
+                intervalNotNumber: false,
                 module: {
                     name: "",
                     origName: ""
-                }
+                },
+                timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
             };
         },
         props: ['moduleId'],
@@ -210,29 +238,21 @@
                 this.module.name = this.module.origName;
             },
 
-            onValueChanged(event) {
-                let displayValue = event.value;
-                if(event.value < 60) {
-                    // seconds
-                    displayValue += " seconds";
-                } else if(event.value < 3600) {
-                    // minutes
-                    displayValue /= 60;
-                    displayValue = Math.round(displayValue) + " minutes";
-                } else if(event.value < 86400) {
-                    // hours
-                    displayValue /= 3600;
-                    displayValue =  Math.round(displayValue) + " hours";
-                } else if(event.value < 604800) {
-                    // days
-                    displayValue /= 86400;
-                    displayValue =  Math.round(displayValue) + " days";
-                } else {
-                    // weeks
-                    displayValue /= 604800;
-                    displayValue = displayValue.toFixed(1) + " weeks";
-                }
-                this.displayInterval = displayValue;
+            checkInterval() {
+                // reset these first
+                this.noInterval = false;
+                this.intervalNotNumber = false;
+                // then check
+                this.noInterval = !this.currentInterval || this.currentInterval.length == 0;
+                if(this.noInterval) {return false}
+                let matches = this.currentInterval.match(/^\d+$/);
+                this.intervalNotNumber = !matches || matches.length == 0;
+                return !this.intervalNotNumber;
+            },
+
+            onSelectedIndexChanged(event) {
+                // console.log("event.value", event.oldIndex, event.newIndex)
+                this.currentUnit = timeUnits[event.newIndex];
             }
 
         }
@@ -247,13 +267,13 @@
 
     // Custom styles
     #module-name-field {
-        width: 275;
+        width: 225;
         font-size: 16;
         color: $fk-primary-black;
     }
 
     #module-name-field .input {
-        width: 325;
+        width: 195;
         border-bottom-color: $fk-primary-black;
         border-bottom-width: 1;
         padding-top: 3;
@@ -282,9 +302,12 @@
         padding-top: 5;
     }
 
-    #interval-slider {
-        background-color: $fk-primary-blue;
-        color: $fk-gray-light;
+    .interval-input {
+        font-size: 18;
+        width: 48%;
+        padding: 5;
+        border-bottom-width: 1;
+        border-bottom-color: $fk-gray-lighter;
     }
 
     .round {

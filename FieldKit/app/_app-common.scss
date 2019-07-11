@@ -86,6 +86,17 @@ h1 {
     font-weight: bold;
 }
 
+#drop-down-container {
+    border-radius: 4;
+    border-width: 1;
+    border-color: $fk-gray-lighter;
+}
+
+.drop-down {
+    font-size: 18;
+    padding: 5;
+}
+
 .footer {
     border-top-color: $fk-gray-lightest;
     border-top-width: 2;

@@ -23,6 +23,8 @@ Vue.prototype._L = _L;
 const userAuth = new UserAuth();
 Vue.prototype.$userAuth = userAuth;
 
+Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
+
 // Uncommment the following to see NativeScript-Vue output logs
 // Vue.config.silent = false;
 
