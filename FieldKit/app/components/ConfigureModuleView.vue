@@ -106,10 +106,12 @@
                         autocorrect="false"
                         autocapitalizationType="none"
                         v-model="displayInterval"
+                        @textChange="toggleSecondaryIntervalChange"
                         @focus="toggleIntervalChange"
                         @blur="checkInterval"></TextField>
                     <StackLayout row="2" col="2" id="drop-down-container">
                         <DropDown :items="timeUnits"
+                            @opened="toggleIntervalChange"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
                             width="100%"
@@ -317,6 +319,13 @@
 
             toggleIntervalChange() {
                 this.isEditingInterval = true;
+                this.hasBeenToggledBefore = true;
+            },
+
+            toggleSecondaryIntervalChange() {
+                if(this.hasBeenToggledBefore) {
+                    this.isEditingInterval = true;
+                }
             },
 
             checkInterval() {
@@ -326,8 +335,7 @@
                 // then check
                 this.noInterval = !this.displayInterval || this.displayInterval == 0 || this.displayInterval.length == 0;
                 if(this.noInterval) {return false}
-                let matches = this.displayInterval.match(/^\d*(\.\d*)?$/);
-                this.intervalNotNumber = !matches || matches.length == 0;
+                this.intervalNotNumber = isNaN(this.displayInterval);
                 return !this.intervalNotNumber;
             },
 
@@ -345,7 +353,8 @@
                         author: this.user.name
                     };
                     dbInterface.recordModuleConfigChange(configChange);
-                    this.module.origName = this.module.name;
+                    this.origInterval = this.module.interval;
+                    this.origUnit = this.currentUnit;
                 }
             },
 
