@@ -98,6 +98,17 @@ export default class DatabaseInterface {
         );
     }
 
+    setModuleInterval(module) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE modules SET interval='" +
+                    module.interval +
+                    "' WHERE id=" +
+                    module.id
+            )
+        );
+    }
+
     setModuleGraphs(module) {
         return this.getDatabase().then(db =>
             db.query(
@@ -274,14 +285,17 @@ export default class DatabaseInterface {
 
     insertIntoModulesTable(modulesToInsert) {
         let result = modulesToInsert.reduce((previousPromise, nextModule) => {
+            // interval in seconds, minimum of 30, max of 1209600 (2 weeks)
+            nextModule.interval = Math.round(Math.random() * 1209600 + 30);
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO modules (module_id, device_id, name, sensors) VALUES (?, ?, ?, ?)",
+                    "INSERT INTO modules (module_id, device_id, name, sensors, interval) VALUES (?, ?, ?, ?, ?)",
                     [
                         nextModule.moduleId,
                         nextModule.deviceId,
                         nextModule.name,
-                        nextModule.sensors
+                        nextModule.sensors,
+                        nextModule.interval
                     ]
                 );
             });

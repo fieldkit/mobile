@@ -87,6 +87,7 @@ export default class CreateDB {
                 name TEXT, \
                 sensors TEXT, \
                 graphs TEXT, \
+                interval NUMERIC, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
         );

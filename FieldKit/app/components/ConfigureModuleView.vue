@@ -86,25 +86,44 @@
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
-                <GridLayout rows="auto,auto,auto,auto" columns="50*,50*" class="m-x-10">
-                    <Label row="0" colSpan="2" class="size-20" text="Data capture interval"></Label>
-                    <Label row="1" colSpan="2" class="size-14 m-y-5" text="More frequent data reduces the battery quicker"></Label>
-                    <TextField
+                <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10">
+                    <Label row="0" colSpan="4" class="size-20" text="Data capture interval"></Label>
+                    <Label row="1" colSpan="4" class="size-14 m-y-10" text="More frequent data reduces the battery quicker"></Label>
+                    <Image
                         row="2"
                         col="0"
-                        horizontalAlignment="left"
+                        width="17"
+                        v-show="isEditingInterval"
+                        @tap="cancelIntervalChange"
+                        src="~/images/Icon_Close.png"></Image>
+                    <TextField
+                        row="2"
+                        col="1"
                         verticalAligment="bottom"
                         class="input interval-input"
                         :isEnabled="true"
                         keyboardType="name"
                         autocorrect="false"
                         autocapitalizationType="none"
-                        v-model="currentInterval"
+                        v-model="displayInterval"
+                        @focus="toggleIntervalChange"
                         @blur="checkInterval"></TextField>
-                    <StackLayout row="2" col="1" horizontalAlignment="right" id="drop-down-container">
-                        <DropDown :items="timeUnits" @selectedIndexChanged="onSelectedIndexChanged" backgroundColor="#F4F5F7" width="100%" class="drop-down" selectedIndex="2" ></DropDown>
+                    <StackLayout row="2" col="2" id="drop-down-container">
+                        <DropDown :items="timeUnits"
+                            @selectedIndexChanged="onSelectedIndexChanged"
+                            backgroundColor="#F4F5F7"
+                            width="100%"
+                            class="drop-down"
+                            :selectedIndex="currentUnit" ></DropDown>
                     </StackLayout>
-                    <StackLayout row="3">
+                    <Image
+                        row="2"
+                        col="3"
+                        width="17"
+                        v-show="isEditingInterval"
+                        @tap="saveInterval"
+                        src="~/images/Icon_Save.png"></Image>
+                    <StackLayout row="3" colSpan="2">
                         <Label
                             class="validation-error"
                             id="no-interval"
@@ -151,12 +170,13 @@
     export default {
         data() {
             return {
-                currentInterval: 1,
-                currentUnit: "hours",
+                currentUnit: 0,
+                displayInterval: "",
                 isEditingName: false,
                 noName: false,
                 nameNotPrintable: false,
                 nameTooLong: false,
+                isEditingInterval: false,
                 noInterval: false,
                 intervalNotNumber: false,
                 module: {
@@ -180,6 +200,10 @@
                     .then(module => {
                         this.module = module[0];
                         this.module.origName = this.module.name;
+                        this.origInterval = this.module.interval;
+                        this.convertFromSeconds();
+                        // save original time unit created in convertFromSeconds()
+                        this.origUnit = this.currentUnit;
                     });
             },
 
@@ -219,7 +243,7 @@
                     this.isEditingName = false;
                     dbInterface.setModuleName(this.module);
                     let configChange = {
-                        module_id: this.module.modul_id,
+                        module_id: this.module.module_id,
                         before: this.module.origName,
                         after: this.module.name,
                         affected_field: "name",
@@ -238,21 +262,105 @@
                 this.module.name = this.module.origName;
             },
 
+            convertFromSeconds() {
+                let displayValue = this.module.interval;
+                // this.currentUnit is an index into timeUnits:
+                // timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
+                if(this.module.interval < 60) {
+                    // seconds
+                    this.currentUnit = 0;
+                } else if(this.module.interval < 3600) {
+                    // minutes
+                    this.currentUnit = 1;
+                    displayValue /= 60;
+                    displayValue = Math.round(displayValue);
+                } else if(this.module.interval < 86400) {
+                    // hours
+                    this.currentUnit = 2;
+                    displayValue /= 3600;
+                    displayValue =  Math.round(displayValue);
+                } else if(this.module.interval < 604800) {
+                    // days
+                    this.currentUnit = 3;
+                    displayValue /= 86400;
+                    displayValue =  Math.round(displayValue);
+                } else {
+                    // weeks
+                    this.currentUnit = 4;
+                    displayValue /= 604800;
+                    displayValue = displayValue.toFixed(1);
+                }
+                this.displayInterval = displayValue;
+            },
+
+            convertToSeconds() {
+                switch (this.currentUnit) {
+                    case 0:
+                        this.module.interval = this.displayInterval;
+                        break;
+                    case 1:
+                        this.module.interval = this.displayInterval * 60;
+                        break;
+                    case 2:
+                        this.module.interval = this.displayInterval * 3600;
+                        break;
+                    case 3:
+                        this.module.interval = this.displayInterval * 86400;
+                        break;
+                    case 4:
+                        this.module.interval = this.displayInterval * 604800;
+                        break;
+                    default:
+                        break;
+                }
+            },
+
+            toggleIntervalChange() {
+                this.isEditingInterval = true;
+            },
+
             checkInterval() {
                 // reset these first
                 this.noInterval = false;
                 this.intervalNotNumber = false;
                 // then check
-                this.noInterval = !this.currentInterval || this.currentInterval.length == 0;
+                this.noInterval = !this.displayInterval || this.displayInterval == 0 || this.displayInterval.length == 0;
                 if(this.noInterval) {return false}
-                let matches = this.currentInterval.match(/^\d+$/);
+                let matches = this.displayInterval.match(/^\d*(\.\d*)?$/);
                 this.intervalNotNumber = !matches || matches.length == 0;
                 return !this.intervalNotNumber;
             },
 
+            saveInterval() {
+                let valid = this.checkInterval();
+                if(valid) {
+                    this.convertToSeconds();
+                    this.isEditingInterval = false;
+                    dbInterface.setModuleInterval(this.module);
+                    let configChange = {
+                        module_id: this.module.module_id,
+                        before: this.origInterval,
+                        after: this.module.interval,
+                        affected_field: "interval",
+                        author: this.user.name
+                    };
+                    dbInterface.recordModuleConfigChange(configChange);
+                    this.module.origName = this.module.name;
+                }
+            },
+
+            cancelIntervalChange() {
+                this.isEditingInterval = false;
+                this.noInterval = false;
+                this.intervalNotNumber = false;
+                this.module.interval = this.origInterval;
+                this.convertFromSeconds();
+                this.currentUnit = this.origUnit;
+            },
+
             onSelectedIndexChanged(event) {
-                // console.log("event.value", event.oldIndex, event.newIndex)
-                this.currentUnit = timeUnits[event.newIndex];
+                // console.log(event.oldIndex, event.newIndex)
+                this.currentUnit = event.newIndex;
             }
 
         }
@@ -304,7 +412,7 @@
 
     .interval-input {
         font-size: 18;
-        width: 48%;
+        width: 38%;
         padding: 5;
         border-bottom-width: 1;
         border-bottom-color: $fk-gray-lighter;
