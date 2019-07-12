@@ -8,6 +8,7 @@ import CreateDB from "./services/create-db";
 import UserAuth from "./services/user-auth";
 import QueryStation from "./services/query-station";
 import DiscoverStation from "./services/discover-station";
+import RadChart from "nativescript-ui-chart/vue";
 import Vue from "nativescript-vue";
 
 const createDB = new CreateDB();
@@ -23,7 +24,12 @@ Vue.prototype._L = _L;
 const userAuth = new UserAuth();
 Vue.prototype.$userAuth = userAuth;
 
-Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
+Vue.registerElement(
+    "DropDown",
+    () => require("nativescript-drop-down/drop-down").DropDown
+);
+
+Vue.use(RadChart);
 
 // Uncommment the following to see NativeScript-Vue output logs
 // Vue.config.silent = false;

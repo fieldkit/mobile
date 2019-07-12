@@ -19,6 +19,7 @@
     "nativescript-drop-down": "^5.0.2",
     "nativescript-sqlite": "^2.3.3",
     "nativescript-theme-core": "~1.0.4",
+    "nativescript-ui-chart": "^4.0.2",
     "nativescript-vue": "~2.2.0",
     "nativescript-zeroconf": "file:third-party/nativescript-zeroconf",
     "protobufjs": "^6.8.8",
