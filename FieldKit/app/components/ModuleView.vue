@@ -139,6 +139,12 @@
         methods: {
             onPageLoaded(args) {
                 this.page = args.object;
+
+                this.$userAuth.getCurrentUser()
+                    .then(response => {
+                        this.user = response;
+                    });
+
                 this.getModule()
                     .then(this.getSensors);
             },
