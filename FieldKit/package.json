@@ -33,14 +33,14 @@
     "babel-jest": "^24.8.0",
     "babel-loader": "~8.0.0",
     "jest": "^24.8.0",
-    "nativescript": "^6.0.0",
+    "nativescript": "^6.0.1",
     "nativescript-dev-webpack": "^1.0.1",
     "nativescript-vue-template-compiler": "^2.3.0",
     "node-sass": "4.12.0",
     "prettier": "^1.18.2",
     "sqlite3": "^4.0.9",
     "typescript": "^3.5.3",
-    "vue-loader": "^15.7.0"
+    "vue-loader": "^15.7.1"
   },
   "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
   "readme": "NativeScript Application",
