@@ -22,17 +22,17 @@
                     </StackLayout>
                 </GridLayout>
 
-                <GridLayout rows="auto" columns="*" class="location-container m-x-10">
+                <GridLayout rows="auto" columns="40*,60*" class="location-container m-x-10">
                     <StackLayout
                         row="0"
-                        class="m-y-8 m-x-5"
-                        horizontalAlignment="left">
+                        col="0"
+                        class="m-y-8 m-x-5">
                         <Image width=100 src="~/images/placeholder_module_location.png"></Image>
                     </StackLayout>
                     <StackLayout
                         row="0"
-                        class="location-label m-y-8"
-                        horizontalAlignment="right">
+                        col="1"
+                        class="m-y-8">
                         <Label class="size-14"
                             :text="'Locate ' + module.name + ' here on your FieldKit station.'"
                             textWrap="true"></Label>
@@ -336,10 +336,6 @@
         border-radius: 4;
         border-color: $fk-gray-lighter;
         border-width: 1;
-    }
-
-    .location-label {
-        width: 225;
     }
 
     .chart-section-container {
