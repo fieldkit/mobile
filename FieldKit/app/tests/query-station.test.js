@@ -1,4 +1,4 @@
-import QueryStation from "services/query-station";
+import QueryStation from "../services/query-station";
 import axios from "axios";
 import protobuf from "protobufjs";
 

@@ -1,5 +1,5 @@
-import CreateDB from "services/create-db";
-import DatabaseInterface from "services/db-interface";
+import CreateDB from "../services/create-db";
+import DatabaseInterface from "../services/db-interface";
 const dbInterface = new DatabaseInterface();
 const createDB = new CreateDB();
 

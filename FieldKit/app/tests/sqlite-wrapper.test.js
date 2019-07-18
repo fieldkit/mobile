@@ -1,5 +1,5 @@
-import Sqlite from "wrappers/sqlite";
-import DatabaseInterface from "services/db-interface";
+import Sqlite from "../wrappers/sqlite";
+import DatabaseInterface from "../services/db-interface";
 
 describe("Sqlite Wrapper", () => {
     let sqlite;

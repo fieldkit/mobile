@@ -2,10 +2,10 @@
   "nativescript": {
     "id": "org.nativescript.fieldkit",
     "tns-android": {
-      "version": "5.3.1"
+      "version": "6.0.0"
     },
     "tns-ios": {
-      "version": "5.4.2"
+      "version": "6.0.1"
     }
   },
   "description": "NativeScript Application",
@@ -18,30 +18,29 @@
     "nativescript-download-progress": "^1.2.0",
     "nativescript-drop-down": "^5.0.2",
     "nativescript-sqlite": "^2.3.3",
-    "nativescript-theme-core": "~1.0.4",
-    "nativescript-ui-chart": "^4.0.2",
-    "nativescript-vue": "~2.2.0",
+    "nativescript-theme-core": "^1.0.6",
+    "nativescript-ui-chart": "5.0.0",
+    "nativescript-vue": "2.3.0",
     "nativescript-zeroconf": "file:third-party/nativescript-zeroconf",
     "protobufjs": "^6.8.8",
-    "tns-core-modules": "^5.4.3",
-    "tns-i18n": "0.0.10",
-    "typescript": "^3.4.5"
+    "tns-core-modules": "^6.0.1",
+    "tns-i18n": "0.0.10"
   },
   "devDependencies": {
-    "@babel/cli": "^7.4.4",
-    "@babel/core": "~7.1.0",
-    "@babel/preset-env": "~7.1.0",
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
     "babel-jest": "^24.8.0",
     "babel-loader": "~8.0.0",
     "jest": "^24.8.0",
-    "nativescript": "^5.4.0",
-    "nativescript-dev-typescript": "^0.9.0",
-    "nativescript-dev-webpack": "^0.24.0",
-    "nativescript-vue-template-compiler": "~2.2.0",
-    "node-sass": "~4.11.0",
-    "prettier": "1.17.1",
-    "sqlite3": "^4.0.8",
-    "vue-loader": "~15.4.0"
+    "nativescript": "^6.0.0",
+    "nativescript-dev-webpack": "^1.0.1",
+    "nativescript-vue-template-compiler": "^2.3.0",
+    "node-sass": "4.12.0",
+    "prettier": "^1.18.2",
+    "sqlite3": "^4.0.9",
+    "typescript": "^3.5.3",
+    "vue-loader": "^15.7.0"
   },
   "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
   "readme": "NativeScript Application",

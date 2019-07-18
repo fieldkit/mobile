@@ -31,7 +31,6 @@ module.exports = env => {
 
     // Default destination inside platforms/<platform>/...
     const dist = resolve(projectRoot, nsWebpack.getAppPath(platform, projectRoot));
-    const appResourcesPlatformDir = platform === "android" ? "Android" : "iOS";
 
     const {
         // The 'appPath' and 'appResourcesPath' values are fetched from
@@ -48,6 +47,7 @@ module.exports = env => {
         sourceMap, // --env.sourceMap
         hiddenSourceMap, // --env.hiddenSourceMap
         unitTesting, // --env.unitTesting
+        verbose, // --env.verbose
     } = env;
 
     const isAnySourceMapEnabled = !!sourceMap || !!hiddenSourceMap;
@@ -61,13 +61,21 @@ module.exports = env => {
     const entryModule = nsWebpack.getEntryModule(appFullPath, platform);
     const entryPath = `.${sep}${entryModule}`;
     const entries = { bundle: entryPath };
-    if (platform === "ios") {
-        entries["tns_modules/tns-core-modules/inspector_modules"] = "inspector_modules.js";
+    const areCoreModulesExternal = Array.isArray(env.externals) && env.externals.some(e => e.indexOf("tns-core-modules") > -1);
+    if (platform === "ios" && !areCoreModulesExternal) {
+        entries["tns_modules/tns-core-modules/inspector_modules"] = "inspector_modules";
     };
     console.log(`Bundling application for entryPath ${entryPath}...`);
 
     let sourceMapFilename = nsWebpack.getSourceMapFilename(hiddenSourceMap, __dirname, dist);
 
+    const itemsToClean = [`${dist}/**/*`];
+    if (platform === "android") {
+        itemsToClean.push(`${join(projectRoot, "platforms", "android", "app", "src", "main", "assets", "snapshots")}`);
+        itemsToClean.push(`${join(projectRoot, "platforms", "android", "app", "build", "configurations", "nativescript-android-snapshot")}`);
+    }
+
+    nsWebpack.processAppComponents(appComponents, platform);
     const config = {
         mode: mode,
         context: appFullPath,
@@ -178,6 +186,7 @@ module.exports = env => {
                             unitTesting,
                             appFullPath,
                             projectRoot,
+                            ignoredFiles: nsWebpack.getUserDefinedEntries(entries, platform)
                         },
                     },
                 ].filter(loader => Boolean(loader)),
@@ -209,6 +218,9 @@ module.exports = env => {
                 options: {
                     appendTsSuffixTo: [/\.vue$/],
                     allowTsInNodeModules: true,
+                    compilerOptions: {
+                        declaration: false
+                    }
                 },
             },
             {
@@ -227,27 +239,18 @@ module.exports = env => {
             // Define useful constants like TNS_WEBPACK
             new webpack.DefinePlugin({
                 "global.TNS_WEBPACK": "true",
-                "TNS_ENV": JSON.stringify(mode)
+                "TNS_ENV": JSON.stringify(mode),
+                "process": "global.process"
             }),
             // Remove all files from the out dir.
-            new CleanWebpackPlugin([`${dist}/**/*`]),
+            new CleanWebpackPlugin(itemsToClean, { verbose: !!verbose }),
             // Copy assets to out dir. Add your own globs as needed.
             new CopyWebpackPlugin([
                 { from: { glob: "fonts/**" } },
                 { from: { glob: "**/*.+(jpg|png)" } },
                 { from: { glob: "assets/**/*" } },
             ], { ignore: [`${relative(appPath, appResourcesFullPath)}/**`] }),
-            // Generate a bundle starter script and activate it in package.json
-            new nsWebpack.GenerateBundleStarterPlugin(
-                // Don't include `runtime.js` when creating a snapshot. The plugin
-                // configures the WebPack runtime to be generated inside the snapshot
-                // module and no `runtime.js` module exist.
-                (snapshot ? [] : ["./runtime"])
-                    .concat([
-                        "./vendor",
-                        "./bundle",
-                    ])
-            ),
+            new nsWebpack.GenerateNativeScriptEntryPointsPlugin("bundle"),
             // For instructions on how to set up workers with webpack
             // check out https://github.com/nativescript/worker-loader
             new NativeScriptWorkerPlugin(),
@@ -256,12 +259,13 @@ module.exports = env => {
                 platforms,
             }),
             // Does IPC communication with the {N} CLI to notify events when running in watch mode.
-            new nsWebpack.WatchStateLoggerPlugin(),
+            new nsWebpack.WatchStateLoggerPlugin()
         ],
         // to silence warnings about these modules not being found:
         externals: {
             'nativescript-sqlite-commercial': 'nativescript-sqlite-commercial',
             'nativescript-sqlite-encrypted': 'nativescript-sqlite-encrypted',
+            'sqlite3': 'sqlite3'
         },
     };
 
@@ -278,18 +282,6 @@ module.exports = env => {
 
             { test: /\.(html|xml)$/, use: "nativescript-dev-webpack/xml-namespace-loader" }
         );
-    }
-
-    // Copy the native app resources to the out dir
-    // only if doing a full build (tns run/build) and not previewing (tns preview)
-    if (!externals || externals.length === 0) {
-        config.plugins.push(new CopyWebpackPlugin([
-            {
-                from: `${appResourcesFullPath}/${appResourcesPlatformDir}`,
-                to: `${dist}/App_Resources/${appResourcesPlatformDir}`,
-                context: projectRoot
-            },
-        ]));
     }
 
     if (report) {
