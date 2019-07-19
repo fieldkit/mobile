@@ -17,6 +17,8 @@
     "fk-app-protocol": "https://github.com/fieldkit/app-protocol.git",
     "nativescript-download-progress": "^1.2.0",
     "nativescript-drop-down": "^5.0.2",
+    "nativescript-geolocation": "^5.1.0",
+    "nativescript-mapbox": "^4.4.1",
     "nativescript-sqlite": "^2.3.3",
     "nativescript-theme-core": "^1.0.6",
     "nativescript-ui-chart": "5.0.0",

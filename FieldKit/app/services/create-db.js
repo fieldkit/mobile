@@ -105,6 +105,10 @@ export default class CreateDB {
                 connected TEXT, \
                 availableMemory NUMERIC, \
                 modules TEXT, \
+                interval NUMERIC, \
+                location_name TEXT, \
+                latitude NUMERIC, \
+                longitude NUMERIC, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
         );

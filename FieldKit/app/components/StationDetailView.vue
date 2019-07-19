@@ -140,7 +140,7 @@
                     </GridLayout>
                 </StackLayout>
 
-                <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')">
+                <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')" @tap="goToDeploy">
                     <Label
                         :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
                         :text="station.status == 'Ready to deploy' ? _L('deploy') : _L('deployed')+' 01/01/19'"></Label>
@@ -192,6 +192,7 @@
         props: ['stationId'],
         methods: {
             goBack(event) {
+                // Change background color when pressed
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
 
@@ -209,8 +210,18 @@
                 });
             },
 
+            goToDeploy(event) {
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+
+                this.$navigateTo(routes.deployMap, {
+                    props: {
+                        stationId: this.stationId
+                    }
+                });
+            },
+
             goToModule(event) {
-                // Change background color when pressed
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
 

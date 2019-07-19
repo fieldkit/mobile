@@ -5,6 +5,11 @@ import Sqlite from "../wrappers/sqlite";
 const queryStation = new QueryStation();
 const sqlite = new Sqlite();
 
+// thirty seconds
+const minInterval = 30;
+// two weeks (in seconds)
+const maxInterval = 1209600;
+
 let databasePromise;
 
 export default class DatabaseInterface {
@@ -81,6 +86,41 @@ export default class DatabaseInterface {
             db.query(
                 "UPDATE stations SET name='" +
                     station.name +
+                    "' WHERE id=" +
+                    station.id
+            )
+        );
+    }
+
+    setStationLocationCoordinates(station) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET latitude='" +
+                    station.latitude +
+                    "longitude='" +
+                    station.longitude +
+                    "' WHERE id=" +
+                    station.id
+            )
+        );
+    }
+
+    setStationLocationName(station) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET location_name='" +
+                    station.location_name +
+                    "' WHERE id=" +
+                    station.id
+            )
+        );
+    }
+
+    setStationInterval(station) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET interval='" +
+                    station.interval +
                     "' WHERE id=" +
                     station.id
             )
@@ -285,8 +325,9 @@ export default class DatabaseInterface {
 
     insertIntoModulesTable(modulesToInsert) {
         let result = modulesToInsert.reduce((previousPromise, nextModule) => {
-            // interval in seconds, minimum of 30, max of 1209600 (2 weeks)
-            nextModule.interval = Math.round(Math.random() * 1209600 + 30);
+            nextModule.interval = Math.round(
+                Math.random() * maxInterval + minInterval
+            );
             return previousPromise.then(() => {
                 return this.database.execute(
                     "INSERT INTO modules (module_id, device_id, name, sensors, interval) VALUES (?, ?, ?, ?, ?)",
@@ -309,8 +350,8 @@ export default class DatabaseInterface {
             let newStation = new Station(nextStn);
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO stations (device_id, name, url, status, batteryLevel, connected, availableMemory, modules) \
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO stations (device_id, name, url, status, batteryLevel, connected, availableMemory, modules, interval) \
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         newStation.deviceId,
                         newStation.name,
@@ -319,7 +360,8 @@ export default class DatabaseInterface {
                         newStation.batteryLevel,
                         newStation.connected,
                         newStation.availableMemory,
-                        newStation.modules
+                        newStation.modules,
+                        newStation.interval
                     ]
                 );
             });
@@ -343,5 +385,6 @@ class Station {
         this.connected = "true";
         this.availableMemory = Math.floor(Math.random() * Math.floor(100));
         this.modules = _station.modules; // comma-delimited list of module ids
+        this.interval = Math.round(Math.random() * maxInterval + minInterval);
     }
 }

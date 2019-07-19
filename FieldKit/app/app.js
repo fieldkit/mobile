@@ -29,6 +29,8 @@ Vue.registerElement(
     () => require("nativescript-drop-down/drop-down").DropDown
 );
 
+Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
+
 Vue.use(RadChart);
 
 // Uncommment the following to see NativeScript-Vue output logs
