@@ -51,7 +51,10 @@
                         v-show="!isEditingLocation"
                         @tap="toggleLocationEdit"
                         textWrap="true"></Label>
-                    <StackLayout row="1" id="location-name-field" class="input-field m-y-20 text-left" @tap="toggleLocationEdit">
+                    <StackLayout row="1"
+                        id="location-name-field"
+                        class="input-field m-y-20 text-left"
+                        @tap="toggleLocationEdit">
                         <FlexboxLayout>
                             <TextField
                                 class="input"

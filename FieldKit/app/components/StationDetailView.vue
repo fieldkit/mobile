@@ -107,47 +107,83 @@
                     </StackLayout>
                 </GridLayout>
 
-                <GridLayout :class="'memory-bar-container ' + (isEditingName ? 'faded' : '')" rows="auto, auto" columns="*">
+                <GridLayout rows="auto, auto"
+                    columns="*"
+                    :class="'memory-bar-container ' + (isEditingName ? 'faded' : '')">
                     <StackLayout row="0" class="memory-bar"></StackLayout>
-                    <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
-                    <Label row="1" class="m-t-5 size-12" horizontalAlignment="left" :text="_L('availableMemory')"></Label>
-                    <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="station.availableMemory"></Label>
+                    <StackLayout row="0"
+                        class="memory-bar"
+                        horizontalAlignment="left"
+                        id="station-memory-bar"></StackLayout>
+                    <Label row="1"
+                        class="m-t-5 size-12"
+                        horizontalAlignment="left"
+                        :text="_L('availableMemory')"></Label>
+                    <Label row="1"
+                        class="m-t-5 size-12"
+                        horizontalAlignment="right"
+                        :text="station.availableMemory"></Label>
                 </GridLayout>
 
                 <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
-                    <GridLayout :id="'m_id-' + m.module_id" rows="auto" columns="*" v-for="m in modules" :key="m.module_id" class="module-container m-10 p-10" @tap="goToModule">
-                        <Image width="40" horizontalAlignment="left" :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
-                                                m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
-                                                '~/images/Icon_Generic_Module.png')"></Image>
+                    <GridLayout :id="'m_id-' + m.module_id"
+                        rows="auto" columns="*"
+                        v-for="m in modules"
+                        :key="m.module_id"
+                        class="module-container m-10 p-10"
+                        @tap="goToModule">
+                        <Image width="40"
+                            horizontalAlignment="left"
+                            :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
+                                m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
+                                '~/images/Icon_Generic_Module.png')"></Image>
                         <StackLayout orientation="vertical" class="module-labels">
                             <Label :text="m.name" class="module-name size-16" />
-                            <Label :id="'sensor-label-' + m.module_id" :text="m.sensorObjects[0].name" class="sensor-name size-14" />
+                            <Label :id="'sensor-label-' + m.module_id"
+                                :text="m.sensorObjects[0].name"
+                                class="sensor-name size-14" />
                         </StackLayout>
 
                         <template v-if="m.name.indexOf('Generic') > -1 ">
-                            <Image width="30" src="~/images/Icon_Congfigure.png" horizontalAlignment="right"></Image>
+                            <Image width="30"
+                                src="~/images/Icon_Congfigure.png"
+                                horizontalAlignment="right"></Image>
                         </template>
                         <template v-else>
                             <!-- faux current reading, with trend arrow and units -->
-                            <StackLayout :id="'sensors-of-' + m.module_id" horizontalAlignment="right" verticalAlignment="center" orientation="vertical" class="sensor-labels">
+                            <StackLayout :id="'sensors-of-' + m.module_id"
+                                horizontalAlignment="right"
+                                verticalAlignment="center"
+                                orientation="vertical"
+                                class="sensor-labels">
                                 <GridLayout rows="auto" columns="auto, auto">
-                                    <Image col="0" width="7" class="m-r-2" src="~/images/Icon_Decrease.png"></Image>
-                                    <Label col="1" :id="'sensor-reading-' + m.module_id" :text="m.sensorObjects[0].currentReading.toFixed(1)" class="size-24" />
+                                    <Image col="0"
+                                        width="7"
+                                        class="m-r-2"
+                                        src="~/images/Icon_Decrease.png"></Image>
+                                    <Label col="1"
+                                        :id="'sensor-reading-' + m.module_id"
+                                        :text="m.sensorObjects[0].currentReading.toFixed(1)"
+                                        class="size-24" />
                                 </GridLayout>
-                                <Label :id="'sensor-unit-' + m.module_id" :text="m.sensorObjects[0].unit" class="size-10 text-right" />
+                                <Label :id="'sensor-unit-' + m.module_id"
+                                    :text="m.sensorObjects[0].unit"
+                                    class="size-10 text-right" />
                             </StackLayout>
                         </template>
                     </GridLayout>
                 </StackLayout>
 
-                <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')" @tap="goToDeploy">
+                <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')"
+                    @tap="goToDeploy">
                     <Label
                         :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
                         :text="station.status == 'Ready to deploy' ? _L('deploy') : _L('deployed')+' 01/01/19'"></Label>
                 </StackLayout>
 
                 <!-- footer -->
-                <FlexboxLayout justifyContent="space-between" :class="'size-12 p-30 footer ' + (isEditingName ? 'faded' : '')">
+                <FlexboxLayout justifyContent="space-between"
+                    :class="'size-12 p-30 footer ' + (isEditingName ? 'faded' : '')">
                     <StackLayout>
                         <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
                         <Label class="bold m-t-2" :text="_L('station')"></Label>

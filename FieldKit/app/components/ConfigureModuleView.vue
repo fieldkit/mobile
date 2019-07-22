@@ -88,7 +88,10 @@
 
                 <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10">
                     <Label row="0" colSpan="4" class="size-20" text="Data capture interval"></Label>
-                    <Label row="1" colSpan="4" class="size-14 m-y-10" text="More frequent data reduces the battery quicker"></Label>
+                    <Label row="1"
+                        colSpan="4"
+                        class="size-14 m-y-10"
+                        text="More frequent data reduces the battery quicker"></Label>
                     <Image
                         row="2"
                         col="0"

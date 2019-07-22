@@ -8,11 +8,23 @@
                     <FlexboxLayout justifyContent="center">
                         <Button class="btn btn-primary" text="Start download" @tap="startDownload"></Button>
                     </FlexboxLayout>
-                    <GridLayout v-show="isDownloading" class="progress-bar-container" rows="auto, auto, auto" columns="*">
+                    <GridLayout v-show="isDownloading"
+                        class="progress-bar-container"
+                        rows="auto, auto, auto"
+                        columns="*">
                         <StackLayout row="0" class="progress-bar"></StackLayout>
-                        <StackLayout row="0" class="progress-bar" horizontalAlignment="left" id="download-progress-bar"></StackLayout>
-                        <Label row="1" class="m-t-5 size-12" horizontalAlignment="right" :text="percentDownloaded"></Label>
-                        <Label row="2" class="m-t-5 size-12" horizontalAlignment="right" :text="sizeDownloaded+' MB'"></Label>
+                        <StackLayout row="0"
+                            class="progress-bar"
+                            horizontalAlignment="left"
+                            id="download-progress-bar"></StackLayout>
+                        <Label row="1"
+                            class="m-t-5 size-12"
+                            horizontalAlignment="right"
+                            :text="percentDownloaded"></Label>
+                        <Label row="2"
+                            class="m-t-5 size-12"
+                            horizontalAlignment="right"
+                            :text="sizeDownloaded+' MB'"></Label>
                     </GridLayout>
                     <FlexboxLayout justifyContent="center">
                         <Label :text="downloadComplete"></Label>
@@ -88,17 +100,18 @@
                     this.percentDownloaded = percent+"%";
                     this.page.addCss("#download-progress-bar {width: "+percent+"%;}");
                 });
-                download.downloadFile(this.url+"/download?size="+size, null, dataFile.path).then(f => {
-                    // console.log("Success: ", f);
-                    let elapsed = Date.now() - this.before;
-                    this.downloadComplete = this.sizeDownloaded + " MB downloaded.";
-                    this.isDownloading = false;
-                    this.percentDownloaded = 0;
-                    this.sizeDownloaded = 0;
-                    this.page.addCss("#download-progress-bar {width: 0;}");
-                }).catch(e => {
-                    // console.log("Error", e);
-                });
+                download.downloadFile(this.url+"/download?size="+size, null, dataFile.path)
+                    .then(f => {
+                        // console.log("Success: ", f);
+                        let elapsed = Date.now() - this.before;
+                        this.downloadComplete = this.sizeDownloaded + " MB downloaded.";
+                        this.isDownloading = false;
+                        this.percentDownloaded = 0;
+                        this.sizeDownloaded = 0;
+                        this.page.addCss("#download-progress-bar {width: 0;}");
+                    }).catch(e => {
+                        // console.log("Error", e);
+                    });
             }
 
         }
