@@ -35,41 +35,35 @@
                 </Mapbox>
 
                 <!-- Name your location -->
-                <GridLayout rows="auto,auto" columns="*" class="m-t-20 m-l-10">
-                    <Image
-                        row="1"
+                <GridLayout rows="*" columns="8*,84*,8*" class="m-t-20 m-x-10">
+                    <Image row="0"
+                        col="0"
                         width="17"
-                        horizontalAlignment="left"
                         v-show="isEditingLocation"
                         @tap="cancelLocationName"
                         src="~/images/Icon_Close.png"></Image>
-                    <Label
-                        row="1"
-                        class="m-y-20 location-name"
-                        horizontalAlignment="left"
-                        :text="station.location_name"
-                        v-show="!isEditingLocation"
-                        @tap="toggleLocationEdit"
-                        textWrap="true"></Label>
-                    <StackLayout row="1"
-                        id="location-name-field"
-                        class="input-field m-y-20 text-left"
-                        @tap="toggleLocationEdit">
+                    <StackLayout row="0"
+                        colSpan="2"
+                        class="spacer-left"
+                        id="location-input-spacer"
+                        v-show="!isEditingLocation"></StackLayout>
+                    <StackLayout row="0"
+                        :col="(isEditingLocation ? '1' : '0')"
+                        :colSpan="(isEditingLocation ? '1' : '2')">
                         <FlexboxLayout>
                             <TextField
                                 class="input"
+                                id="location-name-field"
+                                hint="Name your location"
                                 :isEnabled="true"
                                 keyboardType="name"
                                 autocorrect="false"
                                 autocapitalizationType="none"
-                                horizontalAlignment="left"
                                 v-model="station.location_name"
-                                v-show="isEditingLocation"
-                                returnKeyType="next"
+                                @focus="toggleLocationEdit"
                                 @blur="checkLocationName"></TextField>
                             <Label
                                 class="size-10 char-count"
-                                horizontalAlignment="right"
                                 :text="station.location_name.length"
                                 v-show="isEditingLocation"></Label>
                         </FlexboxLayout>
@@ -96,11 +90,9 @@
                             textWrap="true"
                             :visibility="locationNotPrintable ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
-                    <Image
-                        row="1"
-                        class="m-10"
+                    <Image row="0"
+                        col="2"
                         width="17"
-                        horizontalAlignment="right"
                         v-show="isEditingLocation"
                         @tap="saveLocationName"
                         src="~/images/Icon_Save.png"></Image>
@@ -120,32 +112,29 @@
                         v-show="isEditingInterval"
                         @tap="cancelIntervalChange"
                         src="~/images/Icon_Close.png"></Image>
-                    <Label row="2"
+                    <StackLayout row="2"
                         colSpan="2"
-                        class="interval-label"
-                        horizontalAlignment="left"
-                        :text="displayInterval"
-                        v-show="!isEditingInterval"
-                        @tap="toggleIntervalChange"
-                        textWrap="true"></Label>
+                        class="spacer-left"
+                        id="interval-input-spacer"
+                        v-show="!isEditingInterval"></StackLayout>
                     <TextField row="2"
-                        col="1"
-                        verticalAligment="bottom"
+                        :col="(isEditingInterval ? '1' : '0')"
+                        :colSpan="(isEditingInterval ? '1' : '2')"
                         class="input interval-input"
+                        id="interval-field"
                         :isEnabled="true"
+                        verticalAligment="bottom"
                         keyboardType="name"
                         autocorrect="false"
                         autocapitalizationType="none"
-                        v-show="isEditingInterval"
                         v-model="displayInterval"
-                        @textChange="toggleSecondaryIntervalChange"
+                        @focus="toggleIntervalChange"
                         @blur="checkInterval"></TextField>
                     <StackLayout row="2" col="2" id="drop-down-container">
                         <DropDown :items="timeUnits"
                             @opened="toggleIntervalChange"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
-                            width="100%"
                             class="drop-down"
                             :selectedIndex="currentUnit" ></DropDown>
                     </StackLayout>
@@ -176,6 +165,8 @@
 
                 <Button class="btn btn-primary m-b-10" text="Continue" @tap="goToNext"></Button>
 
+                <TextView hint="Should be hidden" id="hidden-field" />
+
             </FlexboxLayout>
         </ScrollView>
     </Page>
@@ -204,11 +195,11 @@
                 noInterval: false,
                 intervalNotNumber: false,
                 station: {
-                    location_name: "Name your location",
+                    location_name: "",
                 },
                 currentUnit: 0,
                 displayInterval: "",
-                timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
+                timeUnits: ["seconds", "minutes", "hours", "days", "weeks"],
             };
         },
         props: ["stationId"],
@@ -252,7 +243,7 @@
             completeSetup(stations) {
                 this.station = stations[0];
 
-                if(!this.station.location_name) {this.station.location_name = "Name your location";}
+                if(!this.station.location_name) {this.station.location_name = "";}
                 this.origLocationName = this.station.location_name;
                 this.origInterval = this.station.interval;
                 this.convertFromSeconds();
@@ -322,6 +313,8 @@
             },
 
             saveLocationName() {
+                this.removeFocus("location-name-field");
+
                 let valid = this.checkLocationName();
                 if(valid) {
                     this.isEditingLocation = false;
@@ -342,6 +335,7 @@
             },
 
             cancelLocationName() {
+                this.removeFocus("location-name-field");
                 this.isEditingLocation = false;
                 this.noLocation = false;
                 this.locationNotPrintable = false;
@@ -410,13 +404,6 @@
 
             toggleIntervalChange() {
                 this.isEditingInterval = true;
-                this.hasBeenToggledBefore = true;
-            },
-
-            toggleSecondaryIntervalChange() {
-                if(this.hasBeenToggledBefore) {
-                    this.isEditingInterval = true;
-                }
             },
 
             checkInterval() {
@@ -430,7 +417,8 @@
                 return !this.intervalNotNumber;
             },
 
-            saveInterval() {
+            saveInterval(event) {
+                this.removeFocus("interval-field");
                 let valid = this.checkInterval();
                 if(valid) {
                     this.convertToSeconds();
@@ -449,7 +437,8 @@
                 }
             },
 
-            cancelIntervalChange() {
+            cancelIntervalChange(event) {
+                this.removeFocus("interval-field");
                 this.isEditingInterval = false;
                 this.noInterval = false;
                 this.intervalNotNumber = false;
@@ -461,6 +450,15 @@
             onSelectedIndexChanged(event) {
                 // console.log(event.oldIndex, event.newIndex)
                 this.currentUnit = event.newIndex;
+            },
+
+            removeFocus(id) {
+                let textField = this.page.getViewById(id);
+                textField.dismissSoftInput();
+
+                let hiddenField = this.page.getViewById("hidden-field");
+                hiddenField.focus();
+                hiddenField.dismissSoftInput();
             }
 
         }
@@ -474,32 +472,20 @@
 
     // Custom styles
     #location-name-field {
-        width: 265;
-        color: $fk-primary-black;
-    }
-
-    #location-name-field .input {
-        width: 245;
-        padding: 0;
-        border-bottom-color: $fk-primary-black;
-        border-bottom-width: 1;
-    }
-
-    #location-name-field .char-count {
-        width: 25;
-        margin-top: 10;
-        margin-left: 5;
-    }
-
-    .location-name {
-        width: 295;
+        width: 100%;
         font-size: 18;
         border-bottom-color: $fk-primary-black;
         border-bottom-width: 1;
     }
 
+    .char-count {
+        width: 10%;
+        margin-top: 10;
+        margin-left: 5;
+    }
+
     .validation-error {
-        width: 245;
+        width: 100%;
         font-size: 12;
         color: $fk-tertiary-red;
         border-top-color: $fk-tertiary-red;
@@ -507,16 +493,18 @@
         padding-top: 5;
     }
 
-    .interval-input, .interval-label {
-        font-size: 18;
-        width: 38%;
-        padding: 5;
+    #location-input-spacer, #interval-input-spacer {
+        width: 100%;
         border-bottom-width: 1;
         border-bottom-color: $fk-primary-black;
     }
 
-    .interval-label {
-        width: 48%;
+    .interval-input {
+        font-size: 18;
+        width: 50%;
+        padding: 5;
+        border-bottom-width: 1;
+        border-bottom-color: $fk-primary-black;
     }
 
     .round {
@@ -525,5 +513,9 @@
         padding-top: 8;
         margin-top: 1;
         border-radius: 20;
+    }
+
+    #hidden-field {
+        opacity: 0;
     }
 </style>
