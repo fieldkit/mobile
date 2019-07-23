@@ -101,7 +101,7 @@
                         horizontalAlignment="right">
                         <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
                         <FlexboxLayout justifyContent="center">
-                            <Label class="m-r-5 size-12" :text="station.batteryLevel"></Label>
+                            <Label class="m-r-5 size-12" :text="station.battery_level"></Label>
                             <Image width="25" src="~/images/Icon_Battery.png"></Image>
                         </FlexboxLayout>
                     </StackLayout>
@@ -122,7 +122,7 @@
                     <Label row="1"
                         class="m-t-5 size-12"
                         horizontalAlignment="right"
-                        :text="station.availableMemory"></Label>
+                        :text="station.available_memory"></Label>
                 </GridLayout>
 
                 <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
@@ -163,7 +163,7 @@
                                         src="~/images/Icon_Decrease.png"></Image>
                                     <Label col="1"
                                         :id="'sensor-reading-' + m.module_id"
-                                        :text="m.sensorObjects[0].currentReading.toFixed(1)"
+                                        :text="m.sensorObjects[0].current_reading.toFixed(1)"
                                         class="size-24" />
                                 </GridLayout>
                                 <Label :id="'sensor-unit-' + m.module_id"
@@ -219,7 +219,7 @@
                     name: "FieldKit Station",
                     connected: "false",
                     battery: "0",
-                    availableMemory: "0",
+                    available_memory: "0",
                     origName: "FieldKit Station"
                 },
                 modules: []
@@ -355,9 +355,9 @@
                 this.modules = this.station.moduleObjects;
                 this.station.origName = this.station.name;
                 this.station.connected = this.station.connected != "false";
-                this.station.batteryLevel+="%";
-                this.station.occupiedMemory = 100 - this.station.availableMemory;
-                this.station.availableMemory+="%";
+                this.station.battery_level+="%";
+                this.station.occupiedMemory = 100 - this.station.available_memory;
+                this.station.available_memory+="%";
                 this.page.addCss("#station-memory-bar {width: "+this.station.occupiedMemory+"%;}");
 
                 let sensorsToCycle = [];
@@ -401,7 +401,7 @@
                         opacity: 0,
                         duration: 1000
                     }).then(function() {
-                        sensorReading.text = s.module.sensorObjects[s.currentIndex].currentReading.toFixed(1);
+                        sensorReading.text = s.module.sensorObjects[s.currentIndex].current_reading.toFixed(1);
                         sensorUnit.text = s.module.sensorObjects[s.currentIndex].unit;
                         return stack.animate({
                             opacity: 1,

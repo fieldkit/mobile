@@ -71,7 +71,7 @@ export default class CreateDB {
                 module_id TEXT, \
                 name TEXT, \
                 unit TEXT, \
-                currentReading NUMERIC, \
+                current_reading NUMERIC, \
                 frequency NUMERIC, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
@@ -101,9 +101,9 @@ export default class CreateDB {
                 name TEXT, \
                 url TEXT, \
                 status TEXT, \
-                batteryLevel NUMERIC, \
+                battery_level NUMERIC, \
                 connected TEXT, \
-                availableMemory NUMERIC, \
+                available_memory NUMERIC, \
                 modules TEXT, \
                 interval NUMERIC, \
                 location_name TEXT, \

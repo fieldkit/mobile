@@ -197,7 +197,7 @@
                     s.intervalUnit = this.calculateTimeUnit();
                     // generate faux readings
                     s.readings = [];
-                    let low = s.currentReading/2;
+                    let low = s.current_reading/2;
                     for(var i = 0; i < numReadings; i++) {
                         let reading = Math.random()*low + low;
                         s.readings.push({"time": i, "reading": reading});

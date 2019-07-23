@@ -258,7 +258,7 @@ export default class DatabaseInterface {
                     unit: s.unitOfMeasure,
                     frequency: s.frequency
                 };
-                sensor.currentReading = generateReading(sensor.name);
+                sensor.current_reading = generateReading(sensor.name);
                 newSensors.push(sensor);
             });
             newModules.push(mod);
@@ -304,17 +304,17 @@ export default class DatabaseInterface {
 
     insertIntoSensorsTable(sensorsToInsert) {
         let result = sensorsToInsert.reduce((previousPromise, nextSensor) => {
-            nextSensor.currentReading = this.generateReading(nextSensor.name);
+            nextSensor.current_reading = this.generateReading(nextSensor.name);
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO sensors (sensor_id, module_id, name, unit, frequency, currentReading) VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO sensors (sensor_id, module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?, ?)",
                     [
                         nextSensor.sensorId,
                         nextSensor.moduleId,
                         nextSensor.name,
                         nextSensor.unit,
                         nextSensor.frequency,
-                        nextSensor.currentReading
+                        nextSensor.current_reading
                     ]
                 );
             });
@@ -350,16 +350,16 @@ export default class DatabaseInterface {
             let newStation = new Station(nextStn);
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO stations (device_id, name, url, status, batteryLevel, connected, availableMemory, modules, interval) \
+                    "INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, modules, interval) \
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         newStation.deviceId,
                         newStation.name,
                         newStation.url,
                         newStation.status,
-                        newStation.batteryLevel,
+                        newStation.battery_level,
                         newStation.connected,
-                        newStation.availableMemory,
+                        newStation.available_memory,
                         newStation.modules,
                         newStation.interval
                     ]
@@ -381,9 +381,9 @@ class Station {
               Math.floor(Math.random() * Math.floor(9000));
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
-        this.batteryLevel = Math.floor(Math.random() * Math.floor(100));
+        this.battery_level = Math.floor(Math.random() * Math.floor(100));
         this.connected = "true";
-        this.availableMemory = Math.floor(Math.random() * Math.floor(100));
+        this.available_memory = Math.floor(Math.random() * Math.floor(100));
         this.modules = _station.modules; // comma-delimited list of module ids
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
     }
