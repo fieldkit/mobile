@@ -86,30 +86,35 @@
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
-                <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10">
-                    <Label row="0" colSpan="4" class="size-20" text="Data capture interval"></Label>
+                <!-- Data capture interval -->
+                <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10 m-y-20">
+                    <Label row="0" colSpan="4" class="size-20" text="Data capture schedule"></Label>
                     <Label row="1"
                         colSpan="4"
-                        class="size-14 m-y-10"
+                        class="size-14 m-y-5"
                         text="More frequent data reduces the battery quicker"></Label>
-                    <Image
-                        row="2"
+                    <Image row="2"
                         col="0"
                         width="17"
                         v-show="isEditingInterval"
                         @tap="cancelIntervalChange"
                         src="~/images/Icon_Close.png"></Image>
-                    <TextField
-                        row="2"
-                        col="1"
-                        verticalAligment="bottom"
+                    <StackLayout row="2"
+                        colSpan="2"
+                        class="spacer-left"
+                        id="interval-input-spacer"
+                        v-show="!isEditingInterval"></StackLayout>
+                    <TextField row="2"
+                        :col="(isEditingInterval ? '1' : '0')"
+                        :colSpan="(isEditingInterval ? '1' : '2')"
                         class="input interval-input"
+                        id="interval-field"
                         :isEnabled="true"
+                        verticalAligment="bottom"
                         keyboardType="name"
                         autocorrect="false"
                         autocapitalizationType="none"
                         v-model="displayInterval"
-                        @textChange="toggleSecondaryIntervalChange"
                         @focus="toggleIntervalChange"
                         @blur="checkInterval"></TextField>
                     <StackLayout row="2" col="2" id="drop-down-container">
@@ -117,7 +122,6 @@
                             @opened="toggleIntervalChange"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
-                            width="100%"
                             class="drop-down"
                             :selectedIndex="currentUnit" ></DropDown>
                     </StackLayout>
@@ -145,6 +149,7 @@
                             :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
                 </GridLayout>
+                <!-- end: Data capture interval -->
 
                 <!-- footer -->
                 <FlexboxLayout justifyContent="space-between" class="size-12 p-30 footer">
@@ -161,6 +166,8 @@
                         <Label class="light m-t-2" :text="_L('settings')"></Label>
                     </StackLayout>
                 </FlexboxLayout>
+
+                <TextView hint="Should be hidden" id="hidden-field" />
 
             </FlexboxLayout>
         </ScrollView>
@@ -322,13 +329,6 @@
 
             toggleIntervalChange() {
                 this.isEditingInterval = true;
-                this.hasBeenToggledBefore = true;
-            },
-
-            toggleSecondaryIntervalChange() {
-                if(this.hasBeenToggledBefore) {
-                    this.isEditingInterval = true;
-                }
             },
 
             checkInterval() {
@@ -343,6 +343,7 @@
             },
 
             saveInterval() {
+                this.removeFocus("interval-field");
                 let valid = this.checkInterval();
                 if(valid) {
                     this.convertToSeconds();
@@ -362,6 +363,7 @@
             },
 
             cancelIntervalChange() {
+                this.removeFocus("interval-field");
                 this.isEditingInterval = false;
                 this.noInterval = false;
                 this.intervalNotNumber = false;
@@ -373,8 +375,16 @@
             onSelectedIndexChanged(event) {
                 // console.log(event.oldIndex, event.newIndex)
                 this.currentUnit = event.newIndex;
-            }
+            },
 
+            removeFocus(id) {
+                let textField = this.page.getViewById(id);
+                textField.dismissSoftInput();
+
+                let hiddenField = this.page.getViewById("hidden-field");
+                hiddenField.focus();
+                hiddenField.dismissSoftInput();
+            }
         }
 
     };
@@ -422,12 +432,18 @@
         padding-top: 5;
     }
 
+    #interval-input-spacer {
+        width: 100%;
+        border-bottom-width: 1;
+        border-bottom-color: $fk-primary-black;
+    }
+
     .interval-input {
         font-size: 18;
-        width: 38%;
+        width: 50%;
         padding: 5;
         border-bottom-width: 1;
-        border-bottom-color: $fk-gray-lighter;
+        border-bottom-color: $fk-primary-black;
     }
 
     .round {
@@ -435,4 +451,7 @@
         border-radius: 20;
     }
 
+    #hidden-field {
+        opacity: 0;
+    }
 </style>
