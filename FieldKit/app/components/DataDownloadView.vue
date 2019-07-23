@@ -6,7 +6,7 @@
 
                 <StackLayout id="download-container">
                     <FlexboxLayout justifyContent="center">
-                        <Button class="btn btn-primary" text="Start download" @tap="startDownload"></Button>
+                        <Button class="btn btn-primary" :text="_L('startDownload')" @tap="startDownload"></Button>
                     </FlexboxLayout>
                     <GridLayout v-show="isDownloading"
                         class="progress-bar-container"
@@ -104,7 +104,7 @@
                     .then(f => {
                         // console.log("Success: ", f);
                         let elapsed = Date.now() - this.before;
-                        this.downloadComplete = this.sizeDownloaded + " MB downloaded.";
+                        this.downloadComplete = this.sizeDownloaded + ' ' + _L('mbDownloaded');
                         this.isDownloading = false;
                         this.percentDownloaded = 0;
                         this.sizeDownloaded = 0;

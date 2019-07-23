@@ -54,7 +54,7 @@
                             <TextField
                                 class="input"
                                 id="location-name-field"
-                                hint="Name your location"
+                                :hint="_L('nameYourLocation')"
                                 :isEnabled="true"
                                 keyboardType="name"
                                 autocorrect="false"
@@ -72,21 +72,21 @@
                             class="validation-error"
                             id="no-location"
                             horizontalAlignment="left"
-                            text="locationRequired"
+                            :text="_L('locationRequired')"
                             textWrap="true"
                             :visibility="noLocation ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="location-too-long"
                             horizontalAlignment="left"
-                            text="locationOver40"
+                            :text="_L('locationOver255')"
                             textWrap="true"
                             :visibility="locationTooLong ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="location-not-printable"
                             horizontalAlignment="left"
-                            text="locationNotPrintable"
+                            :text="_L('locationNotPrintable')"
                             textWrap="true"
                             :visibility="locationNotPrintable ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
@@ -101,11 +101,11 @@
 
                 <!-- Data capture interval -->
                 <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10 m-y-20">
-                    <Label row="0" colSpan="4" class="size-20" text="Data capture schedule"></Label>
+                    <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
                     <Label row="1"
                         colSpan="4"
                         class="size-14 m-y-5"
-                        text="More frequent data reduces the battery quicker"></Label>
+                        :text="_L('dataCaptureNotice')"></Label>
                     <Image row="2"
                         col="0"
                         width="17"
@@ -150,14 +150,14 @@
                             class="validation-error"
                             id="no-interval"
                             horizontalAlignment="left"
-                            text="Interval must not be blank"
+                            :text="_L('intervalRequired')"
                             textWrap="true"
                             :visibility="noInterval ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="interval-not-numeric"
                             horizontalAlignment="left"
-                            text="Interval must be a number"
+                            :text="_L('intervalNotNumber')"
                             textWrap="true"
                             :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
@@ -166,7 +166,7 @@
 
                 <Button class="btn btn-primary m-b-10" text="Continue" @tap="goToNext"></Button>
 
-                <TextView hint="Should be hidden" id="hidden-field" />
+                <TextView id="hidden-field" />
 
             </FlexboxLayout>
         </ScrollView>
@@ -184,7 +184,7 @@
     export default {
         data() {
             return {
-                viewTitle: "Deployment",
+                viewTitle: _L('deployment'),
                 mapboxToken: MAPBOX_ACCESS_TOKEN,
                 origLocationName: "",
                 isEditingLocation: false,
@@ -200,7 +200,7 @@
                 },
                 currentUnit: 0,
                 displayInterval: "",
-                timeUnits: ["seconds", "minutes", "hours", "days", "weeks"],
+                timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
             };
         },
         props: ["stationId"],
@@ -304,10 +304,11 @@
             },
 
             checkLocationName() {
-                this.noLocation = false;
-                this.noLocation = !this.station.location_name || this.station.location_name.length == 0;
-                return !this.noLocation;
-                // not sure yet what other validation we'll do
+                // not sure yet what location name validation we'll do
+                return true;
+                // this.noLocation = false;
+                // this.noLocation = !this.station.location_name || this.station.location_name.length == 0;
+                // return !this.noLocation;
             },
 
             saveLocationName() {

@@ -88,11 +88,11 @@
 
                 <!-- Data capture interval -->
                 <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10 m-y-20">
-                    <Label row="0" colSpan="4" class="size-20" text="Data capture schedule"></Label>
+                    <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
                     <Label row="1"
                         colSpan="4"
                         class="size-14 m-y-5"
-                        text="More frequent data reduces the battery quicker"></Label>
+                        :text="_L('dataCaptureNotice')"></Label>
                     <Image row="2"
                         col="0"
                         width="17"
@@ -137,18 +137,18 @@
                             class="validation-error"
                             id="no-interval"
                             horizontalAlignment="left"
-                            text="Interval must not be blank"
+                            :text="_L('intervalRequired')"
                             textWrap="true"
                             :visibility="noInterval ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="interval-not-numeric"
                             horizontalAlignment="left"
-                            text="Interval must be a number"
+                            :text="_L('intervalNotNumber')"
                             textWrap="true"
                             :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
-                    <TextView row="3" hint="Should be hidden" id="hidden-field" />
+                    <TextView row="3" id="hidden-field" />
                 </GridLayout>
                 <!-- end: Data capture interval -->
 
@@ -194,7 +194,7 @@
                     name: "",
                     origName: ""
                 },
-                timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
+                timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
             };
         },
         props: ['moduleId'],

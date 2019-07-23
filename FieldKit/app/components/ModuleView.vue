@@ -34,7 +34,7 @@
                         col="1"
                         class="m-y-8">
                         <Label class="size-14"
-                            :text="'Locate ' + module.name + ' here on your FieldKit station.'"
+                            :text="_L('locateYourModule', module.name)"
                             textWrap="true"></Label>
                     </StackLayout>
                 </GridLayout>
@@ -86,7 +86,7 @@
                         </RadCartesianChart>
                         <Label row="3"
                             colSpan="3"
-                            class="text-center size-10 m-b-5"
+                            class="text-center size-10 m-b-5 capitalize"
                             :text="g.intervalUnit"></Label>
                     </GridLayout>
                 </StackLayout>
@@ -131,7 +131,7 @@
                         intervalUnit: ""
                     }
                 ],
-                sensorNames: ["Select..."],
+                sensorNames: [_L('select')],
                 graphedSensors: []
             };
         },
@@ -187,7 +187,7 @@
                 let graphs = this.module.graphs ? this.module.graphs.split(",") : [];
                 // number of faux readings
                 let numReadings = Math.round( Math.random()*20 + 10 );
-                let names = ["Select..."];
+                let names = [_L('select')];
                 sensors.forEach((s,i) => {
                     names.push(s.name);
                     s.unit = s.unit != "" ? "(" + s.unit + ")" : s.unit;
@@ -216,15 +216,15 @@
             calculateTimeUnit() {
                 let unit = "";
                 if(this.module.interval < 60) {
-                    unit = "Seconds";
+                    unit = "seconds";
                 } else if(this.module.interval < 3600) {
-                    unit = "Minutes";
+                    unit = "minutes";
                 } else if(this.module.interval < 86400) {
-                    unit = "Hours";
+                    unit = "hours";
                 } else if(this.module.interval < 604800) {
-                    unit = "Days";
+                    unit = "days";
                 } else {
-                    unit = "Weeks";
+                    unit = "weeks";
                 }
                 return unit;
             },
@@ -253,7 +253,7 @@
             // iOS gets change first, and android gets close first
             // so wait for both before adding new selection
             finalizeChange() {
-                if(!this.selectedSensor || this.selectedSensor == "Select...") {return}
+                if(!this.selectedSensor || this.selectedSensor == _L('select')) {return}
                 if(this.changeEvents > 1) {
                     this.changeEvents = 0;
 
@@ -347,6 +347,10 @@
 
     .chart-container {
         height: 200;
+    }
+
+    .capitalize {
+        text-transform: capitalize;
     }
 
 </style>

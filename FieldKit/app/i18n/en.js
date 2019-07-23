@@ -1,4 +1,35 @@
 module.exports = {
+    // ConfigureModuleView
+    dataCaptureSchedule: "Data capture schedule",
+    dataCaptureNotice: "More frequent data reduces the battery quicker",
+    intervalRequired: "Interval must not be blank.",
+    intervalNotNumber: "Interval must be a number.",
+    seconds: "seconds",
+    minutes: "minutes",
+    hours: "hours",
+    days: "days",
+    weeks: "weeks",
+    // DataDownloadView
+    startDownload: "Start download",
+    mbDownloaded: "MB downloaded.",
+    //DeployMapView
+    nameYourLocation: "Name your location",
+    locationRequired: "Location is a required field.",
+    locationOver255: "Location must be less than 256 characters.",
+    locationNotPrintable: "Location must be printable.",
+    deployment: "Deployment",
+    //DeployNotesView
+    audioNotes: "Audio Notes",
+    photo: "Photo",
+    notesInstructions: "Tap to write field notes and add a photo. It is important to describe what you see in the field to help your team.",
+    describePhoto: "Describe this photo...",
+    addPhoto: "Add a photo",
+    takePicture: "Take picture",
+    selectFromGallery: "Select from gallery",
+    // HomeView.vue
+    viewStations: "View Stations",
+    logOut: "Log Out",
+    authenticated: "You have successfully authenticated.",
     // LoginView.vue
     logIn: "Log In",
     signUp: "Sign Up",
@@ -31,12 +62,9 @@ module.exports = {
     passwordRequired: "Password is a required field.",
     passwordTooShort: "Password must be at least 10 characters.",
     confirmPassword: "Confirm password",
-    // HomeView.vue
-    viewStations: "View Stations",
-    logOut: "Log Out",
-    authenticated: "You have successfully authenticated.",
-    // StationsView
-    noStations: "No stations found.",
+    //ModuleView
+    locateYourModule: "Locate %s here on your FieldKit station.",
+    select: "Select...",
     // StationDetailView
     nameOver40: "Name has a 40-character maximum.",
     nameNotPrintable: "Name must be printable.",
@@ -47,5 +75,7 @@ module.exports = {
     deployed: "Deployed",
     station: "Station",
     data: "Data",
-    settings: "Settings"
+    settings: "Settings",
+    // StationsView
+    noStations: "No stations found.",
 };

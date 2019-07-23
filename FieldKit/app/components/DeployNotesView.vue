@@ -25,18 +25,18 @@
                         row="0"
                         class="col left-col"
                         horizontalAlignment="left">
-                        <Label class="text-center m-y-5 size-18" text="Audio Notes"></Label>
+                        <Label class="text-center m-y-5 size-18" :text="_L('audioNotes')"></Label>
                     </StackLayout>
                     <StackLayout
                         row="0"
                         class="col right-col"
                         horizontalAlignment="right"
                         @tap="onPhotoTap">
-                        <Label class="text-center m-y-5 size-18" text="Photo"></Label>
+                        <Label class="text-center m-y-5 size-18" :text="_L('photo')"></Label>
                     </StackLayout>
                 </GridLayout>
 
-                <Label text="Tap to write field notes and add a photo. It is important to describe what you see in the field to help your team." textWrap="true" class="m-15 size-18" />
+                <Label :text="_L('notesInstructions')" textWrap="true" class="m-15 size-18" />
 
                 <GridLayout rows="*, auto" columns="8*,84*,8*" v-show="havePhoto" class="m-10 photo-label">
                     <Image row="0" colSpan="3" :src="imageSrc" id="image" stretch="aspectFit" />
@@ -50,7 +50,7 @@
                         src="~/images/Icon_Close.png"></Image>
                     <TextView row="1"
                         col="1"
-                        hint="Describe this photo..."
+                        :hint="_L('describePhoto')"
                         id="photo-label-input"
                         @focus="toggleLabelEdit"
                         v-model="labelText"
@@ -66,7 +66,7 @@
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
-                <TextView hint="Should be hidden" id="hidden-field" />
+                <TextView id="hidden-field" />
 
             </StackLayout>
         </ScrollView>
@@ -90,7 +90,7 @@
     export default {
         data() {
             return {
-                viewTitle: "Deployment",
+                viewTitle: _L('deployment'),
                 station: {
                     name: "FieldKit Station",
                 },
@@ -149,13 +149,13 @@
 
             onPhotoTap(event) {
                 dialogs.action({
-                    message: "Add a photo",
-                    cancelButtonText: "Cancel",
-                    actions: ["Take picture", "Select from gallery"]
+                    message: _L('addPhoto'),
+                    cancelButtonText: _L("cancel"),
+                    actions: [_L('takePicture'), _L('selectFromGallery')]
                 }).then(result => {
-                    if(result == "Take picture") {
+                    if(result == _L('takePicture')) {
                         this.takePicture();
-                    } else if(result == "Select from gallery"){
+                    } else if(result == _L('selectFromGallery')){
                         this.selectPicture();
                     }
                 });
