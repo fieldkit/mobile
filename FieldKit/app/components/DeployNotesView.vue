@@ -62,9 +62,11 @@
                         width="17"
                         horizontalAlignment="right"
                         v-show="isEditingLabel"
-                        @tap="savePicture"
+                        @tap="saveLabel"
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
+
+                <TextView hint="Should be hidden" id="hidden-field" />
 
             </StackLayout>
         </ScrollView>
@@ -166,13 +168,14 @@
                 let notesView = this;
                 requestPermissions().then(() => {
                     takePicture({
-                        width: notesView.width,
-                        height: notesView.height,
+                        // width: notesView.width,
+                        // height: notesView.height,
                         keepAspectRatio: notesView.keepAspectRatio,
                         saveToGallery: notesView.saveToGallery,
                         allowsEditing: notesView.allowsEditing
                     }).then(imageAsset => {
                             notesView.imageSrc = imageAsset;
+                            notesView.savePicture();
                             notesView.havePhoto = true;
                         }, err => {
                             // console.log("Error -> " + err.message);
@@ -195,25 +198,21 @@
                     })
                     .then(selection => {
                         this.imageSrc = selection[0];
+                        this.savePicture();
                         this.havePhoto = true;
-                        selection[0].options.width = this.width;
-                        selection[0].options.height = this.height;
+                        // selection[0].options.width = this.width;
+                        // selection[0].options.height = this.height;
                     }).catch(e => {
                         // console.log(e);
                     });
             },
 
-            savePicture(event) {
-                let textField = this.page.getViewById("photo-label-input");
-                textField.dismissSoftInput();
-
+            savePicture() {
                 source.fromAsset(this.imageSrc)
                     .then(imageSource => {
-                        const saved = imageSource.saveToFile(this.pathDest, "jpg");
+                        let saved = imageSource.saveToFile(this.pathDest, "jpg");
                         if (saved) {
                             this.station.deploy_image_name = this.deployImageName;
-                            this.station.deploy_image_label = this.labelText;
-                            this.isEditingLabel = false;
                             dbInterface.setStationDeployImage(this.station);
                             let configChange = {
                                 station_id: this.station.device_id,
@@ -223,18 +222,27 @@
                                 author: this.user.name
                             };
                             dbInterface.recordStationConfigChange(configChange);
-                            this.origLabel = this.labelText;
-                            configChange = {
-                                station_id: this.station.device_id,
-                                before: this.origImageName,
-                                after: this.deployImageName,
-                                affected_field: "deploy_image_name",
-                                author: this.user.name
-                            };
-                            dbInterface.recordStationConfigChange(configChange);
                             this.origImageName = this.deployImageName;
                         }
+                    }, error => {
+                        // console.log("Error saving image", error);
                     });
+            },
+
+            saveLabel() {
+                this.removeFocus();
+                this.station.deploy_image_label = this.labelText;
+                this.isEditingLabel = false;
+                dbInterface.setStationDeployImageLabel(this.station);
+                this.origLabel = this.labelText;
+                let configChange = {
+                    station_id: this.station.device_id,
+                    before: this.origImageName,
+                    after: this.deployImageName,
+                    affected_field: "deploy_image_name",
+                    author: this.user.name
+                };
+                dbInterface.recordStationConfigChange(configChange);
             },
 
             toggleLabelEdit() {
@@ -242,10 +250,18 @@
             },
 
             cancelEditLabel() {
+                this.removeFocus();
                 this.isEditingLabel = false;
                 this.labelText = this.origLabel;
+            },
+
+            removeFocus() {
                 let textField = this.page.getViewById("photo-label-input");
                 textField.dismissSoftInput();
+
+                let hiddenField = this.page.getViewById("hidden-field");
+                hiddenField.focus();
+                hiddenField.dismissSoftInput();
             }
 
         }
@@ -292,12 +308,16 @@
         width: 96%;
         padding: 0;
         font-size: 18;
-        border-bottom-width: 1;
-        border-bottom-color: $fk-primary-black;
     }
 
     #photo-label-input {
         width: 96%;
+        border-bottom-width: 1;
+        border-bottom-color: $fk-primary-black;
+    }
+
+    #hidden-field {
+        opacity: 0;
     }
 
 </style>

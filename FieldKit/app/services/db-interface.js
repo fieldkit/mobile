@@ -132,7 +132,16 @@ export default class DatabaseInterface {
             db.query(
                 "UPDATE stations SET deploy_image_name='" +
                     station.deploy_image_name +
-                    "', deploy_image_label='" +
+                    "' WHERE id=" +
+                    station.id
+            )
+        );
+    }
+
+    setStationDeployImageLabel(station) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET deploy_image_label='" +
                     station.deploy_image_label +
                     "' WHERE id=" +
                     station.id
