@@ -148,6 +148,7 @@
                             textWrap="true"
                             :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
+                    <TextView row="3" hint="Should be hidden" id="hidden-field" />
                 </GridLayout>
                 <!-- end: Data capture interval -->
 
@@ -166,8 +167,6 @@
                         <Label class="light m-t-2" :text="_L('settings')"></Label>
                     </StackLayout>
                 </FlexboxLayout>
-
-                <TextView hint="Should be hidden" id="hidden-field" />
 
             </FlexboxLayout>
         </ScrollView>
