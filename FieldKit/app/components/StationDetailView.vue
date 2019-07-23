@@ -184,11 +184,11 @@
                 <!-- footer -->
                 <FlexboxLayout justifyContent="space-between"
                     :class="'size-12 p-30 footer ' + (isEditingName ? 'faded' : '')">
-                    <StackLayout>
+                    <StackLayout class="footer-btn">
                         <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
                         <Label class="bold m-t-2" :text="_L('station')"></Label>
                     </StackLayout>
-                    <StackLayout @tap="goToData">
+                    <StackLayout @tap="goToData" class="footer-btn">
                         <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
                         <Label class="light m-t-2" :text="_L('data')"></Label>
                     </StackLayout>
@@ -237,6 +237,9 @@
             },
 
             goToData(event) {
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+
                 this.$navigateTo(routes.dataDownload, {
                     props: {
                         stationId: this.stationId,
