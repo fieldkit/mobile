@@ -109,6 +109,8 @@ export default class CreateDB {
                 location_name TEXT, \
                 latitude NUMERIC, \
                 longitude NUMERIC, \
+                deploy_image_name TEXT, \
+                deploy_image_label TEXT, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
         );
