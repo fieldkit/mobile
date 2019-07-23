@@ -5,7 +5,6 @@ let accessToken = null;
 let userName = null;
 
 export default class UserAuth {
-
     getCurrentUser() {
         let userAuth = this;
 

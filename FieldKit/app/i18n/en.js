@@ -21,7 +21,8 @@ module.exports = {
     //DeployNotesView
     audioNotes: "Audio Notes",
     photo: "Photo",
-    notesInstructions: "Tap to write field notes and add a photo. It is important to describe what you see in the field to help your team.",
+    notesInstructions:
+        "Tap to write field notes and add a photo. It is important to describe what you see in the field to help your team.",
     describePhoto: "Describe this photo...",
     addPhoto: "Add a photo",
     takePicture: "Take picture",
@@ -77,5 +78,5 @@ module.exports = {
     data: "Data",
     settings: "Settings",
     // StationsView
-    noStations: "No stations found.",
+    noStations: "No stations found."
 };

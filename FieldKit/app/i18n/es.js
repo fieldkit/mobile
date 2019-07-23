@@ -1,7 +1,8 @@
 module.exports = {
     // ConfigureModuleView
     dataCaptureSchedule: "Horario de captura de datos",
-    dataCaptureNotice: "Los datos más frecuentes reducen la batería más rápido.",
+    dataCaptureNotice:
+        "Los datos más frecuentes reducen la batería más rápido.",
     intervalRequired: "El intervalo no debe estar en blanco.",
     intervalNotNumber: "El intervalo debe ser un número.",
     seconds: "segundos",
@@ -21,7 +22,8 @@ module.exports = {
     //DeployNotesView
     audioNotes: "Notas de audio",
     photo: "Foto",
-    notesInstructions: "Toca para escribir notas de campo y agregar una foto. Es importante describir lo que ve en el campo para ayudar a su equipo.",
+    notesInstructions:
+        "Toca para escribir notas de campo y agregar una foto. Es importante describir lo que ve en el campo para ayudar a su equipo.",
     describePhoto: "Describe esta foto ...",
     addPhoto: "Agregar una foto",
     takePicture: "Tomar la foto",
@@ -78,5 +80,5 @@ module.exports = {
     data: "Datos",
     settings: "Ajustes",
     // StationsView
-    noStations: "No se encontraron estaciones.",
+    noStations: "No se encontraron estaciones."
 };
