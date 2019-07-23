@@ -202,10 +202,7 @@
             onPageLoaded(args) {
                 this.page = args.object;
 
-                this.$userAuth.getCurrentUser()
-                    .then(response => {
-                        this.user = response;
-                    });
+                this.userName = this.$userAuth.getUserName();
 
                 dbInterface.getModule([this.moduleId])
                     .then(module => {
@@ -258,7 +255,7 @@
                         before: this.module.origName,
                         after: this.module.name,
                         affected_field: "name",
-                        author: this.user.name
+                        author: this.userName
                     };
                     dbInterface.recordModuleConfigChange(configChange);
                     this.module.origName = this.module.name;
@@ -353,7 +350,7 @@
                         before: this.origInterval,
                         after: this.module.interval,
                         affected_field: "interval",
-                        author: this.user.name
+                        author: this.userName
                     };
                     dbInterface.recordModuleConfigChange(configChange);
                     this.origInterval = this.module.interval;

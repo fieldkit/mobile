@@ -140,10 +140,7 @@
             onPageLoaded(args) {
                 this.page = args.object;
 
-                this.$userAuth.getCurrentUser()
-                    .then(response => {
-                        this.user = response;
-                    });
+                this.userName = this.$userAuth.getUserName();
 
                 this.getModule()
                     .then(this.getSensors);
@@ -302,7 +299,7 @@
                     before: this.module.origGraphs,
                     after: this.module.graphs,
                     affected_field: "graphs",
-                    author: this.user.name
+                    author: this.userName
                 };
                 dbInterface.recordModuleConfigChange(configChange);
                 this.module.origGraphs = this.module.graphs;

@@ -2,9 +2,13 @@ import axios from "axios";
 import Config from "../config";
 
 let accessToken = null;
+let userName = null;
 
 export default class UserAuth {
+
     getCurrentUser() {
+        let userAuth = this;
+
         return axios({
             method: "GET",
             url: Config.baseUri + "/user",
@@ -18,6 +22,7 @@ export default class UserAuth {
 
         function handleResponse(response) {
             if (response.status == "200") {
+                userName = response.data.name;
                 return response.data;
             } else {
                 throw new Error(response);
@@ -29,11 +34,17 @@ export default class UserAuth {
         }
     }
 
+    getUserName() {
+        return userName;
+    }
+
     isLoggedIn() {
         return accessToken;
     }
 
     login(user) {
+        let userAuth = this;
+
         return axios({
             method: "POST",
             url: Config.baseUri + "/login",
@@ -52,6 +63,7 @@ export default class UserAuth {
                 accessToken = response.headers.authorization
                     ? response.headers.authorization
                     : response.headers.Authorization;
+                userAuth.getCurrentUser();
                 return;
             } else {
                 throw new Error("Log in failed");

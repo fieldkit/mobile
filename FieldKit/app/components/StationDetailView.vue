@@ -273,10 +273,7 @@
             onPageLoaded(args) {
                 this.page = args.object;
 
-                this.$userAuth.getCurrentUser()
-                    .then(response => {
-                        this.user = response;
-                    });
+                this.userName = this.$userAuth.getUserName();
 
                 dbInterface.getStation(this.stationId)
                     .then(this.getModules)
@@ -312,7 +309,7 @@
                         before: this.station.origName,
                         after: this.station.name,
                         affected_field: "name",
-                        author: this.user.name
+                        author: this.userName
                     };
                     dbInterface.recordStationConfigChange(configChange);
                     this.station.origName = this.station.name;

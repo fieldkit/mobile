@@ -162,6 +162,7 @@
                             :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
                 </GridLayout>
+                <!-- end: Data capture interval -->
 
                 <Button class="btn btn-primary m-b-10" text="Continue" @tap="goToNext"></Button>
 
@@ -207,10 +208,7 @@
             onPageLoaded(args) {
                 this.page = args.object;
 
-                this.$userAuth.getCurrentUser()
-                    .then(response => {
-                        this.user = response;
-                    });
+                this.userName = this.$userAuth.getUserName();
 
                 dbInterface.getStation(this.stationId)
                     .then(this.completeSetup);
@@ -327,7 +325,7 @@
                         before: this.origLocationName,
                         after: this.station.location_name,
                         affected_field: "location",
-                        author: this.user.name
+                        author: this.userName
                     };
                     dbInterface.recordStationConfigChange(configChange);
                     this.origLocationName = this.station.location_name;
@@ -429,7 +427,7 @@
                         before: this.origInterval,
                         after: this.station.interval,
                         affected_field: "interval",
-                        author: this.user.name
+                        author: this.userName
                     };
                     dbInterface.recordStationConfigChange(configChange);
                     this.origInterval = this.station.interval;

@@ -125,10 +125,7 @@
             onPageLoaded(args) {
                 this.page = args.object;
 
-                this.$userAuth.getCurrentUser()
-                    .then(response => {
-                        this.user = response;
-                    });
+                this.userName = this.$userAuth.getUserName();
 
                 dbInterface.getStation(this.stationId)
                     .then(this.completeSetup);
@@ -219,7 +216,7 @@
                                 before: this.origLabel,
                                 after: this.labelText,
                                 affected_field: "deploy_image_label",
-                                author: this.user.name
+                                author: this.userName
                             };
                             dbInterface.recordStationConfigChange(configChange);
                             this.origImageName = this.deployImageName;
@@ -240,7 +237,7 @@
                     before: this.origImageName,
                     after: this.deployImageName,
                     affected_field: "deploy_image_name",
-                    author: this.user.name
+                    author: this.userName
                 };
                 dbInterface.recordStationConfigChange(configChange);
             },
