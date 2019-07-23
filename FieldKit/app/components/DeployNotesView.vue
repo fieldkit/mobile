@@ -213,9 +213,9 @@
                             dbInterface.setStationDeployImage(this.station);
                             let configChange = {
                                 station_id: this.station.device_id,
-                                before: this.origLabel,
-                                after: this.labelText,
-                                affected_field: "deploy_image_label",
+                                before: this.origImageName,
+                                after: this.deployImageName,
+                                affected_field: "deploy_image_name",
                                 author: this.userName
                             };
                             dbInterface.recordStationConfigChange(configChange);
@@ -228,18 +228,20 @@
 
             saveLabel() {
                 this.removeFocus();
-                this.station.deploy_image_label = this.labelText;
                 this.isEditingLabel = false;
-                dbInterface.setStationDeployImageLabel(this.station);
-                this.origLabel = this.labelText;
-                let configChange = {
-                    station_id: this.station.device_id,
-                    before: this.origImageName,
-                    after: this.deployImageName,
-                    affected_field: "deploy_image_name",
-                    author: this.userName
-                };
-                dbInterface.recordStationConfigChange(configChange);
+                if(this.origLabel != this.labelText) {
+                    this.station.deploy_image_label = this.labelText;
+                    dbInterface.setStationDeployImageLabel(this.station);
+                    let configChange = {
+                        station_id: this.station.device_id,
+                        before: this.origLabel,
+                        after: this.labelText,
+                        affected_field: "deploy_image_label",
+                        author: this.userName
+                    };
+                    dbInterface.recordStationConfigChange(configChange);
+                    this.origLabel = this.labelText;
+                }
             },
 
             toggleLabelEdit() {

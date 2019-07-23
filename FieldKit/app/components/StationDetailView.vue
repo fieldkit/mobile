@@ -303,9 +303,9 @@
             },
 
             saveStationName() {
+                this.isEditingName = false;
                 let valid = this.checkName();
-                if(valid) {
-                    this.isEditingName = false;
+                if(valid && this.station.origName != this.station.name) {
                     dbInterface.setStationName(this.station);
                     let configChange = {
                         device_id: this.station.device_id,

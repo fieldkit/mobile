@@ -291,18 +291,19 @@
                 this.graphedSensors.forEach((g) => {
                     graphs += (graphs == "" ? g.sensor_id : ","+g.sensor_id);
                 });
-                this.module.graphs = graphs;
-
-                dbInterface.setModuleGraphs(this.module);
-                let configChange = {
-                    module_id: this.module.module_id,
-                    before: this.module.origGraphs,
-                    after: this.module.graphs,
-                    affected_field: "graphs",
-                    author: this.userName
-                };
-                dbInterface.recordModuleConfigChange(configChange);
-                this.module.origGraphs = this.module.graphs;
+                if(this.module.origGraphs != graphs) {
+                    this.module.graphs = graphs;
+                    dbInterface.setModuleGraphs(this.module);
+                    let configChange = {
+                        module_id: this.module.module_id,
+                        before: this.module.origGraphs,
+                        after: this.module.graphs,
+                        affected_field: "graphs",
+                        author: this.userName
+                    };
+                    dbInterface.recordModuleConfigChange(configChange);
+                    this.module.origGraphs = this.module.graphs;
+                }
             }
 
         }

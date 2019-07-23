@@ -191,6 +191,8 @@
                 noLocation: false,
                 locationNotPrintable: false,
                 locationTooLong: false,
+                origLatitude: "",
+                origLongitude: "",
                 origInterval: "",
                 isEditingInterval: false,
                 noInterval: false,
@@ -243,6 +245,8 @@
 
                 if(!this.station.location_name) {this.station.location_name = "";}
                 this.origLocationName = this.station.location_name;
+                this.origLatitude = this.station.latitude;
+                this.origLongitude = this.station.longitude;
                 this.origInterval = this.station.interval;
                 this.convertFromSeconds();
                 // save original time unit created in convertFromSeconds()
@@ -313,10 +317,10 @@
 
             saveLocationName() {
                 this.removeFocus("location-name-field");
+                this.isEditingLocation = false;
 
                 let valid = this.checkLocationName();
-                if(valid) {
-                    this.isEditingLocation = false;
+                if(valid && this.origLocationName != this.station.location_name) {
                     if(this.mapMarker) {
                         this.mapMarker.update({title: this.station.location_name});
                     }
@@ -343,9 +347,29 @@
             },
 
             saveLocationCoordinates() {
-                dbInterface.setStationLocationCoordinates(this.station);
-                // only record config change for location name, currently
-                // add records here for both lat and long?
+                if(this.origLatitude != this.station.latitude) {
+                    dbInterface.setStationLocationCoordinates(this.station);
+                    // store latitude config change
+                    let configChange = {
+                        station_id: this.station_id,
+                        before: this.origLatitude,
+                        after: this.station.latitude,
+                        affected_field: "latitude",
+                        author: this.userName
+                    };
+                    dbInterface.recordStationConfigChange(configChange);
+                    this.origLatitude = this.station.latitude;
+                    // store longitude config change
+                    configChange = {
+                        station_id: this.station_id,
+                        before: this.origLongitude,
+                        after: this.station.longitude,
+                        affected_field: "longitude",
+                        author: this.userName
+                    };
+                    dbInterface.recordStationConfigChange(configChange);
+                    this.origLongitude = this.station.longitude;
+                }
             },
 
             convertFromSeconds() {
@@ -418,10 +442,11 @@
 
             saveInterval(event) {
                 this.removeFocus("interval-field");
+                this.isEditingInterval = false;
+
                 let valid = this.checkInterval();
-                if(valid) {
+                if(valid && this.origInterval != this.station.interval) {
                     this.convertToSeconds();
-                    this.isEditingInterval = false;
                     dbInterface.setStationInterval(this.station);
                     let configChange = {
                         station_id: this.station.station_id,

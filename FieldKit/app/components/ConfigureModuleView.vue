@@ -246,9 +246,9 @@
             },
 
             saveModuleName() {
+                this.isEditingName = false;
                 let valid = this.checkName();
-                if(valid) {
-                    this.isEditingName = false;
+                if(valid && this.module.origName != this.module.name) {
                     dbInterface.setModuleName(this.module);
                     let configChange = {
                         module_id: this.module.module_id,
@@ -340,10 +340,10 @@
 
             saveInterval() {
                 this.removeFocus("interval-field");
+                this.isEditingInterval = false;
                 let valid = this.checkInterval();
-                if(valid) {
+                if(valid && this.origInterval != this.module.interval) {
                     this.convertToSeconds();
-                    this.isEditingInterval = false;
                     dbInterface.setModuleInterval(this.module);
                     let configChange = {
                         module_id: this.module.module_id,
