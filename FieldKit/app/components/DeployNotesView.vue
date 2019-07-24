@@ -20,24 +20,32 @@
                     </StackLayout>
                 </GridLayout>
 
-                <GridLayout rows="auto" columns="*">
-                    <StackLayout
-                        row="0"
+                <!-- Add audio note and photo -->
+                <GridLayout rows="auto" columns="*,*" class="m-x-10">
+                    <StackLayout row="0"
+                        col="0"
                         class="col left-col"
-                        horizontalAlignment="left">
-                        <Label class="text-center m-y-5 size-18" :text="_L('audioNotes')"></Label>
+                        @tap="onAudioTap">
+                        <Label class="text-center size-18" :text="_L('audioNotes')"></Label>
                     </StackLayout>
-                    <StackLayout
-                        row="0"
+                    <StackLayout row="0"
+                        col="1"
                         class="col right-col"
-                        horizontalAlignment="right"
                         @tap="onPhotoTap">
-                        <Label class="text-center m-y-5 size-18" :text="_L('photo')"></Label>
+                        <Label class="text-center size-18" :text="_L('photo')"></Label>
                     </StackLayout>
                 </GridLayout>
+                <!-- end: Add audio note and photo -->
 
                 <!-- Add text note -->
                 <GridLayout rows="auto", columns="8*,84*,8*" class="m-10">
+                    <TextView colSpan="3"
+                        class="size-18"
+                        :hint="_L('notesInstructions')"
+                        v-show="!isEditingNote"
+                        v-model="noteText"
+                        @focus="toggleNoteEdit"
+                        textWrap="true" ></TextView>
                     <Image col="0"
                         width="17"
                         class="m-t-10"
@@ -50,8 +58,7 @@
                         id="note-text-field"
                         :hint="_L('notesInstructions')"
                         v-model="noteText"
-                        @focus="toggleNoteEdit"
-                        minHeight="80"
+                        v-show="isEditingNote"
                         textWrap="true" ></TextView>
                     <Image col="2"
                         width="17"
@@ -62,6 +69,21 @@
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
                 <!-- end: Add text note -->
+
+                <!-- List audio recordings -->
+                <GridLayout rows="auto" columns="90*,10*" v-for="r in displayRecordings"
+                    :key="r"
+                    class="link-style"
+                    orientation="vertical">
+                    <Label col="0" :text="r" :data="r" textWrap="true" @tap=playAudio />
+                    <Image col="1"
+                        width="17"
+                        class="small-round"
+                        :data="r"
+                        @tap="removeRecording"
+                        src="~/images/Icon_Close.png"></Image>
+                </GridLayout>
+                <!-- end: List audio recordings -->
 
                 <!-- Add photo -->
                 <GridLayout rows="*, auto" columns="8*,84*,8*" v-show="havePhoto" class="m-10 photo-label">
@@ -75,10 +97,17 @@
                         @tap="cancelEditLabel"
                         src="~/images/Icon_Close.png"></Image>
                     <TextView row="1"
-                        col="1"
+                        colSpan="3"
                         :hint="_L('describePhoto')"
                         id="photo-label-input"
                         @focus="toggleLabelEdit"
+                        v-show="!isEditingLabel"
+                        v-model="labelText"></TextView>
+                    <TextView row="1"
+                        col="1"
+                        :hint="_L('describePhoto')"
+                        id="photo-label-input"
+                        v-show="isEditingLabel"
                         v-model="labelText"></TextView>
                     <Image
                         row="1"
@@ -106,11 +135,17 @@
     import * as dialogs from "tns-core-modules/ui/dialogs";
     import routes from "../routes";
     import DatabaseInterface from "../services/db-interface";
+    import AudioInterface from "../services/audio-interface";
 
     const dbInterface = new DatabaseInterface();
+    const audioInterface = new AudioInterface();
     const documents = knownFolders.documents();
     const folder = documents.getFolder("FieldKitImages");
     const source = new ImageSource();
+
+    // note: global variable _L not defined here
+    // so month name abbreviations are set below
+    let monthNames = [];
 
     export default {
         data() {
@@ -134,7 +169,11 @@
                 isEditingLabel: false,
                 isEditingNote: false,
                 noteText: "",
-                origNote: ""
+                origNote: "",
+                recordings: "",
+                origRecordings: "",
+                newRecordings: {},
+                displayRecordings: []
             };
         },
         props: ['stationId'],
@@ -153,6 +192,9 @@
             onPageLoaded(args) {
                 this.page = args.object;
 
+                monthNames = [_L('jan'), _L('feb'), _L('mar'), _L('apr'), _L('may'), _L('jun'),
+                    _L('jul'), _L('aug'), _L('sep'), _L('oct'), _L('nov'), _L('dec')];
+
                 this.userName = this.$userAuth.getUserName();
 
                 dbInterface.getStation(this.stationId)
@@ -163,6 +205,11 @@
                 this.station = stations[0];
                 this.noteText = this.station.deploy_note;
                 this.origNote = this.noteText;
+                this.recordings = this.station.deploy_audio_files;
+                this.origRecordings = this.recordings;
+                if(this.recordings) {
+                    this.displayRecordings = this.recordings.split(",");
+                }
                 this.deployImageName = this.station.device_id+"_deploy.jpg";
                 this.origLabel = this.station.deploy_image_label;
                 this.origImageName = this.station.deploy_image_name;
@@ -177,7 +224,106 @@
                 }
             },
 
+            onAudioTap(event) {
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
+
+                dialogs.action({
+                    message: _L('addAudio'),
+                    cancelButtonText: _L("cancel"),
+                    actions: [_L('startRecording')]
+                }).then(result => {
+                    if(result == _L('startRecording')) {
+                        this.startRecording();
+                    }
+                });
+            },
+
+            startRecording() {
+                // Create unique filename
+                let now = new Date();
+                let month = monthNames[now.getMonth()];
+                let day = now.getDate();
+                let year = now.getFullYear();
+                let filename =  _L('audioNote') + " " + month + " " + day  + " " + year;
+                // colons not allowed in audio file names - if time is needed, re-work this
+                // let time = now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+                let dateIndex = month + "_" + day  + "_" + year;
+                if(this.newRecordings[dateIndex]) {
+                    // increment filename if we already have any
+                    let numRecordings = this.newRecordings[dateIndex].length;
+                    filename += " " + (numRecordings + 1);
+                } else {
+                    this.newRecordings[dateIndex] = [];
+                }
+                this.newRecordings[dateIndex].push(filename);
+
+                audioInterface.startRecording(filename);
+
+                dialogs.action({
+                    message: _L('recording'),
+                    actions: [_L('stopRecording')]
+                }).then(result => {
+                    if(result == _L('stopRecording')) {
+                        audioInterface.stopRecording();
+                        // automatically save recording
+                        this.addRecording(filename);
+                    }
+                });
+            },
+
+            addRecording(filename) {
+                this.displayRecordings.push(filename);
+                this.saveRecordings();
+            },
+
+            removeRecording(event) {
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
+
+                let filename = event.object.data;
+                // confirm removal
+                dialogs.confirm({
+                    title: _L('confirmDeleteRecording'),
+                    okButtonText: _L('yes'),
+                    cancelButtonText: _L('cancel'),
+                }).then((result) => {
+                    if(result) {
+                        let index = this.displayRecordings.indexOf(filename);
+                        if(index == -1) {return}
+                        this.displayRecordings.splice(index, 1);
+                        this.saveRecordings();
+                        // delete file on phone
+                        audioInterface.deleteRecordedFile(filename);
+                    }
+                });
+            },
+
+            saveRecordings() {
+                this.station.deploy_audio_files = this.displayRecordings.join(",");
+                dbInterface.setStationDeployAudio(this.station);
+                let configChange = {
+                    station_id: this.station.device_id,
+                    before: this.origRecordings,
+                    after: this.station.deploy_audio_files,
+                    affected_field: "deploy_audio_files",
+                    author: this.userName
+                };
+                dbInterface.recordStationConfigChange(configChange);
+                this.origRecordings = this.station.deploy_audio_files;
+            },
+
+            playAudio(event) {
+                audioInterface.playRecordedFile(event.object.data);
+            },
+
             onPhotoTap(event) {
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
+
                 dialogs.action({
                     message: _L('addPhoto'),
                     cancelButtonText: _L("cancel"),
@@ -192,18 +338,17 @@
             },
 
             takePicture() {
-                let notesView = this;
                 requestPermissions().then(() => {
                     takePicture({
-                        // width: notesView.width,
-                        // height: notesView.height,
-                        keepAspectRatio: notesView.keepAspectRatio,
-                        saveToGallery: notesView.saveToGallery,
-                        allowsEditing: notesView.allowsEditing
+                        // width: this.width,
+                        // height: this.height,
+                        keepAspectRatio: this.keepAspectRatio,
+                        saveToGallery: this.saveToGallery,
+                        allowsEditing: this.allowsEditing
                     }).then(imageAsset => {
-                            notesView.imageSrc = imageAsset;
-                            notesView.savePicture();
-                            notesView.havePhoto = true;
+                            this.imageSrc = imageAsset;
+                            this.savePicture();
+                            this.havePhoto = true;
                         }, err => {
                             // console.log("Error -> " + err.message);
                         });
@@ -340,23 +485,26 @@
         border-radius: 20;
     }
 
+    .small-round {
+        width: 40;
+        padding: 2;
+        border-radius: 20;
+    }
+
     .col {
-        width: 50%;
+        padding-top: 10;
+        padding-bottom: 10;
         border-width: 1;
         border-color: $fk-gray-lighter;
         background: $fk-gray-white;
-        padding-top: 10;
-        padding-bottom: 10;
     }
 
     .left-col {
-        margin-left: 10;
         border-top-left-radius: 4;
         border-bottom-left-radius: 4;
     }
 
     .right-col {
-        margin-right: 10;
         border-top-right-radius: 4;
         border-bottom-right-radius: 4;
     }
@@ -371,6 +519,14 @@
         width: 96%;
         border-bottom-width: 1;
         border-bottom-color: $fk-primary-black;
+    }
+
+    .link-style {
+        color: $fk-primary-blue;
+        margin-left: 20;
+        margin-right: 10;
+        margin-top: 5;
+        margin-bottom: 10;
     }
 
     #hidden-field {

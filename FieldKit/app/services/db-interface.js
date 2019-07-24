@@ -160,6 +160,17 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationDeployAudio(station) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET deploy_audio_files='" +
+                    station.deploy_audio_files +
+                    "' WHERE id=" +
+                    station.id
+            )
+        );
+    }
+
     setModuleName(module) {
         return this.getDatabase().then(db =>
             db.query(
