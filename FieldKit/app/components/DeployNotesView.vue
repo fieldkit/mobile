@@ -36,8 +36,34 @@
                     </StackLayout>
                 </GridLayout>
 
-                <Label :text="_L('notesInstructions')" textWrap="true" class="m-15 size-18" />
+                <!-- Add text note -->
+                <GridLayout rows="auto", columns="8*,84*,8*" class="m-10">
+                    <Image col="0"
+                        width="17"
+                        class="m-t-10"
+                        v-show="isEditingNote"
+                        @tap="cancelEditNote"
+                        verticalAlignment="top"
+                        src="~/images/Icon_Close.png"></Image>
+                    <TextView col="1"
+                        class="size-18"
+                        id="note-text-field"
+                        :hint="_L('notesInstructions')"
+                        v-model="noteText"
+                        @focus="toggleNoteEdit"
+                        minHeight="80"
+                        textWrap="true" ></TextView>
+                    <Image col="2"
+                        width="17"
+                        class="m-t-10"
+                        verticalAlignment="top"
+                        v-show="isEditingNote"
+                        @tap="saveNote"
+                        src="~/images/Icon_Save.png"></Image>
+                </GridLayout>
+                <!-- end: Add text note -->
 
+                <!-- Add photo -->
                 <GridLayout rows="*, auto" columns="8*,84*,8*" v-show="havePhoto" class="m-10 photo-label">
                     <Image row="0" colSpan="3" :src="imageSrc" id="image" stretch="aspectFit" />
                     <Image
@@ -53,18 +79,17 @@
                         :hint="_L('describePhoto')"
                         id="photo-label-input"
                         @focus="toggleLabelEdit"
-                        v-model="labelText"
-                        horizontalAlignment="left"></TextView>
+                        v-model="labelText"></TextView>
                     <Image
                         row="1"
                         col="2"
                         class="m-10"
                         width="17"
-                        horizontalAlignment="right"
                         v-show="isEditingLabel"
                         @tap="saveLabel"
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
+                <!-- end: Add photo -->
 
                 <TextView id="hidden-field" />
 
@@ -106,7 +131,10 @@
                 pathDest: "",
                 deployImageName: "",
                 origImageName: "",
-                isEditingLabel: false
+                isEditingLabel: false,
+                isEditingNote: false,
+                noteText: "",
+                origNote: ""
             };
         },
         props: ['stationId'],
@@ -133,6 +161,8 @@
 
             completeSetup(stations) {
                 this.station = stations[0];
+                this.noteText = this.station.deploy_note;
+                this.origNote = this.noteText;
                 this.deployImageName = this.station.device_id+"_deploy.jpg";
                 this.origLabel = this.station.deploy_image_label;
                 this.origImageName = this.station.deploy_image_name;
@@ -227,7 +257,7 @@
             },
 
             saveLabel() {
-                this.removeFocus();
+                this.removeFocus("photo-label-input");
                 this.isEditingLabel = false;
                 if(this.origLabel != this.labelText) {
                     this.station.deploy_image_label = this.labelText;
@@ -249,13 +279,41 @@
             },
 
             cancelEditLabel() {
-                this.removeFocus();
+                this.removeFocus("photo-label-input");
                 this.isEditingLabel = false;
                 this.labelText = this.origLabel;
             },
 
-            removeFocus() {
-                let textField = this.page.getViewById("photo-label-input");
+            saveNote() {
+                this.removeFocus("note-text-field");
+                this.isEditingNote = false;
+                if(this.origNote != this.noteText) {
+                    this.station.deploy_note = this.noteText;
+                    dbInterface.setStationDeployNote(this.station);
+                    let configChange = {
+                        station_id: this.station.device_id,
+                        before: this.origNote,
+                        after: this.noteText,
+                        affected_field: "deploy_note",
+                        author: this.userName
+                    };
+                    dbInterface.recordStationConfigChange(configChange);
+                    this.origNote = this.noteText;
+                }
+            },
+
+            toggleNoteEdit() {
+                this.isEditingNote = true;
+            },
+
+            cancelEditNote() {
+                this.removeFocus("note-text-field");
+                this.isEditingNote = false;
+                this.noteText = this.origNote;
+            },
+
+            removeFocus(id) {
+                let textField = this.page.getViewById(id);
                 textField.dismissSoftInput();
 
                 let hiddenField = this.page.getViewById("hidden-field");

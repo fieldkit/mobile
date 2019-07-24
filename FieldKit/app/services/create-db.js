@@ -111,6 +111,7 @@ export default class CreateDB {
                 longitude NUMERIC, \
                 deploy_image_name TEXT, \
                 deploy_image_label TEXT, \
+                deploy_note TEXT, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
         );
