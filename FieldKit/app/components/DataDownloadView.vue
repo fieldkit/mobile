@@ -81,6 +81,7 @@
             goToStation(event) {
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
 
                 this.$navigateTo(routes.stationDetail, {
                     props: {

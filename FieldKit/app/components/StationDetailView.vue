@@ -231,6 +231,7 @@
                 // Change background color when pressed
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
 
                 clearInterval(this.intervalTimer);
                 this.$navigateTo(routes.stations);
@@ -239,6 +240,7 @@
             goToData(event) {
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
 
                 this.$navigateTo(routes.dataDownload, {
                     props: {
@@ -252,6 +254,7 @@
             goToDeploy(event) {
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
 
                 this.$navigateTo(routes.deployMap, {
                     props: {
@@ -263,6 +266,7 @@
             goToModule(event) {
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
 
                 this.$navigateTo(routes.module, {
                     props: {

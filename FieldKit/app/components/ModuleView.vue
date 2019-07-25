@@ -149,6 +149,7 @@
             goBack(event) {
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
+                setTimeout(() => {event.object.className = cn;}, 500);
 
                 this.$navigateTo(routes.stationDetail, {
                     props: {
@@ -160,10 +161,7 @@
             goToConfigure(event) {
                 let cn = event.object.className;
                 event.object.className = cn + " pressed";
-
-                setTimeout(() => {
-                    event.object.className = cn;
-                }, 500);
+                setTimeout(() => {event.object.className = cn;}, 500);
 
                 this.$navigateTo(routes.configureModule, {
                     props: {
