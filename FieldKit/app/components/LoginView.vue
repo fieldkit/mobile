@@ -91,6 +91,7 @@
                                     horizontalAlignment="left"
                                     :isEnabled="!processing"
                                     v-model="user.password"
+                                    automationText="loginPasswordInput"
                                     :returnKeyType="isLoggingIn ? 'done' : 'next'"
                                     @focus="showActive"
                                     @returnPress="focusConfirmPassword"

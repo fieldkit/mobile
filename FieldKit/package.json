@@ -35,10 +35,19 @@
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
+    "@types/chai": "~4.1.7",
+    "@types/mocha": "~5.2.5",
+    "@types/node": "~10.12.18",
     "babel-jest": "^24.8.0",
     "babel-loader": "~8.0.0",
+    "chai": "~4.1.2",
     "jest": "^24.8.0",
+    "mocha": "~5.2.0",
+    "mocha-junit-reporter": "~1.18.0",
+    "mocha-multi": "~1.0.1",
+    "mochawesome": "~3.1.2",
     "nativescript": "^6.0.1",
+    "nativescript-dev-appium": "^5.3.0",
     "nativescript-dev-webpack": "^1.0.1",
     "nativescript-vue-template-compiler": "^2.3.0",
     "node-sass": "4.12.0",
@@ -50,7 +59,8 @@
   "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
   "readme": "NativeScript Application",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  mocha --opts ./e2e/config/mocha.opts "
   },
   "jest": {
     "globals": {
