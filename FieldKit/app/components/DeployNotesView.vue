@@ -120,6 +120,11 @@
                 </GridLayout>
                 <!-- end: Add photo -->
 
+                <StackLayout v-show="havePhoto" class="m-15">
+                    <Label :text="_L('startRecordingPrompt')" textWrap="true" />
+                    <Button class="btn btn-primary m-b-10" :text="_L('record')"></Button>
+                </StackLayout>
+
                 <TextView id="hidden-field" />
 
             </StackLayout>

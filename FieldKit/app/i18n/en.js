@@ -46,6 +46,8 @@ module.exports = {
     oct: "Oct",
     nov: "Nov",
     dec: "Dec",
+    startRecordingPrompt: "Looks good! If you're all set, press 'Record' to start recording data.",
+    record: "Record",
     // HomeView.vue
     viewStations: "View Stations",
     logOut: "Log Out",
