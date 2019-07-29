@@ -26,6 +26,7 @@ yarn-error.log*
 tmp/
 typings/
 secrets.js
+secrets.ts
 
 # Visual Studio Code
 .vscode/*

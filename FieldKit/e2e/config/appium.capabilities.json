@@ -15,7 +15,7 @@
         "platformVersion": "/12.*/",
         "deviceName": "iPhone 6",
         "noReset": false,
-        "fullReset": false,
+        "fullReset": true,
         "app": ""
     },
     "sim.iPhone7": {

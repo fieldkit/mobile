@@ -54,6 +54,7 @@
                                     autocorrect="false"
                                     autocapitalizationType="none"
                                     v-model="user.email"
+                                    automationText="loginEmailInput"
                                     returnKeyType="next"
                                     @focus="showActive"
                                     @returnPress="focusPassword"

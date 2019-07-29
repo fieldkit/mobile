@@ -60,7 +60,8 @@
   "readme": "NativeScript Application",
   "scripts": {
     "test": "jest",
-    "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  mocha --opts ./e2e/config/mocha.opts "
+    "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  tsc -p e2e  &&  mocha --opts ./e2e/config/mocha.opts ",
+    "e2e-watch": "tsc -p e2e --watch"
   },
   "jest": {
     "globals": {
