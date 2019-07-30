@@ -1,5 +1,5 @@
 import { AppiumDriver, createDriver, SearchOptions, nsCapabilities } from "nativescript-dev-appium";
-import { assert } from "chai";
+import { assert, expect } from "chai";
 import { USERNAME, PASSWORD } from "../app/secrets";
 const addContext = require('mochawesome/addContext');
 
@@ -68,6 +68,14 @@ describe("FieldKit Navigation", () => {
     it("should go to first step of deployment wizard", async function() {
         const deployButton = await driver.findElementByAccessibilityId('deployButton');
         await deployButton.click();
+        if(driver.isAndroid) {
+            const allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
+            await allow.click();
+        } else {
+            await driver.wait(10000);
+            const allow = await driver.findElementByAccessibilityId('Allow');
+            await allow.click();
+        }
         const map = await driver.findElementByAccessibilityId('currentLocationMap');
         assert.isTrue(await map.isDisplayed());
     });
@@ -79,6 +87,34 @@ describe("FieldKit Navigation", () => {
         assert.isTrue(await addAudio.isDisplayed());
     });
 
-    // it("should take a picture")
+    it("should add a picture", async function() {
+        const addPhoto = await driver.findElementByAccessibilityId('addPhoto');
+        await addPhoto.click();
+
+        if (driver.isAndroid) {
+            const takePictureButton = await driver.findElementByText("Take picture");
+            await takePictureButton.click();
+            await driver.wait(1000);
+            let allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
+            await allow.click();
+            allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
+            await allow.click();
+            let shutter = await driver.findElementByAccessibilityId("Shutter");
+            await shutter.click();
+            let acceptBtn = await driver.findElementByAccessibilityId("Done");
+            await acceptBtn.click();
+        } else {
+            const selectFromGallery = await driver.findElementByText("Select from gallery");
+            await selectFromGallery.click();
+            let ok = await driver.findElementByAccessibilityId("OK");
+            await ok.click();
+            let cameraRoll = await driver.findElementByAccessibilityId("Camera Roll");
+            await cameraRoll.click();
+            await driver.wait(2000);
+            await driver.clickPoint(50, 200); // Select image
+        }
+        const savedPhoto = await driver.findElementByAccessibilityId('deploymentPhoto');
+        assert.isTrue(await savedPhoto.isDisplayed());
+    });
 
 });

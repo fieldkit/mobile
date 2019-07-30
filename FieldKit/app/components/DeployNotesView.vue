@@ -89,7 +89,12 @@
 
                 <!-- Add photo -->
                 <GridLayout rows="*, auto" columns="8*,84*,8*" v-show="havePhoto" class="m-10 photo-label">
-                    <Image row="0" colSpan="3" :src="imageSrc" id="image" stretch="aspectFit" />
+                    <Image row="0"
+                        colSpan="3"
+                        :src="imageSrc"
+                        id="image"
+                        automationText="deploymentPhoto"
+                        stretch="aspectFit" />
                     <Image
                         row="1"
                         col="0"
