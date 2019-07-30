@@ -12,10 +12,10 @@
     },
     "sim.iPhone6": {
         "platformName": "iOS",
-        "platformVersion": "/12.*/",
+        "platformVersion": "12.2",
         "deviceName": "iPhone 6",
         "noReset": false,
-        "fullReset": true,
+        "fullReset": false,
         "app": ""
     },
     "sim.iPhone7": {

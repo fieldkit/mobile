@@ -128,9 +128,10 @@
                 <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
                     <GridLayout :id="'m_id-' + m.module_id"
                         rows="auto" columns="*"
-                        v-for="m in modules"
+                        v-for="(m, moduleIndex) in modules"
                         :key="m.module_id"
                         class="module-container m-10 p-10"
+                        :automationText="'moduleLink' + moduleIndex"
                         @tap="goToModule">
                         <Image width="40"
                             horizontalAlignment="left"
@@ -175,6 +176,7 @@
                 </StackLayout>
 
                 <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')"
+                    automationText="deployButton"
                     @tap="goToDeploy">
                     <Label
                         :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"

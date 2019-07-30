@@ -25,12 +25,14 @@
                     <StackLayout row="0"
                         col="0"
                         class="col left-col"
+                        automationText="addAudioNote"
                         @tap="onAudioTap">
                         <Label class="text-center size-18" :text="_L('audioNotes')"></Label>
                     </StackLayout>
                     <StackLayout row="0"
                         col="1"
                         class="col right-col"
+                        automationText="addPhoto"
                         @tap="onPhotoTap">
                         <Label class="text-center size-18" :text="_L('photo')"></Label>
                     </StackLayout>

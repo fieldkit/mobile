@@ -22,6 +22,7 @@
 
                 <Mapbox
                     :accessToken="mapboxToken"
+                    automationText="currentLocationMap"
                     mapStyle="satellite"
                     height="200"
                     hideCompass="false"
@@ -164,7 +165,10 @@
                 </GridLayout>
                 <!-- end: Data capture interval -->
 
-                <Button class="btn btn-primary m-b-10" text="Continue" @tap="goToNext"></Button>
+                <Button class="btn btn-primary m-b-10"
+                    text="Continue"
+                    automationText="nextButton"
+                    @tap="goToNext"></Button>
 
                 <TextView id="hidden-field" />
 

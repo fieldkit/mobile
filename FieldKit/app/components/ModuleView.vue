@@ -3,7 +3,11 @@
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between">
                 <GridLayout rows="auto" columns="*">
-                    <StackLayout row="0" class="round m-y-10" @tap="goBack" horizontalAlignment="left">
+                    <StackLayout row="0"
+                        class="round m-y-10"
+                        automationText="backButton"
+                        @tap="goBack"
+                        horizontalAlignment="left">
                         <Image
                             width="21"
                             class="m-t-10"
@@ -51,9 +55,10 @@
                     </StackLayout>
                 </template>
 
-                <StackLayout v-for="g in graphedSensors" :key="g.sensor_id" class="m-b-15">
+                <StackLayout v-for="(g, graphIndex) in graphedSensors" :key="g.sensor_id" class="m-b-15">
                     <GridLayout rows="auto,auto,auto,auto"
                         columns="10*,80*,10*"
+                        :automationText="'graphedSensorChart'+graphIndex"
                         class="chart-section-container m-x-10">
                         <Label row="0" colSpan="2" class="text-center center-title" :text="g.name"></Label>
                         <StackLayout v-if="sensors.length > 1"
