@@ -155,7 +155,7 @@ describe("DatabaseInterface", () => {
         expect(newData[lastIndex].before).toEqual(configChange.before);
     });
 
-    test("setModuleName should set a modle's name", async () => {
+    test("setModuleName should set a module's name", async () => {
         const module = createDB.getSeededModules()[0];
         const data = await dbInterface.getModule(module.moduleId);
         const newName = "Clackamas Water Quality";
@@ -165,7 +165,7 @@ describe("DatabaseInterface", () => {
         expect(newData[0].name).toEqual(newName);
     });
 
-    test("setModuleInterval should set a modle's interval", async () => {
+    test("setModuleInterval should set a module's interval", async () => {
         const module = createDB.getSeededModules()[0];
         const data = await dbInterface.getModule(module.moduleId);
         const newInterval = 87654321;
@@ -175,7 +175,7 @@ describe("DatabaseInterface", () => {
         expect(newData[0].interval).toEqual(newInterval);
     });
 
-    test("setModuleGraphs should set a modle's graphs", async () => {
+    test("setModuleGraphs should set a module's graphs", async () => {
         const module = createDB.getSeededModules()[0];
         const data = await dbInterface.getModule(module.moduleId);
         const graphs = "seeded-device-0-module-1-sensor-1";
