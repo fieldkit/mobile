@@ -35,9 +35,15 @@ export default class DatabaseInterface {
         return databasePromise;
     }
 
-    getConfigs(deviceId) {
+    getStationConfigs(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM config WHERE device_id=" + deviceId)
+            db.query("SELECT * FROM stations_config WHERE device_id='" + deviceId + "'")
+        );
+    }
+
+    getModuleConfigs(moduleId) {
+        return this.getDatabase().then(db =>
+            db.query("SELECT * FROM modules_config WHERE module_id='" + moduleId + "'")
         );
     }
 
@@ -82,10 +88,11 @@ export default class DatabaseInterface {
     }
 
     setStationName(station) {
+        const escaped = station.name.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
             db.query(
                 "UPDATE stations SET name='" +
-                    station.name +
+                    escaped +
                     "' WHERE id=" +
                     station.id
             )
@@ -106,10 +113,11 @@ export default class DatabaseInterface {
     }
 
     setStationLocationName(station) {
+        const escaped = station.location_name.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
             db.query(
                 "UPDATE stations SET location_name='" +
-                    station.location_name +
+                    escaped +
                     "' WHERE id=" +
                     station.id
             )
@@ -139,10 +147,11 @@ export default class DatabaseInterface {
     }
 
     setStationDeployImageLabel(station) {
+        const escaped = station.deploy_image_label.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
             db.query(
                 "UPDATE stations SET deploy_image_label='" +
-                    station.deploy_image_label +
+                    escaped +
                     "' WHERE id=" +
                     station.id
             )
@@ -150,10 +159,11 @@ export default class DatabaseInterface {
     }
 
     setStationDeployNote(station) {
+        const escaped = station.deploy_note.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
             db.query(
                 "UPDATE stations SET deploy_note='" +
-                    station.deploy_note +
+                    escaped +
                     "' WHERE id=" +
                     station.id
             )
@@ -172,10 +182,11 @@ export default class DatabaseInterface {
     }
 
     setModuleName(module) {
+        const escaped = module.name.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
             db.query(
                 "UPDATE modules SET name='" +
-                    module.name +
+                    escaped +
                     "' WHERE id=" +
                     module.id
             )
