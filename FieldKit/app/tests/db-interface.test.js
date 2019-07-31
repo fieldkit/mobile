@@ -55,7 +55,7 @@ describe("DatabaseInterface", () => {
     test("setStationLocationCoordinates should set a station's coordinates", async () => {
         const station = createDB.getSeededStations()[0];
         const data = await dbInterface.getStation(station.deviceId);
-        const newCoords = [10,-10];
+        const newCoords = [10, -10];
         data[0].latitude = newCoords[0];
         data[0].longitude = newCoords[1];
         const change = await dbInterface.setStationLocationCoordinates(data[0]);
@@ -67,7 +67,7 @@ describe("DatabaseInterface", () => {
     test("setStationLocationCoordinates should set a station's coordinates", async () => {
         const station = createDB.getSeededStations()[0];
         const data = await dbInterface.getStation(station.deviceId);
-        const newCoords = [10,-10];
+        const newCoords = [10, -10];
         data[0].latitude = newCoords[0];
         data[0].longitude = newCoords[1];
         const change = await dbInterface.setStationLocationCoordinates(data[0]);
@@ -119,7 +119,8 @@ describe("DatabaseInterface", () => {
     test("setStationDeployNote should set a station's deployment note", async () => {
         const station = createDB.getSeededStations()[0];
         const data = await dbInterface.getStation(station.deviceId);
-        const note = "If you can't find the station, check the hollow in the fir to the left of the waterfall.";
+        const note =
+            "If you can't find the station, check the hollow in the fir to the left of the waterfall.";
         data[0].deploy_note = note;
         const change = await dbInterface.setStationDeployNote(data[0]);
         const newData = await dbInterface.getStation(station.deviceId);
@@ -129,7 +130,8 @@ describe("DatabaseInterface", () => {
     test("setStationDeployAudio should set a station's deployment audio file", async () => {
         const station = createDB.getSeededStations()[0];
         const data = await dbInterface.getStation(station.deviceId);
-        const audioFiles = "Audio recording Jul 24 2019.m4a,Audio recording Jul 24 2019 2.m4a";
+        const audioFiles =
+            "Audio recording Jul 24 2019.m4a,Audio recording Jul 24 2019 2.m4a";
         data[0].deploy_audio_files = audioFiles;
         const change = await dbInterface.setStationDeployAudio(data[0]);
         const newData = await dbInterface.getStation(station.deviceId);
@@ -145,9 +147,11 @@ describe("DatabaseInterface", () => {
             affected_field: "name",
             author: "tester"
         };
-        const change = await dbInterface.recordStationConfigChange(configChange);
+        const change = await dbInterface.recordStationConfigChange(
+            configChange
+        );
         const newData = await dbInterface.getStationConfigs(station.deviceId);
-        const lastIndex = newData.length-1;
+        const lastIndex = newData.length - 1;
         expect(newData[lastIndex].before).toEqual(configChange.before);
     });
 
@@ -192,8 +196,7 @@ describe("DatabaseInterface", () => {
         };
         const change = await dbInterface.recordModuleConfigChange(configChange);
         const newData = await dbInterface.getModuleConfigs(module.moduleId);
-        const lastIndex = newData.length-1;
+        const lastIndex = newData.length - 1;
         expect(newData[lastIndex].after).toEqual(configChange.after);
     });
 });
-

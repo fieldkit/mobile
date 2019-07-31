@@ -37,13 +37,17 @@ export default class DatabaseInterface {
 
     getStationConfigs(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM stations_config WHERE device_id='" + deviceId + "'")
+            db.query("SELECT * FROM stations_config WHERE device_id = ?", [
+                deviceId
+            ])
         );
     }
 
     getModuleConfigs(moduleId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM modules_config WHERE module_id='" + moduleId + "'")
+            db.query("SELECT * FROM modules_config WHERE module_id = ?", [
+                moduleId
+            ])
         );
     }
 
@@ -59,159 +63,124 @@ export default class DatabaseInterface {
 
     getStation(deviceId) {
         return this.getDatabase().then(db =>
-            db.query(
-                "SELECT * FROM stations WHERE device_id='" + deviceId + "'"
-            )
+            db.query("SELECT * FROM stations WHERE device_id = ?", [deviceId])
         );
     }
 
     getModule(moduleId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM modules WHERE module_id='" + moduleId + "'")
+            db.query("SELECT * FROM modules WHERE module_id = ?", [moduleId])
         );
     }
 
     getModules(deviceId) {
         return this.getDatabase().then(db =>
-            db.query(
-                "SELECT * FROM modules WHERE device_id IN ('" + deviceId + "')"
-            )
+            db.query("SELECT * FROM modules WHERE device_id = ?", [deviceId])
         );
     }
 
     getSensors(moduleId) {
         return this.getDatabase().then(db =>
-            db.query(
-                "SELECT * FROM sensors WHERE module_id IN ('" + moduleId + "')"
-            )
+            db.query("SELECT * FROM sensors WHERE module_id = ?", [moduleId])
         );
     }
 
     setStationName(station) {
-        const escaped = station.name.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET name='" +
-                    escaped +
-                    "' WHERE id=" +
-                    station.id
-            )
+            db.query("UPDATE stations SET name = ? WHERE id = ?", [
+                station.name,
+                station.id
+            ])
         );
     }
 
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET latitude='" +
-                    station.latitude +
-                    "', longitude='" +
-                    station.longitude +
-                    "' WHERE id=" +
-                    station.id
+                "UPDATE stations SET latitude = ?, longitude = ? WHERE id = ?",
+                [station.latitude, station.longitude, station.id]
             )
         );
     }
 
     setStationLocationName(station) {
-        const escaped = station.location_name.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET location_name='" +
-                    escaped +
-                    "' WHERE id=" +
-                    station.id
-            )
+            db.query("UPDATE stations SET location_name = ? WHERE id = ?", [
+                station.location_name,
+                station.id
+            ])
         );
     }
 
     setStationInterval(station) {
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET interval='" +
-                    station.interval +
-                    "' WHERE id=" +
-                    station.id
-            )
+            db.query("UPDATE stations SET interval = ? WHERE id = ?", [
+                station.interval,
+                station.id
+            ])
         );
     }
 
     setStationDeployImage(station) {
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET deploy_image_name='" +
-                    station.deploy_image_name +
-                    "' WHERE id=" +
-                    station.id
-            )
+            db.query("UPDATE stations SET deploy_image_name = ? WHERE id = ?", [
+                station.deploy_image_name,
+                station.id
+            ])
         );
     }
 
     setStationDeployImageLabel(station) {
-        const escaped = station.deploy_image_label.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET deploy_image_label='" +
-                    escaped +
-                    "' WHERE id=" +
-                    station.id
+                "UPDATE stations SET deploy_image_label = ? WHERE id = ?",
+                [station.deploy_image_label, station.id]
             )
         );
     }
 
     setStationDeployNote(station) {
-        const escaped = station.deploy_note.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET deploy_note='" +
-                    escaped +
-                    "' WHERE id=" +
-                    station.id
-            )
+            db.query("UPDATE stations SET deploy_note = ? WHERE id = ?", [
+                station.deploy_note,
+                station.id
+            ])
         );
     }
 
     setStationDeployAudio(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET deploy_audio_files='" +
-                    station.deploy_audio_files +
-                    "' WHERE id=" +
-                    station.id
+                "UPDATE stations SET deploy_audio_files = ? WHERE id = ?",
+                [station.deploy_audio_files, station.id]
             )
         );
     }
 
     setModuleName(module) {
-        const escaped = module.name.replace(/[']/g, "''");
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE modules SET name='" +
-                    escaped +
-                    "' WHERE id=" +
-                    module.id
-            )
+            db.query("UPDATE modules SET name = ? WHERE id = ?", [
+                module.name,
+                module.id
+            ])
         );
     }
 
     setModuleInterval(module) {
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE modules SET interval='" +
-                    module.interval +
-                    "' WHERE id=" +
-                    module.id
-            )
+            db.query("UPDATE modules SET interval = ? WHERE id = ?", [
+                module.interval,
+                module.id
+            ])
         );
     }
 
     setModuleGraphs(module) {
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE modules SET graphs='" +
-                    module.graphs +
-                    "' WHERE id=" +
-                    module.id
-            )
+            db.query("UPDATE modules SET graphs = ? WHERE id = ?", [
+                module.graphs,
+                module.id
+            ])
         );
     }
 
