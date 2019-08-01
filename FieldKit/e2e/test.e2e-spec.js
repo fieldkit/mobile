@@ -42,6 +42,7 @@ describe("FieldKit Navigation", () => {
             yield driver.driver.hideDeviceKeyboard("Done");
             const logInButton = yield driver.findElementByText('Log In', nativescript_dev_appium_1.SearchOptions.exact);
             yield logInButton.click();
+            yield driver.wait(5000);
             const authenticatedMessage = yield driver.findElementByText('authenticated', nativescript_dev_appium_1.SearchOptions.contains);
             chai_1.assert.isTrue(yield authenticatedMessage.isDisplayed());
         });
@@ -86,6 +87,7 @@ describe("FieldKit Navigation", () => {
             const deployButton = yield driver.findElementByAccessibilityId('deployButton');
             yield deployButton.click();
             if (driver.isAndroid) {
+                yield driver.wait(5000);
                 const allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
                 yield allow.click();
             }
@@ -118,23 +120,45 @@ describe("FieldKit Navigation", () => {
                 yield allow.click();
                 allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
                 yield allow.click();
-                let shutter = yield driver.findElementByAccessibilityId("Shutter");
+                const shutter = yield driver.findElementByAccessibilityId("Shutter");
                 yield shutter.click();
-                let acceptBtn = yield driver.findElementByAccessibilityId("Done");
+                const acceptBtn = yield driver.findElementByAccessibilityId("Done");
                 yield acceptBtn.click();
             }
             else {
                 const selectFromGallery = yield driver.findElementByText("Select from gallery");
                 yield selectFromGallery.click();
-                let ok = yield driver.findElementByAccessibilityId("OK");
+                const ok = yield driver.findElementByAccessibilityId("OK");
                 yield ok.click();
-                let cameraRoll = yield driver.findElementByAccessibilityId("Camera Roll");
+                const cameraRoll = yield driver.findElementByAccessibilityId("Camera Roll");
                 yield cameraRoll.click();
                 yield driver.wait(2000);
                 yield driver.clickPoint(50, 200); // Select image
             }
             const savedPhoto = yield driver.findElementByAccessibilityId('deploymentPhoto');
             chai_1.assert.isTrue(yield savedPhoto.isDisplayed());
+        });
+    });
+    it("should add an audio note", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            const addAudio = yield driver.findElementByAccessibilityId('addAudioNote');
+            yield addAudio.click();
+            const startButton = yield driver.findElementByText("Start recording");
+            yield startButton.click();
+            yield driver.wait(2000);
+            if (driver.isAndroid) {
+                const allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
+                yield allow.click();
+            }
+            else {
+                const allow = yield driver.findElementByText("OK", nativescript_dev_appium_1.SearchOptions.exact);
+                yield allow.click();
+            }
+            yield driver.wait(2000);
+            const stopButton = yield driver.findElementByText("Stop recording");
+            yield stopButton.click();
+            const savedAudio = yield driver.findElementByAccessibilityId('audioRecording0');
+            chai_1.assert.isTrue(yield savedAudio.isDisplayed());
         });
     });
 });

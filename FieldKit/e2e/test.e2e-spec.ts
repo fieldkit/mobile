@@ -30,6 +30,7 @@ describe("FieldKit Navigation", () => {
         await driver.driver.hideDeviceKeyboard("Done");
         const logInButton = await driver.findElementByText('Log In', SearchOptions.exact);
         await logInButton.click();
+        await driver.wait(5000);
         const authenticatedMessage = await driver.findElementByText('authenticated', SearchOptions.contains);
         assert.isTrue(await authenticatedMessage.isDisplayed());
     });
@@ -69,6 +70,7 @@ describe("FieldKit Navigation", () => {
         const deployButton = await driver.findElementByAccessibilityId('deployButton');
         await deployButton.click();
         if(driver.isAndroid) {
+            await driver.wait(5000);
             const allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
             await allow.click();
         } else {
@@ -99,22 +101,43 @@ describe("FieldKit Navigation", () => {
             await allow.click();
             allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
             await allow.click();
-            let shutter = await driver.findElementByAccessibilityId("Shutter");
+            const shutter = await driver.findElementByAccessibilityId("Shutter");
             await shutter.click();
-            let acceptBtn = await driver.findElementByAccessibilityId("Done");
+            const acceptBtn = await driver.findElementByAccessibilityId("Done");
             await acceptBtn.click();
         } else {
             const selectFromGallery = await driver.findElementByText("Select from gallery");
             await selectFromGallery.click();
-            let ok = await driver.findElementByAccessibilityId("OK");
+            const ok = await driver.findElementByAccessibilityId("OK");
             await ok.click();
-            let cameraRoll = await driver.findElementByAccessibilityId("Camera Roll");
+            const cameraRoll = await driver.findElementByAccessibilityId("Camera Roll");
             await cameraRoll.click();
             await driver.wait(2000);
             await driver.clickPoint(50, 200); // Select image
         }
         const savedPhoto = await driver.findElementByAccessibilityId('deploymentPhoto');
         assert.isTrue(await savedPhoto.isDisplayed());
+    });
+
+    it("should add an audio note", async function() {
+        const addAudio = await driver.findElementByAccessibilityId('addAudioNote');
+        await addAudio.click();
+        const startButton = await driver.findElementByText("Start recording");
+        await startButton.click();
+        await driver.wait(2000);
+
+        if(driver.isAndroid) {
+            const allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
+            await allow.click();
+        } else {
+            const allow = await driver.findElementByText("OK", SearchOptions.exact);
+            await allow.click();
+        }
+        await driver.wait(2000);
+        const stopButton = await driver.findElementByText("Stop recording");
+        await stopButton.click();
+        const savedAudio = await driver.findElementByAccessibilityId('audioRecording0');
+        assert.isTrue(await savedAudio.isDisplayed());
     });
 
 });

@@ -73,14 +73,20 @@
                 <!-- end: Add text note -->
 
                 <!-- List audio recordings -->
-                <GridLayout rows="auto" columns="90*,10*" v-for="r in displayRecordings"
+                <GridLayout rows="auto" columns="90*,10*" v-for="(r, recordingIndex) in displayRecordings"
                     :key="r"
                     class="link-style"
                     orientation="vertical">
-                    <Label col="0" :text="r" :data="r" textWrap="true" @tap=playAudio />
+                    <Label col="0"
+                        :text="r"
+                        :data="r"
+                        :automationText="'audioRecording' + recordingIndex"
+                        textWrap="true"
+                        @tap=playAudio />
                     <Image col="1"
                         width="17"
                         class="small-round"
+                        :automationText="'removeAudioRecording' + recordingIndex"
                         :data="r"
                         @tap="removeRecording"
                         src="~/images/Icon_Close.png"></Image>
