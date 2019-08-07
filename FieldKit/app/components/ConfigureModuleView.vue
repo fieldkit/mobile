@@ -87,26 +87,14 @@
                 </GridLayout>
 
                 <!-- Data capture interval -->
-                <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10 m-y-20">
+                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-20">
                     <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
                     <Label row="1"
-                        colSpan="4"
+                        colSpan="2"
                         class="size-14 m-y-5"
                         :text="_L('dataCaptureNotice')"></Label>
-                    <Image row="2"
-                        col="0"
-                        width="17"
-                        v-show="isEditingInterval"
-                        @tap="cancelIntervalChange"
-                        src="~/images/Icon_Close.png"></Image>
-                    <StackLayout row="2"
-                        colSpan="2"
-                        class="spacer-left"
-                        id="interval-input-spacer"
-                        v-show="!isEditingInterval"></StackLayout>
                     <TextField row="2"
-                        :col="(isEditingInterval ? '1' : '0')"
-                        :colSpan="(isEditingInterval ? '1' : '2')"
+                        :col="0"
                         class="input interval-input"
                         id="interval-field"
                         :isEnabled="true"
@@ -115,24 +103,15 @@
                         autocorrect="false"
                         autocapitalizationType="none"
                         v-model="displayInterval"
-                        @focus="toggleIntervalChange"
-                        @blur="checkInterval"></TextField>
-                    <StackLayout row="2" col="2" id="drop-down-container">
+                        @blur="saveInterval"></TextField>
+                    <StackLayout row="2" col="1" id="drop-down-container">
                         <DropDown :items="timeUnits"
-                            @opened="toggleIntervalChange"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
                             class="drop-down"
                             :selectedIndex="currentUnit" ></DropDown>
                     </StackLayout>
-                    <Image
-                        row="2"
-                        col="3"
-                        width="17"
-                        v-show="isEditingInterval"
-                        @tap="saveInterval"
-                        src="~/images/Icon_Save.png"></Image>
-                    <StackLayout row="3" colSpan="2">
+                    <StackLayout row="3" col="0">
                         <Label
                             class="validation-error"
                             id="no-interval"
@@ -148,7 +127,6 @@
                             textWrap="true"
                             :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
-                    <TextView row="3" id="hidden-field" />
                 </GridLayout>
                 <!-- end: Data capture interval -->
 
@@ -187,7 +165,6 @@
                 noName: false,
                 nameNotPrintable: false,
                 nameTooLong: false,
-                isEditingInterval: false,
                 noInterval: false,
                 intervalNotNumber: false,
                 module: {
@@ -324,10 +301,6 @@
                 }
             },
 
-            toggleIntervalChange() {
-                this.isEditingInterval = true;
-            },
-
             checkInterval() {
                 // reset these first
                 this.noInterval = false;
@@ -340,47 +313,30 @@
             },
 
             saveInterval() {
-                this.removeFocus("interval-field");
-                this.isEditingInterval = false;
                 let valid = this.checkInterval();
-                if(valid && this.origInterval != this.module.interval) {
-                    this.convertToSeconds();
-                    dbInterface.setModuleInterval(this.module);
-                    let configChange = {
-                        module_id: this.module.module_id,
-                        before: this.origInterval,
-                        after: this.module.interval,
-                        affected_field: "interval",
-                        author: this.userName
-                    };
-                    dbInterface.recordModuleConfigChange(configChange);
-                    this.origInterval = this.module.interval;
-                    this.origUnit = this.currentUnit;
-                }
-            },
+                if(valid) {
+                    this.convertToSeconds(); // assigns displayInterval to this.module.interval
+                    if(this.origInterval != this.module.interval) {
+                        dbInterface.setModuleInterval(this.module);
+                        let configChange = {
+                            module_id: this.module.module_id,
+                            before: this.origInterval,
+                            after: this.module.interval,
+                            affected_field: "interval",
+                            author: this.userName
+                        };
+                        dbInterface.recordModuleConfigChange(configChange);
+                        this.origInterval = this.module.interval;
+                        this.origUnit = this.currentUnit;
 
-            cancelIntervalChange() {
-                this.removeFocus("interval-field");
-                this.isEditingInterval = false;
-                this.noInterval = false;
-                this.intervalNotNumber = false;
-                this.module.interval = this.origInterval;
-                this.convertFromSeconds();
-                this.currentUnit = this.origUnit;
+                    }
+                }
             },
 
             onSelectedIndexChanged(event) {
                 // console.log(event.oldIndex, event.newIndex)
                 this.currentUnit = event.newIndex;
-            },
-
-            removeFocus(id) {
-                let textField = this.page.getViewById(id);
-                textField.dismissSoftInput();
-
-                let hiddenField = this.page.getViewById("hidden-field");
-                hiddenField.focus();
-                hiddenField.dismissSoftInput();
+                this.saveInterval();
             }
         }
 
@@ -429,12 +385,6 @@
         padding-top: 5;
     }
 
-    #interval-input-spacer {
-        width: 100%;
-        border-bottom-width: 1;
-        border-bottom-color: $fk-primary-black;
-    }
-
     .interval-input {
         font-size: 18;
         width: 50%;
@@ -448,7 +398,4 @@
         border-radius: 20;
     }
 
-    #hidden-field {
-        opacity: 0;
-    }
 </style>
