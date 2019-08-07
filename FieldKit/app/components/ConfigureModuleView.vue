@@ -92,9 +92,10 @@
                     <Label row="1"
                         colSpan="2"
                         class="size-14 m-y-5"
+                        textWrap="true"
                         :text="_L('dataCaptureNotice')"></Label>
                     <TextField row="2"
-                        :col="0"
+                        col="0"
                         class="input interval-input"
                         id="interval-field"
                         :isEnabled="true"

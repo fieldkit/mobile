@@ -36,21 +36,8 @@
                 </Mapbox>
 
                 <!-- Name your location -->
-                <GridLayout rows="*" columns="8*,84*,8*" class="m-t-20 m-x-10">
-                    <Image row="0"
-                        col="0"
-                        width="17"
-                        v-show="isEditingLocation"
-                        @tap="cancelLocationName"
-                        src="~/images/Icon_Close.png"></Image>
-                    <StackLayout row="0"
-                        colSpan="2"
-                        class="spacer-left"
-                        id="location-input-spacer"
-                        v-show="!isEditingLocation"></StackLayout>
-                    <StackLayout row="0"
-                        :col="(isEditingLocation ? '1' : '0')"
-                        :colSpan="(isEditingLocation ? '1' : '2')">
+                <GridLayout rows="*" columns="*" class="m-t-20 m-x-10">
+                    <StackLayout row="0">
                         <FlexboxLayout>
                             <TextField
                                 class="input"
@@ -68,7 +55,6 @@
                                 :text="station.location_name.length"
                                 v-show="isEditingLocation"></Label>
                         </FlexboxLayout>
-                        <StackLayout class="spacer-top" id="name-field-spacer"></StackLayout>
                         <Label
                             class="validation-error"
                             id="no-location"
@@ -91,62 +77,35 @@
                             textWrap="true"
                             :visibility="locationNotPrintable ? 'visible' : 'collapsed'"></Label>
                     </StackLayout>
-                    <Image row="0"
-                        col="2"
-                        width="17"
-                        v-show="isEditingLocation"
-                        @tap="saveLocationName"
-                        src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
                 <!-- end: Name your location -->
 
                 <!-- Data capture interval -->
-                <GridLayout rows="auto,auto,auto,auto" columns="8*,42*,42*,8*" class="m-x-10 m-y-20">
-                    <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
+                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-20">
+                    <Label row="0" colSpan="2" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
                     <Label row="1"
-                        colSpan="4"
-                        class="size-14 m-y-5"
-                        :text="_L('dataCaptureNotice')"></Label>
-                    <Image row="2"
-                        col="0"
-                        width="17"
-                        v-show="isEditingInterval"
-                        @tap="cancelIntervalChange"
-                        src="~/images/Icon_Close.png"></Image>
-                    <StackLayout row="2"
                         colSpan="2"
-                        class="spacer-left"
-                        id="interval-input-spacer"
-                        v-show="!isEditingInterval"></StackLayout>
+                        class="size-14 m-y-5"
+                        textWrap="true"
+                        :text="_L('dataCaptureNotice')"></Label>
                     <TextField row="2"
-                        :col="(isEditingInterval ? '1' : '0')"
-                        :colSpan="(isEditingInterval ? '1' : '2')"
-                        class="input interval-input"
+                        col="0"
+                        class="input"
                         id="interval-field"
                         :isEnabled="true"
-                        verticalAligment="bottom"
                         keyboardType="name"
                         autocorrect="false"
                         autocapitalizationType="none"
                         v-model="displayInterval"
-                        @focus="toggleIntervalChange"
                         @blur="checkInterval"></TextField>
-                    <StackLayout row="2" col="2" id="drop-down-container">
+                    <StackLayout row="2" col="1" id="drop-down-container">
                         <DropDown :items="timeUnits"
-                            @opened="toggleIntervalChange"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
                             class="drop-down"
                             :selectedIndex="currentUnit" ></DropDown>
                     </StackLayout>
-                    <Image
-                        row="2"
-                        col="3"
-                        width="17"
-                        v-show="isEditingInterval"
-                        @tap="saveInterval"
-                        src="~/images/Icon_Save.png"></Image>
-                    <StackLayout row="3" colSpan="2">
+                    <StackLayout row="3" col="0">
                         <Label
                             class="validation-error"
                             id="no-interval"
@@ -198,7 +157,6 @@
                 origLatitude: "",
                 origLongitude: "",
                 origInterval: "",
-                isEditingInterval: false,
                 noInterval: false,
                 intervalNotNumber: false,
                 station: {
@@ -238,6 +196,9 @@
             },
 
             goToNext(event) {
+                this.saveLocationName();
+                this.saveInterval();
+
                 this.$navigateTo(routes.deployNotes, {
                     props: {
                         stationId: this.stationId
@@ -297,8 +258,6 @@
                             title: this.station.location_name
                         };
                         this.map.addMarkers([this.mapMarker]);
-
-                        // save coordinates without telling user?
                         this.saveLocationCoordinates();
                     } else {
                         // handle no location?
@@ -340,15 +299,6 @@
                     dbInterface.recordStationConfigChange(configChange);
                     this.origLocationName = this.station.location_name;
                 }
-            },
-
-            cancelLocationName() {
-                this.removeFocus("location-name-field");
-                this.isEditingLocation = false;
-                this.noLocation = false;
-                this.locationNotPrintable = false;
-                this.locationTooLong = false;
-                this.station.location_name = this.origLocationName;
             },
 
             saveLocationCoordinates() {
@@ -430,10 +380,6 @@
                 }
             },
 
-            toggleIntervalChange() {
-                this.isEditingInterval = true;
-            },
-
             checkInterval() {
                 // reset these first
                 this.noInterval = false;
@@ -447,38 +393,30 @@
 
             saveInterval(event) {
                 this.removeFocus("interval-field");
-                this.isEditingInterval = false;
 
                 let valid = this.checkInterval();
-                if(valid && this.origInterval != this.station.interval) {
-                    this.convertToSeconds();
-                    dbInterface.setStationInterval(this.station);
-                    let configChange = {
-                        station_id: this.station.station_id,
-                        before: this.origInterval,
-                        after: this.station.interval,
-                        affected_field: "interval",
-                        author: this.userName
-                    };
-                    dbInterface.recordStationConfigChange(configChange);
-                    this.origInterval = this.station.interval;
-                    this.origUnit = this.currentUnit;
+                if(valid) {
+                    this.convertToSeconds(); // assigns displayInterval to this.station.interval
+                    if(this.origInterval != this.station.interval) {
+                        dbInterface.setStationInterval(this.station);
+                        let configChange = {
+                            station_id: this.station.station_id,
+                            before: this.origInterval,
+                            after: this.station.interval,
+                            affected_field: "interval",
+                            author: this.userName
+                        };
+                        dbInterface.recordStationConfigChange(configChange);
+                        this.origInterval = this.station.interval;
+                        this.origUnit = this.currentUnit;
+                    }
                 }
-            },
-
-            cancelIntervalChange(event) {
-                this.removeFocus("interval-field");
-                this.isEditingInterval = false;
-                this.noInterval = false;
-                this.intervalNotNumber = false;
-                this.station.interval = this.origInterval;
-                this.convertFromSeconds();
-                this.currentUnit = this.origUnit;
             },
 
             onSelectedIndexChanged(event) {
                 // console.log(event.oldIndex, event.newIndex)
                 this.currentUnit = event.newIndex;
+                this.saveInterval();
             },
 
             removeFocus(id) {
@@ -501,10 +439,19 @@
 
     // Custom styles
     #location-name-field {
+        padding: 0;
         width: 100%;
         font-size: 18;
         border-bottom-color: $fk-primary-black;
         border-bottom-width: 1;
+    }
+
+    #interval-field {
+        padding: 0;
+        font-size: 18;
+        width: 50%;
+        border-bottom-width: 1;
+        border-bottom-color: $fk-primary-black;
     }
 
     .char-count {
@@ -520,20 +467,6 @@
         border-top-color: $fk-tertiary-red;
         border-top-width: 2;
         padding-top: 5;
-    }
-
-    #location-input-spacer, #interval-input-spacer {
-        width: 100%;
-        border-bottom-width: 1;
-        border-bottom-color: $fk-primary-black;
-    }
-
-    .interval-input {
-        font-size: 18;
-        width: 50%;
-        padding: 5;
-        border-bottom-width: 1;
-        border-bottom-color: $fk-primary-black;
     }
 
     .round {

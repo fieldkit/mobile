@@ -1,10 +1,10 @@
 {
   "nativescript": {
     "id": "org.nativescript.fieldkit",
-    "tns-android": {
-      "version": "6.0.0"
-    },
     "tns-ios": {
+      "version": "6.0.1"
+    },
+    "tns-android": {
       "version": "6.0.1"
     }
   },

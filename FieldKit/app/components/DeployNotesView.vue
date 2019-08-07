@@ -40,35 +40,13 @@
                 <!-- end: Add audio note and photo -->
 
                 <!-- Add text note -->
-                <GridLayout rows="auto", columns="8*,84*,8*" class="m-10">
-                    <TextView colSpan="3"
-                        class="size-18"
-                        :hint="_L('notesInstructions')"
-                        v-show="!isEditingNote"
-                        v-model="noteText"
-                        @focus="toggleNoteEdit"
-                        textWrap="true" ></TextView>
-                    <Image col="0"
-                        width="17"
-                        class="m-t-10"
-                        v-show="isEditingNote"
-                        @tap="cancelEditNote"
-                        verticalAlignment="top"
-                        src="~/images/Icon_Close.png"></Image>
-                    <TextView col="1"
-                        class="size-18"
+                <GridLayout rows="auto", columns="*" class="m-10">
+                    <TextView class="size-18"
                         id="note-text-field"
                         :hint="_L('notesInstructions')"
                         v-model="noteText"
-                        v-show="isEditingNote"
+                        @blur="saveNote"
                         textWrap="true" ></TextView>
-                    <Image col="2"
-                        width="17"
-                        class="m-t-10"
-                        verticalAlignment="top"
-                        v-show="isEditingNote"
-                        @tap="saveNote"
-                        src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
                 <!-- end: Add text note -->
 
@@ -94,48 +72,23 @@
                 <!-- end: List audio recordings -->
 
                 <!-- Add photo -->
-                <GridLayout rows="*, auto" columns="8*,84*,8*" v-show="havePhoto" class="m-10 photo-label">
+                <GridLayout rows="*, auto" columns="*" v-show="havePhoto" class="m-10 photo-label">
                     <Image row="0"
-                        colSpan="3"
                         :src="imageSrc"
                         id="image"
                         automationText="deploymentPhoto"
                         stretch="aspectFit" />
-                    <Image
-                        row="1"
-                        col="0"
-                        class="m-10"
-                        width="17"
-                        v-show="isEditingLabel"
-                        @tap="cancelEditLabel"
-                        src="~/images/Icon_Close.png"></Image>
                     <TextView row="1"
-                        colSpan="3"
                         :hint="_L('describePhoto')"
                         id="photo-label-input"
-                        @focus="toggleLabelEdit"
-                        v-show="!isEditingLabel"
+                        @blur="saveLabel"
                         v-model="labelText"></TextView>
-                    <TextView row="1"
-                        col="1"
-                        :hint="_L('describePhoto')"
-                        id="photo-label-input"
-                        v-show="isEditingLabel"
-                        v-model="labelText"></TextView>
-                    <Image
-                        row="1"
-                        col="2"
-                        class="m-10"
-                        width="17"
-                        v-show="isEditingLabel"
-                        @tap="saveLabel"
-                        src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
                 <!-- end: Add photo -->
 
                 <StackLayout v-show="havePhoto" class="m-15">
                     <Label :text="_L('startRecordingPrompt')" textWrap="true" />
-                    <Button class="btn btn-primary m-b-10" :text="_L('record')"></Button>
+                    <Button class="btn btn-primary m-b-10" :text="_L('record')" @tap="pretendDeploy"></Button>
                 </StackLayout>
 
                 <TextView id="hidden-field" />
@@ -184,8 +137,6 @@
                 pathDest: "",
                 deployImageName: "",
                 origImageName: "",
-                isEditingLabel: false,
-                isEditingNote: false,
                 noteText: "",
                 origNote: "",
                 recordings: "",
@@ -421,8 +372,6 @@
             },
 
             saveLabel() {
-                this.removeFocus("photo-label-input");
-                this.isEditingLabel = false;
                 if(this.origLabel != this.labelText) {
                     this.station.deploy_image_label = this.labelText;
                     dbInterface.setStationDeployImageLabel(this.station);
@@ -438,19 +387,16 @@
                 }
             },
 
-            toggleLabelEdit() {
-                this.isEditingLabel = true;
-            },
-
-            cancelEditLabel() {
-                this.removeFocus("photo-label-input");
-                this.isEditingLabel = false;
-                this.labelText = this.origLabel;
-            },
-
             saveNote() {
-                this.removeFocus("note-text-field");
-                this.isEditingNote = false;
+                let textField = this.page.getViewById("note-text-field");
+                if(!this.noteText || this.noteText == "" || this.noteText.length == 0) {
+                    // show full hint text
+                    textField.className = "size-18 full-height";
+                } else {
+                    // let height auto-adjust
+                    textField.className = "size-18";
+                }
+
                 if(this.origNote != this.noteText) {
                     this.station.deploy_note = this.noteText;
                     dbInterface.setStationDeployNote(this.station);
@@ -466,14 +412,13 @@
                 }
             },
 
-            toggleNoteEdit() {
-                this.isEditingNote = true;
-            },
-
-            cancelEditNote() {
+            pretendDeploy(event) {
                 this.removeFocus("note-text-field");
-                this.isEditingNote = false;
-                this.noteText = this.origNote;
+                this.removeFocus("photo-label-input");
+                // just in case?
+                this.saveNote();
+                this.saveLabel();
+                event.object.text = _L("recording");
             },
 
             removeFocus(id) {
@@ -546,6 +491,15 @@
         margin-right: 10;
         margin-top: 5;
         margin-bottom: 10;
+    }
+
+    #note-text-field {
+        border-bottom-width: 1;
+        border-bottom-color: $fk-primary-black;
+    }
+
+    .full-height {
+        height: 75;
     }
 
     #hidden-field {
