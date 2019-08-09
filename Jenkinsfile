@@ -12,13 +12,7 @@ timestamps {
             stage ('build') {
                 sh """
 export PATH=$PATH:node_modules/.bin
-cd FieldKit
-rm -rf node_modules/*/.git
-npm --version
-node --version
-npm install
-npm test
-cd ..
+make jenkins
 """
             }
 
