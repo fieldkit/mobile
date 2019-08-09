@@ -31,6 +31,10 @@ make android-release
 """
             }
 
+            stage ('archive') {
+                archiveArtifacts artifacts: 'FieldKit/platforms/android/app/build/outputs/apk/release/*.apk'
+            }
+
             notifySuccess()
         }
         catch (Exception e) {
