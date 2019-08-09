@@ -32,7 +32,7 @@ make android-release
             }
 
             stage ('archive') {
-                archiveArtifacts artifacts: 'FieldKit/platforms/android/app/build/outputs/apk/release/*.apk'
+                archiveArtifacts artifacts: 'FieldKit/platforms/android/app/build/outputs/apk/release/*.apk, FieldKit/platforms/android/app/build/outputs/bundle/release/*.aab'
             }
 
             notifySuccess()
