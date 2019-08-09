@@ -1,8 +1,9 @@
 ANDROID ?= $(HOME)/Android/Sdk/tools/bin
+APP ?= FieldKit
 
 default: setup
 
-setup: .setup-completed
+setup: .setup-completed $(APP)/app/secrets.js $(APP)/node_modules
 
 .setup-completed:
 	$(ANDROID)/sdkmanager --verbose "system-images;android-25;google_apis;x86"
@@ -19,3 +20,20 @@ update:
 
 emulator:
 	sudo $(ANDROID)/../emulator -avd test
+
+android-release: setup
+	env
+	rm -rf $(APP)/node_modules/*/.git
+	npm install
+	tns build android --release --key-store-path private/${FK_APP_RELEASE_STORE_FILE} --key-store-password ${FK_APP_RELEASE_STORE_PASSWORD} --key-store-alias ${FK_APP_RELEASE_KEY_ALIAS} --key-store-alias-password ${FK_APP_RELEASE_KEY_PASSWORD}
+
+$(APP)/app/secrets.js: $(APP)/app/secrets.js.template
+	cp $^ $@
+
+prettier:
+	prettier --write "$(APP)/app/**/*.{ts,js,css,json}"
+
+$(APP)/node_modules:
+	cd $(APP) && npm install
+	rm -rf $(APP)/node_modules/*/.git
+	git config core.hooksPath .githooks
