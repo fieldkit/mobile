@@ -3,7 +3,7 @@ APP ?= FieldKit
 
 default: setup
 
-setup: .setup-completed $(APP)/app/secrets.js $(APP)/node_modules
+setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 
 .setup-completed:
 	$(ANDROID)/sdkmanager --verbose "system-images;android-25;google_apis;x86"
@@ -25,9 +25,9 @@ android-release: setup
 	env
 	rm -rf $(APP)/node_modules/*/.git
 	npm install
-	tns build android --release --key-store-path private/${FK_APP_RELEASE_STORE_FILE} --key-store-password ${FK_APP_RELEASE_STORE_PASSWORD} --key-store-alias ${FK_APP_RELEASE_KEY_ALIAS} --key-store-alias-password ${FK_APP_RELEASE_KEY_PASSWORD}
+	tns build android --release --key-store-path private/$(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 
-$(APP)/app/secrets.js: $(APP)/app/secrets.js.template
+$(APP)/app/secrets.ts: $(APP)/app/secrets.ts.template
 	cp $^ $@
 
 prettier:
