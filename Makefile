@@ -22,10 +22,9 @@ emulator:
 	sudo $(ANDROID)/../emulator -avd test
 
 android-release: setup
-	env
 	rm -rf $(APP)/node_modules/*/.git
 	npm install
-	tns build android --release --key-store-path private/$(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
+	cd $(APP) && tns build android --release --key-store-path private/$(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 
 $(APP)/app/secrets.ts: $(APP)/app/secrets.ts.template
 	cp $^ $@
