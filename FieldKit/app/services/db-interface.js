@@ -239,21 +239,24 @@ export default class DatabaseInterface {
                         this.addStation(
                             deviceId,
                             address,
-                            result.status.identity.device,
-                            result.modules
+                            result
                         );
                     }
                 });
         });
     }
 
-    addStation(deviceId, address, deviceName, modules) {
+    addStation(deviceId, address, response) {
+        let deviceStatus = response.status;
+        let modules = response.modules;
         let station = {
             deviceId: deviceId,
-            name: deviceName,
+            name: deviceStatus.identity.device,
             url: address,
             status: "Ready to deploy",
-            modules: ""
+            modules: "",
+            battery_level: deviceStatus.power.battery.percentage,
+            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
         };
         let generateReading = this.generateReading;
 
@@ -400,9 +403,13 @@ class Station {
               Math.floor(Math.random() * Math.floor(9000));
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
-        this.battery_level = Math.floor(Math.random() * Math.floor(100));
+        this.battery_level = _station.battery_level
+            ? _station.battery_level
+            : Math.floor(Math.random() * Math.floor(100));
         this.connected = "true";
-        this.available_memory = Math.floor(Math.random() * Math.floor(100));
+        this.available_memory = _station.available_memory
+            ? _station.available_memory
+            : Math.floor(Math.random() * Math.floor(100));
         this.modules = _station.modules; // comma-delimited list of module ids
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
     }
