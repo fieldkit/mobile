@@ -1,0 +1,38 @@
+@Library('conservify') _
+
+conservifyProperties([ disableConcurrentBuilds() ])
+
+timestamps {
+    node ("osx") {
+        try {
+            stage ('git') {
+                checkout scm
+            }
+
+            stage ("configuration") {
+            }
+
+            stage ('build') {
+                withCredentials([string(credentialsId: 'app-ios-keychain-password', variable: 'APP_IOS_KEYCHAIN_PASSWORD')]) {
+                  sh """
+export PATH=$PATH:node_modules/.bin
+set +x
+export APP_IOS_KEYCHAIN_PASSWORD=$APP_IOS_KEYCHAIN_PASSWORD}
+set -x
+
+make ios-release
+"""
+              }
+            }
+
+            stage ('archive') {
+            }
+
+            notifySuccess()
+        }
+        catch (Exception e) {
+            notifyFailure()
+            throw e;
+        }
+    }
+}
