@@ -1,0 +1,45 @@
+@Library('conservify') _
+
+conservifyProperties([ disableConcurrentBuilds() ])
+
+timestamps {
+    node () {
+        try {
+            stage ('git') {
+                checkout scm
+            }
+
+            stage ("configuration") {
+                withCredentials([file(credentialsId: 'app-android-signing-data', variable: 'APP_ANDROID_SIGNING_DATA')]) {
+                    sh "mkdir -p private && cp -f $APP_ANDROID_SIGNING_DATA private/private.zip && (cd private && unzip -o private.zip)"
+                }
+            }
+
+            stage ('build') {
+                def props = readProperties(file: "private/gradle.properties")
+                sh """
+export PATH=$PATH:node_modules/.bin
+export ANDROID_HOME=/var/jenkins_home/workspace/android-sdk/android-sdk
+export FK_APP_RELEASE_STORE_FILE=../private/${props.FK_APP_RELEASE_STORE_FILE} 
+export FK_APP_RELEASE_KEY_ALIAS=${props.FK_APP_RELEASE_KEY_ALIAS} 
+set +x
+export FK_APP_RELEASE_STORE_PASSWORD=${props.FK_APP_RELEASE_STORE_PASSWORD} 
+export FK_APP_RELEASE_KEY_PASSWORD=${props.FK_APP_RELEASE_KEY_PASSWORD}
+set -x
+
+make android-release
+"""
+            }
+
+            stage ('archive') {
+                archiveArtifacts artifacts: 'FieldKit/platforms/android/app/build/outputs/apk/release/*.apk, FieldKit/platforms/android/app/build/outputs/bundle/release/*.aab'
+            }
+
+            notifySuccess()
+        }
+        catch (Exception e) {
+            notifyFailure()
+            throw e;
+        }
+    }
+}
