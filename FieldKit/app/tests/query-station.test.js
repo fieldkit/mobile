@@ -3,7 +3,7 @@ import axios from "axios";
 import protobuf from "protobufjs";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
-const WireMessageReply = appRoot.lookupType("fk_app.WireMessageReply");
+const HttpReply = appRoot.lookupType("fk_app.HttpReply");
 
 jest.mock("axios");
 
@@ -14,10 +14,11 @@ afterEach(() => {
 describe("QueryStation", () => {
     it("should retrieve a station status", () => {
         const queryStation = new QueryStation();
-        const binaryResponse = WireMessageReply.encodeDelimited({
+        const binaryResponse = HttpReply.encodeDelimited({
             errors: [],
             type: 15,
-            status: {}
+            status: {},
+            modules: [{sensors: [[{}], [{}], [{}], [{}]], name: "Water Quality Module"}]
         }).finish();
         const mockResponse = {
             data: new Buffer.from(binaryResponse).toString("hex")
@@ -25,27 +26,7 @@ describe("QueryStation", () => {
         axios.mockImplementation(() => Promise.resolve(mockResponse));
         return queryStation
             .queryStatus()
-            .then(resp => expect(resp.status).toBeDefined());
+            .then(resp => expect(resp.modules).toBeDefined());
     });
 
-    it("should retrieve station capabilities", () => {
-        const queryStation = new QueryStation();
-        const binaryResponse = WireMessageReply.encodeDelimited({
-            errors: [],
-            type: 4,
-            capabilities: {
-                modules: [],
-                sensors: [[{}], [{}], [{}], [{}]],
-                version: 1,
-                name: "FieldKit Station"
-            }
-        }).finish();
-        const mockResponse = {
-            data: new Buffer.from(binaryResponse).toString("hex")
-        };
-        axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryStation
-            .queryCapabilities()
-            .then(resp => expect(resp.capabilities).toBeDefined());
-    });
 });

@@ -217,39 +217,37 @@ export default class DatabaseInterface {
     checkForStation(address) {
         // let address = "https://localhost:2382";
         // let address = "http://192.168.1.5:2380";
-        queryStation.queryIdentity(address).then(idResult => {
-            queryStation.queryCapabilities(address).then(capResult => {
-                let id = idResult.identity.deviceId;
-                let result = [];
-                for (let i = 0; i < id.length; i++) {
-                    result.push(id[i]);
-                }
-                let deviceId = result.join("-");
-                // check to see if we already have it - and
-                // TO DO: update it?
-                this.database
-                    .query(
-                        "SELECT * FROM stations WHERE device_id='" +
-                            deviceId +
-                            "'"
-                    )
-                    .then(result => {
-                        if (result.length > 0) {
-                            // already have this station in db - update?
-                        } else {
-                            this.addStation(
-                                deviceId,
-                                address,
-                                idResult.identity.device,
-                                capResult.capabilities
-                            );
-                        }
-                    });
-            });
+        queryStation.queryStatus(address).then(result => {
+            let id = result.status.identity.deviceId;
+            let tempPieces = [];
+            for (let i = 0; i < id.length; i++) {
+                tempPieces.push(id[i]);
+            }
+            let deviceId = tempPieces.join("-");
+            // check to see if we already have it - and
+            // TO DO: update it?
+            this.database
+                .query(
+                    "SELECT * FROM stations WHERE device_id='" +
+                        deviceId +
+                        "'"
+                )
+                .then(dbResponse => {
+                    if (dbResponse.length > 0) {
+                        // already have this station in db - update?
+                    } else {
+                        this.addStation(
+                            deviceId,
+                            address,
+                            result.status.identity.device,
+                            result.modules
+                        );
+                    }
+                });
         });
     }
 
-    addStation(deviceId, address, deviceName, capabilities) {
+    addStation(deviceId, address, deviceName, modules) {
         let station = {
             deviceId: deviceId,
             name: deviceName,
@@ -261,7 +259,7 @@ export default class DatabaseInterface {
 
         let newModules = [];
         let newSensors = [];
-        capabilities.modules.forEach(function(m, i) {
+        modules.forEach(function(m, i) {
             let moduleId = deviceId + "-module-" + i;
             let mod = {
                 moduleId: moduleId,
@@ -269,10 +267,7 @@ export default class DatabaseInterface {
                 name: m.name,
                 sensors: ""
             };
-            let modSensors = capabilities.sensors.filter(function(s) {
-                return s.module == m.id;
-            });
-            modSensors.forEach(function(s, j) {
+            m.sensors.forEach(function(s, j) {
                 let sensorId = moduleId + "-sensor-" + j;
                 mod.sensors += j == 0 ? sensorId : "," + sensorId;
                 let sensor = {
