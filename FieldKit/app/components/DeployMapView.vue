@@ -225,7 +225,7 @@
                     else {
                         geolocation.enableLocationRequest().then(() => {
                             this.getLocation();
-                        }, function (e) {
+                        }, e => {
                             // console.log("enableLocationRequest() error: " + (e.message || e));
                         });
                     }

@@ -257,7 +257,7 @@ export default class DatabaseInterface {
 
         let newModules = [];
         let newSensors = [];
-        modules.forEach(function(m, i) {
+        modules.forEach((m, i) => {
             let moduleId = deviceId + "-module-" + i;
             let mod = {
                 moduleId: moduleId,
@@ -265,7 +265,7 @@ export default class DatabaseInterface {
                 name: m.name,
                 sensors: ""
             };
-            m.sensors.forEach(function(s, j) {
+            m.sensors.forEach((s, j) => {
                 let sensorId = moduleId + "-sensor-" + j;
                 mod.sensors += j == 0 ? sensorId : "," + sensorId;
                 let sensor = {

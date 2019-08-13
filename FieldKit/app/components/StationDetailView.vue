@@ -437,7 +437,7 @@
                     sensorLabel.animate({
                         opacity: 0,
                         duration: 1000
-                    }).then(function() {
+                    }).then(() => {
                         m.currentSensorLabel = currentSensor.name;
                         return sensorLabel.animate({
                             opacity: 1,
@@ -448,7 +448,7 @@
                     stack.animate({
                         opacity: 0,
                         duration: 1000
-                    }).then(function() {
+                    }).then(() => {
                         m.currentSensorReading = newReading;
                         m.currentSensorUnit = currentSensor.unit;
                         m.currentSensorTrend = "~/images/"+trendIcon;
