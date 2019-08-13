@@ -18,7 +18,12 @@ describe("QueryStation", () => {
             errors: [],
             type: 15,
             status: {},
-            modules: [{sensors: [[{}], [{}], [{}], [{}]], name: "Water Quality Module"}]
+            modules: [
+                {
+                    sensors: [[{}], [{}], [{}], [{}]],
+                    name: "Water Quality Module"
+                }
+            ]
         }).finish();
         const mockResponse = {
             data: new Buffer.from(binaryResponse).toString("hex")
@@ -29,4 +34,21 @@ describe("QueryStation", () => {
             .then(resp => expect(resp.modules).toBeDefined());
     });
 
+    it("should retrieve station readings", () => {
+        const queryStation = new QueryStation();
+        const binaryResponse = HttpReply.encodeDelimited({
+            errors: [],
+            type: 18,
+            modules: [],
+            streams: [],
+            liveReadings: [{ modules: [{}], time: 1565734980 }]
+        }).finish();
+        const mockResponse = {
+            data: new Buffer.from(binaryResponse).toString("hex")
+        };
+        axios.mockImplementation(() => Promise.resolve(mockResponse));
+        return queryStation
+            .queryTakeReadings()
+            .then(resp => expect(resp.liveReadings).toBeDefined());
+    });
 });

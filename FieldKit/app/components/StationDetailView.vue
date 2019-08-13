@@ -141,7 +141,7 @@
                         <StackLayout orientation="vertical" class="module-labels">
                             <Label :text="m.name" class="module-name size-16" />
                             <Label :id="'sensor-label-' + m.module_id"
-                                :text="m.sensorObjects[0].name"
+                                :text="m.currentSensorLabel"
                                 class="sensor-name size-14" />
                         </StackLayout>
 
@@ -161,14 +161,12 @@
                                     <Image col="0"
                                         width="7"
                                         class="m-r-2"
-                                        src="~/images/Icon_Decrease.png"></Image>
+                                        :src="m.currentSensorTrend"></Image>
                                     <Label col="1"
-                                        :id="'sensor-reading-' + m.module_id"
-                                        :text="m.sensorObjects[0].current_reading.toFixed(1)"
+                                        :text="m.currentSensorReading"
                                         class="size-24" />
                                 </GridLayout>
-                                <Label :id="'sensor-unit-' + m.module_id"
-                                    :text="m.sensorObjects[0].unit"
+                                <Label :text="m.currentSensorUnit"
                                     class="size-10 text-right" />
                             </StackLayout>
                         </template>
@@ -179,8 +177,12 @@
                     automationText="deployButton"
                     @tap="goToDeploy">
                     <Label
-                        :class="station.status == 'Ready to deploy' ?  'bold size-24 text-center' : 'plain text-center'"
-                        :text="station.status == 'Ready to deploy' ? _L('deploy') : _L('deployed')+' 01/01/19'"></Label>
+                        :class="station.status == 'Ready to deploy'
+                            ?  'bold size-24 text-center'
+                            : 'plain text-center'"
+                        :text="station.status == 'Ready to deploy'
+                            ? _L('deploy')
+                            : _L('deployed')+' 01/01/19'"></Label>
                 </StackLayout>
 
                 <!-- footer -->
@@ -207,8 +209,10 @@
 
 <script>
     import routes from "../routes";
+    import QueryStation from "../services/query-station";
     import DatabaseInterface from "../services/db-interface";
     const dbInterface = new DatabaseInterface();
+    const queryStation = new QueryStation();
 
     export default {
         data() {
@@ -339,9 +343,15 @@
             },
 
             linkModulesAndSensors(results) {
-                results.forEach(function(r) {
+                results.forEach(r => {
                     r.resultPromise.then(sensors => {
                         r.module.sensorObjects = sensors;
+                        // set variables for cycling sensors
+                        r.module.sensorIndex = 0;
+                        r.module.currentSensorLabel = sensors[0].name;
+                        r.module.currentSensorReading = sensors[0].current_reading.toFixed(1);
+                        r.module.currentSensorUnit = sensors[0].unit;
+                        r.module.currentSensorTrend = "~/images/Icon_Neutral.png";
                     });
                 });
             },
@@ -363,52 +373,85 @@
                 this.station.connected = this.station.connected != "false";
                 this.station.battery_level+="%";
                 this.station.occupiedMemory = 100 - this.station.available_memory;
-                this.station.available_memory+="%";
+                this.station.available_memory = this.station.available_memory.toFixed(2)+"%";
                 this.page.addCss("#station-memory-bar {width: "+this.station.occupiedMemory+"%;}");
 
-                let sensorsToCycle = [];
-                this.station.moduleObjects.forEach(function(mod) {
-                    if(mod.sensorObjects.length > 1) {
-                        sensorsToCycle.push({
-                            "stackId": "sensors-of-" + mod.module_id,
-                            "sensorLabelId": "sensor-label-" + mod.module_id,
-                            "sensorReadingId": "sensor-reading-" + mod.module_id,
-                            "sensorUnitId": "sensor-unit-" + mod.module_id,
-                            "module": mod,
-                            "currentIndex": 0
-                        });
-                    }
-                });
+                if(this.station.url != "no_url") {
+                    // first try, might not have a reading yet
+                    queryStation.queryTakeReadings(this.station.url);
+                    // wait one second to make sure reading available
+                    setTimeout(() => {
+                        this.takeSensorReadings();
+                        // then start five second cycle
+                        this.intervalTimer = setInterval(() => {
+                            this.takeSensorReadings();
+                        }, 5000);
+                    }, 1000);
 
-                this.sensorsToCycle = sensorsToCycle;
-                this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
+                } else {
+                    this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
+                }
             },
 
-            cycleSensorReadings() {
-                let page = this.page;
-                this.sensorsToCycle.forEach(function(s) {
-                    let stack = page.getViewById(s.stackId);
-                    let sensorLabel = page.getViewById(s.sensorLabelId);
-                    let sensorReading = page.getViewById(s.sensorReadingId);
-                    let sensorUnit = page.getViewById(s.sensorUnitId);
+            takeSensorReadings() {
+                queryStation.queryTakeReadings(this.station.url).then(result => {
+                    if(result.liveReadings.length == 0) {return}
 
-                    s.currentIndex = s.currentIndex == s.module.sensorObjects.length-1 ? 0 : s.currentIndex+1;
+                    let readings = {};
+                    result.liveReadings.forEach(lr => {
+                        lr.modules.forEach(m => {
+                            m.readings.forEach(r => {
+                                readings[m.module.name+r.sensor.name] = r.value;
+                            });
+                        });
+                    });
+                    this.cycleSensorReadings(readings);
+                });
+            },
+
+            cycleSensorReadings(liveReadings) {
+                let page = this.page;
+                this.station.moduleObjects.forEach(m => {
+                    // ignore single sensor modules that don't have live readings
+                    if(m.sensorObjects.length == 1 && !liveReadings) {return}
+
+                    // increment to cycle through sensors
+                    m.sensorIndex = m.sensorIndex == m.sensorObjects.length-1 ? 0 : m.sensorIndex+1;
+                    let currentSensor = m.sensorObjects[m.sensorIndex];
+
+                    let newReading = +currentSensor.current_reading.toFixed(1);
+                    let prevReading = +currentSensor.current_reading.toFixed(1);
+                    if(liveReadings) {
+                        newReading = +liveReadings[m.name+currentSensor.name].toFixed(1);
+                        currentSensor.current_reading = newReading;
+                    }
+
+                    let trendIcon = "Icon_Neutral.png";
+                    if(newReading < prevReading) {
+                        trendIcon = "Icon_Decrease.png";
+                    } else if(newReading > prevReading) {
+                        trendIcon = "Icon_Increase.png";
+                    }
+
+                    let sensorLabel = page.getViewById("sensor-label-" + m.module_id);
                     sensorLabel.animate({
                         opacity: 0,
                         duration: 1000
                     }).then(function() {
-                        sensorLabel.text = s.module.sensorObjects[s.currentIndex].name;
+                        m.currentSensorLabel = currentSensor.name;
                         return sensorLabel.animate({
                             opacity: 1,
                             duration: 500
                         });
                     });
+                    let stack = page.getViewById("sensors-of-" + m.module_id);
                     stack.animate({
                         opacity: 0,
                         duration: 1000
                     }).then(function() {
-                        sensorReading.text = s.module.sensorObjects[s.currentIndex].current_reading.toFixed(1);
-                        sensorUnit.text = s.module.sensorObjects[s.currentIndex].unit;
+                        m.currentSensorReading = newReading;
+                        m.currentSensorUnit = currentSensor.unit;
+                        m.currentSensorTrend = "~/images/"+trendIcon;
                         return stack.animate({
                             opacity: 1,
                             duration: 500

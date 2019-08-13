@@ -228,19 +228,13 @@ export default class DatabaseInterface {
             // TO DO: update it?
             this.database
                 .query(
-                    "SELECT * FROM stations WHERE device_id='" +
-                        deviceId +
-                        "'"
+                    "SELECT * FROM stations WHERE device_id='" + deviceId + "'"
                 )
                 .then(dbResponse => {
                     if (dbResponse.length > 0) {
                         // already have this station in db - update?
                     } else {
-                        this.addStation(
-                            deviceId,
-                            address,
-                            result
-                        );
+                        this.addStation(deviceId, address, result);
                     }
                 });
         });
@@ -256,7 +250,8 @@ export default class DatabaseInterface {
             status: "Ready to deploy",
             modules: "",
             battery_level: deviceStatus.power.battery.percentage,
-            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
+            available_memory:
+                100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
         };
         let generateReading = this.generateReading;
 

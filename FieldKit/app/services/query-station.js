@@ -25,6 +25,40 @@ export default class QueryStation {
         );
     }
 
+    queryReadings(address) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_GET_READINGS
+        });
+
+        return this.stationQuery(address, message).then(
+            r => {
+                // console.log(address, "reply", r);
+                return r;
+            },
+            e => {
+                // console.log(address, "error", e);
+                throw e;
+            }
+        );
+    }
+
+    queryTakeReadings(address) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_TAKE_READINGS
+        });
+
+        return this.stationQuery(address, message).then(
+            r => {
+                // console.log(address, "reply", r);
+                return r;
+            },
+            e => {
+                // console.log(address, "error", e);
+                throw e;
+            }
+        );
+    }
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for
