@@ -31,6 +31,11 @@ Vue.registerElement(
 
 Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
+Vue.registerElement(
+    "BarcodeScanner",
+    () => require("nativescript-barcodescanner").BarcodeScannerView
+);
+
 Vue.use(RadChart);
 
 // Uncommment the following to see NativeScript-Vue output logs

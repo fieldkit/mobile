@@ -23,7 +23,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>FieldKit uses the camera to allow capture of an image depicting the location and setting of station deployment.</string>
+	<string>FieldKit uses the camera to allow scanning of QR codes and capture of an image depicting the location of station deployment.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>FieldKit uses the photo library to allow selection of an image depicting the location and setting of station deployment.</string>
 	<key>NSMicrophoneUsageDescription</key>
