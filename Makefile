@@ -33,7 +33,7 @@ $(APP)/node_modules:
 	git config core.hooksPath .githooks
 
 jenkins: setup
-	rm -rf $(APP)/node_modules/*/.git $(APP)/node-modules/fk-*-protocol
+	rm -rf $(APP)/node_modules
 	cd $(APP) && npm install
 	cd $(APP) && npm test
 
