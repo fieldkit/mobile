@@ -248,6 +248,7 @@
                 event.object.className = cn + " pressed";
                 setTimeout(() => {event.object.className = cn;}, 500);
 
+                clearInterval(this.intervalTimer);
                 this.$navigateTo(routes.dataDownload, {
                     props: {
                         stationId: this.stationId,
@@ -262,6 +263,7 @@
                 event.object.className = cn + " pressed";
                 setTimeout(() => {event.object.className = cn;}, 500);
 
+                clearInterval(this.intervalTimer);
                 this.$navigateTo(routes.deployMap, {
                     props: {
                         stationId: this.stationId
@@ -274,6 +276,7 @@
                 event.object.className = cn + " pressed";
                 setTimeout(() => {event.object.className = cn;}, 500);
 
+                clearInterval(this.intervalTimer);
                 this.$navigateTo(routes.module, {
                     props: {
                         // remove the "m_id-" prefix
