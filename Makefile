@@ -28,11 +28,13 @@ prettier:
 	prettier --write "$(APP)/app/**/*.{ts,js,css,json}"
 
 $(APP)/node_modules:
+	rm -rf $(APP)/node_modules/*/.git $(APP)/node-modules/fk-*-protocol
 	cd $(APP) && npm install
-	rm -rf $(APP)/node_modules/*/.git
 	git config core.hooksPath .githooks
 
 jenkins: setup
+	rm -rf $(APP)/node_modules/*/.git $(APP)/node-modules/fk-*-protocol
+	cd $(APP) && npm install
 	cd $(APP) && npm test
 
 android-release: setup
