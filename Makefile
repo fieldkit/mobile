@@ -44,6 +44,11 @@ android-release: setup
 	cd $(APP) && tns build android --release --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
 ios-release: setup
+	security list-keychains
+	security lock-keychain login.keychain
+	security unlock-keychain -p "$APP_IOS_KEYCHAIN_PASSWORD" login.keychain
+	security show-keychain-info login.keychain
 	rm -rf $(APP)/node_modules/*/.git
 	npm install
-	cd $(APP) && tns build ios
+	cd $(APP) && tns build ios --for-device
+	cd $(APP) && tns build ios --for-device --release
