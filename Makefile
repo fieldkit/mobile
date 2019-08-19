@@ -46,7 +46,8 @@ android-release: setup
 ios-release: setup
 	security list-keychains
 	security lock-keychain login.keychain
-	security unlock-keychain -p "$APP_IOS_KEYCHAIN_PASSWORD" login.keychain
+	env
+	security unlock-keychain -p "$$APP_IOS_KEYCHAIN_PASSWORD" login.keychain
 	security show-keychain-info login.keychain
 	rm -rf $(APP)/node_modules/*/.git
 	npm install
