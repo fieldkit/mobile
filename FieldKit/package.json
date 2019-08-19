@@ -1,6 +1,6 @@
 {
   "nativescript": {
-    "id": "org.nativescript.fieldkit",
+    "id": "org.fieldkit.fieldkit",
     "tns-ios": {
       "version": "6.0.1"
     },
