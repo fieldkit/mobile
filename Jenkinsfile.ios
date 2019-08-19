@@ -26,7 +26,7 @@ make ios-release
             }
 
             stage ('archive') {
-                archiveArtifacts artifacts: 'FieldKit/platforms/ios/build/Debug-iphonesimulator/*.app'
+                archiveArtifacts artifacts: 'FieldKit/platforms/ios/build/Debug-iphoneos/*.ipa, FieldKit/platforms/ios/build/Release-iphoneos/*.ipa'
             }
 
             notifySuccess()
