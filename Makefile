@@ -46,10 +46,11 @@ android-release: setup
 ios-release: setup
 	security list-keychains
 	security lock-keychain login.keychain
-	env
-	security unlock-keychain -p "$$APP_IOS_KEYCHAIN_PASSWORD" login.keychain
+	security unlock-keychain -p $(APP_IOS_KEYCHAIN_PASSWORD) login.keychain
 	security show-keychain-info login.keychain
 	rm -rf $(APP)/node_modules/*/.git
 	npm install
-	cd $(APP) && tns build ios --for-device
-	cd $(APP) && tns build ios --for-device --release
+	cd $(APP) && tns build ios --provision || true
+	cd $(APP) && tns build ios --team-id || true
+	cd $(APP) && tns build ios --provision "Conservify Ad Hoc" --for-device
+	cd $(APP) && tns build ios --provision "Conservify Ad Hoc" --for-device --release
