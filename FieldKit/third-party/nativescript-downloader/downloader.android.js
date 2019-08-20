@@ -1,44 +1,41 @@
-import { DownloaderBase, StatusCode, generateId } from './downloader.common';
-import * as fs from 'tns-core-modules/file-system';
-import * as utils from 'tns-core-modules/utils/utils';
-export class Downloader extends DownloaderBase {
-    constructor() {
-        super();
-        this.downloads = new Map();
-        this.downloadsData = new Map();
-        this.downloadRequests = new Map();
-        this.taskIds = new Map();
-
-// tried binding these events here, but they still only work the first time
-        var listener = co.fitcom.fancydownloader.DownloadListenerUI.extend({
-            onUIProgress: this.onUIProgress.bind(this),
-            onUIComplete: this.onUIComplete.bind(this),
-            onUIError: this.onUIError.bind(this)
-        });
-        this.listener = new listener();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var downloader_common_1 = require("./downloader.common");
+var fs = require("tns-core-modules/file-system");
+var utils = require("tns-core-modules/utils/utils");
+var Downloader = (function (_super) {
+    __extends(Downloader, _super);
+    function Downloader() {
+        var _this = _super.call(this) || this;
+        _this.downloads = new Map();
+        _this.downloadsData = new Map();
+        _this.downloadRequests = new Map();
+        _this.taskIds = new Map();
+        return _this;
     }
-    static init() {
+    Downloader.init = function () {
         co.fitcom.fancydownloader.Manager.init(utils.ad.getApplicationContext());
-    }
-    static setTimeout(timeout) {
+    };
+    Downloader.setTimeout = function (timeout) {
         co.fitcom.fancydownloader.Manager.setTimeout(timeout);
         // var manager = co.fitcom.fancydownloader.Manager.getInstance();
         // manager.setTimeout(timeout);
-    }
-    createDownload(options) {
+    };
+    Downloader.prototype.createDownload = function (options) {
         if (options && !options.url)
             throw new Error('Url missing');
-        const taskId = generateId();
+        var taskId = downloader_common_1.generateId();
         if (!this.manager) {
             this.manager = co.fitcom.fancydownloader.Manager.getInstance();
         }
-        let url;
-        let query;
+        var url;
+        var query;
         if (options.query) {
             if (typeof options.query === 'object') {
-                const keysArray = Object.keys(options.query);
+                var keysArray = Object.keys(options.query);
                 query = '';
-                for (let key of keysArray) {
+                for (var _i = 0, keysArray_1 = keysArray; _i < keysArray_1.length; _i++) {
+                    var key = keysArray_1[_i];
                     query += key + '=' + options.query[key] + '&';
                 }
             }
@@ -50,8 +47,8 @@ export class Downloader extends DownloaderBase {
         else {
             url = options.url;
         }
-        const request = new co.fitcom.fancydownloader.Request(url);
-        let path = '';
+        var request = new co.fitcom.fancydownloader.Request(url);
+        var path = '';
         if (options.path) {
             request.setFilePath(options.path);
         }
@@ -59,228 +56,150 @@ export class Downloader extends DownloaderBase {
             request.setFileName(options.fileName);
         }
         if (options.headers) {
-            const keysArray = Object.keys(options.headers);
-            const headers = new java.util.HashMap();
-            for (let key of keysArray) {
+            var keysArray = Object.keys(options.headers);
+            var headers = new java.util.HashMap();
+            for (var _a = 0, keysArray_2 = keysArray; _a < keysArray_2.length; _a++) {
+                var key = keysArray_2[_a];
                 headers.put(key, options.headers[key]);
             }
             request.setHeaders(headers);
         }
-        const task = this.manager.create(request);
+        var task = this.manager.create(request);
         path = fs.path.join(request.getFilePath(), request.getFileName());
         this.taskIds.set(task, taskId);
-
-// remove this
-this.taskIds.forEach(function(value, key) {
-  console.log("always correct context in createDownload:")
-  console.log(key + ' = ' + value);
-});
-// end remove this
-
         this.downloads.set(taskId, task);
         this.downloadRequests.set(taskId, request);
         this.downloadsData.set(taskId, {
-            status: StatusCode.PENDING
+            status: downloader_common_1.StatusCode.PENDING
         });
         return taskId;
-    }
-    getStatus(id) {
+    };
+    Downloader.prototype.getStatus = function (id) {
         if (id && this.downloads.has(id)) {
-            const data = this.downloadsData.get(id);
+            var data = this.downloadsData.get(id);
             return data.status;
         }
-        return StatusCode.PENDING;
-    }
-
-
-    onUIProgress(task, currentBytes, totalBytes, speed) {
-        const current = Math.floor(Math.round(currentBytes / totalBytes * 100));
-        const _id = this.taskIds.get(task);
-
-// remove this
-if(currentBytes < 100000) {
-    this.taskIds.forEach(function(value, key) {
-      console.log("wrong context in onUIProgress AFTER FIRST RUN:");
-      console.log(key + ' = ' + value);
-    });
-}
-// end remove this
-
-        if (this.downloads.has(_id)) {
-            const data = this.downloadsData.get(_id);
-            const callback = data.callback;
-            if (data.status !== StatusCode.DOWNLOADING) {
-                this.downloadsData.set(_id, Object.assign({}, data, {
-                    status: StatusCode.DOWNLOADING
-                }));
-            }
-            if (callback && typeof callback === 'function') {
-                callback({
-                    value: current,
-                    speed: speed,
-                    currentSize: currentBytes,
-                    totalSize: totalBytes
-                });
-            }
-        }
-    }
-
-    onUIComplete(task) {
-        const _id = this.taskIds.get(task);
-        if (this.downloads.has(_id)) {
-            const data = this.downloadsData.get(_id);
-            const resolve = data.resolve;
-            const _request = this.downloadRequests.get(_id);
-            if (resolve) {
-                resolve({
-                    status: StatusCode.COMPLETED,
-                    path: fs.path.join(_request.getFilePath(), _request.getFileName())
-                });
-            }
-        }
-    }
-
-    onUIError(task, error) {
-        const _id = this.taskIds.get(task);
-        if (this.downloads.has(_id)) {
-            const data = this.downloadsData.get(_id);
-            const reject = data.reject;
-            const message = error.getLocalizedMessage();
-            if (reject) {
-                if (message.toLowerCase().indexOf('socket closed') === -1) {
-                    reject({
-                        status: StatusCode.ERROR,
-                        message: error.getLocalizedMessage()
-                    });
-                }
-            }
-        }
-    }
-
-    start(id, progress) {
-        // const ref = new WeakRef(this);
-        return new Promise((resolve, reject) => {
+        return downloader_common_1.StatusCode.PENDING;
+    };
+    Downloader.prototype.start = function (id, progress) {
+        var _this = this;
+        var ref = new WeakRef(this);
+        return new Promise(function (resolve, reject) {
             if (id) {
-                const data = this.downloadsData.get(id);
-                this.downloadsData.set(id, Object.assign({}, data, {
+                var data = _this.downloadsData.get(id);
+                _this.downloadsData.set(id, Object.assign({}, data, {
                     reject: reject,
                     resolve: resolve,
                     callback: progress
                 }));
-                if (this.downloads.has(id)) {
-                    const request = this.downloadRequests.get(id);
-                    const downloadId = this.downloads.get(id);
-
-// remove this
-this.taskIds.forEach(function(value, key) {
-  console.log("always correct context in start:");
-  console.log(key + ' = ' + value);
-});
-// end remove this
-
+                if (_this.downloads.has(id)) {
+                    var request = _this.downloadRequests.get(id);
+                    var downloadId = _this.downloads.get(id);
                     if (request) {
-                        request.setListener(this.listener);
-
-                        // const listener = co.fitcom.fancydownloader.DownloadListenerUI.extend({
-                        //     onUIProgress(task, currentBytes, totalBytes, speed) {
-                        //         const current = Math.floor(Math.round(currentBytes / totalBytes * 100));
-                        //         const owner = ref;//.get();
-                        //         const _id = owner.taskIds.get(task);
-                        //         if (owner.downloads.has(_id)) {
-                        //             const data = owner.downloadsData.get(_id);
-                        //             const callback = data.callback;
-                        //             if (data.status !== StatusCode.DOWNLOADING) {
-                        //                 owner.downloadsData.set(_id, Object.assign({}, data, {
-                        //                     status: StatusCode.DOWNLOADING
-                        //                 }));
-                        //             }
-                        //             if (callback && typeof callback === 'function') {
-                        //                 callback({
-                        //                     value: current,
-                        //                     speed: speed,
-                        //                     currentSize: currentBytes,
-                        //                     totalSize: totalBytes
-                        //                 });
-                        //             }
-                        //         }
-                        //     },
-                        //     onUIComplete(task) {
-                        //         const owner = ref;//.get();
-                        //         const _id = owner.taskIds.get(task);
-                        //         if (owner.downloads.has(_id)) {
-                        //             const data = owner.downloadsData.get(_id);
-                        //             const resolve = data.resolve;
-                        //             const _request = owner.downloadRequests.get(_id);
-                        //             if (resolve) {
-                        //                 resolve({
-                        //                     status: StatusCode.COMPLETED,
-                        //                     path: fs.path.join(_request.getFilePath(), _request.getFileName())
-                        //                 });
-                        //             }
-                        //         }
-                        //     },
-                        //     onUIError(task, error) {
-                        //         const owner = ref;//.get();
-                        //         const _id = owner.taskIds.get(task);
-                        //         if (owner.downloads.has(_id)) {
-                        //             const data = owner.downloadsData.get(_id);
-                        //             const reject = data.reject;
-                        //             const message = error.getLocalizedMessage();
-                        //             if (reject) {
-                        //                 if (message.toLowerCase().indexOf('socket closed') === -1) {
-                        //                     reject({
-                        //                         status: StatusCode.ERROR,
-                        //                         message: error.getLocalizedMessage()
-                        //                     });
-                        //                 }
-                        //             }
-                        //         }
-                        //     }
-                        // });
-                        // request.setListener(new listener());
+                        var listener = co.fitcom.fancydownloader.DownloadListenerUI.extend({
+                            onUIProgress: function (task, currentBytes, totalBytes, speed) {
+                                var current = Math.floor(Math.round(currentBytes / totalBytes * 100));
+                                var owner = ref.get();
+                                var _id = owner.taskIds.get(task);
+                                if (owner.downloads.has(_id)) {
+                                    var data_1 = owner.downloadsData.get(_id);
+                                    var callback = data_1.callback;
+                                    if (data_1.status !== downloader_common_1.StatusCode.DOWNLOADING) {
+                                        owner.downloadsData.set(_id, Object.assign({}, data_1, {
+                                            status: downloader_common_1.StatusCode.DOWNLOADING
+                                        }));
+                                    }
+                                    if (callback && typeof callback === 'function') {
+                                        callback({
+                                            value: current,
+                                            speed: speed,
+                                            currentSize: currentBytes,
+                                            totalSize: totalBytes
+                                        });
+                                    }
+                                }
+                            },
+                            onUIComplete: function (task) {
+                                var owner = ref.get();
+                                var _id = owner.taskIds.get(task);
+                                if (owner.downloads.has(_id)) {
+                                    var data_2 = owner.downloadsData.get(_id);
+                                    var resolve_1 = data_2.resolve;
+                                    var _request = owner.downloadRequests.get(_id);
+                                    if (resolve_1) {
+                                        resolve_1({
+                                            status: downloader_common_1.StatusCode.COMPLETED,
+                                            path: fs.path.join(_request.getFilePath(), _request.getFileName())
+                                        });
+                                    }
+                                }
+                            },
+                            onUIError: function (task, error) {
+                                var owner = ref.get();
+                                var _id = owner.taskIds.get(task);
+                                if (owner.downloads.has(_id)) {
+                                    var data_3 = owner.downloadsData.get(_id);
+                                    var reject_1 = data_3.reject;
+                                    var message = error.getLocalizedMessage();
+                                    if (reject_1) {
+                                        if (message.toLowerCase().indexOf('socket closed') === -1) {
+                                            reject_1({
+                                                status: downloader_common_1.StatusCode.ERROR,
+                                                message: error.getLocalizedMessage()
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        request.setListener(new listener());
                     }
-                    this.manager.start(downloadId);
+                    _this.manager.start(downloadId);
                 }
             }
         });
-    }
-    resume(id) {
+    };
+    Downloader.prototype.resume = function (id) {
         if (id) {
             if (this.downloads.has(id)) {
-                const downloadId = this.downloads.get(id);
+                var downloadId = this.downloads.get(id);
                 this.manager.resume(downloadId);
             }
         }
-    }
-    cancel(id) {
+    };
+    Downloader.prototype.cancel = function (id) {
         if (id) {
             if (this.downloads.has(id)) {
-                const downloadId = this.downloads.get(id);
+                var downloadId = this.downloads.get(id);
                 this.manager.cancel(downloadId);
                 this.downloads.delete(id);
                 this.downloadsData.delete(id);
             }
         }
-    }
-    pause(id) {
+    };
+    Downloader.prototype.pause = function (id) {
+        var _this = this;
         if (id) {
             if (this.downloads.has(id)) {
-                const downloadId = this.downloads.get(id);
-                const data = this.downloadsData.get(id);
+                var downloadId = this.downloads.get(id);
+                var data_4 = this.downloadsData.get(id);
                 this.manager.pause(downloadId);
-                setTimeout(() => {
-                    this.downloadsData.set(id, Object.assign({}, data, {
-                        status: StatusCode.PAUSED
+                setTimeout(function () {
+                    _this.downloadsData.set(id, Object.assign({}, data_4, {
+                        status: downloader_common_1.StatusCode.PAUSED
                     }));
                 }, 100);
             }
         }
-    }
-    getPath(id) {
+    };
+    Downloader.prototype.getPath = function (id) {
         if (id && this.downloadsData.has(id)) {
-            const download = this.downloadsData.get(id);
+            var download = this.downloadsData.get(id);
             return download.path;
         }
         return null;
-    }
-}
+    };
+    return Downloader;
+}(downloader_common_1.DownloaderBase));
+exports.Downloader = Downloader;
+//# sourceMappingURL=downloader.android.js.map
