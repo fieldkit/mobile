@@ -97,9 +97,10 @@ var Downloader = (function (_super) {
                     var downloadId = _this.downloads.get(id);
                     if (request) {
                         var listener = co.fitcom.fancydownloader.DownloadListenerUI.extend({
+                            ownerRef: ref,
                             onUIProgress: function (task, currentBytes, totalBytes, speed) {
                                 var current = Math.floor(Math.round(currentBytes / totalBytes * 100));
-                                var owner = ref.get();
+                                var owner = this.ownerRef.get();
                                 var _id = owner.taskIds.get(task);
                                 if (owner.downloads.has(_id)) {
                                     var data_1 = owner.downloadsData.get(_id);
@@ -120,7 +121,7 @@ var Downloader = (function (_super) {
                                 }
                             },
                             onUIComplete: function (task) {
-                                var owner = ref.get();
+                                var owner = this.ownerRef.get();
                                 var _id = owner.taskIds.get(task);
                                 if (owner.downloads.has(_id)) {
                                     var data_2 = owner.downloadsData.get(_id);
@@ -135,7 +136,7 @@ var Downloader = (function (_super) {
                                 }
                             },
                             onUIError: function (task, error) {
-                                var owner = ref.get();
+                                var owner = this.ownerRef.get();
                                 var _id = owner.taskIds.get(task);
                                 if (owner.downloads.has(_id)) {
                                     var data_3 = owner.downloadsData.get(_id);
@@ -152,7 +153,9 @@ var Downloader = (function (_super) {
                                 }
                             }
                         });
-                        request.setListener(new listener());
+                        var newListener = new listener();
+                        newListener.ownerRef = ref;
+                        request.setListener(newListener);
                     }
                     _this.manager.start(downloadId);
                 }
