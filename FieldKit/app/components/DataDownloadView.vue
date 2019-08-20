@@ -74,15 +74,13 @@
 <script>
     import {isIOS} from "tns-core-modules/platform";
     import {BarcodeScanner} from "nativescript-barcodescanner";
+    import { Downloader } from 'nativescript-downloader';
     import { Label } from "tns-core-modules/ui/label/label";
     import { knownFolders } from "tns-core-modules/file-system";
-    import { DownloadProgress } from "nativescript-download-progress"
     import routes from "../routes";
 
     const documents = knownFolders.documents();
     const folder = documents.getFolder("DataDownloads");
-    // temp, size of download
-    const size = 1024 * 1;
 
     export default {
         data() {
@@ -98,6 +96,8 @@
         methods: {
             onPageLoaded(args) {
                 this.page = args.object;
+                Downloader.init();
+                Downloader.setTimeout(120);
             },
 
             goToStation(event) {
@@ -113,30 +113,35 @@
             },
 
             startDownload() {
-                let download = new DownloadProgress();
-                this.before = Date.now();
                 this.isDownloading = true;
                 // currently re-writing the file for each device every time
-                let dataFile = folder.getFile(this.stationName+".bin");
-
-                download.addProgressCallback(progress => {
-                    this.downloadComplete = "";
-                    let percent = Math.round(progress * 100);
-                    this.sizeDownloaded = ((progress * size) / 1024.0).toFixed(1);
-                    this.percentDownloaded = percent+"%";
-                    this.page.addCss("#download-progress-bar {width: "+percent+"%;}");
+                let fileName = this.stationName+".bin";
+                let downloader = new Downloader();
+                let dataDownloader = downloader.createDownload({
+                    url: this.url+"/download/0",
+                    path: folder.path,
+                    fileName: fileName
                 });
-                download.downloadFile(this.url+"/download?size="+size, null, dataFile.path)
-                    .then(f => {
-                        // console.log("Success: ", f);
-                        let elapsed = Date.now() - this.before;
+
+                downloader
+                    .start(dataDownloader, (progressData) => {
+                        this.downloadComplete = "";
+                        // progressData has value, currentSize, totalSize, speed
+                        // convert to megabytes
+                        this.sizeDownloaded = (progressData.currentSize / 1048576.0).toFixed(2);
+                        this.percentDownloaded = progressData.value+"%";
+                        this.page.addCss("#download-progress-bar {width: "+progressData.value+"%;}");
+                    })
+                    .then((completed) => {
+                        // console.log(`File : ${completed.path}`);
                         this.downloadComplete = this.sizeDownloaded + ' ' + _L('mbDownloaded');
                         this.isDownloading = false;
                         this.percentDownloaded = 0;
                         this.sizeDownloaded = 0;
                         this.page.addCss("#download-progress-bar {width: 0;}");
-                    }).catch(e => {
-                        // console.log("Error", e);
+                    })
+                    .catch(error => {
+                        console.log(error.message);
                     });
             },
 
