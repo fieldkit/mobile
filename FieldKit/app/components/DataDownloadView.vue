@@ -24,7 +24,7 @@
                         <Label row="2"
                             class="m-t-5 size-12"
                             horizontalAlignment="right"
-                            :text="sizeDownloaded+' MB'"></Label>
+                            :text="sizeDownloaded"></Label>
                     </GridLayout>
                     <FlexboxLayout justifyContent="center">
                         <Label :text="downloadComplete"></Label>
@@ -76,8 +76,13 @@
     import {BarcodeScanner} from "nativescript-barcodescanner";
     import { Downloader } from 'nativescript-downloader';
     import { Label } from "tns-core-modules/ui/label/label";
-    import { knownFolders } from "tns-core-modules/file-system";
+    import { File, path, knownFolders } from "tns-core-modules/file-system";
+    import protobuf from "protobufjs";
     import routes from "../routes";
+
+    const dataRoot = protobuf.Root.fromJSON(require("data-protocol"));
+    const SignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
+    const DataRecord = dataRoot.lookupType("fk_data.DataRecord");
 
     const documents = knownFolders.documents();
     const folder = documents.getFolder("DataDownloads");
@@ -115,10 +120,10 @@
             startDownload() {
                 this.isDownloading = true;
                 // currently re-writing the file for each device every time
-                let fileName = this.stationName+".bin";
+                let fileName = this.stationName+".meta";
                 let downloader = new Downloader();
                 let dataDownloader = downloader.createDownload({
-                    url: this.url+"/download/0",
+                    url: this.url+"/download/1",
                     path: folder.path,
                     fileName: fileName
                 });
@@ -127,22 +132,49 @@
                     .start(dataDownloader, (progressData) => {
                         this.downloadComplete = "";
                         // progressData has value, currentSize, totalSize, speed
-                        // convert to megabytes
-                        this.sizeDownloaded = (progressData.currentSize / 1048576.0).toFixed(2);
+                        // convert to kilobytes or megabytes
+                        if(progressData.totalSize < 1000000.0) {
+                            this.sizeDownloaded = (progressData.currentSize / 1024.0).toFixed(2) + " KB";
+                        } else {
+                            this.sizeDownloaded = (progressData.currentSize / 1048576.0).toFixed(2) + " MB";
+                        }
                         this.percentDownloaded = progressData.value+"%";
                         this.page.addCss("#download-progress-bar {width: "+progressData.value+"%;}");
                     })
                     .then((completed) => {
                         // console.log(`File : ${completed.path}`);
-                        this.downloadComplete = this.sizeDownloaded + ' ' + _L('mbDownloaded');
+                        this.downloadComplete = this.sizeDownloaded + ' ' + _L('downloaded');
                         this.isDownloading = false;
                         this.percentDownloaded = 0;
                         this.sizeDownloaded = 0;
                         this.page.addCss("#download-progress-bar {width: 0;}");
+                        // temp?
+                        this.loadMetaFile();
                     })
                     .catch(error => {
-                        console.log(error.message);
+                        // console.log(error.message);
                     });
+            },
+
+            loadMetaFile() {
+                let fileName = this.stationName+".meta";
+                let metaFile = folder.getFile(fileName);
+                let source = metaFile.readSync((err) => {
+                    // console.log("error? ---", err);
+                });
+                let u8Array = new Uint8Array(source);
+                let decoded = SignedRecord.decodeDelimited(u8Array);
+                let dataRec = DataRecord.decodeDelimited(decoded.data);
+                // console.log("data record? ---", dataRec)
+                dataRec.modules.forEach((m) => {
+                    // module has: sensors, name, header, firmware
+                    console.log("module", m.name)
+                    m.sensors.forEach((s) => {
+                        // sensor has: name, unitOfMeasure
+                        console.log("sensor", s)
+                    })
+                });
+
             },
 
             onScanResult(evt) {

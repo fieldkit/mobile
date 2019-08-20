@@ -11,7 +11,10 @@ module.exports = {
     weeks: "weeks",
     // DataDownloadView
     startDownload: "Start download",
+    downloaded: "downloaded.",
+    kbDownloaded: "KB downloaded.",
     mbDownloaded: "MB downloaded.",
+    gbDownloaded: "GB downloaded.",
     //DeployMapView
     nameYourLocation: "Name your location",
     locationRequired: "Location is a required field.",

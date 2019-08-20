@@ -12,7 +12,10 @@ module.exports = {
     weeks: "semanas",
     // DataDownloadView
     startDownload: "Comienza a descargar",
+    downloaded: "descargado.",
+    kbDownloaded: "KB descargado.",
     mbDownloaded: "MB descargado.",
+    gbDownloaded: "GB descargado.",
     //DeployMapView
     nameYourLocation: "Nombra tu ubicación",
     locationRequired: "La ubicación es un campo obligatorio.",
