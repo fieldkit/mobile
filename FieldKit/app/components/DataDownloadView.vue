@@ -80,7 +80,7 @@
     import protobuf from "protobufjs";
     import routes from "../routes";
 
-    const dataRoot = protobuf.Root.fromJSON(require("data-protocol"));
+    const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
     const SignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
     const DataRecord = dataRoot.lookupType("fk_data.DataRecord");
 

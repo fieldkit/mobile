@@ -1,11 +1,11 @@
 {
   "nativescript": {
     "id": "org.fieldkit.fieldkit",
-    "tns-ios": {
-      "version": "6.0.1"
-    },
     "tns-android": {
       "version": "6.0.1"
+    },
+    "tns-ios": {
+      "version": "6.0.2"
     }
   },
   "description": "NativeScript Application",
@@ -14,7 +14,7 @@
   "dependencies": {
     "ajv": "^6.10.0",
     "axios": "^0.19.0",
-    "data-protocol": "git+https://github.com/fieldkit/data-protocol.git",
+    "fk-data-protocol": "git+https://github.com/fieldkit/data-protocol.git",
     "fk-app-protocol": "git+https://github.com/fieldkit/app-protocol.git",
     "nativescript-audio": "^5.0.4",
     "nativescript-barcodescanner": "^3.2.2",
