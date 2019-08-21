@@ -143,7 +143,8 @@
                     })
                     .then((completed) => {
                         // console.log(`File : ${completed.path}`);
-                        this.downloadComplete = this.sizeDownloaded + ' ' + _L('downloaded');
+                        let downloadMessage = this.sizeDownloaded == 0 ? "File" : this.sizeDownloaded;
+                        this.downloadComplete = downloadMessage + ' ' + _L('downloaded');
                         this.isDownloading = false;
                         this.percentDownloaded = 0;
                         this.sizeDownloaded = 0;
@@ -162,7 +163,7 @@
                 let source = metaFile.readSync((err) => {
                     // console.log("error? ---", err);
                 });
-                let u8Array = new Uint8Array(source);
+                let u8Array = this.toUint8Array(source);
                 let decoded = SignedRecord.decodeDelimited(u8Array);
                 let dataRec = DataRecord.decodeDelimited(decoded.data);
                 // console.log("data record? ---", dataRec)
@@ -220,6 +221,18 @@
                         // console.log("No scan. " + errorMessage);
                     }
                 );
+            },
+
+            toUint8Array(source) {
+                if(isIOS) {
+                    let ab = new ArrayBuffer(source.length);
+                    source.getBytes(ab);
+                    let u8Array = new Uint8Array(ab);
+                    return u8Array;
+                } else {
+                    let u8Array = new Uint8Array(source);
+                    return u8Array;
+                }
             }
 
         }
