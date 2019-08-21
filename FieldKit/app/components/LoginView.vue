@@ -169,6 +169,7 @@
 
 <script>
     import Home from "./HomeView";
+    import { USERNAME, PASSWORD } from "../secrets";
 
     export default {
         data() {
@@ -194,6 +195,11 @@
         methods: {
             onPageLoaded(args) {
                 this.page = args.object;
+                if(USERNAME && PASSWORD) {
+                    this.user.email = USERNAME;
+                    this.user.password = PASSWORD;
+                    this.login();
+                }
             },
 
             toggleForm() {
