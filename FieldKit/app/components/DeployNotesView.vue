@@ -449,6 +449,20 @@ export default {
             this.saveNote();
             this.saveLabel();
             event.object.text = _L("recording");
+
+            // probably temporary - update portal with deployment info
+            if (this.station.portal_id && this.station.url != "no_url") {
+                let params = {
+                    name: this.station.name,
+                    status_json: this.station
+                };
+                this.$portalInterface
+                    .updateStation(params, this.station.portal_id, this.station.device_byte_array)
+                    .then(stationPortalId => {
+                        // console.log("successfully updated", stationPortalId)
+                    });
+            }
+
         },
 
         removeFocus(id) {

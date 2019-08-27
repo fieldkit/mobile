@@ -5,6 +5,25 @@ let accessToken = null;
 let currentUser = {};
 
 export default class PortalInterface {
+    handleError(error) {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            // console.log("error.response", error.response);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser
+            // and an instance of http.ClientRequest in node.js
+            // console.log("error.request", error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            // console.log("error.message", error.message);
+        }
+        // console.log(error.config);
+
+        throw error;
+    }
+
     storeCurrentUser() {
         let portalInterface = this;
 
@@ -17,7 +36,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(handleError);
+            .catch(this.handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -27,10 +46,6 @@ export default class PortalInterface {
             } else {
                 throw new Error(response);
             }
-        }
-
-        function handleError(error) {
-            throw error;
         }
     }
 
@@ -55,7 +70,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(handleError);
+            .catch(this.handleError);
 
         function handleResponse(response) {
             if (response.status == "204") {
@@ -69,25 +84,6 @@ export default class PortalInterface {
                 throw new Error("Log in failed");
             }
         }
-
-        function handleError(error) {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                // console.log("error.response", error.response);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an instance of XMLHttpRequest in the browser
-                // and an instance of http.ClientRequest in node.js
-                // console.log("error.request", error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                // console.log('error.message', error.message);
-            }
-            // console.log(error.config);
-
-            throw error;
-        }
     }
 
     logout() {
@@ -100,7 +96,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(handleError);
+            .catch(this.handleError);
 
         function handleResponse(response) {
             if (response.status == "204") {
@@ -109,10 +105,6 @@ export default class PortalInterface {
             } else {
                 throw new Error(response);
             }
-        }
-
-        function handleError(error) {
-            throw error;
         }
     }
 
@@ -128,7 +120,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(handleError);
+            .catch(this.handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -136,26 +128,6 @@ export default class PortalInterface {
             } else {
                 throw new Error("Account not created");
             }
-        }
-
-        function handleError(error) {
-            // this request doesn't display error responses to user
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                // console.log("error.response", error.response);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an instance of XMLHttpRequest in the browser
-                // and an instance of http.ClientRequest in node.js
-                // console.log("error.request", error.request);
-            } else {
-                // Something happened in setting up the request that triggered an Error
-                // console.log('error.message', error.message);
-            }
-            // console.log(error.config);
-
-            throw error;
         }
     }
 
@@ -175,7 +147,7 @@ export default class PortalInterface {
             data: data
         })
             .then(handleResponse)
-            .catch(handleError);
+            .catch(this.handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -184,24 +156,30 @@ export default class PortalInterface {
                 throw new Error("Station not added");
             }
         }
+    }
 
-        function handleError(error) {
-            if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
-                // console.log("error.response", error.response);
-            } else if (error.request) {
-                // The request was made but no response was received
-                // `error.request` is an instance of XMLHttpRequest in the browser
-                // and an instance of http.ClientRequest in node.js
-                // console.log("error.request", error.request);
+    updateStation(data, portalId, idArray) {
+        // convert device_id byte array to hex string
+        const hexed = new Buffer.from(idArray).toString("hex");
+        data.device_id = hexed;
+        return axios({
+            method: "PATCH",
+            url: Config.baseUri + "/stations/" + portalId,
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: accessToken
+            },
+            data: data
+        })
+            .then(handleResponse)
+            .catch(this.handleError);
+
+        function handleResponse(response) {
+            if (response.status == "200") {
+                return response.data.id;
             } else {
-                // Something happened in setting up the request that triggered an Error
-                // console.log("error.message", error.message);
+                throw new Error("Station not updated");
             }
-            // console.log(error.config);
-
-            throw error;
         }
     }
 }
