@@ -72,198 +72,198 @@
 </template>
 
 <script>
-    import {isIOS} from "tns-core-modules/platform";
-    import {BarcodeScanner} from "nativescript-barcodescanner";
-    import { Downloader } from 'nativescript-downloader';
-    import { Label } from "tns-core-modules/ui/label/label";
-    import { File, path, knownFolders } from "tns-core-modules/file-system";
-    import protobuf from "protobufjs";
-    import routes from "../routes";
+import {isIOS} from "tns-core-modules/platform";
+import {BarcodeScanner} from "nativescript-barcodescanner";
+import { Downloader } from 'nativescript-downloader';
+import { Label } from "tns-core-modules/ui/label/label";
+import { File, path, knownFolders } from "tns-core-modules/file-system";
+import protobuf from "protobufjs";
+import routes from "../routes";
 
-    const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
-    const SignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
-    const DataRecord = dataRoot.lookupType("fk_data.DataRecord");
+const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
+const SignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
+const DataRecord = dataRoot.lookupType("fk_data.DataRecord");
 
-    const documents = knownFolders.documents();
-    const folder = documents.getFolder("DataDownloads");
+const documents = knownFolders.documents();
+const folder = documents.getFolder("DataDownloads");
 
-    export default {
-        data() {
-            return {
-                message: this.stationName,
-                isDownloading: false,
-                percentDownloaded: 0,
-                sizeDownloaded: 0,
-                downloadComplete: ""
-            };
+export default {
+    data() {
+        return {
+            message: this.stationName,
+            isDownloading: false,
+            percentDownloaded: 0,
+            sizeDownloaded: 0,
+            downloadComplete: ""
+        };
+    },
+    props: ['stationId','url','stationName'],
+    methods: {
+        onPageLoaded(args) {
+            this.page = args.object;
+            Downloader.init();
+            Downloader.setTimeout(120);
         },
-        props: ['stationId','url','stationName'],
-        methods: {
-            onPageLoaded(args) {
-                this.page = args.object;
-                Downloader.init();
-                Downloader.setTimeout(120);
-            },
 
-            goToStation(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
+        goToStation(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {event.object.className = cn;}, 500);
 
-                this.$navigateTo(routes.stationDetail, {
-                    props: {
-                        stationId: this.stationId
-                    }
-                });
-            },
-
-            startDownload() {
-                this.isDownloading = true;
-                // currently re-writing the file for each device every time
-                let fileName = this.stationName+".meta";
-                let downloader = new Downloader();
-                let dataDownloader = downloader.createDownload({
-                    url: this.url+"/download/1",
-                    path: folder.path,
-                    fileName: fileName
-                });
-
-                downloader
-                    .start(dataDownloader, (progressData) => {
-                        this.downloadComplete = "";
-                        // progressData has value, currentSize, totalSize, speed
-                        // convert to kilobytes or megabytes
-                        if(progressData.totalSize < 1000000.0) {
-                            this.sizeDownloaded = (progressData.currentSize / 1024.0).toFixed(2) + " KB";
-                        } else {
-                            this.sizeDownloaded = (progressData.currentSize / 1048576.0).toFixed(2) + " MB";
-                        }
-                        this.percentDownloaded = progressData.value+"%";
-                        this.page.addCss("#download-progress-bar {width: "+progressData.value+"%;}");
-                    })
-                    .then((completed) => {
-                        // console.log(`File : ${completed.path}`);
-                        let downloadMessage = this.sizeDownloaded == 0 ? "File" : this.sizeDownloaded;
-                        this.downloadComplete = downloadMessage + ' ' + _L('downloaded');
-                        this.isDownloading = false;
-                        this.percentDownloaded = 0;
-                        this.sizeDownloaded = 0;
-                        this.page.addCss("#download-progress-bar {width: 0;}");
-                        // temp?
-                        this.loadMetaFile();
-                    })
-                    .catch(error => {
-                        // console.log(error.message);
-                    });
-            },
-
-            loadMetaFile() {
-                let fileName = this.stationName+".meta";
-                let metaFile = folder.getFile(fileName);
-                let source = metaFile.readSync((err) => {
-                    // console.log("error? ---", err);
-                });
-                let u8Array = this.toUint8Array(source);
-                let decoded = SignedRecord.decodeDelimited(u8Array);
-                let dataRec = DataRecord.decodeDelimited(decoded.data);
-                // console.log("data record? ---", dataRec)
-                dataRec.modules.forEach((m) => {
-                    // module has: sensors, name, header, firmware
-                    console.log("module", m.name)
-                    m.sensors.forEach((s) => {
-                        // sensor has: name, unitOfMeasure
-                        console.log("sensor", s)
-                    })
-                });
-
-            },
-
-            onScanResult(evt) {
-                // Note: this does not ever seem to get called... ?
-
-                // console.log(`onScanResult: ${evt.text} (${evt.format})`);
-            },
-
-            doScanWithBackCamera() {
-                this.scan(false);
-            },
-
-            doScanWithFrontCamera() {
-                this.scan(true);
-            },
-
-            scan(front) {
-                new BarcodeScanner().scan({
-                    cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
-                    cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
-                    message: "Use the volume buttons for extra light", // Android only, default is 'Place a barcode inside the viewfinder rectangle to scan it.'
-                    preferFrontCamera: front,     // Android only, default false
-                    showFlipCameraButton: true,   // default false
-                    showTorchButton: true,        // iOS only, default false
-                    torchOn: false,               // launch with the flashlight on (default false)
-                    resultDisplayDuration: 500,   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
-                    beepOnScan: true,             // Play or Suppress beep on scan (default true)
-                    openSettingsIfPermissionWasPreviouslyDenied: true, // On iOS you can send the user to the settings app if access was previously denied
-                    closeCallback: () => {
-                        // console.log("Scanner closed @ " + new Date().getTime());
-                    }
-                }).then(result => {
-                        // console.log("--- scanned: " + result.text);
-                        // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
-                        setTimeout(() => {
-                            alert({
-                                title: "Scan result",
-                                message: "Format: " + result.format + ",\nValue: " + result.text,
-                                okButtonText: "OK"
-                            });
-                        }, 200);
-                    }, errorMessage => {
-                        // console.log("No scan. " + errorMessage);
-                    }
-                );
-            },
-
-            toUint8Array(source) {
-                if(isIOS) {
-                    let ab = new ArrayBuffer(source.length);
-                    source.getBytes(ab);
-                    let u8Array = new Uint8Array(ab);
-                    return u8Array;
-                } else {
-                    let u8Array = new Uint8Array(source);
-                    return u8Array;
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    stationId: this.stationId
                 }
-            }
+            });
+        },
 
+        startDownload() {
+            this.isDownloading = true;
+            // currently re-writing the file for each device every time
+            let fileName = this.stationName+".meta";
+            let downloader = new Downloader();
+            let dataDownloader = downloader.createDownload({
+                url: this.url+"/download/1",
+                path: folder.path,
+                fileName: fileName
+            });
+
+            downloader
+                .start(dataDownloader, (progressData) => {
+                    this.downloadComplete = "";
+                    // progressData has value, currentSize, totalSize, speed
+                    // convert to kilobytes or megabytes
+                    if(progressData.totalSize < 1000000.0) {
+                        this.sizeDownloaded = (progressData.currentSize / 1024.0).toFixed(2) + " KB";
+                    } else {
+                        this.sizeDownloaded = (progressData.currentSize / 1048576.0).toFixed(2) + " MB";
+                    }
+                    this.percentDownloaded = progressData.value+"%";
+                    this.page.addCss("#download-progress-bar {width: "+progressData.value+"%;}");
+                })
+                .then((completed) => {
+                    // console.log(`File : ${completed.path}`);
+                    let downloadMessage = this.sizeDownloaded == 0 ? "File" : this.sizeDownloaded;
+                    this.downloadComplete = downloadMessage + ' ' + _L('downloaded');
+                    this.isDownloading = false;
+                    this.percentDownloaded = 0;
+                    this.sizeDownloaded = 0;
+                    this.page.addCss("#download-progress-bar {width: 0;}");
+                    // temp?
+                    this.loadMetaFile();
+                })
+                .catch(error => {
+                    // console.log(error.message);
+                });
+        },
+
+        loadMetaFile() {
+            let fileName = this.stationName+".meta";
+            let metaFile = folder.getFile(fileName);
+            let source = metaFile.readSync((err) => {
+                // console.log("error? ---", err);
+            });
+            let u8Array = this.toUint8Array(source);
+            let decoded = SignedRecord.decodeDelimited(u8Array);
+            let dataRec = DataRecord.decodeDelimited(decoded.data);
+            // console.log("data record? ---", dataRec)
+            dataRec.modules.forEach((m) => {
+                // module has: sensors, name, header, firmware
+                console.log("module", m.name)
+                m.sensors.forEach((s) => {
+                    // sensor has: name, unitOfMeasure
+                    console.log("sensor", s)
+                })
+            });
+
+        },
+
+        onScanResult(evt) {
+            // Note: this does not ever seem to get called... ?
+
+            // console.log(`onScanResult: ${evt.text} (${evt.format})`);
+        },
+
+        doScanWithBackCamera() {
+            this.scan(false);
+        },
+
+        doScanWithFrontCamera() {
+            this.scan(true);
+        },
+
+        scan(front) {
+            new BarcodeScanner().scan({
+                cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
+                cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
+                message: "Use the volume buttons for extra light", // Android only, default is 'Place a barcode inside the viewfinder rectangle to scan it.'
+                preferFrontCamera: front,     // Android only, default false
+                showFlipCameraButton: true,   // default false
+                showTorchButton: true,        // iOS only, default false
+                torchOn: false,               // launch with the flashlight on (default false)
+                resultDisplayDuration: 500,   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
+                beepOnScan: true,             // Play or Suppress beep on scan (default true)
+                openSettingsIfPermissionWasPreviouslyDenied: true, // On iOS you can send the user to the settings app if access was previously denied
+                closeCallback: () => {
+                    // console.log("Scanner closed @ " + new Date().getTime());
+                }
+            }).then(result => {
+                    // console.log("--- scanned: " + result.text);
+                    // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
+                    setTimeout(() => {
+                        alert({
+                            title: "Scan result",
+                            message: "Format: " + result.format + ",\nValue: " + result.text,
+                            okButtonText: "OK"
+                        });
+                    }, 200);
+                }, errorMessage => {
+                    // console.log("No scan. " + errorMessage);
+                }
+            );
+        },
+
+        toUint8Array(source) {
+            if(isIOS) {
+                let ab = new ArrayBuffer(source.length);
+                source.getBytes(ab);
+                let u8Array = new Uint8Array(ab);
+                return u8Array;
+            } else {
+                let u8Array = new Uint8Array(source);
+                return u8Array;
+            }
         }
-    };
+
+    }
+};
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
+// Start custom common variables
+@import '../app-variables';
+// End custom common variables
 
-    // Custom styles
-    #download-container {
-        height: 200;
-    }
+// Custom styles
+#download-container {
+    height: 200;
+}
 
-    .progress-bar-container {
-        width: 75%;
-        margin-top: 20;
-        margin-bottom: 20;
-        margin-left: 10;
-        margin-right: 10;
-    }
+.progress-bar-container {
+    width: 75%;
+    margin-top: 20;
+    margin-bottom: 20;
+    margin-left: 10;
+    margin-right: 10;
+}
 
-    .progress-bar {
-        height: 8;
-        background: $fk-gray-lightest;
-        border-radius: 4;
-    }
+.progress-bar {
+    height: 8;
+    background: $fk-gray-lightest;
+    border-radius: 4;
+}
 
-    #download-progress-bar {
-        background: $fk-secondary-blue;
-    }
+#download-progress-bar {
+    background: $fk-secondary-blue;
+}
 </style>

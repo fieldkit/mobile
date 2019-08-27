@@ -118,243 +118,248 @@
 </template>
 
 <script>
-    import routes from "../routes";
-    import DatabaseInterface from "../services/db-interface";
-    const dbInterface = new DatabaseInterface();
+import routes from "../routes";
+import DatabaseInterface from "../services/db-interface";
+const dbInterface = new DatabaseInterface();
 
-    export default {
-        data() {
-            return {
-                timeStep: 5,
-                module: {
+export default {
+    data() {
+        return {
+            timeStep: 5,
+            module: {
+                name: ""
+            },
+            sensors: [
+                {
                     name: "",
-                },
-                sensors: [
-                    {
-                        name: "",
-                        readings: [],
-                        intervalUnit: ""
-                    }
-                ],
-                sensorNames: [_L('select')],
-                graphedSensors: []
-            };
+                    readings: [],
+                    intervalUnit: ""
+                }
+            ],
+            sensorNames: [_L("select")],
+            graphedSensors: []
+        };
+    },
+    props: ["moduleId", "stationId"],
+    methods: {
+        onPageLoaded(args) {
+            this.page = args.object;
+
+            let user = this.$portalInterface.getCurrentUser();
+            this.userName = user.name;
+
+            this.getModule().then(this.getSensors);
         },
-        props: ['moduleId', 'stationId'],
-        methods: {
-            onPageLoaded(args) {
-                this.page = args.object;
 
-                this.userName = this.$userAuth.getUserName();
+        goBack(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
 
-                this.getModule()
-                    .then(this.getSensors);
-            },
-
-            goBack(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
-
-                this.$navigateTo(routes.stationDetail, {
-                    props: {
-                        stationId: this.stationId
-                    }
-                });
-            },
-
-            goToConfigure(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
-
-                this.$navigateTo(routes.configureModule, {
-                    props: {
-                        moduleId: this.moduleId
-                    }
-                });
-            },
-
-            getModule() {
-                return dbInterface.getModule(this.moduleId)
-            },
-
-            getSensors(module) {
-                this.module = module[0];
-                this.module.origGraphs = this.module.graphs;
-                dbInterface.getSensors(this.moduleId)
-                    .then(this.completeSetup);
-            },
-
-            completeSetup(sensors) {
-                let graphs = this.module.graphs ? this.module.graphs.split(",") : [];
-                // number of faux readings
-                let numReadings = Math.round( Math.random()*20 + 10 );
-                let names = [_L('select')];
-                sensors.forEach((s,i) => {
-                    names.push(s.name);
-                    s.unit = s.unit != "" ? "(" + s.unit + ")" : s.unit;
-                    s.intervalUnit = this.calculateTimeUnit();
-                    // generate faux readings
-                    s.readings = [];
-                    let low = s.current_reading/2;
-                    for(var i = 0; i < numReadings; i++) {
-                        let reading = Math.random()*low + low;
-                        s.readings.push({"time": i, "reading": reading});
-                    }
-                });
-                // separate iteration to preserve order - worth it?
-                let toDisplay = [];
-                graphs.forEach((g) => {
-                    let sensor = sensors.find((s) => {
-                        return s.sensor_id == g;
-                    });
-                    if(sensor) {toDisplay.push(sensor);}
-                });
-                this.sensors = sensors;
-                this.sensorNames = names;
-                this.graphedSensors = toDisplay.length == 0 ? [this.sensors[0]] : toDisplay;
-            },
-
-            calculateTimeUnit() {
-                let unit = "";
-                if(this.module.interval < 60) {
-                    unit = "seconds";
-                } else if(this.module.interval < 3600) {
-                    unit = "minutes";
-                } else if(this.module.interval < 86400) {
-                    unit = "hours";
-                } else if(this.module.interval < 604800) {
-                    unit = "days";
-                } else {
-                    unit = "weeks";
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    stationId: this.stationId
                 }
-                return unit;
-            },
+            });
+        },
 
-            onOpened(event) {
+        goToConfigure(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            this.$navigateTo(routes.configureModule, {
+                props: {
+                    moduleId: this.moduleId
+                }
+            });
+        },
+
+        getModule() {
+            return dbInterface.getModule(this.moduleId);
+        },
+
+        getSensors(module) {
+            this.module = module[0];
+            this.module.origGraphs = this.module.graphs;
+            dbInterface.getSensors(this.moduleId).then(this.completeSetup);
+        },
+
+        completeSetup(sensors) {
+            let graphs = this.module.graphs ? this.module.graphs.split(",") : [];
+            // number of faux readings
+            let numReadings = Math.round(Math.random() * 20 + 10);
+            let names = [_L("select")];
+            sensors.forEach((s, i) => {
+                names.push(s.name);
+                s.unit = s.unit != "" ? "(" + s.unit + ")" : s.unit;
+                s.intervalUnit = this.calculateTimeUnit();
+                // generate faux readings
+                s.readings = [];
+                let low = s.current_reading / 2;
+                for (var i = 0; i < numReadings; i++) {
+                    let reading = Math.random() * low + low;
+                    s.readings.push({ time: i, reading: reading });
+                }
+            });
+            // separate iteration to preserve order - worth it?
+            let toDisplay = [];
+            graphs.forEach(g => {
+                let sensor = sensors.find(s => {
+                    return s.sensor_id == g;
+                });
+                if (sensor) {
+                    toDisplay.push(sensor);
+                }
+            });
+            this.sensors = sensors;
+            this.sensorNames = names;
+            this.graphedSensors = toDisplay.length == 0 ? [this.sensors[0]] : toDisplay;
+        },
+
+        calculateTimeUnit() {
+            let unit = "";
+            if (this.module.interval < 60) {
+                unit = "seconds";
+            } else if (this.module.interval < 3600) {
+                unit = "minutes";
+            } else if (this.module.interval < 86400) {
+                unit = "hours";
+            } else if (this.module.interval < 604800) {
+                unit = "days";
+            } else {
+                unit = "weeks";
+            }
+            return unit;
+        },
+
+        onOpened(event) {
+            this.changeEvents = 0;
+            // provide feedback by temporarily changing background color
+            event.object.backgroundColor = "#CCCDCF";
+            setTimeout(() => {
+                event.object.backgroundColor = "#F4F5F7";
+            }, 500);
+        },
+
+        onClosed(event) {
+            this.changeEvents += 1;
+            this.finalizeChange();
+        },
+
+        onSelectedIndexChanged(event) {
+            // console.log(event.oldIndex, event.newIndex)
+            this.selectedSensor = this.sensorNames[event.newIndex];
+            this.changeEvents += 1;
+            this.finalizeChange();
+        },
+
+        // iOS gets change first, and android gets close first
+        // so wait for both before adding new selection
+        finalizeChange() {
+            if (!this.selectedSensor || this.selectedSensor == _L("select")) {
+                return;
+            }
+            if (this.changeEvents > 1) {
                 this.changeEvents = 0;
-                // provide feedback by temporarily changing background color
-                event.object.backgroundColor = "#CCCDCF";
-                setTimeout(() => {
-                    event.object.backgroundColor = "#F4F5F7";
-                }, 500);
-            },
 
-            onClosed(event) {
-                this.changeEvents += 1;
-                this.finalizeChange();
-            },
-
-            onSelectedIndexChanged(event) {
-                // console.log(event.oldIndex, event.newIndex)
-                this.selectedSensor = this.sensorNames[event.newIndex];
-                this.changeEvents += 1;
-                this.finalizeChange();
-            },
-
-            // iOS gets change first, and android gets close first
-            // so wait for both before adding new selection
-            finalizeChange() {
-                if(!this.selectedSensor || this.selectedSensor == _L('select')) {return}
-                if(this.changeEvents > 1) {
-                    this.changeEvents = 0;
-
-                    let sensor = this.sensors.find((s) => {
-                        return s.name == this.selectedSensor;
-                    });
-                    // add to graphedSensors, if not already present
-                    let index = this.graphedSensors.findIndex((s) => {
-                        return s.sensor_id == sensor.sensor_id;
-                    });
-                    if(index == -1) {
-                        this.graphedSensors.push(sensor);
-                        this.saveGraphs();
-                    }
-                }
-            },
-
-            removeChart(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-
-                let id = event.object.id.split("chart-")[1];
-                let index = this.graphedSensors.findIndex((s) => {
-                    return s.sensor_id == id;
+                let sensor = this.sensors.find(s => {
+                    return s.name == this.selectedSensor;
                 });
-                // remove from graphedSensors
-                if(index > -1) {
-                    this.graphedSensors.splice(index, 1);
+                // add to graphedSensors, if not already present
+                let index = this.graphedSensors.findIndex(s => {
+                    return s.sensor_id == sensor.sensor_id;
+                });
+                if (index == -1) {
+                    this.graphedSensors.push(sensor);
                     this.saveGraphs();
                 }
-            },
-
-            saveGraphs() {
-                let graphs = "";
-                this.graphedSensors.forEach((g) => {
-                    graphs += (graphs == "" ? g.sensor_id : ","+g.sensor_id);
-                });
-                if(this.module.origGraphs != graphs) {
-                    this.module.graphs = graphs;
-                    dbInterface.setModuleGraphs(this.module);
-                    let configChange = {
-                        module_id: this.module.module_id,
-                        before: this.module.origGraphs,
-                        after: this.module.graphs,
-                        affected_field: "graphs",
-                        author: this.userName
-                    };
-                    dbInterface.recordModuleConfigChange(configChange);
-                    this.module.origGraphs = this.module.graphs;
-                }
             }
+        },
 
+        removeChart(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+
+            let id = event.object.id.split("chart-")[1];
+            let index = this.graphedSensors.findIndex(s => {
+                return s.sensor_id == id;
+            });
+            // remove from graphedSensors
+            if (index > -1) {
+                this.graphedSensors.splice(index, 1);
+                this.saveGraphs();
+            }
+        },
+
+        saveGraphs() {
+            let graphs = "";
+            this.graphedSensors.forEach(g => {
+                graphs += graphs == "" ? g.sensor_id : "," + g.sensor_id;
+            });
+            if (this.module.origGraphs != graphs) {
+                this.module.graphs = graphs;
+                dbInterface.setModuleGraphs(this.module);
+                let configChange = {
+                    module_id: this.module.module_id,
+                    before: this.module.origGraphs,
+                    after: this.module.graphs,
+                    affected_field: "graphs",
+                    author: this.userName
+                };
+                dbInterface.recordModuleConfigChange(configChange);
+                this.module.origGraphs = this.module.graphs;
+            }
         }
-    };
+    }
+};
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
+// Start custom common variables
+@import "../app-variables";
+// End custom common variables
 
-    // Custom styles
-    .module-name {
-        width: 195;
-    }
+// Custom styles
+.module-name {
+    width: 195;
+}
 
-    .round {
-        width: 40;
-        border-radius: 20;
-    }
+.round {
+    width: 40;
+    border-radius: 20;
+}
 
-    .small-round {
-        padding-top: 7;
-        padding-bottom: 7;
-    }
+.small-round {
+    padding-top: 7;
+    padding-bottom: 7;
+}
 
-    .location-container {
-        border-radius: 4;
-        border-color: $fk-gray-lighter;
-        border-width: 1;
-    }
+.location-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
 
-    .chart-section-container {
-        border-radius: 4;
-        border-color: $fk-gray-lighter;
-        border-width: 1;
-    }
+.chart-section-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
 
-    .center-title {
-        margin-left: 40;
-    }
+.center-title {
+    margin-left: 40;
+}
 
-    .chart-container {
-        height: 200;
-    }
+.chart-container {
+    height: 200;
+}
 
-    .capitalize {
-        text-transform: capitalize;
-    }
-
+.capitalize {
+    text-transform: capitalize;
+}
 </style>

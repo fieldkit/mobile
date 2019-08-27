@@ -87,18 +87,12 @@
                 </GridLayout>
 
                 <GridLayout rows="auto" columns="*" :class="isEditingName ? 'faded' : ''">
-                    <StackLayout
-                        row="0"
-                        class="col left-col"
-                        horizontalAlignment="left">
+                    <StackLayout row="0" class="col left-col" horizontalAlignment="left">
                         <Label class="text-center m-y-5 size-14" :text="_L('connected')"></Label>
                         <Image width="25" v-show="station.connected" src="~/images/Icon_Connected.png"></Image>
                         <Label class="text-center red" v-show="!station.connected">✘</Label>
                     </StackLayout>
-                    <StackLayout
-                        row="0"
-                        class="col right-col"
-                        horizontalAlignment="right">
+                    <StackLayout row="0" class="col right-col" horizontalAlignment="right">
                         <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
                         <FlexboxLayout justifyContent="center">
                             <Label class="m-r-5 size-12" :text="station.battery_level"></Label>
@@ -208,374 +202,410 @@
 </template>
 
 <script>
-    import routes from "../routes";
-    import QueryStation from "../services/query-station";
-    import DatabaseInterface from "../services/db-interface";
-    const dbInterface = new DatabaseInterface();
-    const queryStation = new QueryStation();
+import routes from "../routes";
+import QueryStation from "../services/query-station";
+import DatabaseInterface from "../services/db-interface";
+const dbInterface = new DatabaseInterface();
+const queryStation = new QueryStation();
 
-    export default {
-        data() {
-            return {
-                isEditingName: false,
-                noName: false,
-                nameTooLong: false,
-                nameNotPrintable: false,
-                station: {
-                    name: "FieldKit Station",
-                    connected: "false",
-                    battery: "0",
-                    available_memory: "0",
-                    origName: "FieldKit Station"
-                },
-                modules: []
-            };
+export default {
+    data() {
+        return {
+            isEditingName: false,
+            noName: false,
+            nameTooLong: false,
+            nameNotPrintable: false,
+            station: {
+                name: "FieldKit Station",
+                connected: "false",
+                battery: "0",
+                available_memory: "0",
+                origName: "FieldKit Station"
+            },
+            modules: []
+        };
+    },
+    props: ["stationId"],
+    methods: {
+        goBack(event) {
+            // Change background color when pressed
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            clearInterval(this.intervalTimer);
+            this.$navigateTo(routes.stations);
         },
-        props: ['stationId'],
-        methods: {
-            goBack(event) {
-                // Change background color when pressed
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
 
-                clearInterval(this.intervalTimer);
-                this.$navigateTo(routes.stations);
-            },
+        goToData(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
 
-            goToData(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
-
-                clearInterval(this.intervalTimer);
-                this.$navigateTo(routes.dataDownload, {
-                    props: {
-                        stationId: this.stationId,
-                        url: this.station.url,
-                        stationName: this.station.name
-                    }
-                });
-            },
-
-            goToDeploy(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
-
-                clearInterval(this.intervalTimer);
-                this.$navigateTo(routes.deployMap, {
-                    props: {
-                        stationId: this.stationId
-                    }
-                });
-            },
-
-            goToModule(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
-
-                clearInterval(this.intervalTimer);
-                this.$navigateTo(routes.module, {
-                    props: {
-                        // remove the "m_id-" prefix
-                        moduleId: event.object.id.split("m_id-")[1],
-                        stationId: this.stationId
-                    }
-                });
-            },
-
-            onPageLoaded(args) {
-                this.page = args.object;
-
-                this.userName = this.$userAuth.getUserName();
-
-                dbInterface.getStation(this.stationId)
-                    .then(this.getModules)
-                    .then(this.setupModules)
-                    .then(this.completeSetup);
-            },
-
-            toggleRename() {
-                this.isEditingName = true;
-            },
-
-            checkName() {
-                // reset these first
-                this.noName = false;
-                this.nameNotPrintable = false;
-                this.nameTooLong = false;
-                // then check
-                this.noName = !this.station.name || this.station.name.length == 0;
-                if(this.noName) {return false}
-                let matches = this.station.name.match(/^[ \w~!@#$%^&*()-.']*$/);
-                this.nameNotPrintable = !matches || matches.length == 0;
-                this.nameTooLong = this.station.name.length > 40;
-                return !this.nameTooLong && !this.nameNotPrintable;
-            },
-
-            saveStationName() {
-                this.isEditingName = false;
-                let valid = this.checkName();
-                if(valid && this.station.origName != this.station.name) {
-                    dbInterface.setStationName(this.station);
-                    let configChange = {
-                        device_id: this.station.device_id,
-                        before: this.station.origName,
-                        after: this.station.name,
-                        affected_field: "name",
-                        author: this.userName
-                    };
-                    dbInterface.recordStationConfigChange(configChange);
-                    this.station.origName = this.station.name;
+            clearInterval(this.intervalTimer);
+            this.$navigateTo(routes.dataDownload, {
+                props: {
+                    stationId: this.stationId,
+                    url: this.station.url,
+                    stationName: this.station.name
                 }
-            },
+            });
+        },
 
-            cancelRename() {
-                this.isEditingName = false;
-                this.noName = false;
-                this.nameNotPrintable = false;
-                this.nameTooLong = false;
-                this.station.name = this.station.origName;
-            },
+        goToDeploy(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
 
-            getModules(station) {
-                this.station = station[0];
-                return dbInterface.getModules(this.station.device_id)
-            },
+            clearInterval(this.intervalTimer);
+            this.$navigateTo(routes.deployMap, {
+                props: {
+                    stationId: this.stationId
+                }
+            });
+        },
 
-            linkModulesAndSensors(results) {
-                results.forEach(r => {
-                    r.resultPromise.then(sensors => {
-                        r.module.sensorObjects = sensors;
-                        // set variables for cycling sensors
-                        r.module.sensorIndex = 0;
-                        r.module.currentSensorLabel = sensors[0].name;
-                        r.module.currentSensorReading = sensors[0].current_reading.toFixed(1);
-                        r.module.currentSensorUnit = sensors[0].unit;
-                        r.module.currentSensorTrend = "~/images/Icon_Neutral.png";
-                    });
-                });
-            },
+        goToModule(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
 
-            getSensors(moduleObject) {
-                let result = dbInterface.getSensors(moduleObject.module_id);
-                return {resultPromise: result, module: moduleObject};
-            },
+            clearInterval(this.intervalTimer);
+            this.$navigateTo(routes.module, {
+                props: {
+                    // remove the "m_id-" prefix
+                    moduleId: event.object.id.split("m_id-")[1],
+                    stationId: this.stationId
+                }
+            });
+        },
 
-            setupModules(modules) {
-                this.station.moduleObjects = modules;
-                return Promise.all(this.station.moduleObjects.map(this.getSensors))
-                    .then(this.linkModulesAndSensors);
-            },
+        onPageLoaded(args) {
+            this.page = args.object;
 
-            completeSetup() {
-                this.modules = this.station.moduleObjects;
+            this.user = this.$portalInterface.getCurrentUser();
+
+            dbInterface
+                .getStation(this.stationId)
+                .then(this.getModules)
+                .then(this.setupModules)
+                .then(this.completeSetup);
+        },
+
+        toggleRename() {
+            this.isEditingName = true;
+        },
+
+        checkName() {
+            // reset these first
+            this.noName = false;
+            this.nameNotPrintable = false;
+            this.nameTooLong = false;
+            // then check
+            this.noName = !this.station.name || this.station.name.length == 0;
+            if (this.noName) {
+                return false;
+            }
+            let matches = this.station.name.match(/^[ \w~!@#$%^&*()-.']*$/);
+            this.nameNotPrintable = !matches || matches.length == 0;
+            this.nameTooLong = this.station.name.length > 40;
+            return !this.nameTooLong && !this.nameNotPrintable;
+        },
+
+        saveStationName() {
+            this.isEditingName = false;
+            let valid = this.checkName();
+            if (valid && this.station.origName != this.station.name) {
+                dbInterface.setStationName(this.station);
+                let configChange = {
+                    device_id: this.station.device_id,
+                    before: this.station.origName,
+                    after: this.station.name,
+                    affected_field: "name",
+                    author: this.user.name
+                };
+                dbInterface.recordStationConfigChange(configChange);
                 this.station.origName = this.station.name;
-                this.station.connected = this.station.connected != "false";
-                this.station.battery_level+="%";
-                this.station.occupiedMemory = 100 - this.station.available_memory;
-                this.station.available_memory = this.station.available_memory.toFixed(2)+"%";
-                this.page.addCss("#station-memory-bar {width: "+this.station.occupiedMemory+"%;}");
+            }
+        },
 
-                if(this.station.url != "no_url") {
-                    // first try, might not have a reading yet
-                    queryStation.queryTakeReadings(this.station.url);
-                    // wait one second to make sure reading available
-                    setTimeout(() => {
+        cancelRename() {
+            this.isEditingName = false;
+            this.noName = false;
+            this.nameNotPrintable = false;
+            this.nameTooLong = false;
+            this.station.name = this.station.origName;
+        },
+
+        getModules(station) {
+            this.station = station[0];
+            return dbInterface.getModules(this.station.device_id);
+        },
+
+        linkModulesAndSensors(results) {
+            results.forEach(r => {
+                r.resultPromise.then(sensors => {
+                    r.module.sensorObjects = sensors;
+                    // set variables for cycling sensors
+                    r.module.sensorIndex = 0;
+                    r.module.currentSensorLabel = sensors[0].name;
+                    r.module.currentSensorReading = sensors[0].current_reading.toFixed(1);
+                    r.module.currentSensorUnit = sensors[0].unit;
+                    r.module.currentSensorTrend = "~/images/Icon_Neutral.png";
+                });
+            });
+        },
+
+        getSensors(moduleObject) {
+            let result = dbInterface.getSensors(moduleObject.module_id);
+            return { resultPromise: result, module: moduleObject };
+        },
+
+        setupModules(modules) {
+            this.station.moduleObjects = modules;
+            return Promise.all(this.station.moduleObjects.map(this.getSensors)).then(
+                this.linkModulesAndSensors
+            );
+        },
+
+        completeSetup() {
+            this.modules = this.station.moduleObjects;
+            this.station.origName = this.station.name;
+            this.station.connected = this.station.connected != "false";
+            this.station.battery_level += "%";
+            this.station.occupiedMemory = 100 - this.station.available_memory;
+            this.station.available_memory = this.station.available_memory.toFixed(2) + "%";
+            this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
+            // add this station via portal if hasn't already been added
+            // note: currently the tables are always dropped and re-created,
+            // so stations will not retain these saved portal_ids
+            if (!this.station.portal_id && this.station.url != "no_url") {
+                let params = {
+                    name: this.station.name,
+                    status_json: this.station
+                };
+                this.$portalInterface
+                    .addStation(params, this.station.device_byte_array)
+                    .then(stationPortalId => {
+                        this.station.portalId = stationPortalId;
+                        dbInterface.setStationPortalID(this.station);
+                    });
+            }
+
+            if (this.station.url != "no_url") {
+                // first try, might not have a reading yet
+                queryStation.queryTakeReadings(this.station.url);
+                // wait one second to make sure reading available
+                setTimeout(() => {
+                    this.takeSensorReadings();
+                    // then start five second cycle
+                    this.intervalTimer = setInterval(() => {
                         this.takeSensorReadings();
-                        // then start five second cycle
-                        this.intervalTimer = setInterval(() => {
-                            this.takeSensorReadings();
-                        }, 5000);
-                    }, 1000);
+                    }, 5000);
+                }, 1000);
+            } else {
+                this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
+            }
+        },
 
-                } else {
-                    this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
+        takeSensorReadings() {
+            queryStation.queryTakeReadings(this.station.url).then(result => {
+                if (result.liveReadings.length == 0) {
+                    return;
                 }
-            },
 
-            takeSensorReadings() {
-                queryStation.queryTakeReadings(this.station.url).then(result => {
-                    if(result.liveReadings.length == 0) {return}
-
-                    let readings = {};
-                    result.liveReadings.forEach(lr => {
-                        lr.modules.forEach(m => {
-                            m.readings.forEach(r => {
-                                readings[m.module.name+r.sensor.name] = r.value;
-                            });
+                let readings = {};
+                result.liveReadings.forEach(lr => {
+                    lr.modules.forEach(m => {
+                        m.readings.forEach(r => {
+                            readings[m.module.name + r.sensor.name] = r.value;
                         });
                     });
-                    this.cycleSensorReadings(readings);
                 });
-            },
+                this.cycleSensorReadings(readings);
+            });
+        },
 
-            cycleSensorReadings(liveReadings) {
-                let page = this.page;
-                this.station.moduleObjects.forEach(m => {
-                    // ignore single sensor modules that don't have live readings
-                    if(m.sensorObjects.length == 1 && !liveReadings) {return}
+        cycleSensorReadings(liveReadings) {
+            let page = this.page;
+            this.station.moduleObjects.forEach(m => {
+                // ignore single sensor modules that don't have live readings
+                if (m.sensorObjects.length == 1 && !liveReadings) {
+                    return;
+                }
 
-                    // increment to cycle through sensors
-                    m.sensorIndex = m.sensorIndex == m.sensorObjects.length-1 ? 0 : m.sensorIndex+1;
-                    let currentSensor = m.sensorObjects[m.sensorIndex];
+                // increment to cycle through sensors
+                m.sensorIndex = m.sensorIndex == m.sensorObjects.length - 1 ? 0 : m.sensorIndex + 1;
+                let currentSensor = m.sensorObjects[m.sensorIndex];
 
-                    let newReading = +currentSensor.current_reading.toFixed(1);
-                    let prevReading = +currentSensor.current_reading.toFixed(1);
-                    if(liveReadings) {
-                        newReading = +liveReadings[m.name+currentSensor.name].toFixed(1);
-                        currentSensor.current_reading = newReading;
-                    }
+                let newReading = +currentSensor.current_reading.toFixed(1);
+                let prevReading = +currentSensor.current_reading.toFixed(1);
+                if (liveReadings) {
+                    newReading = +liveReadings[m.name + currentSensor.name].toFixed(1);
+                    currentSensor.current_reading = newReading;
+                }
 
-                    let trendIcon = "Icon_Neutral.png";
-                    if(newReading < prevReading) {
-                        trendIcon = "Icon_Decrease.png";
-                    } else if(newReading > prevReading) {
-                        trendIcon = "Icon_Increase.png";
-                    }
+                let trendIcon = "Icon_Neutral.png";
+                if (newReading < prevReading) {
+                    trendIcon = "Icon_Decrease.png";
+                } else if (newReading > prevReading) {
+                    trendIcon = "Icon_Increase.png";
+                }
 
-                    let sensorLabel = page.getViewById("sensor-label-" + m.module_id);
-                    sensorLabel.animate({
+                let sensorLabel = page.getViewById("sensor-label-" + m.module_id);
+                sensorLabel
+                    .animate({
                         opacity: 0,
                         duration: 1000
-                    }).then(() => {
+                    })
+                    .then(() => {
                         m.currentSensorLabel = currentSensor.name;
                         return sensorLabel.animate({
                             opacity: 1,
                             duration: 500
                         });
                     });
-                    let stack = page.getViewById("sensors-of-" + m.module_id);
-                    stack.animate({
+                let stack = page.getViewById("sensors-of-" + m.module_id);
+                stack
+                    .animate({
                         opacity: 0,
                         duration: 1000
-                    }).then(() => {
+                    })
+                    .then(() => {
                         m.currentSensorReading = newReading;
                         m.currentSensorUnit = currentSensor.unit;
-                        m.currentSensorTrend = "~/images/"+trendIcon;
+                        m.currentSensorTrend = "~/images/" + trendIcon;
                         return stack.animate({
                             opacity: 1,
                             duration: 500
                         });
                     });
-                });
-            },
+            });
+        },
 
-            onNavigatingFrom() {
-                clearInterval(this.intervalTimer);
-            }
+        onNavigatingFrom() {
+            clearInterval(this.intervalTimer);
         }
-    };
+    }
+};
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
+// Start custom common variables
+@import "../app-variables";
+// End custom common variables
 
-    // Custom styles
-    #station-name-field {
-        width: 225;
-        font-size: 16;
-        color: $fk-primary-black;
-    }
+// Custom styles
+#station-name-field {
+    width: 225;
+    font-size: 16;
+    color: $fk-primary-black;
+}
 
-    #station-name-field .input {
-        width: 195;
-        border-bottom-color: $fk-primary-black;
-        border-bottom-width: 1;
-        padding-top: 3;
-        padding-bottom: 2;
-        padding-left: 0;
-        padding-right: 0;
-        margin: 0;
-    }
+#station-name-field .input {
+    width: 195;
+    border-bottom-color: $fk-primary-black;
+    border-bottom-width: 1;
+    padding-top: 3;
+    padding-bottom: 2;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0;
+}
 
-    #station-name-field .char-count {
-        width: 25;
-        margin-top: 15;
-        margin-left: 5;
-    }
+#station-name-field .char-count {
+    width: 25;
+    margin-top: 15;
+    margin-left: 5;
+}
 
-    .station-name {
-        width: 195;
-    }
+.station-name {
+    width: 195;
+}
 
-    .validation-error {
-        width: 195;
-        font-size: 12;
-        color: $fk-tertiary-red;
-        border-top-color: $fk-tertiary-red;
-        border-top-width: 2;
-        padding-top: 5;
-    }
+.validation-error {
+    width: 195;
+    font-size: 12;
+    color: $fk-tertiary-red;
+    border-top-color: $fk-tertiary-red;
+    border-top-width: 2;
+    padding-top: 5;
+}
 
-    .round {
-        width: 40;
-        border-radius: 20;
-    }
+.round {
+    width: 40;
+    border-radius: 20;
+}
 
-    .faded {
-        opacity: 0.5;
-    }
+.faded {
+    opacity: 0.5;
+}
 
-    .col {
-        width: 50%;
-        border-width: 1;
-        border-color: $fk-gray-lighter;
-        background: $fk-gray-white;
-        padding-top: 10;
-        padding-bottom: 10;
-    }
+.col {
+    width: 50%;
+    border-width: 1;
+    border-color: $fk-gray-lighter;
+    background: $fk-gray-white;
+    padding-top: 10;
+    padding-bottom: 10;
+}
 
-    .left-col {
-        margin-left: 10;
-        border-top-left-radius: 4;
-        border-bottom-left-radius: 4;
-    }
+.left-col {
+    margin-left: 10;
+    border-top-left-radius: 4;
+    border-bottom-left-radius: 4;
+}
 
-    .right-col {
-        margin-right: 10;
-        border-top-right-radius: 4;
-        border-bottom-right-radius: 4;
-    }
+.right-col {
+    margin-right: 10;
+    border-top-right-radius: 4;
+    border-bottom-right-radius: 4;
+}
 
-    .blue {
-        color: $fk-primary-blue;
-    }
+.blue {
+    color: $fk-primary-blue;
+}
 
-    .red {
-        color: $fk-tertiary-red;
-    }
+.red {
+    color: $fk-tertiary-red;
+}
 
-    .memory-bar-container {
-        margin-top: 20;
-        margin-bottom: 20;
-        margin-left: 10;
-        margin-right: 10;
-    }
+.memory-bar-container {
+    margin-top: 20;
+    margin-bottom: 20;
+    margin-left: 10;
+    margin-right: 10;
+}
 
-    .memory-bar {
-        height: 8;
-        background: $fk-gray-lightest;
-        border-radius: 4;
-    }
+.memory-bar {
+    height: 8;
+    background: $fk-gray-lightest;
+    border-radius: 4;
+}
 
-    #station-memory-bar {
-        background: $fk-tertiary-green;
-    }
+#station-memory-bar {
+    background: $fk-tertiary-green;
+}
 
-    .module-container {
-        border-radius: 4;
-        border-color: $fk-gray-lighter;
-        border-width: 1;
-    }
+.module-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
 
-    .module-labels {margin-left: 50;}
+.module-labels {
+    margin-left: 50;
+}
 
-    .sensor-name {
-        font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
-    }
+.sensor-name {
+    font-family: "Avenir LT Pro", "AvenirLTPro-Book";
+}
 </style>

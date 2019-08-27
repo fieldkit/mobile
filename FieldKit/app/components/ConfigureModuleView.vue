@@ -153,250 +153,254 @@
 </template>
 
 <script>
-    import routes from "../routes";
-    import DatabaseInterface from "../services/db-interface";
-    const dbInterface = new DatabaseInterface();
+import routes from "../routes";
+import DatabaseInterface from "../services/db-interface";
+const dbInterface = new DatabaseInterface();
 
-    export default {
-        data() {
-            return {
-                currentUnit: 0,
-                displayInterval: "",
-                isEditingName: false,
-                noName: false,
-                nameNotPrintable: false,
-                nameTooLong: false,
-                noInterval: false,
-                intervalNotNumber: false,
-                module: {
-                    name: "",
-                    origName: ""
-                },
-                timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
-            };
+export default {
+    data() {
+        return {
+            currentUnit: 0,
+            displayInterval: "",
+            isEditingName: false,
+            noName: false,
+            nameNotPrintable: false,
+            nameTooLong: false,
+            noInterval: false,
+            intervalNotNumber: false,
+            module: {
+                name: "",
+                origName: ""
+            },
+            timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
+        };
+    },
+    props: ["moduleId"],
+    methods: {
+        onPageLoaded(args) {
+            this.page = args.object;
+
+            let user = this.$portalInterface.getCurrentUser();
+            this.userName = user.name;
+
+            dbInterface.getModule([this.moduleId]).then(module => {
+                this.module = module[0];
+                this.module.origName = this.module.name;
+                this.origInterval = this.module.interval;
+                this.convertFromSeconds();
+                // save original time unit created in convertFromSeconds()
+                this.origUnit = this.currentUnit;
+            });
         },
-        props: ['moduleId'],
-        methods: {
-            onPageLoaded(args) {
-                this.page = args.object;
 
-                this.userName = this.$userAuth.getUserName();
+        goBack(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
 
-                dbInterface.getModule([this.moduleId])
-                    .then(module => {
-                        this.module = module[0];
-                        this.module.origName = this.module.name;
-                        this.origInterval = this.module.interval;
-                        this.convertFromSeconds();
-                        // save original time unit created in convertFromSeconds()
-                        this.origUnit = this.currentUnit;
-                    });
-            },
+            this.$navigateTo(routes.module, {
+                props: {
+                    moduleId: this.module.module_id,
+                    stationId: this.module.device_id
+                }
+            });
+        },
 
-            goBack(event) {
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
+        toggleRename() {
+            this.isEditingName = true;
+        },
 
-                this.$navigateTo(routes.module, {
-                    props: {
-                        moduleId: this.module.module_id,
-                        stationId: this.module.device_id
-                    }
-                });
-            },
+        checkName() {
+            // reset these first
+            this.noName = false;
+            this.nameNotPrintable = false;
+            this.nameTooLong = false;
+            // then check
+            this.noName = !this.module.name || this.module.name.length == 0;
+            if (this.noName) {
+                return false;
+            }
+            let matches = this.module.name.match(/^[ \w~!@#$%^&*()-.']*$/);
+            this.nameNotPrintable = !matches || matches.length == 0;
+            this.nameTooLong = this.module.name.length > 40;
+            return !this.nameTooLong && !this.nameNotPrintable;
+        },
 
-            toggleRename() {
-                this.isEditingName = true;
-            },
+        saveModuleName() {
+            this.isEditingName = false;
+            let valid = this.checkName();
+            if (valid && this.module.origName != this.module.name) {
+                dbInterface.setModuleName(this.module);
+                let configChange = {
+                    module_id: this.module.module_id,
+                    before: this.module.origName,
+                    after: this.module.name,
+                    affected_field: "name",
+                    author: this.userName
+                };
+                dbInterface.recordModuleConfigChange(configChange);
+                this.module.origName = this.module.name;
+            }
+        },
 
-            checkName() {
-                // reset these first
-                this.noName = false;
-                this.nameNotPrintable = false;
-                this.nameTooLong = false;
-                // then check
-                this.noName = !this.module.name || this.module.name.length == 0;
-                if(this.noName) {return false}
-                let matches = this.module.name.match(/^[ \w~!@#$%^&*()-.']*$/);
-                this.nameNotPrintable = !matches || matches.length == 0;
-                this.nameTooLong = this.module.name.length > 40;
-                return !this.nameTooLong && !this.nameNotPrintable;
-            },
+        cancelRename() {
+            this.isEditingName = false;
+            this.noName = false;
+            this.nameNotPrintable = false;
+            this.nameTooLong = false;
+            this.module.name = this.module.origName;
+        },
 
-            saveModuleName() {
-                this.isEditingName = false;
-                let valid = this.checkName();
-                if(valid && this.module.origName != this.module.name) {
-                    dbInterface.setModuleName(this.module);
+        convertFromSeconds() {
+            let displayValue = this.module.interval;
+            // this.currentUnit is an index into timeUnits:
+            // timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
+            if (this.module.interval < 60) {
+                // seconds
+                this.currentUnit = 0;
+            } else if (this.module.interval < 3600) {
+                // minutes
+                this.currentUnit = 1;
+                displayValue /= 60;
+                displayValue = Math.round(displayValue);
+            } else if (this.module.interval < 86400) {
+                // hours
+                this.currentUnit = 2;
+                displayValue /= 3600;
+                displayValue = Math.round(displayValue);
+            } else if (this.module.interval < 604800) {
+                // days
+                this.currentUnit = 3;
+                displayValue /= 86400;
+                displayValue = Math.round(displayValue);
+            } else {
+                // weeks
+                this.currentUnit = 4;
+                displayValue /= 604800;
+                displayValue = displayValue.toFixed(1);
+            }
+            this.displayInterval = displayValue;
+        },
+
+        convertToSeconds() {
+            switch (this.currentUnit) {
+                case 0:
+                    this.module.interval = this.displayInterval;
+                    break;
+                case 1:
+                    this.module.interval = this.displayInterval * 60;
+                    break;
+                case 2:
+                    this.module.interval = this.displayInterval * 3600;
+                    break;
+                case 3:
+                    this.module.interval = this.displayInterval * 86400;
+                    break;
+                case 4:
+                    this.module.interval = this.displayInterval * 604800;
+                    break;
+                default:
+                    break;
+            }
+        },
+
+        checkInterval() {
+            // reset these first
+            this.noInterval = false;
+            this.intervalNotNumber = false;
+            // then check
+            this.noInterval =
+                !this.displayInterval || this.displayInterval == 0 || this.displayInterval.length == 0;
+            if (this.noInterval) {
+                return false;
+            }
+            this.intervalNotNumber = isNaN(this.displayInterval);
+            return !this.intervalNotNumber;
+        },
+
+        saveInterval() {
+            let valid = this.checkInterval();
+            if (valid) {
+                this.convertToSeconds(); // assigns displayInterval to this.module.interval
+                if (this.origInterval != this.module.interval) {
+                    dbInterface.setModuleInterval(this.module);
                     let configChange = {
                         module_id: this.module.module_id,
-                        before: this.module.origName,
-                        after: this.module.name,
-                        affected_field: "name",
+                        before: this.origInterval,
+                        after: this.module.interval,
+                        affected_field: "interval",
                         author: this.userName
                     };
                     dbInterface.recordModuleConfigChange(configChange);
-                    this.module.origName = this.module.name;
+                    this.origInterval = this.module.interval;
+                    this.origUnit = this.currentUnit;
                 }
-            },
-
-            cancelRename() {
-                this.isEditingName = false;
-                this.noName = false;
-                this.nameNotPrintable = false;
-                this.nameTooLong = false;
-                this.module.name = this.module.origName;
-            },
-
-            convertFromSeconds() {
-                let displayValue = this.module.interval;
-                // this.currentUnit is an index into timeUnits:
-                // timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
-                if(this.module.interval < 60) {
-                    // seconds
-                    this.currentUnit = 0;
-                } else if(this.module.interval < 3600) {
-                    // minutes
-                    this.currentUnit = 1;
-                    displayValue /= 60;
-                    displayValue = Math.round(displayValue);
-                } else if(this.module.interval < 86400) {
-                    // hours
-                    this.currentUnit = 2;
-                    displayValue /= 3600;
-                    displayValue =  Math.round(displayValue);
-                } else if(this.module.interval < 604800) {
-                    // days
-                    this.currentUnit = 3;
-                    displayValue /= 86400;
-                    displayValue =  Math.round(displayValue);
-                } else {
-                    // weeks
-                    this.currentUnit = 4;
-                    displayValue /= 604800;
-                    displayValue = displayValue.toFixed(1);
-                }
-                this.displayInterval = displayValue;
-            },
-
-            convertToSeconds() {
-                switch (this.currentUnit) {
-                    case 0:
-                        this.module.interval = this.displayInterval;
-                        break;
-                    case 1:
-                        this.module.interval = this.displayInterval * 60;
-                        break;
-                    case 2:
-                        this.module.interval = this.displayInterval * 3600;
-                        break;
-                    case 3:
-                        this.module.interval = this.displayInterval * 86400;
-                        break;
-                    case 4:
-                        this.module.interval = this.displayInterval * 604800;
-                        break;
-                    default:
-                        break;
-                }
-            },
-
-            checkInterval() {
-                // reset these first
-                this.noInterval = false;
-                this.intervalNotNumber = false;
-                // then check
-                this.noInterval = !this.displayInterval || this.displayInterval == 0 || this.displayInterval.length == 0;
-                if(this.noInterval) {return false}
-                this.intervalNotNumber = isNaN(this.displayInterval);
-                return !this.intervalNotNumber;
-            },
-
-            saveInterval() {
-                let valid = this.checkInterval();
-                if(valid) {
-                    this.convertToSeconds(); // assigns displayInterval to this.module.interval
-                    if(this.origInterval != this.module.interval) {
-                        dbInterface.setModuleInterval(this.module);
-                        let configChange = {
-                            module_id: this.module.module_id,
-                            before: this.origInterval,
-                            after: this.module.interval,
-                            affected_field: "interval",
-                            author: this.userName
-                        };
-                        dbInterface.recordModuleConfigChange(configChange);
-                        this.origInterval = this.module.interval;
-                        this.origUnit = this.currentUnit;
-
-                    }
-                }
-            },
-
-            onSelectedIndexChanged(event) {
-                // console.log(event.oldIndex, event.newIndex)
-                this.currentUnit = event.newIndex;
-                this.saveInterval();
             }
-        }
+        },
 
-    };
+        onSelectedIndexChanged(event) {
+            // console.log(event.oldIndex, event.newIndex)
+            this.currentUnit = event.newIndex;
+            this.saveInterval();
+        }
+    }
+};
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
+// Start custom common variables
+@import "../app-variables";
+// End custom common variables
 
-    // Custom styles
-    #module-name-field {
-        width: 225;
-        font-size: 16;
-        color: $fk-primary-black;
-    }
+// Custom styles
+#module-name-field {
+    width: 225;
+    font-size: 16;
+    color: $fk-primary-black;
+}
 
-    #module-name-field .input {
-        width: 195;
-        border-bottom-color: $fk-primary-black;
-        border-bottom-width: 1;
-        padding-top: 3;
-        padding-bottom: 2;
-        padding-left: 0;
-        padding-right: 0;
-        margin: 0;
-    }
+#module-name-field .input {
+    width: 195;
+    border-bottom-color: $fk-primary-black;
+    border-bottom-width: 1;
+    padding-top: 3;
+    padding-bottom: 2;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0;
+}
 
-    #module-name-field .char-count {
-        width: 25;
-        margin-top: 15;
-        margin-left: 5;
-    }
+#module-name-field .char-count {
+    width: 25;
+    margin-top: 15;
+    margin-left: 5;
+}
 
-    .module-name {
-        width: 195;
-    }
+.module-name {
+    width: 195;
+}
 
-    .validation-error {
-        width: 195;
-        font-size: 12;
-        color: $fk-tertiary-red;
-        border-top-color: $fk-tertiary-red;
-        border-top-width: 2;
-        padding-top: 5;
-    }
+.validation-error {
+    width: 195;
+    font-size: 12;
+    color: $fk-tertiary-red;
+    border-top-color: $fk-tertiary-red;
+    border-top-width: 2;
+    padding-top: 5;
+}
 
-    .interval-input {
-        font-size: 18;
-        width: 50%;
-        padding: 5;
-        border-bottom-width: 1;
-        border-bottom-color: $fk-primary-black;
-    }
+.interval-input {
+    font-size: 18;
+    width: 50%;
+    padding: 5;
+    border-bottom-width: 1;
+    border-bottom-color: $fk-primary-black;
+}
 
-    .round {
-        width: 40;
-        border-radius: 20;
-    }
-
+.round {
+    width: 40;
+    border-radius: 20;
+}
 </style>

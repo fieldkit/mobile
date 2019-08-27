@@ -2,11 +2,11 @@ import axios from "axios";
 import Config from "../config";
 
 let accessToken = null;
-let userName = null;
+let currentUser = {};
 
-export default class UserAuth {
-    getCurrentUser() {
-        let userAuth = this;
+export default class PortalInterface {
+    storeCurrentUser() {
+        let portalInterface = this;
 
         return axios({
             method: "GET",
@@ -21,7 +21,8 @@ export default class UserAuth {
 
         function handleResponse(response) {
             if (response.status == "200") {
-                userName = response.data.name;
+                currentUser.name = response.data.name;
+                currentUser.portalId = response.data.id;
                 return response.data;
             } else {
                 throw new Error(response);
@@ -33,8 +34,8 @@ export default class UserAuth {
         }
     }
 
-    getUserName() {
-        return userName;
+    getCurrentUser() {
+        return currentUser;
     }
 
     isLoggedIn() {
@@ -42,7 +43,7 @@ export default class UserAuth {
     }
 
     login(user) {
-        let userAuth = this;
+        let portalInterface = this;
 
         return axios({
             method: "POST",
@@ -62,7 +63,7 @@ export default class UserAuth {
                 accessToken = response.headers.authorization
                     ? response.headers.authorization
                     : response.headers.Authorization;
-                userAuth.getCurrentUser();
+                portalInterface.storeCurrentUser();
                 return;
             } else {
                 throw new Error("Log in failed");
@@ -159,4 +160,48 @@ export default class UserAuth {
     }
 
     resetPassword(email) {}
+
+    addStation(data, idArray) {
+        // convert device_id byte array to hex string
+        const hexed = new Buffer.from(idArray).toString("hex");
+        data.device_id = hexed;
+        return axios({
+            method: "POST",
+            url: Config.baseUri + "/stations",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: accessToken
+            },
+            data: data
+        })
+            .then(handleResponse)
+            .catch(handleError);
+
+        function handleResponse(response) {
+            if (response.status == "200") {
+                return response.data.id;
+            } else {
+                throw new Error("Station not added");
+            }
+        }
+
+        function handleError(error) {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                // console.log("error.response", error.response);
+            } else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser
+                // and an instance of http.ClientRequest in node.js
+                // console.log("error.request", error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                // console.log("error.message", error.message);
+            }
+            // console.log(error.config);
+
+            throw error;
+        }
+    }
 }

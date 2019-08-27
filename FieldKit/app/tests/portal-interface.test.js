@@ -1,6 +1,6 @@
 import axios from "axios";
-import UserAuth from "../services/user-auth";
-const userAuth = new UserAuth();
+import PortalInterface from "../services/portal-interface";
+const portalInterface = new PortalInterface();
 
 jest.mock("axios");
 
@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 test("should not have a user logged in by default", () => {
-    expect(userAuth.isLoggedIn()).toBe(null);
+    expect(portalInterface.isLoggedIn()).toBe(null);
 });
 
 test("should log user in", () => {
@@ -24,9 +24,11 @@ test("should log user in", () => {
         headers: { authorization: accessToken }
     };
     axios.mockImplementation(() => Promise.resolve(mockResponse));
-    return userAuth
+    return portalInterface
         .login(user)
-        .then(resp => expect(userAuth.isLoggedIn()).toEqual(accessToken));
+        .then(resp =>
+            expect(portalInterface.isLoggedIn()).toEqual(accessToken)
+        );
 });
 
 test("should not log non-existing user in", () => {
@@ -41,7 +43,7 @@ test("should not log non-existing user in", () => {
     };
     axios.mockImplementation(() => Promise.resolve(mockResponse));
     const expectedError = new Error("Log in failed");
-    return userAuth.login(user).catch(error => {
+    return portalInterface.login(user).catch(error => {
         expect(error).toEqual(expectedError);
     });
 });
@@ -50,9 +52,9 @@ test("should log user out", () => {
     const headers = { headers: { Authorization: "Bearer 34234324234" } };
     const mockResponse = { status: "204" };
     axios.mockImplementation(() => Promise.resolve(mockResponse));
-    return userAuth
+    return portalInterface
         .logout()
-        .then(resp => expect(userAuth.isLoggedIn()).toBe(null));
+        .then(resp => expect(portalInterface.isLoggedIn()).toBe(null));
 });
 
 test("should register new user", () => {
@@ -63,7 +65,7 @@ test("should register new user", () => {
     };
     const mockResponse = { status: "200" };
     axios.mockImplementation(() => Promise.resolve(mockResponse));
-    return userAuth
+    return portalInterface
         .register(user)
         .then(resp => expect(resp).toEqual("Account created"));
 });

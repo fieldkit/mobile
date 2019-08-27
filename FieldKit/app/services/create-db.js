@@ -97,6 +97,7 @@ export default class CreateDB {
         return this.database.execute(
             "CREATE TABLE IF NOT EXISTS stations (\
                 id INTEGER PRIMARY KEY AUTOINCREMENT, \
+                device_byte_array BLOB, \
                 device_id TEXT, \
                 name TEXT, \
                 url TEXT, \
@@ -113,6 +114,7 @@ export default class CreateDB {
                 deploy_image_label TEXT, \
                 deploy_note TEXT, \
                 deploy_audio_files TEXT, \
+                portal_id TEXT, \
                 created DATETIME DEFAULT CURRENT_TIMESTAMP, \
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
         );

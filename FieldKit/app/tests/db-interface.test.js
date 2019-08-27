@@ -52,6 +52,16 @@ describe("DatabaseInterface", () => {
         expect(newData[0].name).toEqual(newName);
     });
 
+    test("setStationPortalID should set a station's portal id", async () => {
+        const station = createDB.getSeededStations()[0];
+        const data = await dbInterface.getStation(station.deviceId);
+        const portalId = "28";
+        data[0].portalId = portalId;
+        const change = await dbInterface.setStationPortalID(data[0]);
+        const newData = await dbInterface.getStation(station.deviceId);
+        expect(newData[0].portal_id).toEqual(portalId);
+    });
+
     test("setStationLocationCoordinates should set a station's coordinates", async () => {
         const station = createDB.getSeededStations()[0];
         const data = await dbInterface.getStation(station.deviceId);

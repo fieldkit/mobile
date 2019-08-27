@@ -94,6 +94,15 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationPortalID(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [
+                station.portalId,
+                station.id
+            ])
+        );
+    }
+
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
             db.query(
@@ -234,17 +243,18 @@ export default class DatabaseInterface {
                     if (dbResponse.length > 0) {
                         // already have this station in db - update?
                     } else {
-                        this.addStation(deviceId, address, result);
+                        this.addStation(deviceId, id, address, result);
                     }
                 });
         });
     }
 
-    addStation(deviceId, address, response) {
+    addStation(deviceId, byteArrayId, address, response) {
         let deviceStatus = response.status;
         let modules = response.modules;
         let station = {
             deviceId: deviceId,
+            deviceByteArray: byteArrayId,
             name: deviceStatus.identity.device,
             url: address,
             status: "Ready to deploy",
@@ -367,10 +377,11 @@ export default class DatabaseInterface {
             let newStation = new Station(nextStn);
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, modules, interval) \
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO stations (device_id, device_byte_array, name, url, status, battery_level, connected, available_memory, modules, interval) \
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         newStation.deviceId,
+                        newStation.deviceByteArray,
                         newStation.name,
                         newStation.url,
                         newStation.status,
@@ -407,5 +418,8 @@ class Station {
             : Math.floor(Math.random() * Math.floor(100));
         this.modules = _station.modules; // comma-delimited list of module ids
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
+        this.deviceByteArray = _station.deviceByteArray
+            ? _station.deviceByteArray
+            : {};
     }
 }
