@@ -13,16 +13,7 @@ export default class QueryStation {
             type: QueryType.values.QUERY_STATUS
         });
 
-        return this.stationQuery(address, message).then(
-            r => {
-                // console.log(address, "reply", r);
-                return r;
-            },
-            e => {
-                // console.log(address, "error", e);
-                throw e;
-            }
-        );
+        return this.stationQuery(address, message);
     }
 
     queryReadings(address) {
@@ -30,16 +21,7 @@ export default class QueryStation {
             type: QueryType.values.QUERY_GET_READINGS
         });
 
-        return this.stationQuery(address, message).then(
-            r => {
-                // console.log(address, "reply", r);
-                return r;
-            },
-            e => {
-                // console.log(address, "error", e);
-                throw e;
-            }
-        );
+        return this.stationQuery(address, message);
     }
 
     queryTakeReadings(address) {
@@ -47,16 +29,7 @@ export default class QueryStation {
             type: QueryType.values.QUERY_TAKE_READINGS
         });
 
-        return this.stationQuery(address, message).then(
-            r => {
-                // console.log(address, "reply", r);
-                return r;
-            },
-            e => {
-                // console.log(address, "error", e);
-                throw e;
-            }
-        );
+        return this.stationQuery(address, message);
     }
 
     /**
@@ -78,11 +51,15 @@ export default class QueryStation {
             data: requestBody
         }).then(response => {
             if (response.data.length == 0) {
-                console.log("Empty reply");
+                console.log("query success", "<empty>");
                 return {};
             }
             const binaryReply = Buffer.from(response.data, "hex");
-            return HttpReply.decodeDelimited(binaryReply);
+            const decoded = HttpReply.decodeDelimited(binaryReply);
+            console.log("query success", decoded);
+            return decoded;
+        }, err => {
+            console.log("query error", err);
         });
     }
 }
