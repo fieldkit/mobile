@@ -8,13 +8,10 @@ const dbInterface = new DatabaseInterface();
 const queryStation = new QueryStation();
 const sqlite = new Sqlite();
 
-let databasePromise;
 let foundStations = [];
 
 export default class CreateDB {
     constructor() {
-        databasePromise = this.openDatabase();
-        this.databasePromise = databasePromise;
     }
 
     initialize() {
@@ -40,6 +37,8 @@ export default class CreateDB {
                 } else {
                     return Promise.resolve(this.database);
                 }
+            }, err => {
+                console.log("error", err);
             });
     }
 
@@ -52,97 +51,121 @@ export default class CreateDB {
 
     openDatabase() {
         return sqlite.open(this.getDatabaseName()).then(db => {
-            return (this.database = db);
+            return this.database = db;
         });
     }
 
+    execute(sql) {
+        let sqlArray = sql;
+        if (!Array.isArray(sql)) {
+            sqlArray = [ sql ];
+        }
+        return sqlArray.reduce((promise, item, index) => {
+            return promise.then(() => {
+                return this.database.execute(item);
+            }).then(rv => {
+                return rv;
+            }, err => {
+                console.log("error executing", sql, err);
+            });
+        }, Promise.resolve(true));
+    }
+
     dropTables() {
-        return this.database
-            .execute("DROP TABLE IF EXISTS modules")
-            .then(this.database.execute("DROP TABLE IF EXISTS sensors"))
-            .then(this.database.execute("DROP TABLE IF EXISTS stations"));
+        return this.execute([
+            `DROP TABLE IF EXISTS modules`,
+            `DROP TABLE IF EXISTS sensors`,
+            `DROP TABLE IF EXISTS stations`,
+        ]);
     }
 
     createSensorsTable() {
-        return this.database.execute(
-            "CREATE TABLE IF NOT EXISTS sensors (\
-                id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                sensor_id TEXT, \
-                module_id TEXT, \
-                name TEXT, \
-                unit TEXT, \
-                current_reading NUMERIC, \
-                frequency NUMERIC, \
-                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
-        );
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS sensors (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sensor_id TEXT,
+                module_id TEXT,
+                name TEXT,
+                unit TEXT,
+                current_reading NUMERIC,
+                frequency NUMERIC,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS sensors_idx ON sensors (sensor_id, module_id)`,
+        ]);
     }
 
     createModulesTable() {
-        return this.database.execute(
-            "CREATE TABLE IF NOT EXISTS modules (\
-                id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                module_id TEXT, \
-                device_id TEXT, \
-                name TEXT, \
-                sensors TEXT, \
-                graphs TEXT, \
-                interval NUMERIC, \
-                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
-        );
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS modules (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                module_id TEXT,
+                device_id TEXT,
+                name TEXT,
+                sensors TEXT,
+                graphs TEXT,
+                interval NUMERIC,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS modules_idx ON modules (device_id, module_id)`,
+        ]);
     }
 
     createStationsTable() {
-        return this.database.execute(
-            "CREATE TABLE IF NOT EXISTS stations (\
-                id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                device_id TEXT, \
-                name TEXT, \
-                url TEXT, \
-                status TEXT, \
-                battery_level NUMERIC, \
-                connected TEXT, \
-                available_memory NUMERIC, \
-                modules TEXT, \
-                interval NUMERIC, \
-                location_name TEXT, \
-                latitude NUMERIC, \
-                longitude NUMERIC, \
-                deploy_image_name TEXT, \
-                deploy_image_label TEXT, \
-                deploy_note TEXT, \
-                deploy_audio_files TEXT, \
-                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
-        );
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS stations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                device_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                url TEXT NOT NULL,
+                status TEXT,
+                battery_level NUMERIC,
+                connected TEXT,
+                available_memory NUMERIC,
+                modules TEXT,
+                interval NUMERIC,
+                location_name TEXT,
+                latitude NUMERIC,
+                longitude NUMERIC,
+                deploy_image_name TEXT,
+                deploy_image_label TEXT,
+                deploy_note TEXT,
+                deploy_audio_files TEXT,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`,
+        ]);
     }
 
     createStationConfigLogTable() {
-        return this.database.execute(
-            "CREATE TABLE IF NOT EXISTS stations_config (\
-                id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                device_id INTEGER, \
-                before TEXT, \
-                after TEXT, \
-                affected_field TEXT, \
-                author TEXT, \
-                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
+        return this.execute(`CREATE TABLE IF NOT EXISTS stations_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                device_id INTEGER NOT NULL,
+                before TEXT,
+                after TEXT,
+                affected_field TEXT,
+                author TEXT,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`
         );
     }
 
     createModuleConfigLogTable() {
-        return this.database.execute(
-            "CREATE TABLE IF NOT EXISTS modules_config (\
-                id INTEGER PRIMARY KEY AUTOINCREMENT, \
-                module_id INTEGER, \
-                before TEXT, \
-                after TEXT, \
-                affected_field TEXT, \
-                author TEXT, \
-                created DATETIME DEFAULT CURRENT_TIMESTAMP, \
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP)"
+        return this.execute(
+            `CREATE TABLE IF NOT EXISTS modules_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                module_id INTEGER,
+                before TEXT,
+                after TEXT,
+                affected_field TEXT,
+                author TEXT,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`
         );
     }
 
