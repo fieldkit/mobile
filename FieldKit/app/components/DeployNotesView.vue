@@ -174,9 +174,37 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            dbInterface.getStation(this.stationId).then(this.completeSetup);
+            dbInterface
+                .getStation(this.stationId)
+                .then(this.getModules)
+                .then(this.setupModules)
+                .then(this.completeSetup);
         },
 
+        getModules(station) {
+            this.station = station[0];
+            return dbInterface.getModules(this.station.device_id);
+        },
+
+        linkModulesAndSensors(results) {
+            results.forEach(r => {
+                r.resultPromise.then(sensors => {
+                    r.module.sensorObjects = sensors;
+                });
+            });
+        },
+
+        getSensors(moduleObject) {
+            let result = dbInterface.getSensors(moduleObject.module_id);
+            return { resultPromise: result, module: moduleObject };
+        },
+
+        setupModules(modules) {
+            this.station.moduleObjects = modules;
+            return Promise.all(this.station.moduleObjects.map(this.getSensors)).then(
+                this.linkModulesAndSensors
+            );
+        },
         completeSetup(stations) {
             this.station = stations[0];
             this.noteText = this.station.deploy_note;
