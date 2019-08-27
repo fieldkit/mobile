@@ -62,8 +62,7 @@ export default class UserAuth {
                 accessToken = response.headers.authorization
                     ? response.headers.authorization
                     : response.headers.Authorization;
-                userAuth.getCurrentUser();
-                return;
+                return userAuth.getCurrentUser();
             } else {
                 throw new Error("Log in failed");
             }
