@@ -215,25 +215,22 @@ export default class DatabaseInterface {
     }
 
     checkForStation(address) {
-        // let address = "https://localhost:2382";
-        // let address = "http://192.168.1.5:2380";
-        queryStation.queryStatus(address).then(result => {
-            let id = result.status.identity.deviceId;
-            let tempPieces = [];
-            for (let i = 0; i < id.length; i++) {
-                tempPieces.push(id[i]);
-            }
-            let deviceId = tempPieces.join("-");
+        console.log('querying status', address);
+        return queryStation.queryStatus(address).then(result => {
+            const deviceId = new Buffer.from(result.status.identity.deviceId).toString("hex")
+
+            console.log('status', result.status.identity.device, deviceId);
+
             // check to see if we already have it - and
             // TO DO: update it?
             this.database
-                .query(
-                    "SELECT * FROM stations WHERE device_id='" + deviceId + "'"
-                )
+                .query("SELECT * FROM stations WHERE device_id = ?", [ deviceId ])
                 .then(dbResponse => {
                     if (dbResponse.length > 0) {
+                        console.log('updating existing station', address);
                         // already have this station in db - update?
                     } else {
+                        console.log('adding new station', address);
                         this.addStation(deviceId, address, result);
                     }
                 });
@@ -392,19 +389,12 @@ class Station {
     constructor(_station) {
         // created_at, and updated_at will be generated
         this.deviceId = _station.deviceId;
-        this.name = _station.name
-            ? _station.name
-            : "FieldKit Station " +
-              Math.floor(Math.random() * Math.floor(9000));
+        this.name = _station.name ? _station.name : "FieldKit Station " + Math.floor(Math.random() * Math.floor(9000));
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
-        this.battery_level = _station.battery_level
-            ? _station.battery_level
-            : Math.floor(Math.random() * Math.floor(100));
+        this.battery_level = _station.battery_level ? _station.battery_level : Math.floor(Math.random() * Math.floor(100));
         this.connected = "true";
-        this.available_memory = _station.available_memory
-            ? _station.available_memory
-            : Math.floor(Math.random() * Math.floor(100));
+        this.available_memory = _station.available_memory ? _station.available_memory : Math.floor(Math.random() * Math.floor(100));
         this.modules = _station.modules; // comma-delimited list of module ids
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
     }
