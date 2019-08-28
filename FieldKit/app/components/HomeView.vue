@@ -9,33 +9,36 @@
 </template>
 
 <script>
-    import Login from "./LoginView";
-    import Stations from "./StationsView";
+import Login from "./LoginView";
+import Stations from "./StationsView";
 
-    export default {
-        data() {
-            return {
-                message: _L("authenticated")
-            };
+export default {
+    data() {
+        return {
+            message: _L("authenticated")
+        };
+    },
+    methods: {
+        logout() {
+            this.$portalInterface.logout();
+            this.$navigateTo(Login, {
+                clearHistory: true,
+                props: {
+                    resetUser: true
+                }
+            });
         },
-        methods: {
-            logout() {
-                this.$userAuth.logout();
-                this.$navigateTo(Login, {
-                    clearHistory: true
-                });
-            },
-            viewStations() {
-                this.$navigateTo(Stations);
-            }
+        viewStations() {
+            this.$navigateTo(Stations);
         }
-    };
+    }
+};
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
+// Start custom common variables
+@import "../app-variables";
+// End custom common variables
 
-    // Custom styles
+// Custom styles
 </style>

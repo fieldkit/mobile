@@ -22,61 +22,61 @@
 </template>
 
 <script>
-    import routes from "../routes";
-    import DatabaseInterface from "../services/db-interface";
-    const dbInterface = new DatabaseInterface();
+import routes from "../routes";
+import DatabaseInterface from "../services/db-interface";
+const dbInterface = new DatabaseInterface();
 
-    export default {
-        data() {
-            return {
-                message: "FieldKit Stations",
-                stations: []
-            };
-        },
-        methods: {
-            onPageLoaded(args) {
-                this.page = args.object;
-                if(this.stations.length == 0) {
-                    dbInterface.getAll().then(result => {
-                        this.stations = result;
-                    }, error => {
-                        // console.log("error getting stations data", error)
-                    });
-                }
-            },
-
-            goToDetail(event) {
-                // Change background color when pressed
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {event.object.className = cn;}, 500);
-
-                this.$navigateTo(routes.stationDetail, {
-                    props: {
-                        // remove the "station-" prefix
-                        stationId: event.object.id.split("station-")[1]
-                    }
+export default {
+    data() {
+        return {
+            message: "FieldKit Stations",
+            stations: []
+        };
+    },
+    methods: {
+        onPageLoaded(args) {
+            this.page = args.object;
+            if(this.stations.length == 0) {
+                dbInterface.getAll().then(result => {
+                    this.stations = result;
+                }, error => {
+                    // console.log("error getting stations data", error)
                 });
             }
+        },
+
+        goToDetail(event) {
+            // Change background color when pressed
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {event.object.className = cn;}, 500);
+
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    // remove the "station-" prefix
+                    stationId: event.object.id.split("station-")[1]
+                }
+            });
         }
-    };
+    }
+};
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
+// Start custom common variables
+@import '../app-variables';
+// End custom common variables
 
-    // Custom styles
-    .station-container {
-        border-radius: 4;
-        border-color: $fk-gray-lighter;
-        border-width: 1;
-    }
-    .station-name {
-        font-size: 18;
-        color: black;
-    }
-    .stations-list {font-size: 16;}
-    .Readytodeploy {color: green}
+// Custom styles
+.station-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
+.station-name {
+    font-size: 18;
+    color: black;
+}
+.stations-list {font-size: 16;}
+.Readytodeploy {color: green}
 </style>

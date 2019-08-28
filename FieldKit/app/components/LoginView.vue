@@ -168,243 +168,240 @@
 </template>
 
 <script>
-    import Home from "./HomeView";
-    import { USERNAME, PASSWORD } from "../secrets";
+import Home from "./HomeView";
+import { USERNAME, PASSWORD } from "../secrets";
 
-    export default {
-        data() {
-            return {
-                isLoggingIn: true,
-                processing: false,
-                noName: false,
-                nameTooLong: false,
-                nameHasSpace: false,
-                noEmail: false,
-                emailNotValid: false,
-                noPassword: false,
-                passwordTooShort: false,
-                passwordsNotMatch: false,
-                user: {
-                    name: "",
-                    email: "",
-                    password: "",
-                    confirmPassword: ""
-                }
-            };
-        },
-        methods: {
-            onPageLoaded(args) {
-                this.page = args.object;
-                if(USERNAME && PASSWORD) {
-                    this.user.email = USERNAME;
-                    this.user.password = PASSWORD;
-                    this.login();
-                }
-            },
-
-            toggleForm() {
-                this.isLoggingIn = !this.isLoggingIn;
-            },
-
-            showActive(event) {
-                let spacer = this.page.getViewById(event.object.id+"-spacer");
-                spacer.className = "spacer-top active";
-            },
-
-            checkName(event) {
-                let spacer = this.page.getViewById("name-field-spacer");
-                spacer.className = "spacer-top";
-                this.noName = !this.user.name || this.user.name.length == 0;
-                if(this.noName) {return}
-                let matches = this.user.name.match(/\s/g);
-                this.nameHasSpace = matches && matches.length > 0;
-                this.nameTooLong = this.user.name.length > 255;
-            },
-
-            checkEmail(event) {
-                let spacer = this.page.getViewById("email-field-spacer");
-                spacer.className = "spacer-top";
-                this.noEmail = !this.user.email || this.user.email.length == 0;
-                if(this.noEmail) {return}
-                let emailPattern = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-                this.emailNotValid = !emailPattern.test(this.user.email);
-            },
-
-            checkPassword(event) {
-                let spacer = this.page.getViewById("password-field-spacer");
-                spacer.className = "spacer-top";
-                this.noPassword = !this.user.password || this.user.password.length == 0;
-                if(this.noPassword) {return}
-                this.passwordTooShort = this.user.password.length < 10;
-            },
-
-            checkConfirmPassword(event) {
-                let spacer = this.page.getViewById("confirm-password-field-spacer");
-                spacer.className = "spacer-top";
-                this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
-            },
-
-            submit() {
-                if (!this.user.email || !this.user.password) {
-                    this.alert(
-                        _L("provideBoth")
-                    );
-                    return;
-                }
-
-                this.processing = true;
-                if (this.isLoggingIn) {
-                    this.login();
-                } else {
-                    this.register();
-                }
-            },
-
-            login() {
-                this.$userAuth
-                    .login(this.user)
-                    .then(() => {
-                        this.processing = false;
-                        this.$navigateTo(Home, { clearHistory: true });
-                    })
-                    .catch((error) => {
-                        this.processing = false;
-                        this.alert(
-                            _L("loginFailed")
-                        );
-                    });
-            },
-
-            register() {
-                if (this.user.password != this.user.confirmPassword) {
-                    this.alert(_L("noMatch"));
-                    this.processing = false;
-                    return;
-                }
-
-                this.$userAuth
-                    .register(this.user)
-                    .then(() => {
-                        this.processing = false;
-                        this.alert(
-                            _L("accountCreated"));
-                        this.isLoggingIn = true;
-                    })
-                    .catch(() => {
-                        this.processing = false;
-                        this.alert(
-                            _L("accountCreateFailed")
-                        );
-                    });
-            },
-
-            forgotPassword() {
-                prompt({
-                    title: _L("forgotTitle"),
-                    message: _L("forgotInstruction"),
-                    inputType: "email",
-                    defaultText: "",
-                    okButtonText: _L("ok"),
-                    cancelButtonText: _L("cancel")
-                }).then(data => {
-                    if (data.result) {
-                        this.$userAuth
-                            .resetPassword(data.text.trim())
-                            .then(() => {
-                                this.alert(
-                                    _L("passwordResetSucceeded")
-                                );
-                            })
-                            .catch(() => {
-                                this.alert(
-                                    _L("passwordResetFailed")
-                                );
-                            });
-                    }
-                });
-            },
-
-            focusPassword() {
-                this.$refs.password.nativeView.focus();
-            },
-            focusConfirmPassword() {
-                if (!this.isLoggingIn) {
-                    this.$refs.confirmPassword.nativeView.focus();
-                }
-            },
-
-            alert(message) {
-                return alert({
-                    title: "FieldKit",
-                    okButtonText: _L("ok"),
-                    message: message
-                });
+export default {
+    data() {
+        return {
+            isLoggingIn: true,
+            processing: false,
+            noName: false,
+            nameTooLong: false,
+            nameHasSpace: false,
+            noEmail: false,
+            emailNotValid: false,
+            noPassword: false,
+            passwordTooShort: false,
+            passwordsNotMatch: false,
+            user: {
+                name: "",
+                email: "",
+                password: "",
+                confirmPassword: ""
             }
+        };
+    },
+    props: ["resetUser"],
+    methods: {
+        onPageLoaded(args) {
+            // logging out sends resetUser = true
+            this.page = args.object;
+            if (USERNAME && PASSWORD && !this.resetUser) {
+                this.user.email = USERNAME;
+                this.user.password = PASSWORD;
+                this.login();
+            }
+        },
+
+        toggleForm() {
+            this.isLoggingIn = !this.isLoggingIn;
+        },
+
+        showActive(event) {
+            let spacer = this.page.getViewById(event.object.id + "-spacer");
+            spacer.className = "spacer-top active";
+        },
+
+        checkName(event) {
+            let spacer = this.page.getViewById("name-field-spacer");
+            spacer.className = "spacer-top";
+            this.noName = !this.user.name || this.user.name.length == 0;
+            if (this.noName) {
+                return;
+            }
+            let matches = this.user.name.match(/\s/g);
+            this.nameHasSpace = matches && matches.length > 0;
+            this.nameTooLong = this.user.name.length > 255;
+        },
+
+        checkEmail(event) {
+            let spacer = this.page.getViewById("email-field-spacer");
+            spacer.className = "spacer-top";
+            this.noEmail = !this.user.email || this.user.email.length == 0;
+            if (this.noEmail) {
+                return;
+            }
+            let emailPattern = /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+            this.emailNotValid = !emailPattern.test(this.user.email);
+        },
+
+        checkPassword(event) {
+            let spacer = this.page.getViewById("password-field-spacer");
+            spacer.className = "spacer-top";
+            this.noPassword = !this.user.password || this.user.password.length == 0;
+            if (this.noPassword) {
+                return;
+            }
+            this.passwordTooShort = this.user.password.length < 10;
+        },
+
+        checkConfirmPassword(event) {
+            let spacer = this.page.getViewById("confirm-password-field-spacer");
+            spacer.className = "spacer-top";
+            this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
+        },
+
+        submit() {
+            if (!this.user.email || !this.user.password) {
+                this.alert(_L("provideBoth"));
+                return;
+            }
+
+            this.processing = true;
+            if (this.isLoggingIn) {
+                this.login();
+            } else {
+                this.register();
+            }
+        },
+
+        login() {
+            this.$portalInterface
+                .login(this.user)
+                .then(() => {
+                    this.processing = false;
+                    this.$navigateTo(Home, { clearHistory: true });
+                })
+                .catch(error => {
+                    this.processing = false;
+                    this.alert(_L("loginFailed"));
+                });
+        },
+
+        register() {
+            if (this.user.password != this.user.confirmPassword) {
+                this.alert(_L("noMatch"));
+                this.processing = false;
+                return;
+            }
+
+            this.$portalInterface
+                .register(this.user)
+                .then(() => {
+                    this.processing = false;
+                    this.alert(_L("accountCreated"));
+                    this.isLoggingIn = true;
+                })
+                .catch(() => {
+                    this.processing = false;
+                    this.alert(_L("accountCreateFailed"));
+                });
+        },
+
+        forgotPassword() {
+            prompt({
+                title: _L("forgotTitle"),
+                message: _L("forgotInstruction"),
+                inputType: "email",
+                defaultText: "",
+                okButtonText: _L("ok"),
+                cancelButtonText: _L("cancel")
+            }).then(data => {
+                if (data.result) {
+                    this.$portalInterface
+                        .resetPassword(data.text.trim())
+                        .then(() => {
+                            this.alert(_L("passwordResetSucceeded"));
+                        })
+                        .catch(() => {
+                            this.alert(_L("passwordResetFailed"));
+                        });
+                }
+            });
+        },
+
+        focusPassword() {
+            this.$refs.password.nativeView.focus();
+        },
+        focusConfirmPassword() {
+            if (!this.isLoggingIn) {
+                this.$refs.confirmPassword.nativeView.focus();
+            }
+        },
+
+        alert(message) {
+            return alert({
+                title: "FieldKit",
+                okButtonText: _L("ok"),
+                message: message
+            });
         }
-    };
+    }
+};
 </script>
 
 <style scoped lang="scss">
-    // Start custom common variables
-    @import '../app-variables';
-    // End custom common variables
+// Start custom common variables
+@import "../app-variables";
+// End custom common variables
 
-    .page {
-        color: $fk-primary-black;
-        font-size: 16;
-        align-items: center;
-        flex-direction: column;
-    }
+.page {
+    color: $fk-primary-black;
+    font-size: 16;
+    align-items: center;
+    flex-direction: column;
+}
 
-    .form {
-        margin-left: 5;
-        margin-right: 5;
-        flex-grow: 2;
-        vertical-align: center;
-    }
+.form {
+    margin-left: 5;
+    margin-right: 5;
+    flex-grow: 2;
+    vertical-align: center;
+}
 
-    .logo {
-        margin-top: 50;
-        height: 47;
-    }
+.logo {
+    margin-top: 50;
+    height: 47;
+}
 
-    .spacer-top {
-        border-top-color: $fk-gray-border;
-        border-top-width: 2;
-    }
+.spacer-top {
+    border-top-color: $fk-gray-border;
+    border-top-width: 2;
+}
 
-    .active {
-        border-top-color: $fk-secondary-blue;
-    }
+.active {
+    border-top-color: $fk-secondary-blue;
+}
 
-    .input-field {
-        margin-bottom: 15;
-    }
+.input-field {
+    margin-bottom: 15;
+}
 
-    .input {
-        width: 100%;
-        font-size: 16;
-        color: $fk-primary-black;
-        placeholder-color: $fk-gray-hint;
-    }
+.input {
+    width: 100%;
+    font-size: 16;
+    color: $fk-primary-black;
+    placeholder-color: $fk-gray-hint;
+}
 
-    .input:disabled {
-        opacity: 0.5;
-    }
+.input:disabled {
+    opacity: 0.5;
+}
 
-    .btn-primary {
-        margin: 20 5 15 5;
-    }
+.btn-primary {
+    margin: 20 5 15 5;
+}
 
-    .sign-up-label {
-        horizontal-align: center;
-        margin-bottom: 10;
-    }
+.sign-up-label {
+    horizontal-align: center;
+    margin-bottom: 10;
+}
 
-    .validation-error {
-        color: $fk-tertiary-red;
-        border-top-color: $fk-tertiary-red;
-        border-top-width: 2;
-        padding-top: 5;
-    }
+.validation-error {
+    color: $fk-tertiary-red;
+    border-top-color: $fk-tertiary-red;
+    border-top-width: 2;
+    padding-top: 5;
+}
 </style>

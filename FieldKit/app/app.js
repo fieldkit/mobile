@@ -5,7 +5,7 @@ i18n("en");
 
 import routes from "./routes";
 import CreateDB from "./services/create-db";
-import UserAuth from "./services/user-auth";
+import PortalInterface from "./services/portal-interface";
 import QueryStation from "./services/query-station";
 import DiscoverStation from "./services/discover-station";
 import RadChart from "nativescript-ui-chart/vue";
@@ -21,8 +21,8 @@ discoverStation.startServiceDiscovery();
 // Pass i18n's global variable to Vue
 Vue.prototype._L = _L;
 
-const userAuth = new UserAuth();
-Vue.prototype.$userAuth = userAuth;
+const portalInterface = new PortalInterface();
+Vue.prototype.$portalInterface = portalInterface;
 
 Vue.registerElement(
     "DropDown",
@@ -43,5 +43,7 @@ Vue.use(RadChart);
 
 new Vue({
     render: h =>
-        h("frame", [h(userAuth.isLoggedIn() ? routes.home : routes.login)])
+        h("frame", [
+            h(portalInterface.isLoggedIn() ? routes.home : routes.login)
+        ])
 }).$start();
