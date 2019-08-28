@@ -224,41 +224,31 @@ export default class DatabaseInterface {
     }
 
     checkForStation(address) {
-        console.log('querying status', address);
         return queryStation.queryStatus(address).then(result => {
-            const deviceId = new Buffer.from(result.status.identity.deviceId).toString("hex")
-
-            console.log('status', result.status.identity.device, deviceId);
-
+            const deviceId = new Buffer.from(result.status.identity.deviceId).toString("hex");
             // check to see if we already have it - and
             // TO DO: update it?
-            this.database
-                .query("SELECT * FROM stations WHERE device_id = ?", [ deviceId ])
-                .then(dbResponse => {
-                    if (dbResponse.length > 0) {
-                        console.log('updating existing station', address);
-                        // already have this station in db - update?
-                    } else {
-                        console.log('adding new station', address);
-                        this.addStation(deviceId, id, address, result);
-                    }
-                });
+            this.database.query("SELECT * FROM stations WHERE device_id = ?", [deviceId]).then(dbResponse => {
+                if (dbResponse.length > 0) {
+                    // already have this station in db - update?
+                } else {
+                    this.addStation(deviceId, address, result);
+                }
+            });
         });
     }
 
-    addStation(deviceId, byteArrayId, address, response) {
+    addStation(deviceId, address, response) {
         let deviceStatus = response.status;
         let modules = response.modules;
         let station = {
             deviceId: deviceId,
-            deviceByteArray: byteArrayId,
             name: deviceStatus.identity.device,
             url: address,
             status: "Ready to deploy",
             modules: "",
             battery_level: deviceStatus.power.battery.percentage,
-            available_memory:
-                100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
+            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
         };
         let generateReading = this.generateReading;
 
