@@ -390,10 +390,11 @@ export default {
             if (!this.station.portal_id && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
+                    device_id: this.station.device_id,
                     status_json: this.station
                 };
                 this.$portalInterface
-                    .addStation(params, this.station.device_byte_array)
+                    .addStation(params)
                     .then(stationPortalId => {
                         this.station.portalId = stationPortalId;
                         dbInterface.setStationPortalID(this.station);

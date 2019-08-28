@@ -37,17 +37,13 @@ export default class DatabaseInterface {
 
     getStationConfigs(deviceId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM stations_config WHERE device_id = ?", [
-                deviceId
-            ])
+            db.query("SELECT * FROM stations_config WHERE device_id = ?", [deviceId])
         );
     }
 
     getModuleConfigs(moduleId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM modules_config WHERE module_id = ?", [
-                moduleId
-            ])
+            db.query("SELECT * FROM modules_config WHERE module_id = ?", [moduleId])
         );
     }
 
@@ -56,9 +52,7 @@ export default class DatabaseInterface {
     }
 
     getAll() {
-        return this.getDatabase().then(db =>
-            db.query("SELECT * FROM stations")
-        );
+        return this.getDatabase().then(db => db.query("SELECT * FROM stations"));
     }
 
     getStation(deviceId) {
@@ -87,28 +81,23 @@ export default class DatabaseInterface {
 
     setStationName(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET name = ? WHERE id = ?", [
-                station.name,
-                station.id
-            ])
+            db.query("UPDATE stations SET name = ? WHERE id = ?", [station.name, station.id])
         );
     }
 
     setStationPortalID(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [
-                station.portalId,
-                station.id
-            ])
+            db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [station.portalId, station.id])
         );
     }
 
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET latitude = ?, longitude = ? WHERE id = ?",
-                [station.latitude, station.longitude, station.id]
-            )
+            db.query("UPDATE stations SET latitude = ?, longitude = ? WHERE id = ?", [
+                station.latitude,
+                station.longitude,
+                station.id
+            ])
         );
     }
 
@@ -123,10 +112,7 @@ export default class DatabaseInterface {
 
     setStationInterval(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET interval = ? WHERE id = ?", [
-                station.interval,
-                station.id
-            ])
+            db.query("UPDATE stations SET interval = ? WHERE id = ?", [station.interval, station.id])
         );
     }
 
@@ -141,55 +127,43 @@ export default class DatabaseInterface {
 
     setStationDeployImageLabel(station) {
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET deploy_image_label = ? WHERE id = ?",
-                [station.deploy_image_label, station.id]
-            )
-        );
-    }
-
-    setStationDeployNote(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET deploy_note = ? WHERE id = ?", [
-                station.deploy_note,
+            db.query("UPDATE stations SET deploy_image_label = ? WHERE id = ?", [
+                station.deploy_image_label,
                 station.id
             ])
         );
     }
 
+    setStationDeployNote(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET deploy_note = ? WHERE id = ?", [station.deploy_note, station.id])
+        );
+    }
+
     setStationDeployAudio(station) {
         return this.getDatabase().then(db =>
-            db.query(
-                "UPDATE stations SET deploy_audio_files = ? WHERE id = ?",
-                [station.deploy_audio_files, station.id]
-            )
+            db.query("UPDATE stations SET deploy_audio_files = ? WHERE id = ?", [
+                station.deploy_audio_files,
+                station.id
+            ])
         );
     }
 
     setModuleName(module) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE modules SET name = ? WHERE id = ?", [
-                module.name,
-                module.id
-            ])
+            db.query("UPDATE modules SET name = ? WHERE id = ?", [module.name, module.id])
         );
     }
 
     setModuleInterval(module) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE modules SET interval = ? WHERE id = ?", [
-                module.interval,
-                module.id
-            ])
+            db.query("UPDATE modules SET interval = ? WHERE id = ?", [module.interval, module.id])
         );
     }
 
     setModuleGraphs(module) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE modules SET graphs = ? WHERE id = ?", [
-                module.graphs,
-                module.id
-            ])
+            db.query("UPDATE modules SET graphs = ? WHERE id = ?", [module.graphs, module.id])
         );
     }
 
@@ -197,13 +171,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db =>
             db.query(
                 "INSERT INTO stations_config (device_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
-                [
-                    config.device_id,
-                    config.before,
-                    config.after,
-                    config.affected_field,
-                    config.author
-                ]
+                [config.device_id, config.before, config.after, config.affected_field, config.author]
             )
         );
     }
@@ -212,13 +180,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db =>
             db.query(
                 "INSERT INTO modules_config (module_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
-                [
-                    config.module_id,
-                    config.before,
-                    config.after,
-                    config.affected_field,
-                    config.author
-                ]
+                [config.module_id, config.before, config.after, config.affected_field, config.author]
             )
         );
     }
@@ -339,9 +301,7 @@ export default class DatabaseInterface {
 
     insertIntoModulesTable(modulesToInsert) {
         let result = modulesToInsert.reduce((previousPromise, nextModule) => {
-            nextModule.interval = Math.round(
-                Math.random() * maxInterval + minInterval
-            );
+            nextModule.interval = Math.round(Math.random() * maxInterval + minInterval);
             return previousPromise.then(() => {
                 return this.database.execute(
                     "INSERT INTO modules (module_id, device_id, name, sensors, interval) VALUES (?, ?, ?, ?, ?)",
@@ -364,11 +324,10 @@ export default class DatabaseInterface {
             let newStation = new Station(nextStn);
             return previousPromise.then(() => {
                 return this.database.execute(
-                    "INSERT INTO stations (device_id, device_byte_array, name, url, status, battery_level, connected, available_memory, modules, interval) \
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, modules, interval) \
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         newStation.deviceId,
-                        newStation.deviceByteArray,
                         newStation.name,
                         newStation.url,
                         newStation.status,
@@ -390,16 +349,19 @@ class Station {
     constructor(_station) {
         // created_at, and updated_at will be generated
         this.deviceId = _station.deviceId;
-        this.name = _station.name ? _station.name : "FieldKit Station " + Math.floor(Math.random() * Math.floor(9000));
+        this.name = _station.name
+            ? _station.name
+            : "FieldKit Station " + Math.floor(Math.random() * Math.floor(9000));
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
-        this.battery_level = _station.battery_level ? _station.battery_level : Math.floor(Math.random() * Math.floor(100));
+        this.battery_level = _station.battery_level
+            ? _station.battery_level
+            : Math.floor(Math.random() * Math.floor(100));
         this.connected = "true";
-        this.available_memory = _station.available_memory ? _station.available_memory : Math.floor(Math.random() * Math.floor(100));
+        this.available_memory = _station.available_memory
+            ? _station.available_memory
+            : Math.floor(Math.random() * Math.floor(100));
         this.modules = _station.modules; // comma-delimited list of module ids
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
-        this.deviceByteArray = _station.deviceByteArray
-            ? _station.deviceByteArray
-            : {};
     }
 }

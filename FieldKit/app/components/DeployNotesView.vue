@@ -481,10 +481,11 @@ export default {
             if (this.station.portal_id && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
+                    device_id: this.station.device_id,
                     status_json: this.station
                 };
                 this.$portalInterface
-                    .updateStation(params, this.station.portal_id, this.station.device_byte_array)
+                    .updateStation(params, this.station.portal_id)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
                     });

@@ -133,10 +133,7 @@ export default class PortalInterface {
 
     resetPassword(email) {}
 
-    addStation(data, idArray) {
-        // convert device_id byte array to hex string
-        const hexed = new Buffer.from(idArray).toString("hex");
-        data.device_id = hexed;
+    addStation(data) {
         if (data.status_json.battery_level.toString().indexOf("%") > -1) {
             data.status_json.battery_level = parseInt(
                 data.status_json.battery_level.toString().split("%")[0]
@@ -163,10 +160,7 @@ export default class PortalInterface {
         }
     }
 
-    updateStation(data, portalId, idArray) {
-        // convert device_id byte array to hex string
-        const hexed = new Buffer.from(idArray).toString("hex");
-        data.device_id = hexed;
+    updateStation(data, portalId) {
         return axios({
             method: "PATCH",
             url: Config.baseUri + "/stations/" + portalId,

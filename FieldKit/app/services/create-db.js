@@ -11,8 +11,7 @@ const sqlite = new Sqlite();
 let foundStations = [];
 
 export default class CreateDB {
-    constructor() {
-    }
+    constructor() {}
 
     initialize() {
         return this.openDatabase()
@@ -28,18 +27,21 @@ export default class CreateDB {
             .then(this.createStationsTable.bind(this))
             .then(this.createStationConfigLogTable.bind(this))
             .then(this.createModuleConfigLogTable.bind(this))
-            .then(() => {
-                if (Config.seedDB) {
-                    return dbInterface
-                        .insertIntoSensorsTable(sensors)
-                        .then(dbInterface.insertIntoModulesTable(modules))
-                        .then(dbInterface.insertIntoStationsTable(stations));
-                } else {
-                    return Promise.resolve(this.database);
+            .then(
+                () => {
+                    if (Config.seedDB) {
+                        return dbInterface
+                            .insertIntoSensorsTable(sensors)
+                            .then(dbInterface.insertIntoModulesTable(modules))
+                            .then(dbInterface.insertIntoStationsTable(stations));
+                    } else {
+                        return Promise.resolve(this.database);
+                    }
+                },
+                err => {
+                    console.log("error", err);
                 }
-            }, err => {
-                console.log("error", err);
-            });
+            );
     }
 
     getDatabaseName() {
@@ -51,23 +53,28 @@ export default class CreateDB {
 
     openDatabase() {
         return sqlite.open(this.getDatabaseName()).then(db => {
-            return this.database = db;
+            return (this.database = db);
         });
     }
 
     execute(sql) {
         let sqlArray = sql;
         if (!Array.isArray(sql)) {
-            sqlArray = [ sql ];
+            sqlArray = [sql];
         }
         return sqlArray.reduce((promise, item, index) => {
-            return promise.then(() => {
-                return this.database.execute(item);
-            }).then(rv => {
-                return rv;
-            }, err => {
-                console.log("error executing", sql, err);
-            });
+            return promise
+                .then(() => {
+                    return this.database.execute(item);
+                })
+                .then(
+                    rv => {
+                        return rv;
+                    },
+                    err => {
+                        console.log("error executing", sql, err);
+                    }
+                );
         }, Promise.resolve(true));
     }
 
@@ -75,7 +82,7 @@ export default class CreateDB {
         return this.execute([
             `DROP TABLE IF EXISTS modules`,
             `DROP TABLE IF EXISTS sensors`,
-            `DROP TABLE IF EXISTS stations`,
+            `DROP TABLE IF EXISTS stations`
         ]);
     }
 
@@ -92,7 +99,7 @@ export default class CreateDB {
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS sensors_idx ON sensors (sensor_id, module_id)`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS sensors_idx ON sensors (sensor_id, module_id)`
         ]);
     }
 
@@ -109,7 +116,7 @@ export default class CreateDB {
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS modules_idx ON modules (device_id, module_id)`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS modules_idx ON modules (device_id, module_id)`
         ]);
     }
 
@@ -117,7 +124,6 @@ export default class CreateDB {
         return this.execute([
             `CREATE TABLE IF NOT EXISTS stations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                device_byte_array BLOB,
                 device_id TEXT NOT NULL,
                 name TEXT NOT NULL,
                 url TEXT NOT NULL,
@@ -138,7 +144,7 @@ export default class CreateDB {
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`
         ]);
     }
 
@@ -152,8 +158,7 @@ export default class CreateDB {
                 author TEXT,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
-            )`
-        );
+            )`);
     }
 
     createModuleConfigLogTable() {
@@ -268,8 +273,7 @@ const modules = [
         moduleId: "seeded-device-0-module-1",
         deviceId: "seeded-device-0",
         name: "Water Module 2",
-        sensors:
-            "seeded-device-0-module-1-sensor-0,seeded-device-0-module-1-sensor-1"
+        sensors: "seeded-device-0-module-1-sensor-0,seeded-device-0-module-1-sensor-1"
     },
     {
         moduleId: "seeded-device-0-module-2",
@@ -309,8 +313,7 @@ const stations = [
         deviceId: "seeded-device-0",
         name: "Drammen Station",
         status: "Ready to deploy",
-        modules:
-            "seeded-device-0-module-0,seeded-device-0-module-1,seeded-device-0-module-2"
+        modules: "seeded-device-0-module-0,seeded-device-0-module-1,seeded-device-0-module-2"
     },
     {
         deviceId: "seeded-device-1",
