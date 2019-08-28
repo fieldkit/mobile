@@ -140,7 +140,7 @@ export default class CreateDB {
                 deploy_image_label TEXT,
                 deploy_note TEXT,
                 deploy_audio_files TEXT,
-                portal_id TEXT,
+                portal_id NUMERIC,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,

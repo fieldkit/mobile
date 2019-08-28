@@ -55,7 +55,7 @@ describe("DatabaseInterface", () => {
     test("setStationPortalID should set a station's portal id", async () => {
         const station = createDB.getSeededStations()[0];
         const data = await dbInterface.getStation(station.deviceId);
-        const portalId = "28";
+        const portalId = 28;
         data[0].portalId = portalId;
         const change = await dbInterface.setStationPortalID(data[0]);
         const newData = await dbInterface.getStation(station.deviceId);
@@ -140,8 +140,7 @@ describe("DatabaseInterface", () => {
     test("setStationDeployAudio should set a station's deployment audio file", async () => {
         const station = createDB.getSeededStations()[0];
         const data = await dbInterface.getStation(station.deviceId);
-        const audioFiles =
-            "Audio recording Jul 24 2019.m4a,Audio recording Jul 24 2019 2.m4a";
+        const audioFiles = "Audio recording Jul 24 2019.m4a,Audio recording Jul 24 2019 2.m4a";
         data[0].deploy_audio_files = audioFiles;
         const change = await dbInterface.setStationDeployAudio(data[0]);
         const newData = await dbInterface.getStation(station.deviceId);
@@ -157,9 +156,7 @@ describe("DatabaseInterface", () => {
             affected_field: "name",
             author: "tester"
         };
-        const change = await dbInterface.recordStationConfigChange(
-            configChange
-        );
+        const change = await dbInterface.recordStationConfigChange(configChange);
         const newData = await dbInterface.getStationConfigs(station.deviceId);
         const lastIndex = newData.length - 1;
         expect(newData[lastIndex].before).toEqual(configChange.before);
