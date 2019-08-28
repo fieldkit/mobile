@@ -205,8 +205,7 @@ export default {
                 this.linkModulesAndSensors
             );
         },
-        completeSetup(stations) {
-            this.station = stations[0];
+        completeSetup() {
             this.noteText = this.station.deploy_note;
             this.origNote = this.noteText;
             this.recordings = this.station.deploy_audio_files;
