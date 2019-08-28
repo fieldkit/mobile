@@ -32,6 +32,15 @@ export default class QueryStation {
         return this.stationQuery(address, message);
     }
 
+    queryStartRecording(address) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_RECORDING_CONTROL,
+            recording: { enabled: true }
+        });
+
+        return this.stationQuery(address, message);
+    }
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for
@@ -49,17 +58,20 @@ export default class QueryStation {
                 "Content-Type": "text/plain"
             },
             data: requestBody
-        }).then(response => {
-            if (response.data.length == 0) {
-                console.log("query success", "<empty>");
-                return {};
+        }).then(
+            response => {
+                if (response.data.length == 0) {
+                    // console.log("query success", "<empty>");
+                    return {};
+                }
+                const binaryReply = Buffer.from(response.data, "hex");
+                const decoded = HttpReply.decodeDelimited(binaryReply);
+                // console.log("query success", decoded);
+                return decoded;
+            },
+            err => {
+                console.log("query error", err);
             }
-            const binaryReply = Buffer.from(response.data, "hex");
-            const decoded = HttpReply.decodeDelimited(binaryReply);
-            console.log("query success", decoded);
-            return decoded;
-        }, err => {
-            console.log("query error", err);
-        });
+        );
     }
 }

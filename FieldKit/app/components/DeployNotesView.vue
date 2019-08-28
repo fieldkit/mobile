@@ -80,7 +80,7 @@
 
                 <StackLayout v-show="havePhoto" class="m-15">
                     <Label :text="_L('startRecordingPrompt')" textWrap="true" />
-                    <Button class="btn btn-primary m-b-10" :text="_L('record')" @tap="pretendDeploy"></Button>
+                    <Button class="btn btn-primary m-b-10" :text="_L('record')" @tap="deployStation"></Button>
                 </StackLayout>
 
                 <TextView id="hidden-field" />
@@ -99,9 +99,11 @@ import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../routes";
 import DatabaseInterface from "../services/db-interface";
 import AudioInterface from "../services/audio-interface";
+import QueryStation from "../services/query-station";
 
 const dbInterface = new DatabaseInterface();
 const audioInterface = new AudioInterface();
+const queryStation = new QueryStation();
 const documents = knownFolders.documents();
 const folder = documents.getFolder("FieldKitImages");
 const source = new ImageSource();
@@ -242,12 +244,12 @@ export default {
                 })
                 .then(result => {
                     if (result == _L("startRecording")) {
-                        this.startRecording();
+                        this.startAudioRecording();
                     }
                 });
         },
 
-        startRecording() {
+        startAudioRecording() {
             // Create unique filename
             let now = new Date();
             let month = monthNames[now.getMonth()];
@@ -469,7 +471,7 @@ export default {
             }
         },
 
-        pretendDeploy(event) {
+        deployStation(event) {
             this.removeFocus("note-text-field");
             this.removeFocus("photo-label-input");
             // just in case?
@@ -477,7 +479,11 @@ export default {
             this.saveLabel();
             event.object.text = _L("recording");
 
-            // probably temporary - update portal with deployment info
+            queryStation.queryStartRecording(this.station.url).then(result => {
+                // console.log("result of queryStartRecording", result)
+            });
+
+            // temporary? - update portal with deployment info
             if (this.station.portal_id && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
@@ -490,7 +496,6 @@ export default {
                         // console.log("successfully updated", stationPortalId)
                     });
             }
-
         },
 
         removeFocus(id) {
