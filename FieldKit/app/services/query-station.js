@@ -1,5 +1,6 @@
 import axios from "axios";
 import protobuf from "protobufjs";
+import Config from '../config';
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpQuery = appRoot.lookupType("fk_app.HttpQuery");
@@ -47,6 +48,9 @@ export default class QueryStation {
      * request/response bodies.
      */
     stationQuery(url, message) {
+        if (Config.logging.station_queries) {
+            console.log("querying", url, message);
+        }
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         const requestBody = new Buffer.from(binaryQuery).toString("hex");
         return axios({
@@ -61,12 +65,16 @@ export default class QueryStation {
         }).then(
             response => {
                 if (response.data.length == 0) {
-                    // console.log("query success", "<empty>");
+                    if (Config.logging.station_queries) {
+                        console.log("query success", "<empty>");
+                    }
                     return {};
                 }
                 const binaryReply = Buffer.from(response.data, "hex");
                 const decoded = HttpReply.decodeDelimited(binaryReply);
-                // console.log("query success", decoded);
+                if (Config.logging.station_queries) {
+                    console.log("query success", decoded);
+                }
                 return decoded;
             },
             err => {
