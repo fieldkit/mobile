@@ -80,6 +80,7 @@ export default class CreateDB {
 
     dropTables() {
         return this.execute([
+            `DROP TABLE IF EXISTS stations_config`,
             `DROP TABLE IF EXISTS sensors`,
             `DROP TABLE IF EXISTS modules`,
             `DROP TABLE IF EXISTS stations`

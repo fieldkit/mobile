@@ -304,7 +304,6 @@ class Station {
         this.available_memory = _station.available_memory
             ? _station.available_memory
             : Math.floor(Math.random() * Math.floor(100));
-        this.modules = _station.modules; // comma-delimited list of module ids
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
     }
 }
