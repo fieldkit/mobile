@@ -55,7 +55,7 @@
                     </StackLayout>
                 </template>
 
-                <StackLayout v-for="(g, graphIndex) in graphedSensors" :key="g.sensor_id" class="m-b-15">
+                <StackLayout v-for="(g, graphIndex) in graphedSensors" :key="g.id" class="m-b-15">
                     <GridLayout rows="auto,auto,auto,auto"
                         columns="10*,80*,10*"
                         :automationText="'graphedSensorChart'+graphIndex"
@@ -65,7 +65,7 @@
                             row="0"
                             col="2"
                             class="round small-round"
-                            :id="'chart-' + g.sensor_id"
+                            :id="'chart-' + g.id"
                             @tap="removeChart"
                             verticalAlignment="top">
                             <Image width="17" src="~/images/Icon_Close.png"></Image>
@@ -210,7 +210,7 @@ export default {
             let toDisplay = [];
             graphs.forEach(g => {
                 let sensor = sensors.find(s => {
-                    return s.sensor_id == g;
+                    return s.id == g;
                 });
                 if (sensor) {
                     toDisplay.push(sensor);
@@ -272,7 +272,7 @@ export default {
                 });
                 // add to graphedSensors, if not already present
                 let index = this.graphedSensors.findIndex(s => {
-                    return s.sensor_id == sensor.sensor_id;
+                    return s.id == sensor.id;
                 });
                 if (index == -1) {
                     this.graphedSensors.push(sensor);
@@ -287,7 +287,7 @@ export default {
 
             let id = event.object.id.split("chart-")[1];
             let index = this.graphedSensors.findIndex(s => {
-                return s.sensor_id == id;
+                return s.id == id;
             });
             // remove from graphedSensors
             if (index > -1) {
@@ -299,13 +299,13 @@ export default {
         saveGraphs() {
             let graphs = "";
             this.graphedSensors.forEach(g => {
-                graphs += graphs == "" ? g.sensor_id : "," + g.sensor_id;
+                graphs += graphs == "" ? g.id : "," + g.id;
             });
             if (this.module.origGraphs != graphs) {
                 this.module.graphs = graphs;
                 dbInterface.setModuleGraphs(this.module);
                 let configChange = {
-                    module_id: this.module.module_id,
+                    module_id: this.module.id,
                     before: this.module.origGraphs,
                     after: this.module.graphs,
                     affected_field: "graphs",

@@ -185,7 +185,7 @@ export default {
 
         getModules(station) {
             this.station = station[0];
-            return dbInterface.getModules(this.station.device_id);
+            return dbInterface.getModules(this.station.id);
         },
 
         linkModulesAndSensors(results) {
@@ -197,7 +197,7 @@ export default {
         },
 
         getSensors(moduleObject) {
-            let result = dbInterface.getSensors(moduleObject.module_id);
+            let result = dbInterface.getSensors(moduleObject.id);
             return { resultPromise: result, module: moduleObject };
         },
 
@@ -207,6 +207,7 @@ export default {
                 this.linkModulesAndSensors
             );
         },
+
         completeSetup() {
             this.noteText = this.station.deploy_note;
             this.origNote = this.noteText;
@@ -215,7 +216,7 @@ export default {
             if (this.recordings) {
                 this.displayRecordings = this.recordings.split(",");
             }
-            this.deployImageName = this.station.device_id + "_deploy.jpg";
+            this.deployImageName = this.station.id + "_deploy.jpg";
             this.origLabel = this.station.deploy_image_label;
             this.origImageName = this.station.deploy_image_name;
             this.pathDest = path.join(folder.path, this.deployImageName);
@@ -322,7 +323,7 @@ export default {
             this.station.deploy_audio_files = this.displayRecordings.join(",");
             dbInterface.setStationDeployAudio(this.station);
             let configChange = {
-                station_id: this.station.device_id,
+                station_id: this.station.id,
                 before: this.origRecordings,
                 after: this.station.deploy_audio_files,
                 affected_field: "deploy_audio_files",
@@ -414,7 +415,7 @@ export default {
                         this.station.deploy_image_name = this.deployImageName;
                         dbInterface.setStationDeployImage(this.station);
                         let configChange = {
-                            station_id: this.station.device_id,
+                            station_id: this.station.id,
                             before: this.origImageName,
                             after: this.deployImageName,
                             affected_field: "deploy_image_name",
@@ -435,7 +436,7 @@ export default {
                 this.station.deploy_image_label = this.labelText;
                 dbInterface.setStationDeployImageLabel(this.station);
                 let configChange = {
-                    station_id: this.station.device_id,
+                    station_id: this.station.id,
                     before: this.origLabel,
                     after: this.labelText,
                     affected_field: "deploy_image_label",
@@ -460,7 +461,7 @@ export default {
                 this.station.deploy_note = this.noteText;
                 dbInterface.setStationDeployNote(this.station);
                 let configChange = {
-                    station_id: this.station.device_id,
+                    station_id: this.station.id,
                     before: this.origNote,
                     after: this.noteText,
                     affected_field: "deploy_note",

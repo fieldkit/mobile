@@ -51,33 +51,33 @@ describe("Sqlite Wrapper", () => {
             return sqlite
                 .open(":memory:")
                 .then(db => {
-                    return db.execute(
+                    testdb = db;
+                    return testdb.execute(
                         "CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)"
                     );
                 })
                 .then(db => {
-                    return db.execute(
+                    return testdb.execute(
                         "INSERT INTO people (id, name) VALUES (NULL, 'Jacob')"
                     );
                 })
                 .then(db => {
-                    return db.execute(
+                    return testdb.execute(
                         "INSERT INTO people (id, name) VALUES (NULL, 'Libbey')"
                     );
                 })
                 .then(db => {
-                    return db.execute(
+                    return testdb.execute(
                         "INSERT INTO people (id, name) VALUES (NULL, 'Bradley')"
                     );
                 })
                 .then(db => {
-                    return db.execute(
+                    return testdb.execute(
                         "INSERT INTO people (id, name) VALUES (NULL, 'Shah')"
                     );
                 })
                 .then(db => {
-                    testdb = db;
-                    return db;
+                    return testdb;
                 });
         });
 

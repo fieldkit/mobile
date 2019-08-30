@@ -202,8 +202,8 @@ export default {
 
             this.$navigateTo(routes.module, {
                 props: {
-                    moduleId: this.module.module_id,
-                    stationId: this.module.device_id
+                    moduleId: this.module.id,
+                    stationId: this.module.station_id
                 }
             });
         },
@@ -234,7 +234,7 @@ export default {
             if (valid && this.module.origName != this.module.name) {
                 dbInterface.setModuleName(this.module);
                 let configChange = {
-                    module_id: this.module.module_id,
+                    module_id: this.module.id,
                     before: this.module.origName,
                     after: this.module.name,
                     affected_field: "name",
@@ -327,7 +327,7 @@ export default {
                 if (this.origInterval != this.module.interval) {
                     dbInterface.setModuleInterval(this.module);
                     let configChange = {
-                        module_id: this.module.module_id,
+                        module_id: this.module.id,
                         before: this.origInterval,
                         after: this.module.interval,
                         affected_field: "interval",

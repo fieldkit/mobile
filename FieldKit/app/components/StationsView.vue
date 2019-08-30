@@ -7,8 +7,8 @@
                     :text="_L('noStations')"
                     class="m-10 p-10 text-center size-20" />
                 <StackLayout v-for="s in stations"
-                    :key="s.device_id"
-                    :id="'station-'+s.device_id"
+                    :key="s.id"
+                    :id="'station-'+s.id"
                     class="station-container m-y-5 m-x-15 p-10"
                     orientation="vertical"
                     @tap=goToDetail>

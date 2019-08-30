@@ -120,10 +120,10 @@
                 </GridLayout>
 
                 <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
-                    <GridLayout :id="'m_id-' + m.module_id"
+                    <GridLayout :id="'m_id-' + m.id"
                         rows="auto" columns="*"
                         v-for="(m, moduleIndex) in modules"
-                        :key="m.module_id"
+                        :key="m.id"
                         class="module-container m-10 p-10"
                         :automationText="'moduleLink' + moduleIndex"
                         @tap="goToModule">
@@ -134,7 +134,7 @@
                                 '~/images/Icon_Generic_Module.png')"></Image>
                         <StackLayout orientation="vertical" class="module-labels">
                             <Label :text="m.name" class="module-name size-16" />
-                            <Label :id="'sensor-label-' + m.module_id"
+                            <Label :id="'sensor-label-' + m.id"
                                 :text="m.currentSensorLabel"
                                 class="sensor-name size-14" />
                         </StackLayout>
@@ -146,7 +146,7 @@
                         </template>
                         <template v-else>
                             <!-- faux current reading, with trend arrow and units -->
-                            <StackLayout :id="'sensors-of-' + m.module_id"
+                            <StackLayout :id="'sensors-of-' + m.id"
                                 horizontalAlignment="right"
                                 verticalAlignment="center"
                                 orientation="vertical"
@@ -326,7 +326,7 @@ export default {
             if (valid && this.station.origName != this.station.name) {
                 dbInterface.setStationName(this.station);
                 let configChange = {
-                    device_id: this.station.device_id,
+                    station_id: this.station.id,
                     before: this.station.origName,
                     after: this.station.name,
                     affected_field: "name",
@@ -347,7 +347,7 @@ export default {
 
         getModules(station) {
             this.station = station[0];
-            return dbInterface.getModules(this.station.device_id);
+            return dbInterface.getModules(this.station.id);
         },
 
         linkModulesAndSensors(results) {
@@ -365,7 +365,7 @@ export default {
         },
 
         getSensors(moduleObject) {
-            let result = dbInterface.getSensors(moduleObject.module_id);
+            let result = dbInterface.getSensors(moduleObject.id);
             return { resultPromise: result, module: moduleObject };
         },
 
@@ -461,7 +461,7 @@ export default {
                     trendIcon = "Icon_Increase.png";
                 }
 
-                let sensorLabel = page.getViewById("sensor-label-" + m.module_id);
+                let sensorLabel = page.getViewById("sensor-label-" + m.id);
                 sensorLabel
                     .animate({
                         opacity: 0,
@@ -474,7 +474,7 @@ export default {
                             duration: 500
                         });
                     });
-                let stack = page.getViewById("sensors-of-" + m.module_id);
+                let stack = page.getViewById("sensors-of-" + m.id);
                 stack
                     .animate({
                         opacity: 0,
