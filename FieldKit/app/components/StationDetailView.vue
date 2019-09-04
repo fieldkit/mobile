@@ -96,7 +96,7 @@
                         <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
                         <FlexboxLayout justifyContent="center">
                             <Label class="m-r-5 size-12" :text="station.battery_level"></Label>
-                            <Image width="25" src="~/images/Icon_Battery.png"></Image>
+                            <Image width="25" :src="station.battery_image"></Image>
                         </FlexboxLayout>
                     </StackLayout>
                 </GridLayout>
@@ -120,10 +120,10 @@
                 </GridLayout>
 
                 <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
-                    <GridLayout :id="'m_id-' + m.module_id"
+                    <GridLayout :id="'m_id-' + m.id"
                         rows="auto" columns="*"
                         v-for="(m, moduleIndex) in modules"
-                        :key="m.module_id"
+                        :key="m.id"
                         class="module-container m-10 p-10"
                         :automationText="'moduleLink' + moduleIndex"
                         @tap="goToModule">
@@ -134,7 +134,7 @@
                                 '~/images/Icon_Generic_Module.png')"></Image>
                         <StackLayout orientation="vertical" class="module-labels">
                             <Label :text="m.name" class="module-name size-16" />
-                            <Label :id="'sensor-label-' + m.module_id"
+                            <Label :id="'sensor-label-' + m.id"
                                 :text="m.currentSensorLabel"
                                 class="sensor-name size-14" />
                         </StackLayout>
@@ -146,7 +146,7 @@
                         </template>
                         <template v-else>
                             <!-- faux current reading, with trend arrow and units -->
-                            <StackLayout :id="'sensors-of-' + m.module_id"
+                            <StackLayout :id="'sensors-of-' + m.id"
                                 horizontalAlignment="right"
                                 verticalAlignment="center"
                                 orientation="vertical"
@@ -202,11 +202,13 @@
 </template>
 
 <script>
+import {
+    Observable,
+    PropertyChangeData
+} from "tns-core-modules/data/observable";
 import routes from "../routes";
-import QueryStation from "../services/query-station";
 import DatabaseInterface from "../services/db-interface";
 const dbInterface = new DatabaseInterface();
-const queryStation = new QueryStation();
 
 export default {
     data() {
@@ -219,6 +221,7 @@ export default {
                 name: "FieldKit Station",
                 connected: "false",
                 battery: "0",
+                battery_image: "~/images/Icon_Battery.png",
                 available_memory: "0",
                 origName: "FieldKit Station"
             },
@@ -293,6 +296,28 @@ export default {
 
             this.user = this.$portalInterface.getCurrentUser();
 
+            this.$stationMonitor.on(
+                Observable.propertyChangeEvent,
+                data => {
+                    switch (data.propertyName.toString()) {
+                        case "readingsChanged": {
+                            if(data.value.stationId == this.stationId) {
+                                this.cycleSensorReadings(data.value.readings);
+                                this.station.battery_level = data.value.batteryLevel + "%";
+                                this.setBatteryImage();
+                                this.station.occupiedMemory = data.value.consumedMemory.toFixed(2);
+                                this.station.available_memory = 100 - this.station.occupiedMemory + "%";
+                                this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
+                            }
+                            break;
+                        }
+                    }
+                },
+                error => {
+                    // console.log("propertyChangeEvent error", error);
+                }
+            );
+
             dbInterface
                 .getStation(this.stationId)
                 .then(this.getModules)
@@ -326,7 +351,7 @@ export default {
             if (valid && this.station.origName != this.station.name) {
                 dbInterface.setStationName(this.station);
                 let configChange = {
-                    device_id: this.station.device_id,
+                    station_id: this.station.id,
                     before: this.station.origName,
                     after: this.station.name,
                     affected_field: "name",
@@ -347,7 +372,7 @@ export default {
 
         getModules(station) {
             this.station = station[0];
-            return dbInterface.getModules(this.station.device_id);
+            return dbInterface.getModules(this.station.id);
         },
 
         linkModulesAndSensors(results) {
@@ -365,7 +390,7 @@ export default {
         },
 
         getSensors(moduleObject) {
-            let result = dbInterface.getSensors(moduleObject.module_id);
+            let result = dbInterface.getSensors(moduleObject.id);
             return { resultPromise: result, module: moduleObject };
         },
 
@@ -381,10 +406,11 @@ export default {
             this.station.origName = this.station.name;
             this.station.connected = this.station.connected != "false";
             this.station.battery_level += "%";
+            this.setBatteryImage();
             this.station.occupiedMemory = 100 - this.station.available_memory;
             this.station.available_memory = this.station.available_memory.toFixed(2) + "%";
             this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
-            // add this station via portal if hasn't already been added
+            // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portal_ids
             if (!this.station.portal_id && this.station.url != "no_url") {
@@ -401,38 +427,10 @@ export default {
                     });
             }
 
-            if (this.station.url != "no_url") {
-                // first try, might not have a reading yet
-                queryStation.queryTakeReadings(this.station.url);
-                // wait one second to make sure reading available
-                setTimeout(() => {
-                    this.takeSensorReadings();
-                    // then start five second cycle
-                    this.intervalTimer = setInterval(() => {
-                        this.takeSensorReadings();
-                    }, 5000);
-                }, 1000);
-            } else {
+            // cycle readings on seeded stations (for now)
+            if (this.station.url == "no_url") {
                 this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
             }
-        },
-
-        takeSensorReadings() {
-            queryStation.queryTakeReadings(this.station.url).then(result => {
-                if (result.liveReadings.length == 0) {
-                    return;
-                }
-
-                let readings = {};
-                result.liveReadings.forEach(lr => {
-                    lr.modules.forEach(m => {
-                        m.readings.forEach(r => {
-                            readings[m.module.name + r.sensor.name] = r.value;
-                        });
-                    });
-                });
-                this.cycleSensorReadings(readings);
-            });
         },
 
         cycleSensorReadings(liveReadings) {
@@ -461,7 +459,7 @@ export default {
                     trendIcon = "Icon_Increase.png";
                 }
 
-                let sensorLabel = page.getViewById("sensor-label-" + m.module_id);
+                let sensorLabel = page.getViewById("sensor-label-" + m.id);
                 sensorLabel
                     .animate({
                         opacity: 0,
@@ -474,7 +472,7 @@ export default {
                             duration: 500
                         });
                     });
-                let stack = page.getViewById("sensors-of-" + m.module_id);
+                let stack = page.getViewById("sensors-of-" + m.id);
                 stack
                     .animate({
                         opacity: 0,
@@ -494,7 +492,32 @@ export default {
 
         onNavigatingFrom() {
             clearInterval(this.intervalTimer);
-        }
+        },
+
+        setBatteryImage() {
+            let image = "~/images/Icon_Battery";
+            let battery = this.station.battery_level;
+            // check to see if it already has a percent sign
+            if (battery.toString().indexOf("%") > -1) {
+                battery = parseInt(
+                    battery.toString().split("%")[0]
+                );
+            }
+            if(battery == 0) {
+                image += "_0.png";
+            } else if(battery <= 20) {
+                image += "_20.png";
+            } else if(battery <= 40) {
+                image += "_40.png";
+            } else if(battery <= 60) {
+                image += "_60.png";
+            } else if(battery <= 80) {
+                image += "_80.png";
+            } else {
+                image += "_100.png";
+            }
+            this.station.battery_image = image;
+        },
     }
 };
 </script>

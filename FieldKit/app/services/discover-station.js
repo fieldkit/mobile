@@ -1,11 +1,6 @@
-import {
-    Observable,
-    PropertyChangeData
-} from "tns-core-modules/data/observable";
+import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import { Zeroconf } from "nativescript-zeroconf";
-import DatabaseInterface from "./db-interface";
-
-const dbInterface = new DatabaseInterface();
+import { isIOS } from "tns-core-modules/platform";
 
 class Station {
     constructor(info) {
@@ -18,10 +13,10 @@ class Station {
     }
 }
 
-export default class DiscoverStation {
-    constructor(queryStation) {
+export default class DiscoverStation extends Observable {
+    constructor() {
+        super();
         this.zeroconf_ = new Zeroconf("_fk._tcp");
-        this.queryStation_ = queryStation;
         this.stations_ = {};
     }
 
@@ -39,11 +34,7 @@ export default class DiscoverStation {
                         break;
                     }
                     default: {
-                        console.log(
-                            data.propertyName.toString() +
-                                " " +
-                                data.value.toString()
-                        );
+                        console.log(data.propertyName.toString() + " " + data.value.toString());
                         break;
                     }
                 }
@@ -61,25 +52,20 @@ export default class DiscoverStation {
     }
 
     stationFound(info) {
-        console.log(
-            "found service:",
-            info.type,
-            info.name,
-            info.host,
-            info.port
-        );
-
+        console.log("found service:", info.type, info.name, info.host, info.port);
         const key = this.makeKey(info);
         const station = new Station(info);
         this.stations_[key] = station;
-
-        // NOTE: This is just here to demonstrate how things flow together.
-        dbInterface.checkForStation(station.url);
+        this.notifyPropertyChange("stationFound", station);
     }
 
     stationLost(info) {
         console.log("lost service:", info.type, info.name);
+        if (!isIOS && info.type == "_fk._tcp.") {
+            info.type = "._fk._tcp";
+        }
         const key = this.makeKey(info);
+        this.notifyPropertyChange("stationLost", this.stations_[key]);
         delete this.stations_[key];
     }
 

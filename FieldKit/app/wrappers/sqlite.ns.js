@@ -13,8 +13,8 @@ class DatabaseWrapper {
     }
 
     execute(sql, params) {
-        return this.db.execSQL(sql, params).then(r => {
-            return this;
+        return this.db.execSQL(sql, params).then(result => {
+            return result ? result : this;
         });
     }
 }

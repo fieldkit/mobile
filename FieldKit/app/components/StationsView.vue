@@ -7,13 +7,15 @@
                     :text="_L('noStations')"
                     class="m-10 p-10 text-center size-20" />
                 <StackLayout v-for="s in stations"
-                    :key="s.device_id"
-                    :id="'station-'+s.device_id"
+                    :key="s.sortedIndex"
+                    :id="'station-'+s.id"
                     class="station-container m-y-5 m-x-15 p-10"
                     orientation="vertical"
+                    :isEnabled="s.connected == 'true'"
                     @tap=goToDetail>
-                    <Label :text="s.name" class="station-name" />
+                    <Label :text="s.name" :class="'station-name ' + s.connected" />
                     <Label :text="s.status"
+                        v-if="s.connected == 'true'"
                         :class="'stations-list '+(s.status ? s.status.replace(/ /g, '') : '')" />
                 </StackLayout>
             </StackLayout>
@@ -23,8 +25,10 @@
 
 <script>
 import routes from "../routes";
-import DatabaseInterface from "../services/db-interface";
-const dbInterface = new DatabaseInterface();
+import {
+    Observable,
+    PropertyChangeData
+} from "tns-core-modules/data/observable";
 
 export default {
     data() {
@@ -36,12 +40,17 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
-            if(this.stations.length == 0) {
-                dbInterface.getAll().then(result => {
-                    this.stations = result;
-                }, error => {
-                    // console.log("error getting stations data", error)
-                });
+
+            this.stations = this.$stationMonitor.getStations();
+            this.$stationMonitor.on(Observable.propertyChangeEvent, this.updateStations);
+        },
+
+        updateStations(data) {
+            switch (data.propertyName.toString()) {
+                case "stationsChanged": {
+                    this.stations = data.value;
+                    break;
+                }
             }
         },
 
@@ -51,12 +60,14 @@ export default {
             event.object.className = cn + " pressed";
             setTimeout(() => {event.object.className = cn;}, 500);
 
-            this.$navigateTo(routes.stationDetail, {
-                props: {
-                    // remove the "station-" prefix
-                    stationId: event.object.id.split("station-")[1]
-                }
-            });
+            if(event.object.isEnabled) {
+                this.$navigateTo(routes.stationDetail, {
+                    props: {
+                        // remove the "station-" prefix
+                        stationId: event.object.id.split("station-")[1]
+                    }
+                });
+            }
         }
     }
 };
@@ -76,6 +87,9 @@ export default {
 .station-name {
     font-size: 18;
     color: black;
+}
+.station-name.false {
+    color: $fk-gray-dark;
 }
 .stations-list {font-size: 16;}
 .Readytodeploy {color: green}

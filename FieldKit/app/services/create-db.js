@@ -22,18 +22,15 @@ export default class CreateDB {
                     return Promise.resolve(this.database);
                 }
             })
-            .then(this.createSensorsTable.bind(this))
-            .then(this.createModulesTable.bind(this))
             .then(this.createStationsTable.bind(this))
+            .then(this.createModulesTable.bind(this))
+            .then(this.createSensorsTable.bind(this))
             .then(this.createStationConfigLogTable.bind(this))
             .then(this.createModuleConfigLogTable.bind(this))
             .then(
                 () => {
                     if (Config.seedDB) {
-                        return dbInterface
-                            .insertIntoSensorsTable(sensors)
-                            .then(dbInterface.insertIntoModulesTable(modules))
-                            .then(dbInterface.insertIntoStationsTable(stations));
+                        return this.seedDB();
                     } else {
                         return Promise.resolve(this.database);
                     }
@@ -53,6 +50,9 @@ export default class CreateDB {
 
     openDatabase() {
         return sqlite.open(this.getDatabaseName()).then(db => {
+            // foreign keys are disabled by default in sqlite
+            // enable them here
+            db.execute(`PRAGMA foreign_keys = ON;`);
             return (this.database = db);
         });
     }
@@ -80,8 +80,9 @@ export default class CreateDB {
 
     dropTables() {
         return this.execute([
-            `DROP TABLE IF EXISTS modules`,
+            `DROP TABLE IF EXISTS stations_config`,
             `DROP TABLE IF EXISTS sensors`,
+            `DROP TABLE IF EXISTS modules`,
             `DROP TABLE IF EXISTS stations`
         ]);
     }
@@ -90,16 +91,16 @@ export default class CreateDB {
         return this.execute([
             `CREATE TABLE IF NOT EXISTS sensors (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                sensor_id TEXT,
-                module_id TEXT,
                 name TEXT,
                 unit TEXT,
                 current_reading NUMERIC,
                 frequency NUMERIC,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+                module_id INTEGER,
+                FOREIGN KEY(module_id) REFERENCES modules(id)
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS sensors_idx ON sensors (sensor_id, module_id)`
+            `CREATE INDEX IF NOT EXISTS sensor_module_idx ON sensors (module_id)`
         ]);
     }
 
@@ -110,13 +111,15 @@ export default class CreateDB {
                 module_id TEXT,
                 device_id TEXT,
                 name TEXT,
-                sensors TEXT,
                 graphs TEXT,
                 interval NUMERIC,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+                station_id INTEGER,
+                FOREIGN KEY(station_id) REFERENCES stations(id)
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS modules_idx ON modules (device_id, module_id)`
+            `CREATE UNIQUE INDEX IF NOT EXISTS modules_idx ON modules (device_id, module_id)`,
+            `CREATE INDEX IF NOT EXISTS module_station_idx ON modules (station_id)`
         ]);
     }
 
@@ -131,7 +134,6 @@ export default class CreateDB {
                 battery_level NUMERIC,
                 connected TEXT,
                 available_memory NUMERIC,
-                modules TEXT,
                 interval NUMERIC,
                 location_name TEXT,
                 latitude NUMERIC,
@@ -140,7 +142,7 @@ export default class CreateDB {
                 deploy_image_label TEXT,
                 deploy_note TEXT,
                 deploy_audio_files TEXT,
-                portal_id NUMERIC,
+                portal_id INTEGER,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
             )`,
@@ -149,16 +151,20 @@ export default class CreateDB {
     }
 
     createStationConfigLogTable() {
-        return this.execute(`CREATE TABLE IF NOT EXISTS stations_config (
+        // Note: currently not enforcing foreign key constraints here,
+        // in order to better persist tables
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS stations_config (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                device_id INTEGER NOT NULL,
+                station_id INTEGER,
                 before TEXT,
                 after TEXT,
                 affected_field TEXT,
                 author TEXT,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
-            )`);
+            )`
+        ]);
     }
 
     createModuleConfigLogTable() {
@@ -176,167 +182,188 @@ export default class CreateDB {
         );
     }
 
-    getSeededSensors() {
-        return sensors;
+    seedDB() {
+        return Promise.all(stations.map(this.addStation)).then(this.handleModules.bind(this));
     }
 
-    getSeededModules() {
-        return modules;
+    addStation(station) {
+        return dbInterface.insertStation(station).then(id => {
+            station.id = id;
+            station.modules.map(m => {
+                m.stationId = station.id;
+            });
+            return;
+        });
     }
 
-    getSeededStations() {
-        return stations;
+    handleModules() {
+        let modules = stations.map(s => {
+            return s.modules;
+        });
+        modules = [].concat.apply([], modules);
+        return Promise.all(modules.map(this.insertModule)).then(this.handleSensors.bind(this));
+    }
+
+    insertModule(module) {
+        return dbInterface.insertModule(module).then(id => {
+            module.id = id;
+            module.sensors.map(s => {
+                s.moduleId = module.id;
+            });
+            return;
+        });
+    }
+
+    handleSensors() {
+        let modules = stations.map(s => {
+            return s.modules;
+        });
+        modules = [].concat.apply([], modules);
+        let sensors = modules.map(m => {
+            return m.sensors;
+        });
+        sensors = [].concat.apply([], sensors);
+        return Promise.all(sensors.map(this.insertSensor));
+    }
+
+    insertSensor(sensor) {
+        return dbInterface.insertSensor(sensor);
     }
 }
-
-const sensors = [
-    {
-        sensorId: "seeded-device-0-module-0-sensor-0",
-        moduleId: "seeded-device-0-module-0",
-        name: "pH Sensor",
-        unit: "",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-0-module-1-sensor-0",
-        moduleId: "seeded-device-0-module-1",
-        name: "DO Sensor",
-        unit: "mg/L",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-0-module-1-sensor-1",
-        moduleId: "seeded-device-0-module-1",
-        name: "Conductivity Sensor",
-        unit: "S/m",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-0-module-2-sensor-0",
-        moduleId: "seeded-device-0-module-2",
-        name: "Temperature Sensor",
-        unit: "°C",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-0-module-2-sensor-1",
-        moduleId: "seeded-device-0-module-2",
-        name: "Wind Sensor",
-        unit: "m/s",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-0-module-2-sensor-2",
-        moduleId: "seeded-device-0-module-2",
-        name: "Rain Sensor",
-        unit: "mm/h",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-1-module-0-sensor-0",
-        moduleId: "seeded-device-1-module-0",
-        name: "Configure Sensor",
-        unit: "",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-2-module-0-sensor-0",
-        moduleId: "seeded-device-2-module-0",
-        name: "Configure Sensor",
-        unit: "",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-3-module-0-sensor-0",
-        moduleId: "seeded-device-3-module-0",
-        name: "Configure Sensor",
-        unit: "",
-        frequency: "60"
-    },
-    {
-        sensorId: "seeded-device-4-module-0-sensor-0",
-        moduleId: "seeded-device-4-module-0",
-        name: "Configure Sensor",
-        unit: "",
-        frequency: "60"
-    }
-];
-
-const modules = [
-    {
-        moduleId: "seeded-device-0-module-0",
-        deviceId: "seeded-device-0",
-        name: "Water Module 1",
-        sensors: "seeded-device-0-module-0-sensor-0"
-    },
-    {
-        moduleId: "seeded-device-0-module-1",
-        deviceId: "seeded-device-0",
-        name: "Water Module 2",
-        sensors: "seeded-device-0-module-1-sensor-0,seeded-device-0-module-1-sensor-1"
-    },
-    {
-        moduleId: "seeded-device-0-module-2",
-        deviceId: "seeded-device-0",
-        name: "Weather Module",
-        sensors:
-            "seeded-device-0-module-2-sensor-0,seeded-device-0-module-2-sensor-1,seeded-device-0-module-2-sensor-2"
-    },
-    {
-        moduleId: "seeded-device-1-module-0",
-        deviceId: "seeded-device-1",
-        name: "Generic Module",
-        sensors: "seeded-device-1-module-0-sensor-0"
-    },
-    {
-        moduleId: "seeded-device-2-module-0",
-        deviceId: "seeded-device-2",
-        name: "Generic Module",
-        sensors: "seeded-device-2-module-0-sensor-0"
-    },
-    {
-        moduleId: "seeded-device-3-module-0",
-        deviceId: "seeded-device-3",
-        name: "Generic Module",
-        sensors: "seeded-device-3-module-0-sensor-0"
-    },
-    {
-        moduleId: "seeded-device-4-module-0",
-        deviceId: "seeded-device-4",
-        name: "Generic Module",
-        sensors: "seeded-device-4-module-0-sensor-0"
-    }
-];
 
 const stations = [
     {
         deviceId: "seeded-device-0",
         name: "Drammen Station",
         status: "Ready to deploy",
-        modules: "seeded-device-0-module-0,seeded-device-0-module-1,seeded-device-0-module-2"
+        modules: [
+            {
+                moduleId: "seeded-device-0-module-0",
+                deviceId: "seeded-device-0",
+                name: "Water Module 1",
+                sensors: [
+                    {
+                        name: "pH Sensor",
+                        unit: "",
+                        frequency: "60"
+                    }
+                ]
+            },
+            {
+                moduleId: "seeded-device-0-module-1",
+                deviceId: "seeded-device-0",
+                name: "Water Module 2",
+                sensors: [
+                    {
+                        name: "DO Sensor",
+                        unit: "mg/L",
+                        frequency: "60"
+                    },
+                    {
+                        name: "Conductivity Sensor",
+                        unit: "S/m",
+                        frequency: "60"
+                    }
+                ]
+            },
+            {
+                moduleId: "seeded-device-0-module-2",
+                deviceId: "seeded-device-0",
+                name: "Weather Module",
+                sensors: [
+                    {
+                        name: "Temperature Sensor",
+                        unit: "°C",
+                        frequency: "60"
+                    },
+                    {
+                        name: "Wind Sensor",
+                        unit: "m/s",
+                        frequency: "60"
+                    },
+                    {
+                        name: "Rain Sensor",
+                        unit: "mm/h",
+                        frequency: "60"
+                    }
+                ]
+            }
+        ]
     },
     {
         deviceId: "seeded-device-1",
         name: "Eggjareid Station",
         status: "Deployed",
-        modules: "seeded-device-1-module-0"
+        modules: [
+            {
+                moduleId: "seeded-device-1-module-0",
+                deviceId: "seeded-device-1",
+                name: "Generic Module",
+                sensors: [
+                    {
+                        name: "Configure Sensor",
+                        unit: "",
+                        frequency: "60"
+                    }
+                ]
+            }
+        ]
     },
     {
         deviceId: "seeded-device-2",
         name: "Evanger Station",
         status: "Deployed",
-        modules: "seeded-device-2-module-0"
+        modules: [
+            {
+                moduleId: "seeded-device-2-module-0",
+                deviceId: "seeded-device-2",
+                name: "Generic Module",
+                sensors: [
+                    {
+                        name: "Configure Sensor",
+                        unit: "",
+                        frequency: "60"
+                    }
+                ]
+            }
+        ]
     },
     {
         deviceId: "seeded-device-3",
         name: "Finse Station",
         status: "Deployed",
-        modules: "seeded-device-3-module-0"
+        modules: [
+            {
+                moduleId: "seeded-device-3-module-0",
+                deviceId: "seeded-device-3",
+                name: "Generic Module",
+                sensors: [
+                    {
+                        name: "Configure Sensor",
+                        unit: "",
+                        frequency: "60"
+                    }
+                ]
+            }
+        ]
     },
     {
         deviceId: "seeded-device-4",
         name: null,
         status: "Deployed",
-        modules: "seeded-device-4-module-0"
+        modules: [
+            {
+                moduleId: "seeded-device-4-module-0",
+                deviceId: "seeded-device-4",
+                name: "Generic Module",
+                sensors: [
+                    {
+                        name: "Configure Sensor",
+                        unit: "",
+                        frequency: "60"
+                    }
+                ]
+            }
+        ]
     }
 ];

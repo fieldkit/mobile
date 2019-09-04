@@ -1,8 +1,6 @@
 import Config from "../config";
-import QueryStation from "./query-station";
 import Sqlite from "../wrappers/sqlite";
 
-const queryStation = new QueryStation();
 const sqlite = new Sqlite();
 
 // thirty seconds
@@ -35,9 +33,9 @@ export default class DatabaseInterface {
         return databasePromise;
     }
 
-    getStationConfigs(deviceId) {
+    getStationConfigs(stationId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM stations_config WHERE device_id = ?", [deviceId])
+            db.query("SELECT * FROM stations_config WHERE station_id = ?", [stationId])
         );
     }
 
@@ -55,21 +53,24 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("SELECT * FROM stations"));
     }
 
-    getStation(deviceId) {
+    getStation(stationId) {
+        return this.getDatabase().then(db => db.query("SELECT * FROM stations WHERE id = ?", [stationId]));
+    }
+
+    getStationByDeviceId(deviceId) {
+        // newly discovered stations don't have ids yet, so check by deviceId
         return this.getDatabase().then(db =>
             db.query("SELECT * FROM stations WHERE device_id = ?", [deviceId])
         );
     }
 
     getModule(moduleId) {
-        return this.getDatabase().then(db =>
-            db.query("SELECT * FROM modules WHERE module_id = ?", [moduleId])
-        );
+        return this.getDatabase().then(db => db.query("SELECT * FROM modules WHERE id = ?", [moduleId]));
     }
 
-    getModules(deviceId) {
+    getModules(stationId) {
         return this.getDatabase().then(db =>
-            db.query("SELECT * FROM modules WHERE device_id = ?", [deviceId])
+            db.query("SELECT * FROM modules WHERE station_id = ?", [stationId])
         );
     }
 
@@ -88,6 +89,12 @@ export default class DatabaseInterface {
     setStationPortalID(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [station.portalId, station.id])
+        );
+    }
+
+    setStationConnectionStatus(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET connected = ? WHERE id = ?", [station.connected, station.id])
         );
     }
 
@@ -170,8 +177,8 @@ export default class DatabaseInterface {
     recordStationConfigChange(config) {
         return this.getDatabase().then(db =>
             db.query(
-                "INSERT INTO stations_config (device_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
-                [config.device_id, config.before, config.after, config.affected_field, config.author]
+                "INSERT INTO stations_config (station_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)",
+                [config.station_id, config.before, config.after, config.affected_field, config.author]
             )
         );
     }
@@ -183,67 +190,6 @@ export default class DatabaseInterface {
                 [config.module_id, config.before, config.after, config.affected_field, config.author]
             )
         );
-    }
-
-    checkForStation(address) {
-        return queryStation.queryStatus(address).then(result => {
-            const deviceId = new Buffer.from(result.status.identity.deviceId).toString("hex");
-            // check to see if we already have it - and
-            // TO DO: update it?
-            this.database.query("SELECT * FROM stations WHERE device_id = ?", [deviceId]).then(dbResponse => {
-                if (dbResponse.length > 0) {
-                    // already have this station in db - update?
-                } else {
-                    this.addStation(deviceId, address, result);
-                }
-            });
-        });
-    }
-
-    addStation(deviceId, address, response) {
-        let deviceStatus = response.status;
-        let modules = response.modules;
-        let station = {
-            deviceId: deviceId,
-            name: deviceStatus.identity.device,
-            url: address,
-            status: "Ready to deploy",
-            modules: "",
-            battery_level: deviceStatus.power.battery.percentage,
-            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
-        };
-        let generateReading = this.generateReading;
-
-        let newModules = [];
-        let newSensors = [];
-        modules.forEach((m, i) => {
-            let moduleId = deviceId + "-module-" + i;
-            let mod = {
-                moduleId: moduleId,
-                deviceId: deviceId,
-                name: m.name,
-                sensors: ""
-            };
-            m.sensors.forEach((s, j) => {
-                let sensorId = moduleId + "-sensor-" + j;
-                mod.sensors += j == 0 ? sensorId : "," + sensorId;
-                let sensor = {
-                    sensorId: sensorId,
-                    moduleId: moduleId,
-                    name: s.name,
-                    unit: s.unitOfMeasure,
-                    frequency: s.frequency
-                };
-                sensor.current_reading = generateReading(sensor.name);
-                newSensors.push(sensor);
-            });
-            newModules.push(mod);
-            station.modules += i == 0 ? moduleId : "," + moduleId;
-        });
-
-        this.insertIntoStationsTable([station])
-            .then(this.insertIntoModulesTable(newModules))
-            .then(this.insertIntoSensorsTable(newSensors));
     }
 
     generateReading(name) {
@@ -278,70 +224,38 @@ export default class DatabaseInterface {
         return reading.toFixed(2);
     }
 
-    insertIntoSensorsTable(sensorsToInsert) {
-        let result = sensorsToInsert.reduce((previousPromise, nextSensor) => {
-            nextSensor.current_reading = this.generateReading(nextSensor.name);
-            return previousPromise.then(() => {
-                return this.database.execute(
-                    "INSERT INTO sensors (sensor_id, module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?, ?)",
-                    [
-                        nextSensor.sensorId,
-                        nextSensor.moduleId,
-                        nextSensor.name,
-                        nextSensor.unit,
-                        nextSensor.frequency,
-                        nextSensor.current_reading
-                    ]
-                );
-            });
-        }, Promise.resolve());
-
-        return result;
+    insertSensor(sensor) {
+        sensor.current_reading = this.generateReading(sensor.name);
+        return this.database.execute(
+            "INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)",
+            [sensor.moduleId, sensor.name, sensor.unitOfMeasure, sensor.frequency, sensor.current_reading]
+        );
     }
 
-    insertIntoModulesTable(modulesToInsert) {
-        let result = modulesToInsert.reduce((previousPromise, nextModule) => {
-            nextModule.interval = Math.round(Math.random() * maxInterval + minInterval);
-            return previousPromise.then(() => {
-                return this.database.execute(
-                    "INSERT INTO modules (module_id, device_id, name, sensors, interval) VALUES (?, ?, ?, ?, ?)",
-                    [
-                        nextModule.moduleId,
-                        nextModule.deviceId,
-                        nextModule.name,
-                        nextModule.sensors,
-                        nextModule.interval
-                    ]
-                );
-            });
-        }, Promise.resolve());
-
-        return result;
+    insertModule(module) {
+        module.interval = Math.round(Math.random() * maxInterval + minInterval);
+        return this.database.execute(
+            "INSERT INTO modules (module_id, device_id, name, interval, station_id) VALUES (?, ?, ?, ?, ?)",
+            [module.moduleId, module.deviceId, module.name, module.interval, module.stationId]
+        );
     }
 
-    insertIntoStationsTable(stationsToInsert) {
-        let result = stationsToInsert.reduce((previousPromise, nextStn) => {
-            let newStation = new Station(nextStn);
-            return previousPromise.then(() => {
-                return this.database.execute(
-                    "INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, modules, interval) \
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    [
-                        newStation.deviceId,
-                        newStation.name,
-                        newStation.url,
-                        newStation.status,
-                        newStation.battery_level,
-                        newStation.connected,
-                        newStation.available_memory,
-                        newStation.modules,
-                        newStation.interval
-                    ]
-                );
-            });
-        }, Promise.resolve());
-
-        return result;
+    insertStation(station) {
+        let newStation = new Station(station);
+        return this.database.execute(
+            "INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, interval) \
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            [
+                newStation.deviceId,
+                newStation.name,
+                newStation.url,
+                newStation.status,
+                newStation.battery_level,
+                newStation.connected,
+                newStation.available_memory,
+                newStation.interval
+            ]
+        );
     }
 }
 
@@ -361,7 +275,6 @@ class Station {
         this.available_memory = _station.available_memory
             ? _station.available_memory
             : Math.floor(Math.random() * Math.floor(100));
-        this.modules = _station.modules; // comma-delimited list of module ids
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
     }
 }
