@@ -202,11 +202,13 @@
 </template>
 
 <script>
+import {
+    Observable,
+    PropertyChangeData
+} from "tns-core-modules/data/observable";
 import routes from "../routes";
-import QueryStation from "../services/query-station";
 import DatabaseInterface from "../services/db-interface";
 const dbInterface = new DatabaseInterface();
-const queryStation = new QueryStation();
 
 export default {
     data() {
@@ -293,6 +295,28 @@ export default {
             this.page = args.object;
 
             this.user = this.$portalInterface.getCurrentUser();
+
+            this.$stationMonitor.on(
+                Observable.propertyChangeEvent,
+                data => {
+                    switch (data.propertyName.toString()) {
+                        case "readingsChanged": {
+                            if(data.value.stationId == this.stationId) {
+                                this.cycleSensorReadings(data.value.readings);
+                                this.station.battery_level = data.value.batteryLevel + "%";
+                                this.setBatteryImage();
+                                this.station.occupiedMemory = data.value.consumedMemory.toFixed(2);
+                                this.station.available_memory = 100 - this.station.occupiedMemory + "%";
+                                this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
+                            }
+                            break;
+                        }
+                    }
+                },
+                error => {
+                    // console.log("propertyChangeEvent error", error);
+                }
+            );
 
             dbInterface
                 .getStation(this.stationId)
@@ -403,38 +427,10 @@ export default {
                     });
             }
 
-            if (this.station.url != "no_url") {
-                // first try, might not have a reading yet
-                queryStation.queryTakeReadings(this.station.url);
-                // wait one second to make sure reading available
-                setTimeout(() => {
-                    this.takeSensorReadings();
-                    // then start five second cycle
-                    this.intervalTimer = setInterval(() => {
-                        this.takeSensorReadings();
-                    }, 5000);
-                }, 1000);
-            } else {
+            // cycle readings on seeded stations (for now)
+            if (this.station.url == "no_url") {
                 this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
             }
-        },
-
-        takeSensorReadings() {
-            queryStation.queryTakeReadings(this.station.url).then(result => {
-                if (result.liveReadings.length == 0) {
-                    return;
-                }
-
-                let readings = {};
-                result.liveReadings.forEach(lr => {
-                    lr.modules.forEach(m => {
-                        m.readings.forEach(r => {
-                            readings[m.module.name + r.sensor.name] = r.value;
-                        });
-                    });
-                });
-                this.cycleSensorReadings(readings);
-            });
         },
 
         cycleSensorReadings(liveReadings) {

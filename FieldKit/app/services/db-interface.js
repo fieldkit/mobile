@@ -1,8 +1,6 @@
 import Config from "../config";
-import QueryStation from "./query-station";
 import Sqlite from "../wrappers/sqlite";
 
-const queryStation = new QueryStation();
 const sqlite = new Sqlite();
 
 // thirty seconds
@@ -59,6 +57,13 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("SELECT * FROM stations WHERE id = ?", [stationId]));
     }
 
+    getStationByDeviceId(deviceId) {
+        // newly discovered stations don't have ids yet, so check by deviceId
+        return this.getDatabase().then(db =>
+            db.query("SELECT * FROM stations WHERE device_id = ?", [deviceId])
+        );
+    }
+
     getModule(moduleId) {
         return this.getDatabase().then(db => db.query("SELECT * FROM modules WHERE id = ?", [moduleId]));
     }
@@ -84,6 +89,12 @@ export default class DatabaseInterface {
     setStationPortalID(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [station.portalId, station.id])
+        );
+    }
+
+    setStationConnectionStatus(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET connected = ? WHERE id = ?", [station.connected, station.id])
         );
     }
 
@@ -179,46 +190,6 @@ export default class DatabaseInterface {
                 [config.module_id, config.before, config.after, config.affected_field, config.author]
             )
         );
-    }
-
-    checkForStation(address) {
-        return queryStation.queryStatus(address).then(result => {
-            const deviceId = new Buffer.from(result.status.identity.deviceId).toString("hex");
-            // check to see if we already have it - and
-            // TO DO: update it?
-            this.database.query("SELECT * FROM stations WHERE device_id = ?", [deviceId]).then(dbResponse => {
-                if (dbResponse.length > 0) {
-                    // already have this station in db - update?
-                } else {
-                    this.addStation(deviceId, address, result);
-                }
-            });
-        });
-    }
-
-    addStation(deviceId, address, response) {
-        let deviceStatus = response.status;
-        let modules = response.modules;
-        let station = {
-            deviceId: deviceId,
-            name: deviceStatus.identity.device,
-            url: address,
-            status: "Ready to deploy",
-            modules: "",
-            battery_level: deviceStatus.power.battery.percentage,
-            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
-        };
-        this.insertStation(station).then(id => {
-            modules.map(m => {
-                m.stationId = id;
-                this.insertModule(m).then(mid => {
-                    m.sensors.map(s => {
-                        s.moduleId = mid;
-                        this.insertSensor(s);
-                    });
-                });
-            });
-        });
     }
 
     generateReading(name) {
