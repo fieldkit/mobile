@@ -96,7 +96,7 @@
                         <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
                         <FlexboxLayout justifyContent="center">
                             <Label class="m-r-5 size-12" :text="station.battery_level"></Label>
-                            <Image width="25" src="~/images/Icon_Battery.png"></Image>
+                            <Image width="25" :src="station.battery_image"></Image>
                         </FlexboxLayout>
                     </StackLayout>
                 </GridLayout>
@@ -219,6 +219,7 @@ export default {
                 name: "FieldKit Station",
                 connected: "false",
                 battery: "0",
+                battery_image: "~/images/Icon_Battery.png",
                 available_memory: "0",
                 origName: "FieldKit Station"
             },
@@ -381,10 +382,11 @@ export default {
             this.station.origName = this.station.name;
             this.station.connected = this.station.connected != "false";
             this.station.battery_level += "%";
+            this.setBatteryImage();
             this.station.occupiedMemory = 100 - this.station.available_memory;
             this.station.available_memory = this.station.available_memory.toFixed(2) + "%";
             this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
-            // add this station via portal if hasn't already been added
+            // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portal_ids
             if (!this.station.portal_id && this.station.url != "no_url") {
@@ -494,7 +496,32 @@ export default {
 
         onNavigatingFrom() {
             clearInterval(this.intervalTimer);
-        }
+        },
+
+        setBatteryImage() {
+            let image = "~/images/Icon_Battery";
+            let battery = this.station.battery_level;
+            // check to see if it already has a percent sign
+            if (battery.toString().indexOf("%") > -1) {
+                battery = parseInt(
+                    battery.toString().split("%")[0]
+                );
+            }
+            if(battery == 0) {
+                image += "_0.png";
+            } else if(battery <= 20) {
+                image += "_20.png";
+            } else if(battery <= 40) {
+                image += "_40.png";
+            } else if(battery <= 60) {
+                image += "_60.png";
+            } else if(battery <= 80) {
+                image += "_80.png";
+            } else {
+                image += "_100.png";
+            }
+            this.station.battery_image = image;
+        },
     }
 };
 </script>
