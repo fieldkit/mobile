@@ -219,7 +219,7 @@ export default {
             nameNotPrintable: false,
             station: {
                 name: "FieldKit Station",
-                connected: "false",
+                connected: false,
                 battery: "0",
                 battery_image: "~/images/Icon_Battery.png",
                 available_memory: "0",
@@ -404,7 +404,6 @@ export default {
         completeSetup() {
             this.modules = this.station.moduleObjects;
             this.station.origName = this.station.name;
-            this.station.connected = this.station.connected != "false";
             this.station.battery_level += "%";
             this.setBatteryImage();
             this.station.occupiedMemory = 100 - this.station.available_memory;

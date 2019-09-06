@@ -46,10 +46,10 @@ export default {
 
         updateStations(data) {
             switch (data.propertyName.toString()) {
-                case "stationsChanged": {
-                    this.stations = data.value;
-                    break;
-                }
+            case "stationsChanged": {
+                this.stations = data.value;
+                break;
+            }
             }
         },
 

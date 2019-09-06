@@ -22,7 +22,7 @@ export default class StationMonitor extends Observable {
         result.map(r => {
             r.type = "no_url";
             let key = thisMonitor.makeKey(r);
-            r.lastSeen = r.connected == "true" ? new Date() : pastDate; //new Date(r.updated);
+            r.lastSeen = r.connected ? new Date() : pastDate;
             thisMonitor.stations[key] = r;
             if (r.url != "no_url") {
                 // first try, might not have a reading yet
@@ -135,7 +135,7 @@ export default class StationMonitor extends Observable {
             type: data.type,
             // note: status below will be replaced by actual data from device
             status: "Ready to deploy",
-            connected: "true",
+            connected: true,
             battery_level: deviceStatus.power.battery.percentage,
             available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
         };
@@ -178,7 +178,7 @@ export default class StationMonitor extends Observable {
         console.log("re-activating station --------->", station.name);
         let key = this.makeKey(station);
         if (this.stations[key]) {
-            this.stations[key].connected = "true";
+            this.stations[key].connected = true;
             this.stations[key].lastSeen = new Date();
         } else {
             // console.log("** reactivation where we don't have the station stored? **");
@@ -195,7 +195,7 @@ export default class StationMonitor extends Observable {
         console.log("deactivating station --------->", station.name);
         let key = this.makeKey(station);
         if (this.stations[key]) {
-            this.stations[key].connected = "false";
+            this.stations[key].connected = false;
             this.stations[key].lastSeen = pastDate;
         } else {
             // console.log("** deactivation where we don't have the station stored? **");
