@@ -123,7 +123,7 @@ export default {
             let fileName = this.stationName+".meta";
             let downloader = new Downloader();
             let dataDownloader = downloader.createDownload({
-                url: this.url+"/download/1",
+                url: this.url+"/download/meta",
                 path: folder.path,
                 fileName: fileName
             });
