@@ -11,7 +11,6 @@
                     :id="'station-'+s.id"
                     class="station-container m-y-5 m-x-15 p-10"
                     orientation="vertical"
-                    :isEnabled="s.connected == 'true'"
                     @tap=goToDetail>
                     <Label :text="s.name" :class="'station-name ' + s.connected" />
                     <Label :text="s.status"
@@ -58,16 +57,16 @@ export default {
             // Change background color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
-            setTimeout(() => {event.object.className = cn;}, 500);
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
 
-            if(event.object.isEnabled) {
-                this.$navigateTo(routes.stationDetail, {
-                    props: {
-                        // remove the "station-" prefix
-                        stationId: event.object.id.split("station-")[1]
-                    }
-                });
-            }
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    // remove the "station-" prefix
+                    stationId: event.object.id.split("station-")[1]
+                }
+            });
         }
     }
 };
