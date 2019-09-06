@@ -5,6 +5,9 @@ function get_developer_config() {
         return {
             logging: {
                 station_queries: false
+            },
+            developer: {
+                machine: null
             }
         };
     }

@@ -10,6 +10,8 @@ import StationMonitor from "./services/station-monitor";
 import DiscoverStation from "./services/discover-station";
 import RadChart from "nativescript-ui-chart/vue";
 import Vue from "nativescript-vue";
+import VueDevtools from 'nativescript-vue-devtools'
+import Config from "./config";
 
 const discoverStation = new DiscoverStation();
 discoverStation.startServiceDiscovery();
@@ -31,6 +33,10 @@ Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down"
 Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
 Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
+
+if (Config.developer.machine) {
+    Vue.use(VueDevtools, { host: Config.developer.machine })
+}
 
 Vue.use(RadChart);
 

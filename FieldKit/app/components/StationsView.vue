@@ -14,7 +14,7 @@
                     @tap=goToDetail>
                     <Label :text="s.name" :class="'station-name ' + s.connected" />
                     <Label :text="s.status"
-                        v-if="s.connected == 'true'"
+                        v-if="s.connected"
                         :class="'stations-list '+(s.status ? s.status.replace(/ /g, '') : '')" />
                 </StackLayout>
             </StackLayout>

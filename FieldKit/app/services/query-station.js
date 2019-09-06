@@ -42,17 +42,26 @@ export default class QueryStation {
         return this.stationQuery(address, message);
     }
 
+    configureName(address, name) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            identity: { name: name }
+        });
+
+        return this.stationQuery(address, message);
+    }
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
     stationQuery(url, message) {
-        if (Config.logging.station_queries) {
-            console.log("querying", url, message);
-        }
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         const requestBody = new Buffer.from(binaryQuery).toString("hex");
+        if (Config.logging.station_queries) {
+            console.log("querying", url, message, requestBody);
+        }
         return axios({
             method: "POST",
             url: url,
