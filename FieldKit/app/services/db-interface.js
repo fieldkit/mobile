@@ -192,51 +192,17 @@ export default class DatabaseInterface {
         );
     }
 
-    generateReading(name) {
-        let reading = 0;
-        switch (name) {
-            case "pH Sensor":
-                reading = Math.random() * Math.floor(14);
-                break;
-            case "DO Sensor":
-                reading = Math.random() * Math.floor(15);
-                break;
-            case "Conductivity Sensor":
-            case "Conductivity":
-                reading = Math.random() * Math.floor(20000);
-                break;
-            case "Temperature Sensor":
-            case "Temperature":
-                reading = Math.random() * Math.floor(200);
-                break;
-            case "Wind Sensor":
-                reading = Math.random() * Math.floor(200);
-                break;
-            case "Rain Sensor":
-                reading = Math.random() * Math.floor(10);
-                break;
-            case "Depth":
-                reading = Math.random() * Math.floor(2000);
-                break;
-            default:
-                reading = Math.random() * Math.floor(10);
-        }
-        return reading.toFixed(2);
-    }
-
     insertSensor(sensor) {
-        sensor.current_reading = this.generateReading(sensor.name);
         return this.database.execute(
             "INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)",
-            [sensor.moduleId, sensor.name, sensor.unitOfMeasure, sensor.frequency, sensor.current_reading]
+            [sensor.moduleId, sensor.name, sensor.unitOfMeasure, sensor.frequency, null]
         );
     }
 
     insertModule(module) {
-        module.interval = Math.round(Math.random() * maxInterval + minInterval);
         return this.database.execute(
             "INSERT INTO modules (module_id, device_id, name, interval, station_id) VALUES (?, ?, ?, ?, ?)",
-            [module.moduleId, module.deviceId, module.name, module.interval, module.stationId]
+            [module.moduleId, module.deviceId, module.name, module.interval || 0, module.stationId]
         );
     }
 
@@ -263,18 +229,12 @@ class Station {
     constructor(_station) {
         // created_at, and updated_at will be generated
         this.deviceId = _station.deviceId;
-        this.name = _station.name
-            ? _station.name
-            : "FieldKit Station " + Math.floor(Math.random() * Math.floor(9000));
+        this.name = _station.name;
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
-        this.battery_level = _station.battery_level
-            ? _station.battery_level
-            : Math.floor(Math.random() * Math.floor(100));
-        this.connected = "true";
-        this.available_memory = _station.available_memory
-            ? _station.available_memory
-            : Math.floor(Math.random() * Math.floor(100));
+        this.battery_level = _station.battery_level;
+        this.available_memory = _station.available_memory;
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
+        this.connected = true;
     }
 }
