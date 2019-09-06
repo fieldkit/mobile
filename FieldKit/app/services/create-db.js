@@ -1,17 +1,12 @@
 import Config from "../config";
-import QueryStation from "./query-station";
 import Sqlite from "../wrappers/sqlite";
 
-import DatabaseInterface from "./db-interface";
-const dbInterface = new DatabaseInterface();
-
-const queryStation = new QueryStation();
 const sqlite = new Sqlite();
 
-let foundStations = [];
-
 export default class CreateDB {
-    constructor() {}
+    constructor(dbInterface) {
+        this.dbInterface = dbInterface;
+    }
 
     initialize() {
         return this.openDatabase()
@@ -27,8 +22,7 @@ export default class CreateDB {
             .then(this.createSensorsTable.bind(this))
             .then(this.createStationConfigLogTable.bind(this))
             .then(this.createModuleConfigLogTable.bind(this))
-            .then(
-                () => {
+            .then(() => {
                     if (Config.seedDB) {
                         return this.seedDB();
                     } else {
@@ -183,11 +177,11 @@ export default class CreateDB {
     }
 
     seedDB() {
-        return Promise.all(stations.map(this.addStation)).then(this.handleModules.bind(this));
+        return Promise.all(stations.map(this.addStation.bind(this))).then(this.handleModules.bind(this));
     }
 
     addStation(station) {
-        return dbInterface.insertStation(station).then(id => {
+        return this.dbInterface.insertStation(station).then(id => {
             station.id = id;
             station.modules.map(m => {
                 m.stationId = station.id;
@@ -201,11 +195,11 @@ export default class CreateDB {
             return s.modules;
         });
         modules = [].concat.apply([], modules);
-        return Promise.all(modules.map(this.insertModule)).then(this.handleSensors.bind(this));
+        return Promise.all(modules.map(this.insertModule.bind(this))).then(this.handleSensors.bind(this));
     }
 
     insertModule(module) {
-        return dbInterface.insertModule(module).then(id => {
+        return this.dbInterface.insertModule(module).then(id => {
             module.id = id;
             module.sensors.map(s => {
                 s.moduleId = module.id;
@@ -223,11 +217,11 @@ export default class CreateDB {
             return m.sensors;
         });
         sensors = [].concat.apply([], sensors);
-        return Promise.all(sensors.map(this.insertSensor));
+        return Promise.all(sensors.map(this.insertSensor.bind(this)));
     }
 
     insertSensor(sensor) {
-        return dbInterface.insertSensor(sensor);
+        return this.dbInterface.insertSensor(sensor);
     }
 }
 

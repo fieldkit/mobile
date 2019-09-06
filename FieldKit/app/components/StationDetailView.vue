@@ -207,8 +207,9 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 import routes from "../routes";
-import DatabaseInterface from "../services/db-interface";
-const dbInterface = new DatabaseInterface();
+import Services from '../services/services';
+
+const dbInterface = Services.Database();
 
 export default {
     data() {
@@ -356,7 +357,7 @@ export default {
                     after: this.station.name,
                     affected_field: "name",
                     author: this.user.name
-                };
+                }
                 dbInterface.recordStationConfigChange(configChange);
                 this.station.origName = this.station.name;
             }

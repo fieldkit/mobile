@@ -1,7 +1,7 @@
-import CreateDB from "../services/create-db";
-import DatabaseInterface from "../services/db-interface";
-const dbInterface = new DatabaseInterface();
-const createDB = new CreateDB();
+import Services from '../services/services';
+
+const dbInterface = Services.Database();
+const createDB = Services.CreateDb();
 
 describe("DatabaseInterface", () => {
     beforeAll(async done => {

@@ -4,29 +4,25 @@ import * as i18n from "tns-i18n";
 i18n("en");
 
 import routes from "./routes";
-import CreateDB from "./services/create-db";
-import PortalInterface from "./services/portal-interface";
-import StationMonitor from "./services/station-monitor";
-import DiscoverStation from "./services/discover-station";
 import RadChart from "nativescript-ui-chart/vue";
 import Vue from "nativescript-vue";
 import VueDevtools from 'nativescript-vue-devtools'
 import Config from "./config";
 
-const discoverStation = new DiscoverStation();
-discoverStation.startServiceDiscovery();
+import Services from './services/services';
 
-const createDB = new CreateDB();
-createDB.initialize().then(() => {
-    const stationMonitor = new StationMonitor(discoverStation);
-    Vue.prototype.$stationMonitor = stationMonitor;
+Services.DiscoverStation().startServiceDiscovery();
+
+Services.CreateDb().initialize().then(() => {
+    Vue.prototype.$stationMonitor = Services.StationMonitor();
+}).catch(err => {
+    console.log(err);
 });
 
 // Pass i18n's global variable to Vue
 Vue.prototype._L = _L;
 
-const portalInterface = new PortalInterface();
-Vue.prototype.$portalInterface = portalInterface;
+Vue.prototype.$portalInterface = Services.PortalInterface();
 
 Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
 
@@ -44,5 +40,5 @@ Vue.use(RadChart);
 // Vue.config.silent = false;
 
 new Vue({
-    render: h => h("frame", [h(portalInterface.isLoggedIn() ? routes.home : routes.login)])
+    render: h => h("frame", [h(Services.PortalInterface().isLoggedIn() ? routes.home : routes.login)])
 }).$start();

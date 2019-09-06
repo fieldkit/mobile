@@ -1,9 +1,4 @@
 import { Observable } from "tns-core-modules/data/observable";
-import DatabaseInterface from "./db-interface";
-import QueryStation from "./query-station";
-
-const dbInterface = new DatabaseInterface();
-const queryStation = new QueryStation();
 
 const pastDate = new Date(2000, 0, 1);
 
@@ -12,12 +7,14 @@ function is_internal_module(module) {
 }
 
 export default class StationMonitor extends Observable {
-    constructor(discoverStation) {
+    constructor(discoverStation, dbInterface, queryStation) {
         super();
+        this.dbInterface = dbInterface;
+        this.queryStation = queryStation;
         this.stations = {};
         this.discoverStation = discoverStation;
         this.subscribeToStationDiscovery();
-        dbInterface.getAll().then(this.initializeStations.bind(this));
+        this.dbInterface.getAll().then(this.initializeStations.bind(this));
         return this;
     }
 
@@ -30,7 +27,7 @@ export default class StationMonitor extends Observable {
             thisMonitor.stations[key] = r;
             if (r.url != "no_url") {
                 // first try, might not have a reading yet
-                queryStation.queryTakeReadings(r.url);
+                this.queryStation.queryTakeReadings(r.url);
             }
         });
 
@@ -55,7 +52,7 @@ export default class StationMonitor extends Observable {
             if (elapsed > 60000 && station.lastSeen != pastDate) {
                 this.deactivateStation(station);
             }
-            queryStation.queryTakeReadings(station.url).then(this.updateStationReadings.bind(this, station));
+            this.queryStation.queryTakeReadings(station.url).then(this.updateStationReadings.bind(this, station));
         });
     }
 
@@ -111,9 +108,9 @@ export default class StationMonitor extends Observable {
 
     checkDatabase(data) {
         let address = data.url;
-        queryStation.queryStatus(address).then(statusResult => {
+        this.queryStation.queryStatus(address).then(statusResult => {
             let deviceId = new Buffer.from(statusResult.status.identity.deviceId).toString("hex");
-            dbInterface.getStationByDeviceId(deviceId).then(result => {
+            this.dbInterface.getStationByDeviceId(deviceId).then(result => {
                 if (result.length == 0) {
                     this.addToDatabase({
                         device_id: deviceId,
@@ -143,17 +140,17 @@ export default class StationMonitor extends Observable {
             battery_level: deviceStatus.power.battery.percentage,
             available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
         };
-        dbInterface.insertStation(station).then(id => {
+        this.dbInterface.insertStation(station).then(id => {
             station.id = id;
             this.activateStation(station);
             modules.filter(m => {
                 return !is_internal_module(m);
             }).map(m => {
                 m.stationId = id;
-                dbInterface.insertModule(m).then(mid => {
+                this.dbInterface.insertModule(m).then(mid => {
                     m.sensors.map(s => {
                         s.moduleId = mid;
-                        dbInterface.insertSensor(s);
+                        this.dbInterface.insertSensor(s);
                     });
                 });
             });
@@ -189,7 +186,7 @@ export default class StationMonitor extends Observable {
         } else {
             // console.log("** reactivation where we don't have the station stored? **");
         }
-        dbInterface.setStationConnectionStatus(this.stations[key]);
+        this.dbInterface.setStationConnectionStatus(this.stations[key]);
         let stations = this.sortStations();
         this.notifyPropertyChange("stationsChanged", stations);
     }
@@ -206,7 +203,7 @@ export default class StationMonitor extends Observable {
         } else {
             // console.log("** deactivation where we don't have the station stored? **");
         }
-        dbInterface.setStationConnectionStatus(this.stations[key]);
+        this.dbInterface.setStationConnectionStatus(this.stations[key]);
         let stations = this.sortStations();
         this.notifyPropertyChange("stationsChanged", stations);
     }
