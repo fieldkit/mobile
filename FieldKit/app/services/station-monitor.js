@@ -7,6 +7,10 @@ const queryStation = new QueryStation();
 
 const pastDate = new Date(2000, 0, 1);
 
+function is_internal_module(module) {
+    return module.flags & 1; // TODO Pull this enum in from the protobuf file.
+}
+
 export default class StationMonitor extends Observable {
     constructor(discoverStation) {
         super();
@@ -142,7 +146,9 @@ export default class StationMonitor extends Observable {
         dbInterface.insertStation(station).then(id => {
             station.id = id;
             this.activateStation(station);
-            modules.map(m => {
+            modules.filter(m => {
+                return !is_internal_module(m);
+            }).map(m => {
                 m.stationId = id;
                 dbInterface.insertModule(m).then(mid => {
                     m.sensors.map(s => {
