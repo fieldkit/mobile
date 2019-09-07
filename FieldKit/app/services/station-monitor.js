@@ -19,7 +19,7 @@ export default class StationMonitor extends Observable {
     }
 
     initializeStations(result) {
-        let thisMonitor = this;
+        const thisMonitor = this;
         result.map(r => {
             r.type = "no_url";
             let key = thisMonitor.makeKey(r);
@@ -46,7 +46,7 @@ export default class StationMonitor extends Observable {
             if (station.url == "no_url") {
                 return;
             }
-            let elapsed = new Date() - station.lastSeen;
+            const elapsed = new Date() - station.lastSeen;
             // if station hasn't been heard from in over a minute, disable it
             // (seeded stations exempt for now due to above return statement)
             if (elapsed > 60000 && station.lastSeen != pastDate) {
@@ -61,7 +61,7 @@ export default class StationMonitor extends Observable {
             return;
         }
         station.lastSeen = new Date();
-        let readings = {};
+        const readings = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
                 m.readings.forEach(r => {
@@ -170,16 +170,16 @@ export default class StationMonitor extends Observable {
 
     activateStation(station) {
         console.log("activating station --------->", station.name);
-        let key = this.makeKey(station);
+        const key = this.makeKey(station);
         station.lastSeen = new Date();
         this.stations[key] = station;
-        let stations = this.sortStations();
+        const stations = this.sortStations();
         this.notifyPropertyChange("stationsChanged", stations);
     }
 
     reactivateStation(station) {
         console.log("re-activating station --------->", station.name);
-        let key = this.makeKey(station);
+        const key = this.makeKey(station);
         if (this.stations[key]) {
             this.stations[key].connected = true;
             this.stations[key].lastSeen = new Date();
@@ -187,7 +187,7 @@ export default class StationMonitor extends Observable {
             // console.log("** reactivation where we don't have the station stored? **");
         }
         this.dbInterface.setStationConnectionStatus(this.stations[key]);
-        let stations = this.sortStations();
+        const stations = this.sortStations();
         this.notifyPropertyChange("stationsChanged", stations);
     }
 
@@ -196,7 +196,7 @@ export default class StationMonitor extends Observable {
             return;
         }
         console.log("deactivating station --------->", station.name);
-        let key = this.makeKey(station);
+        const key = this.makeKey(station);
         if (this.stations[key]) {
             this.stations[key].connected = false;
             this.stations[key].lastSeen = pastDate;
@@ -204,7 +204,7 @@ export default class StationMonitor extends Observable {
             // console.log("** deactivation where we don't have the station stored? **");
         }
         this.dbInterface.setStationConnectionStatus(this.stations[key]);
-        let stations = this.sortStations();
+        const stations = this.sortStations();
         this.notifyPropertyChange("stationsChanged", stations);
     }
 
