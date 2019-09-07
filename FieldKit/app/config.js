@@ -13,7 +13,7 @@ function get_blank_developer_config() {
 
 function get_developer_config() {
     if (!CONFIG) {
-        return get_blank_dveloper_config();
+        return get_blank_developer_config();
     }
     return CONFIG;
 }
