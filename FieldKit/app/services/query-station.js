@@ -1,6 +1,7 @@
 import axios from "axios";
 import protobuf from "protobufjs";
 import Config from '../config';
+import deepmerge from 'deepmerge';
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpQuery = appRoot.lookupType("fk_app.HttpQuery");
@@ -8,13 +9,28 @@ const HttpReply = appRoot.lookupType("fk_app.HttpReply");
 const QueryType = appRoot.lookup("fk_app.QueryType");
 const ReplyType = appRoot.lookup("fk_app.ReplyType");
 
+const MandatoryStatus = {
+    status: {
+        power: {
+            battery: {
+                percentage: 0.0
+            }
+        },
+        memory: {
+            dataMemoryConsumption: 0
+        }
+    },
+};
+
 export default class QueryStation {
     queryStatus(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_STATUS
         });
 
-        return this.stationQuery(address, message);
+        return this.stationQuery(address, message).then(reply => {
+            return this.fixupStatus(reply);
+        });
     }
 
     queryReadings(address) {
@@ -22,7 +38,9 @@ export default class QueryStation {
             type: QueryType.values.QUERY_GET_READINGS
         });
 
-        return this.stationQuery(address, message);
+        return this.stationQuery(address, message).then(reply => {
+            return this.fixupStatus(reply);
+        });
     }
 
     queryTakeReadings(address) {
@@ -30,7 +48,9 @@ export default class QueryStation {
             type: QueryType.values.QUERY_TAKE_READINGS
         });
 
-        return this.stationQuery(address, message);
+        return this.stationQuery(address, message).then(reply => {
+            return this.fixupStatus(reply);
+        });
     }
 
     queryStartRecording(address) {
@@ -39,7 +59,9 @@ export default class QueryStation {
             recording: { enabled: true }
         });
 
-        return this.stationQuery(address, message);
+        return this.stationQuery(address, message).then(reply => {
+            return this.fixupStatus(reply);
+        });
     }
 
     configureName(address, name) {
@@ -48,7 +70,9 @@ export default class QueryStation {
             identity: { name: name }
         });
 
-        return this.stationQuery(address, message);
+        return this.stationQuery(address, message).then(reply => {
+            return this.fixupStatus(reply);
+        });
     }
 
     /**
@@ -90,5 +114,13 @@ export default class QueryStation {
                 console.log("query error", err);
             }
         );
+    }
+
+    fixupStatus(reply) {
+        // NOTE deepmerge ruins deviceId.
+        if (reply.status && reply.status.identity) {
+            reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
+        }
+        return deepmerge.all([MandatoryStatus, reply]);
     }
 }

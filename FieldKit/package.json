@@ -15,6 +15,7 @@
     "@vue/devtools": "^5.1.1",
     "ajv": "^6.10.0",
     "axios": "^0.19.0",
+    "deepmerge": "^4.0.0",
     "fk-app-protocol": "git+https://github.com/fieldkit/app-protocol.git",
     "fk-data-protocol": "git+https://github.com/fieldkit/data-protocol.git",
     "nativescript-audio": "^5.0.4",

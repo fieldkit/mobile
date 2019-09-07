@@ -107,12 +107,12 @@ export default class StationMonitor extends Observable {
     }
 
     checkDatabase(data) {
-        let address = data.url;
+        const address = data.url;
         this.queryStation.queryStatus(address).then(statusResult => {
-            let deviceId = new Buffer.from(statusResult.status.identity.deviceId).toString("hex");
-            this.dbInterface.getStationByDeviceId(deviceId).then(result => {
+            const deviceId = statusResult.status.identity.deviceId;
+            return this.dbInterface.getStationByDeviceId(deviceId).then(result => {
                 if (result.length == 0) {
-                    this.addToDatabase({
+                    return this.addToDatabase({
                         device_id: deviceId,
                         address: address,
                         type: data.type,
@@ -122,13 +122,15 @@ export default class StationMonitor extends Observable {
                     this.reactivateStation(data);
                 }
             });
+        }).catch(err => {
+            console.log(err);
         });
     }
 
     addToDatabase(data) {
-        let deviceStatus = data.result.status;
-        let modules = data.result.modules;
-        let station = {
+        const deviceStatus = data.result.status;
+        const modules = data.result.modules;
+        const station = {
             deviceId: data.device_id,
             device_id: data.device_id,
             name: deviceStatus.identity.device,
