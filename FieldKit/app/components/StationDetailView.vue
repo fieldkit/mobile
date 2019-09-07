@@ -210,6 +210,7 @@ import routes from "../routes";
 import Services from '../services/services';
 
 const dbInterface = Services.Database();
+const stateManager = Services.StateManager();
 
 export default {
     data() {
@@ -301,17 +302,17 @@ export default {
                 Observable.propertyChangeEvent,
                 data => {
                     switch (data.propertyName.toString()) {
-                        case "readingsChanged": {
-                            if(data.value.stationId == this.stationId) {
-                                this.cycleSensorReadings(data.value.readings);
-                                this.station.battery_level = data.value.batteryLevel + "%";
-                                this.setBatteryImage();
-                                this.station.occupiedMemory = data.value.consumedMemory.toFixed(2);
-                                this.station.available_memory = 100 - this.station.occupiedMemory + "%";
-                                this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
-                            }
-                            break;
+                    case "readingsChanged": {
+                        if(data.value.stationId == this.stationId) {
+                            this.cycleSensorReadings(data.value.readings);
+                            this.station.battery_level = data.value.batteryLevel + "%";
+                            this.setBatteryImage();
+                            this.station.occupiedMemory = data.value.consumedMemory.toFixed(2);
+                            this.station.available_memory = 100 - this.station.occupiedMemory + "%";
+                            this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
                         }
+                        break;
+                    }
                     }
                 },
                 error => {
@@ -334,6 +335,7 @@ export default {
             // reset these first
             this.noName = false;
             this.nameNotPrintable = false;
+
             this.nameTooLong = false;
             // then check
             this.noName = !this.station.name || this.station.name.length == 0;
@@ -350,7 +352,13 @@ export default {
             this.isEditingName = false;
             let valid = this.checkName();
             if (valid && this.station.origName != this.station.name) {
-                dbInterface.setStationName(this.station);
+                stateManager.renameStation(this.station, this.station.name).then(() => {
+                    this.station.origName = this.station.name;
+                }).catch((error) => {
+                    console.error('unhandled error', error);
+                });
+                /*
+                NOTE:  Left for the moment. I think we'll have to come back and do the fancy config tracking later.
                 let configChange = {
                     station_id: this.station.id,
                     before: this.station.origName,
@@ -359,7 +367,7 @@ export default {
                     author: this.user.name
                 }
                 dbInterface.recordStationConfigChange(configChange);
-                this.station.origName = this.station.name;
+                */
             }
         },
 

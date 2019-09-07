@@ -1,8 +1,6 @@
 import PortalInterface from "./portal-interface";
-import StateManager from './state-manager';
 
 const portalInterface = new PortalInterface();
-const stateManager = new StateManager();
 
 class Services {
     DiscoverStation() {
@@ -30,7 +28,11 @@ class Services {
     }
 
     StateManager() {
-        return stateManager;
+        if (!this.stateManager) {
+            const StateManager = require("./state-manager").default;
+            this.stateManager = new StateManager(this.Database(), this.QueryStation());
+        }
+        return this.stateManager;
     }
 
     StationMonitor() {
