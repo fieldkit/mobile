@@ -23,16 +23,12 @@ export default class CreateDB {
             .then(this.createStationConfigLogTable.bind(this))
             .then(this.createModuleConfigLogTable.bind(this))
             .then(() => {
-                    if (Config.seedDB) {
-                        return this.seedDB();
-                    } else {
-                        return Promise.resolve(this.database);
-                    }
-                },
-                err => {
-                    console.log("error", err);
+                if (Config.seedDB) {
+                    return this.seedDB();
+                } else {
+                    return Promise.resolve(this.database);
                 }
-            );
+            });
     }
 
     getDatabaseName() {
@@ -181,6 +177,10 @@ export default class CreateDB {
     }
 
     addStation(station) {
+        // these numbers are only generated for seeded stations
+        station.battery_level = Math.floor(Math.random() * Math.floor(100));
+        station.available_memory = Math.floor(Math.random() * Math.floor(100));
+        station.connected = false;
         return this.dbInterface.insertStation(station).then(id => {
             station.id = id;
             station.modules.map(m => {
@@ -221,7 +221,40 @@ export default class CreateDB {
     }
 
     insertSensor(sensor) {
+        sensor.current_reading = this.generateReading(sensor.name);
         return this.dbInterface.insertSensor(sensor);
+    }
+
+    generateReading(name) {
+        let reading = 0;
+        switch (name) {
+            case "pH Sensor":
+                reading = Math.random() * Math.floor(14);
+                break;
+            case "DO Sensor":
+                reading = Math.random() * Math.floor(15);
+                break;
+            case "Conductivity Sensor":
+            case "Conductivity":
+                reading = Math.random() * Math.floor(20000);
+                break;
+            case "Temperature Sensor":
+            case "Temperature":
+                reading = Math.random() * Math.floor(200);
+                break;
+            case "Wind Sensor":
+                reading = Math.random() * Math.floor(200);
+                break;
+            case "Rain Sensor":
+                reading = Math.random() * Math.floor(10);
+                break;
+            case "Depth":
+                reading = Math.random() * Math.floor(2000);
+                break;
+            default:
+                reading = Math.random() * Math.floor(10);
+        }
+        return reading.toFixed(2);
     }
 }
 

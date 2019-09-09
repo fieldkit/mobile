@@ -145,7 +145,7 @@
                                 horizontalAlignment="right"></Image>
                         </template>
                         <template v-else>
-                            <!-- faux current reading, with trend arrow and units -->
+                            <!-- current reading, with trend arrow and units -->
                             <StackLayout :id="'sensors-of-' + m.id"
                                 horizontalAlignment="right"
                                 verticalAlignment="center"
@@ -391,7 +391,8 @@ export default {
                     // set variables for cycling sensors
                     r.module.sensorIndex = 0;
                     r.module.currentSensorLabel = sensors[0].name;
-                    r.module.currentSensorReading = sensors[0].current_reading.toFixed(1);
+                    r.module.currentSensorReading = sensors[0].current_reading ?
+                        sensors[0].current_reading.toFixed(1) : "--";
                     r.module.currentSensorUnit = sensors[0].unit;
                     r.module.currentSensorTrend = "~/images/Icon_Neutral.png";
                 });
@@ -453,8 +454,11 @@ export default {
                 m.sensorIndex = m.sensorIndex == m.sensorObjects.length - 1 ? 0 : m.sensorIndex + 1;
                 let currentSensor = m.sensorObjects[m.sensorIndex];
 
-                let newReading = +currentSensor.current_reading.toFixed(1);
-                let prevReading = +currentSensor.current_reading.toFixed(1);
+                let newReading = currentSensor.current_reading ?
+                    +currentSensor.current_reading.toFixed(1) : 0;
+                let prevReading = currentSensor.current_reading ?
+                    +currentSensor.current_reading.toFixed(1) : 0;
+
                 if (liveReadings) {
                     newReading = +liveReadings[m.name + currentSensor.name].toFixed(1);
                     currentSensor.current_reading = newReading;

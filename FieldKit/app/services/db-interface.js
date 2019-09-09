@@ -195,7 +195,7 @@ export default class DatabaseInterface {
     insertSensor(sensor) {
         return this.database.execute(
             "INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)",
-            [sensor.moduleId, sensor.name, sensor.unitOfMeasure, sensor.frequency, null]
+            [sensor.moduleId, sensor.name, sensor.unitOfMeasure, sensor.frequency, sensor.current_reading]
         );
     }
 
@@ -235,6 +235,6 @@ class Station {
         this.battery_level = _station.battery_level;
         this.available_memory = _station.available_memory;
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
-        this.connected = true;
+        this.connected = _station.connected ? _station.connected : false;
     }
 }
