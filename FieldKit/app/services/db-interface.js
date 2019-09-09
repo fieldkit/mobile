@@ -244,6 +244,6 @@ class Station {
         this.battery_level = _station.battery_level;
         this.available_memory = _station.available_memory;
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
-        this.connected = _station.connected ? _station.connected : false;
+        this.connected = _station.connected ? _station.connected : 0;
     }
 }

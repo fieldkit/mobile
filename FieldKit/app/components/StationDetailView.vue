@@ -89,8 +89,8 @@
                 <GridLayout rows="auto" columns="*" :class="isEditingName ? 'faded' : ''">
                     <StackLayout row="0" class="col left-col" horizontalAlignment="left">
                         <Label class="text-center m-y-5 size-14" :text="_L('connected')"></Label>
-                        <Image width="25" v-if="station.connected == 'true'" src="~/images/Icon_Connected.png"></Image>
-                        <Label class="text-center red" v-if="station.connected == 'false'">✘</Label>
+                        <Image width="25" v-if="station.connected == 1" src="~/images/Icon_Connected.png"></Image>
+                        <Label class="text-center red" v-if="station.connected == 0">✘</Label>
                     </StackLayout>
                     <StackLayout row="0" class="col right-col" horizontalAlignment="right">
                         <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
@@ -221,7 +221,7 @@ export default {
             nameNotPrintable: false,
             station: {
                 name: "FieldKit Station",
-                connected: false,
+                connected: 0,
                 battery: "0",
                 battery_image: "~/images/Icon_Battery.png",
                 available_memory: "0",
@@ -315,7 +315,7 @@ export default {
                     switch (data.propertyName.toString()) {
                     case "readingsChanged": {
                         if(data.value.stationId == this.stationId) {
-                            this.station.connected = 'true';
+                            this.station.connected = 1;
                             this.cycleSensorReadings(data.value.readings);
                             this.station.battery_level = data.value.batteryLevel + "%";
                             this.setBatteryImage();

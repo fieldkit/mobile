@@ -18,7 +18,7 @@
                     class="station-container m-y-5 m-x-15 p-10"
                     orientation="vertical"
                     @tap=goToDetail>
-                    <Label :text="s.name" :class="'station-name ' + s.connected" />
+                    <Label :text="s.name" :class="'station-name ' + (s.connected == 0 ? 'disconnected' : '')" />
                     <Label :text="s.status"
                         v-if="s.connected"
                         :class="'stations-list '+(s.status ? s.status.replace(/ /g, '') : '')" />
@@ -107,7 +107,7 @@ export default {
     font-size: 18;
     color: black;
 }
-.station-name.false {
+.station-name.disconnected {
     color: $fk-gray-dark;
 }
 .stations-list {font-size: 16;}

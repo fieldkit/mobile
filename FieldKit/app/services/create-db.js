@@ -122,7 +122,7 @@ export default class CreateDB {
                 url TEXT NOT NULL,
                 status TEXT,
                 battery_level NUMERIC,
-                connected TEXT,
+                connected INTEGER,
                 available_memory NUMERIC,
                 interval NUMERIC,
                 location_name TEXT,
@@ -180,7 +180,7 @@ export default class CreateDB {
         // these numbers are only generated for seeded stations
         station.battery_level = Math.floor(Math.random() * Math.floor(100));
         station.available_memory = Math.floor(Math.random() * Math.floor(100));
-        station.connected = false;
+        station.connected = 0;
         return this.dbInterface.insertStation(station).then(id => {
             station.id = id;
             station.modules.map(m => {
