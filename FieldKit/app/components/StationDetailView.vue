@@ -89,8 +89,8 @@
                 <GridLayout rows="auto" columns="*" :class="isEditingName ? 'faded' : ''">
                     <StackLayout row="0" class="col left-col" horizontalAlignment="left">
                         <Label class="text-center m-y-5 size-14" :text="_L('connected')"></Label>
-                        <Image width="25" v-show="station.connected" src="~/images/Icon_Connected.png"></Image>
-                        <Label class="text-center red" v-show="!station.connected">✘</Label>
+                        <Image width="25" v-if="station.connected == 'true'" src="~/images/Icon_Connected.png"></Image>
+                        <Label class="text-center red" v-if="station.connected == 'false'">✘</Label>
                     </StackLayout>
                     <StackLayout row="0" class="col right-col" horizontalAlignment="right">
                         <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
