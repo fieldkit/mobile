@@ -1,28 +1,4 @@
 {
-  "_from": "nativescript-downloader",
-  "_id": "nativescript-downloader@2.1.4",
-  "_inBundle": false,
-  "_integrity": "sha512-WWa0U43FzD3K8a/+4JxKo1W1FT8X7IjMeSiWtLLjZ+NN33FoMYXz4l9xf6xGYBAiEcc71xVlh7LFnuIvrQ60vA==",
-  "_location": "/nativescript-downloader",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "tag",
-    "registry": true,
-    "raw": "nativescript-downloader",
-    "name": "nativescript-downloader",
-    "escapedName": "nativescript-downloader",
-    "rawSpec": "",
-    "saveSpec": null,
-    "fetchSpec": "latest"
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "https://registry.npmjs.org/nativescript-downloader/-/nativescript-downloader-2.1.4.tgz",
-  "_shasum": "84f642f265ddefbb3b140d0bee8fb4a2da5abab5",
-  "_spec": "nativescript-downloader",
-  "_where": "/Users/computer/Fieldkit/app/FieldKit",
   "author": {
     "name": "Osei Fortune",
     "email": "fortune.osei@yahoo.com"
