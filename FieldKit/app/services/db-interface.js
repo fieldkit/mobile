@@ -174,6 +174,15 @@ export default class DatabaseInterface {
         );
     }
 
+    setCurrentReading(sensor) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE sensors SET current_reading = ? WHERE id = ?", [
+                sensor.current_reading,
+                sensor.id
+            ])
+        );
+    }
+
     recordStationConfigChange(config) {
         return this.getDatabase().then(db =>
             db.query(
