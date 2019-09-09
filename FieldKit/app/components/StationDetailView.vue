@@ -292,7 +292,8 @@ export default {
                 props: {
                     // remove the "m_id-" prefix
                     moduleId: event.object.id.split("m_id-")[1],
-                    stationId: this.stationId
+                    stationId: this.stationId,
+                    url: this.station.url
                 }
             });
         },

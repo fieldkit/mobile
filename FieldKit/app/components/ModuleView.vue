@@ -141,7 +141,7 @@ export default {
             graphedSensors: []
         };
     },
-    props: ["moduleId", "stationId"],
+    props: ["moduleId", "stationId", "url"],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
@@ -199,12 +199,15 @@ export default {
                 names.push(s.name);
                 s.unit = s.unit != "" ? "(" + s.unit + ")" : s.unit;
                 s.intervalUnit = this.calculateTimeUnit();
-                // generate faux readings
                 s.readings = [];
-                let low = s.current_reading / 2;
-                for (var i = 0; i < numReadings; i++) {
-                    let reading = Math.random() * low + low;
-                    s.readings.push({ time: i, reading: reading });
+                // generate faux readings, if not a real device
+                if(this.url == "no_url") {
+                    let low = s.current_reading / 2;
+                    for (var i = 0; i < numReadings; i++) {
+                        let reading = Math.random() * low + low;
+                        s.readings.push({ time: i, reading: reading });
+                    }
+
                 }
             });
             // separate iteration to preserve order - worth it?
