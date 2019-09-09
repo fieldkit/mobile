@@ -100,12 +100,12 @@ export default class StationMonitor extends Observable {
             data => {
                 switch (data.propertyName.toString()) {
                     case "stationFound": {
-                        console.log("StationMonitor received stationFound for", data.value.name);
+                        // console.log("StationMonitor received stationFound for", data.value.name);
                         this.checkDatabase(data.value);
                         break;
                     }
                     case "stationLost": {
-                        console.log("StationMonitor received stationLost for", data.value.name);
+                        // console.log("StationMonitor received stationLost for", data.value.name);
                         this.deactivateStation(data.value);
                         break;
                     }

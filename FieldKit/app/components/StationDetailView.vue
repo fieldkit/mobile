@@ -315,6 +315,7 @@ export default {
                     switch (data.propertyName.toString()) {
                     case "readingsChanged": {
                         if(data.value.stationId == this.stationId) {
+                            this.station.connected = 'true';
                             this.cycleSensorReadings(data.value.readings);
                             this.station.battery_level = data.value.batteryLevel + "%";
                             this.setBatteryImage();
