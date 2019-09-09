@@ -96,14 +96,14 @@ import { ImageSource, fromFile } from "tns-core-modules/image-source";
 import { takePicture, requestPermissions } from "nativescript-camera";
 import * as imagepicker from "nativescript-imagepicker";
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import routes from "../routes";
-import DatabaseInterface from "../services/db-interface";
 import AudioInterface from "../services/audio-interface";
-import QueryStation from "../services/query-station";
+import Services from '../services/services';
+import routes from "../routes";
 
-const dbInterface = new DatabaseInterface();
+const dbInterface = Services.Database();
+const queryStation = Services.QueryStation();
+
 const audioInterface = new AudioInterface();
-const queryStation = new QueryStation();
 const documents = knownFolders.documents();
 const folder = documents.getFolder("FieldKitImages");
 const source = new ImageSource();

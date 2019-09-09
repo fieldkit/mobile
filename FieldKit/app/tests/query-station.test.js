@@ -1,6 +1,8 @@
-import QueryStation from "../services/query-station";
 import axios from "axios";
 import protobuf from "protobufjs";
+import Services from "../services/services";
+
+const queryStation = Services.QueryStation();
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpReply = appRoot.lookupType("fk_app.HttpReply");
@@ -13,7 +15,7 @@ afterEach(() => {
 
 describe("QueryStation", () => {
     it("should retrieve a station status", () => {
-        const queryStation = new QueryStation();
+        // const queryStation = new QueryStation();
         const binaryResponse = HttpReply.encodeDelimited({
             errors: [],
             type: 15,
@@ -29,13 +31,11 @@ describe("QueryStation", () => {
             data: new Buffer.from(binaryResponse).toString("hex")
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryStation
-            .queryStatus()
-            .then(resp => expect(resp.modules).toBeDefined());
+        return queryStation.queryStatus().then(resp => expect(resp.modules).toBeDefined());
     });
 
     it("should retrieve station readings", () => {
-        const queryStation = new QueryStation();
+        // const queryStation = new QueryStation();
         const binaryResponse = HttpReply.encodeDelimited({
             errors: [],
             type: 18,
@@ -47,8 +47,6 @@ describe("QueryStation", () => {
             data: new Buffer.from(binaryResponse).toString("hex")
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryStation
-            .queryTakeReadings()
-            .then(resp => expect(resp.liveReadings).toBeDefined());
+        return queryStation.queryTakeReadings().then(resp => expect(resp.liveReadings).toBeDefined());
     });
 });

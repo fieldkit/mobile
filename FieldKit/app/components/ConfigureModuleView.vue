@@ -154,8 +154,9 @@
 
 <script>
 import routes from "../routes";
-import DatabaseInterface from "../services/db-interface";
-const dbInterface = new DatabaseInterface();
+import Services from '../services/services';
+
+const dbInterface = Services.Database();
 
 export default {
     data() {

@@ -343,7 +343,7 @@ const stations = [
     },
     {
         deviceId: "seeded-device-4",
-        name: "Seeded Station #1",
+        name: "Seeded Station #4",
         status: "Deployed",
         modules: [
             {

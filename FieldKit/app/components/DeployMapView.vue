@@ -132,9 +132,10 @@
 import * as geolocation from "nativescript-geolocation";
 import { Accuracy } from "tns-core-modules/ui/enums";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
+import Services from '../services/services';
 import routes from "../routes";
-import DatabaseInterface from "../services/db-interface";
-const dbInterface = new DatabaseInterface();
+
+const dbInterface = Services.Database();
 
 export default {
     data() {
