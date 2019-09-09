@@ -240,7 +240,8 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            clearInterval(this.intervalTimer);
+            this.stopProcesses();
+
             this.$navigateTo(routes.stations);
         },
 
@@ -251,7 +252,8 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            clearInterval(this.intervalTimer);
+            this.stopProcesses();
+
             this.$navigateTo(routes.dataDownload, {
                 props: {
                     stationId: this.stationId,
@@ -268,7 +270,8 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            clearInterval(this.intervalTimer);
+            this.stopProcesses();
+
             this.$navigateTo(routes.deployMap, {
                 props: {
                     stationId: this.stationId
@@ -283,7 +286,8 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            clearInterval(this.intervalTimer);
+            this.stopProcesses();
+
             this.$navigateTo(routes.module, {
                 props: {
                     // remove the "m_id-" prefix
@@ -291,6 +295,13 @@ export default {
                     stationId: this.stationId
                 }
             });
+        },
+
+        stopProcesses() {
+            if(this.station.url != "no_url") {
+                this.$stationMonitor.stopLiveReadings(this.station.url);
+            }
+            clearInterval(this.intervalTimer);
         },
 
         onPageLoaded(args) {
@@ -437,7 +448,9 @@ export default {
             }
 
             // cycle readings on seeded stations (for now)
-            if (this.station.url == "no_url") {
+            if(this.station.url != "no_url") {
+                this.$stationMonitor.startLiveReadings(this.station.url);
+            } else {
                 this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
             }
         },
@@ -462,6 +475,7 @@ export default {
                 if (liveReadings) {
                     newReading = +liveReadings[m.name + currentSensor.name].toFixed(1);
                     currentSensor.current_reading = newReading;
+                    dbInterface.setCurrentReading(currentSensor);
                 }
 
                 let trendIcon = "Icon_Neutral.png";
@@ -503,7 +517,7 @@ export default {
         },
 
         onNavigatingFrom() {
-            clearInterval(this.intervalTimer);
+            this.stopProcesses();
         },
 
         setBatteryImage() {

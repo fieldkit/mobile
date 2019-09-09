@@ -12,6 +12,7 @@ export default class StationMonitor extends Observable {
         this.dbInterface = dbInterface;
         this.queryStation = queryStation;
         this.stations = {};
+        this.activeAddresses = [];
         this.discoverStation = discoverStation;
         this.subscribeToStationDiscovery();
         this.dbInterface.getAll().then(this.initializeStations.bind(this));
@@ -52,8 +53,23 @@ export default class StationMonitor extends Observable {
             if (elapsed > 60000 && station.lastSeen != pastDate) {
                 this.deactivateStation(station);
             }
-            this.queryStation.queryTakeReadings(station.url).then(this.updateStationReadings.bind(this, station));
+            // query status
+            this.queryStation.queryStatus(station.url).then(this.updateStatus.bind(this, station));
+            // take readings, if active
+            if (this.activeAddresses.indexOf(station.url) > -1) {
+                this.queryStation
+                    .queryTakeReadings(station.url)
+                    .then(this.updateStationReadings.bind(this, station));
+            }
         });
+    }
+
+    updateStatus(station, result) {
+        if (result.errors.length > 0 || station.name != result.status.identity.device) {
+            return;
+        }
+        station.lastSeen = new Date();
+        // console.log("new status ===========", result);
     }
 
     updateStationReadings(station, result) {
@@ -65,7 +81,6 @@ export default class StationMonitor extends Observable {
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
                 m.readings.forEach(r => {
-                    // console.log("update db?", m.module.name, r.sensor.name, r.value);
                     readings[m.module.name + r.sensor.name] = r.value;
                 });
             });
@@ -108,23 +123,26 @@ export default class StationMonitor extends Observable {
 
     checkDatabase(data) {
         const address = data.url;
-        this.queryStation.queryStatus(address).then(statusResult => {
-            const deviceId = statusResult.status.identity.deviceId;
-            return this.dbInterface.getStationByDeviceId(deviceId).then(result => {
-                if (result.length == 0) {
-                    return this.addToDatabase({
-                        device_id: deviceId,
-                        address: address,
-                        type: data.type,
-                        result: statusResult
-                    });
-                } else {
-                    this.reactivateStation(data);
-                }
+        this.queryStation
+            .queryStatus(address)
+            .then(statusResult => {
+                const deviceId = statusResult.status.identity.deviceId;
+                return this.dbInterface.getStationByDeviceId(deviceId).then(result => {
+                    if (result.length == 0) {
+                        return this.addToDatabase({
+                            device_id: deviceId,
+                            address: address,
+                            type: data.type,
+                            result: statusResult
+                        });
+                    } else {
+                        this.reactivateStation(data);
+                    }
+                });
+            })
+            .catch(err => {
+                console.log(err);
             });
-        }).catch(err => {
-            console.log(err);
-        });
     }
 
     addToDatabase(data) {
@@ -145,17 +163,19 @@ export default class StationMonitor extends Observable {
         this.dbInterface.insertStation(station).then(id => {
             station.id = id;
             this.activateStation(station);
-            modules.filter(m => {
-                return !is_internal_module(m);
-            }).map(m => {
-                m.stationId = id;
-                this.dbInterface.insertModule(m).then(mid => {
-                    m.sensors.map(s => {
-                        s.moduleId = mid;
-                        this.dbInterface.insertSensor(s);
+            modules
+                .filter(m => {
+                    return !is_internal_module(m);
+                })
+                .map(m => {
+                    m.stationId = id;
+                    this.dbInterface.insertModule(m).then(mid => {
+                        m.sensors.map(s => {
+                            s.moduleId = mid;
+                            this.dbInterface.insertSensor(s);
+                        });
                     });
                 });
-            });
         });
     }
 
@@ -208,6 +228,19 @@ export default class StationMonitor extends Observable {
         this.dbInterface.setStationConnectionStatus(this.stations[key]);
         const stations = this.sortStations();
         this.notifyPropertyChange("stationsChanged", stations);
+    }
+
+    startLiveReadings(address) {
+        if (this.activeAddresses.indexOf(address) == -1) {
+            this.activeAddresses.push(address);
+        }
+    }
+
+    stopLiveReadings(address) {
+        const index = this.activeAddresses.indexOf(address);
+        if (index > -1) {
+            this.activeAddresses.splice(index, 1);
+        }
     }
 
     makeKey(station) {
