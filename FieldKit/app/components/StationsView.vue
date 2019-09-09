@@ -2,7 +2,13 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <StackLayout id="stations-list">
-                <Label class="h2 m-y-20 text-center" :text="message" textWrap="true"></Label>
+                <StackLayout row="0" class="round m-x-10" @tap="goBack" horizontalAlignment="left">
+                    <Image
+                        width="21"
+                        class="m-b-10"
+                        src="~/images/Icon_backarrow.png"></Image>
+                </StackLayout>
+                <Label class="h2 m-y-10 text-center" :text="message" textWrap="true"></Label>
                 <Label v-if="stations.length == 0"
                     :text="_L('noStations')"
                     class="m-10 p-10 text-center size-20" />
@@ -44,6 +50,16 @@ export default {
             this.$stationMonitor.on(Observable.propertyChangeEvent, this.updateStations);
         },
 
+        goBack(event) {
+            // Change background color when pressed
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+            this.$navigateTo(routes.home);
+        },
+
         updateStations(data) {
             switch (data.propertyName.toString()) {
             case "stationsChanged": {
@@ -78,6 +94,10 @@ export default {
 // End custom common variables
 
 // Custom styles
+.round {
+    width: 40;
+    border-radius: 20;
+}
 .station-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
