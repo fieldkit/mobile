@@ -114,6 +114,9 @@ export default class DownloadManager {
 
             this.downloader
                 .start(transfer, progress => {
+                    operation.update({
+                        progress: progress.value,
+                    });
                     log("progress", progress);
                 }, h => {
                     headers = h;

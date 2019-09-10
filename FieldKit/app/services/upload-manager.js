@@ -65,6 +65,9 @@ export default class UploadManager {
                     currentBytes: e.currentBytes,
                     totalBytes: e.totalBytes,
                 };
+                operation.update({
+                    progress: rv.value,
+                });
                 log('progress', rv);
             });
             task.on("error", (e) => {
