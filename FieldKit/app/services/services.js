@@ -30,7 +30,7 @@ class Services {
     StateManager() {
         if (!this.stateManager) {
             const StateManager = require("./state-manager").default;
-            this.stateManager = new StateManager(this.Database(), this.QueryStation(), this.StationMonitor());
+            this.stateManager = new StateManager(this.Database(), this.QueryStation(), this.StationMonitor(), this.PortalInterface());
         }
         return this.stateManager;
     }

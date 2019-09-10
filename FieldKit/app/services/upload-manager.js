@@ -7,8 +7,9 @@ const log = Config.logger("UploadManager");
 const SessionName = "fk-data-upload";
 
 export default class UploadManager {
-    constructor(databaseInterface) {
+    constructor(databaseInterface, portalInterface ) {
         this.databaseInterface = databaseInterface;
+        this.portalInterface  = portalInterface;
     }
 
     synchronizeLocalData() {
@@ -29,6 +30,7 @@ export default class UploadManager {
             const defaultHeaders = {
                 "Content-Type": "application/octet-stream",
                 "Fk-DeviceId": deviceId,
+                "Authorization": this.portalInterface.getCurrentToken(),
             };
             const req = {
                 url: url,

@@ -54,6 +54,10 @@ export default class PortalInterface {
     }
 
     isLoggedIn() {
+        return accessToken; // TODO "is" functions should always return booleans.
+    }
+
+    getCurrentToken() {
         return accessToken;
     }
 
