@@ -1,11 +1,11 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <StackLayout id="stations-list">
+            <StackLayout id="stations-list" class="m-y-10">
                 <StackLayout row="0" class="round m-x-10" @tap="goBack" horizontalAlignment="left">
                     <Image
                         width="21"
-                        class="m-b-10"
+                        class="m-y-10"
                         src="~/images/Icon_backarrow.png"></Image>
                 </StackLayout>
                 <Label class="h2 m-y-10 text-center" :text="message" textWrap="true"></Label>
