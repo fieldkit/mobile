@@ -216,7 +216,7 @@ export default class DatabaseInterface {
     }
 
     insertStation(station) {
-        let newStation = new Station(station);
+        const newStation = new Station(station);
         return this.database.execute(
             "INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, interval) \
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -231,6 +231,36 @@ export default class DatabaseInterface {
                 newStation.interval
             ]
         );
+    }
+
+    insertDownload(download) {
+        return this.insertDownloads([ download ]);
+    }
+
+    insertDownloads(downloads) {
+        return Promise.all(downloads.map(download => {
+            return this.database.execute(`INSERT INTO downloads (station_id, device_id, path, timestamp, url, size, blocks) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+                download.stationId,
+                download.deviceId,
+                download.path,
+                download.timestamp,
+                download.url,
+                download.size,
+                download.blocks
+            ]);
+        }));
+    }
+
+    getAllDownloads() {
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads"));
+    }
+
+    getPendingDownloads() {
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE uploaded IS NULL"));
+    }
+
+    markDownloadAsUploaded(download) {
+        return this.getDatabase().then(db => db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", new Date(), download.id));
     }
 }
 

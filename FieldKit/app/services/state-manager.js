@@ -19,13 +19,13 @@ export default class StateManager {
         });
     }
 
-    synchronizeConnectedStations(callbacks) {
+    synchronizeConnectedStations() {
         log("synchronizeConnectedStations");
-        return this.downloadManager.synchronizeConnectedStations(callbacks);
+        return this.downloadManager.synchronizeConnectedStations();
     }
 
-    synchronizeLocalData(callbacks) {
+    synchronizeLocalData() {
         log("synchronizeLocalData");
-        return this.uploadManager.synchronizeLocalData(callbacks);
+        return this.uploadManager.synchronizeLocalData();
     }
 }

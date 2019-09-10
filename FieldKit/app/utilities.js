@@ -1,5 +1,7 @@
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
 
+import moment from 'moment';
+
 const isObject = function (o) {
     return o === Object(o) && !isArray(o) && typeof o !== 'function';
 };
@@ -31,3 +33,7 @@ export function keysToCamel(o) {
 
     return o;
 };
+
+export function getPathTimestamp() {
+    return moment().utc().format('YYYYMMDD_hhmmss');
+}

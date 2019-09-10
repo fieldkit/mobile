@@ -11,7 +11,7 @@ export default class UploadManager {
         this.databaseInterface = databaseInterface;
     }
 
-    synchronizeLocalData(callbacks) {
+    synchronizeLocalData() {
         log("synchronizeLocalData");
 
         return Promise.resolve(this._createServiceModel()).then(uploads => {
@@ -87,58 +87,21 @@ export default class UploadManager {
         }, Promise.resolve([]));
     }
 
-
     _createServiceModel() {
-        return this.databaseInterface.getAll().then(keysToCamel).then(stations => {
-            return Promise.all(stations.map(station => {
-                log("loading", station.deviceId);
-                return this._loadStationAndIndex(station);
-            })).then(indices => {
-                // TODO Calculate total progress.
-                return this._reducePromise(indices, this._uploadIndex.bind(this));
-            }).then((all) => {
-                console.log(all);
-            });
+        return this.databaseInterface.getPendingDownloads().then(keysToCamel).then(downloads => {
+            console.log("got", downloads);
+            return this._reducePromise(downloads, this._uploadDownload.bind(this));
         });
     }
 
-    _uploadIndex(stationAndIndex) {
-        const { station, index } = stationAndIndex;
-
-        return this._uploadMeta(station, index.meta).then(() => {
-            return this._uploadData(station, index.data).then(() => {
-                return "done";
-            });
-        })
-    }
-
-    _uploadMeta(station, indexInfo) {
-        log("uploading meta", station.deviceId, indexInfo);
-        const file = this._getStationFolder(station).getFile("meta.fkpb");
-        return this._upload(station.deviceId, indexInfo.headers, file);
-    }
-
-    _uploadData(station, indexInfo) {
-        log("uploading data", station.deviceId, indexInfo);
-        const file = this._getStationFolder(station).getFile("data.fkpb");
-        return this._upload(station.deviceId, indexInfo.headers, file);
-    }
-
-    _loadStationAndIndex(station) {
-        const folder = this._getStationFolder(station);
-        const indexFile = folder.getFile("index.json");
-        return indexFile.readText("utf8").then(data => {
-            try {
-                return {
-                    station: station,
-                    index: JSON.parse(data),
-                }
-            }
-            catch (error) {
-                console.log(data);
-                return {
-                }
-            }
+    _uploadDownload(download) {
+        log("uploading", download);
+        const headers = {
+            "Fk-Blocks": download.blocks,
+        };
+        const file = File.fromPath(download.path);
+        return this._upload(download.deviceId, headers, file).then(() => {
+            return this.databaseInterface.markDownloadAsUploaded(download);
         });
     }
 

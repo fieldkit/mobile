@@ -27,23 +27,36 @@ export default {
         onPageLoaded() {
             console.log("loaded");
 
-            const callbacks = {
-            };
-
-            try {
-                Services.StateManager().synchronizeLocalData(callbacks).catch(err => {
-                    console.log(err);
-                });
+            if (false) {
+                try {
+                    Services.StateManager().synchronizeLocalData().catch(err => {
+                        console.log(err);
+                    });
+                }
+                catch (error) {
+                    console.log('error', error);
+                }
             }
-            catch (error) {
-                console.log(error);
+
+            if (this.$stationMonitor.getStations().length > 0) {
+                try {
+                    Services.StateManager().synchronizeConnectedStations().then(() => {
+                        return Services.StateManager().synchronizeLocalData();
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
+                catch (e) {
+                    console.log("error", e);
+                }
+            }
+            else {
             }
 
             this.$stationMonitor.on(Observable.propertyChangeEvent, () => {
                 try {
-                    // if (false)
-                    Services.StateManager().synchronizeConnectedStations(callbacks).then(() => {
-                        return Services.StateManager().synchronizeLocalData(callbacks);
+                    Services.StateManager().synchronizeConnectedStations().then(() => {
+                        return Services.StateManager().synchronizeLocalData();
                     }).catch(err => {
                         console.log(err);
                     });

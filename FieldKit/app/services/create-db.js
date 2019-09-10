@@ -22,6 +22,7 @@ export default class CreateDB {
             .then(this.createSensorsTable.bind(this))
             .then(this.createStationConfigLogTable.bind(this))
             .then(this.createModuleConfigLogTable.bind(this))
+            .then(this.createDownloadsTable.bind(this))
             .then(() => {
                 if (Config.seedDB) {
                     return this.seedDB();
@@ -70,10 +71,28 @@ export default class CreateDB {
 
     dropTables() {
         return this.execute([
+            `DROP TABLE IF EXISTS downloads`,
             `DROP TABLE IF EXISTS stations_config`,
             `DROP TABLE IF EXISTS sensors`,
             `DROP TABLE IF EXISTS modules`,
-            `DROP TABLE IF EXISTS stations`
+            `DROP TABLE IF EXISTS stations`,
+        ]);
+    }
+
+    createDownloadsTable() {
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS downloads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                station_id INTEGER NOT NULL,
+                device_id TEXT NOT NULL,
+                path TEXT NOT NULL,
+                timestamp TIMESTAMP NOT NULL,
+                url TEXT NOT NULL,
+                size INTEGER NOT NULL,
+                blocks TEXT NOT NULL,
+                uploaded TIMESTAMP,
+                FOREIGN KEY(station_id) REFERENCES stations(id)
+            )`,
         ]);
     }
 
