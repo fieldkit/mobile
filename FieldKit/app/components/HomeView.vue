@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <StackLayout>
             <Label class="plain m-20 text-center" :text="message" textWrap="true"></Label>
             <Button class="btn btn-primary" :text="_L('viewStations')" @tap="viewStations"></Button>
@@ -11,6 +11,10 @@
 <script>
 import Login from "./LoginView";
 import Stations from "./StationsView";
+import Services from "../services/services";
+
+// TODO: Remove
+import { Observable } from "tns-core-modules/data/observable";
 
 export default {
     data() {
@@ -18,7 +22,14 @@ export default {
             message: _L("authenticated")
         };
     },
+
     methods: {
+        onPageLoaded() {
+            Services.StateManager().synchronizeConnectedStations().then(() => {
+            }).catch(err => {
+                console.log(err);
+            });
+        },
         logout() {
             this.$portalInterface.logout();
             this.$navigateTo(Login, {

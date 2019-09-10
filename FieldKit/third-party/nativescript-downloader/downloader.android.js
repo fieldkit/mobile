@@ -120,6 +120,19 @@ var Downloader = (function (_super) {
                                     }
                                 }
                             },
+                            onUIHeaders: function (task, headers) {
+                                console.log("headers!", headers.size(), headers.keySet().size());
+                                const iter = headers.entrySet().iterator();
+                                while (iter.hasNext()) {
+                                    const entry = iter.next();
+                                    const key = entry.getKey();
+                                    const valuesIter = entry.getValue().iterator();
+                                    while (valuesIter.hasNext()) {
+                                        const value = valuesIter.next();
+                                        console.log(key, value);
+                                    }
+                                }
+                            },
                             onUIComplete: function (task) {
                                 var owner = this.ownerRef.get();
                                 var _id = owner.taskIds.get(task);
