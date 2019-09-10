@@ -90,6 +90,8 @@ export default class CreateDB {
                 url TEXT NOT NULL,
                 size INTEGER NOT NULL,
                 blocks TEXT NOT NULL,
+                first_block INTEGER NOT NULL,
+                last_block INTEGER NOT NULL,
                 uploaded TIMESTAMP,
                 FOREIGN KEY(station_id) REFERENCES stations(id)
             )`,

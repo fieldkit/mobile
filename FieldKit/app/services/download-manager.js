@@ -56,37 +56,62 @@ export default class DownloadManager {
         });
     }
 
-    _download(station, url, destination) {
-        log("download", url, "to", destination.path);
+    _parseBlocks(blocks) {
+        if (Array.isArray(blocks)) {
+            blocks = blocks[0];
+        }
 
-        const transfer = this.downloader.createDownload({
+        const parts = blocks.split(",").map(s => s.trim()).map(s => Number(s));
+        if (parts.length != 2) {
+            throw new Error("Invalid Fk-Blocks header");
+        }
+
+        return {
+            range: parts.join(","),
+            firstBlock: parts[0],
+            lastBlock: parts[1],
+        };
+    }
+
+    _createDownloadRow(station, url, destination, headers) {
+        delete headers['Connection'];
+
+        const { range, firstBlock, lastBlock } = this._parseBlocks(headers["Fk-Blocks"]);
+
+        return {
+            stationId: station.id,
+            deviceId: station.deviceId,
             url: url,
-            path: destination.parent.path,
-            fileName: destination.name
-        });
+            timestamp: new Date(),
+            path: destination.path,
+            headers: headers,
+            blocks: range,
+            firstBlock: firstBlock,
+            lastBlock: lastBlock,
+            size: destination.size,
+        };
+    }
 
+    _download(station, url, destination) {
         return new Promise((resolve, reject) => {
-            // This is what we resolve.
-            const res = {
-                stationId: station.id,
-                deviceId: station.deviceId,
+            log("download", url, "to", destination.path);
+
+            const transfer = this.downloader.createDownload({
                 url: url,
-                timestamp: new Date(),
-                path: destination.path,
-            };
+                path: destination.parent.path,
+                fileName: destination.name
+            });
+
+            let headers = null;
 
             this.downloader
                 .start(transfer, progress => {
                     log("progress", progress);
-                }, headers => {
-                    log("headers", headers);
-                    delete headers['Connection'];
-                    res.headers = headers;
-                    res.blocks = headers['Fk-Blocks'];
+                }, h => {
+                    headers = h;
                 })
                 .then(completed => {
-                    res.size = destination.size;
-                    resolve(res);
+                    resolve(this._createDownloadRow(station, url, destination, headers));
                 })
                 .catch(error => {
                     log("error", error.message);

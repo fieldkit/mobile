@@ -239,14 +239,16 @@ export default class DatabaseInterface {
 
     insertDownloads(downloads) {
         return Promise.all(downloads.map(download => {
-            return this.database.execute(`INSERT INTO downloads (station_id, device_id, path, timestamp, url, size, blocks) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+            return this.database.execute(`INSERT INTO downloads (station_id, device_id, path, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                 download.stationId,
                 download.deviceId,
                 download.path,
                 download.timestamp,
                 download.url,
                 download.size,
-                download.blocks
+                download.blocks,
+                download.firstBlock,
+                download.lastBlock,
             ]);
         }));
     }
