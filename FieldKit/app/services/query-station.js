@@ -20,6 +20,9 @@ const MandatoryStatus = {
         },
         memory: {
             dataMemoryConsumption: 0
+        },
+        recording: {
+            enabled: false,
         }
     },
 };
