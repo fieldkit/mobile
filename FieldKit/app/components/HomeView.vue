@@ -25,9 +25,16 @@ export default {
 
     methods: {
         onPageLoaded() {
-            Services.StateManager().synchronizeConnectedStations().then(() => {
-            }).catch(err => {
-                console.log(err);
+            this.$stationMonitor.on(Observable.propertyChangeEvent, () => {
+                try {
+                    Services.StateManager().synchronizeConnectedStations().then(() => {
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                }
+                catch (e) {
+                    console.log("error", e);
+                }
             });
         },
         logout() {

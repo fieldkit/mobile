@@ -5,6 +5,7 @@ function get_blank_developer_config() {
         logging: {
             station_queries: false,
             downloading: false,
+            uploading: false,
         },
         developer: {
             machine: null
@@ -40,6 +41,4 @@ function get_config() {
     return Object.assign({}, configs["default"], get_developer_config());
 }
 
-const final = get_config();
-
-export default final;
+export default get_config();
