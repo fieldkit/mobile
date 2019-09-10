@@ -89,7 +89,6 @@ export default class UploadManager {
 
     _createServiceModel() {
         return this.databaseInterface.getPendingDownloads().then(keysToCamel).then(downloads => {
-            console.log("got", downloads);
             return this._reducePromise(downloads, this._uploadDownload.bind(this));
         });
     }

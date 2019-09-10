@@ -49,7 +49,9 @@ const final = get_config();
 final.logger = (name) => {
     if (final.logging[name]) {
         return function() {
-            console.log.apply(console, arguments);
+            const args = Array.from(arguments);
+            args.unshift(name);
+            console.log.apply(console, args);
         };
     }
     return function() {
