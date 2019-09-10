@@ -61,18 +61,8 @@ export default class DownloadManager {
                 return downloads;
             });
         }).then(downloads => {
-            // TODO Move this to the database.
-            return this._updateIndex(station, downloads).then(() => {
-                return this._updateDatabase(station, downloads);
-            });
+            return this._updateDatabase(station, downloads);
         });
-    }
-
-    _updateIndex(station, downloads) {
-        const newIndex = JSON.stringify(downloads);
-        console.log("downloads", downloads)
-        console.log("index", newIndex)
-        return station.paths.index.writeText(newIndex, "utf8");
     }
 
     _unstage(station, fileServiceModel, info) {
@@ -145,7 +135,6 @@ export default class DownloadManager {
                 paths: {
                     main: main,
                     download: download,
-                    index: download.getFile("index.json"),
                 },
                 meta: toFileModel("/download/meta", "meta.fkpb"),
                 data: toFileModel("/download/data", "data.fkpb"),
