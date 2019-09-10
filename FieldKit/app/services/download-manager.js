@@ -34,10 +34,8 @@ export default class DownloadManager {
         // NS File stuff is dumb, the getFile effectively does a touch. So the
         // rename will fail cause there's an empty file sitting there.
         return Promise.all([
-            station.meta.staging.remove(),
-            station.meta.final.remove(),
-            station.data.staging.remove(),
-            station.data.final.remove(),
+            station.meta.destination.remove(),
+            station.data.destination.remove(),
         ]);
     }
 
@@ -49,28 +47,12 @@ export default class DownloadManager {
     }
 
     _synchronizeStation(station) {
-        return this._download(station, station.meta.url, station.meta.staging).then(metaDownload => {
-            return this._download(station, station.data.url, station.data.staging).then(dataDownload => {
+        return this._download(station, station.meta.url, station.meta.destination).then(metaDownload => {
+            return this._download(station, station.data.url, station.data.destination).then(dataDownload => {
                 return { meta: metaDownload, data: dataDownload };
             });
         }).then(downloads => {
-            log("unstage");
-            return this._unstage(station, station.meta, downloads).then(() => {
-                return this._unstage(station, station.data, downloads);
-            }).then(() => {
-                return downloads;
-            });
-        }).then(downloads => {
             return this._updateDatabase(station, downloads);
-        });
-    }
-
-    _unstage(station, fileServiceModel, info) {
-        return fileServiceModel.staging.parent.getEntities().then(entities => {
-            // console.log(entities);
-        }).then(() => {
-            log("rename", fileServiceModel.final.path);
-            return fileServiceModel.staging.rename(fileServiceModel.final.name);
         });
     }
 
@@ -123,8 +105,7 @@ export default class DownloadManager {
             function toFileModel(urlPath, name) {
                 return {
                     url: s.url + urlPath,
-                    staging: download.getFile("." + name),
-                    final: download.getFile(name),
+                    destination: download.getFile(name),
                 };
             }
 
