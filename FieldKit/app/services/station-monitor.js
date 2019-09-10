@@ -148,14 +148,14 @@ export default class StationMonitor extends Observable {
     addToDatabase(data) {
         const deviceStatus = data.result.status;
         const modules = data.result.modules;
+        const recordingStatus = data.result.status.recording.enabled ? "recording" : null;
         const station = {
             deviceId: data.device_id,
             device_id: data.device_id,
             name: deviceStatus.identity.device,
             url: data.address,
             type: data.type,
-            // note: status below will be replaced by actual data from device
-            status: "Ready to deploy",
+            status: recordingStatus,
             connected: 1,
             battery_level: deviceStatus.power.battery.percentage,
             available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)

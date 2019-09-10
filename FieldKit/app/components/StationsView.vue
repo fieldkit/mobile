@@ -19,9 +19,9 @@
                     orientation="vertical"
                     @tap=goToDetail>
                     <Label :text="s.name" :class="'station-name ' + (s.connected == 0 ? 'disconnected' : '')" />
-                    <Label :text="s.status"
-                        v-if="s.connected"
-                        :class="'stations-list '+(s.status ? s.status.replace(/ /g, '') : '')" />
+                    <Label v-if="s.connected"
+                        :text="s.status == 'recording' ? _L('recording') : _L('connected')"
+                        :class="'stations-list '+(s.status ? s.status : 'connected')" />
                 </StackLayout>
             </StackLayout>
         </ScrollView>
@@ -111,5 +111,6 @@ export default {
     color: $fk-gray-dark;
 }
 .stations-list {font-size: 16;}
-.Readytodeploy {color: green}
+.recording {color: $fk-primary-blue;}
+.connected {color: $fk-tertiary-green;}
 </style>

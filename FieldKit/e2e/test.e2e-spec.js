@@ -81,7 +81,6 @@ describe("FieldKit Navigation", () => {
             chai_1.assert.isTrue(yield batteryLevel.isDisplayed());
         });
     });
-    // Note: this requires a station has a status of "Ready to deploy"
     it("should go to first step of deployment wizard", function () {
         return __awaiter(this, void 0, void 0, function* () {
             const deployButton = yield driver.findElementByAccessibilityId('deployButton');
