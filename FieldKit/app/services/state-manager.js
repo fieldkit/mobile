@@ -30,6 +30,7 @@ export default class StateManager {
     synchronizeConnectedStations() {
         log("synchronizeConnectedStations");
         return Promise.resolve(this._createServiceModel()).then(connectedStations => {
+            log("connected", connectedStations);
             // NOTE Right now this will download concurrently, we may want to make this serialized.
             return Promise.all(connectedStations.map(s => {
                 return this._prepare(s).then(() => {
@@ -94,6 +95,8 @@ export default class StateManager {
             this.downloader
                 .start(transfer, progress => {
                     log("progress", progress);
+                }, headers => {
+                    log("headers", headers);
                 })
                 .then(completed => {
                     // TODO TODO TODO TODO TODO

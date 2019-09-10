@@ -81,7 +81,7 @@ var Downloader = (function (_super) {
         }
         return downloader_common_1.StatusCode.PENDING;
     };
-    Downloader.prototype.start = function (id, progress) {
+    Downloader.prototype.start = function (id, progress, headers) {
         var _this = this;
         var ref = new WeakRef(this);
         return new Promise(function (resolve, reject) {
@@ -90,7 +90,8 @@ var Downloader = (function (_super) {
                 _this.downloadsData.set(id, Object.assign({}, data, {
                     reject: reject,
                     resolve: resolve,
-                    callback: progress
+                    callback: progress,
+                    headers: headers,
                 }));
                 if (_this.downloads.has(id)) {
                     var request = _this.downloadRequests.get(id);
@@ -121,15 +122,26 @@ var Downloader = (function (_super) {
                                 }
                             },
                             onUIHeaders: function (task, headers) {
-                                console.log("headers!", headers.size(), headers.keySet().size());
+                                const jsHeaders = {};
                                 const iter = headers.entrySet().iterator();
                                 while (iter.hasNext()) {
                                     const entry = iter.next();
                                     const key = entry.getKey();
                                     const valuesIter = entry.getValue().iterator();
+                                    jsHeaders[key] = [];
                                     while (valuesIter.hasNext()) {
                                         const value = valuesIter.next();
-                                        console.log(key, value);
+                                        jsHeaders[key].push(value);
+                                    }
+                                }
+
+                                var owner = this.ownerRef.get();
+                                var _id = owner.taskIds.get(task);
+                                if (owner.downloads.has(_id)) {
+                                    var data_1 = owner.downloadsData.get(_id);
+                                    var headers = data_1.headers;
+                                    if (headers) {
+                                        headers(jsHeaders);
                                     }
                                 }
                             },
