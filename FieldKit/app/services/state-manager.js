@@ -25,7 +25,7 @@ export default class StateManager {
     }
 
     synchronizeLocalData(callbacks) {
-        log("synchronizeConnectedStations");
+        log("synchronizeLocalData");
         return this.uploadManager.synchronizeLocalData(callbacks);
     }
 }

@@ -103,6 +103,7 @@ export default class DownloadManager {
         });
     }
 
+
     _createServiceModel() {
         return this.stationMonitor.getStations().filter(s => {
             return s.deviceId && s.url && s.connected;
@@ -139,7 +140,6 @@ export default class DownloadManager {
         const data = knownFolders.currentApp();
         return data.getFolder(station.deviceId);
     }
-
 
     _getStagingFolder(station) {
         return this._getStationFolder(station).getFolder(".staging");
