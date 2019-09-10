@@ -3,7 +3,8 @@ import { CONFIG } from './secrets';
 function get_blank_developer_config() {
     return {
         logging: {
-            station_queries: false
+            station_queries: false,
+            downloading: false,
         },
         developer: {
             machine: null
