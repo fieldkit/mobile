@@ -230,7 +230,7 @@ export default {
             modules: []
         };
     },
-    props: ["stationId"],
+    props: ["stationId","recording"],
     methods: {
         goBack(event) {
             // Change background color when pressed
@@ -242,7 +242,12 @@ export default {
 
             this.stopProcesses();
 
-            this.$navigateTo(routes.stations);
+            this.$navigateTo(routes.stations, {
+                props: {
+                    stationId: this.stationId,
+                    recording: this.recording
+                }
+            });
         },
 
         goToData(event) {

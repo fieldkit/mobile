@@ -320,7 +320,7 @@ const stations = [
     {
         deviceId: "seeded-device-1",
         name: "Eggjareid Station",
-        status: null,
+        status: "idle",
         modules: [
             {
                 moduleId: "seeded-device-1-module-0",
@@ -339,7 +339,7 @@ const stations = [
     {
         deviceId: "seeded-device-2",
         name: "Evanger Station",
-        status: null,
+        status: "idle",
         modules: [
             {
                 moduleId: "seeded-device-2-module-0",
@@ -358,7 +358,7 @@ const stations = [
     {
         deviceId: "seeded-device-3",
         name: "Finse Station",
-        status: null,
+        status: "idle",
         modules: [
             {
                 moduleId: "seeded-device-3-module-0",
@@ -377,7 +377,7 @@ const stations = [
     {
         deviceId: "seeded-device-4",
         name: "Seeded Station #4",
-        status: null,
+        status: "idle",
         modules: [
             {
                 moduleId: "seeded-device-4-module-0",

@@ -22,7 +22,6 @@ export default class StationMonitor extends Observable {
     initializeStations(result) {
         const thisMonitor = this;
         result.map(r => {
-            r.type = "no_url";
             let key = thisMonitor.makeKey(r);
             r.lastSeen = r.connected ? new Date() : pastDate;
             thisMonitor.stations[key] = r;
@@ -70,7 +69,7 @@ export default class StationMonitor extends Observable {
         }
         station.lastSeen = new Date();
         // update in db?
-        station.status = result.status.recording.enabled ? "recording" : null;
+        station.status = result.status.recording.enabled ? "recording" : "idle";
         // could also update: battery_level, available_memory
     }
 
@@ -134,7 +133,6 @@ export default class StationMonitor extends Observable {
                         return this.addToDatabase({
                             device_id: deviceId,
                             address: address,
-                            type: data.type,
                             result: statusResult
                         });
                     } else {
@@ -150,13 +148,12 @@ export default class StationMonitor extends Observable {
     addToDatabase(data) {
         const deviceStatus = data.result.status;
         const modules = data.result.modules;
-        const recordingStatus = data.result.status.recording.enabled ? "recording" : null;
+        const recordingStatus = data.result.status.recording.enabled ? "recording" : "idle";
         const station = {
             deviceId: data.device_id,
             device_id: data.device_id,
             name: deviceStatus.identity.device,
             url: data.address,
-            type: data.type,
             status: recordingStatus,
             connected: 1,
             battery_level: deviceStatus.power.battery.percentage,
@@ -207,7 +204,6 @@ export default class StationMonitor extends Observable {
         if (this.stations[key]) {
             this.stations[key].connected = 1;
             this.stations[key].lastSeen = new Date();
-            this.stations[key].type = station.type;
         } else {
             // console.log("** reactivation where we don't have the station stored? **");
         }
@@ -247,6 +243,6 @@ export default class StationMonitor extends Observable {
     }
 
     makeKey(station) {
-        return station.name + station.type;
+        return station.name + station.url;
     }
 }

@@ -155,9 +155,12 @@ export default {
                 event.object.className = cn;
             }, 500);
 
+            // send recording status back, as background querying
+            // can take a few seconds to catch up
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    stationId: this.stationId
+                    stationId: this.stationId,
+                    recording: this.isRecordingData ? 'recording' : 'idle'
                 }
             });
         },
