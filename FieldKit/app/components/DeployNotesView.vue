@@ -79,8 +79,14 @@
                 <!-- end: Add photo -->
 
                 <StackLayout v-show="havePhoto" class="m-15">
-                    <Label :text="_L('startRecordingPrompt')" textWrap="true" />
-                    <Button class="btn btn-primary m-b-10" :text="_L('record')" @tap="deployStation"></Button>
+                    <Label v-show="!isRecordingData" :text="_L('startRecordingPrompt')" textWrap="true" />
+                    <Label v-show="isRecordingData"
+                        :text="_L('recording')"
+                        class="recording-notice bold text-center m-y-10"
+                        textWrap="true" />
+                    <Button class="btn btn-primary m-b-10"
+                        :text="isRecordingData ? _L('stopRecording') : _L('record')"
+                        @tap="recordButtonTapped"></Button>
                 </StackLayout>
 
                 <TextView id="hidden-field" />
@@ -136,7 +142,8 @@ export default {
             recordings: "",
             origRecordings: "",
             newRecordings: {},
-            displayRecordings: []
+            displayRecordings: [],
+            isRecordingData: false
         };
     },
     props: ["stationId"],
@@ -209,6 +216,9 @@ export default {
         },
 
         completeSetup() {
+            if(this.station.status == "recording") {
+                this.isRecordingData = true;
+            }
             this.noteText = this.station.deploy_note;
             this.origNote = this.noteText;
             this.recordings = this.station.deploy_audio_files;
@@ -269,7 +279,7 @@ export default {
             }
             this.newRecordings[dateIndex].push(filename);
 
-            audioInterface.startRecording(filename);
+            audioInterface.startAudioRecording(filename);
 
             dialogs
                 .action({
@@ -278,7 +288,7 @@ export default {
                 })
                 .then(result => {
                     if (result == _L("stopRecording")) {
-                        audioInterface.stopRecording();
+                        audioInterface.stopAudioRecording();
                         // automatically save recording
                         this.addRecording(filename);
                     }
@@ -472,19 +482,54 @@ export default {
             }
         },
 
+        recordButtonTapped(event) {
+            if(event.object.text == _L("record")) {
+                this.deployStation(event);
+            } else {
+                this.stopStation(event);
+            }
+        },
+
         deployStation(event) {
             this.removeFocus("note-text-field");
             this.removeFocus("photo-label-input");
             // just in case?
             this.saveNote();
             this.saveLabel();
-            event.object.text = _L("recording");
 
-            queryStation.queryStartRecording(this.station.url).then(result => {
-                // console.log("result of queryStartRecording", result)
+            event.object.text = _L("stopRecording");
+            this.isRecordingData = true;
+
+            queryStation.startDataRecording(this.station.url).then(result => {
+                const priorValue = null;
+                this.station.status = "recording";
+                this.updateStationStatus(priorValue);
             });
+        },
 
-            // temporary? - update portal with deployment info
+        stopStation(event) {
+            event.object.text = _L("record");
+            this.isRecordingData = false;
+            queryStation.stopDataRecording(this.station.url).then(result => {
+                const priorValue = "recording";
+                this.station.status = null;
+                this.updateStationStatus(priorValue);
+            });
+        },
+
+        updateStationStatus(priorValue) {
+            // update db
+            dbInterface.setStationDeployStatus(this.station);
+            let configChange = {
+                station_id: this.station.id,
+                before: priorValue,
+                after: this.station.status,
+                affected_field: "status",
+                author: this.userName
+            };
+            dbInterface.recordStationConfigChange(configChange);
+
+            // update portal
             if (this.station.portal_id && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
@@ -572,6 +617,11 @@ export default {
 #note-text-field {
     border-bottom-width: 1;
     border-bottom-color: $fk-primary-black;
+}
+
+.recording-notice {
+    color: $fk-primary-red;
+    font-size: 18;
 }
 
 .full-height {

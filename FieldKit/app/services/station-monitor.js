@@ -28,7 +28,7 @@ export default class StationMonitor extends Observable {
             thisMonitor.stations[key] = r;
             if (r.url != "no_url") {
                 // first try, might not have a reading yet
-                this.queryStation.queryTakeReadings(r.url);
+                this.queryStation.takeReadings(r.url);
             }
         });
 
@@ -54,11 +54,11 @@ export default class StationMonitor extends Observable {
                 this.deactivateStation(station);
             }
             // query status
-            this.queryStation.queryStatus(station.url).then(this.updateStatus.bind(this, station));
+            this.queryStation.getStatus(station.url).then(this.updateStatus.bind(this, station));
             // take readings, if active
             if (this.activeAddresses.indexOf(station.url) > -1) {
                 this.queryStation
-                    .queryTakeReadings(station.url)
+                    .takeReadings(station.url)
                     .then(this.updateStationReadings.bind(this, station));
             }
         });
@@ -69,7 +69,9 @@ export default class StationMonitor extends Observable {
             return;
         }
         station.lastSeen = new Date();
-        // console.log("new status ===========", result);
+        // update in db?
+        station.status = result.status.recording.enabled ? "recording" : null;
+        // could also update: battery_level, available_memory
     }
 
     updateStationReadings(station, result) {
@@ -124,7 +126,7 @@ export default class StationMonitor extends Observable {
     checkDatabase(data) {
         const address = data.url;
         this.queryStation
-            .queryStatus(address)
+            .getStatus(address)
             .then(statusResult => {
                 const deviceId = statusResult.status.identity.deviceId;
                 return this.dbInterface.getStationByDeviceId(deviceId).then(result => {
@@ -205,6 +207,7 @@ export default class StationMonitor extends Observable {
         if (this.stations[key]) {
             this.stations[key].connected = 1;
             this.stations[key].lastSeen = new Date();
+            this.stations[key].type = station.type;
         } else {
             // console.log("** reactivation where we don't have the station stored? **");
         }

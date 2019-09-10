@@ -23,7 +23,7 @@ const MandatoryStatus = {
 };
 
 export default class QueryStation {
-    queryStatus(address) {
+    getStatus(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_STATUS
         });
@@ -33,17 +33,7 @@ export default class QueryStation {
         });
     }
 
-    queryReadings(address) {
-        const message = HttpQuery.create({
-            type: QueryType.values.QUERY_GET_READINGS
-        });
-
-        return this.stationQuery(address, message).then(reply => {
-            return this.fixupStatus(reply);
-        });
-    }
-
-    queryTakeReadings(address) {
+    takeReadings(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_TAKE_READINGS
         });
@@ -53,10 +43,21 @@ export default class QueryStation {
         });
     }
 
-    queryStartRecording(address) {
+    startDataRecording(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
             recording: { enabled: true }
+        });
+
+        return this.stationQuery(address, message).then(reply => {
+            return this.fixupStatus(reply);
+        });
+    }
+
+    stopDataRecording(address) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_RECORDING_CONTROL,
+            recording: { enabled: false }
         });
 
         return this.stationQuery(address, message).then(reply => {

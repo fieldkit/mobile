@@ -31,7 +31,7 @@ describe("QueryStation", () => {
             data: new Buffer.from(binaryResponse).toString("hex")
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryStation.queryStatus().then(resp => expect(resp.modules).toBeDefined());
+        return queryStation.getStatus().then(resp => expect(resp.modules).toBeDefined());
     });
 
     it("should retrieve station readings", () => {
@@ -47,6 +47,6 @@ describe("QueryStation", () => {
             data: new Buffer.from(binaryResponse).toString("hex")
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryStation.queryTakeReadings().then(resp => expect(resp.liveReadings).toBeDefined());
+        return queryStation.takeReadings().then(resp => expect(resp.liveReadings).toBeDefined());
     });
 });
