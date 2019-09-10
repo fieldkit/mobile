@@ -3,9 +3,9 @@ import { CONFIG } from './secrets';
 function get_blank_developer_config() {
     return {
         logging: {
-            station_queries: false,
-            downloading: false,
-            uploading: false,
+            QueryStation: false,
+            DownloadManager: false,
+            UploadManager: false,
         },
         developer: {
             machine: null
@@ -41,4 +41,17 @@ function get_config() {
     return Object.assign({}, configs["default"], get_developer_config());
 }
 
-export default get_config();
+const final = get_config();
+
+final.logger = (name) => {
+    if (final.logging[name]) {
+        return function() {
+            console.log.apply(console, arguments);
+        };
+    }
+    return function() {
+        // Noop
+    };
+};
+
+export default final;

@@ -1,13 +1,15 @@
 import axios from "axios";
 import protobuf from "protobufjs";
-import Config from '../config';
 import deepmerge from 'deepmerge';
+import Config from '../config';
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpQuery = appRoot.lookupType("fk_app.HttpQuery");
 const HttpReply = appRoot.lookupType("fk_app.HttpReply");
 const QueryType = appRoot.lookup("fk_app.QueryType");
 const ReplyType = appRoot.lookup("fk_app.ReplyType");
+
+const log = Config.logger("QueryStation");
 
 const MandatoryStatus = {
     status: {
@@ -83,9 +85,7 @@ export default class QueryStation {
     stationQuery(url, message) {
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         const requestBody = new Buffer.from(binaryQuery).toString("hex");
-        if (Config.logging.station_queries) {
-            console.log("querying", url, message, requestBody);
-        }
+        log("querying", url, message, requestBody);
         return axios({
             method: "POST",
             url: url,
@@ -98,16 +98,12 @@ export default class QueryStation {
         }).then(
             response => {
                 if (response.data.length == 0) {
-                    if (Config.logging.station_queries) {
-                        console.log("query success", "<empty>");
-                    }
+                    log("query success", "<empty>");
                     return {};
                 }
                 const binaryReply = Buffer.from(response.data, "hex");
                 const decoded = HttpReply.decodeDelimited(binaryReply);
-                if (Config.logging.station_queries) {
-                    console.log("query success", decoded);
-                }
+                log("query success", decoded);
                 return decoded;
             },
             err => {

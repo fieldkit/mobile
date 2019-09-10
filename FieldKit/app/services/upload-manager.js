@@ -1,10 +1,6 @@
 import Config from '../config';
 
-function log() {
-    if (Config.logging.uploading) {
-        console.log.apply(console, arguments);
-    }
-}
+const log = Config.logger("UploadManager");
 
 export default class UploadManager {
     constructor(databaseInterface) {

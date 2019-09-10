@@ -2,9 +2,7 @@ import DownloadManager from "./download-manager";
 import UploadManager from "./upload-manager";
 import Config from '../config';
 
-function log() {
-    console.log.apply(console, arguments);
-}
+const log = Config.logger("StateManager");
 
 export default class StateManager {
     constructor(databaseInterface, queryStation, stationMonitor) {

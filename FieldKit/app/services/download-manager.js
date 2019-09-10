@@ -2,11 +2,7 @@ import { Downloader } from 'nativescript-downloader';
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import Config from '../config';
 
-function log() {
-    if (Config.logging.downloading) {
-        console.log.apply(console, arguments);
-    }
-}
+const log = Config.logger("DownloadManager");
 
 export default class DownloadManager {
     constructor(databaseInterface, queryStation, stationMonitor) {
