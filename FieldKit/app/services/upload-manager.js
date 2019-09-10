@@ -14,8 +14,8 @@ export default class UploadManager {
 
     synchronizeLocalData() {
         log("synchronizeLocalData");
-
-        return Promise.resolve(this._createServiceModel()).then(uploads => {
+        return this.databaseInterface.getPendingDownloads().then(keysToCamel).then(downloads => {
+            return this._reducePromise(downloads, this._uploadDownload.bind(this));
         });
     }
 
@@ -87,12 +87,6 @@ export default class UploadManager {
                 });
             });
         }, Promise.resolve([]));
-    }
-
-    _createServiceModel() {
-        return this.databaseInterface.getPendingDownloads().then(keysToCamel).then(downloads => {
-            return this._reducePromise(downloads, this._uploadDownload.bind(this));
-        });
     }
 
     _uploadDownload(download) {
