@@ -1,31 +1,51 @@
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import * as BackgroundHttp from 'nativescript-background-http';
-import { keysToCamel } from '../utilities';
+import { keysToCamel, serializePromiseChain } from '../utilities';
 import Config from '../config';
 
 const log = Config.logger("UploadManager");
 const SessionName = "fk-data-upload";
 
 export default class UploadManager {
-    constructor(databaseInterface, portalInterface ) {
+    constructor(databaseInterface, portalInterface, progressService) {
         this.databaseInterface = databaseInterface;
         this.portalInterface  = portalInterface;
+        this.progressService = progressService;
     }
 
     synchronizeLocalData() {
         log("synchronizeLocalData");
+
+        const operation = this.progressService.startUpload();
+
         return this.databaseInterface.getPendingDownloads().then(keysToCamel).then(downloads => {
-            return this._reducePromise(downloads, this._uploadDownload.bind(this));
+            return serializePromiseChain(downloads, this._uploadDownload.bind(this, operation));
+        }).then(() => {
+            return operation.complete();
+        }).catch((error) => {
+            return operation.cancel(error);
         });
     }
 
-    _upload(deviceId, headers, file) {
+    _uploadDownload(operation, download) {
+        const headers = {
+            "Fk-Blocks": download.blocks,
+        };
+        const file = File.fromPath(download.path);
+        return this._upload(download.deviceId, headers, file, operation).then(() => {
+            return this.databaseInterface.markDownloadAsUploaded(download);
+        });
+    }
+
+    _upload(deviceId, headers, file, operation) {
         return new Promise((resolve, reject) => {
             const url = "http://192.168.0.100:8090/upload";
             const session = BackgroundHttp.session(SessionName);
 
             delete headers['Connection'];
             delete headers['Content-Length'];
+
+            log("uploading", file.path, headers);
 
             const defaultHeaders = {
                 "Content-Type": "application/octet-stream",
@@ -37,9 +57,6 @@ export default class UploadManager {
                 method: "POST",
                 headers: { ...headers, ...defaultHeaders },
             };
-
-            log("uploading", file.path, headers);
-
             const task = session.uploadFile(file.path, req);
 
             task.on("progress", (e) => {
@@ -75,28 +92,6 @@ export default class UploadManager {
                 log('cancelled', e);
                 reject('cancelled');
             });
-        });
-    }
-
-    _reducePromise(all, fn) {
-        return all.reduce((accum, value, index) => {
-            return accum.then((allValues) => {
-                return fn(value, index).then((singleValue) => {
-                    allValues.push(singleValue);
-                    return allValues;
-                });
-            });
-        }, Promise.resolve([]));
-    }
-
-    _uploadDownload(download) {
-        log("uploading", download);
-        const headers = {
-            "Fk-Blocks": download.blocks,
-        };
-        const file = File.fromPath(download.path);
-        return this._upload(download.deviceId, headers, file).then(() => {
-            return this.databaseInterface.markDownloadAsUploaded(download);
         });
     }
 

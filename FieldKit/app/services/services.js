@@ -1,6 +1,8 @@
 import PortalInterface from "./portal-interface";
+import ProgressService from "./progress-service";
 
 const portalInterface = new PortalInterface();
+const progressService = new ProgressService();
 
 class Services {
     DiscoverStation() {
@@ -30,7 +32,7 @@ class Services {
     StateManager() {
         if (!this.stateManager) {
             const StateManager = require("./state-manager").default;
-            this.stateManager = new StateManager(this.Database(), this.QueryStation(), this.StationMonitor(), this.PortalInterface());
+            this.stateManager = new StateManager(this.Database(), this.QueryStation(), this.StationMonitor(), this.PortalInterface(), this.ProgressService());
         }
         return this.stateManager;
     }
@@ -53,6 +55,10 @@ class Services {
 
     PortalInterface() {
         return portalInterface;
+    }
+
+    ProgressService() {
+        return progressService;
     }
 }
 

@@ -37,3 +37,14 @@ export function keysToCamel(o) {
 export function getPathTimestamp() {
     return moment().utc().format('YYYYMMDD_hhmmss');
 }
+
+export function serializePromiseChain(all, fn) {
+    return all.reduce((accum, value, index) => {
+        return accum.then((allValues) => {
+            return fn(value, index).then((singleValue) => {
+                allValues.push(singleValue);
+                return allValues;
+            });
+        });
+    }, Promise.resolve([]));
+}

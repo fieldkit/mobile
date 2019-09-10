@@ -5,13 +5,13 @@ import Config from '../config';
 const log = Config.logger("StateManager");
 
 export default class StateManager {
-    constructor(databaseInterface, queryStation, stationMonitor, portalInterface) {
+    constructor(databaseInterface, queryStation, stationMonitor, portalInterface, progressService) {
         this.databaseInterface = databaseInterface;
         this.queryStation = queryStation;
         this.stationMonitor = stationMonitor;
         this.portalInterface = portalInterface;
-        this.downloadManager = new DownloadManager(databaseInterface, queryStation, stationMonitor);
-        this.uploadManager = new UploadManager(databaseInterface, portalInterface);
+        this.downloadManager = new DownloadManager(databaseInterface, queryStation, stationMonitor, progressService);
+        this.uploadManager = new UploadManager(databaseInterface, portalInterface, progressService);
     }
 
     renameStation(station, newName) {

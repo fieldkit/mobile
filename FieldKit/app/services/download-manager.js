@@ -6,10 +6,11 @@ import Config from '../config';
 const log = Config.logger("DownloadManager");
 
 export default class DownloadManager {
-    constructor(databaseInterface, queryStation, stationMonitor) {
+    constructor(databaseInterface, queryStation, stationMonitor, progressService) {
         this.databaseInterface = databaseInterface;
         this.queryStation = queryStation;
         this.stationMonitor = stationMonitor;
+        this.progressService = progressService;
 
         // NOTE Can we set these on our instance?
         Downloader.init();
@@ -19,14 +20,21 @@ export default class DownloadManager {
 
     synchronizeConnectedStations() {
         log("synchronizeConnectedStations");
+
+        const operation = this.progressService.startDownload();
+
         return Promise.resolve(this._createServiceModel()).then(connectedStations => {
             log("connected", connectedStations);
             // NOTE Right now this will download concurrently, we may want to make this serialized.
-            return Promise.all(connectedStations.map(s => {
-                return this._prepare(s).then(() => {
-                    return this._synchronizeStation(s);
+            return Promise.all(connectedStations.map(station => {
+                return this._prepare(station).then(() => {
+                    return this._synchronizeStation(station, operation);
                 });
             }))
+        }).then(() => {
+            return operation.complete();
+        }).catch((error) => {
+            return operation.cancel(error);
         });
     }
 
@@ -46,9 +54,9 @@ export default class DownloadManager {
         ]);
     }
 
-    _synchronizeStation(station) {
-        return this._download(station, station.meta.url, station.meta.destination).then(metaDownload => {
-            return this._download(station, station.data.url, station.data.destination).then(dataDownload => {
+    _synchronizeStation(station, operation) {
+        return this._download(station, station.meta.url, station.meta.destination, operation).then(metaDownload => {
+            return this._download(station, station.data.url, station.data.destination, operation).then(dataDownload => {
                 return { meta: metaDownload, data: dataDownload };
             });
         }).then(downloads => {
@@ -92,7 +100,7 @@ export default class DownloadManager {
         };
     }
 
-    _download(station, url, destination) {
+    _download(station, url, destination, operation) {
         return new Promise((resolve, reject) => {
             log("download", url, "to", destination.path);
 
