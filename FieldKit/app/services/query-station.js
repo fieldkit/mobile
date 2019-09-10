@@ -83,6 +83,9 @@ export default class QueryStation {
      * request/response bodies.
      */
     stationQuery(url, message) {
+        if (!Config.developer.stationFilter(url)) {
+            return Promise.reject("ignored");
+        }
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         const requestBody = new Buffer.from(binaryQuery).toString("hex");
         log("querying", url, message, requestBody);

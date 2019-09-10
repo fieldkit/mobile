@@ -8,7 +8,10 @@ function get_blank_developer_config() {
             UploadManager: false,
         },
         developer: {
-            machine: null
+            machine: null,
+            stationFilter: (url) => {
+                return true;
+            },
         }
     };
 }
