@@ -19,7 +19,7 @@ export default class AudioInterface {
         this.extension = platform.isAndroid ? ".m4a" : ".caf";
     }
 
-    async startRecording(filename) {
+    async startAudioRecording(filename) {
         if (!TNSRecorder.CAN_RECORD()) {
             dialogs.alert("This device cannot record audio.");
             return;
@@ -50,7 +50,7 @@ export default class AudioInterface {
         await recorder.start(recorderOptions);
     }
 
-    stopRecording() {
+    stopAudioRecording() {
         recorder.stop().then(() => {
             // console.log("stopped recording");
         });

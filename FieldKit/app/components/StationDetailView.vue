@@ -171,12 +171,12 @@
                     automationText="deployButton"
                     @tap="goToDeploy">
                     <Label
-                        :class="station.status == 'Ready to deploy'
-                            ?  'bold size-24 text-center'
-                            : 'plain text-center'"
-                        :text="station.status == 'Ready to deploy'
-                            ? _L('deploy')
-                            : _L('deployed')+' 01/01/19'"></Label>
+                        :class="station.status == 'recording'
+                            ? 'plain text-center'
+                            : 'bold size-24 text-center'"
+                        :text="station.status == 'recording'
+                            ? _L('recording')
+                            : _L('deploy')"></Label>
                 </StackLayout>
 
                 <!-- footer -->

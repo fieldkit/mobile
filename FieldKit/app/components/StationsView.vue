@@ -1,11 +1,11 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <StackLayout id="stations-list">
+            <StackLayout id="stations-list" class="m-y-10">
                 <StackLayout row="0" class="round m-x-10" @tap="goBack" horizontalAlignment="left">
                     <Image
                         width="21"
-                        class="m-b-10"
+                        class="m-y-10"
                         src="~/images/Icon_backarrow.png"></Image>
                 </StackLayout>
                 <Label class="h2 m-y-10 text-center" :text="message" textWrap="true"></Label>
@@ -19,9 +19,9 @@
                     orientation="vertical"
                     @tap=goToDetail>
                     <Label :text="s.name" :class="'station-name ' + (s.connected == 0 ? 'disconnected' : '')" />
-                    <Label :text="s.status"
-                        v-if="s.connected"
-                        :class="'stations-list '+(s.status ? s.status.replace(/ /g, '') : '')" />
+                    <Label v-if="s.connected"
+                        :text="s.status == 'recording' ? _L('recording') : _L('connected')"
+                        :class="'stations-list '+(s.status ? s.status : 'connected')" />
                 </StackLayout>
             </StackLayout>
         </ScrollView>
@@ -111,5 +111,6 @@ export default {
     color: $fk-gray-dark;
 }
 .stations-list {font-size: 16;}
-.Readytodeploy {color: green}
+.recording {color: $fk-primary-blue;}
+.connected {color: $fk-tertiary-green;}
 </style>

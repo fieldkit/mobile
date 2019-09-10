@@ -65,7 +65,6 @@ describe("FieldKit Navigation", () => {
         assert.isTrue(await batteryLevel.isDisplayed());
     });
 
-    // Note: this requires a station has a status of "Ready to deploy"
     it("should go to first step of deployment wizard", async function() {
         const deployButton = await driver.findElementByAccessibilityId('deployButton');
         await deployButton.click();
