@@ -326,7 +326,6 @@ export default {
                 case this.$stationMonitor.StationRefreshedProperty: {
                     if (Number(data.value.id) === Number(this.stationId)) {
                         this.station.connected = data.value.connected;
-                        console.log(data.value.status_reply);
                     }
                     break;
                 }
