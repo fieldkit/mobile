@@ -25,8 +25,8 @@ export default class StateManager {
         return this.downloadManager.synchronizeConnectedStations();
     }
 
-    synchronizeLocalData() {
-        log("synchronizeLocalData");
-        return this.uploadManager.synchronizeLocalData();
+    synchronizePortal() {
+        log("synchronizePortal");
+        return this.uploadManager.synchronizePortal();
     }
 }

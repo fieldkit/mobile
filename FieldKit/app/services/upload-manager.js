@@ -13,8 +13,8 @@ export default class UploadManager {
         this.progressService = progressService;
     }
 
-    synchronizeLocalData() {
-        log("synchronizeLocalData");
+    synchronizePortal() {
+        log("synchronizePortal");
 
         // TODO Replace with connectivity check.
         if (!this.portalInterface.isLoggedIn()) {
