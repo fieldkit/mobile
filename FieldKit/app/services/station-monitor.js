@@ -18,7 +18,7 @@ export default class StationMonitor extends Observable {
         this.subscribeToStationDiscovery();
         this.dbInterface.getAll().then(this.initializeStations.bind(this));
         this.StationsUpdatedProperty = "stationsUpdated";
-        this.StationsChangedProperty = "stationsChanged";
+        this.StationChangedProperty = "stationChanged";
         this.ReadingsChangedProperty = "readingsChanged";
     }
 
@@ -83,9 +83,7 @@ export default class StationMonitor extends Observable {
         }
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
-        return this.dbInterface.updateStationStatus(station, result).then(() => {
-            return this._publishStationsUpdated();
-        });
+        return this._updateStationStatus(station, result);
     }
 
     updateStationReadings(station, result) {
@@ -213,7 +211,7 @@ export default class StationMonitor extends Observable {
         station.lastSeen = new Date();
         this.stations[key] = station;
 
-        this._publishStationsChanged();
+        this._publishStationChanged(this.stations[key]);
         this._publishStationsUpdated();
     }
 
@@ -227,11 +225,9 @@ export default class StationMonitor extends Observable {
             // console.log("** reactivation where we don't have the station stored? **");
         }
 
-        this._publishStationsChanged();
-
         return this.dbInterface.setStationConnectionStatus(this.stations[key]).then(() => {
-            return this.dbInterface.updateStationStatus(station, status).then(() => {
-                return this._publishStationsUpdated();
+            return this._updateStationStatus(this.stations[key], status).then(() => {
+                return this._publishStationChanged(this.stations[key]);
             });
         });
     }
@@ -250,7 +246,7 @@ export default class StationMonitor extends Observable {
         }
         this.dbInterface.setStationConnectionStatus(this.stations[key]);
 
-        this._publishStationsChanged();
+        this._publishStationChanged(this.stations[key]);
         this._publishStationsUpdated();
     }
 
@@ -271,9 +267,8 @@ export default class StationMonitor extends Observable {
         return station.name + station.url;
     }
 
-    _publishStationsChanged() {
-        const stations = this.sortStations();
-        this.notifyPropertyChange(this.StationsChangedProperty, stations);
+    _publishStationChanged(station) {
+        this.notifyPropertyChange(this.StationChangedProperty, station);
         return Promise.resolve();
     }
 
@@ -281,5 +276,11 @@ export default class StationMonitor extends Observable {
         const stations = this.sortStations();
         this.notifyPropertyChange(this.StationsUpdatedProperty, stations);
         return Promise.resolve();
+    }
+
+    _updateStationStatus(station, status) {
+        return this.dbInterface.updateStationStatus(station, status).then(() => {
+            return this._publishStationsUpdated();
+        });
     }
 }

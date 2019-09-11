@@ -308,7 +308,7 @@ export default {
         },
 
         stopProcesses() {
-            if(this.station.url != "no_url") {
+            if (this.station && this.station.url != "no_url") {
                 this.$stationMonitor.stopLiveReadings(this.station.url);
             }
             clearInterval(this.intervalTimer);
@@ -319,28 +319,30 @@ export default {
 
             this.user = this.$portalInterface.getCurrentUser();
 
-            this.$stationMonitor.on(
-                Observable.propertyChangeEvent,
-                data => {
-                    switch (data.propertyName.toString()) {
-                    case this.$stationMonitor.ReadingsChangedProperty: {
-                        if(data.value.stationId == this.stationId) {
-                            this.station.connected = 1;
-                            this.cycleSensorReadings(data.value.readings);
-                            this.station.battery_level = data.value.batteryLevel + "%";
-                            this.setBatteryImage();
-                            this.station.occupiedMemory = data.value.consumedMemory.toFixed(2);
-                            this.station.available_memory = 100 - this.station.occupiedMemory + "%";
-                            this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
-                        }
-                        break;
+            this.$stationMonitor.on(Observable.propertyChangeEvent, data => {
+                switch (data.propertyName.toString()) {
+                case this.$stationMonitor.StationChangedProperty: {
+                    if (Number(data.value.id) === Number(this.stationId)) {
+                        this.station.connected = data.value.connected;
                     }
-                    }
-                },
-                error => {
-                    // console.log("propertyChangeEvent error", error);
+                    break;
                 }
-            );
+                case this.$stationMonitor.ReadingsChangedProperty: {
+                    if (data.value.stationId == this.stationId) {
+                        this.station.connected = 1; // JACOB Why not true?
+                        this.cycleSensorReadings(data.value.readings);
+                        this.station.battery_level = data.value.batteryLevel + "%";
+                        this.setBatteryImage();
+                        this.station.occupiedMemory = data.value.consumedMemory.toFixed(2);
+                        this.station.available_memory = 100 - this.station.occupiedMemory + "%";
+                        this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
+                    }
+                    break;
+                }
+                }
+            }, error => {
+                // console.log("propertyChangeEvent error", error);
+            });
 
             dbInterface
                 .getStation(this.stationId)
