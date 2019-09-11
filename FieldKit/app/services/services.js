@@ -1,9 +1,3 @@
-import PortalInterface from "./portal-interface";
-import ProgressService from "./progress-service";
-
-const portalInterface = new PortalInterface();
-const progressService = new ProgressService();
-
 class Services {
     DiscoverStation() {
         if (!this.discoverStation) {
@@ -54,11 +48,19 @@ class Services {
     }
 
     PortalInterface() {
-        return portalInterface;
+        if (!this.portalInterface) {
+            const PortalInterface = require("./portal-interface").default;
+            this.portalInterface = new PortalInterface();
+        }
+        return this.portalInterface;
     }
 
     ProgressService() {
-        return progressService;
+        if (!this.progressService) {
+            const ProgressService = require("./progress-service").default;
+            this.progressService = new ProgressService();
+        }
+        return this.progressService;
     }
 }
 
