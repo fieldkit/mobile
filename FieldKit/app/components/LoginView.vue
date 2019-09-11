@@ -171,6 +171,7 @@
 
 <script>
 import Home from "./HomeView";
+import Stations from "./StationsView";
 import { USERNAME, PASSWORD } from "../secrets";
 
 export default {
@@ -257,7 +258,7 @@ export default {
 
         continueOffline() {
             if (!this.navigatedAway) {
-                this.$navigateTo(Home, { clearHistory: true });
+                this.$navigateTo(Stations, { clearHistory: true });
                 this.navigatedAway = true;
             }
         },
@@ -281,7 +282,7 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    this.$navigateTo(Home, { clearHistory: true });
+                    this.$navigateTo(Stations, { clearHistory: true });
                 })
                 .catch(error => {
                     this.processing = false;
