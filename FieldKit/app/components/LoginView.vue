@@ -186,6 +186,7 @@ export default {
             noPassword: false,
             passwordTooShort: false,
             passwordsNotMatch: false,
+            navigatedAway: false,
             user: {
                 name: "",
                 email: "",
@@ -202,7 +203,7 @@ export default {
             if (USERNAME && PASSWORD && !this.resetUser) {
                 this.user.email = USERNAME;
                 this.user.password = PASSWORD;
-                this.login();
+                this.continueOffline();
             }
         },
 
@@ -255,7 +256,10 @@ export default {
         },
 
         continueOffline() {
-            this.$navigateTo(Home, { clearHistory: true });
+            if (!this.navigatedAway) {
+                this.$navigateTo(Home, { clearHistory: true });
+                this.navigatedAway = true;
+            }
         },
 
         submit() {
@@ -273,7 +277,7 @@ export default {
         },
 
         login() {
-            this.$portalInterface
+            return this.$portalInterface
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
@@ -281,7 +285,9 @@ export default {
                 })
                 .catch(error => {
                     this.processing = false;
-                    this.alert(_L("loginFailed"));
+                    if (!this.navigatedAway) {
+                        this.alert(_L("loginFailed"));
+                    }
                 });
         },
 
@@ -292,7 +298,7 @@ export default {
                 return;
             }
 
-            this.$portalInterface
+            return this.$portalInterface
                 .register(this.user)
                 .then(() => {
                     this.processing = false;

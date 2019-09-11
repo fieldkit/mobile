@@ -33,13 +33,18 @@ class BetterObservable extends Observable {
 };
 
 class ProgressTracker {
-    constructor(service) {
+    constructor(service, kind) {
         this.service = service;
-        log("started");
+        this.kind = kind;
+        this.progress = {
+            message: null,
+            progress: 0.0,
+        };
     }
 
-    update() {
-        log("update");
+    update(progress) {
+        this.progress = progress;
+        this.service._publish(this, progress);
     }
 
     cancel(error) {
@@ -65,7 +70,7 @@ export default class ProgressService extends BetterObservable {
     }
 
     startOperation(kind) {
-        const op = new ProgressTracker(this);
+        const op = new ProgressTracker(this, kind);
         this.active.push(op);
         return op;
     }
@@ -82,9 +87,37 @@ export default class ProgressService extends BetterObservable {
         const index = this.active.indexOf(operation);
         if (index >= 0) {
             this.active.splice(index, 1);
+            this._publish();
         }
         else {
             console.warn("Removing operation twice?");
         }
+    }
+
+    _publish(operation) {
+        this.publish(this._calculateProgress());
+    }
+
+    _calculateProgress() {
+        if (this.active.length == 1) {
+            return { ...{ }, ...this.active[0].progress, ...{ message: this._getMessage(this.active[0].kind) } };
+        }
+        else {
+            log("active", this.active);
+        }
+        return {
+            message: null,
+            progress: 0.0,
+        };
+    }
+
+    _getMessage(kind) {
+        if (kind == Kinds.DOWNLOAD) {
+            return "Downloading";
+        }
+        if (kind == Kinds.UPLOAD) {
+            return "Uploading";
+        }
+        return "Working";
     }
 }

@@ -163,8 +163,7 @@ export default class DownloadManager {
     }
 
     _getStationFolder(station) {
-        const data = knownFolders.currentApp();
-        return data.getFolder(station.deviceId);
+        return knownFolders.currentApp().getFolder(station.deviceId);
     }
 
     _getNewDownloadFolder(station) {

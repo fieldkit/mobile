@@ -18,6 +18,7 @@
     "deepmerge": "^4.0.0",
     "fk-app-protocol": "git+https://github.com/fieldkit/app-protocol.git",
     "fk-data-protocol": "git+https://github.com/fieldkit/data-protocol.git",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "nativescript-audio": "^5.0.4",
     "nativescript-background-http": "^4.1.0",

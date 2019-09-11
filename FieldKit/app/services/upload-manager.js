@@ -16,6 +16,14 @@ export default class UploadManager {
     synchronizeLocalData() {
         log("synchronizeLocalData");
 
+        // TODO Replace with connectivity check.
+        if (!this.portalInterface.isLoggedIn()) {
+            log("offline!");
+            return Promise.resolve({
+                offline: true,
+            });
+        }
+
         const operation = this.progressService.startUpload();
 
         return this.databaseInterface.getPendingDownloads().then(keysToCamel).then(downloads => {
@@ -56,6 +64,9 @@ export default class UploadManager {
                 url: url,
                 method: "POST",
                 headers: { ...headers, ...defaultHeaders },
+                androidDisplayNotificationProgress: false, // Won't work going foward.
+                androidRingToneEnabled: false,
+                androidAutoClearNotification: true,
             };
             const task = session.uploadFile(file.path, req);
 
