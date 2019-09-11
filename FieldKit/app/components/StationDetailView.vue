@@ -101,6 +101,8 @@
                     </StackLayout>
                 </GridLayout>
 
+                <SynchronizePanel />
+
                 <GridLayout rows="auto, auto"
                     columns="*"
                     :class="'memory-bar-container ' + (isEditingName ? 'faded' : '')">
@@ -207,7 +209,7 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 import routes from "../routes";
-import ProgressBar from './ProgressBar';
+import SynchronizePanel from './SynchronizePanel';
 import Services from '../services/services';
 
 const dbInterface = Services.Database();
@@ -232,7 +234,7 @@ export default {
         };
     },
     components: {
-        ProgressBar
+        SynchronizePanel,
     },
     props: ["stationId", "recording"],
     methods: {
@@ -324,6 +326,7 @@ export default {
                 case this.$stationMonitor.StationRefreshedProperty: {
                     if (Number(data.value.id) === Number(this.stationId)) {
                         this.station.connected = data.value.connected;
+                        console.log(data.value.status_reply);
                     }
                     break;
                 }
