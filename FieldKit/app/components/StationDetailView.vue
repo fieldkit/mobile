@@ -211,6 +211,9 @@ import {
 import routes from "../routes";
 import SynchronizePanel from './SynchronizePanel';
 import Services from '../services/services';
+import Config from '../config';
+
+const log = Config.logger('StationDetailView');
 
 const dbInterface = Services.Database();
 const stateManager = Services.StateManager();

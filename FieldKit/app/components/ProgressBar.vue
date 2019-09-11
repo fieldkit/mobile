@@ -7,6 +7,9 @@
 
 <script>
 import Services from '../services/services';
+import Config from '../config';
+
+const log = Config.logger('ProgressBar');
 
 export default {
     data() {

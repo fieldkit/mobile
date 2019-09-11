@@ -13,6 +13,9 @@
 <script>
 import ProgressBar from './ProgressBar';
 import Services from '../services/services';
+import Config from '../config';
+
+const log = Config.logger('SynchronizePanel');
 
 export default {
     data() {
@@ -36,22 +39,22 @@ export default {
         onLoaded(args) {
             this.stateManager = Services.StateManager();
             return this.stateManager.getStatus().then(status => {
-                console.log("status", status.portal);
-                console.log("status", status.station);
+                log("PORTAL", status.portal);
+                log("STATION", status.station);
             }).catch(error => {
-                console.log(error);
+                console.error(error);
             });
         },
 
         onSyncStation() {
             return this.stateManager.synchronizeConnectedStations().catch(error => {
-                console.log("SYNC STATION", error);
+                console.error("ERROR SYNC STATION", error);
             });
         },
 
         onSyncPortal() {
             return this.stateManager.synchronizePortal().catch(error => {
-                console.log("SYNC PORTAL", error);
+                console.error("ERROR SYNC PORTAL", error);
             });
         },
     }

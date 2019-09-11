@@ -1,6 +1,8 @@
 import Config from "../config";
 import Sqlite from "../wrappers/sqlite";
 
+const log = Config.logger('DbInterface');
+
 const sqlite = new Sqlite();
 
 // thirty seconds
@@ -276,7 +278,7 @@ export default class DatabaseInterface {
 
     getStreams() {
         return this.getDatabase().then(db => db.query(`SELECT * FROM streams`)).then(rows => {
-            console.log(rows);
+            log('streams', rows);
             return rows;
         });
     }

@@ -22,8 +22,8 @@ export default class DownloadManager {
     getStatus() {
         return Promise.all(this.stationMonitor.sortStations().map(station => {
             return this.databaseInterface.getDownloadsByStationId(station.id).then(downloads => {
-                console.log(station);
-                console.log(downloads);
+                log('station', station);
+                log('downloads', downloads);
                 return {
                     streams: {
                         meta: this._getStreamStatus(station.status_reply, 0, 'meta'),
@@ -42,7 +42,6 @@ export default class DownloadManager {
 
     _getStreamStatus(status, index, name) {
         const s = status.streams[index];
-        console.log(s);
         return {
             blocks: s.block,
             size: s.size,
