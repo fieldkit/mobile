@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import axios from "axios";
 import protobuf from "protobufjs";
 import deepmerge from 'deepmerge';
+import { promiseAfter } from '../utilities';
 import Config from '../config';
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
@@ -34,7 +36,7 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            return this.fixupStatus(reply);
+            return this._fixupStatus(reply);
         });
     }
 
@@ -44,7 +46,7 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            return this.fixupStatus(reply);
+            return this._fixupStatus(reply);
         });
     }
 
@@ -55,7 +57,7 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            return this.fixupStatus(reply);
+            return this._fixupStatus(reply);
         });
     }
 
@@ -66,7 +68,7 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            return this.fixupStatus(reply);
+            return this._fixupStatus(reply);
         });
     }
 
@@ -77,7 +79,7 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            return this.fixupStatus(reply);
+            return this._fixupStatus(reply);
         });
     }
 
@@ -110,8 +112,10 @@ export default class QueryStation {
                 }
                 const binaryReply = Buffer.from(response.data, "hex");
                 const decoded = HttpReply.decodeDelimited(binaryReply);
-                log("query success", decoded);
-                return decoded;
+                return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
+                    log("query success", finalReply);
+                    return finalReply;
+                });
             },
             err => {
                 console.log("query error", err);
@@ -119,11 +123,29 @@ export default class QueryStation {
         );
     }
 
-    fixupStatus(reply) {
+    _fixupStatus(reply) {
         // NOTE deepmerge ruins deviceId.
         if (reply.status && reply.status.identity) {
             reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
         }
         return deepmerge.all([MandatoryStatus, reply]);
+    }
+
+    _handlePotentialBusyReply(reply, url, message) {
+        if (reply.type != ReplyType.values.REPLY_BUSY) {
+            return Promise.resolve(reply);
+        }
+        const delays = _(reply.errors).sum('delay');
+        if (delays == 0) {
+            return Promise.reject(new Error('busy'));
+        }
+        return this._retryAfter(delay, url, message);
+    }
+
+    _retryAfter(delay, url, message) {
+        console.log("retrying after", delay);
+        return promiseAfter(delay).then(() => {
+            return this.stationQuery(url, message);
+        });
     }
 }
