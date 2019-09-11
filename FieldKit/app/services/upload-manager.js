@@ -58,7 +58,7 @@ export default class UploadManager {
 
     _upload(deviceId, headers, file, operation) {
         return new Promise((resolve, reject) => {
-            const url = "http://192.168.0.100:8090/upload";
+            const url = Config.ingestionUri;
             const session = BackgroundHttp.session(SessionName);
 
             delete headers['Connection'];

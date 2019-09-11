@@ -26,12 +26,14 @@ function get_developer_config() {
 const configs = {
     default: {
         baseUri: "https://api.fkdev.org",
+        ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
         dropTables: true,
         stationTimeoutMs: 30000,
     },
     test: {
         baseUri: "https://api.fkdev.org",
+        ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
         dropTables: true,
         stationTimeoutMs: 30000,
