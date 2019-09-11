@@ -32,7 +32,12 @@ export function keysToCamel(o) {
     }
 
     return o;
-};
+}
+
+export function sqliteToJs(o) {
+    // TODO Handle booleans.
+    return keysToCamel(o);
+}
 
 export function getPathTimestamp() {
     return moment().utc().format('YYYYMMDD_hhmmss');

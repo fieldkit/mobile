@@ -1,5 +1,7 @@
 import Config from "../config";
 import Sqlite from "../wrappers/sqlite";
+import Constants from '../constants';
+import { sqliteToJs } from '../utilities';
 
 const log = Config.logger('DbInterface');
 
@@ -11,9 +13,6 @@ const minInterval = 30;
 const maxInterval = 1209600;
 
 let databasePromise;
-
-const MetaStreamName = 'meta';
-const DataStreamName = 'data';
 
 export default class DatabaseInterface {
     constructor() {
@@ -265,11 +264,15 @@ export default class DatabaseInterface {
     }
 
     getAllDownloads() {
-        return this.getDatabase().then(db => db.query("SELECT * FROM downloads"));
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads")).then(rows => sqliteToJs(rows));
     }
 
     getPendingDownloads() {
-        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE uploaded IS NULL"));
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE uploaded IS NULL")).then(rows => sqliteToJs(rows));
+    }
+
+    getDownloadsByStationId(id) {
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE station_id = ?", [id])).then(rows => sqliteToJs(rows));
     }
 
     markDownloadAsUploaded(download) {
@@ -278,12 +281,15 @@ export default class DatabaseInterface {
 
     getStreams() {
         return this.getDatabase().then(db => db.query(`SELECT * FROM streams`)).then(rows => {
-            log('streams', rows);
-            return rows;
+            return sqliteToJs(rows);
         });
     }
 
     _updateStream(station, status, name, index) {
+        if (!status.streams) {
+            console.log('BAD STATUS', status)
+            return Promise.reject();
+        }
         return this.getDatabase().then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND name = ?", [station.id, name])).then(streamId => {
             if (streamId.length > 0) {
                 const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
@@ -298,8 +304,8 @@ export default class DatabaseInterface {
 
     updateStationStatus(station, status) {
         return this.getDatabase().then(db => db.query("UPDATE stations SET status_json = ? WHERE id = ?", JSON.stringify(status), station.id)).then(() => {
-            return this._updateStream(station, status, MetaStreamName, 1).then(() => {
-                return this._updateStream(station, status, DataStreamName, 0);
+            return this._updateStream(station, status, Constants.MetaStreamName, 1).then(() => {
+                return this._updateStream(station, status, Constants.DataStreamName, 0);
             });
         });
     }
@@ -314,10 +320,6 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("SELECT status_json FROM stations WHERE id = ?", id)).then(json => {
             return JSON.parse(json);
         });
-    }
-
-    getDownloadsByStationId(id) {
-        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE station_id = ?", [id]));
     }
 }
 
