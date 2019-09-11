@@ -10,6 +10,9 @@ const maxInterval = 1209600;
 
 let databasePromise;
 
+const MetaStreamName = 'meta';
+const DataStreamName = 'data';
+
 export default class DatabaseInterface {
     constructor() {
         databasePromise = this.openDatabase();
@@ -293,8 +296,8 @@ export default class DatabaseInterface {
 
     updateStationStatus(station, status) {
         return this.getDatabase().then(db => db.query("UPDATE stations SET status_json = ? WHERE id = ?", JSON.stringify(status), station.id)).then(() => {
-            return this._updateStream(station, status, 'meta', 1).then(() => {
-                return this._updateStream(station, status, 'data', 0);
+            return this._updateStream(station, status, MetaStreamName, 1).then(() => {
+                return this._updateStream(station, status, DataStreamName, 0);
             });
         });
     }
