@@ -75,9 +75,9 @@ export default class UploadManager {
                 url: url,
                 method: "POST",
                 headers: { ...headers, ...defaultHeaders },
-                androidDisplayNotificationProgress: false, // Won't work going foward.
-                androidRingToneEnabled: false,
-                androidAutoClearNotification: true,
+                // androidDisplayNotificationProgress: false, // Won't work going foward.
+                // androidRingToneEnabled: false,
+                // androidAutoClearNotification: true,
             };
             const task = session.uploadFile(file.path, req);
 
