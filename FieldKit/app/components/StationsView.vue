@@ -42,11 +42,23 @@ export default {
             stations: []
         };
     },
+    props: ["stationId","recording"],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
 
             this.stations = this.$stationMonitor.getStations();
+
+            // set status here, as background querying can
+            // can take a few seconds to catch up
+            if(this.stationId && this.recording) {
+                this.stations.forEach(s => {
+                    if(s.id == this.stationId) {
+                        this.$set(s, "status", this.recording);
+                    }
+                });
+            }
+
             this.$stationMonitor.on(Observable.propertyChangeEvent, this.updateStations);
         },
 
@@ -112,5 +124,5 @@ export default {
 }
 .stations-list {font-size: 16;}
 .recording {color: $fk-primary-blue;}
-.connected {color: $fk-tertiary-green;}
+.connected, .idle {color: $fk-tertiary-green;}
 </style>

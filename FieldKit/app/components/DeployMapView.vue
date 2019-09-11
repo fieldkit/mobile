@@ -160,7 +160,7 @@ export default {
             timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
         };
     },
-    props: ["stationId"],
+    props: ["stationId","recording"],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
@@ -185,7 +185,8 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    stationId: this.stationId
+                    stationId: this.stationId,
+                    recording: this.recording
                 }
             });
         },
