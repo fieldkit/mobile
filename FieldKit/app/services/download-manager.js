@@ -1,10 +1,22 @@
 import _ from 'lodash';
 import { Downloader } from 'nativescript-downloader';
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
+
 import { getPathTimestamp } from '../utilities';
+import Constants from '../constants';
 import Config from '../config';
 
 const log = Config.logger("DownloadManager");
+
+class DownloadStatus {
+    constructor(stations) {
+        this.stations = stations;
+    }
+
+    forStation(id) {
+        return _(this.stations).filter(s => s.station.id == id).first();
+    }
+}
 
 export default class DownloadManager {
     constructor(databaseInterface, queryStation, stationMonitor, progressService) {
@@ -24,20 +36,31 @@ export default class DownloadManager {
             return this.databaseInterface.getDownloadsByStationId(station.id).then(downloads => {
                 log('station', station);
                 log('downloads', downloads);
+
+                const lastMetaDownloaded = _(downloads).filter(d => d.name == Constants.MetaStreamName).map(d => d.lastBlock).max();
+                const lastDataDownloaded = _(downloads).filter(d => d.name == Constants.DataStreamName).map(d => d.lastBlock).max();
+
                 return {
+                    station: station,
                     streams: {
-                        meta: this._getStreamStatus(station.status_reply, 0, 'meta'),
-                        data: this._getStreamStatus(station.status_reply, 1, 'data'),
+                        meta: this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamName),
+                        data: this._getStreamStatus(station.statusReply, 1, Constants.DataStreamName),
                     },
                     downloads: {
                         meta: {
+                            lastBlock: lastMetaDownloaded,
+                            size: 0,
                         },
                         data: {
+                            lastBlock: lastDataDownloaded,
+                            size: 0,
                         }
                     }
                 };
             });
-        }));
+        })).then((data) => {
+            return new DownloadStatus(data);
+        });
     }
 
     _getStreamStatus(status, index, name) {

@@ -1,108 +1,75 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <ScrollView>
-            <FlexboxLayout flexDirection="column" justifyContent="space-between">
-                <Label class="h2 m-y-20 text-center" :text="message" textWrap="true"></Label>
+<Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <DockLayout height="100%" stretchLastChild="true">
+        <Label class="h2 m-y-20 text-center" :text="message" textWrap="true" dock="top"></Label>
 
-                <StackLayout id="download-container">
-                    <FlexboxLayout justifyContent="center">
-                        <Button class="btn btn-primary" :text="_L('startDownload')" @tap="startDownload"></Button>
-                    </FlexboxLayout>
-                    <GridLayout v-show="isDownloading"
-                        class="progress-bar-container"
-                        rows="auto, auto, auto"
-                        columns="*">
-                        <StackLayout row="0" class="progress-bar"></StackLayout>
-                        <StackLayout row="0"
-                            class="progress-bar"
-                            horizontalAlignment="left"
-                            id="download-progress-bar"></StackLayout>
-                        <Label row="1"
-                            class="m-t-5 size-12"
-                            horizontalAlignment="right"
-                            :text="percentDownloaded"></Label>
-                        <Label row="2"
-                            class="m-t-5 size-12"
-                            horizontalAlignment="right"
-                            :text="sizeDownloaded"></Label>
-                    </GridLayout>
-                    <FlexboxLayout justifyContent="center">
-                        <Label :text="downloadComplete"></Label>
-                    </FlexboxLayout>
-                </StackLayout>
+        <SynchronizePanel dock="top" :station="station" />
 
-                <GridLayout columns="26*,48*,26*" rows="auto, auto">
-                    <BarcodeScanner
-                        row="0"
-                        colSpan="3"
-                        height="300"
-                        formats="QR_CODE, EAN_13, UPC_A"
-                        beepOnScan="true"
-                        reportDuplicates="true"
-                        preferFrontCamera="false"
-                        @scanResult="onScanResult"
-                        v-if="isIOS">
-                    </BarcodeScanner>
-                    <Button row="1"
-                        col="1"
-                        class="btn btn-primary"
-                        text="Start scanning"
-                        @tap="doScanWithBackCamera"></Button>
-                    <!-- <Button row="3" class="btn btn-primary btn-rounded-sm" text="front camera, no flip" @tap="doScanWithFrontCamera"></Button> -->
-                </GridLayout>
+        <!--
 
-                <FlexboxLayout justifyContent="space-between" class="size-12 p-30 footer">
-                    <StackLayout @tap="goToStation" class="footer-btn">
-                        <Image width="20" src="~/images/Icon_Station_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('station')"></Label>
-                    </StackLayout>
-                    <StackLayout class="footer-btn">
-                        <Image width="20" src="~/images/Icon_Data_Selected.png"></Image>
-                        <Label class="bold m-t-2" :text="_L('data')"></Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('settings')"></Label>
-                    </StackLayout>
-                </FlexboxLayout>
+        Saved for posterity.
 
-            </FlexboxLayout>
-        </ScrollView>
-    </Page>
+        <GridLayout columns="26*,48*,26*" rows="auto, auto">
+            <BarcodeScanner
+                row="0"
+                colSpan="3"
+                height="300"
+                formats="QR_CODE, EAN_13, UPC_A"
+                beepOnScan="true"
+                reportDuplicates="true"
+                preferFrontCamera="false"
+                @scanResult="onScanResult"
+                v-if="isIOS">
+            </BarcodeScanner>
+            <Button row="1"
+                    col="1"
+                    class="btn btn-primary"
+                    text="Start scanning"
+                    @tap="doScanWithBackCamera"></Button>
+
+            !-- <Button row="3" class="btn btn-primary btn-rounded-sm" text="front camera, no flip" @tap="doScanWithFrontCamera"></Button> --
+        </GridLayout>
+        -->
+
+        <StackLayout dock="bottom" verticalAlignment="bottom">
+            <StationFooterTabs :station="station" />
+        </StackLayout>
+    </DockLayout>
+</Page>
 </template>
 
 <script>
-import {isIOS} from "tns-core-modules/platform";
-import {BarcodeScanner} from "nativescript-barcodescanner";
-import { Downloader } from 'nativescript-downloader';
+import { isIOS } from "tns-core-modules/platform";
+import { BarcodeScanner } from "nativescript-barcodescanner";
 import { Label } from "tns-core-modules/ui/label/label";
-import { File, path, knownFolders } from "tns-core-modules/file-system";
-import protobuf from "protobufjs";
 import routes from "../routes";
 
-const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
-const SignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
-const DataRecord = dataRoot.lookupType("fk_data.DataRecord");
-
-const documents = knownFolders.documents();
-const folder = documents.getFolder("DataDownloads");
+import SynchronizePanel from './SynchronizePanel';
+import StationFooterTabs from './StationFooterTabs';
 
 export default {
     data() {
         return {
             message: this.stationName,
-            isDownloading: false,
-            percentDownloaded: 0,
-            sizeDownloaded: 0,
-            downloadComplete: ""
         };
     },
-    props: ['stationId','url','stationName'],
+    computed: {
+        station: function() {
+            return {
+                id: this.stationId,
+                name: this.stationName,
+                url: this.url,
+            };
+        }
+    },
+    components: {
+        SynchronizePanel,
+        StationFooterTabs,
+    },
+    props: ['stationId', 'url', 'stationName'],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
-            Downloader.init();
-            Downloader.setTimeout(120);
         },
 
         goToStation(event) {
@@ -115,81 +82,6 @@ export default {
                     stationId: this.stationId
                 }
             });
-        },
-
-        startDownload() {
-            this.isDownloading = true;
-            // currently re-writing the file for each device every time
-            let fileName = this.stationName+".meta";
-            let downloader = new Downloader();
-            let dataDownloader = downloader.createDownload({
-                url: this.url+"/download/meta",
-                path: folder.path,
-                fileName: fileName
-            });
-
-            downloader
-                .start(dataDownloader, (progressData) => {
-                    this.downloadComplete = "";
-                    // progressData has value, currentSize, totalSize, speed
-                    // convert to kilobytes or megabytes
-                    if(progressData.totalSize < 1000000.0) {
-                        this.sizeDownloaded = (progressData.currentSize / 1024.0).toFixed(2) + " KB";
-                    } else {
-                        this.sizeDownloaded = (progressData.currentSize / 1048576.0).toFixed(2) + " MB";
-                    }
-                    this.percentDownloaded = progressData.value+"%";
-                    this.page.addCss("#download-progress-bar {width: "+progressData.value+"%;}");
-                })
-                .then((completed) => {
-                    // console.log(`File : ${completed.path}`);
-                    let downloadMessage = this.sizeDownloaded == 0 ? "File" : this.sizeDownloaded;
-                    this.downloadComplete = downloadMessage + ' ' + _L('downloaded');
-                    this.isDownloading = false;
-                    this.percentDownloaded = 0;
-                    this.sizeDownloaded = 0;
-                    this.page.addCss("#download-progress-bar {width: 0;}");
-                    // temp?
-                    this.loadMetaFile();
-                })
-                .catch(error => {
-                    // console.log(error.message);
-                });
-        },
-
-        loadMetaFile() {
-            let fileName = this.stationName+".meta";
-            let metaFile = folder.getFile(fileName);
-            let source = metaFile.readSync((err) => {
-                // console.log("error? ---", err);
-            });
-            let u8Array = this.toUint8Array(source);
-            let decoded = SignedRecord.decodeDelimited(u8Array);
-            let dataRec = DataRecord.decodeDelimited(decoded.data);
-            // console.log("data record? ---", dataRec)
-            dataRec.modules.forEach((m) => {
-                // module has: sensors, name, header, firmware
-                console.log("module", m.name)
-                m.sensors.forEach((s) => {
-                    // sensor has: name, unitOfMeasure
-                    console.log("sensor", s)
-                })
-            });
-
-        },
-
-        onScanResult(evt) {
-            // Note: this does not ever seem to get called... ?
-
-            // console.log(`onScanResult: ${evt.text} (${evt.format})`);
-        },
-
-        doScanWithBackCamera() {
-            this.scan(false);
-        },
-
-        doScanWithFrontCamera() {
-            this.scan(true);
         },
 
         scan(front) {
@@ -208,33 +100,32 @@ export default {
                     // console.log("Scanner closed @ " + new Date().getTime());
                 }
             }).then(result => {
-                    // console.log("--- scanned: " + result.text);
-                    // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
-                    setTimeout(() => {
-                        alert({
-                            title: "Scan result",
-                            message: "Format: " + result.format + ",\nValue: " + result.text,
-                            okButtonText: "OK"
-                        });
-                    }, 200);
-                }, errorMessage => {
-                    // console.log("No scan. " + errorMessage);
-                }
-            );
+                // console.log("--- scanned: " + result.text);
+                // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
+                setTimeout(() => {
+                    alert({
+                        title: "Scan result",
+                        message: "Format: " + result.format + ",\nValue: " + result.text,
+                        okButtonText: "OK"
+                    });
+                }, 200);
+            }, errorMessage => {
+                // console.log("No scan. " + errorMessage);
+            });
         },
 
-        toUint8Array(source) {
-            if(isIOS) {
-                let ab = new ArrayBuffer(source.length);
-                source.getBytes(ab);
-                let u8Array = new Uint8Array(ab);
-                return u8Array;
-            } else {
-                let u8Array = new Uint8Array(source);
-                return u8Array;
-            }
-        }
+        onScanResult(evt) {
+            // Note: this does not ever seem to get called... ?
+            // console.log(`onScanResult: ${evt.text} (${evt.format})`);
+        },
 
+        doScanWithBackCamera() {
+            this.scan(false);
+        },
+
+        doScanWithFrontCamera() {
+            this.scan(true);
+        },
     }
 };
 </script>

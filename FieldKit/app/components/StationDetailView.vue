@@ -101,8 +101,6 @@
                     </StackLayout>
                 </GridLayout>
 
-                <SynchronizePanel />
-
                 <GridLayout rows="auto, auto"
                     columns="*"
                     :class="'memory-bar-container ' + (isEditingName ? 'faded' : '')">
@@ -209,7 +207,6 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 import routes from "../routes";
-import SynchronizePanel from './SynchronizePanel';
 import Services from '../services/services';
 import Config from '../config';
 
@@ -236,9 +233,7 @@ export default {
             modules: []
         };
     },
-    components: {
-        SynchronizePanel,
-    },
+    components: {},
     props: ["stationId", "recording"],
     methods: {
         goBack(event) {

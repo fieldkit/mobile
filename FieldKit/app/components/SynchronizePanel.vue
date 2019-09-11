@@ -18,6 +18,10 @@ import Config from '../config';
 const log = Config.logger('SynchronizePanel');
 
 export default {
+    props: {
+        station: Object,
+    },
+
     data() {
         return {
             visible: true,
@@ -39,8 +43,11 @@ export default {
         onLoaded(args) {
             this.stateManager = Services.StateManager();
             return this.stateManager.getStatus().then(status => {
+                const station = status.station.forStation(this.station.id);
+                console.log(station);
                 log("PORTAL", status.portal);
-                log("STATION", status.station);
+                log("STATION", station.streams);
+                log("STATION", station.downloads);
             }).catch(error => {
                 console.error(error);
             });
