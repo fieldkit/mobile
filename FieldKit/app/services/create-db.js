@@ -104,6 +104,7 @@ export default class CreateDB {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 station_id INTEGER NOT NULL,
                 device_id TEXT NOT NULL,
+                name TEXT NOT NULL,
                 path TEXT NOT NULL,
                 timestamp TIMESTAMP NOT NULL,
                 url TEXT NOT NULL,

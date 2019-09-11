@@ -275,12 +275,18 @@ export default class StationMonitor extends Observable {
     }
 
     _updateStationStatus(station, status) {
-        station.status_reply = status;
+        if (status != null) {
+            station.status_reply = status;
 
-        return this.dbInterface.updateStationStatus(station, status).then(() => {
-            return this._publishStationsUpdated().then(() => {
-                return this._publishStationRefreshed(station);
+            return this.dbInterface.updateStationStatus(station, status).then(() => {
+                return this._publishStationsUpdated().then(() => {
+                    return this._publishStationRefreshed(station);
+                });
             });
-        });
+        }
+        else {
+            console.log("No status");
+        }
+        return Promise.resolve();
     }
 }

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import * as BackgroundHttp from 'nativescript-background-http';
 import { keysToCamel, serializePromiseChain } from '../utilities';
@@ -11,6 +12,16 @@ export default class UploadManager {
         this.databaseInterface = databaseInterface;
         this.portalInterface  = portalInterface;
         this.progressService = progressService;
+    }
+
+    getStatus() {
+        return this.databaseInterface.getPendingDownloads().then(pending => {
+            return {
+                files: pending.length,
+                total: _(pending).map('size').sum(),
+                devices: _(pending).groupBy('deviceId').size(),
+            };
+        });
     }
 
     synchronizePortal() {

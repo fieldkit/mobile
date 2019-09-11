@@ -18,6 +18,38 @@ export default class DownloadManager {
         this.downloader = new Downloader();
     }
 
+    getStatus() {
+        return Promise.all(this.stationMonitor.sortStations().map(station => {
+            return this.databaseInterface.getDownloadsByStationId(station.id).then(downloads => {
+                console.log(station);
+                console.log(downloads);
+                return {
+                    streams: {
+                        meta: this._getStreamStatus(station.status_reply, 0, 'meta'),
+                        data: this._getStreamStatus(station.status_reply, 1, 'data'),
+                    },
+                    downloads: {
+                        meta: {
+                        },
+                        data: {
+                        }
+                    }
+                };
+            });
+        }));
+    }
+
+    _getStreamStatus(status, index, name) {
+        const s = status.streams[index];
+        console.log(s);
+        return {
+            blocks: s.block,
+            size: s.size,
+            name: name,
+            index: index,
+        };
+    }
+
     synchronizeConnectedStations() {
         log("synchronizeConnectedStations");
 
@@ -55,8 +87,8 @@ export default class DownloadManager {
     }
 
     _synchronizeStation(station, operation) {
-        return this._download(station, station.meta.url, station.meta.destination, operation).then(metaDownload => {
-            return this._download(station, station.data.url, station.data.destination, operation).then(dataDownload => {
+        return this._download(station, station.meta.url, 'meta', station.meta.destination, operation).then(metaDownload => {
+            return this._download(station, station.data.url, 'data', station.data.destination, operation).then(dataDownload => {
                 return { meta: metaDownload, data: dataDownload };
             });
         }).then(downloads => {
@@ -81,7 +113,7 @@ export default class DownloadManager {
         };
     }
 
-    _createDownloadRow(station, url, destination, headers) {
+    _createDownloadRow(station, url, name, destination, headers) {
         delete headers['Connection'];
 
         const { range, firstBlock, lastBlock } = this._parseBlocks(headers["Fk-Blocks"]);
@@ -92,6 +124,7 @@ export default class DownloadManager {
             url: url,
             timestamp: new Date(),
             path: destination.path,
+            name: name,
             headers: headers,
             blocks: range,
             firstBlock: firstBlock,
@@ -100,7 +133,7 @@ export default class DownloadManager {
         };
     }
 
-    _download(station, url, destination, operation) {
+    _download(station, url, name, destination, operation) {
         return new Promise((resolve, reject) => {
             log("download", url, "to", destination.path);
 
@@ -125,7 +158,7 @@ export default class DownloadManager {
                     headers = h;
                 })
                 .then(completed => {
-                    resolve(this._createDownloadRow(station, url, destination, headers));
+                    resolve(this._createDownloadRow(station, url, name, destination, headers));
                 })
                 .catch(error => {
                     log("error", error.message);

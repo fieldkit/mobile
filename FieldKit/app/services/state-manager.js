@@ -29,4 +29,16 @@ export default class StateManager {
         log("synchronizePortal");
         return this.uploadManager.synchronizePortal();
     }
+
+    getStatus() {
+        return Promise.all([
+            this.downloadManager.getStatus(),
+            this.uploadManager.getStatus(),
+        ]).then(all => {
+            return {
+                station: all[0],
+                portal: all[1],
+            }
+        });
+    }
 }

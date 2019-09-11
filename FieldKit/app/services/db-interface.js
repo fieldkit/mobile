@@ -244,10 +244,11 @@ export default class DatabaseInterface {
 
     insertDownloads(downloads) {
         return Promise.all(downloads.map(download => {
-            return this.database.execute(`INSERT INTO downloads (station_id, device_id, path, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+            return this.database.execute(`INSERT INTO downloads (station_id, device_id, path, name, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                 download.stationId,
                 download.deviceId,
                 download.path,
+                download.name,
                 download.timestamp,
                 download.url,
                 download.size,
@@ -308,6 +309,10 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("SELECT status_json FROM stations WHERE id = ?", id)).then(json => {
             return JSON.parse(json);
         });
+    }
+
+    getDownloadsByStationId(id) {
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE station_id = ?", [id]));
     }
 }
 
