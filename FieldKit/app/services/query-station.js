@@ -51,7 +51,7 @@ export default class QueryStation {
     startDataRecording(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
-            recording: { enabled: true }
+            recording: { modifying: true, enabled: true }
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -62,7 +62,7 @@ export default class QueryStation {
     stopDataRecording(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
-            recording: { enabled: false }
+            recording: { modifying: true, enabled: false }
         });
 
         return this.stationQuery(address, message).then(reply => {
