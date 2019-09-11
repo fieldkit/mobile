@@ -66,6 +66,9 @@ export default class UploadManager {
                     totalBytes: e.totalBytes,
                 };
                 operation.update({
+                    station: {
+                        deviceId: deviceId,
+                    },
                     progress: rv.value,
                 });
                 log('progress', rv);

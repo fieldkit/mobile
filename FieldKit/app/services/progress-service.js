@@ -1,6 +1,36 @@
+import { Observable } from "tns-core-modules/data/observable";
 import Config from '../config';
 
 const log = Config.logger("Progress");
+
+const HiddenProperty = "valueChanged";
+
+class BetterObservable extends Observable {
+    constructor() {
+        super();
+        this.value_ = null;
+    }
+
+    subscribe(receiver) {
+        if (this.value_) {
+            receiver(this.value_);
+        }
+
+        this.on(Observable.propertyChangeEvent, (data) => {
+            switch (data.propertyName.toString()) {
+            case HiddenProperty: {
+                receiver(data.value);
+                break;
+            }
+            }
+        });
+    }
+
+    publish(value) {
+        this.value_ = value;
+        this.notifyPropertyChange(HiddenProperty, value);
+    }
+};
 
 class ProgressTracker {
     constructor(service) {
@@ -28,8 +58,9 @@ const Kinds = {
     UPLOAD:    "UPLOAD",
 };
 
-export default class ProgressService {
+export default class ProgressService extends BetterObservable {
     constructor() {
+        super();
         this.active = [];
     }
 

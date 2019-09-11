@@ -4,6 +4,8 @@
             <Label class="plain m-20 text-center" :text="message" textWrap="true"></Label>
             <Button class="btn btn-primary" :text="_L('viewStations')" @tap="viewStations"></Button>
             <Button class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
+
+            <ProgressBar></ProgressBar>
         </StackLayout>
     </Page>
 </template>
@@ -12,6 +14,7 @@
 import Login from "./LoginView";
 import Stations from "./StationsView";
 import Services from "../services/services";
+import ProgressBar from './ProgressBar';
 
 // TODO: Remove
 import { Observable } from "tns-core-modules/data/observable";
@@ -22,7 +25,9 @@ export default {
             message: _L("authenticated")
         };
     },
-
+    components: {
+        ProgressBar,
+    },
     methods: {
         onPageLoaded() {
             console.log("loaded");

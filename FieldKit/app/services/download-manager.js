@@ -115,6 +115,9 @@ export default class DownloadManager {
             this.downloader
                 .start(transfer, progress => {
                     operation.update({
+                        station: {
+                            deviceId: station.deviceId,
+                        },
                         progress: progress.value,
                     });
                     log("progress", progress);
