@@ -323,7 +323,7 @@ export default {
                 Observable.propertyChangeEvent,
                 data => {
                     switch (data.propertyName.toString()) {
-                    case "readingsChanged": {
+                    case this.$stationMonitor.ReadingsChangedProperty: {
                         if(data.value.stationId == this.stationId) {
                             this.station.connected = 1;
                             this.cycleSensorReadings(data.value.readings);
