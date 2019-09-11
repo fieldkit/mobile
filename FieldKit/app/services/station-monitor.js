@@ -108,9 +108,7 @@ export default class StationMonitor extends Observable {
 
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
 
-        return this.dbInterface.updateStationStatus(station, result).then(() => {
-            return this._publishStationsUpdated();
-        });
+        return this._updateStationStatus(station, result);
     }
 
     subscribeToStationDiscovery() {
@@ -211,8 +209,8 @@ export default class StationMonitor extends Observable {
         station.lastSeen = new Date();
         this.stations[key] = station;
 
-        this._publishStationRefreshed(this.stations[key]);
         this._publishStationsUpdated();
+        this._publishStationRefreshed(this.stations[key]);
     }
 
     reactivateStation(station, status) {
@@ -226,9 +224,7 @@ export default class StationMonitor extends Observable {
         }
 
         return this.dbInterface.setStationConnectionStatus(this.stations[key]).then(() => {
-            return this._updateStationStatus(this.stations[key], status).then(() => {
-                return this._publishStationRefreshed(this.stations[key]);
-            });
+            return this._updateStationStatus(this.stations[key], status);
         });
     }
 
@@ -246,8 +242,8 @@ export default class StationMonitor extends Observable {
         }
         this.dbInterface.setStationConnectionStatus(this.stations[key]);
 
-        this._publishStationRefreshed(this.stations[key]);
         this._publishStationsUpdated();
+        this._publishStationRefreshed(this.stations[key]);
     }
 
     startLiveReadings(address) {
@@ -279,8 +275,12 @@ export default class StationMonitor extends Observable {
     }
 
     _updateStationStatus(station, status) {
+        station.status_reply = status;
+
         return this.dbInterface.updateStationStatus(station, status).then(() => {
-            return this._publishStationsUpdated();
+            return this._publishStationsUpdated().then(() => {
+                return this._publishStationRefreshed(station);
+            });
         });
     }
 }

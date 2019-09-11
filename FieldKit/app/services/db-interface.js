@@ -270,8 +270,32 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", new Date(), download.id));
     }
 
+    getStreams() {
+        return this.getDatabase().then(db => db.query(`SELECT * FROM streams`)).then(rows => {
+            console.log(rows);
+            return rows;
+        });
+    }
+
+    _updateStream(station, status, name, index) {
+        return this.getDatabase().then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND name = ?", [station.id, name])).then(streamId => {
+            if (streamId.length > 0) {
+                const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
+                return this.getDatabase().then(db => db.query(`UPDATE streams SET size = ?, last_block = ?, updated = ? WHERE id = ?`, values));
+            }
+            else {
+                const values = [station.id, station.deviceId, name, status.streams[index].size, 0, status.streams[index].block, new Date()];
+                return this.getDatabase().then(db => db.query(`INSERT INTO streams (station_id, device_id, name, size, first_block, last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`, values));
+            }
+        });
+    }
+
     updateStationStatus(station, status) {
-        return this.getDatabase().then(db => db.query("UPDATE stations SET status_json = ? WHERE id = ?", JSON.stringify(status), station.id));
+        return this.getDatabase().then(db => db.query("UPDATE stations SET status_json = ? WHERE id = ?", JSON.stringify(status), station.id)).then(() => {
+            return this._updateStream(station, status, 'meta', 1).then(() => {
+                return this._updateStream(station, status, 'data', 0);
+            });
+        });
     }
 
     getStationStatusByDeviceId(deviceId) {

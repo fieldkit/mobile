@@ -23,6 +23,7 @@ export default class CreateDB {
             .then(this.createStationConfigLogTable.bind(this))
             .then(this.createModuleConfigLogTable.bind(this))
             .then(this.createDownloadsTable.bind(this))
+            .then(this.createStreamsTable.bind(this))
             .then(() => {
                 if (Config.seedDB) {
                     return this.seedDB();
@@ -72,10 +73,28 @@ export default class CreateDB {
     dropTables() {
         return this.execute([
             `DROP TABLE IF EXISTS downloads`,
+            `DROP TABLE IF EXISTS streams`,
             `DROP TABLE IF EXISTS stations_config`,
             `DROP TABLE IF EXISTS sensors`,
             `DROP TABLE IF EXISTS modules`,
             `DROP TABLE IF EXISTS stations`,
+        ]);
+    }
+
+    createStreamsTable() {
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS streams (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                station_id INTEGER NOT NULL,
+                device_id TEXT NOT NULL,
+                name TEXT NOT NULL,
+                size INTEGER NOT NULL,
+                first_block INTEGER NOT NULL,
+                last_block INTEGER NOT NULL,
+                updated TIMESTAMP NOT NULL,
+                FOREIGN KEY(station_id) REFERENCES stations(id)
+            )`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS streams_idx ON streams (station_id, name)`
         ]);
     }
 
