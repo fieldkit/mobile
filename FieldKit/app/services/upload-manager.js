@@ -96,8 +96,8 @@ export default class UploadManager {
                 log('progress', rv);
             });
             task.on("error", (e) => {
-                log('error', e);
-                reject(e)
+                log('error', e.error);
+                reject(e.error)
             });
             task.on("responded", (e) => {
                 const rv = {

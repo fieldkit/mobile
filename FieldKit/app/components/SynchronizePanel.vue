@@ -44,11 +44,15 @@ export default {
         },
 
         onSyncStation() {
-            return this.stateManager.synchronizeConnectedStations();
+            return this.stateManager.synchronizeConnectedStations().catch(error => {
+                console.log("SYNC STATION", error);
+            });
         },
 
         onSyncPortal() {
-            return this.stateManager.synchronizePortal();
+            return this.stateManager.synchronizePortal().catch(error => {
+                console.log("SYNC PORTAL", error);
+            });
         },
     }
 };

@@ -45,16 +45,19 @@ class ProgressTracker {
     update(progress) {
         this.progress = progress;
         this.service._publish(this, progress);
+        return Promise.resolve();
     }
 
     cancel(error) {
-        log("cancel", error);
+        log("cancel");
         this.service._remove(this);
+        return Promise.reject(error);
     }
 
     complete() {
         log("complete");
         this.service._remove(this);
+        return Promise.resolve();
     }
 }
 
