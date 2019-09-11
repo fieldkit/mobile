@@ -204,7 +204,7 @@ export default {
             if (USERNAME && PASSWORD && !this.resetUser) {
                 this.user.email = USERNAME;
                 this.user.password = PASSWORD;
-                this.continueOffline();
+                this.login();
             }
         },
 
