@@ -84,6 +84,23 @@ var Downloader = (function (_super) {
     Downloader.prototype.start = function (id, progress, headers) {
         var _this = this;
         var ref = new WeakRef(this);
+
+        function toJsHeaders(headers) {
+            const jsHeaders = {};
+            const iter = headers.entrySet().iterator();
+            while (iter.hasNext()) {
+                const entry = iter.next();
+                const key = entry.getKey();
+                const valuesIter = entry.getValue().iterator();
+                jsHeaders[key] = [];
+                while (valuesIter.hasNext()) {
+                    const value = valuesIter.next();
+                    jsHeaders[key].push(value);
+                }
+            }
+            return jsHeaders;
+        }
+
         return new Promise(function (resolve, reject) {
             if (id) {
                 var data = _this.downloadsData.get(id);
@@ -121,31 +138,22 @@ var Downloader = (function (_super) {
                                     }
                                 }
                             },
-                            onUIHeaders: function (task, headers) {
-                                const jsHeaders = {};
-                                const iter = headers.entrySet().iterator();
-                                while (iter.hasNext()) {
-                                    const entry = iter.next();
-                                    const key = entry.getKey();
-                                    const valuesIter = entry.getValue().iterator();
-                                    jsHeaders[key] = [];
-                                    while (valuesIter.hasNext()) {
-                                        const value = valuesIter.next();
-                                        jsHeaders[key].push(value);
-                                    }
-                                }
-
+                            onUIHeaders: function (task, statusCode, headers) {
                                 var owner = this.ownerRef.get();
                                 var _id = owner.taskIds.get(task);
                                 if (owner.downloads.has(_id)) {
                                     var data_1 = owner.downloadsData.get(_id);
                                     var headers = data_1.headers;
                                     if (headers) {
-                                        headers(jsHeaders);
+                                        const jsHeaders = toJsHeaders(headers);
+                                        headers({
+                                            statusCode: status,
+                                            headers: jsHeaders,
+                                        });
                                     }
                                 }
                             },
-                            onUIComplete: function (task) {
+                            onUIComplete: function (task, status, headers) {
                                 var owner = this.ownerRef.get();
                                 var _id = owner.taskIds.get(task);
                                 if (owner.downloads.has(_id)) {
@@ -153,9 +161,12 @@ var Downloader = (function (_super) {
                                     var resolve_1 = data_2.resolve;
                                     var _request = owner.downloadRequests.get(_id);
                                     if (resolve_1) {
+                                        const jsHeaders = toJsHeaders(headers);
                                         resolve_1({
                                             status: downloader_common_1.StatusCode.COMPLETED,
-                                            path: fs.path.join(_request.getFilePath(), _request.getFileName())
+                                            path: fs.path.join(_request.getFilePath(), _request.getFileName()),
+                                            statusCode: status,
+                                            headers: jsHeaders,
                                         });
                                     }
                                 }
