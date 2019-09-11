@@ -74,7 +74,7 @@ export default {
 
         updateStations(data) {
             switch (data.propertyName.toString()) {
-            case "stationsChanged": {
+            case this.$stationMonitor.StationsChangedProperty: {
                 this.stations = data.value;
                 break;
             }

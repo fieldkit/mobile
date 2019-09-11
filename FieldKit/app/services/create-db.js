@@ -155,7 +155,8 @@ export default class CreateDB {
                 deploy_audio_files TEXT,
                 portal_id INTEGER,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+                status_json TEXT
             )`,
             `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`
         ]);

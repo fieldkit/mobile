@@ -221,11 +221,9 @@ export default class DatabaseInterface {
         );
     }
 
-    insertStation(station) {
+    insertStation(station, status_json) {
         const newStation = new Station(station);
-        return this.database.execute(
-            "INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, interval) \
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        return this.database.execute(`INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, interval, status_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.name,
@@ -234,7 +232,8 @@ export default class DatabaseInterface {
                 newStation.battery_level,
                 newStation.connected,
                 newStation.available_memory,
-                newStation.interval
+                newStation.interval,
+                JSON.stringify(status_json)
             ]
         );
     }
@@ -269,6 +268,22 @@ export default class DatabaseInterface {
 
     markDownloadAsUploaded(download) {
         return this.getDatabase().then(db => db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", new Date(), download.id));
+    }
+
+    updateStationStatus(station, status) {
+        return this.getDatabase().then(db => db.query("UPDATE stations SET status_json = ? WHERE id = ?", JSON.stringify(status), station.id));
+    }
+
+    getStationStatusByDeviceId(deviceId) {
+        return this.getDatabase().then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", deviceId)).then(json => {
+            return JSON.parse(json);
+        });
+    }
+
+    getStationStatusById(id) {
+        return this.getDatabase().then(db => db.query("SELECT status_json FROM stations WHERE id = ?", id)).then(json => {
+            return JSON.parse(json);
+        });
     }
 }
 

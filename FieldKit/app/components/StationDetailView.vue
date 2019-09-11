@@ -207,6 +207,7 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 import routes from "../routes";
+import ProgressBar from './ProgressBar';
 import Services from '../services/services';
 
 const dbInterface = Services.Database();
@@ -229,6 +230,9 @@ export default {
             },
             modules: []
         };
+    },
+    components: {
+        ProgressBar
     },
     props: ["stationId","recording"],
     methods: {
