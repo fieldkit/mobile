@@ -28,11 +28,13 @@ const configs = {
         baseUri: "https://api.fkdev.org",
         seedDB: true,
         dropTables: true,
+        stationTimeoutMs: 30000,
     },
     test: {
         baseUri: "https://api.fkdev.org",
         seedDB: true,
         dropTables: true,
+        stationTimeoutMs: 30000,
     }
 };
 

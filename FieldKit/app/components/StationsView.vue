@@ -42,7 +42,7 @@ export default {
             stations: []
         };
     },
-    props: ["stationId","recording"],
+    props: ["stationId", "recording"],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;

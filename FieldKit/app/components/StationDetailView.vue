@@ -234,7 +234,7 @@ export default {
     components: {
         ProgressBar
     },
-    props: ["stationId","recording"],
+    props: ["stationId", "recording"],
     methods: {
         goBack(event) {
             // Change background color when pressed

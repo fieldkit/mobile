@@ -1,4 +1,5 @@
 import { Observable } from "tns-core-modules/data/observable";
+import Config from '../config';
 
 const pastDate = new Date(2000, 0, 1);
 
@@ -56,7 +57,7 @@ export default class StationMonitor extends Observable {
 
             // if station hasn't been heard from in over a minute, disable it
             // (seeded stations exempt for now due to above return statement)
-            if (elapsed > 60000 && station.lastSeen != pastDate) {
+            if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
                 this.deactivateStation(station);
             }
 
