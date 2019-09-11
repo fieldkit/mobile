@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Downloader } from 'nativescript-downloader';
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { getPathTimestamp } from '../utilities';
@@ -101,9 +102,13 @@ export default class DownloadManager {
             blocks = blocks[0];
         }
 
+        if (!_.isString(blocks)) {
+            throw new Error("Invalid Fk-Blocks header: " + blocks);
+        }
+
         const parts = blocks.split(",").map(s => s.trim()).map(s => Number(s));
         if (parts.length != 2) {
-            throw new Error("Invalid Fk-Blocks header");
+            throw new Error("Invalid Fk-Blocks header: " + blocks);
         }
 
         return {
@@ -143,8 +148,6 @@ export default class DownloadManager {
                 fileName: destination.name
             });
 
-            let headers = null;
-
             this.downloader
                 .start(transfer, progress => {
                     operation.update({
@@ -154,11 +157,11 @@ export default class DownloadManager {
                         progress: progress.value,
                     });
                     log("progress", progress);
-                }, h => {
-                    headers = h;
                 })
                 .then(completed => {
-                    resolve(this._createDownloadRow(station, url, name, destination, headers));
+                    log('headers', completed.headers);
+                    log('status', completed.statusCode);
+                    resolve(this._createDownloadRow(station, url, name, destination, completed.headers));
                 })
                 .catch(error => {
                     log("error", error.message);
