@@ -276,7 +276,7 @@ export default class StationMonitor extends Observable {
 
     _updateStationStatus(station, status) {
         if (status != null) {
-            station.status_reply = status;
+            station.statusReply = status;
 
             return this.dbInterface.updateStationStatus(station, status).then(() => {
                 return this._publishStationsUpdated().then(() => {

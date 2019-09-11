@@ -18,8 +18,9 @@ export default class UploadManager {
         return this.databaseInterface.getPendingDownloads().then(pending => {
             return {
                 files: pending.length,
-                total: _(pending).map('size').sum(),
-                devices: _(pending).groupBy('deviceId').size(),
+                allowed: pending.length > 0,
+                totalBytes: _(pending).map('size').sum(),
+                numberOfDevices: _(pending).groupBy('deviceId').size(),
             };
         });
     }
