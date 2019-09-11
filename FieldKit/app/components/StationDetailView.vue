@@ -321,7 +321,7 @@ export default {
 
             this.$stationMonitor.on(Observable.propertyChangeEvent, data => {
                 switch (data.propertyName.toString()) {
-                case this.$stationMonitor.StationChangedProperty: {
+                case this.$stationMonitor.StationRefreshedProperty: {
                     if (Number(data.value.id) === Number(this.stationId)) {
                         this.station.connected = data.value.connected;
                     }
