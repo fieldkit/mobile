@@ -155,6 +155,8 @@
                         :text="isLoggingIn ? _L('logIn') : _L('signUp')"
                         :isEnabled="!processing"
                         @tap="submit"></Button>
+
+                    <Button class="btn btn-primary m-t-20" text="Continue Offline" @tap="continueOffline"></Button>
                 </StackLayout>
 
                 <Label class="sign-up-label" @tap="toggleForm">
@@ -250,6 +252,10 @@ export default {
             let spacer = this.page.getViewById("confirm-password-field-spacer");
             spacer.className = "spacer-top";
             this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
+        },
+
+        continueOffline() {
+            this.$navigateTo(Home, { clearHistory: true });
         },
 
         submit() {
