@@ -276,7 +276,7 @@ export default class DatabaseInterface {
     }
 
     markDownloadAsUploaded(download) {
-        return this.getDatabase().then(db => db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", new Date(), download.id));
+        return this.getDatabase().then(db => db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]));
     }
 
     getStreams() {
