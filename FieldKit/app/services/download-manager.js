@@ -57,6 +57,19 @@ export default class DownloadManager {
         }
 
         return Promise.all(this.stationMonitor.sortStations().map(keysToCamel).map(station => {
+            if (!station.statusReply) {
+                return {
+                    station: station,
+                    streams: {
+                        meta: {},
+                        data: {},
+                    },
+                    downloads: {},
+                    pending: {
+                        bytes: 0,
+                    }
+                };
+            }
             return this.databaseInterface.getDownloadsByStationId(station.id).then(downloads => {
                 const deviceMeta = this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamName);
                 const deviceData = this._getStreamStatus(station.statusReply, 1, Constants.DataStreamName);
