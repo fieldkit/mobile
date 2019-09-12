@@ -84,6 +84,7 @@ export default class StationMonitor extends Observable {
         if (result.errors.length > 0 || station.name != result.status.identity.device) {
             return Promise.reject();
         }
+        station.connected = 1;
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
         return this._updateStationStatus(station, result);
@@ -93,6 +94,7 @@ export default class StationMonitor extends Observable {
         if (result.errors.length > 0 || station.name != result.status.identity.device) {
             return;
         }
+        station.connected = 1;
         station.lastSeen = new Date();
         const readings = {};
         result.liveReadings.forEach(lr => {
