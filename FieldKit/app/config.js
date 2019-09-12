@@ -30,6 +30,7 @@ const configs = {
         seedDB: true,
         dropTables: true,
         stationTimeoutMs: 30000,
+        includeInternalModules: false,
     },
     test: {
         baseUri: "https://api.fkdev.org",
@@ -37,6 +38,7 @@ const configs = {
         seedDB: true,
         dropTables: true,
         stationTimeoutMs: 30000,
+        includeInternalModules: false,
     }
 };
 

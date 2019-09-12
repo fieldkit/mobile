@@ -4,7 +4,7 @@ import Config from '../config';
 const pastDate = new Date(2000, 0, 1);
 
 function is_internal_module(module) {
-    return module.flags & 1; // TODO Pull this enum in from the protobuf file.
+    return !Config.includeInternalModules && module.flags & 1; // TODO Pull this enum in from the protobuf file.
 }
 
 export default class StationMonitor extends Observable {
