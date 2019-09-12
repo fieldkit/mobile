@@ -172,6 +172,7 @@
 <script>
 import Home from "./HomeView";
 import Stations from "./StationsView";
+import Config from "../config";
 import { USERNAME, PASSWORD } from "../secrets";
 
 export default {
@@ -282,7 +283,7 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    this.$navigateTo(Stations, { clearHistory: true });
+                    this.$navigateTo(Config.seedDB ? Home : Stations, { clearHistory: true });
                 })
                 .catch(error => {
                     this.processing = false;

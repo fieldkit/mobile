@@ -33,6 +33,9 @@ export default class StationMonitor extends Observable {
                 // JACOB: Can we pull this and the call below into the same
                 // function so that the update to the readings happen is they
                 // happen to be there?
+                // LIBBEY: We don't have to do this at all - it's just here
+                // to 'prime the pump,' so the call below is more likely to
+                // yield results
                 this.queryStation.takeReadings(r.url);
             }
         });
@@ -55,7 +58,7 @@ export default class StationMonitor extends Observable {
 
             const elapsed = new Date() - station.lastSeen;
 
-            // if station hasn't been heard from in over a minute, disable it
+            // if station hasn't been heard from in awhile, disable it
             // (seeded stations exempt for now due to above return statement)
             if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
                 this.deactivateStation(station);

@@ -58,11 +58,6 @@ export default class DownloadManager {
 
         return Promise.all(this.stationMonitor.sortStations().map(keysToCamel).map(station => {
             return this.databaseInterface.getDownloadsByStationId(station.id).then(downloads => {
-                log('station', station);
-                log('downloads', downloads);
-
-                console.log(station);
-
                 const deviceMeta = this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamName);
                 const deviceData = this._getStreamStatus(station.statusReply, 1, Constants.DataStreamName);
 
