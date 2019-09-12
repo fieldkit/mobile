@@ -33,7 +33,7 @@ export default class UploadManager {
         // TODO Replace with connectivity check.
         if (!this.portalInterface.isLoggedIn()) {
             log("offline!");
-            return Promise.resolve({
+            return Promise.reject({
                 offline: true,
             });
         }

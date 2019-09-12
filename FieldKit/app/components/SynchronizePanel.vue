@@ -59,7 +59,7 @@ export default {
 
     methods: {
         onLoaded(args) {
-            console.log("loaded");
+            log("loaded");
             Services.StateManager().subscribe(status => {
                 const station = status.station.forStation(this.station.id);
                 this.pending = {
@@ -77,6 +77,13 @@ export default {
 
         onSyncPortal() {
             return Services.StateManager().synchronizePortal().catch(error => {
+                if (error.offline) {
+                    return alert({
+                        title: "FieldKit",
+                        okButtonText: "Ok",
+                        message: "You're offline, please try login and try again.",
+                    });
+                }
                 console.error("ERROR SYNC PORTAL", error);
             });
         },
