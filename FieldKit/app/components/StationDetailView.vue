@@ -499,33 +499,37 @@ export default {
                 }
 
                 let sensorLabel = page.getViewById("sensor-label-" + m.id);
-                sensorLabel
-                    .animate({
-                        opacity: 0,
-                        duration: 1000
-                    })
-                    .then(() => {
-                        m.currentSensorLabel = currentSensor.name;
-                        return sensorLabel.animate({
-                            opacity: 1,
-                            duration: 500
-                        });
+                if (sensorLabel) {
+                    sensorLabel
+                        .animate({
+                            opacity: 0,
+                            duration: 1000
+                        })
+                        .then(() => {
+                            m.currentSensorLabel = currentSensor.name;
+                            return sensorLabel.animate({
+                                opacity: 1,
+                                duration: 500
+                            });
                     });
+                }
                 let stack = page.getViewById("sensors-of-" + m.id);
-                stack
-                    .animate({
-                        opacity: 0,
-                        duration: 1000
-                    })
-                    .then(() => {
-                        m.currentSensorReading = newReading;
-                        m.currentSensorUnit = currentSensor.unit;
-                        m.currentSensorTrend = "~/images/" + trendIcon;
-                        return stack.animate({
-                            opacity: 1,
-                            duration: 500
-                        });
+                if (stack) {
+                    stack
+                        .animate({
+                            opacity: 0,
+                            duration: 1000
+                        })
+                        .then(() => {
+                            m.currentSensorReading = newReading;
+                            m.currentSensorUnit = currentSensor.unit;
+                            m.currentSensorTrend = "~/images/" + trendIcon;
+                            return stack.animate({
+                                opacity: 1,
+                                duration: 500
+                            });
                     });
+                }
             });
         },
 
