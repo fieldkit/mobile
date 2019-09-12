@@ -17,10 +17,12 @@ export default class UploadManager {
     getStatus() {
         return this.databaseInterface.getPendingDownloads().then(pending => {
             return {
-                files: pending.length,
-                allowed: pending.length > 0,
-                totalBytes: _(pending).map('size').sum(),
-                numberOfDevices: _(pending).groupBy('deviceId').size(),
+                pending: {
+                    files: pending.length,
+                    allowed: pending.length > 0,
+                    bytes: _(pending).map('size').sum(),
+                    devices: _(pending).groupBy('deviceId').size(),
+                }
             };
         });
     }

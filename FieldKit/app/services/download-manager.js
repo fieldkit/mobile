@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { Downloader } from 'nativescript-downloader';
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 
-import { getPathTimestamp } from '../utilities';
+import { keysToCamel, getPathTimestamp } from '../utilities';
 import Constants from '../constants';
 import Config from '../config';
 
@@ -32,29 +32,49 @@ export default class DownloadManager {
     }
 
     getStatus() {
-        return Promise.all(this.stationMonitor.sortStations().map(station => {
+        function getDownloadsStatus(downloads) {
+            if (!_.some(downloads)) {
+                return {
+                };
+            }
+
+            const lastMetaDownloaded = _(downloads).filter(d => d.name == Constants.MetaStreamName).map(d => d.lastBlock).max();
+            const lastDataDownloaded = _(downloads).filter(d => d.name == Constants.DataStreamName).map(d => d.lastBlock).max();
+
+            return {
+                meta: {
+                    lastBlock: lastMetaDownloaded,
+                    size: 0,
+                },
+                data: {
+                    lastBlock: lastDataDownloaded,
+                    size: 0,
+                },
+                pending: {
+                    bytes: 0,
+                },
+            };
+        }
+
+        return Promise.all(this.stationMonitor.sortStations().map(keysToCamel).map(station => {
             return this.databaseInterface.getDownloadsByStationId(station.id).then(downloads => {
                 log('station', station);
                 log('downloads', downloads);
 
-                const lastMetaDownloaded = _(downloads).filter(d => d.name == Constants.MetaStreamName).map(d => d.lastBlock).max();
-                const lastDataDownloaded = _(downloads).filter(d => d.name == Constants.DataStreamName).map(d => d.lastBlock).max();
+                console.log(station);
+
+                const deviceMeta = this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamName);
+                const deviceData = this._getStreamStatus(station.statusReply, 1, Constants.DataStreamName);
 
                 return {
                     station: station,
                     streams: {
-                        meta: this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamName),
-                        data: this._getStreamStatus(station.statusReply, 1, Constants.DataStreamName),
+                        meta: deviceMeta,
+                        data: deviceData,
                     },
-                    downloads: {
-                        meta: {
-                            lastBlock: lastMetaDownloaded,
-                            size: 0,
-                        },
-                        data: {
-                            lastBlock: lastDataDownloaded,
-                            size: 0,
-                        }
+                    downloads: getDownloadsStatus(downloads),
+                    pending: {
+                        bytes: deviceMeta.size + deviceData.size,
                     }
                 };
             });
@@ -64,6 +84,12 @@ export default class DownloadManager {
     }
 
     _getStreamStatus(status, index, name) {
+        if (!status.streams) {
+            log("bad status", status);
+            return {
+            };
+        }
+        log('status', status);
         const s = status.streams[index];
         return {
             blocks: s.block,

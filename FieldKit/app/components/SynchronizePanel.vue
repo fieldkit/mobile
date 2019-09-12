@@ -1,9 +1,18 @@
 <template>
-<StackLayout class="sync-panel-container" @loaded="onLoaded" v-show="visible">
-    <StackLayout orientation="horizontal" class="sync-button-panel">
+<StackLayout class="sync-panel-container" @loaded="onLoaded">
+
+    <StackLayout class="sync-button-panel">
+        <Label :text="stationStatus" textWrap="true"></Label>
+
         <Button class="btn btn-primary m-t-10" text="Sync Station" isEnabled="true" @tap="onSyncStation" style="sync-button"></Button>
+    </StackLayout>
+
+    <StackLayout class="sync-button-panel">
+        <Label :text="portalStatus" textWrap="true"></Label>
+
         <Button class="btn btn-primary m-t-10" text="Sync Portal" isEnabled="true" @tap="onSyncPortal" style="sync-button"></Button>
     </StackLayout>
+
     <StackLayout class="sync-panel-progress">
         <ProgressBar />
     </StackLayout>
@@ -22,45 +31,52 @@ export default {
         station: Object,
     },
 
-    data() {
-        return {
-            visible: true,
-        };
-    },
-
     components: {
         ProgressBar
     },
 
+    data() {
+        return {
+            visible: true,
+            pending: {
+                station: 0,
+                portal: 0,
+            }
+        };
+    },
+
     computed: {
-        styling: function() {
-            return {
-            };
+        stationStatus: function() {
+            const bytes = this.pending.station;
+            return `This station has ${bytes} bytes of data waiting to be downloaded.`;
+        },
+
+        portalStatus: function() {
+            const bytes = this.pending.portal;
+            return `There are ${bytes} bytes waiting to upload.`;
         },
     },
 
     methods: {
         onLoaded(args) {
-            this.stateManager = Services.StateManager();
-            return this.stateManager.getStatus().then(status => {
+            console.log("loaded");
+            Services.StateManager().subscribe(status => {
                 const station = status.station.forStation(this.station.id);
-                console.log(station);
-                log("PORTAL", status.portal);
-                log("STATION", station.streams);
-                log("STATION", station.downloads);
-            }).catch(error => {
-                console.error(error);
+                this.pending = {
+                    station: station.pending.bytes,
+                    portal: status.portal.pending.bytes
+                };
             });
         },
 
         onSyncStation() {
-            return this.stateManager.synchronizeConnectedStations().catch(error => {
+            return Services.StateManager().synchronizeConnectedStations().catch(error => {
                 console.error("ERROR SYNC STATION", error);
             });
         },
 
         onSyncPortal() {
-            return this.stateManager.synchronizePortal().catch(error => {
+            return Services.StateManager().synchronizePortal().catch(error => {
                 console.error("ERROR SYNC PORTAL", error);
             });
         },

@@ -1,17 +1,29 @@
+import { Observable } from "tns-core-modules/data/observable";
+import { BetterObservable } from './rx';
+
 import DownloadManager from "./download-manager";
 import UploadManager from "./upload-manager";
 import Config from '../config';
 
 const log = Config.logger("StateManager");
 
-export default class StateManager {
+export default class StateManager extends BetterObservable {
     constructor(databaseInterface, queryStation, stationMonitor, portalInterface, progressService) {
+        super();
         this.databaseInterface = databaseInterface;
         this.queryStation = queryStation;
         this.stationMonitor = stationMonitor;
         this.portalInterface = portalInterface;
         this.downloadManager = new DownloadManager(databaseInterface, queryStation, stationMonitor, progressService);
         this.uploadManager = new UploadManager(databaseInterface, portalInterface, progressService);
+        this.stationMonitor.on(Observable.propertyChangeEvent, data => {
+            switch (data.propertyName.toString()) {
+            case this.stationMonitor.StationRefreshedProperty: {
+                this.refresh();
+                break;
+            }
+            }
+        });
     }
 
     renameStation(station, newName) {
@@ -22,12 +34,16 @@ export default class StateManager {
 
     synchronizeConnectedStations() {
         log("synchronizeConnectedStations");
-        return this.downloadManager.synchronizeConnectedStations();
+        return this.downloadManager.synchronizeConnectedStations().then(() => {
+            return this.refresh();
+        });
     }
 
     synchronizePortal() {
         log("synchronizePortal");
-        return this.uploadManager.synchronizePortal();
+        return this.uploadManager.synchronizePortal().then(() => {
+            return this.refresh();
+        });
     }
 
     getStatus() {
@@ -40,5 +56,9 @@ export default class StateManager {
                 portal: all[1],
             }
         });
+    }
+
+    getValue() {
+        return this.getStatus();
     }
 }
