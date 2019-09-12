@@ -319,11 +319,22 @@ export default {
 
             this.user = this.$portalInterface.getCurrentUser();
 
+            const saved = this.$stationMonitor.sortStations().filter(s => s.id == this.stationId);
+            if (saved.length > 0) {
+                this.station.connected = saved[0].connected;
+                console.log(saved[0].connected);
+            }
+
             this.$stationMonitor.on(Observable.propertyChangeEvent, data => {
                 switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationRefreshedProperty: {
-                    if (Number(data.value.id) === Number(this.stationId)) {
-                        this.station.connected = data.value.connected;
+                    if (!data.value) {
+                        console.log('bad station refresh', data);
+                    }
+                    else {
+                        if (Number(data.value.id) === Number(this.stationId)) {
+                            this.station.connected = data.value.connected;
+                        }
                     }
                     break;
                 }
