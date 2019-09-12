@@ -286,13 +286,16 @@ export default class DatabaseInterface {
     }
 
     _updateStream(station, status, name, index) {
+        if (!station.deviceId && station.device_id) {
+            station.deviceId = station.device_id;
+        }
         if (!status.streams) {
-            console.log('BAD STATUS', status)
             return Promise.reject();
         }
         return this.getDatabase().then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND name = ?", [station.id, name])).then(streamId => {
             if (streamId.length > 0) {
                 const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
+                console.log(values);
                 return this.getDatabase().then(db => db.query(`UPDATE streams SET size = ?, last_block = ?, updated = ? WHERE id = ?`, values));
             }
             else {

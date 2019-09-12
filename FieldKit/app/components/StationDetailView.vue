@@ -496,7 +496,7 @@ export default {
                 let prevReading = currentSensor.current_reading ?
                     +currentSensor.current_reading.toFixed(1) : 0;
 
-                if (liveReadings) {
+                if (liveReadings && liveReadings[m.name + currentSensor.name]) {
                     newReading = +liveReadings[m.name + currentSensor.name].toFixed(1);
                     currentSensor.current_reading = newReading;
                     dbInterface.setCurrentReading(currentSensor);
