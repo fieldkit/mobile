@@ -23,6 +23,7 @@
 import ProgressBar from './ProgressBar';
 import Services from '../services/services';
 import Config from '../config';
+import routes from "../routes";
 
 const log = Config.logger('SynchronizePanel');
 
@@ -80,10 +81,15 @@ export default {
         onSyncPortal() {
             return Services.StateManager().synchronizePortal().catch(error => {
                 if (error.offline) {
-                    return alert({
+                    return confirm({
                         title: "FieldKit",
-                        okButtonText: "Ok",
-                        message: "You're offline, please try login and try again.",
+                        message: "You're not logged in. Would you like to login so that you can upload your data?",
+                        okButtonText: "Yes",
+                        cancelButtonText: "Not Now",
+                    }).then((res) => {
+                        if (res) {
+                            this.$navigateTo(routes.login, {});
+                        }
                     });
                 }
                 console.error("ERROR SYNC PORTAL", error);
