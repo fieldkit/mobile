@@ -135,16 +135,16 @@ export default class QueryStation {
         if (reply.type != ReplyType.values.REPLY_BUSY) {
             return Promise.resolve(reply);
         }
-        const delays = _(reply.errors).sum('delay');
+        const delays = _.sumBy(reply.errors, 'delay');
         if (delays == 0) {
             return Promise.reject(new Error('busy'));
         }
-        return this._retryAfter(delay, url, message);
+        return this._retryAfter(delays, url, message);
     }
 
-    _retryAfter(delay, url, message) {
-        log("retrying after", delay);
-        return promiseAfter(delay).then(() => {
+    _retryAfter(delays, url, message) {
+        log("retrying after", delays);
+        return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);
         });
     }
