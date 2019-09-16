@@ -143,7 +143,7 @@ export default class QueryStation {
     }
 
     _retryAfter(delay, url, message) {
-        console.log("retrying after", delay);
+        log("retrying after", delay);
         return promiseAfter(delay).then(() => {
             return this.stationQuery(url, message);
         });

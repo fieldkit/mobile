@@ -231,10 +231,10 @@ export default class DownloadManager {
             if (!s.deviceId && s.device_id) {
                 s.deviceId = s.device_id;
             }
-            console.log(s);
-            console.log('deviceId', s.deviceId);
-            console.log('url', s.url);
-            console.log('connected', s.connected);
+            log(s);
+            log('deviceId', s.deviceId);
+            log('url', s.url);
+            log('connected', s.connected);
             return s.deviceId && s.url && s.connected;
         }).map(s => {
             const main = this._getStationFolder(s);

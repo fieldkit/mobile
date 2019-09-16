@@ -29,13 +29,7 @@ export default class StationMonitor extends Observable {
             r.lastSeen = r.connected ? new Date() : pastDate;
             thisMonitor.stations[key] = r;
             if (r.url != "no_url") {
-                // first try, might not have a reading yet
-                // JACOB: Can we pull this and the call below into the same
-                // function so that the update to the readings happen is they
-                // happen to be there?
-                // LIBBEY: We don't have to do this at all - it's just here
-                // to 'prime the pump,' so the call below is more likely to
-                // yield results
+                // 'prime the pump' with an initial request
                 this.queryStation.takeReadings(r.url);
             }
         });
