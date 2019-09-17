@@ -90,7 +90,7 @@ module.exports = {
     passwordRequired: "La contraseña es un campo requerido.",
     passwordTooShort: "La contraseña debe tener al menos 10 letras.",
     confirmPassword: "Confirmar contraseña",
-    //ModuleView
+    //ModuleDetailView
     locateYourModule: "Localiza %s aquí en tu estación FieldKit.",
     select: "Seleccionar...",
     // StationDetailView
