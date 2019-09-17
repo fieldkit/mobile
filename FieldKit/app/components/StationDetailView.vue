@@ -88,53 +88,7 @@
 
                 <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
 
-                <StackLayout id="station-detail">
-                    <GridLayout :id="'m_id-' + m.id"
-                        rows="auto" columns="*"
-                        v-for="(m, moduleIndex) in modules"
-                        :key="m.id"
-                        class="module-container m-10 p-10"
-                        :automationText="'moduleLink' + moduleIndex"
-                        @tap="goToModule">
-                        <Image width="40"
-                            horizontalAlignment="left"
-                            :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
-                                m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
-                                '~/images/Icon_Generic_Module.png')"></Image>
-                        <StackLayout orientation="vertical" class="module-labels">
-                            <Label :text="m.name" class="module-name size-16" />
-                            <Label :id="'sensor-label-' + m.id"
-                                :text="m.currentSensorLabel"
-                                class="sensor-name size-14" />
-                        </StackLayout>
-
-                        <template v-if="m.name.indexOf('Generic') > -1 ">
-                            <Image width="30"
-                                src="~/images/Icon_Congfigure.png"
-                                horizontalAlignment="right"></Image>
-                        </template>
-                        <template v-else>
-                            <!-- current reading, with trend arrow and units -->
-                            <StackLayout :id="'sensors-of-' + m.id"
-                                horizontalAlignment="right"
-                                verticalAlignment="center"
-                                orientation="vertical"
-                                class="sensor-labels">
-                                <GridLayout rows="auto" columns="auto, auto">
-                                    <Image col="0"
-                                        width="7"
-                                        class="m-r-2"
-                                        :src="m.currentSensorTrend"></Image>
-                                    <Label col="1"
-                                        :text="m.currentSensorReading"
-                                        class="size-24" />
-                                </GridLayout>
-                                <Label :text="m.currentSensorUnit"
-                                    class="size-10 text-right" />
-                            </StackLayout>
-                        </template>
-                    </GridLayout>
-                </StackLayout>
+                <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
 
                 <!-- footer -->
                 <FlexboxLayout justifyContent="space-between"
@@ -167,6 +121,7 @@ import routes from "../routes";
 import Services from '../services/services';
 import Config from '../config';
 import StationStatusBox from './StationStatusBox';
+import ModuleListView from './ModuleListView';
 
 const log = Config.logger('StationDetailView');
 
@@ -182,17 +137,14 @@ export default {
             nameNotPrintable: false,
             station: {
                 name: "FieldKit Station",
-                connected: 0,
-                battery: "0",
-                battery_image: "~/images/Icon_Battery.png",
-                available_memory: "0",
                 origName: "FieldKit Station"
             },
             modules: []
         };
     },
     components: {
-        StationStatusBox
+        StationStatusBox,
+        ModuleListView
     },
     props: ["stationId", "recording"],
     methods: {
@@ -273,6 +225,14 @@ export default {
 
             this.user = this.$portalInterface.getCurrentUser();
 
+            dbInterface
+                .getStation(this.stationId)
+                .then(this.getModules)
+                .then(this.setupModules)
+                .then(this.completeSetup);
+        },
+
+        respondToUpdates() {
             const saved = this.$stationMonitor.sortStations().filter(s => s.id == this.stationId);
             if (saved.length > 0) {
                 this.station.connected = saved[0].connected;
@@ -294,7 +254,7 @@ export default {
                 case this.$stationMonitor.ReadingsChangedProperty: {
                     if (data.value.stationId == this.stationId) {
                         this.$refs.statusBox.updateStatus(data.value);
-                        this.cycleSensorReadings(data.value.readings);
+                        this.$refs.moduleList.updateReadings(data.value.readings);
                     }
                     break;
                 }
@@ -302,12 +262,6 @@ export default {
             }, error => {
                 // console.log("propertyChangeEvent error", error);
             });
-
-            dbInterface
-                .getStation(this.stationId)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
         },
 
         toggleRename() {
@@ -371,13 +325,6 @@ export default {
             results.forEach(r => {
                 r.resultPromise.then(sensors => {
                     r.module.sensorObjects = sensors;
-                    // set variables for cycling sensors
-                    r.module.sensorIndex = 0;
-                    r.module.currentSensorLabel = sensors[0].name;
-                    r.module.currentSensorReading = sensors[0].current_reading ?
-                        sensors[0].current_reading.toFixed(1) : "--";
-                    r.module.currentSensorUnit = sensors[0].unit;
-                    r.module.currentSensorTrend = "~/images/Icon_Neutral.png";
                 });
             });
         },
@@ -396,9 +343,8 @@ export default {
 
         completeSetup() {
             this.$refs.statusBox.updateStation(this.station);
-            this.modules = this.station.moduleObjects;
+            this.$refs.moduleList.updateModules(this.station.moduleObjects);
             this.station.origName = this.station.name;
-
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portal_ids
@@ -416,77 +362,14 @@ export default {
                     });
             }
 
-            // cycle readings on seeded stations (for now)
+            // start getting live readings for this station
             if(this.station.url != "no_url") {
                 this.$stationMonitor.startLiveReadings(this.station.url);
-            } else {
-                this.intervalTimer = setInterval(this.cycleSensorReadings, 5000);
             }
-        },
 
-        cycleSensorReadings(liveReadings) {
-            let page = this.page;
-            this.station.moduleObjects.forEach(m => {
-                // ignore single sensor modules that don't have live readings
-                if (m.sensorObjects.length == 1 && !liveReadings) {
-                    return;
-                }
+            // now that station and modules are defined, respond to updates
+            this.respondToUpdates();
 
-                // increment to cycle through sensors
-                m.sensorIndex = m.sensorIndex == m.sensorObjects.length - 1 ? 0 : m.sensorIndex + 1;
-                let currentSensor = m.sensorObjects[m.sensorIndex];
-
-                let newReading = currentSensor.current_reading ?
-                    +currentSensor.current_reading.toFixed(1) : 0;
-                let prevReading = currentSensor.current_reading ?
-                    +currentSensor.current_reading.toFixed(1) : 0;
-
-                if (liveReadings && liveReadings[m.name + currentSensor.name]) {
-                    newReading = +liveReadings[m.name + currentSensor.name].toFixed(1);
-                    currentSensor.current_reading = newReading;
-                    dbInterface.setCurrentReading(currentSensor);
-                }
-
-                let trendIcon = "Icon_Neutral.png";
-                if (newReading < prevReading) {
-                    trendIcon = "Icon_Decrease.png";
-                } else if (newReading > prevReading) {
-                    trendIcon = "Icon_Increase.png";
-                }
-
-                let sensorLabel = page.getViewById("sensor-label-" + m.id);
-                if (sensorLabel) {
-                    sensorLabel
-                        .animate({
-                            opacity: 0,
-                            duration: 1000
-                        })
-                        .then(() => {
-                            m.currentSensorLabel = currentSensor.name;
-                            return sensorLabel.animate({
-                                opacity: 1,
-                                duration: 500
-                            });
-                    });
-                }
-                let stack = page.getViewById("sensors-of-" + m.id);
-                if (stack) {
-                    stack
-                        .animate({
-                            opacity: 0,
-                            duration: 1000
-                        })
-                        .then(() => {
-                            m.currentSensorReading = newReading;
-                            m.currentSensorUnit = currentSensor.unit;
-                            m.currentSensorTrend = "~/images/" + trendIcon;
-                            return stack.animate({
-                                opacity: 1,
-                                duration: 500
-                            });
-                    });
-                }
-            });
         },
 
         onNavigatingFrom() {
@@ -545,19 +428,5 @@ export default {
 
 .faded {
     opacity: 0.5;
-}
-
-.module-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-}
-
-.module-labels {
-    margin-left: 50;
-}
-
-.sensor-name {
-    font-family: "Avenir LT Pro", "AvenirLTPro-Book";
 }
 </style>
