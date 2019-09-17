@@ -174,10 +174,11 @@ export default class DownloadManager {
         };
     }
 
-    _createDownloadRow(station, url, name, destination, headers) {
+    _createDownloadRow(station, url, type, destination, headers) {
         delete headers['Connection'];
 
         const { range, firstBlock, lastBlock } = this._parseBlocks(headers["Fk-Blocks"]);
+        const generation = headers["Fk-Generation"];
 
         return {
             stationId: station.id,
@@ -185,16 +186,17 @@ export default class DownloadManager {
             url: url,
             timestamp: new Date(),
             path: destination.path,
-            name: name,
+            type: type,
             headers: headers,
             blocks: range,
+            generation: generation,
             firstBlock: firstBlock,
             lastBlock: lastBlock,
             size: destination.size,
         };
     }
 
-    _download(station, url, name, destination, operation) {
+    _download(station, url, type, destination, operation) {
         return new Promise((resolve, reject) => {
             log("download", url, "to", destination.path);
 
@@ -217,7 +219,7 @@ export default class DownloadManager {
                 .then(completed => {
                     log('headers', completed.headers);
                     log('status', completed.statusCode);
-                    resolve(this._createDownloadRow(station, url, name, destination, completed.headers));
+                    resolve(this._createDownloadRow(station, url, type, destination, completed.headers));
                 })
                 .catch(error => {
                     log("error", error.message);

@@ -254,11 +254,12 @@ export default class DatabaseInterface {
 
     insertDownloads(downloads) {
         return Promise.all(downloads.map(download => {
-            return this.database.execute(`INSERT INTO downloads (station_id, device_id, path, name, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+            return this.database.execute(`INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                 download.stationId,
                 download.deviceId,
+                download.generation,
                 download.path,
-                download.name,
+                download.type,
                 download.timestamp,
                 download.url,
                 download.size,
@@ -291,21 +292,21 @@ export default class DatabaseInterface {
         });
     }
 
-    _updateStream(station, status, name, index) {
+    _updateStream(station, status, type, index) {
         if (!station.deviceId && station.device_id) {
             station.deviceId = station.device_id;
         }
         if (!status.streams) {
             return Promise.reject();
         }
-        return this.getDatabase().then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND name = ?", [station.id, name])).then(streamId => {
+        return this.getDatabase().then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type])).then(streamId => {
             if (streamId.length > 0) {
                 const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
                 return this.getDatabase().then(db => db.query(`UPDATE streams SET size = ?, last_block = ?, updated = ? WHERE id = ?`, values));
             }
             else {
-                const values = [station.id, station.deviceId, name, status.streams[index].size, 0, status.streams[index].block, new Date()];
-                return this.getDatabase().then(db => db.query(`INSERT INTO streams (station_id, device_id, name, size, first_block, last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`, values));
+                const values = [station.id, station.deviceId, type, status.streams[index].size, 0, status.streams[index].block, new Date()];
+                return this.getDatabase().then(db => db.query(`INSERT INTO streams (station_id, device_id, type, size, first_block, last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`, values));
             }
         });
     }

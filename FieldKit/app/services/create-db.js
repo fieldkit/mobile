@@ -87,14 +87,14 @@ export default class CreateDB {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 station_id INTEGER NOT NULL,
                 device_id TEXT NOT NULL,
-                name TEXT NOT NULL,
+                type TEXT NOT NULL,
                 size INTEGER NOT NULL,
                 first_block INTEGER NOT NULL,
                 last_block INTEGER NOT NULL,
                 updated TIMESTAMP NOT NULL,
                 FOREIGN KEY(station_id) REFERENCES stations(id)
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS streams_idx ON streams (station_id, name)`
+            `CREATE UNIQUE INDEX IF NOT EXISTS streams_idx ON streams (station_id, type)`
         ]);
     }
 
@@ -104,12 +104,13 @@ export default class CreateDB {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 station_id INTEGER NOT NULL,
                 device_id TEXT NOT NULL,
-                name TEXT NOT NULL,
+                type TEXT NOT NULL,
                 path TEXT NOT NULL,
                 timestamp TIMESTAMP NOT NULL,
                 url TEXT NOT NULL,
                 size INTEGER NOT NULL,
                 blocks TEXT NOT NULL,
+                generation TEXT NOT NULL,
                 first_block INTEGER NOT NULL,
                 last_block INTEGER NOT NULL,
                 uploaded TIMESTAMP,
