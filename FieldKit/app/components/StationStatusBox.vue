@@ -3,7 +3,7 @@
         <GridLayout rows="auto,auto,auto" columns="*,*">
             <!-- recording status -->
             <StackLayout row="0" col="0">
-                <Label class="text-center m-y-10 size-16" text="Not Recording"></Label>
+                <Label class="text-center m-y-10 size-16" :text="_L('notRecording')"></Label>
             </StackLayout>
             <!-- battery level -->
             <StackLayout row="0" col="1">

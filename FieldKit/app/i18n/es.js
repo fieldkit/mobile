@@ -101,6 +101,8 @@ module.exports = {
     availableMemory: "Memoria disponible",
     deploy: "Emplear",
     deployed: "Empleado",
+    notRecording: "No grabando",
+    recordingData: "Grabando datos",
     station: "Estación",
     data: "Datos",
     settings: "Ajustes",

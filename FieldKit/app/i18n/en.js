@@ -99,6 +99,8 @@ module.exports = {
     availableMemory: "Available Memory",
     deploy: "Deploy",
     deployed: "Deployed",
+    notRecording: "Not Recording",
+    recordingData: "Recording Data",
     station: "Station",
     data: "Data",
     settings: "Settings",
