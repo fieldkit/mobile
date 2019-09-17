@@ -313,7 +313,7 @@ const stations = [
                 sensors: [
                     {
                         name: "pH Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -325,12 +325,12 @@ const stations = [
                 sensors: [
                     {
                         name: "DO Sensor",
-                        unit: "mg/L",
+                        unitOfMeasure: "mg/L",
                         frequency: "60"
                     },
                     {
                         name: "Conductivity Sensor",
-                        unit: "S/m",
+                        unitOfMeasure: "S/m",
                         frequency: "60"
                     }
                 ]
@@ -342,17 +342,17 @@ const stations = [
                 sensors: [
                     {
                         name: "Temperature Sensor",
-                        unit: "°C",
+                        unitOfMeasure: "°C",
                         frequency: "60"
                     },
                     {
                         name: "Wind Sensor",
-                        unit: "m/s",
+                        unitOfMeasure: "m/s",
                         frequency: "60"
                     },
                     {
                         name: "Rain Sensor",
-                        unit: "mm/h",
+                        unitOfMeasure: "mm/h",
                         frequency: "60"
                     }
                 ]
@@ -371,7 +371,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -390,7 +390,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -409,7 +409,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -428,7 +428,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
