@@ -58,18 +58,18 @@ export default class StationMonitor extends Observable {
                 this.deactivateStation(station);
             }
 
-            // take readings, if active, otherwise query regular boring status
+            // take readings, if active, otherwise query status
             if (this.activeAddresses.indexOf(station.url) > -1) {
                 this.queryStation
                     .takeReadings(station.url)
                     .then(this.updateStationReadings.bind(this, station))
-                    .catch(error => console.log(error));
+                    .catch(error => console.log("error taking readings", error));
             }
             else {
                 this.queryStation
                     .getStatus(station.url)
                     .then(this.updateStatus.bind(this, station))
-                    .catch(error => console.log(error));
+                    .catch(error => console.log("error getting status", error));
             }
         });
     }

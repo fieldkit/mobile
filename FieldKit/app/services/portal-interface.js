@@ -138,11 +138,6 @@ export default class PortalInterface {
     resetPassword(email) {}
 
     addStation(data) {
-        if (data.status_json.battery_level.toString().indexOf("%") > -1) {
-            data.status_json.battery_level = parseInt(
-                data.status_json.battery_level.toString().split("%")[0]
-            );
-        }
         return axios({
             method: "POST",
             url: Config.baseUri + "/stations",

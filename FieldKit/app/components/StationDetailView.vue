@@ -86,40 +86,9 @@
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
-                <GridLayout rows="auto" columns="*" :class="isEditingName ? 'faded' : ''">
-                    <StackLayout row="0" class="col left-col" horizontalAlignment="left">
-                        <Label class="text-center m-y-5 size-14" :text="_L('connected')"></Label>
-                        <Image width="25" v-if="station.connected == 1" src="~/images/Icon_Connected.png"></Image>
-                        <Label class="text-center red" v-if="station.connected == 0">✘</Label>
-                    </StackLayout>
-                    <StackLayout row="0" class="col right-col" horizontalAlignment="right">
-                        <Label class="text-center m-y-5 size-14" :text="_L('battery')"></Label>
-                        <FlexboxLayout justifyContent="center">
-                            <Label class="m-r-5 size-12" :text="station.battery_level"></Label>
-                            <Image width="25" :src="station.battery_image"></Image>
-                        </FlexboxLayout>
-                    </StackLayout>
-                </GridLayout>
+                <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
 
-                <GridLayout rows="auto, auto"
-                    columns="*"
-                    :class="'memory-bar-container ' + (isEditingName ? 'faded' : '')">
-                    <StackLayout row="0" class="memory-bar"></StackLayout>
-                    <StackLayout row="0"
-                        class="memory-bar"
-                        horizontalAlignment="left"
-                        id="station-memory-bar"></StackLayout>
-                    <Label row="1"
-                        class="m-t-5 size-12"
-                        horizontalAlignment="left"
-                        :text="_L('availableMemory')"></Label>
-                    <Label row="1"
-                        class="m-t-5 size-12"
-                        horizontalAlignment="right"
-                        :text="station.available_memory"></Label>
-                </GridLayout>
-
-                <StackLayout id="station-detail" :class="isEditingName ? 'faded' : ''">
+                <StackLayout id="station-detail">
                     <GridLayout :id="'m_id-' + m.id"
                         rows="auto" columns="*"
                         v-for="(m, moduleIndex) in modules"
@@ -167,21 +136,9 @@
                     </GridLayout>
                 </StackLayout>
 
-                <StackLayout :class="'module-container m-10 p-10 ' + (isEditingName ? 'faded' : '')"
-                    automationText="deployButton"
-                    @tap="goToDeploy">
-                    <Label
-                        :class="station.status == 'recording'
-                            ? 'plain text-center'
-                            : 'bold size-24 text-center'"
-                        :text="station.status == 'recording'
-                            ? _L('recording')
-                            : _L('deploy')"></Label>
-                </StackLayout>
-
                 <!-- footer -->
                 <FlexboxLayout justifyContent="space-between"
-                    :class="'size-12 p-30 footer ' + (isEditingName ? 'faded' : '')">
+                    class="size-12 p-30 footer">
                     <StackLayout class="footer-btn">
                         <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
                         <Label class="bold m-t-2" :text="_L('station')"></Label>
@@ -209,6 +166,7 @@ import {
 import routes from "../routes";
 import Services from '../services/services';
 import Config from '../config';
+import StationStatusBox from './StationStatusBox';
 
 const log = Config.logger('StationDetailView');
 
@@ -233,7 +191,9 @@ export default {
             modules: []
         };
     },
-    components: {},
+    components: {
+        StationStatusBox
+    },
     props: ["stationId", "recording"],
     methods: {
         goBack(event) {
@@ -273,12 +233,6 @@ export default {
         },
 
         goToDeploy(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
             this.stopProcesses();
 
             this.$navigateTo(routes.deployMap, {
@@ -322,13 +276,12 @@ export default {
             const saved = this.$stationMonitor.sortStations().filter(s => s.id == this.stationId);
             if (saved.length > 0) {
                 this.station.connected = saved[0].connected;
-                console.log(saved[0].connected);
             }
 
             this.$stationMonitor.on(Observable.propertyChangeEvent, data => {
                 switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationRefreshedProperty: {
-                    if (!data.value) {
+                    if (!data.value || !this.station) {
                         console.log('bad station refresh', data);
                     }
                     else {
@@ -340,13 +293,8 @@ export default {
                 }
                 case this.$stationMonitor.ReadingsChangedProperty: {
                     if (data.value.stationId == this.stationId) {
-                        this.station.connected = 1; // JACOB Why not true?
+                        this.$refs.statusBox.updateStatus(data.value);
                         this.cycleSensorReadings(data.value.readings);
-                        this.station.battery_level = data.value.batteryLevel + "%";
-                        this.setBatteryImage();
-                        this.station.occupiedMemory = data.value.consumedMemory.toFixed(2);
-                        this.station.available_memory = 100 - this.station.occupiedMemory + "%";
-                        this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
                     }
                     break;
                 }
@@ -447,13 +395,10 @@ export default {
         },
 
         completeSetup() {
+            this.$refs.statusBox.updateStation(this.station);
             this.modules = this.station.moduleObjects;
             this.station.origName = this.station.name;
-            this.station.battery_level += "%";
-            this.setBatteryImage();
-            this.station.occupiedMemory = 100 - this.station.available_memory;
-            this.station.available_memory = this.station.available_memory.toFixed(2) + "%";
-            this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
+
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portal_ids
@@ -547,31 +492,6 @@ export default {
         onNavigatingFrom() {
             this.stopProcesses();
         },
-
-        setBatteryImage() {
-            let image = "~/images/Icon_Battery";
-            let battery = this.station.battery_level;
-            // check to see if it already has a percent sign
-            if (battery.toString().indexOf("%") > -1) {
-                battery = parseInt(
-                    battery.toString().split("%")[0]
-                );
-            }
-            if(battery == 0) {
-                image += "_0.png";
-            } else if(battery <= 20) {
-                image += "_20.png";
-            } else if(battery <= 40) {
-                image += "_40.png";
-            } else if(battery <= 60) {
-                image += "_60.png";
-            } else if(battery <= 80) {
-                image += "_80.png";
-            } else {
-                image += "_100.png";
-            }
-            this.station.battery_image = image;
-        },
     }
 };
 </script>
@@ -625,52 +545,6 @@ export default {
 
 .faded {
     opacity: 0.5;
-}
-
-.col {
-    width: 50%;
-    border-width: 1;
-    border-color: $fk-gray-lighter;
-    background: $fk-gray-white;
-    padding-top: 10;
-    padding-bottom: 10;
-}
-
-.left-col {
-    margin-left: 10;
-    border-top-left-radius: 4;
-    border-bottom-left-radius: 4;
-}
-
-.right-col {
-    margin-right: 10;
-    border-top-right-radius: 4;
-    border-bottom-right-radius: 4;
-}
-
-.blue {
-    color: $fk-primary-blue;
-}
-
-.red {
-    color: $fk-tertiary-red;
-}
-
-.memory-bar-container {
-    margin-top: 20;
-    margin-bottom: 20;
-    margin-left: 10;
-    margin-right: 10;
-}
-
-.memory-bar {
-    height: 8;
-    background: $fk-gray-lightest;
-    border-radius: 4;
-}
-
-#station-memory-bar {
-    background: $fk-tertiary-green;
 }
 
 .module-container {
