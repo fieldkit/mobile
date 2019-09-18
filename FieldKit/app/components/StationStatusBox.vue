@@ -3,7 +3,10 @@
         <GridLayout rows="auto,auto,auto" columns="*,*">
             <!-- recording status -->
             <StackLayout row="0" col="0">
-                <Label class="text-center m-y-10 size-16" :text="_L('notRecording')"></Label>
+                <Label class="text-center m-y-10 size-16"
+                    :text="station.status == 'recording'
+                        ? _L('recordingData')
+                        : _L('notRecording')"></Label>
             </StackLayout>
             <!-- battery level -->
             <StackLayout row="0" col="1">
@@ -13,9 +16,9 @@
                 </FlexboxLayout>
             </StackLayout>
             <!-- recording time -->
-            <StackLayout row="1" col="0" class="outer-circle">
-                <StackLayout class="inner-circle">
-                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" text="00:00:00"></Label>
+            <StackLayout row="1" col="0" id="outer-circle">
+                <StackLayout id="inner-circle">
+                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="elapsedRecTime"></Label>
                     <Label class="size-12 rec-time" text="hrs min sec"></Label>
                 </StackLayout>
             </StackLayout>
@@ -49,11 +52,10 @@
                 </GridLayout>
             </StackLayout>
             <!-- deploy button -->
-            <StackLayout row="2" colSpan="2"class="m-10">
-                <Button class="btn btn-primary"
-                    :text="station.status == 'recording'
-                        ? _L('recording')
-                        : _L('deploy')"
+            <StackLayout row="2" colSpan="2" class="m-10">
+                <Button v-if="station.status != 'recording'"
+                    class="btn btn-primary"
+                    :text="_L('deploy')"
                     automationText="deployButton"
                     @tap="emitDeployTap"></Button>
             </StackLayout>
@@ -66,12 +68,15 @@ export default {
     name: "StationStatusBox",
     data: () => {
         return {
+            elapsedRecTime: "00:00:00",
             station: {
                 available_memory: 0,
                 battery_level: "0%",
                 battery_image: "~/images/Icon_Battery_0.png",
                 connected: 0,
-                status: ""
+                // set status to recording so deploy button
+                // isn't visibly removed when station updates
+                status: "recording"
             }
         };
     },
@@ -87,6 +92,13 @@ export default {
 
         updateStation(station) {
             this.station = station;
+            if(this.station.status == "recording") {
+                this.outer = this.page.getViewById("outer-circle");
+                this.inner = this.page.getViewById("inner-circle");
+                this.outer.className = this.outer.className + " active";
+                this.inner.className = this.inner.className + " active";
+                this.intervalTimer = setInterval(this.displayElapsedTime, 1000);
+            }
             this.setBatteryImage();
             this.station.battery_level += "%";
             this.station.occupiedMemory = 100 - this.station.available_memory;
@@ -128,6 +140,55 @@ export default {
             this.station.battery_image = image;
         },
 
+        displayElapsedTime() {
+            if(!this.station.deploy_start_time) {
+                return
+            }
+            let now = new Date();
+            let elapsedMillis = now - this.station.deploy_start_time;
+
+            let seconds = Math.floor((elapsedMillis / 1000) % 60);
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            let minutes = Math.floor((elapsedMillis / (1000 * 60)) % 60);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            // TODO: convert to days when needed - for now, just accumulate hours
+            // let hours = Math.floor((elapsedMillis / (1000 * 60 * 60)) % 24);
+            let hours = Math.floor(elapsedMillis / (1000 * 60 * 60));
+            hours = hours < 10 ? "0" + hours : hours;
+            this.elapsedRecTime = hours + ":" + minutes + ":" + seconds;
+
+            if(parseInt(seconds) % 2 == 0) {
+                    this.outer
+                        .animate({
+                            scale: { x: 1, y: 1 },
+                            duration: 500
+                        })
+                        .then(() => {
+                            return this.outer.animate({
+                                scale: { x: 0.98, y: 0.98 },
+                                duration: 750
+                            });
+                        });
+
+                    this.inner
+                        .animate({
+                            opacity: 0.75,
+                            duration: 500
+                        })
+                        .then(() => {
+                            return this.inner.animate({
+                                opacity: 1,
+                                duration: 750
+                            });
+                        });
+            }
+
+        },
+
+        stopProcesses() {
+            clearInterval(this.intervalTimer);
+        },
+
     }
 };
 </script>
@@ -144,19 +205,27 @@ export default {
     border-width: 1;
 }
 
-.outer-circle, .inner-circle {
-    width: 120;
-    height: 120;
+#outer-circle, #inner-circle {
     background: $fk-gray-white;
     border-width: 2;
     border-color: $fk-gray-light;
     border-radius: 60%;
 }
-.inner-circle {
+#outer-circle {
+    width: 120;
+    height: 120;
+}
+#inner-circle {
     width: 110;
     height: 110;
     margin-top: 3;
     background: $fk-gray-light;
+}
+#outer-circle.active, #inner-circle.active {
+    border-color: $fk-secondary-blue;
+}
+#inner-circle.active {
+    background: $fk-secondary-blue;
 }
 
 .rec-time {

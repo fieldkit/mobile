@@ -177,7 +177,7 @@ export default {
             if (this.station && this.station.url != "no_url") {
                 this.$stationMonitor.stopLiveReadings(this.station.url);
             }
-            clearInterval(this.intervalTimer);
+            this.$refs.statusBox.stopProcesses();
         },
 
         onPageLoaded(args) {
