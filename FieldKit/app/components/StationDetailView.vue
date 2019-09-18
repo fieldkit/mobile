@@ -122,10 +122,6 @@ export default {
             noName: false,
             nameTooLong: false,
             nameNotPrintable: false,
-            station: {
-                name: "FieldKit Station",
-                origName: "FieldKit Station"
-            },
             modules: []
         };
     },
@@ -134,7 +130,7 @@ export default {
         ModuleListView,
         StationFooterTabs
     },
-    props: ["stationId", "recording"],
+    props: ["stationId", "station"],
     methods: {
         goBack(event) {
             // Change background color when pressed
@@ -146,12 +142,7 @@ export default {
 
             this.stopProcesses();
 
-            this.$navigateTo(routes.stations, {
-                props: {
-                    stationId: this.stationId,
-                    recording: this.recording
-                }
-            });
+            this.$navigateTo(routes.stations);
         },
 
         goToDeploy(event) {
@@ -159,7 +150,7 @@ export default {
 
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    stationId: this.stationId
+                    station: this.station
                 }
             });
         },
@@ -194,11 +185,16 @@ export default {
 
             this.user = this.$portalInterface.getCurrentUser();
 
-            dbInterface
-                .getStation(this.stationId)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
+            if(this.stationId) {
+                dbInterface
+                    .getStation(this.stationId)
+                    .then(this.getModules)
+                    .then(this.setupModules)
+                    .then(this.completeSetup);
+            } else {
+                this.stationId = this.station.id;
+                this.completeSetup();
+            }
         },
 
         respondToUpdates() {

@@ -146,7 +146,7 @@ export default {
             isRecordingData: false
         };
     },
-    props: ["stationId"],
+    props: ["station"],
     methods: {
         goBack(event) {
             let cn = event.object.className;
@@ -155,12 +155,9 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            // send recording status back, as background querying
-            // can take a few seconds to catch up
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    stationId: this.stationId,
-                    recording: this.isRecordingData ? 'recording' : 'idle'
+                    station: this.station
                 }
             });
         },
@@ -186,39 +183,10 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            dbInterface
-                .getStation(this.stationId)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
+            this.setup();
         },
 
-        getModules(station) {
-            this.station = station[0];
-            return dbInterface.getModules(this.station.id);
-        },
-
-        linkModulesAndSensors(results) {
-            results.forEach(r => {
-                r.resultPromise.then(sensors => {
-                    r.module.sensorObjects = sensors;
-                });
-            });
-        },
-
-        getSensors(moduleObject) {
-            let result = dbInterface.getSensors(moduleObject.id);
-            return { resultPromise: result, module: moduleObject };
-        },
-
-        setupModules(modules) {
-            this.station.moduleObjects = modules;
-            return Promise.all(this.station.moduleObjects.map(this.getSensors)).then(
-                this.linkModulesAndSensors
-            );
-        },
-
-        completeSetup() {
+        setup() {
             if(this.station.status == "recording") {
                 this.isRecordingData = true;
             }

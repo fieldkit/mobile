@@ -42,10 +42,6 @@
                                 v-model="station.location_name"
                                 @focus="toggleLocationEdit"
                                 @blur="checkLocationName"></TextField>
-                            <Label
-                                class="size-10 char-count"
-                                :text="station.location_name.length"
-                                v-show="isEditingLocation"></Label>
                         </FlexboxLayout>
                         <Label
                             class="validation-error"
@@ -152,15 +148,12 @@ export default {
             origInterval: "",
             noInterval: false,
             intervalNotNumber: false,
-            station: {
-                location_name: ""
-            },
             currentUnit: 0,
             displayInterval: "",
             timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
         };
     },
-    props: ["stationId","recording"],
+    props: ["station"],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
@@ -168,7 +161,7 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            dbInterface.getStation(this.stationId).then(this.completeSetup);
+            this.saveOriginalValues();
         },
 
         onMapReady(args) {
@@ -185,8 +178,7 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    stationId: this.stationId,
-                    recording: this.recording
+                    station: this.station
                 }
             });
         },
@@ -197,14 +189,12 @@ export default {
 
             this.$navigateTo(routes.deployNotes, {
                 props: {
-                    stationId: this.stationId
+                    station: this.station
                 }
             });
         },
 
-        completeSetup(stations) {
-            this.station = stations[0];
-
+        saveOriginalValues() {
             if (!this.station.location_name) {
                 this.station.location_name = "";
             }
@@ -461,12 +451,6 @@ export default {
     width: 50%;
     border-bottom-width: 1;
     border-bottom-color: $fk-primary-black;
-}
-
-.char-count {
-    width: 10%;
-    margin-top: 10;
-    margin-left: 5;
 }
 
 .validation-error {

@@ -39,7 +39,7 @@
                     <Label row="1" col="1"
                         class="m-l-10 m-t-5 m-b-10 size-12"
                         horizontalAlignment="left"
-                        :text="station.available_memory"></Label>
+                        :text="station.available_memory + '%'"></Label>
                     <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container" >
                         <StackLayout row="0" class="memory-bar"></StackLayout>
                         <StackLayout row="0" class="memory-bar"
@@ -90,7 +90,7 @@ export default {
             this.setBatteryImage();
             this.station.battery_level += "%";
             this.station.occupiedMemory = 100 - this.station.available_memory;
-            this.station.available_memory = this.station.available_memory.toFixed(2) + "%";
+            this.station.available_memory = parseFloat(this.station.available_memory).toFixed(2);
             this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
         },
 
@@ -99,7 +99,7 @@ export default {
             this.station.battery_level = data.batteryLevel + "%";
             this.setBatteryImage();
             this.station.occupiedMemory = data.consumedMemory.toFixed(2);
-            this.station.available_memory = 100 - this.station.occupiedMemory + "%";
+            this.station.available_memory = 100 - this.station.occupiedMemory;
             this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
         },
 

@@ -42,22 +42,12 @@ export default {
             stations: []
         };
     },
-    props: ["stationId", "recording"],
+    props: [],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
 
             this.stations = this.$stationMonitor.getStations();
-
-            // set status here, as background querying can
-            // can take a few seconds to catch up
-            if(this.stationId && this.recording) {
-                this.stations.forEach(s => {
-                    if(s.id == this.stationId) {
-                        this.$set(s, "status", this.recording);
-                    }
-                });
-            }
 
             this.$stationMonitor.on(Observable.propertyChangeEvent, this.updateStations);
         },
@@ -95,7 +85,9 @@ export default {
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     // remove the "station-" prefix
-                    stationId: event.object.id.split("station-")[1]
+                    stationId: event.object.id.split("station-")[1],
+                    // necessary to have station defined on page load
+                    station: {name: ""}
                 }
             });
         }

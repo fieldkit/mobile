@@ -152,7 +152,7 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    stationId: this.station.id
+                    station: this.station
                 }
             });
         },
