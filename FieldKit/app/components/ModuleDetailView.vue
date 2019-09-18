@@ -97,20 +97,7 @@
                 </StackLayout>
 
                 <!-- footer -->
-                <FlexboxLayout justifyContent="space-between" class="size-12 p-30 footer">
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
-                        <Label class="bold m-t-2" :text="_L('station')"></Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('data')"></Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('settings')"></Label>
-                    </StackLayout>
-                </FlexboxLayout>
+                <StationFooterTabs :station="station" active="station" />
 
             </FlexboxLayout>
         </ScrollView>
@@ -120,6 +107,7 @@
 <script>
 import routes from "../routes";
 import Services from '../services/services';
+import StationFooterTabs from './StationFooterTabs';
 
 const dbInterface = Services.Database();
 
@@ -141,7 +129,10 @@ export default {
             graphedSensors: []
         };
     },
-    props: ["moduleId", "stationId", "url"],
+    props: ["moduleId", "station"],
+    components: {
+        StationFooterTabs
+    },
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
@@ -161,7 +152,7 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    stationId: this.stationId
+                    stationId: this.station.id
                 }
             });
         },
@@ -175,7 +166,8 @@ export default {
 
             this.$navigateTo(routes.configureModule, {
                 props: {
-                    moduleId: this.moduleId
+                    moduleId: this.moduleId,
+                    station: this.station
                 }
             });
         },

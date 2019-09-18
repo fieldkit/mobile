@@ -91,21 +91,7 @@
                 <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
 
                 <!-- footer -->
-                <FlexboxLayout justifyContent="space-between"
-                    class="size-12 p-30 footer">
-                    <StackLayout class="footer-btn">
-                        <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
-                        <Label class="bold m-t-2" :text="_L('station')"></Label>
-                    </StackLayout>
-                    <StackLayout @tap="goToData" class="footer-btn">
-                        <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('data')"></Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('settings')"></Label>
-                    </StackLayout>
-                </FlexboxLayout>
+                <StationFooterTabs :station="station" active="station" />
 
             </FlexboxLayout>
         </ScrollView>
@@ -122,6 +108,7 @@ import Services from '../services/services';
 import Config from '../config';
 import StationStatusBox from './StationStatusBox';
 import ModuleListView from './ModuleListView';
+import StationFooterTabs from './StationFooterTabs';
 
 const log = Config.logger('StationDetailView');
 
@@ -144,7 +131,8 @@ export default {
     },
     components: {
         StationStatusBox,
-        ModuleListView
+        ModuleListView,
+        StationFooterTabs
     },
     props: ["stationId", "recording"],
     methods: {
@@ -162,24 +150,6 @@ export default {
                 props: {
                     stationId: this.stationId,
                     recording: this.recording
-                }
-            });
-        },
-
-        goToData(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            this.stopProcesses();
-
-            this.$navigateTo(routes.dataDownload, {
-                props: {
-                    stationId: this.stationId,
-                    url: this.station.url,
-                    stationName: this.station.name
                 }
             });
         },
@@ -207,8 +177,7 @@ export default {
                 props: {
                     // remove the "m_id-" prefix
                     moduleId: event.object.id.split("m_id-")[1],
-                    stationId: this.stationId,
-                    url: this.station.url
+                    station: this.station
                 }
             });
         },
