@@ -193,7 +193,7 @@ export default {
                 s.intervalUnit = this.calculateTimeUnit();
                 s.readings = [];
                 // generate faux readings, if not a real device
-                if(this.url == "no_url") {
+                if(this.station.url == "no_url") {
                     let low = s.current_reading / 2;
                     for (var i = 0; i < numReadings; i++) {
                         let reading = Math.random() * low + low;

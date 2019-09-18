@@ -24,7 +24,7 @@
                         width="30"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
-                        v-if="(open.indexOf(m.id.toString()) > -1)"></Image>
+                        v-if="(open.indexOf(m.id) > -1)"></Image>
                     <Image row="0" col="2"
                         verticalAlignment="top"
                         horizontalAlignment="right"
@@ -32,10 +32,10 @@
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
                         src="~/images/pointing_down.png"
-                        v-if="(open.indexOf(m.id.toString()) == -1)"></Image>
+                        v-if="(open.indexOf(m.id) == -1)"></Image>
                 </GridLayout>
                 <!-- sensor container -->
-                <WrapLayout orientation="horizontal" v-if="(open.indexOf(m.id.toString()) > -1)">
+                <WrapLayout orientation="horizontal" v-if="(open.indexOf(m.id) > -1)">
                     <WrapLayout orientation="horizontal"
                         v-for="(s, sensorIndex) in m.sensorObjects"
                         :key="s.id"
@@ -83,7 +83,7 @@ export default {
         updateModules(modules) {
             this.modules = modules;
             this.modules.forEach(m => {
-                this.open.push(m.id.toString());
+                this.open.push(m.id);
                 m.sensorObjects.forEach(s => {
                     s.displayReading = s.current_reading ? s.current_reading.toFixed(1) : "--";
                     s.icon = "~/images/Icon_Neutral.png";
@@ -123,6 +123,7 @@ export default {
 
         toggleContainer(event) {
             let id = event.object.dataId.split("m_id-")[1];
+            id = parseInt(id);
             let index = this.open.indexOf(id);
             if(index == -1) {
                 this.open.push(id);
