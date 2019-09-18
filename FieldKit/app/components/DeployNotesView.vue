@@ -471,6 +471,9 @@ export default {
             event.object.text = _L("stopRecording");
             this.isRecordingData = true;
 
+            this.station.deploy_start_time = new Date();
+            dbInterface.setStationDeployStartTime(this.station);
+
             queryStation.startDataRecording(this.station.url).then(result => {
                 const priorValue = null;
                 this.station.status = "recording";

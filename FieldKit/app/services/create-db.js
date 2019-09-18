@@ -173,6 +173,7 @@ export default class CreateDB {
                 deploy_image_label TEXT,
                 deploy_note TEXT,
                 deploy_audio_files TEXT,
+                deploy_start_time DATETIME,
                 portal_id INTEGER,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP,

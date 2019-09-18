@@ -166,6 +166,12 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationDeployStartTime(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET deploy_start_time = ? WHERE id = ?", [station.deploy_start_time, station.id])
+        );
+    }
+
     setModuleName(module) {
         return this.getDatabase().then(db =>
             db.query("UPDATE modules SET name = ? WHERE id = ?", [module.name, module.id])
