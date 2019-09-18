@@ -92,7 +92,7 @@ export default class DatabaseInterface {
 
     setStationPortalID(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [station.portalId, station.id])
+            db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [station.portal_id, station.id])
         );
     }
 

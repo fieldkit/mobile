@@ -474,7 +474,14 @@ export default {
             queryStation.startDataRecording(this.station.url).then(result => {
                 const priorValue = null;
                 this.station.status = "recording";
-                this.updateStationStatus(priorValue);
+                this.updateStationStatus(priorValue)
+                    .then(() => {
+                        this.$navigateTo(routes.stationDetail, {
+                            props: {
+                                station: this.station
+                            }
+                        });
+                    });
             });
         },
 
@@ -507,11 +514,14 @@ export default {
                     device_id: this.station.device_id,
                     status_json: this.station
                 };
-                this.$portalInterface
+                return this.$portalInterface
                     .updateStation(params, this.station.portal_id)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
+                        return Promise.resolve();
                     });
+            } else {
+                return Promise.resolve();
             }
         },
 

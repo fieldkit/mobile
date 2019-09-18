@@ -322,7 +322,7 @@ export default {
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
-                        this.station.portalId = stationPortalId;
+                        this.station.portal_id = stationPortalId;
                         dbInterface.setStationPortalID(this.station);
                     });
             }
