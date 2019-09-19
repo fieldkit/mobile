@@ -305,7 +305,7 @@ const stations = [
     {
         deviceId: "seeded-device-0",
         name: "Drammen Station",
-        status: "recording",
+        status: "idle",
         modules: [
             {
                 moduleId: "seeded-device-0-module-0",
