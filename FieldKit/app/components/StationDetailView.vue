@@ -76,7 +76,11 @@ export default {
 
             this.stopProcesses();
 
-            this.$navigateTo(routes.stations);
+            this.$navigateTo(routes.stations, {
+                props: {
+                    station: this.station
+                }
+            });
         },
 
         goToDeploy(event) {
@@ -135,7 +139,7 @@ export default {
 
             this.user = this.$portalInterface.getCurrentUser();
 
-            if(this.stationId) {
+            if(this.station.name == "") {
                 dbInterface
                     .getStation(this.stationId)
                     .then(this.getModules)
@@ -205,6 +209,9 @@ export default {
         },
 
         completeSetup() {
+            if(this.station.deploy_start_time && typeof this.station.deploy_start_time == "string") {
+                this.station.deploy_start_time = new Date(this.station.deploy_start_time);
+            }
             if(this.station.status == "recording") {this.setDeployedStatus();}
             this.$refs.statusBox.updateStation(this.station);
             this.$refs.moduleList.updateModules(this.station.moduleObjects);

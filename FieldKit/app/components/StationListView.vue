@@ -42,12 +42,22 @@ export default {
             stations: []
         };
     },
-    props: [],
+    props: ["station"],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
 
             this.stations = this.$stationMonitor.getStations();
+            if(this.station) {
+                // update from station detail view
+                this.stations.forEach(s => {
+                    if(s.id == this.station.id) {
+                        s.status = this.station.status;
+                        s.connected = this.station.connected;
+                        // s.sortedIndex += 1;
+                    }
+                });
+            }
 
             this.$stationMonitor.on(Observable.propertyChangeEvent, this.updateStations);
         },
@@ -82,12 +92,18 @@ export default {
                 event.object.className = cn;
             }, 500);
 
+            let id = event.object.id.split("station-")[1];
+            // necessary to have station name defined on page load
+            let stationObj = {name: ""};
+            if(this.station && this.station.id == id) {
+                stationObj = this.station;
+            }
+
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     // remove the "station-" prefix
-                    stationId: event.object.id.split("station-")[1],
-                    // necessary to have station defined on page load
-                    station: {name: ""}
+                    stationId: id,
+                    station: stationObj
                 }
             });
         }
