@@ -11,7 +11,7 @@
             <!-- battery level -->
             <StackLayout row="0" col="1">
                 <FlexboxLayout class="m-10" justifyContent="flex-end">
-                    <Label class="m-r-5 size-12" :text="station.battery_level"></Label>
+                    <Label class="m-r-5 size-12" :text="station.battery_level + '%'"></Label>
                     <Image width="25" :src="station.battery_image"></Image>
                 </FlexboxLayout>
             </StackLayout>
@@ -71,7 +71,7 @@ export default {
             elapsedRecTime: "00:00:00",
             station: {
                 available_memory: 0,
-                battery_level: "0%",
+                battery_level: 0,
                 battery_image: "~/images/Icon_Battery_0.png",
                 connected: 0,
                 // set status to recording so deploy button
@@ -100,7 +100,6 @@ export default {
                 this.intervalTimer = setInterval(this.displayElapsedTime, 1000);
             }
             this.setBatteryImage();
-            this.station.battery_level += "%";
             this.station.occupiedMemory = 100 - this.station.available_memory;
             this.station.available_memory = parseFloat(this.station.available_memory).toFixed(2);
             this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
@@ -108,7 +107,7 @@ export default {
 
         updateStatus(data) {
             this.station.connected = 1;
-            this.station.battery_level = data.batteryLevel + "%";
+            this.station.battery_level = data.batteryLevel;
             this.setBatteryImage();
             this.station.occupiedMemory = data.consumedMemory.toFixed(2);
             this.station.available_memory = 100 - this.station.occupiedMemory;
@@ -118,12 +117,6 @@ export default {
         setBatteryImage() {
             let image = "~/images/Icon_Battery";
             let battery = this.station.battery_level;
-            // check to see if it already has a percent sign
-            if (battery.toString().indexOf("%") > -1) {
-                battery = parseInt(
-                    battery.toString().split("%")[0]
-                );
-            }
             if(battery == 0) {
                 image += "_0.png";
             } else if(battery <= 20) {
