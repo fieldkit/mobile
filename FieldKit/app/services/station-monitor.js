@@ -28,50 +28,61 @@ export default class StationMonitor extends Observable {
             let key = thisMonitor.makeKey(r);
             r.lastSeen = r.connected ? new Date() : pastDate;
             thisMonitor.stations[key] = r;
-            if (r.url != "no_url") {
-                // 'prime the pump' with an initial request
-                this.queryStation.takeReadings(r.url);
-            }
         });
 
-        // start ten second cycle
-        this.intervalTimer = setInterval(() => {
-            this.queryStations();
-        }, 10000);
+        let index = 0; // seeded stations cause delay otherwise
+        // kickoff station queries, staggered
+        Object.values(this.stations).forEach((station) => {
+            if (station.url == "no_url") {
+                return;
+            }
+            setTimeout(() => {this.requestInitialReadings(station)}, 3000*index);
+            index += 1;
+        });
     }
 
     getStations() {
         return this.sortStations();
     }
 
-    queryStations() {
-        Object.values(this.stations).forEach(station => {
-            if (station.url == "no_url") {
-                return;
-            }
 
-            const elapsed = new Date() - station.lastSeen;
+    requestInitialReadings(station) {
+        // take readings first so they can be stored (active or not)
+        this.queryStation
+            .takeReadings(station.url)
+            .then(this.updateStationReadings.bind(this, station))
+            .catch(error => {
+                if(error.message == "busy") {
+                    // try again
+                    setTimeout(() => {this.requestInitialReadings(station)}, 2000);
+                } else {
+                    console.log("error taking readings", error)
+                }
+            });
+    }
 
-            // if station hasn't been heard from in awhile, disable it
-            // (seeded stations exempt for now due to above return statement)
-            if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
-                this.deactivateStation(station);
-            }
+    requestStationData(station) {
+        const elapsed = new Date() - station.lastSeen;
 
-            // take readings, if active, otherwise query status
-            if (this.activeAddresses.indexOf(station.url) > -1) {
-                this.queryStation
-                    .takeReadings(station.url)
-                    .then(this.updateStationReadings.bind(this, station))
-                    .catch(error => console.log("error taking readings", error));
-            }
-            else {
-                this.queryStation
-                    .getStatus(station.url)
-                    .then(this.updateStatus.bind(this, station))
-                    .catch(error => console.log("error getting status", error));
-            }
-        });
+        // if station hasn't been heard from in awhile, disable it
+        // (seeded stations exempt for now due to above return statement)
+        if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
+            this.deactivateStation(station);
+        }
+
+        // take readings, if active, otherwise query status
+        if (this.activeAddresses.indexOf(station.url) > -1) {
+            this.queryStation
+                .takeReadings(station.url)
+                .then(this.updateStationReadings.bind(this, station))
+                .catch(error => console.log("error taking readings", error));
+        }
+        else {
+            this.queryStation
+                .getStatus(station.url)
+                .then(this.updateStatus.bind(this, station))
+                .catch(error => console.log("error getting status", error));
+        }
     }
 
     updateStatus(station, result) {
@@ -81,6 +92,10 @@ export default class StationMonitor extends Observable {
         station.connected = 1;
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
+
+        // set up next query
+        setTimeout(() => {this.requestStationData(station)}, 10000);
+
         return this._updateStationStatus(station, result);
     }
 
@@ -90,6 +105,7 @@ export default class StationMonitor extends Observable {
         }
         station.connected = 1;
         station.lastSeen = new Date();
+        station.status = result.status.recording.enabled ? "recording" : "idle";
         const readings = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
@@ -106,6 +122,9 @@ export default class StationMonitor extends Observable {
         };
 
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
+
+        // set up next query
+        setTimeout(() => {this.requestStationData(station)}, 10000);
 
         return this._updateStationStatus(station, result);
     }
