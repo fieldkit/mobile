@@ -228,6 +228,11 @@ export default {
 
             // start getting live readings for this station
             if(this.station.url != "no_url") {
+                // see if live readings have been stored already
+                const readings = this.$stationMonitor.getStationReadings(this.station);
+                if(readings) {
+                    this.$refs.moduleList.updateReadings(readings);
+                }
                 this.$stationMonitor.startLiveReadings(this.station.url);
             }
 

@@ -45,6 +45,10 @@ export default class StationMonitor extends Observable {
         return this.sortStations();
     }
 
+    getStationReadings(station) {
+        let key = this.makeKey(station);
+        return this.stations[key] ? this.stations[key].readings : null;
+    }
 
     requestInitialReadings(station) {
         // take readings first so they can be stored (active or not)
@@ -120,6 +124,8 @@ export default class StationMonitor extends Observable {
             batteryLevel: result.status.power.battery.percentage,
             consumedMemory: result.status.memory.dataMemoryConsumption
         };
+        // store one set of live readings per station
+        station.readings = readings;
 
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
 
@@ -295,6 +301,10 @@ export default class StationMonitor extends Observable {
     _updateStationStatus(station, status) {
         if (status != null) {
             station.statusReply = status;
+
+            // save changes internally
+            let key = this.makeKey(station);
+            this.stations[key] = station;
 
             return this.dbInterface.updateStationStatus(station, status).then(() => {
                 return this._publishStationsUpdated().then(() => {
