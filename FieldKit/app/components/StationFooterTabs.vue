@@ -3,29 +3,32 @@
         <StackLayout @tap="goToStation" class="footer-btn">
             <template v-if="active == 'station'">
                 <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
+                <Label class="bold m-t-2" :text="_L('station')"></Label>
             </template>
             <template v-else>
                 <Image width="20" src="~/images/Icon_Station_Inactive.png"></Image>
+                <Label class="light m-t-2" :text="_L('station')"></Label>
             </template>
-            <Label class="light m-t-2" :text="_L('station')"></Label>
         </StackLayout>
         <StackLayout @tap="goToData" class="footer-btn">
             <template v-if="active == 'data'">
                 <Image width="20" src="~/images/Icon_Data_Selected.png"></Image>
+                <Label class="bold m-t-2" :text="_L('data')"></Label>
             </template>
             <template v-else>
                 <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
+                <Label class="light m-t-2" :text="_L('data')"></Label>
             </template>
-            <Label class="bold m-t-2" :text="_L('data')"></Label>
         </StackLayout>
         <StackLayout @tap="goToSettings" class="footer-btn">
             <template v-if="active == 'settings'">
                 <Image width="20" src="~/images/Icon_Settings_Selected.png"></Image>
+                <Label class="bold m-t-2" :text="_L('settings')"></Label>
             </template>
             <template v-else>
                 <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
+                <Label class="light m-t-2" :text="_L('settings')"></Label>
             </template>
-            <Label class="light m-t-2" :text="_L('settings')"></Label>
         </StackLayout>
     </FlexboxLayout>
 </template>
