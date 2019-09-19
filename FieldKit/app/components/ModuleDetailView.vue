@@ -167,7 +167,8 @@ export default {
             this.$navigateTo(routes.configureModule, {
                 props: {
                     moduleId: this.moduleId,
-                    station: this.station
+                    station: this.station,
+                    origin: "detail"
                 }
             });
         },

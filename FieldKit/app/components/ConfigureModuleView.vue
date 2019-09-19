@@ -164,7 +164,7 @@ export default {
             timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
         };
     },
-    props: ["moduleId", "station"],
+    props: ["moduleId", "station", "origin"],
     components: {
         StationFooterTabs
     },
@@ -192,12 +192,22 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.module, {
-                props: {
-                    moduleId: this.module.id,
-                    station: this.station
-                }
-            });
+            // TODO: handle history better
+            if(this.origin == "detail") {
+                this.$navigateTo(routes.module, {
+                    props: {
+                        moduleId: this.module.id,
+                        station: this.station
+                    }
+                });
+            }
+            if(this.origin == "settings") {
+                this.$navigateTo(routes.stationSettings, {
+                    props: {
+                        station: this.station
+                    }
+                });
+            }
         },
 
         toggleRename() {

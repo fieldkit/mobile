@@ -1,89 +1,27 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <ScrollView>
-            <FlexboxLayout flexDirection="column" justifyContent="space-between">
-                <GridLayout rows="auto" columns="*">
-                    <StackLayout row="0" class="round m-y-10" @tap="goBack" horizontalAlignment="left">
+            <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
+                <GridLayout rows="auto,auto" columns="15*,70*,15*">
+                    <StackLayout row="0" col="0" class="round" @tap="goBack" horizontalAlignment="left">
                         <Image
                             width="21"
-                            class="m-t-10"
-                            v-show="!isEditingName"
+                            class="p-b-10 m-b-10"
                             src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
-                    <Image
-                        row="0"
-                        class="m-10"
-                        width="17"
-                        horizontalAlignment="left"
-                        v-show="isEditingName"
-                        @tap="cancelRename"
-                        src="~/images/Icon_Close.png"></Image>
-                    <Label
-                        row="0"
-                        class="title m-y-20 text-center station-name"
+                    <Label row="0" col="1"
+                        class="title m-y-0 text-center"
                         :text="station.name"
-                        v-show="!isEditingName"
                         textWrap="true"></Label>
-                    <!-- Edit name form -->
-                    <StackLayout row="0" id="station-name-field" class="input-field m-y-20 text-left">
-                        <FlexboxLayout>
-                            <TextField
-                                class="input"
-                                :isEnabled="true"
-                                keyboardType="name"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                horizontalAlignment="left"
-                                v-model="station.name"
-                                v-show="isEditingName"
-                                returnKeyType="next"
-                                @blur="checkName"></TextField>
-                            <Label
-                                class="size-10 char-count"
-                                horizontalAlignment="right"
-                                :text="station.name.length"
-                                v-show="isEditingName"></Label>
-                        </FlexboxLayout>
-                        <StackLayout class="spacer-top" id="name-field-spacer"></StackLayout>
-                        <Label
-                            class="validation-error"
-                            id="no-name"
-                            horizontalAlignment="left"
-                            :text="_L('nameRequired')"
-                            textWrap="true"
-                            :visibility="noName ? 'visible' : 'collapsed'"></Label>
-                        <Label
-                            class="validation-error"
-                            id="name-too-long"
-                            horizontalAlignment="left"
-                            :text="_L('nameOver40')"
-                            textWrap="true"
-                            :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
-                        <Label
-                            class="validation-error"
-                            id="name-not-printable"
-                            horizontalAlignment="left"
-                            :text="_L('nameNotPrintable')"
-                            textWrap="true"
-                            :visibility="nameNotPrintable ? 'visible' : 'collapsed'"></Label>
+                    <Label row="1" col="1"
+                        class="text-center size-12"
+                        :text="deployedStatus"
+                        textWrap="true"></Label>
+                    <StackLayout row="0" col="2" class="round" @tap="goToSettings">
+                        <Image
+                            width="25"
+                            src="~/images/Icon_Congfigure.png"></Image>
                     </StackLayout>
-                    <!-- end edit name form -->
-                    <Image
-                        row="0"
-                        class="m-10"
-                        width="14"
-                        horizontalAlignment="right"
-                        v-show="!isEditingName"
-                        @tap="toggleRename"
-                        src="~/images/Icon_Edit.png"></Image>
-                    <Image
-                        row="0"
-                        class="m-10"
-                        width="17"
-                        horizontalAlignment="right"
-                        v-show="isEditingName"
-                        @tap="saveStationName"
-                        src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
                 <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
@@ -113,15 +51,11 @@ import StationFooterTabs from './StationFooterTabs';
 const log = Config.logger('StationDetailView');
 
 const dbInterface = Services.Database();
-const stateManager = Services.StateManager();
 
 export default {
     data() {
         return {
-            isEditingName: false,
-            noName: false,
-            nameTooLong: false,
-            nameNotPrintable: false,
+            deployedStatus: "Ready to deploy",
             modules: []
         };
     },
@@ -168,6 +102,22 @@ export default {
                 props: {
                     // remove the "m_id-" prefix
                     moduleId: event.object.id.split("m_id-")[1],
+                    station: this.station
+                }
+            });
+        },
+
+        goToSettings(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            this.stopProcesses();
+
+            this.$navigateTo(routes.stationSettings, {
+                props: {
                     station: this.station
                 }
             });
@@ -229,58 +179,6 @@ export default {
             });
         },
 
-        toggleRename() {
-            this.isEditingName = true;
-        },
-
-        checkName() {
-            // reset these first
-            this.noName = false;
-            this.nameNotPrintable = false;
-
-            this.nameTooLong = false;
-            // then check
-            this.noName = !this.station.name || this.station.name.length == 0;
-            if (this.noName) {
-                return false;
-            }
-            let matches = this.station.name.match(/^[ \w~!@#$%^&*()-.']*$/);
-            this.nameNotPrintable = !matches || matches.length == 0;
-            this.nameTooLong = this.station.name.length > 40;
-            return !this.nameTooLong && !this.nameNotPrintable;
-        },
-
-        saveStationName() {
-            this.isEditingName = false;
-            let valid = this.checkName();
-            if (valid && this.station.origName != this.station.name) {
-                stateManager.renameStation(this.station, this.station.name).then(() => {
-                    this.station.origName = this.station.name;
-                }).catch((error) => {
-                    console.error('unhandled error', error);
-                });
-                /*
-                NOTE:  Left for the moment. I think we'll have to come back and do the fancy config tracking later.
-                let configChange = {
-                    station_id: this.station.id,
-                    before: this.station.origName,
-                    after: this.station.name,
-                    affected_field: "name",
-                    author: this.user.name
-                }
-                dbInterface.recordStationConfigChange(configChange);
-                */
-            }
-        },
-
-        cancelRename() {
-            this.isEditingName = false;
-            this.noName = false;
-            this.nameNotPrintable = false;
-            this.nameTooLong = false;
-            this.station.name = this.station.origName;
-        },
-
         getModules(station) {
             this.station = station[0];
             return dbInterface.getModules(this.station.id);
@@ -307,6 +205,7 @@ export default {
         },
 
         completeSetup() {
+            if(this.station.status == "recording") {this.setDeployedStatus();}
             this.$refs.statusBox.updateStation(this.station);
             this.$refs.moduleList.updateModules(this.station.moduleObjects);
             this.station.origName = this.station.name;
@@ -337,6 +236,17 @@ export default {
 
         },
 
+        setDeployedStatus() {
+            if(!this.station.deploy_start_time) {
+                this.deployedStatus = "Deployed";
+                return
+            }
+            let month = this.station.deploy_start_time.getMonth() + 1;
+            let day = this.station.deploy_start_time.getDate();
+            let year = this.station.deploy_start_time.getFullYear();
+            this.deployedStatus = "Deployed (" + month + "/" + day + "/" + year + ")";
+        },
+
         onNavigatingFrom() {
             this.stopProcesses();
         },
@@ -350,48 +260,9 @@ export default {
 // End custom common variables
 
 // Custom styles
-#station-name-field {
-    width: 225;
-    font-size: 16;
-    color: $fk-primary-black;
-}
-
-#station-name-field .input {
-    width: 195;
-    border-bottom-color: $fk-primary-black;
-    border-bottom-width: 1;
-    padding-top: 3;
-    padding-bottom: 2;
-    padding-left: 0;
-    padding-right: 0;
-    margin: 0;
-}
-
-#station-name-field .char-count {
-    width: 25;
-    margin-top: 15;
-    margin-left: 5;
-}
-
-.station-name {
-    width: 195;
-}
-
-.validation-error {
-    width: 195;
-    font-size: 12;
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
-}
-
 .round {
     width: 40;
     border-radius: 20;
 }
 
-.faded {
-    opacity: 0.5;
-}
 </style>
