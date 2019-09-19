@@ -6,7 +6,7 @@ import Home from "../components/HomeView";
 import Login from "../components/LoginView";
 import Module from "../components/ModuleDetailView";
 import StationDetail from "../components/StationDetailView";
-import Stations from "../components/StationsView";
+import Stations from "../components/StationListView";
 
 const routes = {
     configureModule: ConfigureModule,

@@ -171,7 +171,7 @@
 
 <script>
 import Home from "./HomeView";
-import Stations from "./StationsView";
+import Stations from "./StationListView";
 import Config from "../config";
 import { USERNAME, PASSWORD } from "../secrets";
 

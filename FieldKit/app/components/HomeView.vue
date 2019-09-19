@@ -10,7 +10,7 @@
 
 <script>
 import Login from "./LoginView";
-import Stations from "./StationsView";
+import Stations from "./StationListView";
 
 export default {
     data() {

@@ -104,6 +104,6 @@ module.exports = {
     station: "Station",
     data: "Data",
     settings: "Settings",
-    // StationsView
+    // StationListView
     noStations: "No stations found."
 };
