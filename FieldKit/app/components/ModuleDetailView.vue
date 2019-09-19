@@ -2,26 +2,23 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between">
-                <GridLayout rows="auto" columns="*">
-                    <StackLayout row="0"
-                        class="round m-y-10"
+                <GridLayout rows="auto" columns="15*,70*,15*">
+                    <StackLayout row="0" col="0"
+                        class="round-bkgd"
+                        verticalAlignment="top"
                         automationText="backButton"
-                        @tap="goBack"
-                        horizontalAlignment="left">
-                        <Image
-                            width="21"
-                            class="m-t-10"
-                            src="~/images/Icon_backarrow.png"></Image>
+                        @tap="goBack">
+                        <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
                     <Label
                         row="0"
-                        class="title m-y-20 text-center module-name"
+                        col="1"
+                        class="title m-y-10 text-center module-name"
                         :text="module.name"
                         textWrap="true"></Label>
-                    <StackLayout row="0" class="round m-y-10" @tap="goToConfigure" horizontalAlignment="right">
+                    <StackLayout row="0" col="2" class="round-bkgd" @tap="goToConfigure">
                         <Image
                             width="25"
-                            class="m-t-8"
                             src="~/images/Icon_Congfigure.png"></Image>
                     </StackLayout>
                 </GridLayout>
@@ -326,12 +323,9 @@ export default {
     width: 195;
 }
 
-.round {
+.small-round {
     width: 40;
     border-radius: 20;
-}
-
-.small-round {
     padding-top: 7;
     padding-bottom: 7;
 }

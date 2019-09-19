@@ -3,7 +3,7 @@
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between">
                 <GridLayout rows="auto" columns="10*,90*">
-                    <StackLayout col="0" class="round" verticalAlignment="top" @tap="goBack">
+                    <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
                         <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
                     <StackLayout col="1" class="title-container m-t-10 m-r-30">
@@ -462,13 +462,7 @@ export default {
     padding-top: 5;
 }
 
-.round {
-    width: 40;
-    padding-bottom: 10;
-    padding-top: 8;
-    margin-top: 1;
-    border-radius: 20;
-}
+
 
 #hidden-field {
     opacity: 0;

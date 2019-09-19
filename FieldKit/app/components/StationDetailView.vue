@@ -3,11 +3,8 @@
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
                 <GridLayout rows="auto,auto" columns="15*,70*,15*">
-                    <StackLayout row="0" col="0" class="round" @tap="goBack" horizontalAlignment="left">
-                        <Image
-                            width="21"
-                            class="p-b-10 m-b-10"
-                            src="~/images/Icon_backarrow.png"></Image>
+                    <StackLayout row="0" col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
+                        <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
                     <Label row="0" col="1"
                         class="title m-y-0 text-center"
@@ -17,7 +14,7 @@
                         class="text-center size-12"
                         :text="deployedStatus"
                         textWrap="true"></Label>
-                    <StackLayout row="0" col="2" class="round" @tap="goToSettings">
+                    <StackLayout row="0" col="2" class="round-bkgd" @tap="goToSettings">
                         <Image
                             width="25"
                             src="~/images/Icon_Congfigure.png"></Image>
@@ -272,9 +269,5 @@ export default {
 // End custom common variables
 
 // Custom styles
-.round {
-    width: 40;
-    border-radius: 20;
-}
 
 </style>

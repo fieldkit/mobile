@@ -2,30 +2,27 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between">
-                <GridLayout rows="auto" columns="*">
-                    <StackLayout row="0" class="round m-y-10" @tap="goBack" horizontalAlignment="left">
-                        <Image
-                            width="21"
-                            class="m-t-10"
-                            v-show="!isEditingName"
-                            src="~/images/Icon_backarrow.png"></Image>
+                <GridLayout rows="auto" columns="15*,70*,15*">
+                    <StackLayout row="0" col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
+                        <Image width="21" v-show="!isEditingName" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
                     <Image
                         row="0"
+                        col="0"
                         class="m-10"
                         width="17"
-                        horizontalAlignment="left"
                         v-show="isEditingName"
                         @tap="cancelRename"
                         src="~/images/Icon_Close.png"></Image>
                     <Label
                         row="0"
-                        class="title m-y-20 text-center module-name"
+                        col="1"
+                        class="title m-y-10 text-center module-name"
                         :text="module.name"
                         v-show="!isEditingName"
                         textWrap="true"></Label>
                     <!-- Edit name form -->
-                    <StackLayout row="0" id="module-name-field" class="input-field m-y-20 text-left">
+                    <StackLayout row="0" col="1" id="module-name-field" class="input-field m-y-10 text-left">
                         <FlexboxLayout>
                             <TextField
                                 class="input"
@@ -70,24 +67,24 @@
                     <!-- end edit name form -->
                     <Image
                         row="0"
+                        col="2"
                         class="m-10"
                         width="14"
-                        horizontalAlignment="right"
                         v-show="!isEditingName"
                         @tap="toggleRename"
                         src="~/images/Icon_Edit.png"></Image>
                     <Image
                         row="0"
+                        col="2"
                         class="m-10"
                         width="17"
-                        horizontalAlignment="right"
                         v-show="isEditingName"
                         @tap="saveModuleName"
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
                 <!-- Data capture interval -->
-                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-20">
+                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-10">
                     <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
                     <Label row="1"
                         colSpan="2"
@@ -401,8 +398,5 @@ export default {
     border-bottom-color: $fk-primary-black;
 }
 
-.round {
-    width: 40;
-    border-radius: 20;
-}
+
 </style>

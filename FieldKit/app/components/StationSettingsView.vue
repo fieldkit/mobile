@@ -3,11 +3,8 @@
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
                 <GridLayout rows="auto,auto" columns="15*,70*,15*" class="bottom-border p-b-10">
-                     <StackLayout row="0" col="0" class="round m-x-10" @tap="goBack" horizontalAlignment="left">
-                        <Image
-                            width="21"
-                            class="m-b-10"
-                            src="~/images/Icon_backarrow.png"></Image>
+                    <StackLayout row="0" col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
+                        <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
                     <Label row="0" col="1"
                         class="size-20 m-y-0 text-center"
@@ -293,10 +290,7 @@ export default {
     border-width: 1;
 }
 
-.round {
-    width: 40;
-    border-radius: 20;
-}
+
 
 .bottom-border {
     border-bottom-color: $fk-gray-lighter;
