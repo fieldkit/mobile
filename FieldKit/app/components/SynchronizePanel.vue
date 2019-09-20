@@ -64,10 +64,12 @@ export default {
             Services.StateManager().subscribe(status => {
                 if (this.station) {
                     const station = status.station.forStation(this.station.id);
-                    this.pending = {
-                        station: station.pending.bytes,
-                        portal: status.portal.pending.bytes
-                    };
+                    if (station) {
+                        this.pending = {
+                            station: station.pending.bytes,
+                            portal: status.portal.pending.bytes
+                        };
+                    }
                 }
             });
         },
