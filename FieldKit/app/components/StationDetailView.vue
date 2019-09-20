@@ -2,19 +2,21 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
-                <GridLayout rows="auto,auto" columns="15*,70*,15*">
-                    <StackLayout row="0" col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
+                <GridLayout rows="auto" columns="15*,70*,15*">
+                    <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
                         <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
-                    <Label row="0" col="1"
-                        class="title m-y-0 text-center"
-                        :text="station.name"
-                        textWrap="true"></Label>
-                    <Label row="1" col="1"
-                        class="text-center size-12"
-                        :text="deployedStatus"
-                        textWrap="true"></Label>
-                    <StackLayout row="0" col="2" class="round-bkgd" @tap="goToSettings">
+                    <GridLayout col="1" rows="auto,auto" columns="*">
+                        <Label row="0"
+                            class="title m-t-10 text-center"
+                            :text="station.name"
+                            textWrap="true"></Label>
+                        <Label row="1"
+                            class="text-center size-12"
+                            :text="deployedStatus"
+                            textWrap="true"></Label>
+                    </GridLayout>
+                    <StackLayout col="2" class="round-bkgd" @tap="goToSettings">
                         <Image
                             width="25"
                             src="~/images/Icon_Congfigure.png"></Image>
