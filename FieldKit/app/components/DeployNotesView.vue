@@ -156,6 +156,11 @@ export default {
             }, 500);
 
             this.$navigateTo(routes.deployMap, {
+                transition: {
+                    name: "slideRight",
+                    duration: 250,
+                    curve: "linear"
+                },
                 props: {
                     station: this.station
                 }

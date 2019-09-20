@@ -192,6 +192,11 @@ export default {
             // TODO: handle history better
             if(this.origin == "detail") {
                 this.$navigateTo(routes.module, {
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear"
+                    },
                     props: {
                         moduleId: this.module.id,
                         station: this.station
@@ -200,6 +205,11 @@ export default {
             }
             if(this.origin == "settings") {
                 this.$navigateTo(routes.stationSettings, {
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear"
+                    },
                     props: {
                         station: this.station
                     }
