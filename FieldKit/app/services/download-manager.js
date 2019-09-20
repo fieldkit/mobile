@@ -38,8 +38,8 @@ export default class DownloadManager {
                 };
             }
 
-            const lastMetaDownloaded = _(downloads).filter(d => d.name == Constants.MetaStreamName).map(d => d.lastBlock).max();
-            const lastDataDownloaded = _(downloads).filter(d => d.name == Constants.DataStreamName).map(d => d.lastBlock).max();
+            const lastMetaDownloaded = _(downloads).filter(d => d.type == Constants.MetaStreamType).map(d => d.lastBlock).max();
+            const lastDataDownloaded = _(downloads).filter(d => d.type == Constants.DataStreamType).map(d => d.lastBlock).max();
 
             return {
                 meta: {
@@ -71,8 +71,8 @@ export default class DownloadManager {
                 };
             }
             return this.databaseInterface.getDownloadsByStationId(station.id).then(downloads => {
-                const deviceMeta = this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamName);
-                const deviceData = this._getStreamStatus(station.statusReply, 1, Constants.DataStreamName);
+                const deviceMeta = this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamType);
+                const deviceData = this._getStreamStatus(station.statusReply, 1, Constants.DataStreamType);
 
                 return {
                     station: station,
