@@ -14,7 +14,7 @@ describe("UserAuth", () => {
     });
 
     it("should not have a user logged in by default", () => {
-        expect(portalInterface.isLoggedIn()).toBe(null);
+        expect(portalInterface.isLoggedIn()).toBeFalsy();
     });
 
     it("should log user in", () => {
@@ -40,7 +40,7 @@ describe("UserAuth", () => {
             .mockImplementationOnce(() => Promise.resolve(mockResponseCurrentUser));
         return portalInterface
             .login(user)
-            .then(resp => expect(portalInterface.isLoggedIn()).toEqual(accessToken));
+            .then(resp => expect(portalInterface.isLoggedIn()).toBeTruthy());
     });
 
     it("should not log non-existing user in", () => {
@@ -64,7 +64,7 @@ describe("UserAuth", () => {
         const headers = { headers: { Authorization: "Bearer 34234324234" } };
         const mockResponse = { status: "204" };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return portalInterface.logout().then(resp => expect(portalInterface.isLoggedIn()).toBe(null));
+        return portalInterface.logout().then(resp => expect(portalInterface.isLoggedIn()).toBeFalsy());
     });
 
     it("should register new user", () => {
