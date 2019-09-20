@@ -66,13 +66,7 @@ export default {
             setTimeout(() => {
                 event.object.className = cn;
             }, 500);
-            this.$navigateTo(routes.home, {
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear"
-                }
-            });
+            this.$navigateTo(routes.home);
         },
 
         updateStations(data) {

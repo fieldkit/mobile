@@ -76,11 +76,6 @@ export default {
             this.stopProcesses();
 
             this.$navigateTo(routes.stations, {
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear"
-                },
                 props: {
                     station: this.station
                 }
