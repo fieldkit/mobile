@@ -52,6 +52,8 @@ export default class UploadManager {
     _uploadDownload(operation, download) {
         const headers = {
             "Fk-Blocks": download.blocks,
+            "Fk-Generation": download.generation,
+            "Fk-Type": download.type,
         };
         const file = File.fromPath(download.path);
         return this._upload(download.deviceId, headers, file, operation).then(() => {
@@ -71,8 +73,8 @@ export default class UploadManager {
 
             const defaultHeaders = {
                 "Content-Type": "application/octet-stream",
-                "Fk-DeviceId": deviceId,
                 "Authorization": this.portalInterface.getCurrentToken(),
+                "Fk-DeviceId": deviceId,
             };
             const req = {
                 url: url,
