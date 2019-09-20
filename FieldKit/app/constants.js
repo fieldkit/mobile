@@ -1,5 +1,5 @@
 export default {
-    MetaStreamName: 'meta',
-    DataStreamName: 'data',
+    MetaStreamType: 'meta',
+    DataStreamType: 'data',
     NoUrlSentinel: 'no_url',
 };

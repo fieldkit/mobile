@@ -282,6 +282,10 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE station_id = ?", [id])).then(rows => sqliteToJs(rows));
     }
 
+    getDownloadsByStationIds(ids) {
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE station_id IN (?)", [ids])).then(rows => sqliteToJs(rows));
+    }
+
     markDownloadAsUploaded(download) {
         return this.getDatabase().then(db => db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]));
     }
@@ -313,8 +317,8 @@ export default class DatabaseInterface {
 
     updateStationStatus(station, status) {
         return this.getDatabase().then(db => db.query("UPDATE stations SET status_json = ? WHERE id = ?", JSON.stringify(status), station.id)).then(() => {
-            return this._updateStream(station, status, Constants.MetaStreamName, 1).then(() => {
-                return this._updateStream(station, status, Constants.DataStreamName, 0);
+            return this._updateStream(station, status, Constants.MetaStreamType, 1).then(() => {
+                return this._updateStream(station, status, Constants.DataStreamType, 0);
             });
         });
     }
