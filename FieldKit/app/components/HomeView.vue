@@ -3,14 +3,12 @@
         <StackLayout>
             <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
             <Button class="btn btn-primary" :text="_L('viewStations')" @tap="viewStations"></Button>
-            <Button v-if="loggedIn" class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
         </StackLayout>
     </Page>
 </template>
 
 <script>
-import Login from "./LoginView";
-import Stations from "./StationListView";
+import routes from "../routes";
 
 export default {
     data() {
@@ -22,17 +20,8 @@ export default {
     methods: {
         onPageLoaded() {
         },
-        logout() {
-            this.$portalInterface.logout();
-            this.$navigateTo(Login, {
-                clearHistory: true,
-                props: {
-                    resetUser: true
-                }
-            });
-        },
         viewStations() {
-            this.$navigateTo(Stations);
+            this.$navigateTo(routes.stations);
         }
     }
 };

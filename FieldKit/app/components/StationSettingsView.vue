@@ -123,6 +123,8 @@
                     </StackLayout>
                 </GridLayout>
 
+                <Button v-if="loggedIn" class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
+
                 <!-- footer -->
                 <StationFooterTabs :station="station" active="station" />
 
@@ -147,6 +149,7 @@ export default {
             noName: false,
             nameTooLong: false,
             nameNotPrintable: false,
+            loggedIn: this.$portalInterface.isLoggedIn()
         };
     },
     props: ["station"],
@@ -171,6 +174,16 @@ export default {
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     station: this.station
+                }
+            });
+        },
+
+        logout() {
+            this.$portalInterface.logout();
+            this.$navigateTo(routes.login, {
+                clearHistory: true,
+                props: {
+                    resetUser: true
                 }
             });
         },
