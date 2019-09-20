@@ -275,7 +275,7 @@ export default class DatabaseInterface {
     }
 
     getPendingDownloads() {
-        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE uploaded IS NULL")).then(rows => sqliteToJs(rows));
+        return this.getDatabase().then(db => db.query("SELECT * FROM downloads WHERE size > 0 AND uploaded IS NULL")).then(rows => sqliteToJs(rows));
     }
 
     getDownloadsByStationId(id) {
