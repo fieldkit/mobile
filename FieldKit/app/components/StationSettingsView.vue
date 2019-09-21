@@ -20,7 +20,7 @@
                 </GridLayout>
 
                 <!-- edit station name -->
-                <WrapLayout orientation="horizontal" class="m-x-10">
+                <WrapLayout orientation="horizontal" class="m-10">
                     <Image
                         class="m-10"
                         width="17"
@@ -94,34 +94,86 @@
                 </StackLayout>
                 <StackLayout class="section-border" v-if="station.status == 'recording'"></StackLayout>
 
-                <!-- links to module settings -->
-                <GridLayout rows="auto" columns="*" v-for="m in station.moduleObjects" :key="m.id">
-                    <StackLayout class="bordered-container p-10 m-10">
-                        <!-- top row of module list -->
-                        <GridLayout rows="auto" columns="15*,70*,15*">
-                            <!-- module icon -->
-                            <Image row="0" col="0"
-                                width="40"
-                                horizontalAlignment="left"
-                                :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
-                                    m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
-                                    '~/images/Icon_Generic_Module.png')"></Image>
-                            <!-- module name -->
-                            <Label row="0" col="1"
-                                :text="m.name"
-                                verticalAlignment="center"
-                                class="module-name"
-                                textWrap="true" />
-                            <!-- links to config -->
-                            <Image row="0" col="2"
-                                horizontalAlignment="right"
-                                src="~/images/pointing_right.png"
-                                width="15"
-                                :dataId="'m_id-' + m.id"
-                                @tap="goToModuleConfig"></Image>
+                <!-- add/remove networks -->
+                <StackLayout class="m-x-10">
+                    <Label text="Networks" class="size-20"></Label>
+                    <GridLayout rows="auto" columns="75*,25*" v-for="n in networks" :key="n.ssid">
+                        <Label :text="n.ssid" col="0" class="m-l-15 m-y-10"></Label>
+                        <Image
+                            col="1"
+                            src="~/images/Icon_Close.png"
+                            width="17"
+                            :dataSsid="n.ssid"
+                            @tap="removeNetwork"></Image>
+                    </GridLayout>
+
+                    <GridLayout v-if="!addingNetwork" rows="auto" columns="10*,90*" @tap="showNetworkForm">
+                        <Image col="0" src="~/images/add.png" width="30"></Image>
+                        <Label col="1" text="Add a network to station" class="size-16" ></Label>
+                    </GridLayout>
+
+                    <StackLayout v-if="addingNetwork">
+                        <GridLayout rows="auto,auto,auto" columns="35*,65*">
+                            <Label row="0" col="0" text="Network name: " class="text-right"></Label>
+                            <TextField
+                                row="0"
+                                col="1"
+                                class="network-input m-y-5"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                v-model="newNetwork.ssid"
+                                returnKeyType="next"></TextField>
+                            <Label row="1" col="0" text="Password: " class="text-right"></Label>
+                            <TextField
+                                row="1"
+                                col="1"
+                                class="network-input m-y-5"
+                                secure="true"
+                                ref="password"
+                                v-model="newNetwork.password"
+                                returnKeyType="done"></TextField>
+                            <Button
+                                row="2"
+                                colSpan="2"
+                                class="btn btn-secondary"
+                                text="Add"
+                                @tap="addNetwork"></Button>
                         </GridLayout>
                     </StackLayout>
-                </GridLayout>
+
+                </StackLayout>
+                <StackLayout class="section-border"></StackLayout>
+
+                <!-- links to module settings -->
+                <StackLayout class="full-width">
+                    <GridLayout rows="auto" columns="*" v-for="m in station.moduleObjects" :key="m.id">
+                        <StackLayout class="y-bordered-container p-10 m-x-10 m-y-1">
+                            <!-- top row of module list -->
+                            <GridLayout rows="auto" columns="15*,70*,15*">
+                                <!-- module icon -->
+                                <Image row="0" col="0"
+                                    width="40"
+                                    horizontalAlignment="left"
+                                    :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
+                                        m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
+                                        '~/images/Icon_Generic_Module.png')"></Image>
+                                <!-- module name -->
+                                <Label row="0" col="1"
+                                    :text="m.name"
+                                    verticalAlignment="center"
+                                    class="module-name"
+                                    textWrap="true" />
+                                <!-- links to config -->
+                                <Image row="0" col="2"
+                                    width="30"
+                                    horizontalAlignment="right"
+                                    src="~/images/pointing_right.png"
+                                    :dataId="'m_id-' + m.id"
+                                    @tap="goToModuleConfig"></Image>
+                            </GridLayout>
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
 
                 <Button v-if="loggedIn" class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
 
@@ -149,7 +201,10 @@ export default {
             noName: false,
             nameTooLong: false,
             nameNotPrintable: false,
-            loggedIn: this.$portalInterface.isLoggedIn()
+            loggedIn: this.$portalInterface.isLoggedIn(),
+            networks: [],
+            newNetwork: {ssid: "", password: ""},
+            addingNetwork: false
         };
     },
     props: ["station"],
@@ -161,6 +216,11 @@ export default {
             this.page = args.object;
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
+            let deviceStatus = JSON.parse(this.station.status_json);
+
+            if(deviceStatus && deviceStatus.networkSettings) {
+                this.networks = deviceStatus.networkSettings.networks;
+            }
         },
 
         goBack(event) {
@@ -178,12 +238,13 @@ export default {
             });
         },
 
-        logout() {
-            this.$portalInterface.logout();
-            this.$navigateTo(routes.login, {
-                clearHistory: true,
+        goToModuleConfig(event) {
+            this.$navigateTo(routes.configureModule, {
                 props: {
-                    resetUser: true
+                    // remove the "m_id-" prefix
+                    moduleId: event.object.dataId.split("m_id-")[1],
+                    station: this.station,
+                    origin: "settings"
                 }
             });
         },
@@ -278,17 +339,46 @@ export default {
             }
         },
 
-        goToModuleConfig(event) {
-            this.$navigateTo(routes.configureModule, {
+        showNetworkForm(event) {
+            this.addingNetwork = true;
+        },
+
+        addNetwork(event) {
+            this.addingNetwork = false;
+            let network = {ssid: this.newNetwork.ssid, password: this.newNetwork.password};
+            let index = this.networks.findIndex(n => {return n.ssid == network.ssid;});
+            if(index > -1) {
+                // replace if it's already present
+                this.networks[index].password = network.password;
+            } else  {
+                // otherwise add it
+                this.networks.push(network);
+            }
+            queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
+                console.log("response from station after adding:", result.networkSettings)
+            });
+        },
+
+        removeNetwork(event) {
+            let ssid = event.object.dataSsid;
+            let index = this.networks.findIndex(n => {return n.ssid == ssid;});
+            if(index > -1) {
+                this.networks.splice(index, 1);
+            }
+            queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
+                console.log("response from station after removing:", result.networkSettings)
+            });
+        },
+
+        logout() {
+            this.$portalInterface.logout();
+            this.$navigateTo(routes.login, {
+                clearHistory: true,
                 props: {
-                    // remove the "m_id-" prefix
-                    moduleId: event.object.dataId.split("m_id-")[1],
-                    station: this.station,
-                    origin: "settings"
+                    resetUser: true
                 }
             });
         }
-
     }
 };
 </script>
@@ -305,7 +395,11 @@ export default {
     border-width: 1;
 }
 
-
+.y-bordered-container {
+    border-color: $fk-gray-lighter;
+    border-top-width: 1;
+    border-bottom-width: 1;
+}
 
 .bottom-border {
     border-bottom-color: $fk-gray-lighter;
@@ -313,8 +407,7 @@ export default {
 }
 
 .section-border {
-    margin-left: 10;
-    margin-right: 10;
+    margin: 10;
     border-bottom-color: $fk-gray-lightest;
     border-bottom-width: 2;
 }
@@ -329,6 +422,11 @@ export default {
     padding-bottom: 0;
     margin: 0;
     margin-bottom: 2;
+}
+
+.network-input {
+    border-bottom-color: $fk-primary-black;
+    border-bottom-width: 1;
 }
 
 .char-count {

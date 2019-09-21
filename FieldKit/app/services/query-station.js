@@ -72,6 +72,17 @@ export default class QueryStation {
         });
     }
 
+    sendNetworkSettings(address, networks) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            networkSettings: { networks: networks }
+        });
+
+        return this.stationQuery(address, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
     configureName(address, name) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
