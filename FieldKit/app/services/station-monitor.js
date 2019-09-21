@@ -56,12 +56,9 @@ export default class StationMonitor extends Observable {
             .takeReadings(station.url)
             .then(this.updateStationReadings.bind(this, station))
             .catch(error => {
-                if(error.message == "busy") {
-                    // try again
-                    setTimeout(() => {this.requestInitialReadings(station)}, 2000);
-                } else {
-                    console.log("error taking readings", error)
-                }
+                console.log("error taking initial readings", error)
+                // try again
+                setTimeout(() => {this.requestInitialReadings(station)}, 2000);
             });
     }
 
