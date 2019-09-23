@@ -230,6 +230,9 @@ export default class StationMonitor extends Observable {
         station.lastSeen = new Date();
         this.stations[key] = station;
 
+        // start getting readings
+        this.requestInitialReadings(station);
+
         this._publishStationsUpdated();
         this._publishStationRefreshed(this.stations[key]);
     }
@@ -281,7 +284,7 @@ export default class StationMonitor extends Observable {
     }
 
     makeKey(station) {
-        return station.name + station.url;
+        return station.url == "no_url" ? station.name : station.url;
     }
 
     _publishStationRefreshed(station) {
