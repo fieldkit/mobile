@@ -51,6 +51,7 @@ export default {
                     if(s.id == this.station.id) {
                         s.status = this.station.status;
                         s.connected = this.station.connected;
+                        s.name = this.station.name;
                         // s.sortedIndex += 1;
                     }
                 });
