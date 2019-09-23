@@ -23,6 +23,12 @@
                     </StackLayout>
                 </GridLayout>
 
+                <!-- loading circle -->
+                <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
+                    <StackLayout id="loading-circle-blue"></StackLayout>
+                    <StackLayout id="loading-circle-white"></StackLayout>
+                </GridLayout>
+
                 <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
 
                 <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
@@ -54,6 +60,7 @@ const dbInterface = Services.Database();
 export default {
     data() {
         return {
+            loading: true,
             deployedStatus: "Ready to deploy",
             modules: []
         };
@@ -130,6 +137,7 @@ export default {
             if (this.station && this.station.url != "no_url") {
                 this.$stationMonitor.stopLiveReadings(this.station.url);
             }
+            clearInterval(this.intervalTimer);
             this.$refs.statusBox.stopProcesses();
         },
 
@@ -137,6 +145,10 @@ export default {
             this.page = args.object;
 
             this.user = this.$portalInterface.getCurrentUser();
+
+            this.loadingBlue = this.page.getViewById("loading-circle-blue");
+            this.loadingWhite = this.page.getViewById("loading-circle-white");
+            this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
 
             if(this.station.name == "") {
                 dbInterface
@@ -160,7 +172,7 @@ export default {
                 switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationRefreshedProperty: {
                     if (!data.value || !this.station) {
-                        console.log('bad station refresh', data);
+                        console.log('bad station refresh', data.value, this.station);
                     }
                     else {
                         if (Number(data.value.id) === Number(this.stationId)) {
@@ -183,6 +195,20 @@ export default {
         },
 
         getModules(station) {
+            if(station.length == 0) {
+                // adding to db in background hasn't finished yet,
+                // wait a few seconds and try again
+                setTimeout(() => {
+                    dbInterface
+                        .getStation(this.stationId)
+                        .then(this.getModules)
+                        .then(this.setupModules)
+                        .then(this.completeSetup);
+
+                }, 2000);
+                Promise.reject();
+                return
+            }
             this.station = station[0];
             return dbInterface.getModules(this.station.id);
         },
@@ -208,6 +234,8 @@ export default {
         },
 
         completeSetup() {
+            this.loading = false;
+            clearInterval(this.intervalTimer);
             if(this.station.deploy_start_time && typeof this.station.deploy_start_time == "string") {
                 this.station.deploy_start_time = new Date(this.station.deploy_start_time);
             }
@@ -261,6 +289,20 @@ export default {
         onNavigatingFrom() {
             this.stopProcesses();
         },
+
+        showLoadingAnimation() {
+            this.loadingWhite
+                .animate({
+                    rotate: 180,
+                    duration: 500
+                })
+                .then(() => {
+                    return this.loadingWhite.animate({
+                        rotate: 360,
+                        duration: 500
+                    });
+                });
+        }
     }
 };
 </script>
@@ -271,5 +313,19 @@ export default {
 // End custom common variables
 
 // Custom styles
+#loading-circle-blue, #loading-circle-white {
+    width: 90;
+    height: 90;
+    background: $fk-gray-white;
+    border-width: 2;
+    border-radius: 60%;
+}
+#loading-circle-white {
+    border-color: $fk-gray-white;
+    clip-path: circle(100% at 50% 0);
+}
+#loading-circle-blue {
+    border-color: $fk-secondary-blue;
+}
 
 </style>

@@ -1,6 +1,6 @@
 <template>
     <StackLayout id="station-status-box-container" class="m-10 bordered-container" @loaded="onPageLoaded">
-        <GridLayout rows="auto,auto,auto" columns="*,*">
+        <GridLayout rows="auto,auto,auto" columns="*,*" v-if="!loading">
             <!-- recording status -->
             <StackLayout row="0" col="0">
                 <Label class="text-center m-y-10 size-16"
@@ -68,6 +68,7 @@ export default {
     name: "StationStatusBox",
     data: () => {
         return {
+            loading: true,
             elapsedRecTime: "00:00:00",
             station: {
                 available_memory: 0,
@@ -91,6 +92,7 @@ export default {
         },
 
         updateStation(station) {
+            this.loading = false;
             this.station = station;
             if(this.station.status == "recording") {
                 this.outer = this.page.getViewById("outer-circle");
