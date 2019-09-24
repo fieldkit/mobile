@@ -150,6 +150,12 @@ export default class QueryStation {
         if (reply.status && reply.status.identity) {
             reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
         }
+        if (reply.streams && reply.streams.length > 0 && !reply.streams[0].block) {
+            reply.streams.forEach(s => {
+                s.block = s.block ? s.block : 0;
+            });
+        }
+
         return deepmerge.all([MandatoryStatus, reply]);
     }
 
