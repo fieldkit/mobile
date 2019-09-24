@@ -468,15 +468,15 @@ export default {
             this.saveNote();
             this.saveLabel();
 
-            event.object.text = _L("stopRecording");
             this.isRecordingData = true;
+            this.station.status = "recording";
+            event.object.text = _L("stopRecording");
 
             this.station.deploy_start_time = new Date();
             dbInterface.setStationDeployStartTime(this.station);
 
             queryStation.startDataRecording(this.station.url).then(result => {
                 const priorValue = null;
-                this.station.status = "recording";
                 this.updateStationStatus(priorValue)
                     .then(() => {
                         this.$navigateTo(routes.stationDetail, {

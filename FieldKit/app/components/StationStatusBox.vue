@@ -53,7 +53,7 @@
             </StackLayout>
             <!-- deploy button -->
             <StackLayout row="2" colSpan="2" class="m-10">
-                <Button v-if="station.status != 'recording'"
+                <Button v-if="station.status == 'idle'"
                     class="btn btn-primary"
                     :text="_L('deploy')"
                     automationText="deployButton"
@@ -76,9 +76,7 @@ export default {
                 battery_level: 0,
                 battery_image: "~/images/Icon_Battery_0.png",
                 connected: 0,
-                // set status to recording so deploy button
-                // isn't visibly removed when station updates
-                status: "recording"
+                status: ""
             }
         };
     },
