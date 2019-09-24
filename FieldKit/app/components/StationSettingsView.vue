@@ -364,7 +364,7 @@ export default {
         stopRecording(event) {
             queryStation.stopDataRecording(this.station.url).then(result => {
                 const priorValue = "recording";
-                this.station.status = null;
+                this.station.status = "idle";
                 this.updateStationStatus(priorValue);
             });
         },
