@@ -241,7 +241,12 @@ module.exports = env => {
             new webpack.DefinePlugin({
                 "global.TNS_WEBPACK": "true",
                 "TNS_ENV": JSON.stringify(mode),
-                "process": "global.process"
+                "process": "global.process",
+                "FK_BUILD_TIMESTAMP": JSON.stringify(process.env.BUILD_TIMESTAMP),
+                "FK_BUILD_NUMBER": JSON.stringify(process.env.BUILD_NUMBER),
+                "FK_BUILD_TAG": JSON.stringify(process.env.BUILD_TAG),
+                "FK_GIT_COMMIT": JSON.stringify(process.env.GIT_COMMIT),
+                "FK_GIT_BRANCH": JSON.stringify(process.env.GIT_BRANCH),
             }),
             // Remove all files from the out dir.
             new CleanWebpackPlugin(itemsToClean, { verbose: !!verbose }),
