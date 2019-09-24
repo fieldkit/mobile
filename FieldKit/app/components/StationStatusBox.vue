@@ -1,6 +1,6 @@
 <template>
     <StackLayout id="station-status-box-container" class="m-10 bordered-container" @loaded="onPageLoaded">
-        <GridLayout rows="auto,auto,auto" columns="*,*" v-if="!loading">
+        <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">
             <!-- recording status -->
             <StackLayout row="0" col="0">
                 <Label class="text-center m-y-10 size-16"
@@ -19,7 +19,7 @@
             <StackLayout row="1" col="0" id="outer-circle">
                 <StackLayout id="inner-circle">
                     <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="elapsedRecTime"></Label>
-                    <Label class="size-12 rec-time" text="hrs min sec"></Label>
+                    <Label class="size-12 rec-time" :text="elapsedTimeLabel"></Label>
                 </StackLayout>
             </StackLayout>
             <!-- connected status and available memory -->
@@ -70,6 +70,7 @@ export default {
         return {
             loading: true,
             elapsedRecTime: "00:00:00",
+            elapsedTimeLabel: "hrs min sec",
             station: {
                 available_memory: 0,
                 battery_level: 0,
@@ -146,11 +147,16 @@ export default {
             seconds = seconds < 10 ? "0" + seconds : seconds;
             let minutes = Math.floor((elapsedMillis / (1000 * 60)) % 60);
             minutes = minutes < 10 ? "0" + minutes : minutes;
-            // TODO: convert to days when needed - for now, just accumulate hours
-            // let hours = Math.floor((elapsedMillis / (1000 * 60 * 60)) % 24);
-            let hours = Math.floor(elapsedMillis / (1000 * 60 * 60));
+            let hours = Math.floor((elapsedMillis / (1000 * 60 * 60)) % 24);
             hours = hours < 10 ? "0" + hours : hours;
-            this.elapsedRecTime = hours + ":" + minutes + ":" + seconds;
+            let days = Math.floor(elapsedMillis / (1000 * 60 * 60 * 24));
+            if(days > 1) {
+                this.elapsedRecTime = days + ":" + hours + ":" + minutes;
+                this.elapsedTimeLabel = "days hrs min";
+            } else {
+                this.elapsedRecTime = hours + ":" + minutes + ":" + seconds;
+                this.elapsedTimeLabel = "hrs min sec";
+            }
 
             if(parseInt(seconds) % 2 == 0) {
                     this.outer
