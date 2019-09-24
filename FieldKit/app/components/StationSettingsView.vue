@@ -96,7 +96,7 @@
 
                 <!-- add/remove networks -->
                 <StackLayout class="m-x-10">
-                    <Label text="Networks" class="size-20"></Label>
+                    <Label text="WiFi Networks" class="size-20"></Label>
                     <GridLayout rows="auto" columns="75*,25*" v-for="n in networks" :key="n.ssid">
                         <Label :text="n.ssid" col="0" class="m-l-15 m-y-10"></Label>
                         <Image
@@ -118,7 +118,7 @@
                             <TextField
                                 row="0"
                                 col="1"
-                                class="network-input m-y-5"
+                                class="network-input"
                                 autocorrect="false"
                                 autocapitalizationType="none"
                                 v-model="newNetwork.ssid"
@@ -127,7 +127,7 @@
                             <TextField
                                 row="1"
                                 col="1"
-                                class="network-input m-y-5"
+                                class="network-input"
                                 secure="true"
                                 ref="password"
                                 v-model="newNetwork.password"
@@ -140,7 +140,64 @@
                                 @tap="addNetwork"></Button>
                         </GridLayout>
                     </StackLayout>
+                </StackLayout>
+                <StackLayout class="section-border"></StackLayout>
 
+                <!-- add/remove LoRa -->
+                <StackLayout class="m-x-10">
+                    <Label text="LoRa (Long Range) Network to station" class="size-20"></Label>
+                    <GridLayout rows="auto" columns="75*,25*" v-for="n in loraNetworks" :key="n.deviceEui">
+                        <Label :text="n.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
+                        <Image
+                            col="1"
+                            src="~/images/Icon_Close.png"
+                            width="17"
+                            :dataEui="n.deviceEui"
+                            @tap="removeLora"></Image>
+                    </GridLayout>
+
+                    <GridLayout v-if="!addingLora" rows="auto" columns="10*,90*" @tap="showLoraForm">
+                        <Image col="0" src="~/images/add.png" width="30"></Image>
+                        <Label col="1" text="Add a LoRa network" class="size-16" ></Label>
+                    </GridLayout>
+
+                    <StackLayout v-if="addingLora">
+                        <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
+                            <Label row="0" col="0" text="Device EUI: " class="text-right"></Label>
+                            <TextField
+                                row="0"
+                                col="1"
+                                class="network-input"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                v-model="newLora.deviceEui"
+                                returnKeyType="next"></TextField>
+                            <Label row="1" col="0" text="App EUI: " class="text-right"></Label>
+                            <TextField
+                                row="1"
+                                col="1"
+                                class="network-input"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                v-model="newLora.appEui"
+                                returnKeyType="next"></TextField>
+                            <Label row="2" col="0" text="App Key: " class="text-right"></Label>
+                            <TextField
+                                row="2"
+                                col="1"
+                                class="network-input"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                v-model="newLora.appKey"
+                                returnKeyType="done"></TextField>
+                            <Button
+                                row="3"
+                                colSpan="2"
+                                class="btn btn-secondary"
+                                text="Add"
+                                @tap="addLora"></Button>
+                        </GridLayout>
+                    </StackLayout>
                 </StackLayout>
                 <StackLayout class="section-border"></StackLayout>
 
@@ -204,7 +261,10 @@ export default {
             loggedIn: this.$portalInterface.isLoggedIn(),
             networks: [],
             newNetwork: {ssid: "", password: ""},
-            addingNetwork: false
+            addingNetwork: false,
+            loraNetworks: [],
+            newLora: {deviceEui: "", appEui: "", appKey: ""},
+            addingLora: false
         };
     },
     props: ["station"],
@@ -370,6 +430,38 @@ export default {
             });
         },
 
+        showLoraForm(event) {
+            this.addingLora = true;
+        },
+
+        addLora(event) {
+            this.addingLora = false;
+            let lora = {deviceEui: this.newLora.deviceEui, appEui: this.newLora.appEui, appKey: this.newLora.appKey};
+            let index = this.loraNetworks.findIndex(n => {return n.deviceEui == network.deviceEui;});
+            if(index > -1) {
+                // replace if it's already present
+                this.loraNetworks[index].appEui = lora.appEui;
+                this.loraNetworks[index].appKey = lora.appKey;
+            } else  {
+                // otherwise add it
+                this.loraNetworks.push(lora);
+            }
+            queryStation.sendLoraSettings(this.station.url, this.loraNetworks).then(result => {
+                console.log("response from station after adding:", result.networkSettings)
+            });
+        },
+
+        removeLora(event) {
+            let deviceEui = event.object.dataEui;
+            let index = this.loraNetworks.findIndex(n => {return n.deviceEui == deviceEui;});
+            if(index > -1) {
+                this.loraNetworks.splice(index, 1);
+            }
+            queryStation.sendLoraSettings(this.station.url, this.loraNetworks).then(result => {
+                console.log("response from station after removing:", result.networkSettings)
+            });
+        },
+
         logout() {
             this.$portalInterface.logout();
             this.$navigateTo(routes.login, {
@@ -427,6 +519,9 @@ export default {
 .network-input {
     border-bottom-color: $fk-primary-black;
     border-bottom-width: 1;
+    margin-left: 8;
+    margin-top: 8;
+    margin-bottom: 8;
 }
 
 .char-count {

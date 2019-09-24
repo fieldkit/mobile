@@ -83,6 +83,17 @@ export default class QueryStation {
         });
     }
 
+    sendLoraSettings(address, network) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            LoraSettings: { network: network }
+        });
+
+        return this.stationQuery(address, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
     configureName(address, name) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
