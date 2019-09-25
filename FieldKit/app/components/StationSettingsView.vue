@@ -260,6 +260,7 @@
                 </StackLayout>
 
                 <Button v-if="loggedIn" class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
+                <Button v-if="!loggedIn" class="btn btn-secondary" :text="_L('logIn')" @tap="goToLogin"></Button>
 
                 <!-- footer -->
                 <StationFooterTabs :station="station" active="station" />
@@ -522,6 +523,10 @@ export default {
                     resetUser: true
                 }
             });
+        },
+
+        goToLogin() {
+            this.$navigateTo(routes.login);
         },
 
         split(str) {
