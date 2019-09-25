@@ -64,8 +64,6 @@ export default class StationMonitor extends Observable {
     }
 
     requestStationData(station) {
-        if(station.connected == 0) {return}
-
         const elapsed = new Date() - station.lastSeen;
 
         // if station hasn't been heard from in awhile, disable it
@@ -73,6 +71,8 @@ export default class StationMonitor extends Observable {
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
             this.deactivateStation(station);
         }
+
+        if(station.connected == 0) {return}
 
         // take readings, if active, otherwise query status
         if (this.activeAddresses.indexOf(station.url) > -1) {
