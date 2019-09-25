@@ -43,4 +43,6 @@ make android-release
             throw e;
         }
     }
+
+    refreshDistribution()
 }

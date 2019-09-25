@@ -37,4 +37,6 @@ make ios-release
             throw e;
         }
     }
+
+    refreshDistribution()
 }
