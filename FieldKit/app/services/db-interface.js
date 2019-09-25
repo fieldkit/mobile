@@ -69,8 +69,9 @@ export default class DatabaseInterface {
     }
 
     getDeviceId(station) {
+        // TODO: match by name, too, as soon as hardware remembers its name
         return this.getDatabase().then(db =>
-            db.query("SELECT device_id FROM stations WHERE name = ? AND url = ?", [station.name, station.url])
+            db.query("SELECT device_id FROM stations WHERE url = ?", [station.url])
         );
     }
 
