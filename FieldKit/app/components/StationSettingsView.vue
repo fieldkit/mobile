@@ -78,7 +78,14 @@
                         textWrap="true"
                         :visibility="nameNotPrintable ? 'visible' : 'collapsed'"></Label>
                     <!-- end edit name form -->
-                    <Label text="Firmware v 1.0" class="size-16 full-width" />
+                    <Label :text="'Firmware: ' + versions.firmware" class="size-16 full-width m-t-10" />
+                    <Label :text="'Firmware build: ' + versions.firmwareBuild" class="size-16 full-width" />
+                    <Label :text="'Device ID: ' + versions.device" class="size-16 full-width" />
+                    <Label :text="'App build time: ' + versions.appBuildTime" class="size-16 full-width" />
+                    <Label :text="'App build number: ' + versions.appBuildNumber" class="size-16 full-width" />
+                    <Label :text="'Build Tag: ' + versions.appBuildTag" class="size-16 full-width" />
+                    <Label :text="'Commit: ' + versions.appCommit" class="size-16 full-width" />
+                    <Label :text="'Branch: ' + versions.appBranch" class="size-16 full-width" />
                 </WrapLayout>
                 <StackLayout class="section-border"></StackLayout>
 
@@ -264,7 +271,17 @@ export default {
             addingNetwork: false,
             loraNetworks: [],
             newLora: {deviceEui: "", appEui: "", appKey: ""},
-            addingLora: false
+            addingLora: false,
+            versions: {
+                firmware: "1.0",
+                firmwareBuild: "1.0",
+                device: "1.0",
+                appBuildTime: FK_BUILD_TIMESTAMP,
+                appBuildNumber: FK_BUILD_NUMBER,
+                appBuildTag: FK_BUILD_TAG,
+                appCommit: this.split(FK_GIT_COMMIT),
+                appBranch: FK_GIT_BRANCH
+            }
         };
     },
     props: ["station"],
@@ -277,7 +294,12 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
             let deviceStatus = JSON.parse(this.station.status_json);
-
+            if(deviceStatus && deviceStatus.status.identity) {
+                let chunks = deviceStatus.status.identity.build.split("_");
+                this.versions.firmwareBuild = chunks[chunks.length-2] + "_" + chunks[chunks.length-1];
+                this.versions.device = this.split(deviceStatus.status.identity.deviceId);
+                this.versions.firmware = this.split(deviceStatus.status.identity.firmware);
+            }
             if(deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks;
             }
@@ -470,6 +492,13 @@ export default {
                     resetUser: true
                 }
             });
+        },
+
+        split(str) {
+            str = str.split("").map((c,i) => {
+                return (i+1) % 2 == 0 ? c + " " : c;
+            });
+            return str.join("");
         }
     }
 };
