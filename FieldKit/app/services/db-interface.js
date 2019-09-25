@@ -68,6 +68,12 @@ export default class DatabaseInterface {
         );
     }
 
+    getDeviceId(station) {
+        return this.getDatabase().then(db =>
+            db.query("SELECT device_id FROM stations WHERE name = ? AND url = ?", [station.name, station.url])
+        );
+    }
+
     getModule(moduleId) {
         return this.getDatabase().then(db => db.query("SELECT * FROM modules WHERE id = ?", [moduleId]));
     }
