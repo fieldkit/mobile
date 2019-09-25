@@ -121,7 +121,11 @@
 
                     <StackLayout v-if="addingNetwork">
                         <GridLayout rows="auto,auto,auto" columns="35*,65*">
-                            <Label row="0" col="0" text="Network name: " class="text-right"></Label>
+                            <Label row="0"
+                                col="0"
+                                text="Network name: "
+                                verticalAlignment="middle"
+                                class="text-right"></Label>
                             <TextField
                                 row="0"
                                 col="1"
@@ -130,7 +134,11 @@
                                 autocapitalizationType="none"
                                 v-model="newNetwork.ssid"
                                 returnKeyType="next"></TextField>
-                            <Label row="1" col="0" text="Password: " class="text-right"></Label>
+                            <Label row="1"
+                                col="0"
+                                text="Password: "
+                                verticalAlignment="middle"
+                                class="text-right"></Label>
                             <TextField
                                 row="1"
                                 col="1"
@@ -170,7 +178,11 @@
 
                     <StackLayout v-if="addingLora">
                         <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
-                            <Label row="0" col="0" text="Device EUI: " class="text-right"></Label>
+                            <Label row="0"
+                                col="0"
+                                text="Device EUI: "
+                                verticalAlignment="middle"
+                                class="text-right"></Label>
                             <TextField
                                 row="0"
                                 col="1"
@@ -179,7 +191,11 @@
                                 autocapitalizationType="none"
                                 v-model="newLora.deviceEui"
                                 returnKeyType="next"></TextField>
-                            <Label row="1" col="0" text="App EUI: " class="text-right"></Label>
+                            <Label row="1"
+                                col="0"
+                                text="App EUI: "
+                                verticalAlignment="middle"
+                                class="text-right"></Label>
                             <TextField
                                 row="1"
                                 col="1"
@@ -188,7 +204,11 @@
                                 autocapitalizationType="none"
                                 v-model="newLora.appEui"
                                 returnKeyType="next"></TextField>
-                            <Label row="2" col="0" text="App Key: " class="text-right"></Label>
+                            <Label row="2"
+                                col="0"
+                                text="App Key: "
+                                verticalAlignment="middle"
+                                class="text-right"></Label>
                             <TextField
                                 row="2"
                                 col="1"
@@ -303,6 +323,7 @@ export default {
             if(deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks;
             }
+            this.deviceStatus = deviceStatus;
         },
 
         goBack(event) {
@@ -436,8 +457,13 @@ export default {
                 // otherwise add it
                 this.networks.push(network);
             }
+
             queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
-                console.log("response from station after adding:", result.networkSettings)
+                this.networks = result.networkSettings.networks;
+                // in order to match in the interim, must edit station.status_json
+                this.deviceStatus.networkSettings = result.networkSettings;
+                let status = JSON.stringify(this.deviceStatus);
+                this.station.status_json = status;
             });
         },
 
@@ -448,7 +474,11 @@ export default {
                 this.networks.splice(index, 1);
             }
             queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
-                console.log("response from station after removing:", result.networkSettings)
+                this.networks = result.networkSettings.networks;
+                // in order to match in the interim, must edit station.status_json
+                this.deviceStatus.networkSettings = result.networkSettings;
+                let status = JSON.stringify(this.deviceStatus);
+                this.station.status_json = status;
             });
         },
 
@@ -459,7 +489,7 @@ export default {
         addLora(event) {
             this.addingLora = false;
             let lora = {deviceEui: this.newLora.deviceEui, appEui: this.newLora.appEui, appKey: this.newLora.appKey};
-            let index = this.loraNetworks.findIndex(n => {return n.deviceEui == network.deviceEui;});
+            let index = this.loraNetworks.findIndex(n => {return n.deviceEui == lora.deviceEui;});
             if(index > -1) {
                 // replace if it's already present
                 this.loraNetworks[index].appEui = lora.appEui;
@@ -469,7 +499,7 @@ export default {
                 this.loraNetworks.push(lora);
             }
             queryStation.sendLoraSettings(this.station.url, this.loraNetworks).then(result => {
-                console.log("response from station after adding:", result.networkSettings)
+                console.log("response from station after adding:", result.loraSettings)
             });
         },
 
@@ -480,7 +510,7 @@ export default {
                 this.loraNetworks.splice(index, 1);
             }
             queryStation.sendLoraSettings(this.station.url, this.loraNetworks).then(result => {
-                console.log("response from station after removing:", result.networkSettings)
+                console.log("response from station after removing:", result.loraSettings)
             });
         },
 
@@ -548,8 +578,8 @@ export default {
 .network-input {
     border-bottom-color: $fk-primary-black;
     border-bottom-width: 1;
+    padding: 0;
     margin-left: 8;
-    margin-top: 8;
     margin-bottom: 8;
 }
 
