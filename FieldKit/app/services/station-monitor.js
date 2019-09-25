@@ -91,7 +91,7 @@ export default class StationMonitor extends Observable {
 
     updateStatus(station, result) {
         if (result.errors.length > 0 || station.device_id != result.status.identity.deviceId) {
-            return Promise.reject();
+            return;
         }
         station.connected = 1;
         station.lastSeen = new Date();
