@@ -153,6 +153,7 @@ export default class QueryStation {
         if (reply.streams && reply.streams.length > 0 && !reply.streams[0].block) {
             reply.streams.forEach(s => {
                 s.block = s.block ? s.block : 0;
+                s.size = s.size ? s.size : 0;
             });
         }
 
