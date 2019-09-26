@@ -151,15 +151,19 @@ export default {
             this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
 
             if(this.station.name == "") {
-                dbInterface
-                    .getStation(this.stationId)
-                    .then(this.getModules)
-                    .then(this.setupModules)
-                    .then(this.completeSetup);
+                this.getFromDatabase();
             } else {
                 this.stationId = this.station.id;
                 this.completeSetup();
             }
+        },
+
+        getFromDatabase() {
+            dbInterface
+                .getStation(this.stationId)
+                .then(this.getModules)
+                .then(this.setupModules)
+                .then(this.completeSetup);
         },
 
         respondToUpdates() {
@@ -172,7 +176,7 @@ export default {
                 switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationRefreshedProperty: {
                     if (!data.value || !this.station) {
-                        console.log('bad station refresh', data.value, this.station);
+                        console.log('bad station refresh', data.value);
                     }
                     else {
                         if (Number(data.value.id) === Number(this.stationId)) {
@@ -198,14 +202,7 @@ export default {
             if(station.length == 0) {
                 // adding to db in background hasn't finished yet,
                 // wait a few seconds and try again
-                setTimeout(() => {
-                    dbInterface
-                        .getStation(this.stationId)
-                        .then(this.getModules)
-                        .then(this.setupModules)
-                        .then(this.completeSetup);
-
-                }, 2000);
+                setTimeout(this.getFromDatabase, 2000);
                 Promise.reject();
                 return
             }
@@ -293,14 +290,11 @@ export default {
         showLoadingAnimation() {
             this.loadingWhite
                 .animate({
-                    rotate: 180,
-                    duration: 500
+                    rotate: 360,
+                    duration: 975
                 })
                 .then(() => {
-                    return this.loadingWhite.animate({
-                        rotate: 360,
-                        duration: 500
-                    });
+                    this.loadingWhite.rotate = 0;
                 });
         }
     }
