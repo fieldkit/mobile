@@ -158,29 +158,21 @@
                 </StackLayout>
                 <StackLayout class="section-border"></StackLayout>
 
-                <!-- add/remove LoRa -->
-                <StackLayout class="m-x-10">
-                    <Label text="LoRa (Long Range) Network to station" class="size-20"></Label>
-                    <GridLayout rows="auto" columns="75*,25*" v-for="n in loraNetworks" :key="n.deviceEui">
-                        <Label :text="n.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
-                        <Image
-                            col="1"
-                            src="~/images/Icon_Close.png"
-                            width="17"
-                            :dataEui="n.deviceEui"
-                            @tap="removeLora"></Image>
-                    </GridLayout>
+                <!-- edit LoRa -->
+                <StackLayout class="m-x-10" v-if="haveLora">
+                    <Label text="LoRa (Long Range) Network" class="size-20"></Label>
+                    <Label :text="'Device EUI: ' + lora.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
 
-                    <GridLayout v-if="!addingLora" rows="auto" columns="10*,90*" @tap="showLoraForm">
+                    <GridLayout rows="auto" columns="10*,90*" @tap="showLoraForm">
                         <Image col="0" src="~/images/add.png" width="30"></Image>
-                        <Label col="1" text="Add a LoRa network" class="size-16" ></Label>
+                        <Label col="1" text="Edit App EUI and Key" class="size-16" ></Label>
                     </GridLayout>
 
-                    <StackLayout v-if="addingLora">
-                        <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
+                    <StackLayout v-if="editingLora">
+                        <GridLayout rows="auto,auto,auto,auto,auto" columns="35*,65*">
                             <Label row="0"
                                 col="0"
-                                text="Device EUI: "
+                                text="App EUI: "
                                 verticalAlignment="middle"
                                 class="text-right"></Label>
                             <TextField
@@ -189,21 +181,15 @@
                                 class="network-input"
                                 autocorrect="false"
                                 autocapitalizationType="none"
-                                v-model="newLora.deviceEui"
+                                v-model="lora.appEui"
                                 returnKeyType="next"></TextField>
-                            <Label row="1"
-                                col="0"
-                                text="App EUI: "
-                                verticalAlignment="middle"
-                                class="text-right"></Label>
-                            <TextField
+                            <Label
                                 row="1"
                                 col="1"
-                                class="network-input"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                v-model="newLora.appEui"
-                                returnKeyType="next"></TextField>
+                                class="validation-error m-l-10"
+                                text="Invalid App EUI"
+                                textWrap="true"
+                                :visibility="invalidEui ? 'visible' : 'collapsed'"></Label>
                             <Label row="2"
                                 col="0"
                                 text="App Key: "
@@ -215,18 +201,25 @@
                                 class="network-input"
                                 autocorrect="false"
                                 autocapitalizationType="none"
-                                v-model="newLora.appKey"
+                                v-model="lora.appKey"
                                 returnKeyType="done"></TextField>
-                            <Button
+                            <Label
                                 row="3"
+                                col="1"
+                                class="validation-error m-l-10"
+                                text="Invalid App Key"
+                                textWrap="true"
+                                :visibility="invalidKey ? 'visible' : 'collapsed'"></Label>
+                            <Button
+                                row="4"
                                 colSpan="2"
                                 class="btn btn-secondary"
-                                text="Add"
-                                @tap="addLora"></Button>
+                                text="Submit"
+                                @tap="editLora"></Button>
                         </GridLayout>
                     </StackLayout>
                 </StackLayout>
-                <StackLayout class="section-border"></StackLayout>
+                <StackLayout class="section-border" v-if="haveLora"></StackLayout>
 
                 <!-- links to module settings -->
                 <StackLayout class="full-width">
@@ -290,9 +283,11 @@ export default {
             networks: [],
             newNetwork: {ssid: "", password: ""},
             addingNetwork: false,
-            loraNetworks: [],
-            newLora: {deviceEui: "", appEui: "", appKey: ""},
-            addingLora: false,
+            haveLora: false,
+            invalidEui: false,
+            invalidKey: false,
+            lora: {deviceEui: "", appEui: "", appKey: ""},
+            editingLora: false,
             versions: {
                 firmware: "1.0",
                 firmwareBuild: "1.0",
@@ -323,6 +318,13 @@ export default {
             }
             if(deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks;
+            }
+            if(deviceStatus && deviceStatus.loraSettings) {
+                let deviceEui = deviceStatus.loraSettings.deviceEui;
+                if(deviceEui) {
+                    this.lora.deviceEui = new Buffer.from(Object.values(deviceEui)).toString("hex");
+                    this.haveLora = true;
+                }
             }
             this.deviceStatus = deviceStatus;
         },
@@ -484,35 +486,64 @@ export default {
         },
 
         showLoraForm(event) {
-            this.addingLora = true;
+            this.editingLora = true;
         },
 
-        addLora(event) {
-            this.addingLora = false;
-            let lora = {deviceEui: this.newLora.deviceEui, appEui: this.newLora.appEui, appKey: this.newLora.appKey};
-            let index = this.loraNetworks.findIndex(n => {return n.deviceEui == lora.deviceEui;});
-            if(index > -1) {
-                // replace if it's already present
-                this.loraNetworks[index].appEui = lora.appEui;
-                this.loraNetworks[index].appKey = lora.appKey;
-            } else  {
-                // otherwise add it
-                this.loraNetworks.push(lora);
+        checkAppEui() {
+            try {
+                if(this.lora.appEui.length != 16) {
+                    throw Error("Invalid length");
+                }
+
+                let appEui = Buffer.from(this.lora.appEui, "hex");
+                return appEui;
+
+            } catch(error) {
+                this.invalidEui = true;
             }
-            queryStation.sendLoraSettings(this.station.url, this.loraNetworks).then(result => {
-                console.log("response from station after adding:", result.loraSettings)
-            });
         },
 
-        removeLora(event) {
-            let deviceEui = event.object.dataEui;
-            let index = this.loraNetworks.findIndex(n => {return n.deviceEui == deviceEui;});
-            if(index > -1) {
-                this.loraNetworks.splice(index, 1);
+        checkAppKey() {
+            try {
+                if(this.lora.appKey.length != 32) {
+                    throw Error("Invalid length");
+                }
+
+                let appKey = Buffer.from(this.lora.appKey, "hex");
+                return appKey;
+
+            } catch(error) {
+                this.invalidKey = true;
             }
-            queryStation.sendLoraSettings(this.station.url, this.loraNetworks).then(result => {
-                console.log("response from station after removing:", result.loraSettings)
-            });
+        },
+
+        editLora(event) {
+            this.invalidEui = false;
+            this.invalidKey = false;
+            let appEui = this.checkAppEui();
+            let appKey = this.checkAppKey();
+
+            if(appEui && appKey) {
+                this.editingLora = false;
+                this.invalidEui = false;
+                this.invalidKey = false;
+
+                let sendableLora = {
+                    appEui: appEui,
+                    appKey: appKey
+                };
+
+                queryStation.sendLoraSettings(this.station.url, sendableLora).then(result => {
+                    // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
+                    // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
+                    // in order to match in the interim, must edit station.status_json
+
+                    // NOTE: appEui and appKey currently aren't sent in status_json, so they
+                    // won't be preserved after exiting this view
+
+                    // console.log("response from station after adding", result.loraSettings)
+                });
+            }
         },
 
         logout() {
