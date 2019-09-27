@@ -49,12 +49,12 @@ export default {
     computed: {
         stationStatus: function() {
             const bytes = this.pending.station;
-            return `This station has ${bytes} bytes of data waiting to be downloaded.`;
+            return `This station has ${bytes} of data waiting to be downloaded.`;
         },
 
         portalStatus: function() {
             const bytes = this.pending.portal;
-            return `There are ${bytes} bytes waiting to upload.`;
+            return `There are ${bytes} waiting to upload.`;
         },
     },
 
@@ -66,8 +66,8 @@ export default {
                     const station = status.station.forStation(this.station.id);
                     if (station) {
                         this.pending = {
-                            station: station.pending.bytes,
-                            portal: status.portal.pending.bytes
+                            station: this.convertBytesToLabel(station.pending.bytes),
+                            portal: this.convertBytesToLabel(status.portal.pending.bytes)
                         };
                     }
                 }
@@ -97,6 +97,17 @@ export default {
                 console.error("ERROR SYNC PORTAL", error);
             });
         },
+
+        convertBytesToLabel(bytes) {
+            let label = "";
+            // convert to kilobytes or megabytes
+            if(bytes < 1000000.0) {
+                label = (bytes / 1024.0).toFixed(2) + " KB";
+            } else {
+                label = (bytes / 1048576.0).toFixed(2) + " MB";
+            }
+            return label;
+        }
     }
 };
 </script>

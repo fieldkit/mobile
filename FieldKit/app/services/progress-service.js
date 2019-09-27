@@ -28,6 +28,7 @@ class ProgressTracker {
 
     complete() {
         log("complete");
+        this.service.publish({message: "complete", progress: 100});
         this.service._remove(this);
         return Promise.resolve();
     }

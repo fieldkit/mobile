@@ -215,6 +215,9 @@ export default class DownloadManager {
                             deviceId: station.deviceId,
                         },
                         progress: progress.value,
+                        currentSize: progress.currentSize,
+                        totalSize: progress.totalSize,
+                        type: type
                     });
                     log("progress", progress);
                 })

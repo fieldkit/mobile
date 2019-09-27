@@ -15,6 +15,7 @@ module.exports = {
     kbDownloaded: "KB downloaded.",
     mbDownloaded: "MB downloaded.",
     gbDownloaded: "GB downloaded.",
+    transferred: "transferred.",
     //DeployMapView
     nameYourLocation: "Name your location",
     locationRequired: "Location is a required field.",
