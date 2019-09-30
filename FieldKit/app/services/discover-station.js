@@ -1,6 +1,7 @@
 import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import { Zeroconf } from "nativescript-zeroconf";
 import { isIOS } from "tns-core-modules/platform";
+import { WifiInfo } from 'nativescript-wifi-info';
 
 class Station {
     constructor(info) {
@@ -13,6 +14,32 @@ class Station {
     }
 }
 
+class WiFiMonitor {
+    constructor(callback) {
+        const wifiInfo = new WifiInfo();
+
+        this.previous = null;
+
+        this.timer = setInterval(() => {
+            const ssid = wifiInfo.getSSID();
+            if (ssid != this.previous) {
+                if (callback) {
+                    callback(ssid, this.couldBeStation(ssid));
+                }
+            }
+            this.previous = ssid;
+        }, 1000);
+    }
+
+    couldBeStation(ssid) {
+        const parts = ssid.split(" ");
+        if (parts.length != 3) {
+            return false;
+        }
+        return Number(parts[2]) > 0;
+    }
+}
+
 export default class DiscoverStation extends Observable {
     constructor() {
         super();
@@ -21,6 +48,24 @@ export default class DiscoverStation extends Observable {
     }
 
     startServiceDiscovery() {
+        this.wifiMonitor = new WiFiMonitor((ssid, couldBeStation) => {
+            console.log('new ssid', ssid, couldBeStation);
+            if (couldBeStation) {
+                this.stationFound({
+                    type: '._fk._tcp',
+                    name: ssid,
+                    host: '192.168.2.1',
+                    port: 80
+                });
+            }
+            else {
+                this.stationLost({
+                    type: '._fk._tcp',
+                    name: ssid,
+                });
+            }
+        });
+
         this.zeroconf_.on(
             Observable.propertyChangeEvent,
             data => {
