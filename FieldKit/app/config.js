@@ -32,6 +32,7 @@ const configs = {
         dropTables: true,
         stationTimeoutMs: 30000,
         includeInternalModules: false,
+        includeInternalSensors: false
     },
     test: {
         baseUri: "https://api.fkdev.org",
@@ -40,6 +41,7 @@ const configs = {
         dropTables: true,
         stationTimeoutMs: 30000,
         includeInternalModules: false,
+        includeInternalSensors: false
     }
 };
 

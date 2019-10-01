@@ -7,6 +7,10 @@ function is_internal_module(module) {
     return !Config.includeInternalModules && module.flags & 1; // TODO Pull this enum in from the protobuf file.
 }
 
+function is_internal_sensor(sensor) {
+    return !Config.includeInternalSensors && sensor.flags & 1; // TODO Pull this enum in from the protobuf file.
+}
+
 export default class StationMonitor extends Observable {
     constructor(discoverStation, dbInterface, queryStation) {
         super();
@@ -215,10 +219,14 @@ export default class StationMonitor extends Observable {
                 .map(m => {
                     m.stationId = id;
                     this.dbInterface.insertModule(m).then(mid => {
-                        m.sensors.map(s => {
-                            s.moduleId = mid;
-                            this.dbInterface.insertSensor(s);
-                        });
+                        m.sensors
+                            .filter(s => {
+                                return !is_internal_sensor(s);
+                            })
+                            .map(s => {
+                                s.moduleId = mid;
+                                this.dbInterface.insertSensor(s);
+                            });
                     });
                 });
         });
