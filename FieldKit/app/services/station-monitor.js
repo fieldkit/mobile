@@ -59,7 +59,9 @@ export default class StationMonitor extends Observable {
             .catch(error => {
                 console.log("error taking initial readings", error)
                 // try again
-                setTimeout(() => {this.requestInitialReadings(station)}, 2000);
+                // setTimeout(() => {this.requestInitialReadings(station)}, 2000);
+                // don't try again, just start regular queries
+                setTimeout(() => {this.requestStationData(station)}, 10000);
             });
     }
 
