@@ -15,6 +15,8 @@ const log = Config.logger("QueryStation");
 
 const MandatoryStatus = {
     status: {
+        identity: {
+        },
         power: {
             battery: {
                 percentage: 0.0
@@ -140,12 +142,16 @@ export default class QueryStation {
             },
             err => {
                 log("query error", err);
-                return {errors:[err]};
+                // NOET This should be a Promise.reject'ion.
+                return { errors: [ err ] };
             }
         );
     }
 
     _fixupStatus(reply) {
+        if (reply.errors) {
+            return reply;
+        }
         // NOTE deepmerge ruins deviceId.
         if (reply.status && reply.status.identity) {
             reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
