@@ -22,6 +22,11 @@ export default class StationMonitor extends Observable {
         this.ReadingsChangedProperty = "readingsChanged";
     }
 
+    clearStations() {
+        this.stations = {};
+        this.activeAddresses = [];
+    }
+
     initializeStations(result) {
         const thisMonitor = this;
         result.map(r => {

@@ -8,10 +8,10 @@ export default class CreateDB {
         this.dbInterface = dbInterface;
     }
 
-    initialize() {
+    initialize(userInvokedDelete) {
         return this.openDatabase()
             .then(() => {
-                if (Config.dropTables) {
+                if (Config.dropTables || userInvokedDelete) {
                     return this.dropTables();
                 } else {
                     return Promise.resolve(this.database);

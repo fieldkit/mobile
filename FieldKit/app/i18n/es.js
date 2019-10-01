@@ -109,4 +109,5 @@ module.exports = {
     settings: "Ajustes",
     // StationListView
     noStations: "No se encontraron estaciones."
+    lookingForStations: "Buscando estaciones ..."
 };

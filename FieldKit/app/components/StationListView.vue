@@ -7,7 +7,7 @@
                 </StackLayout>
                 <Label class="h2 m-y-10 text-center" :text="message" textWrap="true"></Label>
                 <Label v-if="stations.length == 0"
-                    :text="_L('noStations')"
+                    :text="_L('lookingForStations')"
                     class="m-10 p-10 text-center size-20" />
                 <StackLayout v-for="s in stations"
                     :key="s.sortedIndex"
