@@ -108,6 +108,6 @@ module.exports = {
     data: "Datos",
     settings: "Ajustes",
     // StationListView
-    noStations: "No se encontraron estaciones."
+    noStations: "No se encontraron estaciones.",
     lookingForStations: "Buscando estaciones ..."
 };
