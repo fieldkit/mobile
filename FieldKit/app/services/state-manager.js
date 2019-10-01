@@ -32,6 +32,13 @@ export default class StateManager extends BetterObservable {
         });
     }
 
+    synchronizeStation(deviceId) {
+        log("synchronizeStation");
+        return this.downloadManager.startSynchronizeStation(deviceId).then(() => {
+            return this.refresh();
+        });
+    }
+
     synchronizeConnectedStations() {
         log("synchronizeConnectedStations");
         return this.downloadManager.synchronizeConnectedStations().then(() => {

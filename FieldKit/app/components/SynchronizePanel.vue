@@ -75,7 +75,7 @@ export default {
         },
 
         onSyncStation() {
-            return Services.StateManager().synchronizeConnectedStations().catch(error => {
+            return Services.StateManager().synchronizeStation(this.station.device_id).catch(error => {
                 console.error("ERROR SYNC STATION", error);
             });
         },

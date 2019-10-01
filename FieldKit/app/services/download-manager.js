@@ -109,6 +109,24 @@ export default class DownloadManager {
         };
     }
 
+    startSynchronizeStation(deviceId) {
+        log("startSynchronizeStation", deviceId);
+
+        const operation = this.progressService.startDownload();
+
+        return this._createServiceModel().then(connectedStations => {
+            let station = connectedStations.find(s => {return s.deviceId == deviceId;});
+            log("single station", station);
+            return this._prepare(station).then(() => {
+                return this._synchronizeStation(station, operation);
+            })
+        }).then(() => {
+            return operation.complete();
+        }).catch((error) => {
+            return operation.cancel(error);
+        });
+    }
+
     synchronizeConnectedStations() {
         log("synchronizeConnectedStations");
 
