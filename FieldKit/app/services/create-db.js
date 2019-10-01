@@ -87,14 +87,14 @@ export default class CreateDB {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 station_id INTEGER NOT NULL,
                 device_id TEXT NOT NULL,
-                name TEXT NOT NULL,
+                type TEXT NOT NULL,
                 size INTEGER NOT NULL,
                 first_block INTEGER NOT NULL,
                 last_block INTEGER NOT NULL,
                 updated TIMESTAMP NOT NULL,
                 FOREIGN KEY(station_id) REFERENCES stations(id)
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS streams_idx ON streams (station_id, name)`
+            `CREATE UNIQUE INDEX IF NOT EXISTS streams_idx ON streams (station_id, type)`
         ]);
     }
 
@@ -104,12 +104,13 @@ export default class CreateDB {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 station_id INTEGER NOT NULL,
                 device_id TEXT NOT NULL,
-                name TEXT NOT NULL,
+                type TEXT NOT NULL,
                 path TEXT NOT NULL,
                 timestamp TIMESTAMP NOT NULL,
                 url TEXT NOT NULL,
                 size INTEGER NOT NULL,
                 blocks TEXT NOT NULL,
+                generation TEXT NOT NULL,
                 first_block INTEGER NOT NULL,
                 last_block INTEGER NOT NULL,
                 uploaded TIMESTAMP,
@@ -173,6 +174,7 @@ export default class CreateDB {
                 deploy_image_label TEXT,
                 deploy_note TEXT,
                 deploy_audio_files TEXT,
+                deploy_start_time DATETIME,
                 portal_id INTEGER,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -304,7 +306,7 @@ const stations = [
     {
         deviceId: "seeded-device-0",
         name: "Drammen Station",
-        status: "recording",
+        status: "idle",
         modules: [
             {
                 moduleId: "seeded-device-0-module-0",
@@ -313,7 +315,7 @@ const stations = [
                 sensors: [
                     {
                         name: "pH Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -325,12 +327,12 @@ const stations = [
                 sensors: [
                     {
                         name: "DO Sensor",
-                        unit: "mg/L",
+                        unitOfMeasure: "mg/L",
                         frequency: "60"
                     },
                     {
                         name: "Conductivity Sensor",
-                        unit: "S/m",
+                        unitOfMeasure: "S/m",
                         frequency: "60"
                     }
                 ]
@@ -342,17 +344,17 @@ const stations = [
                 sensors: [
                     {
                         name: "Temperature Sensor",
-                        unit: "°C",
+                        unitOfMeasure: "°C",
                         frequency: "60"
                     },
                     {
                         name: "Wind Sensor",
-                        unit: "m/s",
+                        unitOfMeasure: "m/s",
                         frequency: "60"
                     },
                     {
                         name: "Rain Sensor",
-                        unit: "mm/h",
+                        unitOfMeasure: "mm/h",
                         frequency: "60"
                     }
                 ]
@@ -371,7 +373,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -390,7 +392,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -409,7 +411,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]
@@ -428,7 +430,7 @@ const stations = [
                 sensors: [
                     {
                         name: "Configure Sensor",
-                        unit: "",
+                        unitOfMeasure: "",
                         frequency: "60"
                     }
                 ]

@@ -28,74 +28,89 @@ export default class StationMonitor extends Observable {
             let key = thisMonitor.makeKey(r);
             r.lastSeen = r.connected ? new Date() : pastDate;
             thisMonitor.stations[key] = r;
-            if (r.url != "no_url") {
-                // first try, might not have a reading yet
-                // JACOB: Can we pull this and the call below into the same
-                // function so that the update to the readings happen is they
-                // happen to be there?
-                // LIBBEY: We don't have to do this at all - it's just here
-                // to 'prime the pump,' so the call below is more likely to
-                // yield results
-                this.queryStation.takeReadings(r.url);
-            }
         });
 
-        // start ten second cycle
-        this.intervalTimer = setInterval(() => {
-            this.queryStations();
-        }, 10000);
+        let index = 0; // seeded stations cause delay otherwise
+        // kickoff station queries, staggered
+        Object.values(this.stations).forEach((station) => {
+            if (station.url == "no_url") {
+                return;
+            }
+            setTimeout(() => {this.requestInitialReadings(station)}, 3000*index);
+            index += 1;
+        });
     }
 
     getStations() {
         return this.sortStations();
     }
 
-    queryStations() {
-        Object.values(this.stations).forEach(station => {
-            if (station.url == "no_url") {
-                return;
-            }
+    getStationReadings(station) {
+        let key = this.makeKey(station);
+        return this.stations[key] ? this.stations[key].readings : null;
+    }
 
-            const elapsed = new Date() - station.lastSeen;
+    requestInitialReadings(station) {
+        if(station.connected == 0) {return}
+        // take readings first so they can be stored (active or not)
+        this.queryStation
+            .takeReadings(station.url)
+            .then(this.updateStationReadings.bind(this, station))
+            .catch(error => {
+                console.log("error taking initial readings", error)
+                // try again
+                setTimeout(() => {this.requestInitialReadings(station)}, 2000);
+            });
+    }
 
-            // if station hasn't been heard from in awhile, disable it
-            // (seeded stations exempt for now due to above return statement)
-            if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
-                this.deactivateStation(station);
-            }
+    requestStationData(station) {
+        const elapsed = new Date() - station.lastSeen;
 
-            // take readings, if active, otherwise query regular boring status
-            if (this.activeAddresses.indexOf(station.url) > -1) {
-                this.queryStation
-                    .takeReadings(station.url)
-                    .then(this.updateStationReadings.bind(this, station))
-                    .catch(error => console.log(error));
-            }
-            else {
-                this.queryStation
-                    .getStatus(station.url)
-                    .then(this.updateStatus.bind(this, station))
-                    .catch(error => console.log(error));
-            }
-        });
+        // if station hasn't been heard from in awhile, disable it
+        // (seeded stations exempt for now due to above return statement)
+        if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
+            this.deactivateStation(station);
+        }
+
+        if(station.connected == 0) {return}
+
+        // take readings, if active, otherwise query status
+        if (this.activeAddresses.indexOf(station.url) > -1) {
+            this.queryStation
+                .takeReadings(station.url)
+                .then(this.updateStationReadings.bind(this, station))
+                .catch(error => console.log("error taking readings", error));
+        }
+        else {
+            this.queryStation
+                .getStatus(station.url)
+                .then(this.updateStatus.bind(this, station))
+                .catch(error => console.log("error getting status", error));
+        }
     }
 
     updateStatus(station, result) {
-        if (result.errors.length > 0 || station.name != result.status.identity.device) {
-            return Promise.reject();
-        }
-        station.connected = 1;
-        station.lastSeen = new Date();
-        station.status = result.status.recording.enabled ? "recording" : "idle";
-        return this._updateStationStatus(station, result);
-    }
-
-    updateStationReadings(station, result) {
-        if (result.errors.length > 0 || station.name != result.status.identity.device) {
+        if (result.errors.length > 0 || station.device_id != result.status.identity.deviceId) {
             return;
         }
         station.connected = 1;
         station.lastSeen = new Date();
+        station.status = result.status.recording.enabled ? "recording" : "idle";
+        station.name = result.status.identity.device;
+
+        // set up next query
+        setTimeout(() => {this.requestStationData(station)}, 10000);
+
+        return this._updateStationStatus(station, result);
+    }
+
+    updateStationReadings(station, result) {
+        if (result.errors.length > 0 || station.device_id != result.status.identity.deviceId) {
+            return;
+        }
+        station.connected = 1;
+        station.lastSeen = new Date();
+        station.status = result.status.recording.enabled ? "recording" : "idle";
         const readings = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
@@ -110,8 +125,13 @@ export default class StationMonitor extends Observable {
             batteryLevel: result.status.power.battery.percentage,
             consumedMemory: result.status.memory.dataMemoryConsumption
         };
+        // store one set of live readings per station
+        station.readings = readings;
 
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
+
+        // set up next query
+        setTimeout(() => {this.requestStationData(station)}, 10000);
 
         return this._updateStationStatus(station, result);
     }
@@ -155,7 +175,7 @@ export default class StationMonitor extends Observable {
                             result: statusResult
                         });
                     } else {
-                        this.reactivateStation(data, statusResult);
+                        this.reactivateStation(data, result[0], statusResult);
                     }
                 });
             })
@@ -214,22 +234,32 @@ export default class StationMonitor extends Observable {
         station.lastSeen = new Date();
         this.stations[key] = station;
 
+        // start getting readings
+        this.requestInitialReadings(station);
+
         this._publishStationsUpdated();
         this._publishStationRefreshed(this.stations[key]);
     }
 
-    reactivateStation(station, status) {
-        console.log("re-activating station --------->", station.name);
-        const key = this.makeKey(station);
-        if (this.stations[key]) {
-            this.stations[key].connected = 1;
-            this.stations[key].lastSeen = new Date();
-        } else {
-            // console.log("** reactivation where we don't have the station stored? **");
+    reactivateStation(discoverStation, databaseStation, statusResult) {
+        console.log("re-activating station --------->", discoverStation.name);
+        const key = this.makeKey(databaseStation);
+        if (!this.stations[key]) {
+            // TODO: is there an old k:v pair we need to delete?
+            this.stations[key] = databaseStation;
         }
+        this.stations[key].connected = 1;
+        this.stations[key].lastSeen = new Date();
+        // prefer statusResult name over database name
+        this.stations[key].name = statusResult.status.identity.device;
+        // prefer discovered url over database url
+        this.stations[key].url = discoverStation.url;
 
-        return this.dbInterface.setStationConnectionStatus(this.stations[key]).then(() => {
-            return this._updateStationStatus(this.stations[key], status);
+        // start getting readings
+        this.requestInitialReadings(this.stations[key]);
+
+        this.dbInterface.setStationConnectionStatus(this.stations[key]).then(() => {
+            this._updateStationStatus(this.stations[key], status);
         });
     }
 
@@ -238,17 +268,21 @@ export default class StationMonitor extends Observable {
             return;
         }
         console.log("deactivating station --------->", station.name);
-        const key = this.makeKey(station);
-        if (this.stations[key]) {
-            this.stations[key].connected = 0;
-            this.stations[key].lastSeen = pastDate;
-        } else {
-            // console.log("** deactivation where we don't have the station stored? **");
-        }
-        this.dbInterface.setStationConnectionStatus(this.stations[key]);
+        this.dbInterface
+            .getDeviceId(station)
+            .then(result => {
+                const key = result && result.length > 0 ? result[0].device_id : "";
+                if (this.stations[key]) {
+                    this.stations[key].connected = 0;
+                    this.stations[key].lastSeen = pastDate;
+                } else {
+                    // console.log("** deactivation where we don't have the station stored? **");
+                }
+                this.dbInterface.setStationConnectionStatus(this.stations[key]);
 
-        this._publishStationsUpdated();
-        this._publishStationRefreshed(this.stations[key]);
+                this._publishStationsUpdated();
+                this._publishStationRefreshed(this.stations[key]);
+            });
     }
 
     startLiveReadings(address) {
@@ -265,7 +299,11 @@ export default class StationMonitor extends Observable {
     }
 
     makeKey(station) {
-        return station.name + station.url;
+        if(!station.deviceId && !station.device_id) {
+            // console.log("no key for this one ", station)
+            return "nokey";
+        }
+        return station.deviceId ? station.deviceId : station.device_id
     }
 
     _publishStationRefreshed(station) {
@@ -282,6 +320,10 @@ export default class StationMonitor extends Observable {
     _updateStationStatus(station, status) {
         if (status != null) {
             station.statusReply = status;
+
+            // save changes internally
+            let key = this.makeKey(station);
+            this.stations[key] = station;
 
             return this.dbInterface.updateStationStatus(station, status).then(() => {
                 return this._publishStationsUpdated().then(() => {

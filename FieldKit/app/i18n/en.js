@@ -15,6 +15,7 @@ module.exports = {
     kbDownloaded: "KB downloaded.",
     mbDownloaded: "MB downloaded.",
     gbDownloaded: "GB downloaded.",
+    transferred: "transferred.",
     //DeployMapView
     nameYourLocation: "Name your location",
     locationRequired: "Location is a required field.",
@@ -88,7 +89,7 @@ module.exports = {
     passwordRequired: "Password is a required field.",
     passwordTooShort: "Password must be at least 10 characters.",
     confirmPassword: "Confirm password",
-    //ModuleView
+    //ModuleDetailView
     locateYourModule: "Locate %s here on your FieldKit station.",
     select: "Select...",
     // StationDetailView
@@ -99,9 +100,11 @@ module.exports = {
     availableMemory: "Available Memory",
     deploy: "Deploy",
     deployed: "Deployed",
+    notRecording: "Not Recording",
+    recordingData: "Recording Data",
     station: "Station",
     data: "Data",
     settings: "Settings",
-    // StationsView
+    // StationListView
     noStations: "No stations found."
 };

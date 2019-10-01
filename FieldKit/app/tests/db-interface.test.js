@@ -51,7 +51,7 @@ describe("DatabaseInterface", () => {
     test("setStationPortalID should set a station's portal id", async () => {
         const data = await dbInterface.getStation(1);
         const portalId = 28;
-        data[0].portalId = portalId;
+        data[0].portal_id = portalId;
         const change = await dbInterface.setStationPortalID(data[0]);
         const newData = await dbInterface.getStation(1);
         expect(newData[0].portal_id).toEqual(portalId);

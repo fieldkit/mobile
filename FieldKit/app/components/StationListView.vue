@@ -2,11 +2,8 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <StackLayout id="stations-list" class="m-y-10">
-                <StackLayout row="0" class="round m-x-10" @tap="goBack" horizontalAlignment="left">
-                    <Image
-                        width="21"
-                        class="m-y-10"
-                        src="~/images/Icon_backarrow.png"></Image>
+                <StackLayout class="round-bkgd" horizontalAlignment="left" verticalAlignment="top" @tap="goBack">
+                    <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                 </StackLayout>
                 <Label class="h2 m-y-10 text-center" :text="message" textWrap="true"></Label>
                 <Label v-if="stations.length == 0"
@@ -42,19 +39,20 @@ export default {
             stations: []
         };
     },
-    props: ["stationId", "recording"],
+    props: ["station"],
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
 
             this.stations = this.$stationMonitor.getStations();
-
-            // set status here, as background querying can
-            // can take a few seconds to catch up
-            if(this.stationId && this.recording) {
+            if(this.station) {
+                // update from station detail view
                 this.stations.forEach(s => {
-                    if(s.id == this.stationId) {
-                        this.$set(s, "status", this.recording);
+                    if(s.id == this.station.id) {
+                        s.status = this.station.status;
+                        s.connected = this.station.connected;
+                        s.name = this.station.name;
+                        // s.sortedIndex += 1;
                     }
                 });
             }
@@ -92,10 +90,18 @@ export default {
                 event.object.className = cn;
             }, 500);
 
+            let id = event.object.id.split("station-")[1];
+            // necessary to have station name defined on page load
+            let stationObj = {name: ""};
+            if(this.station && this.station.id == id) {
+                stationObj = this.station;
+            }
+
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     // remove the "station-" prefix
-                    stationId: event.object.id.split("station-")[1]
+                    stationId: id,
+                    station: stationObj
                 }
             });
         }
@@ -109,10 +115,7 @@ export default {
 // End custom common variables
 
 // Custom styles
-.round {
-    width: 40;
-    border-radius: 20;
-}
+
 .station-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;

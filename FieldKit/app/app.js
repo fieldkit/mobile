@@ -11,9 +11,9 @@ import Config from "./config";
 
 import Services from './services/services';
 
-Services.DiscoverStation().startServiceDiscovery();
-
 Services.CreateDb().initialize().then(() => {
+    Services.DiscoverStation().startServiceDiscovery();
+
     Vue.prototype.$stationMonitor = Services.StationMonitor();
 }).catch(err => {
     console.log(err);

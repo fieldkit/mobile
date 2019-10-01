@@ -72,6 +72,27 @@ export default class QueryStation {
         });
     }
 
+    sendNetworkSettings(address, networks) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            networkSettings: { networks: networks }
+        });
+
+        return this.stationQuery(address, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
+    sendLoraSettings(address, lora) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            loraSettings: { appEui: lora.appEui, appKey: lora.appKey }
+        });
+        return this.stationQuery(address, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
     configureName(address, name) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
@@ -118,7 +139,8 @@ export default class QueryStation {
                 });
             },
             err => {
-                console.log("query error", err);
+                log("query error", err);
+                return {errors:[err]};
             }
         );
     }
@@ -128,6 +150,13 @@ export default class QueryStation {
         if (reply.status && reply.status.identity) {
             reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
         }
+        if (reply.streams && reply.streams.length > 0) {
+            reply.streams.forEach(s => {
+                s.block = s.block ? s.block : 0;
+                s.size = s.size ? s.size : 0;
+            });
+        }
+
         return deepmerge.all([MandatoryStatus, reply]);
     }
 
@@ -135,16 +164,16 @@ export default class QueryStation {
         if (reply.type != ReplyType.values.REPLY_BUSY) {
             return Promise.resolve(reply);
         }
-        const delays = _(reply.errors).sum('delay');
+        const delays = _.sumBy(reply.errors, 'delay');
         if (delays == 0) {
             return Promise.reject(new Error('busy'));
         }
-        return this._retryAfter(delay, url, message);
+        return this._retryAfter(delays, url, message);
     }
 
-    _retryAfter(delay, url, message) {
-        console.log("retrying after", delay);
-        return promiseAfter(delay).then(() => {
+    _retryAfter(delays, url, message) {
+        log("retrying after", delays);
+        return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);
         });
     }

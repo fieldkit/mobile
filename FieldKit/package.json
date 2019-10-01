@@ -38,6 +38,7 @@
     "nativescript-ui-chart": "5.0.0",
     "nativescript-vue": "2.3.0",
     "nativescript-vue-devtools": "^1.2.0",
+    "nativescript-wifi-info": "0.0.5",
     "nativescript-zeroconf": "file:third-party/nativescript-zeroconf",
     "protobufjs": "^6.8.8",
     "tns-core-modules": "^6.0.1",

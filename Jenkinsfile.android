@@ -26,6 +26,7 @@ set +x
 export FK_APP_RELEASE_STORE_PASSWORD=${props.FK_APP_RELEASE_STORE_PASSWORD}
 export FK_APP_RELEASE_KEY_PASSWORD=${props.FK_APP_RELEASE_KEY_PASSWORD}
 set -x
+env
 
 make android-release
 """
@@ -42,4 +43,6 @@ make android-release
             throw e;
         }
     }
+
+    refreshDistribution()
 }

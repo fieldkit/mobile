@@ -2,30 +2,27 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <FlexboxLayout flexDirection="column" justifyContent="space-between">
-                <GridLayout rows="auto" columns="*">
-                    <StackLayout row="0" class="round m-y-10" @tap="goBack" horizontalAlignment="left">
-                        <Image
-                            width="21"
-                            class="m-t-10"
-                            v-show="!isEditingName"
-                            src="~/images/Icon_backarrow.png"></Image>
+                <GridLayout rows="auto" columns="15*,70*,15*">
+                    <StackLayout row="0" col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
+                        <Image width="21" v-show="!isEditingName" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
                     <Image
                         row="0"
+                        col="0"
                         class="m-10"
                         width="17"
-                        horizontalAlignment="left"
                         v-show="isEditingName"
                         @tap="cancelRename"
                         src="~/images/Icon_Close.png"></Image>
                     <Label
                         row="0"
-                        class="title m-y-20 text-center module-name"
+                        col="1"
+                        class="title m-y-10 text-center module-name"
                         :text="module.name"
                         v-show="!isEditingName"
                         textWrap="true"></Label>
                     <!-- Edit name form -->
-                    <StackLayout row="0" id="module-name-field" class="input-field m-y-20 text-left">
+                    <StackLayout row="0" col="1" id="module-name-field" class="input-field m-y-10 text-left">
                         <FlexboxLayout>
                             <TextField
                                 class="input"
@@ -70,24 +67,24 @@
                     <!-- end edit name form -->
                     <Image
                         row="0"
+                        col="2"
                         class="m-10"
                         width="14"
-                        horizontalAlignment="right"
                         v-show="!isEditingName"
                         @tap="toggleRename"
                         src="~/images/Icon_Edit.png"></Image>
                     <Image
                         row="0"
+                        col="2"
                         class="m-10"
                         width="17"
-                        horizontalAlignment="right"
                         v-show="isEditingName"
                         @tap="saveModuleName"
                         src="~/images/Icon_Save.png"></Image>
                 </GridLayout>
 
                 <!-- Data capture interval -->
-                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-20">
+                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-10">
                     <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
                     <Label row="1"
                         colSpan="2"
@@ -132,20 +129,7 @@
                 <!-- end: Data capture interval -->
 
                 <!-- footer -->
-                <FlexboxLayout justifyContent="space-between" class="size-12 p-30 footer">
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Station_Selected.png"></Image>
-                        <Label class="bold m-t-2" :text="_L('station')"></Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('data')"></Label>
-                    </StackLayout>
-                    <StackLayout>
-                        <Image width="20" src="~/images/Icon_Settings_Inactive.png"></Image>
-                        <Label class="light m-t-2" :text="_L('settings')"></Label>
-                    </StackLayout>
-                </FlexboxLayout>
+                <StationFooterTabs :station="station" active="station" />
 
             </FlexboxLayout>
         </ScrollView>
@@ -155,6 +139,7 @@
 <script>
 import routes from "../routes";
 import Services from '../services/services';
+import StationFooterTabs from './StationFooterTabs';
 
 const dbInterface = Services.Database();
 
@@ -176,7 +161,10 @@ export default {
             timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
         };
     },
-    props: ["moduleId"],
+    props: ["moduleId", "station", "origin"],
+    components: {
+        StationFooterTabs
+    },
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
@@ -201,12 +189,22 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.module, {
-                props: {
-                    moduleId: this.module.id,
-                    stationId: this.module.station_id
-                }
-            });
+            // TODO: handle history better
+            if(this.origin == "detail") {
+                this.$navigateTo(routes.module, {
+                    props: {
+                        moduleId: this.module.id,
+                        station: this.station
+                    }
+                });
+            }
+            if(this.origin == "settings") {
+                this.$navigateTo(routes.stationSettings, {
+                    props: {
+                        station: this.station
+                    }
+                });
+            }
         },
 
         toggleRename() {
@@ -400,8 +398,5 @@ export default {
     border-bottom-color: $fk-primary-black;
 }
 
-.round {
-    width: 40;
-    border-radius: 20;
-}
+
 </style>

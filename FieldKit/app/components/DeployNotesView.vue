@@ -3,7 +3,7 @@
         <ScrollView>
             <StackLayout>
                 <GridLayout rows="auto" columns="10*,90*">
-                    <StackLayout col="0" class="round" verticalAlignment="top" @tap="goBack">
+                    <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
                         <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                     </StackLayout>
                     <StackLayout col="1" class="title-container m-t-10 m-r-30">
@@ -146,7 +146,7 @@ export default {
             isRecordingData: false
         };
     },
-    props: ["stationId"],
+    props: ["station"],
     methods: {
         goBack(event) {
             let cn = event.object.className;
@@ -155,12 +155,9 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            // send recording status back, as background querying
-            // can take a few seconds to catch up
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    stationId: this.stationId,
-                    recording: this.isRecordingData ? 'recording' : 'idle'
+                    station: this.station
                 }
             });
         },
@@ -186,39 +183,10 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            dbInterface
-                .getStation(this.stationId)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
+            this.setup();
         },
 
-        getModules(station) {
-            this.station = station[0];
-            return dbInterface.getModules(this.station.id);
-        },
-
-        linkModulesAndSensors(results) {
-            results.forEach(r => {
-                r.resultPromise.then(sensors => {
-                    r.module.sensorObjects = sensors;
-                });
-            });
-        },
-
-        getSensors(moduleObject) {
-            let result = dbInterface.getSensors(moduleObject.id);
-            return { resultPromise: result, module: moduleObject };
-        },
-
-        setupModules(modules) {
-            this.station.moduleObjects = modules;
-            return Promise.all(this.station.moduleObjects.map(this.getSensors)).then(
-                this.linkModulesAndSensors
-            );
-        },
-
-        completeSetup() {
+        setup() {
             if(this.station.status == "recording") {
                 this.isRecordingData = true;
             }
@@ -500,13 +468,23 @@ export default {
             this.saveNote();
             this.saveLabel();
 
-            event.object.text = _L("stopRecording");
             this.isRecordingData = true;
+            this.station.status = "recording";
+            event.object.text = _L("stopRecording");
+
+            this.station.deploy_start_time = new Date();
+            dbInterface.setStationDeployStartTime(this.station);
 
             queryStation.startDataRecording(this.station.url).then(result => {
                 const priorValue = null;
-                this.station.status = "recording";
-                this.updateStationStatus(priorValue);
+                this.updateStationStatus(priorValue)
+                    .then(() => {
+                        this.$navigateTo(routes.stationDetail, {
+                            props: {
+                                station: this.station
+                            }
+                        });
+                    });
             });
         },
 
@@ -539,11 +517,14 @@ export default {
                     device_id: this.station.device_id,
                     status_json: this.station
                 };
-                this.$portalInterface
+                return this.$portalInterface
                     .updateStation(params, this.station.portal_id)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
+                        return Promise.resolve();
                     });
+            } else {
+                return Promise.resolve();
             }
         },
 
@@ -565,13 +546,7 @@ export default {
 // End custom common variables
 
 // Custom styles
-.round {
-    width: 40;
-    padding-bottom: 10;
-    padding-top: 8;
-    margin-top: 1;
-    border-radius: 20;
-}
+
 
 .small-round {
     width: 40;
