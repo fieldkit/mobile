@@ -59,9 +59,14 @@ export default class DiscoverStation extends Observable {
                 });
             }
             else {
-                this.stationLost({
-                    type: '._fk._tcp',
-                    name: ssid,
+                // HACK Fake onServiceLost for any connection stations.
+                const connected = Object.values(this.stations_);
+                console.log(connected);
+                connected.forEach(station => {
+                    this.stationLost({
+                        type: station.type,
+                        name: station.name,
+                    });
                 });
             }
         });
