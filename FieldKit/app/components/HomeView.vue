@@ -3,12 +3,14 @@
         <StackLayout>
             <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
             <Button class="btn btn-primary" :text="_L('viewStations')" @tap="viewStations"></Button>
+            <Button class="btn btn-primary" text="Copy Logs" @tap="copyLogs"></Button>
         </StackLayout>
     </Page>
 </template>
 
 <script>
 import routes from "../routes";
+import { sendLogs } from '../lib/logging';
 
 export default {
     data() {
@@ -22,6 +24,9 @@ export default {
         },
         viewStations() {
             this.$navigateTo(routes.stations);
+        },
+        copyLogs() {
+            sendLogs();
         }
     }
 };

@@ -3,6 +3,7 @@ import { CONFIG } from './secrets';
 function get_blank_developer_config() {
     return {
         logging: {
+            SaveLogs: true,
             QueryStation: false,
             DownloadManager: false,
             UploadManager: false,

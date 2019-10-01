@@ -11,6 +11,15 @@ import Config from "./config";
 
 import Services from './services/services';
 
+import { initializeLogging } from './lib/logging';
+
+try {
+    initializeLogging();
+}
+catch (e) {
+    console.log('logging error', e);
+}
+
 Services.CreateDb().initialize().then(() => {
     Services.DiscoverStation().startServiceDiscovery();
 
