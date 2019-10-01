@@ -149,7 +149,7 @@ export default class QueryStation {
     }
 
     _fixupStatus(reply) {
-        if (reply.errors) {
+        if (reply.errors && reply.errors.length > 0) {
             return reply;
         }
         // NOTE deepmerge ruins deviceId.
