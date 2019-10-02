@@ -7,6 +7,7 @@
             <Label text="temporary buttons" class="size-14 text-center m-t-20 m-b-20" />
             <Button class="btn btn-primary" text="Copy Logs" @tap="copyLogs"></Button>
             <Button class="btn btn-primary" text="Delete DB" @tap="deleteDB"></Button>
+            <Button class="btn btn-primary" text="Delete app copies of station data" @tap="deleteFiles"></Button>
         </StackLayout>
     </Page>
 </template>
@@ -15,6 +16,7 @@
 import routes from "../routes";
 import { sendLogs } from '../lib/logging';
 import Services from '../services/services';
+import { knownFolders } from "tns-core-modules/file-system";
 
 const createDB = Services.CreateDb();
 
@@ -39,6 +41,15 @@ export default {
             createDB.initialize(userInvokedDelete).then(result => {
                 this.$stationMonitor.clearStations();
             });
+        },
+        deleteFiles() {
+            const dataFolder = knownFolders.currentApp().getFolder("FieldKitData");
+            dataFolder.remove()
+                .then(() => {
+                    console.log("Data folder successfully deleted");
+                }).catch((err) => {
+                    console.log("Error removing data folder", err.stack);
+                });
         }
     }
 };
