@@ -225,6 +225,8 @@ export default class CreateDB {
         station.battery_level = Math.floor(Math.random() * Math.floor(100));
         station.available_memory = Math.floor(Math.random() * Math.floor(100));
         station.connected = 0;
+        station.longitude = -122.65397644042969;
+        station.latitude = 45.500099182128906;
         return this.dbInterface.insertStation(station).then(id => {
             station.id = id;
             station.modules.map(m => {

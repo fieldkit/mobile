@@ -240,7 +240,7 @@ export default class DatabaseInterface {
 
     insertStation(station, status_json) {
         const newStation = new Station(station);
-        return this.database.execute(`INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, interval, status_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        return this.database.execute(`INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.name,
@@ -250,7 +250,9 @@ export default class DatabaseInterface {
                 newStation.connected,
                 newStation.available_memory,
                 newStation.interval,
-                JSON.stringify(status_json)
+                JSON.stringify(status_json),
+                newStation.longitude,
+                newStation.latitude
             ]
         );
     }
@@ -354,5 +356,7 @@ class Station {
         this.available_memory = _station.available_memory;
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
         this.connected = _station.connected ? _station.connected : 0;
+        this.longitude = _station.longitude;
+        this.latitude = _station.latitude;
     }
 }

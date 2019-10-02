@@ -221,7 +221,9 @@ export default class StationMonitor extends Observable {
             status: recordingStatus,
             connected: 1,
             battery_level: deviceStatus.power.battery.percentage,
-            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2)
+            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
+            longitude: deviceStatus.gps.longitude,
+            latitude: deviceStatus.gps.latitude
         };
         this.dbInterface.insertStation(station, data.result).then(id => {
             station.id = id;
