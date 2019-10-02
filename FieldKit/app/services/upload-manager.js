@@ -129,9 +129,4 @@ export default class UploadManager {
             });
         });
     }
-
-    _getStationFolder(station) {
-        const data = knownFolders.currentApp();
-        return data.getFolder(station.deviceId);
-    }
 }
