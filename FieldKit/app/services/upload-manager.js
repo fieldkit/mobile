@@ -96,7 +96,9 @@ export default class UploadManager {
                     station: {
                         deviceId: deviceId,
                     },
-                    progress: rv.progress,
+                    progress: Math.round(rv.progress),
+                    currentSize: e.currentBytes,
+                    totalSize: e.totalBytes
                 });
                 log('progress', rv);
             });
