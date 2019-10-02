@@ -104,6 +104,13 @@ export default class StationMonitor extends Observable {
         if (result.errors.length > 0 || station.device_id != result.status.identity.deviceId) {
             return;
         }
+        // now that db can be cleared, might need to re-add stations
+        const key = this.makeKey(station);
+        if(!this.stations[key]) {
+            this.checkDatabase(station);
+            return
+        }
+
         station.connected = 1;
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
@@ -119,6 +126,13 @@ export default class StationMonitor extends Observable {
         if (result.errors.length > 0 || station.device_id != result.status.identity.deviceId) {
             return;
         }
+        // now that db can be cleared, might need to re-add stations
+        const key = this.makeKey(station);
+        if(!this.stations[key]) {
+            this.checkDatabase(station);
+            return
+        }
+
         station.connected = 1;
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
