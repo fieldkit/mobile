@@ -48,8 +48,9 @@ export default {
 
     computed: {
         stationStatus: function() {
-            const bytes = this.pending.station;
-            return `This station has ${bytes} of data waiting to be downloaded.`;
+            const bytes = this.pending.station.bytes;
+            const records = this.pending.station.records;
+            return `This station has ${bytes} of data waiting to be downloaded (${records} records).`;
         },
 
         portalStatus: function() {
@@ -61,12 +62,18 @@ export default {
     methods: {
         onLoaded(args) {
             log("loaded");
-            Services.StateManager().subscribe(status => {
+
+            const stateManager = Services.StateManager();
+
+            stateManager.subscribe(status => {
                 if (this.station) {
                     const station = status.station.forStation(this.station.id);
                     if (station) {
                         this.pending = {
-                            station: this.convertBytesToLabel(station.pending.bytes),
+                            station: {
+                                bytes: this.convertBytesToLabel(station.pending.bytes),
+                                records: station.pending.records,
+                            },
                             portal: this.convertBytesToLabel(status.portal.pending.bytes)
                         };
                     }

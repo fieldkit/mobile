@@ -267,6 +267,8 @@
 import routes from "../routes";
 import StationFooterTabs from './StationFooterTabs';
 import Services from '../services/services';
+import { hexStringToByteWiseString } from "../lib/utilities";
+import { Build } from "../config";
 
 const stateManager = Services.StateManager();
 const dbInterface = Services.Database();
@@ -292,11 +294,11 @@ export default {
                 firmware: "1.0",
                 firmwareBuild: "1.0",
                 device: "1.0",
-                appBuildTime: FK_BUILD_TIMESTAMP,
-                appBuildNumber: FK_BUILD_NUMBER,
-                appBuildTag: FK_BUILD_TAG,
-                appCommit: this.split(FK_GIT_COMMIT),
-                appBranch: FK_GIT_BRANCH
+                appBuildTime: Build.buildTime,
+                appBuildNumber: Build.buildTime,
+                appBuildTag: Build.buildTime,
+                appCommit: hexStringToByteWiseString(Build.commit),
+                appBranch: Build.branch,
             }
         };
     },
@@ -313,8 +315,8 @@ export default {
             if(deviceStatus && deviceStatus.status.identity) {
                 let chunks = deviceStatus.status.identity.build.split("_");
                 this.versions.firmwareBuild = chunks[chunks.length-2] + "_" + chunks[chunks.length-1];
-                this.versions.device = this.split(deviceStatus.status.identity.deviceId);
-                this.versions.firmware = this.split(deviceStatus.status.identity.firmware);
+                this.versions.device = hexStringToByteWiseString(deviceStatus.status.identity.deviceId);
+                this.versions.firmware = hexStringToByteWiseString(deviceStatus.status.identity.firmware);
             }
             if(deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks;
@@ -558,13 +560,6 @@ export default {
 
         goToLogin() {
             this.$navigateTo(routes.login);
-        },
-
-        split(str) {
-            str = str.split("").map((c,i) => {
-                return (i+1) % 2 == 0 ? c + " " : c;
-            });
-            return str.join("");
         }
     }
 };

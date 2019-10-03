@@ -46,7 +46,9 @@ if (Config.developer.machine) {
 Vue.use(RadChart);
 
 // Uncommment the following to see NativeScript-Vue output logs
-// Vue.config.silent = false;
+if (Config.vue.verbose) {
+    Vue.config.silent = false;
+}
 
 new Vue({
     render: h => h("frame", [h(Services.PortalInterface().isLoggedIn() ? routes.home : routes.login)])

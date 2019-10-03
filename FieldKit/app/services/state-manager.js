@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Observable } from "tns-core-modules/data/observable";
 import { BetterObservable } from './rx';
 
@@ -19,6 +20,7 @@ export default class StateManager extends BetterObservable {
         this.stationMonitor.on(Observable.propertyChangeEvent, data => {
             switch (data.propertyName.toString()) {
             case this.stationMonitor.StationRefreshedProperty: {
+                console.log(this.stationMonitor.StationRefreshedProperty, data);
                 this.refresh();
                 break;
             }
@@ -35,13 +37,6 @@ export default class StateManager extends BetterObservable {
     synchronizeStation(deviceId) {
         log("synchronizeStation");
         return this.downloadManager.startSynchronizeStation(deviceId).then(() => {
-            return this.refresh();
-        });
-    }
-
-    synchronizeConnectedStations() {
-        log("synchronizeConnectedStations");
-        return this.downloadManager.synchronizeConnectedStations().then(() => {
             return this.refresh();
         });
     }
@@ -67,5 +62,22 @@ export default class StateManager extends BetterObservable {
 
     getValue() {
         return this.getStatus();
+    }
+
+    refreshSyncStatus(station) {
+        if (this.portalInterface.isLoggedIn()) {
+            // TODO Move to deviceId
+            if (!station.deviceId && station.device_id) {
+                station.deviceId = station.device_id;
+            }
+            return this.portalInterface.getStationSyncState(station.deviceId).then(summary => {
+                return this.databaseInterface.updateStationFromPortal(station, summary).then(status => {
+                    log(status);
+                });
+            }).catch(error => {
+                console.log('error', error);
+            });
+        }
+        return Promise.reject();
     }
 }

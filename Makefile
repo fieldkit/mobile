@@ -54,3 +54,12 @@ ios-release: setup
 	cd $(APP) && tns build ios --team-id || true
 	cd $(APP) && tns build ios --provision "Conservify Ad Hoc" --for-device
 	cd $(APP) && tns build ios --provision "Conservify Ad Hoc" --for-device --release
+
+android-logs:
+	adb logcat | grep -i " JS" | grep -v NSVue
+
+android-logs-verbose:
+	adb logcat | grep -i " JS"
+
+android-debug:
+	cd FieldKit && tns debug android --bundle --no-hmr | grep -v NSVue

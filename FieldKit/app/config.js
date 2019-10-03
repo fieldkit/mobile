@@ -26,6 +26,9 @@ function get_developer_config() {
 
 const configs = {
     default: {
+        vue: {
+            verbose: false,
+        },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
@@ -35,6 +38,9 @@ const configs = {
         includeInternalSensors: false
     },
     test: {
+        vue: {
+            verbose: false,
+        },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
@@ -69,3 +75,11 @@ final.logger = (name) => {
 };
 
 export default final;
+
+export const Build = {
+    buildTime: FK_BUILD_TIMESTAMP || '',
+    buildNumber: FK_BUILD_NUMBER || '',
+    buildTag: FK_BUILD_TAG || '',
+    commit: FK_GIT_COMMIT || '',
+    branch: FK_GIT_BRANCH || '',
+};
