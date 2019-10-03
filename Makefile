@@ -57,3 +57,9 @@ ios-release: setup
 
 android-logs:
 	adb logcat | grep -i " JS" | grep -v NSVue
+
+android-logs-verbose:
+	adb logcat | grep -i " JS"
+
+android-debug:
+	cd FieldKit && tns debug android --bundle --no-hmr | grep -v NSVue

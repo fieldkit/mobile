@@ -26,6 +26,9 @@ function get_developer_config() {
 
 const configs = {
     default: {
+        vue: {
+            verbose: false,
+        },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
@@ -35,6 +38,9 @@ const configs = {
         includeInternalSensors: false
     },
     test: {
+        vue: {
+            verbose: false,
+        },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
