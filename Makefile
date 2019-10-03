@@ -54,3 +54,6 @@ ios-release: setup
 	cd $(APP) && tns build ios --team-id || true
 	cd $(APP) && tns build ios --provision "Conservify Ad Hoc" --for-device
 	cd $(APP) && tns build ios --provision "Conservify Ad Hoc" --for-device --release
+
+android-logs:
+	adb logcat | grep -i " JS" | grep -v NSVue
