@@ -308,7 +308,7 @@ export default class DatabaseInterface {
         });
     }
 
-    getStationByStationIds(ids) {
+    getStreamsByStationIds(ids) {
         return this.getDatabase().then(db => db.query(`SELECT * FROM streams WHERE station_id IN ($1)`, ids)).then(rows => {
             return sqliteToJs(rows);
         });
