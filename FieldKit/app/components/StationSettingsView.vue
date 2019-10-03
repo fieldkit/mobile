@@ -267,7 +267,7 @@
 import routes from "../routes";
 import StationFooterTabs from './StationFooterTabs';
 import Services from '../services/services';
-import { hex_string_to_byte_wise_string } from "../lib/utilities";
+import { hexStringToByteWiseString } from "../lib/utilities";
 import { Build } from "../config";
 
 const stateManager = Services.StateManager();
@@ -297,7 +297,7 @@ export default {
                 appBuildTime: Build.buildTime,
                 appBuildNumber: Build.buildTime,
                 appBuildTag: Build.buildTime,
-                appCommit: hex_string_to_byte_wise_string(Build.commit),
+                appCommit: hexStringToByteWiseString(Build.commit),
                 appBranch: Build.branch,
             }
         };
@@ -315,8 +315,8 @@ export default {
             if(deviceStatus && deviceStatus.status.identity) {
                 let chunks = deviceStatus.status.identity.build.split("_");
                 this.versions.firmwareBuild = chunks[chunks.length-2] + "_" + chunks[chunks.length-1];
-                this.versions.device = hex_string_to_byte_wise_string(deviceStatus.status.identity.deviceId);
-                this.versions.firmware = hex_string_to_byte_wise_string(deviceStatus.status.identity.firmware);
+                this.versions.device = hexStringToByteWiseString(deviceStatus.status.identity.deviceId);
+                this.versions.firmware = hexStringToByteWiseString(deviceStatus.status.identity.firmware);
             }
             if(deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks;
