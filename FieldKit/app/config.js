@@ -75,3 +75,11 @@ final.logger = (name) => {
 };
 
 export default final;
+
+export const Build = {
+    buildTime: FK_BUILD_TIMESTAMP || '',
+    buildNumber: FK_BUILD_NUMBER || '',
+    buildTag: FK_BUILD_TAG || '',
+    commit: FK_GIT_COMMIT || '',
+    branch: FK_GIT_BRANCH || '',
+};
