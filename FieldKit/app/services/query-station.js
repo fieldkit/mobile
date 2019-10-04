@@ -27,6 +27,10 @@ const MandatoryStatus = {
         },
         recording: {
             enabled: false,
+        },
+        gps: {
+            latitude: 0,
+            longitude: 0
         }
     },
 };
