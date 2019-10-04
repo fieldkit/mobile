@@ -51,10 +51,10 @@ describe("DatabaseInterface", () => {
     test("setStationPortalID should set a station's portal id", async () => {
         const data = await dbInterface.getStation(1);
         const portalId = 28;
-        data[0].portal_id = portalId;
+        data[0].portalId = portalId;
         const change = await dbInterface.setStationPortalID(data[0]);
         const newData = await dbInterface.getStation(1);
-        expect(newData[0].portal_id).toEqual(portalId);
+        expect(newData[0].portalId).toEqual(portalId);
     });
 
     test("setStationLocationCoordinates should set a station's coordinates", async () => {
@@ -82,10 +82,10 @@ describe("DatabaseInterface", () => {
     test("setStationLocationName should set a station's location name", async () => {
         const data = await dbInterface.getStation(1);
         const newLocationName = "Alvord Desert";
-        data[0].location_name = newLocationName;
+        data[0].locationName = newLocationName;
         const change = await dbInterface.setStationLocationName(data[0]);
         const newData = await dbInterface.getStation(1);
-        expect(newData[0].location_name).toEqual(newLocationName);
+        expect(newData[0].locationName).toEqual(newLocationName);
     });
 
     test("setStationInterval should set a station's interval", async () => {
@@ -100,46 +100,55 @@ describe("DatabaseInterface", () => {
     test("setStationDeployImage should set a station's deployment image", async () => {
         const data = await dbInterface.getStation(1);
         const imageName = "toadstools_and_waterfall.jpg";
-        data[0].deploy_image_name = imageName;
+        data[0].deployImageName = imageName;
         const change = await dbInterface.setStationDeployImage(data[0]);
         const newData = await dbInterface.getStation(1);
-        expect(newData[0].deploy_image_name).toEqual(imageName);
+        expect(newData[0].deployImageName).toEqual(imageName);
     });
 
     test("setStationDeployImageLabel should set a station's deployment image label", async () => {
         const data = await dbInterface.getStation(1);
         const imageLabel = "We left the station next to the toadstools.";
-        data[0].deploy_image_label = imageLabel;
+        data[0].deployImageLabel = imageLabel;
         const change = await dbInterface.setStationDeployImageLabel(data[0]);
         const newData = await dbInterface.getStation(1);
-        expect(newData[0].deploy_image_label).toEqual(imageLabel);
+        expect(newData[0].deployImageLabel).toEqual(imageLabel);
     });
 
     test("setStationDeployNote should set a station's deployment note", async () => {
         const data = await dbInterface.getStation(1);
         const note =
             "If you can't find the station, check the hollow in the fir to the left of the waterfall.";
-        data[0].deploy_note = note;
+        data[0].deployNote = note;
         const change = await dbInterface.setStationDeployNote(data[0]);
         const newData = await dbInterface.getStation(1);
-        expect(newData[0].deploy_note).toEqual(note);
+        expect(newData[0].deployNote).toEqual(note);
     });
 
     test("setStationDeployAudio should set a station's deployment audio file", async () => {
         const data = await dbInterface.getStation(1);
         const audioFiles = "Audio recording Jul 24 2019.m4a,Audio recording Jul 24 2019 2.m4a";
-        data[0].deploy_audio_files = audioFiles;
+        data[0].deployAudioFiles = audioFiles;
         const change = await dbInterface.setStationDeployAudio(data[0]);
         const newData = await dbInterface.getStation(1);
-        expect(newData[0].deploy_audio_files).toEqual(audioFiles);
+        expect(newData[0].deployAudioFiles).toEqual(audioFiles);
+    });
+
+    test("setStationDeployStartTime should set a station's deployment start time", async () => {
+        const data = await dbInterface.getStation(1);
+        const startTime = Date.now();
+        data[0].deployStartTime = startTime;
+        const change = await dbInterface.setStationDeployStartTime(data[0]);
+        const newData = await dbInterface.getStation(1);
+        expect(newData[0].deployStartTime).toEqual(startTime);
     });
 
     test("recordStationConfigChange should record a station configuration change", async () => {
         const configChange = {
-            station_id: 1,
+            stationId: 1,
             before: "Ye Olde Name",
             after: "Shiny New Name",
-            affected_field: "name",
+            affectedField: "name",
             author: "tester"
         };
         const change = await dbInterface.recordStationConfigChange(configChange);
@@ -177,10 +186,10 @@ describe("DatabaseInterface", () => {
 
     test("recordModuleConfigChange should record a module configuration change", async () => {
         const configChange = {
-            module_id: 1,
+            moduleId: 1,
             before: "Water Module 2",
             after: "Indian Ocean Module",
-            affected_field: "name",
+            affectedField: "name",
             author: "tester"
         };
         const change = await dbInterface.recordModuleConfigChange(configChange);

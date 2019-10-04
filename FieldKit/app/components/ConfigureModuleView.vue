@@ -233,10 +233,10 @@ export default {
             if (valid && this.module.origName != this.module.name) {
                 dbInterface.setModuleName(this.module);
                 let configChange = {
-                    module_id: this.module.id,
+                    moduleId: this.module.id,
                     before: this.module.origName,
                     after: this.module.name,
-                    affected_field: "name",
+                    affectedField: "name",
                     author: this.userName
                 };
                 dbInterface.recordModuleConfigChange(configChange);
@@ -326,10 +326,10 @@ export default {
                 if (this.origInterval != this.module.interval) {
                     dbInterface.setModuleInterval(this.module);
                     let configChange = {
-                        module_id: this.module.id,
+                        moduleId: this.module.id,
                         before: this.origInterval,
                         after: this.module.interval,
-                        affected_field: "interval",
+                        affectedField: "interval",
                         author: this.userName
                     };
                     dbInterface.recordModuleConfigChange(configChange);

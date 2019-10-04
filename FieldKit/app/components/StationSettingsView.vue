@@ -311,7 +311,7 @@ export default {
             this.page = args.object;
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
-            let deviceStatus = JSON.parse(this.station.status_json);
+            let deviceStatus = JSON.parse(this.station.statusJson);
             if(deviceStatus && deviceStatus.status.identity) {
                 let chunks = deviceStatus.status.identity.build.split("_");
                 this.versions.firmwareBuild = chunks[chunks.length-2] + "_" + chunks[chunks.length-1];
@@ -390,10 +390,10 @@ export default {
                 /*
                 NOTE:  Left for the moment. I think we'll have to come back and do the fancy config tracking later.
                 let configChange = {
-                    station_id: this.station.id,
+                    stationId: this.station.id,
                     before: this.station.origName,
                     after: this.station.name,
-                    affected_field: "name",
+                    affectedField: "name",
                     author: this.user.name
                 }
                 dbInterface.recordStationConfigChange(configChange);
@@ -421,23 +421,23 @@ export default {
             // update db
             dbInterface.setStationDeployStatus(this.station);
             let configChange = {
-                station_id: this.station.id,
+                stationId: this.station.id,
                 before: priorValue,
                 after: this.station.status,
-                affected_field: "status",
+                affectedField: "status",
                 author: this.userName
             };
             dbInterface.recordStationConfigChange(configChange);
 
             // update portal
-            if (this.station.portal_id && this.station.url != "no_url") {
+            if (this.station.portalId && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
-                    device_id: this.station.device_id,
+                    device_id: this.station.deviceId,
                     status_json: this.station
                 };
                 return this.$portalInterface
-                    .updateStation(params, this.station.portal_id)
+                    .updateStation(params, this.station.portalId)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
                         return Promise.resolve();
@@ -465,10 +465,10 @@ export default {
 
             queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
                 this.networks = result.networkSettings.networks;
-                // in order to match in the interim, must edit station.status_json
+                // in order to match in the interim, must edit station.statusJson
                 this.deviceStatus.networkSettings = result.networkSettings;
                 let status = JSON.stringify(this.deviceStatus);
-                this.station.status_json = status;
+                this.station.statusJson = status;
             });
         },
 
@@ -480,10 +480,10 @@ export default {
             }
             queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
                 this.networks = result.networkSettings.networks;
-                // in order to match in the interim, must edit station.status_json
+                // in order to match in the interim, must edit station.statusJson
                 this.deviceStatus.networkSettings = result.networkSettings;
                 let status = JSON.stringify(this.deviceStatus);
-                this.station.status_json = status;
+                this.station.statusJson = status;
             });
         },
 
@@ -538,9 +538,9 @@ export default {
                 queryStation.sendLoraSettings(this.station.url, sendableLora).then(result => {
                     // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
                     // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
-                    // in order to match in the interim, must edit station.status_json
+                    // in order to match in the interim, must edit station.statusJson
 
-                    // NOTE: appEui and appKey currently aren't sent in status_json, so they
+                    // NOTE: appEui and appKey currently aren't sent in statusJson, so they
                     // won't be preserved after exiting this view
 
                     // console.log("response from station after adding", result.loraSettings)

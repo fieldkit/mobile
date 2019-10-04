@@ -11,8 +11,8 @@
             <!-- battery level -->
             <StackLayout row="0" col="1">
                 <FlexboxLayout class="m-10" justifyContent="flex-end">
-                    <Label class="m-r-5 size-12" :text="station.battery_level + '%'"></Label>
-                    <Image width="25" :src="station.battery_image"></Image>
+                    <Label class="m-r-5 size-12" :text="station.batteryLevel + '%'"></Label>
+                    <Image width="25" :src="station.batteryImage"></Image>
                 </FlexboxLayout>
             </StackLayout>
             <!-- recording time -->
@@ -42,7 +42,7 @@
                     <Label row="1" col="1"
                         class="m-l-10 m-t-5 m-b-10 size-12"
                         horizontalAlignment="left"
-                        :text="station.available_memory + '%'"></Label>
+                        :text="station.availableMemory + '%'"></Label>
                     <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container" >
                         <StackLayout row="0" class="memory-bar"></StackLayout>
                         <StackLayout row="0" class="memory-bar"
@@ -72,9 +72,9 @@ export default {
             elapsedRecTime: "00:00:00",
             elapsedTimeLabel: "hrs min sec",
             station: {
-                available_memory: 0,
-                battery_level: 0,
-                battery_image: "~/images/Icon_Battery_0.png",
+                availableMemory: 0,
+                batteryLevel: 0,
+                batteryImage: "~/images/Icon_Battery_0.png",
                 connected: 0,
                 status: ""
             }
@@ -101,23 +101,23 @@ export default {
                 this.intervalTimer = setInterval(this.displayElapsedTime, 1000);
             }
             this.setBatteryImage();
-            this.station.occupiedMemory = 100 - this.station.available_memory;
-            this.station.available_memory = parseFloat(this.station.available_memory).toFixed(2);
+            this.station.occupiedMemory = 100 - this.station.availableMemory;
+            this.station.availableMemory = parseFloat(this.station.availableMemory).toFixed(2);
             this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
         },
 
         updateStatus(data) {
             this.station.connected = 1;
-            this.station.battery_level = data.batteryLevel;
+            this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
             this.station.occupiedMemory = data.consumedMemory.toFixed(2);
-            this.station.available_memory = 100 - this.station.occupiedMemory;
+            this.station.availableMemory = 100 - this.station.occupiedMemory;
             this.page.addCss("#station-memory-bar {width: " + this.station.occupiedMemory + "%;}");
         },
 
         setBatteryImage() {
             let image = "~/images/Icon_Battery";
-            let battery = this.station.battery_level;
+            let battery = this.station.batteryLevel;
             if(battery == 0) {
                 image += "_0.png";
             } else if(battery <= 20) {
@@ -131,15 +131,15 @@ export default {
             } else {
                 image += "_100.png";
             }
-            this.station.battery_image = image;
+            this.station.batteryImage = image;
         },
 
         displayElapsedTime() {
-            if(!this.station.deploy_start_time) {
+            if(!this.station.deployStartTime) {
                 return
             }
             let now = new Date();
-            let elapsedMillis = now - this.station.deploy_start_time;
+            let elapsedMillis = now - this.station.deployStartTime;
 
             let seconds = Math.floor((elapsedMillis / 1000) % 60);
             seconds = seconds < 10 ? "0" + seconds : seconds;

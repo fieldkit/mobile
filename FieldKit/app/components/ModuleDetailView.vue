@@ -192,7 +192,7 @@ export default {
                 s.readings = [];
                 // generate faux readings, if not a real device
                 if(this.station.url == "no_url") {
-                    let low = s.current_reading / 2;
+                    let low = s.currentReading / 2;
                     for (var i = 0; i < numReadings; i++) {
                         let reading = Math.random() * low + low;
                         s.readings.push({ time: i, reading: reading });
@@ -299,10 +299,10 @@ export default {
                 this.module.graphs = graphs;
                 dbInterface.setModuleGraphs(this.module);
                 let configChange = {
-                    module_id: this.module.id,
+                    moduleId: this.module.id,
                     before: this.module.origGraphs,
                     after: this.module.graphs,
-                    affected_field: "graphs",
+                    affectedField: "graphs",
                     author: this.userName
                 };
                 dbInterface.recordModuleConfigChange(configChange);

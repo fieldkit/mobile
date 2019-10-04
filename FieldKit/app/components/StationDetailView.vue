@@ -210,31 +210,22 @@ export default {
             return dbInterface.getModules(this.station.id);
         },
 
-        linkModulesAndSensors(results) {
-            results.forEach(r => {
-                r.resultPromise.then(sensors => {
-                    r.module.sensorObjects = sensors;
-                });
-            });
-        },
-
         getSensors(moduleObject) {
-            let result = dbInterface.getSensors(moduleObject.id);
-            return { resultPromise: result, module: moduleObject };
+            return dbInterface.getSensors(moduleObject.id).then(sensors => {
+                moduleObject.sensorObjects = sensors;
+            });
         },
 
         setupModules(modules) {
             this.station.moduleObjects = modules;
-            return Promise.all(this.station.moduleObjects.map(this.getSensors)).then(
-                this.linkModulesAndSensors
-            );
+            return Promise.all(this.station.moduleObjects.map(this.getSensors));
         },
 
         completeSetup() {
             this.loading = false;
             clearInterval(this.intervalTimer);
-            if(this.station.deploy_start_time && typeof this.station.deploy_start_time == "string") {
-                this.station.deploy_start_time = new Date(this.station.deploy_start_time);
+            if(this.station.deployStartTime && typeof this.station.deployStartTime == "string") {
+                this.station.deployStartTime = new Date(this.station.deployStartTime);
             }
             if(this.station.status == "recording") {this.setDeployedStatus();}
             this.$refs.statusBox.updateStation(this.station);
@@ -242,17 +233,17 @@ export default {
             this.station.origName = this.station.name;
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
-            // so stations will not retain these saved portal_ids
-            if (!this.station.portal_id && this.station.url != "no_url") {
+            // so stations will not retain these saved portalIds
+            if (!this.station.portalId && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
-                    device_id: this.station.device_id,
+                    device_id: this.station.deviceId,
                     status_json: this.station
                 };
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
-                        this.station.portal_id = stationPortalId;
+                        this.station.portalId = stationPortalId;
                         dbInterface.setStationPortalID(this.station);
                     });
             }
@@ -273,13 +264,13 @@ export default {
         },
 
         setDeployedStatus() {
-            if(!this.station.deploy_start_time) {
+            if(!this.station.deployStartTime) {
                 this.deployedStatus = "Deployed";
                 return
             }
-            let month = this.station.deploy_start_time.getMonth() + 1;
-            let day = this.station.deploy_start_time.getDate();
-            let year = this.station.deploy_start_time.getFullYear();
+            let month = this.station.deployStartTime.getMonth() + 1;
+            let day = this.station.deployStartTime.getDate();
+            let year = this.station.deployStartTime.getFullYear();
             this.deployedStatus = "Deployed (" + month + "/" + day + "/" + year + ")";
         },
 

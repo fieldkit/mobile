@@ -190,16 +190,16 @@ export default {
             if(this.station.status == "recording") {
                 this.isRecordingData = true;
             }
-            this.noteText = this.station.deploy_note;
+            this.noteText = this.station.deployNote;
             this.origNote = this.noteText;
-            this.recordings = this.station.deploy_audio_files;
+            this.recordings = this.station.deployAudioFiles;
             this.origRecordings = this.recordings;
             if (this.recordings) {
                 this.displayRecordings = this.recordings.split(",");
             }
             this.deployImageName = this.station.id + "_deploy.jpg";
-            this.origLabel = this.station.deploy_image_label;
-            this.origImageName = this.station.deploy_image_name;
+            this.origLabel = this.station.deployImageLabel;
+            this.origImageName = this.station.deployImageName;
             this.pathDest = path.join(folder.path, this.deployImageName);
             if (this.origImageName && this.origImageName.length > 0) {
                 // load previously saved image
@@ -301,17 +301,17 @@ export default {
         },
 
         saveRecordings() {
-            this.station.deploy_audio_files = this.displayRecordings.join(",");
+            this.station.deployAudioFiles = this.displayRecordings.join(",");
             dbInterface.setStationDeployAudio(this.station);
             let configChange = {
-                station_id: this.station.id,
+                stationId: this.station.id,
                 before: this.origRecordings,
-                after: this.station.deploy_audio_files,
-                affected_field: "deploy_audio_files",
+                after: this.station.deployAudioFiles,
+                affectedField: "deployAudioFiles",
                 author: this.userName
             };
             dbInterface.recordStationConfigChange(configChange);
-            this.origRecordings = this.station.deploy_audio_files;
+            this.origRecordings = this.station.deployAudioFiles;
         },
 
         playAudio(event) {
@@ -393,13 +393,13 @@ export default {
                 imageSource => {
                     let saved = imageSource.saveToFile(this.pathDest, "jpg");
                     if (saved) {
-                        this.station.deploy_image_name = this.deployImageName;
+                        this.station.deployImageName = this.deployImageName;
                         dbInterface.setStationDeployImage(this.station);
                         let configChange = {
-                            station_id: this.station.id,
+                            stationId: this.station.id,
                             before: this.origImageName,
                             after: this.deployImageName,
-                            affected_field: "deploy_image_name",
+                            affectedField: "deployImageName",
                             author: this.userName
                         };
                         dbInterface.recordStationConfigChange(configChange);
@@ -414,13 +414,13 @@ export default {
 
         saveLabel() {
             if (this.origLabel != this.labelText) {
-                this.station.deploy_image_label = this.labelText;
+                this.station.deployImageLabel = this.labelText;
                 dbInterface.setStationDeployImageLabel(this.station);
                 let configChange = {
-                    station_id: this.station.id,
+                    stationId: this.station.id,
                     before: this.origLabel,
                     after: this.labelText,
-                    affected_field: "deploy_image_label",
+                    affectedField: "deployImageLabel",
                     author: this.userName
                 };
                 dbInterface.recordStationConfigChange(configChange);
@@ -439,13 +439,13 @@ export default {
             }
 
             if (this.origNote != this.noteText) {
-                this.station.deploy_note = this.noteText;
+                this.station.deployNote = this.noteText;
                 dbInterface.setStationDeployNote(this.station);
                 let configChange = {
-                    station_id: this.station.id,
+                    stationId: this.station.id,
                     before: this.origNote,
                     after: this.noteText,
-                    affected_field: "deploy_note",
+                    affectedField: "deployNote",
                     author: this.userName
                 };
                 dbInterface.recordStationConfigChange(configChange);
@@ -472,7 +472,7 @@ export default {
             this.station.status = "recording";
             event.object.text = _L("stopRecording");
 
-            this.station.deploy_start_time = new Date();
+            this.station.deployStartTime = new Date();
             dbInterface.setStationDeployStartTime(this.station);
 
             queryStation.startDataRecording(this.station.url).then(result => {
@@ -502,23 +502,23 @@ export default {
             // update db
             dbInterface.setStationDeployStatus(this.station);
             let configChange = {
-                station_id: this.station.id,
+                stationId: this.station.id,
                 before: priorValue,
                 after: this.station.status,
-                affected_field: "status",
+                affectedField: "status",
                 author: this.userName
             };
             dbInterface.recordStationConfigChange(configChange);
 
             // update portal
-            if (this.station.portal_id && this.station.url != "no_url") {
+            if (this.station.portalId && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
-                    device_id: this.station.device_id,
+                    device_id: this.station.deviceId,
                     status_json: this.station
                 };
                 return this.$portalInterface
-                    .updateStation(params, this.station.portal_id)
+                    .updateStation(params, this.station.portalId)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
                         return Promise.resolve();

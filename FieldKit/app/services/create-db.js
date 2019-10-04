@@ -228,8 +228,8 @@ export default class CreateDB {
 
     addStation(station) {
         // these numbers are only generated for seeded stations
-        station.battery_level = Math.floor(Math.random() * Math.floor(100));
-        station.available_memory = Math.floor(Math.random() * Math.floor(100));
+        station.batteryLevel = Math.floor(Math.random() * Math.floor(100));
+        station.availableMemory = Math.floor(Math.random() * Math.floor(100));
         station.connected = 0;
         station.longitude = -122.65397644042969;
         station.latitude = 45.500099182128906;
@@ -273,7 +273,7 @@ export default class CreateDB {
     }
 
     insertSensor(sensor) {
-        sensor.current_reading = this.generateReading(sensor.name);
+        sensor.currentReading = this.generateReading(sensor.name);
         return this.dbInterface.insertSensor(sensor);
     }
 

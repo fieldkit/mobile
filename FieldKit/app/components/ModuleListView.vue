@@ -85,7 +85,7 @@ export default {
             this.modules.forEach(m => {
                 this.open.push(m.id);
                 m.sensorObjects.forEach(s => {
-                    s.displayReading = s.current_reading ? s.current_reading.toFixed(1) : "--";
+                    s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--";
                     s.icon = "~/images/Icon_Neutral.png";
                 });
             });
@@ -96,9 +96,9 @@ export default {
                 let sensors = []
                 m.sensorObjects.forEach(s => {
                     if (liveReadings && liveReadings[m.name + s.name]) {
-                        let prevReading = s.current_reading ? +s.current_reading.toFixed(1) : 0;
+                        let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0;
                         let newReading = +liveReadings[m.name + s.name].toFixed(1);
-                        s.current_reading = newReading;
+                        s.currentReading = newReading;
                         s.displayReading = newReading;
                         dbInterface.setCurrentReading(s);
 

@@ -20,7 +20,7 @@ export default class StateManager extends BetterObservable {
         this.stationMonitor.on(Observable.propertyChangeEvent, data => {
             switch (data.propertyName.toString()) {
             case this.stationMonitor.StationRefreshedProperty: {
-                console.log(this.stationMonitor.StationRefreshedProperty, data);
+                log(this.stationMonitor.StationRefreshedProperty, data);
                 this.refresh();
                 break;
             }
@@ -66,10 +66,6 @@ export default class StateManager extends BetterObservable {
 
     refreshSyncStatus(station) {
         if (this.portalInterface.isLoggedIn()) {
-            // TODO Move to deviceId
-            if (!station.deviceId && station.device_id) {
-                station.deviceId = station.device_id;
-            }
             return this.portalInterface.getStationSyncState(station.deviceId).then(summary => {
                 return this.databaseInterface.updateStationFromPortal(station, summary).then(status => {
                     log(status);

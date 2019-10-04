@@ -70,9 +70,6 @@ export default class DownloadManager {
         }
 
         const stations = this.stationMonitor.getStations().filter(s => {
-            if (!s.deviceId && s.device_id) {
-                s.deviceId = s.device_id;
-            }
             log(s);
             log('deviceId', s.deviceId);
             log('url', s.url);

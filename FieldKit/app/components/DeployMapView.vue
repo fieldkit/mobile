@@ -39,7 +39,7 @@
                                 keyboardType="name"
                                 autocorrect="false"
                                 autocapitalizationType="none"
-                                v-model="station.location_name"
+                                v-model="station.locationName"
                                 @focus="toggleLocationEdit"
                                 @blur="checkLocationName"></TextField>
                         </FlexboxLayout>
@@ -195,10 +195,10 @@ export default {
         },
 
         saveOriginalValues() {
-            if (!this.station.location_name) {
-                this.station.location_name = "";
+            if (!this.station.locationName) {
+                this.station.locationName = "";
             }
-            this.origLocationName = this.station.location_name;
+            this.origLocationName = this.station.locationName;
             this.origLatitude = this.station.latitude;
             this.origLongitude = this.station.longitude;
             this.origInterval = this.station.interval;
@@ -250,7 +250,7 @@ export default {
                             this.mapMarker = {
                                 lat: this.station.latitude,
                                 lng: this.station.longitude,
-                                title: this.station.location_name
+                                title: this.station.locationName
                             };
                             this.map.addMarkers([this.mapMarker]);
                             this.saveLocationCoordinates();
@@ -272,7 +272,7 @@ export default {
             // not sure yet what location name validation we'll do
             return true;
             // this.noLocation = false;
-            // this.noLocation = !this.station.location_name || this.station.location_name.length == 0;
+            // this.noLocation = !this.station.locationName || this.station.locationName.length == 0;
             // return !this.noLocation;
         },
 
@@ -281,20 +281,20 @@ export default {
             this.isEditingLocation = false;
 
             let valid = this.checkLocationName();
-            if (valid && this.origLocationName != this.station.location_name) {
+            if (valid && this.origLocationName != this.station.locationName) {
                 if (this.mapMarker) {
-                    this.mapMarker.update({ title: this.station.location_name });
+                    this.mapMarker.update({ title: this.station.locationName });
                 }
                 dbInterface.setStationLocationName(this.station);
                 let configChange = {
-                    station_id: this.station_id,
+                    stationId: this.station.id,
                     before: this.origLocationName,
-                    after: this.station.location_name,
-                    affected_field: "location",
+                    after: this.station.locationName,
+                    affectedField: "location",
                     author: this.userName
                 };
                 dbInterface.recordStationConfigChange(configChange);
-                this.origLocationName = this.station.location_name;
+                this.origLocationName = this.station.locationName;
             }
         },
 
@@ -303,20 +303,20 @@ export default {
                 dbInterface.setStationLocationCoordinates(this.station);
                 // store latitude config change
                 let configChange = {
-                    station_id: this.station_id,
+                    stationId: this.station.id,
                     before: this.origLatitude,
                     after: this.station.latitude,
-                    affected_field: "latitude",
+                    affectedField: "latitude",
                     author: this.userName
                 };
                 dbInterface.recordStationConfigChange(configChange);
                 this.origLatitude = this.station.latitude;
                 // store longitude config change
                 configChange = {
-                    station_id: this.station_id,
+                    stationId: this.station.id,
                     before: this.origLongitude,
                     after: this.station.longitude,
-                    affected_field: "longitude",
+                    affectedField: "longitude",
                     author: this.userName
                 };
                 dbInterface.recordStationConfigChange(configChange);
@@ -400,10 +400,10 @@ export default {
                 if (this.origInterval != this.station.interval) {
                     dbInterface.setStationInterval(this.station);
                     let configChange = {
-                        station_id: this.station.station_id,
+                        stationId: this.station.id,
                         before: this.origInterval,
                         after: this.station.interval,
-                        affected_field: "interval",
+                        affectedField: "interval",
                         author: this.userName
                     };
                     dbInterface.recordStationConfigChange(configChange);
