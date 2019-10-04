@@ -165,7 +165,9 @@ export default class StationMonitor extends Observable {
                         break;
                     }
                     case "stationLost": {
-                        this.deactivateStation(data.value.name);
+                        if(data.value) {
+                            this.deactivateStation(data.value.name);
+                        }
                         break;
                     }
                     default: {
