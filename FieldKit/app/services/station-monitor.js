@@ -34,9 +34,8 @@ export default class StationMonitor extends Observable {
     initializeStations(result) {
         const thisMonitor = this;
         result.map(r => {
-            let key = thisMonitor.makeKey(r);
             r.lastSeen = r.connected ? new Date() : pastDate;
-            thisMonitor.stations[key] = r;
+            thisMonitor.stations[r.deviceId] = r;
         });
 
         let index = 0; // seeded stations cause delay otherwise
@@ -55,8 +54,7 @@ export default class StationMonitor extends Observable {
     }
 
     getStationReadings(station) {
-        let key = this.makeKey(station);
-        return this.stations[key] ? this.stations[key].readings : null;
+        return this.stations[station.deviceId] ? this.stations[station.deviceId].readings : null;
     }
 
     requestInitialReadings(station) {
@@ -80,7 +78,7 @@ export default class StationMonitor extends Observable {
         // if station hasn't been heard from in awhile, disable it
         // (seeded stations exempt for now due to above return statement)
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
-            this.deactivateStation(station);
+            this.deactivateStation(station.deviceId);
         }
 
         if(station.connected == 0) {return}
@@ -101,13 +99,12 @@ export default class StationMonitor extends Observable {
     }
 
     updateStatus(station, result) {
-        if (result.errors.length > 0 || station.device_id != result.status.identity.deviceId) {
+        if (result.errors.length > 0 || station.deviceId != result.status.identity.deviceId) {
             return;
         }
         // now that db can be cleared, might need to re-add stations
-        const key = this.makeKey(station);
-        if(!this.stations[key]) {
-            this.checkDatabase(station);
+        if(!this.stations[station.deviceId]) {
+            this.checkDatabase(station.deviceId, station.url);
             return
         }
 
@@ -123,13 +120,12 @@ export default class StationMonitor extends Observable {
     }
 
     updateStationReadings(station, result) {
-        if (result.errors.length > 0 || station.device_id != result.status.identity.deviceId) {
+        if (result.errors.length > 0 || station.deviceId != result.status.identity.deviceId) {
             return;
         }
         // now that db can be cleared, might need to re-add stations
-        const key = this.makeKey(station);
-        if(!this.stations[key]) {
-            this.checkDatabase(station);
+        if(!this.stations[station.deviceId]) {
+            this.checkDatabase(station.deviceId, station.url);
             return
         }
 
@@ -165,13 +161,11 @@ export default class StationMonitor extends Observable {
         this.discoverStation.on(Observable.propertyChangeEvent, data => {
                 switch (data.propertyName.toString()) {
                     case "stationFound": {
-                        // console.log("StationMonitor received stationFound for", data.value.name);
-                        this.checkDatabase(data.value);
+                        this.checkDatabase(data.value.name, data.value.url);
                         break;
                     }
                     case "stationLost": {
-                        // console.log("StationMonitor received stationLost for", data.value.name);
-                        this.deactivateStation(data.value);
+                        this.deactivateStation(data.value.name);
                         break;
                     }
                     default: {
@@ -186,26 +180,24 @@ export default class StationMonitor extends Observable {
         );
     }
 
-    checkDatabase(data) {
-        const address = data.url;
+    checkDatabase(deviceId, address) {
         this.queryStation
             .getStatus(address)
             .then(statusResult => {
-                const deviceId = statusResult.status.identity.deviceId;
                 return this.dbInterface.getStationByDeviceId(deviceId).then(result => {
                     if (result.length == 0) {
                         return this.addToDatabase({
-                            device_id: deviceId,
+                            deviceId: deviceId,
                             address: address,
                             result: statusResult
                         });
                     } else {
-                        this.reactivateStation(data, result[0], statusResult);
+                        this.reactivateStation(address, result[0], statusResult);
                     }
                 });
             })
             .catch(err => {
-                console.log(err);
+                console.log("error getting status in checkDatabase", err);
             });
     }
 
@@ -214,14 +206,13 @@ export default class StationMonitor extends Observable {
         const modules = data.result.modules;
         const recordingStatus = data.result.status.recording.enabled ? "recording" : "idle";
         const station = {
-            deviceId: data.device_id,
-            device_id: data.device_id,
+            deviceId: data.deviceId,
             name: deviceStatus.identity.device,
             url: data.address,
             status: recordingStatus,
             connected: 1,
-            battery_level: deviceStatus.power.battery.percentage,
-            available_memory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
+            batteryLevel: deviceStatus.power.battery.percentage,
+            availableMemory: 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
             longitude: deviceStatus.gps.longitude.toFixed(6),
             latitude: deviceStatus.gps.latitude.toFixed(6)
         };
@@ -254,66 +245,59 @@ export default class StationMonitor extends Observable {
             return b.lastSeen > a.lastSeen ? 1 : b.lastSeen < a.lastSeen ? -1 : 0;
         });
         stations.forEach((s, i) => {
-            s.sortedIndex = i + "-" + s.device_id;
+            s.sortedIndex = i + "-" + s.deviceId;
         });
         return stations;
     }
 
     activateStation(station) {
         console.log("activating station --------->", station.name);
-        const key = this.makeKey(station);
         station.lastSeen = new Date();
-        this.stations[key] = station;
+        this.stations[station.deviceId] = station;
 
         // start getting readings
         this.requestInitialReadings(station);
 
         this._publishStationsUpdated();
-        this._publishStationRefreshed(this.stations[key]);
+        this._publishStationRefreshed(this.stations[station.deviceId]);
     }
 
-    reactivateStation(discoverStation, databaseStation, statusResult) {
-        console.log("re-activating station --------->", discoverStation.name);
-        const key = this.makeKey(databaseStation);
-        if (!this.stations[key]) {
+    reactivateStation(address, databaseStation, statusResult) {
+        console.log("re-activating station --------->", databaseStation.name);
+        const deviceId = databaseStation.deviceId;
+        if (!this.stations[deviceId]) {
             // TODO: is there an old k:v pair we need to delete?
-            this.stations[key] = databaseStation;
+            this.stations[deviceId] = databaseStation;
         }
-        this.stations[key].connected = 1;
-        this.stations[key].lastSeen = new Date();
+        this.stations[deviceId].connected = 1;
+        this.stations[deviceId].lastSeen = new Date();
         // prefer statusResult name over database name
-        this.stations[key].name = statusResult.status.identity.device;
+        this.stations[deviceId].name = statusResult.status.identity.device;
         // prefer discovered url over database url
-        this.stations[key].url = discoverStation.url;
+        this.stations[deviceId].url = address;
 
         // start getting readings
-        this.requestInitialReadings(this.stations[key]);
+        this.requestInitialReadings(this.stations[deviceId]);
 
-        this.dbInterface.setStationConnectionStatus(this.stations[key]).then(() => {
-            this._updateStationStatus(this.stations[key], status);
+        this.dbInterface.setStationConnectionStatus(this.stations[deviceId]).then(() => {
+            this._updateStationStatus(this.stations[deviceId], status);
         });
     }
 
-    deactivateStation(station) {
-        if (!station) {
+    deactivateStation(deviceId) {
+        if (!deviceId) {
             return;
         }
-        console.log("deactivating station --------->", station.name);
-        this.dbInterface
-            .getDeviceId(station)
-            .then(result => {
-                const key = result && result.length > 0 ? result[0].device_id : "";
-                if (this.stations[key]) {
-                    this.stations[key].connected = 0;
-                    this.stations[key].lastSeen = pastDate;
-                } else {
-                    // console.log("** deactivation where we don't have the station stored? **");
-                }
-                this.dbInterface.setStationConnectionStatus(this.stations[key]);
-
-                this._publishStationsUpdated();
-                this._publishStationRefreshed(this.stations[key]);
-            });
+        if (this.stations[deviceId]) {
+            console.log("deactivating station --------->", this.stations[deviceId].name);
+            this.stations[deviceId].connected = 0;
+            this.stations[deviceId].lastSeen = pastDate;
+            this.dbInterface.setStationConnectionStatus(this.stations[deviceId]);
+            this._publishStationsUpdated();
+            this._publishStationRefreshed(this.stations[deviceId]);
+        } else {
+            // console.log("** deactivation where we don't have the station stored? **");
+        }
     }
 
     startLiveReadings(address) {
@@ -327,14 +311,6 @@ export default class StationMonitor extends Observable {
         if (index > -1) {
             this.activeAddresses.splice(index, 1);
         }
-    }
-
-    makeKey(station) {
-        if(!station.deviceId && !station.device_id) {
-            // console.log("no key for this one ", station)
-            return "nokey";
-        }
-        return station.deviceId ? station.deviceId : station.device_id
     }
 
     _publishStationRefreshed(station) {
@@ -353,8 +329,7 @@ export default class StationMonitor extends Observable {
             station.statusReply = status;
 
             // save changes internally
-            let key = this.makeKey(station);
-            this.stations[key] = station;
+            this.stations[station.deviceId] = station;
 
             return this.dbInterface.updateStationStatus(station, status).then(() => {
                 return this._publishStationsUpdated().then(() => {
