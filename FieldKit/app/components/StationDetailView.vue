@@ -203,8 +203,7 @@ export default {
                 // adding to db in background hasn't finished yet,
                 // wait a few seconds and try again
                 setTimeout(this.getFromDatabase, 2000);
-                Promise.reject();
-                return
+                return Promise.reject();
             }
             this.station = station[0];
             return dbInterface.getModules(this.station.id);

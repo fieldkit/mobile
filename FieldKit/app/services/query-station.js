@@ -146,8 +146,7 @@ export default class QueryStation {
             },
             err => {
                 log("query error", err);
-                // NOET This should be a Promise.reject'ion.
-                return { errors: [ err ] };
+                return Promise.reject(err);
             }
         );
     }
