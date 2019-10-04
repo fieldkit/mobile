@@ -23,7 +23,7 @@ class WiFiMonitor {
         this.timer = setInterval(() => {
             const ssid = wifiInfo.getSSID();
             if (ssid != this.previous) {
-                if (callback) {
+                if (false) {
                     callback(ssid, this.couldBeStation(ssid));
                 }
             }
