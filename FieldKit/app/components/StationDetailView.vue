@@ -233,17 +233,23 @@ export default {
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portalIds
+            let params = {
+                name: this.station.name,
+                device_id: this.station.deviceId,
+                status_json: this.station
+            };
             if (!this.station.portalId && this.station.url != "no_url") {
-                let params = {
-                    name: this.station.name,
-                    device_id: this.station.deviceId,
-                    status_json: this.station
-                };
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
                         this.station.portalId = stationPortalId;
                         dbInterface.setStationPortalID(this.station);
+                    });
+            } else if (this.station.portalId && this.station.url != "no_url") {
+                this.$portalInterface
+                    .updateStation(params, this.station.portalId)
+                    .then(stationPortalId => {
+                        // console.log("successfully updated", stationPortalId)
                     });
             }
 
