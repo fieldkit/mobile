@@ -1,0 +1,1 @@
+Opening in XCode, use xcworkspace, otherwise you'll get build errors regarding missing frameworks.

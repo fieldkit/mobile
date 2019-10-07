@@ -66,6 +66,8 @@ var Downloader = (function (_super) {
         else {
             url = options.url;
         }
+        if (options.headers) {
+        }
         var request = NSURLRequest.requestWithURL(NSURL.URLWithString(url));
         var path = '';
         if (options.path && options.fileName) {
@@ -80,6 +82,19 @@ var Downloader = (function (_super) {
         else {
             path = fs.path.join(fs.knownFolders.temp().path, "" + downloader_common_1.generateId());
         }
+
+        console.log("options", options);
+
+        if (options.headers) {
+            var mutable = request.copy();
+            var headerKeys = Object.keys(options.headers);
+            for (var i = 0; i < headerKeys.length; i++) {
+                const key = headerKeys[i];
+                mutable.addValueForHttpHeaderField(options.headers[key], key);
+            }
+            request = mutable.copy();
+        }
+
         // var ref = new WeakRef(this);
         var strongRef = this;
         var lastRefreshTime = 0;
@@ -139,6 +154,31 @@ var Downloader = (function (_super) {
             });
         }, function (targetPath, response) {
             // var owner = ref.get();
+            var headers = {};
+            response.allHeaderFields.enumerateKeysAndObjectsUsingBlock((key, value, stop) => {
+                console.log("header", key, value);
+                headers[key] = value;
+            });
+
+            console.log("status", response.statusCode);
+
+            var owner = strongRef;
+            var data = owner.downloadsData.get(id);
+            if (data) {
+                console.log("data", data);
+
+                owner.downloadsData.set(id, Object.assign({}, data, {
+                    headers: headers
+                }));
+
+                if (data.headers) {
+                    data.headers({
+                        statusCode: response.statusCode,
+                        headers: headers
+                    });
+                }
+            }
+
             return NSURL.fileURLWithPath(path);
         }, function (response, filePath, error) {
             // var owner = ref.get();
@@ -165,6 +205,7 @@ var Downloader = (function (_super) {
                         resolve({
                             status: downloader_common_1.StatusCode.COMPLETED,
                             message: null,
+                            headers: data.headers,
                             path: data.path
                         });
                         strongRef.downloads = new Map();
@@ -180,15 +221,17 @@ var Downloader = (function (_super) {
         });
         return id;
     };
-    Downloader.prototype.start = function (id, progress) {
+    Downloader.prototype.start = function (id, progress, headers) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             if (id && _this.downloads.has(id)) {
+                console.log('headers cb', headers);
                 var data = _this.downloadsData.get(id);
                 _this.downloadsData.set(id, Object.assign({}, data, {
                     reject: reject,
                     resolve: resolve,
-                    callback: progress
+                    callback: progress,
+                    headers: headers
                 }));
                 var task = _this.downloads.get(id);
                 if (task) {

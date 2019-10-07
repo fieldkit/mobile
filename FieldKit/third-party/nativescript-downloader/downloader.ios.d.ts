@@ -5,7 +5,7 @@ export declare class Downloader extends DownloaderBase {
     static init(): void;
     static setTimeout(timeout: number): void;
     createDownload(options: DownloadOptions): string;
-    start(id: string, progress?: Function): Promise<DownloadEventData>;
+    start(id: string, progress?: Function, headers?: Function): Promise<DownloadEventData>;
     getStatus(id: string): StatusCode;
     pause(id: string): void;
     resume(id: string): void;
