@@ -267,7 +267,7 @@
 import routes from "../routes";
 import StationFooterTabs from './StationFooterTabs';
 import Services from '../services/services';
-import { hexStringToByteWiseString } from "../lib/utilities";
+import { hexStringToByteWiseString } from "../utilities";
 import { Build } from "../config";
 
 const stateManager = Services.StateManager();
