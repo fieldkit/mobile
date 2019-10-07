@@ -1,4 +1,5 @@
 import { Observable } from "tns-core-modules/data/observable";
+import { promiseAfter } from "../utilities";
 import Config from '../config';
 
 const pastDate = new Date(2000, 0, 1);
@@ -44,7 +45,7 @@ export default class StationMonitor extends Observable {
             if (station.url == "no_url") {
                 return;
             }
-            setTimeout(() => {this.requestInitialReadings(station)}, 3000*index);
+            promiseAfter(3000 * index).then(() => this.requestInitialReadings(station));
             index += 1;
         });
     }
@@ -58,42 +59,43 @@ export default class StationMonitor extends Observable {
     }
 
     requestInitialReadings(station) {
-        if(station.connected == 0) {return}
+        if (!station.connected) {
+            return Promise.reject();
+        }
+
         // take readings first so they can be stored (active or not)
-        this.queryStation
-            .takeReadings(station.url)
-            .then(this.updateStationReadings.bind(this, station))
-            .catch(error => {
-                console.log("error taking initial readings", error)
-                // try again
-                // setTimeout(() => {this.requestInitialReadings(station)}, 2000);
-                // don't try again, just start regular queries
-                setTimeout(() => {this.requestStationData(station)}, 10000);
-            });
+        return this.requestStationData(station, true);
     }
 
-    requestStationData(station) {
-        const elapsed = new Date() - station.lastSeen;
+    // take readings, if active, otherwise query status
+    _statusOrReadings(station, takeReadings) {
+        if (takeReadings || this.activeAddresses.indexOf(station.url) > -1) {
+            return this.queryStation
+                .takeReadings(station.url)
+                .then(this.updateStationReadings.bind(this, station));
+        }
+        return this.queryStation
+            .getStatus(station.url)
+            .then(this.updateStatus.bind(this, station));
+    }
 
+    requestStationData(station, takeReadings) {
         // if station hasn't been heard from in awhile, disable it
         // (seeded stations exempt for now due to above return statement)
+        const elapsed = new Date() - station.lastSeen;
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
             this.deactivateStation(station.deviceId);
         }
 
-        if(station.connected == 0) {return}
+        if (!station.connected) {
+            return Promise.reject();
+        }
 
-        // take readings, if active, otherwise query status
-        if (this.activeAddresses.indexOf(station.url) > -1) {
-            this.queryStation
-                .takeReadings(station.url)
-                .then(this.updateStationReadings.bind(this, station));
-        }
-        else {
-            this.queryStation
-                .getStatus(station.url)
-                .then(this.updateStatus.bind(this, station));
-        }
+        return this._statusOrReadings(station, takeReadings).finally(() => {
+            return promiseAfter(10000).then(() => this.requestStationData(station, false));
+        }).catch(error => {
+            console.log('error', error);
+        });
     }
 
     updateStatus(station, result) {
@@ -101,30 +103,24 @@ export default class StationMonitor extends Observable {
             return;
         }
         // now that db can be cleared, might need to re-add stations
-        if(!this.stations[station.deviceId]) {
-            this.checkDatabase(station.deviceId, station.url);
-            return
+        if (!this.stations[station.deviceId]) {
+            return this.checkDatabase(station.deviceId, station.url);
         }
 
         station.connected = 1;
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
         station.name = result.status.identity.device;
-
-        // set up next query
-        setTimeout(() => {this.requestStationData(station)}, 10000);
-
         return this._updateStationStatus(station, result);
     }
 
     updateStationReadings(station, result) {
         if (result.errors.length > 0 || station.deviceId != result.status.identity.deviceId) {
-            return;
+            return Promise.reject();
         }
         // now that db can be cleared, might need to re-add stations
-        if(!this.stations[station.deviceId]) {
-            this.checkDatabase(station.deviceId, station.url);
-            return
+        if (!this.stations[station.deviceId]) {
+            return this.checkDatabase(station.deviceId, station.url);
         }
 
         station.connected = 1;
@@ -148,9 +144,6 @@ export default class StationMonitor extends Observable {
         station.readings = readings;
 
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
-
-        // set up next query
-        setTimeout(() => {this.requestStationData(station)}, 10000);
 
         return this._updateStationStatus(station, result);
     }
@@ -181,7 +174,7 @@ export default class StationMonitor extends Observable {
     }
 
     checkDatabase(deviceId, address) {
-        this.queryStation
+        return this.queryStation
             .getStatus(address)
             .then(statusResult => {
                 return this.dbInterface.getStationByDeviceId(deviceId).then(result => {
@@ -278,7 +271,6 @@ export default class StationMonitor extends Observable {
 
         // start getting readings
         this.requestInitialReadings(this.stations[deviceId]);
-
         this.dbInterface.setStationConnectionStatus(this.stations[deviceId]).then(() => {
             this._updateStationStatus(this.stations[deviceId], status);
         });
