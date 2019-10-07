@@ -121,7 +121,7 @@ export default class QueryStation {
         }
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         const requestBody = new Buffer.from(binaryQuery).toString("hex");
-        log("querying", url, message, requestBody);
+        log.info(url, "querying", message, requestBody);
         return axios({
             method: "POST",
             url: url,
@@ -134,18 +134,18 @@ export default class QueryStation {
         }).then(
             response => {
                 if (response.data.length == 0) {
-                    log("query success", "<empty>");
+                    log.info(url, "query success", "<empty>");
                     return {};
                 }
                 const binaryReply = Buffer.from(response.data, "hex");
                 const decoded = HttpReply.decodeDelimited(binaryReply);
                 return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
-                    log("query success", finalReply);
+                    log.verbose(url, "query success", finalReply);
                     return finalReply;
                 });
             },
             err => {
-                log("query error", err);
+                log.error(url, "query error", err);
                 return Promise.reject(err);
             }
         );
@@ -181,7 +181,7 @@ export default class QueryStation {
     }
 
     _retryAfter(delays, url, message) {
-        log("retrying after", delays);
+        log.info(url, "retrying after", delays);
         return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);
         });

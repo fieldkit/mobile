@@ -87,14 +87,12 @@ export default class StationMonitor extends Observable {
         if (this.activeAddresses.indexOf(station.url) > -1) {
             this.queryStation
                 .takeReadings(station.url)
-                .then(this.updateStationReadings.bind(this, station))
-                .catch(error => console.log("error taking readings", error));
+                .then(this.updateStationReadings.bind(this, station));
         }
         else {
             this.queryStation
                 .getStatus(station.url)
-                .then(this.updateStatus.bind(this, station))
-                .catch(error => console.log("error getting status", error));
+                .then(this.updateStatus.bind(this, station));
         }
     }
 

@@ -28,11 +28,11 @@ export default class UploadManager {
     }
 
     synchronizePortal() {
-        log("synchronizePortal");
+        log.info("synchronizePortal");
 
         // TODO Replace with connectivity check.
         if (!this.portalInterface.isLoggedIn()) {
-            log("offline!");
+            log.info("offline!");
             return Promise.reject({
                 offline: true,
             });
@@ -69,7 +69,7 @@ export default class UploadManager {
             delete headers['Connection'];
             delete headers['Content-Length'];
 
-            log("uploading", file.path, headers);
+            log.info("uploading", file.path, headers);
 
             const defaultHeaders = {
                 "Content-Type": "application/octet-stream",
@@ -100,10 +100,10 @@ export default class UploadManager {
                     currentSize: e.currentBytes,
                     totalSize: e.totalBytes
                 });
-                log('progress', rv);
+                log.verbose('progress', rv);
             });
             task.on("error", (e) => {
-                log('error', e.error);
+                log.error('error', e.error);
                 reject(e.error)
             });
             task.on("responded", (e) => {
@@ -111,7 +111,7 @@ export default class UploadManager {
                     data: e.data,
                     status: e.responseCode,
                 };
-                log('responded', rv);
+                log.info('responded', rv);
                 // NOTE This was easier than using complete, though I think I'd rather this happen there.
                 resolve(rv);
             });
@@ -119,12 +119,12 @@ export default class UploadManager {
                 const rv = {
                     status: e.responseCode,
                 };
-                log('complete', rv);
+                log.info('complete', rv);
             });
 
             // Android only
             task.on("cancelled", (e) => {
-                log('cancelled', e);
+                log.info('cancelled', e);
                 reject('cancelled');
             });
         });

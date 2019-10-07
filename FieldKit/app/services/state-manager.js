@@ -20,7 +20,7 @@ export default class StateManager extends BetterObservable {
         this.stationMonitor.on(Observable.propertyChangeEvent, data => {
             switch (data.propertyName.toString()) {
             case this.stationMonitor.StationRefreshedProperty: {
-                log(this.stationMonitor.StationRefreshedProperty, data);
+                log.info(this.stationMonitor.StationRefreshedProperty, data);
                 this.refresh();
                 break;
             }
@@ -35,14 +35,14 @@ export default class StateManager extends BetterObservable {
     }
 
     synchronizeStation(deviceId) {
-        log("synchronizeStation");
+        log.info("synchronizeStation");
         return this.downloadManager.startSynchronizeStation(deviceId).then(() => {
             return this.refresh();
         });
     }
 
     synchronizePortal() {
-        log("synchronizePortal");
+        log.info("synchronizePortal");
         return this.uploadManager.synchronizePortal().then(() => {
             return this.refresh();
         });
@@ -68,10 +68,10 @@ export default class StateManager extends BetterObservable {
         if (this.portalInterface.isLoggedIn()) {
             return this.portalInterface.getStationSyncState(station.deviceId).then(summary => {
                 return this.databaseInterface.updateStationFromPortal(station, summary).then(status => {
-                    log(status);
+                    log.info(status);
                 });
             }).catch(error => {
-                console.log('error', error);
+                log.error('error', error);
             });
         }
         return Promise.reject();

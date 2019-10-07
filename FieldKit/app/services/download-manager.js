@@ -54,9 +54,6 @@ export default class DownloadManager {
                 };
             }).orderBy(d => d.lastBlock);
 
-            // console.log("stationMeta", stationMeta.value());
-            // console.log("stationData", stationData.value());
-
             return {
                 meta: {
                     lastBlock: stationMeta.last().lastBlock,
@@ -70,10 +67,7 @@ export default class DownloadManager {
         }
 
         const stations = this.stationMonitor.getStations().filter(s => {
-            log(s);
-            log('deviceId', s.deviceId);
-            log('url', s.url);
-            log('connected', s.connected);
+            log.info('url', s.url, 'deviceId', s.deviceId);
             return s.deviceId && s.url && s.connected;
         });
 
@@ -120,11 +114,11 @@ export default class DownloadManager {
 
     _getStreamStatus(status, index, name) {
         if (!status.streams) {
-            log("bad status", status);
+            log.info("bad status", status);
             return {
             };
         }
-        log('status', status);
+        log.info('status', status);
         const s = status.streams[index];
         return {
             blocks: s.block,
@@ -135,18 +129,18 @@ export default class DownloadManager {
     }
 
     startSynchronizeStation(deviceId) {
-        log("startSynchronizeStation", deviceId);
+        log.info("startSynchronizeStation", deviceId);
 
         return this._synchronizeConnectedStations(s => s.deviceId == deviceId);
     }
 
     _synchronizeConnectedStations(stationFilter) {
-        log("synchronizeConnectedStations");
+        log.info("synchronizeConnectedStations");
 
         const operation = this.progressService.startDownload();
 
         return this._createServiceModel().then(connectedStations => {
-            log("connected", connectedStations);
+            log.info("connected", connectedStations);
             // NOTE Right now this will download concurrently, we may want to make this serialized.
             return Promise.all(connectedStations.filter(stationFilter).map(station => {
                 return this._prepare(station).then(() => {
@@ -231,7 +225,7 @@ export default class DownloadManager {
 
     _download(station, url, type, destination, operation) {
         return new Promise((resolve, reject) => {
-            log("download", url, "to", destination.path);
+            log.info("download", url, "to", destination.path);
 
             const transfer = this.downloader.createDownload({
                 url: url,
@@ -250,15 +244,15 @@ export default class DownloadManager {
                         totalSize: progress.totalSize,
                         type: type
                     });
-                    log("progress", progress);
+                    log.verbose("progress", progress);
                 })
                 .then(completed => {
-                    log('headers', completed.headers);
-                    log('status', completed.statusCode);
+                    log.info('headers', completed.headers);
+                    log.info('status', completed.statusCode);
                     resolve(this._createDownloadRow(station, url, type, destination, completed.headers));
                 })
                 .catch(error => {
-                    log("error", error.message);
+                    log.error("error", error.message);
                     reject(error);
                 });
         });
@@ -285,8 +279,8 @@ export default class DownloadManager {
                 const main = this._getStationFolder(station);
                 const download = this._getNewDownloadFolder(station);
 
-                log('downloads', downloads)
-                log('streams', streams)
+                log.verbose('downloads', downloads)
+                log.verbose('streams', streams)
 
                 return {
                     id: station.id,

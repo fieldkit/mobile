@@ -21,13 +21,13 @@ class ProgressTracker {
     }
 
     cancel(error) {
-        log("cancel");
+        log.info("cancel");
         this.service._remove(this);
         return Promise.reject(error);
     }
 
     complete() {
-        log("complete");
+        log.info("complete");
         this.service.publish({message: "complete", progress: 100});
         this.service._remove(this);
         return Promise.resolve();
@@ -79,7 +79,7 @@ export default class ProgressService extends BetterObservable {
             return { ...{ }, ...this.active[0].progress, ...{ message: this._getMessage(this.active[0].kind) } };
         }
         else {
-            log("active", this.active);
+            log.info("active", this.active);
         }
         return {
             message: null,

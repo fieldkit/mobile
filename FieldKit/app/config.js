@@ -63,14 +63,31 @@ const final = get_config();
 
 final.logger = (name) => {
     if (final.logging[name]) {
-        return function() {
-            const args = Array.from(arguments);
-            args.unshift(name);
-            console.log.apply(console, args);
+        return {
+            info: function() {
+                const args = Array.from(arguments);
+                args.unshift(name);
+                console.log.apply(console, args);
+            },
+            verbose: function() {
+                const args = Array.from(arguments);
+                args.unshift(name);
+                // console.log.apply(console, args);
+            },
+            error: function() {
+                const args = Array.from(arguments);
+                args.unshift(name);
+                console.error.apply(console, args);
+            }
         };
     }
-    return function() {
-        // Noop
+    return {
+        info: () => {
+        },
+        verbose: () => {
+        },
+        error: () => {
+        }
     };
 };
 

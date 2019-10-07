@@ -61,7 +61,7 @@ export default {
 
     methods: {
         onLoaded(args) {
-            log("loaded");
+            log.info("loaded");
 
             const stateManager = Services.StateManager();
 

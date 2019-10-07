@@ -350,11 +350,9 @@ export default class DatabaseInterface {
             if (streamId.length == 0) {
                 return Promise.reject();
             }
-            log("updating stream", station.id, type, streamId);
+            log.info("updating stream", station.id, type, streamId);
             const provision = _(status.provisions).orderBy("updated").last();
-            log("provision", provision);
             const values = [ provision[type].size, provision[type].first, provision[type].last, streamId[0].id ];
-            log("values", values);
             return this.getDatabase().then(db => db.query(`UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ? WHERE id = ?`, values));
         });
     }
