@@ -77,7 +77,7 @@ export default class CreateDB {
             `DROP TABLE IF EXISTS stations_config`,
             `DROP TABLE IF EXISTS sensors`,
             `DROP TABLE IF EXISTS modules`,
-            `DROP TABLE IF EXISTS stations`,
+            `DROP TABLE IF EXISTS stations`
         ]);
     }
 
@@ -121,7 +121,7 @@ export default class CreateDB {
                 last_block INTEGER NOT NULL,
                 uploaded TIMESTAMP,
                 FOREIGN KEY(station_id) REFERENCES stations(id)
-            )`,
+            )`
         ]);
     }
 
@@ -223,7 +223,9 @@ export default class CreateDB {
     }
 
     seedDB() {
-        return Promise.all(stations.map(this.addStation.bind(this))).then(this.handleModules.bind(this));
+        return Promise.all(stations.map(this.addStation.bind(this))).then(
+            this.handleModules.bind(this)
+        );
     }
 
     addStation(station) {
@@ -247,7 +249,9 @@ export default class CreateDB {
             return s.modules;
         });
         modules = [].concat.apply([], modules);
-        return Promise.all(modules.map(this.insertModule.bind(this))).then(this.handleSensors.bind(this));
+        return Promise.all(modules.map(this.insertModule.bind(this))).then(
+            this.handleSensors.bind(this)
+        );
     }
 
     insertModule(module) {

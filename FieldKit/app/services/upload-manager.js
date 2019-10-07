@@ -1,8 +1,8 @@
-import _ from 'lodash';
+import _ from "lodash";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
-import * as BackgroundHttp from 'nativescript-background-http';
-import { keysToCamel, serializePromiseChain } from '../utilities';
-import Config from '../config';
+import * as BackgroundHttp from "nativescript-background-http";
+import { keysToCamel, serializePromiseChain } from "../utilities";
+import Config from "../config";
 
 const log = Config.logger("UploadManager");
 const SessionName = "fk-data-upload";
@@ -10,7 +10,7 @@ const SessionName = "fk-data-upload";
 export default class UploadManager {
     constructor(databaseInterface, portalInterface, progressService) {
         this.databaseInterface = databaseInterface;
-        this.portalInterface  = portalInterface;
+        this.portalInterface = portalInterface;
         this.progressService = progressService;
     }
 
@@ -20,8 +20,12 @@ export default class UploadManager {
                 pending: {
                     files: pending.length,
                     allowed: pending.length > 0,
-                    bytes: _(pending).map('size').sum(),
-                    devices: _(pending).groupBy('deviceId').size(),
+                    bytes: _(pending)
+                        .map("size")
+                        .sum(),
+                    devices: _(pending)
+                        .groupBy("deviceId")
+                        .size()
                 }
             };
         });
@@ -34,31 +38,41 @@ export default class UploadManager {
         if (!this.portalInterface.isLoggedIn()) {
             log.info("offline!");
             return Promise.reject({
-                offline: true,
+                offline: true
             });
         }
 
         const operation = this.progressService.startUpload();
 
-        return this.databaseInterface.getPendingDownloads().then(keysToCamel).then(downloads => {
-            return serializePromiseChain(downloads, this._uploadDownload.bind(this, operation));
-        }).then(() => {
-            return operation.complete();
-        }).catch((error) => {
-            return operation.cancel(error);
-        });
+        return this.databaseInterface
+            .getPendingDownloads()
+            .then(keysToCamel)
+            .then(downloads => {
+                return serializePromiseChain(
+                    downloads,
+                    this._uploadDownload.bind(this, operation)
+                );
+            })
+            .then(() => {
+                return operation.complete();
+            })
+            .catch(error => {
+                return operation.cancel(error);
+            });
     }
 
     _uploadDownload(operation, download) {
         const headers = {
             "Fk-Blocks": download.blocks,
             "Fk-Generation": download.generation,
-            "Fk-Type": download.type,
+            "Fk-Type": download.type
         };
         const file = File.fromPath(download.path);
-        return this._upload(download.deviceId, headers, file, operation).then(() => {
-            return this.databaseInterface.markDownloadAsUploaded(download);
-        });
+        return this._upload(download.deviceId, headers, file, operation).then(
+            () => {
+                return this.databaseInterface.markDownloadAsUploaded(download);
+            }
+        );
     }
 
     _upload(deviceId, headers, file, operation) {
@@ -66,66 +80,66 @@ export default class UploadManager {
             const url = Config.ingestionUri;
             const session = BackgroundHttp.session(SessionName);
 
-            delete headers['Connection'];
-            delete headers['Content-Length'];
+            delete headers["Connection"];
+            delete headers["Content-Length"];
 
             log.info("uploading", file.path, headers);
 
             const defaultHeaders = {
                 "Content-Type": "application/octet-stream",
-                "Authorization": this.portalInterface.getCurrentToken(),
-                "Fk-DeviceId": deviceId,
+                Authorization: this.portalInterface.getCurrentToken(),
+                "Fk-DeviceId": deviceId
             };
             const req = {
                 url: url,
                 method: "POST",
-                headers: { ...headers, ...defaultHeaders },
+                headers: { ...headers, ...defaultHeaders }
                 // androidDisplayNotificationProgress: false, // Won't work going foward.
                 // androidRingToneEnabled: false,
                 // androidAutoClearNotification: true,
             };
             const task = session.uploadFile(file.path, req);
 
-            task.on("progress", (e) => {
+            task.on("progress", e => {
                 const rv = {
                     progress: 100.0 * (e.currentBytes / e.totalBytes),
                     currentBytes: e.currentBytes,
-                    totalBytes: e.totalBytes,
+                    totalBytes: e.totalBytes
                 };
                 operation.update({
                     station: {
-                        deviceId: deviceId,
+                        deviceId: deviceId
                     },
                     progress: Math.round(rv.progress),
                     currentSize: e.currentBytes,
                     totalSize: e.totalBytes
                 });
-                log.verbose('progress', rv);
+                log.verbose("progress", rv);
             });
-            task.on("error", (e) => {
-                log.error('error', e.error);
-                reject(e.error)
+            task.on("error", e => {
+                log.error("error", e.error);
+                reject(e.error);
             });
-            task.on("responded", (e) => {
+            task.on("responded", e => {
                 const rv = {
                     data: e.data,
-                    status: e.responseCode,
+                    status: e.responseCode
                 };
-                log.info('responded', rv);
+                log.info("responded", rv);
                 // NOTE This was easier than using complete, though I think I'd rather this happen there.
                 resolve(rv);
             });
-            task.on("complete", (e) => {
+            task.on("complete", e => {
                 const rv = {
-                    status: e.responseCode,
+                    status: e.responseCode
                 };
-                log.info('complete', rv);
+                log.info("complete", rv);
             });
 
             // Android only
-            task.on("cancelled", (e) => {
-                log.info('cancelled', e);
-                reject('cancelled');
+            task.on("cancelled", e => {
+                log.info("cancelled", e);
+                reject("cancelled");
             });
         });
     }

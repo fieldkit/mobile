@@ -1,29 +1,47 @@
-import _ from 'lodash';
+import _ from "lodash";
 import { Observable } from "tns-core-modules/data/observable";
-import { BetterObservable } from './rx';
+import { BetterObservable } from "./rx";
 
 import DownloadManager from "./download-manager";
 import UploadManager from "./upload-manager";
-import Config from '../config';
+import Config from "../config";
 
 const log = Config.logger("StateManager");
 
 export default class StateManager extends BetterObservable {
-    constructor(databaseInterface, queryStation, stationMonitor, portalInterface, progressService) {
+    constructor(
+        databaseInterface,
+        queryStation,
+        stationMonitor,
+        portalInterface,
+        progressService
+    ) {
         super();
         this.databaseInterface = databaseInterface;
         this.queryStation = queryStation;
         this.stationMonitor = stationMonitor;
         this.portalInterface = portalInterface;
-        this.downloadManager = new DownloadManager(databaseInterface, queryStation, stationMonitor, progressService);
-        this.uploadManager = new UploadManager(databaseInterface, portalInterface, progressService);
+        this.downloadManager = new DownloadManager(
+            databaseInterface,
+            queryStation,
+            stationMonitor,
+            progressService
+        );
+        this.uploadManager = new UploadManager(
+            databaseInterface,
+            portalInterface,
+            progressService
+        );
         this.stationMonitor.on(Observable.propertyChangeEvent, data => {
             switch (data.propertyName.toString()) {
-            case this.stationMonitor.StationRefreshedProperty: {
-                log.info(this.stationMonitor.StationRefreshedProperty, data);
-                this.refresh();
-                break;
-            }
+                case this.stationMonitor.StationRefreshedProperty: {
+                    log.info(
+                        this.stationMonitor.StationRefreshedProperty,
+                        data
+                    );
+                    this.refresh();
+                    break;
+                }
             }
         });
     }
@@ -36,9 +54,11 @@ export default class StateManager extends BetterObservable {
 
     synchronizeStation(deviceId) {
         log.info("synchronizeStation");
-        return this.downloadManager.startSynchronizeStation(deviceId).then(() => {
-            return this.refresh();
-        });
+        return this.downloadManager
+            .startSynchronizeStation(deviceId)
+            .then(() => {
+                return this.refresh();
+            });
     }
 
     synchronizePortal() {
@@ -51,12 +71,12 @@ export default class StateManager extends BetterObservable {
     getStatus() {
         return Promise.all([
             this.downloadManager.getStatus(),
-            this.uploadManager.getStatus(),
+            this.uploadManager.getStatus()
         ]).then(all => {
             return {
                 station: all[0],
-                portal: all[1],
-            }
+                portal: all[1]
+            };
         });
     }
 
@@ -66,13 +86,18 @@ export default class StateManager extends BetterObservable {
 
     refreshSyncStatus(station) {
         if (this.portalInterface.isLoggedIn()) {
-            return this.portalInterface.getStationSyncState(station.deviceId).then(summary => {
-                return this.databaseInterface.updateStationFromPortal(station, summary).then(status => {
-                    log.info(status);
+            return this.portalInterface
+                .getStationSyncState(station.deviceId)
+                .then(summary => {
+                    return this.databaseInterface
+                        .updateStationFromPortal(station, summary)
+                        .then(status => {
+                            log.info(status);
+                        });
+                })
+                .catch(error => {
+                    log.error("error", error);
                 });
-            }).catch(error => {
-                log.error('error', error);
-            });
         }
         return Promise.reject();
     }

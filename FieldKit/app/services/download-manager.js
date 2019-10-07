@@ -1,10 +1,10 @@
-import _ from 'lodash';
-import { Downloader } from 'nativescript-downloader';
+import _ from "lodash";
+import { Downloader } from "nativescript-downloader";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 
-import { keysToCamel, getPathTimestamp } from '../utilities';
-import Constants from '../constants';
-import Config from '../config';
+import { keysToCamel, getPathTimestamp } from "../utilities";
+import Constants from "../constants";
+import Config from "../config";
 
 const log = Config.logger("DownloadManager");
 
@@ -14,12 +14,19 @@ class DownloadStatus {
     }
 
     forStation(id) {
-        return _(this.stations).filter(s => s.station.id == id).first();
+        return _(this.stations)
+            .filter(s => s.station.id == id)
+            .first();
     }
 }
 
 export default class DownloadManager {
-    constructor(databaseInterface, queryStation, stationMonitor, progressService) {
+    constructor(
+        databaseInterface,
+        queryStation,
+        stationMonitor,
+        progressService
+    ) {
         this.databaseInterface = databaseInterface;
         this.queryStation = queryStation;
         this.stationMonitor = stationMonitor;
@@ -36,78 +43,106 @@ export default class DownloadManager {
             if (!_.some(streams)) {
                 return {
                     meta: { lastBlock: null, size: 0 },
-                    data: { lastBlock: null, size: 0 },
+                    data: { lastBlock: null, size: 0 }
                 };
             }
 
-            const stationMeta = _(streams).filter(d => d.type == Constants.MetaStreamType).map(d => {
-                return {
-                    size: _.max([d.portalSize || 0, d.downloadSize || 0]),
-                    lastBlock: _.max([d.portalLastBlock || 0, d.downloadLastBlock || 0]),
-                };
-            }).orderBy(d => d.lastBlock);
+            const stationMeta = _(streams)
+                .filter(d => d.type == Constants.MetaStreamType)
+                .map(d => {
+                    return {
+                        size: _.max([d.portalSize || 0, d.downloadSize || 0]),
+                        lastBlock: _.max([
+                            d.portalLastBlock || 0,
+                            d.downloadLastBlock || 0
+                        ])
+                    };
+                })
+                .orderBy(d => d.lastBlock);
 
-            const stationData = _(streams).filter(d => d.type == Constants.DataStreamType).map(d => {
-                return {
-                    size: _.max([d.portalSize || 0, d.downloadSize || 0]),
-                    lastBlock: _.max([d.portalLastBlock || 0, d.downloadLastBlock || 0]),
-                };
-            }).orderBy(d => d.lastBlock);
+            const stationData = _(streams)
+                .filter(d => d.type == Constants.DataStreamType)
+                .map(d => {
+                    return {
+                        size: _.max([d.portalSize || 0, d.downloadSize || 0]),
+                        lastBlock: _.max([
+                            d.portalLastBlock || 0,
+                            d.downloadLastBlock || 0
+                        ])
+                    };
+                })
+                .orderBy(d => d.lastBlock);
 
             return {
                 meta: {
                     lastBlock: stationMeta.last().lastBlock,
-                    size: stationMeta.map(s => s.size).sum(),
+                    size: stationMeta.map(s => s.size).sum()
                 },
                 data: {
                     lastBlock: stationData.last().lastBlock,
-                    size: stationData.map(s => s.size).sum(),
-                },
+                    size: stationData.map(s => s.size).sum()
+                }
             };
         }
 
         const stations = this.stationMonitor.getStations().filter(s => {
-            log.info('url', s.url, 'deviceId', s.deviceId);
+            log.info("url", s.url, "deviceId", s.deviceId);
             return s.deviceId && s.url && s.connected;
         });
 
-        return Promise.all(stations.map(keysToCamel).map(station => {
-            if (!station.statusReply) {
-                return {
-                    station: station,
-                    streams: {
-                        meta: {},
-                        data: {},
-                    },
-                    downloads: {},
-                    pending: {
-                        bytes: 0,
-                    }
-                };
-            }
-            return this.databaseInterface.getStreamsByStationId(station.id).then(streams => {
-                const deviceMeta = this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamType);
-                const deviceData = this._getStreamStatus(station.statusReply, 1, Constants.DataStreamType);
-                const downloadStatus = getDownloadsStatus(streams);
-                const pendingMetaBytes = deviceMeta.size - downloadStatus.meta.size;
-                const pendingDataBytes = deviceData.size - downloadStatus.data.size;
-                const pendingMetaRecords = deviceMeta.blocks - downloadStatus.meta.lastBlock;
-                const pendingDataRecords = deviceData.blocks - downloadStatus.data.lastBlock;
+        return Promise.all(
+            stations.map(keysToCamel).map(station => {
+                if (!station.statusReply) {
+                    return {
+                        station: station,
+                        streams: {
+                            meta: {},
+                            data: {}
+                        },
+                        downloads: {},
+                        pending: {
+                            bytes: 0
+                        }
+                    };
+                }
+                return this.databaseInterface
+                    .getStreamsByStationId(station.id)
+                    .then(streams => {
+                        const deviceMeta = this._getStreamStatus(
+                            station.statusReply,
+                            0,
+                            Constants.MetaStreamType
+                        );
+                        const deviceData = this._getStreamStatus(
+                            station.statusReply,
+                            1,
+                            Constants.DataStreamType
+                        );
+                        const downloadStatus = getDownloadsStatus(streams);
+                        const pendingMetaBytes =
+                            deviceMeta.size - downloadStatus.meta.size;
+                        const pendingDataBytes =
+                            deviceData.size - downloadStatus.data.size;
+                        const pendingMetaRecords =
+                            deviceMeta.blocks - downloadStatus.meta.lastBlock;
+                        const pendingDataRecords =
+                            deviceData.blocks - downloadStatus.data.lastBlock;
 
-                return {
-                    station: station,
-                    downloads: downloadStatus,
-                    streams: {
-                        meta: deviceMeta,
-                        data: deviceData,
-                    },
-                    pending: {
-                        bytes: pendingMetaBytes + pendingDataBytes,
-                        records: pendingMetaRecords + pendingDataRecords,
-                    }
-                };
-            });
-        })).then((data) => {
+                        return {
+                            station: station,
+                            downloads: downloadStatus,
+                            streams: {
+                                meta: deviceMeta,
+                                data: deviceData
+                            },
+                            pending: {
+                                bytes: pendingMetaBytes + pendingDataBytes,
+                                records: pendingMetaRecords + pendingDataRecords
+                            }
+                        };
+                    });
+            })
+        ).then(data => {
             return new DownloadStatus(data);
         });
     }
@@ -115,16 +150,15 @@ export default class DownloadManager {
     _getStreamStatus(status, index, name) {
         if (!status.streams) {
             log.info("bad status", status);
-            return {
-            };
+            return {};
         }
-        log.info('status', status);
+        log.info("status", status);
         const s = status.streams[index];
         return {
             blocks: s.block,
             size: s.size,
             name: name,
-            index: index,
+            index: index
         };
     }
 
@@ -139,19 +173,24 @@ export default class DownloadManager {
 
         const operation = this.progressService.startDownload();
 
-        return this._createServiceModel().then(connectedStations => {
-            log.info("connected", connectedStations);
-            // NOTE Right now this will download concurrently, we may want to make this serialized.
-            return Promise.all(connectedStations.filter(stationFilter).map(station => {
-                return this._prepare(station).then(() => {
-                    return this._synchronizeStation(station, operation);
-                });
-            }))
-        }).then(() => {
-            return operation.complete();
-        }).catch((error) => {
-            return operation.cancel(error);
-        });
+        return this._createServiceModel()
+            .then(connectedStations => {
+                log.info("connected", connectedStations);
+                // NOTE Right now this will download concurrently, we may want to make this serialized.
+                return Promise.all(
+                    connectedStations.filter(stationFilter).map(station => {
+                        return this._prepare(station).then(() => {
+                            return this._synchronizeStation(station, operation);
+                        });
+                    })
+                );
+            })
+            .then(() => {
+                return operation.complete();
+            })
+            .catch(error => {
+                return operation.cancel(error);
+            });
     }
 
     _prepare(station) {
@@ -159,25 +198,39 @@ export default class DownloadManager {
         // rename will fail cause there's an empty file sitting there.
         return Promise.all([
             station.meta.destination.remove(),
-            station.data.destination.remove(),
+            station.data.destination.remove()
         ]);
     }
 
     _updateDatabase(station, downloads) {
         return this.databaseInterface.insertDownloads([
             downloads.meta,
-            downloads.data,
+            downloads.data
         ]);
     }
 
     _synchronizeStation(station, operation) {
-        return this._download(station, station.meta.url, 'meta', station.meta.destination, operation).then(metaDownload => {
-            return this._download(station, station.data.url, 'data', station.data.destination, operation).then(dataDownload => {
-                return { meta: metaDownload, data: dataDownload };
+        return this._download(
+            station,
+            station.meta.url,
+            "meta",
+            station.meta.destination,
+            operation
+        )
+            .then(metaDownload => {
+                return this._download(
+                    station,
+                    station.data.url,
+                    "data",
+                    station.data.destination,
+                    operation
+                ).then(dataDownload => {
+                    return { meta: metaDownload, data: dataDownload };
+                });
+            })
+            .then(downloads => {
+                return this._updateDatabase(station, downloads);
             });
-        }).then(downloads => {
-            return this._updateDatabase(station, downloads);
-        });
     }
 
     _parseBlocks(blocks) {
@@ -189,7 +242,10 @@ export default class DownloadManager {
             throw new Error("Invalid Fk-Blocks header: " + blocks);
         }
 
-        const parts = blocks.split(",").map(s => s.trim()).map(s => Number(s));
+        const parts = blocks
+            .split(",")
+            .map(s => s.trim())
+            .map(s => Number(s));
         if (parts.length != 2) {
             throw new Error("Invalid Fk-Blocks header: " + blocks);
         }
@@ -197,14 +253,16 @@ export default class DownloadManager {
         return {
             range: parts.join(","),
             firstBlock: parts[0],
-            lastBlock: parts[1],
+            lastBlock: parts[1]
         };
     }
 
     _createDownloadRow(station, url, type, destination, headers) {
-        delete headers['Connection'];
+        delete headers["Connection"];
 
-        const { range, firstBlock, lastBlock } = this._parseBlocks(headers["Fk-Blocks"]);
+        const { range, firstBlock, lastBlock } = this._parseBlocks(
+            headers["Fk-Blocks"]
+        );
         const generation = headers["Fk-Generation"];
 
         return {
@@ -219,7 +277,7 @@ export default class DownloadManager {
             generation: generation,
             firstBlock: firstBlock,
             lastBlock: lastBlock,
-            size: destination.size,
+            size: destination.size
         };
     }
 
@@ -237,7 +295,7 @@ export default class DownloadManager {
                 .start(transfer, progress => {
                     operation.update({
                         station: {
-                            deviceId: station.deviceId,
+                            deviceId: station.deviceId
                         },
                         progress: progress.value,
                         currentSize: progress.currentSize,
@@ -247,9 +305,17 @@ export default class DownloadManager {
                     log.verbose("progress", progress);
                 })
                 .then(completed => {
-                    log.info('headers', completed.headers);
-                    log.info('status', completed.statusCode);
-                    resolve(this._createDownloadRow(station, url, type, destination, completed.headers));
+                    log.info("headers", completed.headers);
+                    log.info("status", completed.statusCode);
+                    resolve(
+                        this._createDownloadRow(
+                            station,
+                            url,
+                            type,
+                            destination,
+                            completed.headers
+                        )
+                    );
                 })
                 .catch(error => {
                     log.error("error", error.message);
@@ -262,13 +328,17 @@ export default class DownloadManager {
         function toFileModel(download, station, urlPath, name, lastDownload) {
             if (lastDownload) {
                 return {
-                    url: station.url + urlPath + "?first=" + (lastDownload.lastBlock + 1),
-                    destination: download.getFile(name),
+                    url:
+                        station.url +
+                        urlPath +
+                        "?first=" +
+                        (lastDownload.lastBlock + 1),
+                    destination: download.getFile(name)
                 };
             }
             return {
                 url: station.url + urlPath,
-                destination: download.getFile(name),
+                destination: download.getFile(name)
             };
         }
 
@@ -279,8 +349,8 @@ export default class DownloadManager {
                 const main = this._getStationFolder(station);
                 const download = this._getNewDownloadFolder(station);
 
-                log.verbose('downloads', downloads)
-                log.verbose('streams', streams)
+                log.verbose("downloads", downloads);
+                log.verbose("streams", streams);
 
                 return {
                     id: station.id,
@@ -288,17 +358,31 @@ export default class DownloadManager {
                     url: station.url,
                     paths: {
                         main: main,
-                        download: download,
+                        download: download
                     },
-                    meta: toFileModel(download, station, "/download/meta", "meta.fkpb", downloads.meta),
-                    data: toFileModel(download, station, "/download/data", "data.fkpb", downloads.data),
+                    meta: toFileModel(
+                        download,
+                        station,
+                        "/download/meta",
+                        "meta.fkpb",
+                        downloads.meta
+                    ),
+                    data: toFileModel(
+                        download,
+                        station,
+                        "/download/data",
+                        "data.fkpb",
+                        downloads.data
+                    )
                 };
             });
         });
     }
 
     _getStationFolder(station) {
-        return knownFolders.currentApp().getFolder("FieldKitData/"+station.deviceId);
+        return knownFolders
+            .currentApp()
+            .getFolder("FieldKitData/" + station.deviceId);
     }
 
     _getNewDownloadFolder(station) {

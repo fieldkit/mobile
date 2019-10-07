@@ -1,9 +1,9 @@
-import _ from 'lodash';
+import _ from "lodash";
 import axios from "axios";
 import protobuf from "protobufjs";
-import deepmerge from 'deepmerge';
-import { promiseAfter } from '../utilities';
-import Config from '../config';
+import deepmerge from "deepmerge";
+import { promiseAfter } from "../utilities";
+import Config from "../config";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpQuery = appRoot.lookupType("fk_app.HttpQuery");
@@ -15,8 +15,7 @@ const log = Config.logger("QueryStation");
 
 const MandatoryStatus = {
     status: {
-        identity: {
-        },
+        identity: {},
         power: {
             battery: {
                 percentage: 0.0
@@ -26,13 +25,13 @@ const MandatoryStatus = {
             dataMemoryConsumption: 0
         },
         recording: {
-            enabled: false,
+            enabled: false
         },
         gps: {
             latitude: 0,
             longitude: 0
         }
-    },
+    }
 };
 
 export default class QueryStation {
@@ -139,7 +138,11 @@ export default class QueryStation {
                 }
                 const binaryReply = Buffer.from(response.data, "hex");
                 const decoded = HttpReply.decodeDelimited(binaryReply);
-                return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
+                return this._handlePotentialBusyReply(
+                    decoded,
+                    url,
+                    message
+                ).then(finalReply => {
                     log.verbose(url, "query success", finalReply);
                     return finalReply;
                 });
@@ -157,7 +160,9 @@ export default class QueryStation {
         }
         // NOTE deepmerge ruins deviceId.
         if (reply.status && reply.status.identity) {
-            reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
+            reply.status.identity.deviceId = new Buffer.from(
+                reply.status.identity.deviceId
+            ).toString("hex");
         }
         if (reply.streams && reply.streams.length > 0) {
             reply.streams.forEach(s => {
@@ -173,9 +178,9 @@ export default class QueryStation {
         if (reply.type != ReplyType.values.REPLY_BUSY) {
             return Promise.resolve(reply);
         }
-        const delays = _.sumBy(reply.errors, 'delay');
+        const delays = _.sumBy(reply.errors, "delay");
         if (delays == 0) {
-            return Promise.reject(new Error('busy'));
+            return Promise.reject(new Error("busy"));
         }
         return this._retryAfter(delays, url, message);
     }

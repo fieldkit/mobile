@@ -37,7 +37,9 @@ describe("UserAuth", () => {
         };
         axios
             .mockImplementationOnce(() => Promise.resolve(mockResponseLogin))
-            .mockImplementationOnce(() => Promise.resolve(mockResponseCurrentUser));
+            .mockImplementationOnce(() =>
+                Promise.resolve(mockResponseCurrentUser)
+            );
         return portalInterface
             .login(user)
             .then(resp => expect(portalInterface.isLoggedIn()).toBeTruthy());
@@ -64,7 +66,9 @@ describe("UserAuth", () => {
         const headers = { headers: { Authorization: "Bearer 34234324234" } };
         const mockResponse = { status: "204" };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return portalInterface.logout().then(resp => expect(portalInterface.isLoggedIn()).toBeFalsy());
+        return portalInterface
+            .logout()
+            .then(resp => expect(portalInterface.isLoggedIn()).toBeFalsy());
     });
 
     it("should register new user", () => {
@@ -75,6 +79,8 @@ describe("UserAuth", () => {
         };
         const mockResponse = { status: "200" };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return portalInterface.register(user).then(resp => expect(resp).toEqual("Account created"));
+        return portalInterface
+            .register(user)
+            .then(resp => expect(resp).toEqual("Account created"));
     });
 });

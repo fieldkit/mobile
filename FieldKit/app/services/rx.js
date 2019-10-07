@@ -12,17 +12,16 @@ export class BetterObservable extends Observable {
     subscribe(receiver) {
         if (!this.has_value) {
             this.refresh();
-        }
-        else {
+        } else {
             receiver(this.value);
         }
 
-        this.on(Observable.propertyChangeEvent, (data) => {
+        this.on(Observable.propertyChangeEvent, data => {
             switch (data.propertyName.toString()) {
-            case HiddenProperty: {
-                receiver(data.value);
-                break;
-            }
+                case HiddenProperty: {
+                    receiver(data.value);
+                    break;
+                }
             }
         });
     }
@@ -34,17 +33,19 @@ export class BetterObservable extends Observable {
     }
 
     refresh() {
-        return this.getValue().then(value => {
-            if (value != null) {
-                this.publish(value);
-            }
-            return value;
-        }).catch(error => {
-            console.log('error', error);
-        });
+        return this.getValue()
+            .then(value => {
+                if (value != null) {
+                    this.publish(value);
+                }
+                return value;
+            })
+            .catch(error => {
+                console.log("error", error);
+            });
     }
 
     getValue() {
         return Promise.resolve(null);
     }
-};
+}

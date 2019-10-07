@@ -146,7 +146,9 @@ export default class PortalInterface {
                 Authorization: accessToken
             },
             data: data
-        }).then(handleResponse).catch(this.handleError);
+        })
+            .then(handleResponse)
+            .catch(this.handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -166,7 +168,9 @@ export default class PortalInterface {
                 Authorization: accessToken
             },
             data: data
-        }).then(handleResponse).catch(this.handleError);
+        })
+            .then(handleResponse)
+            .catch(this.handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -182,9 +186,11 @@ export default class PortalInterface {
             url: Config.baseUri + "/data/devices/" + deviceId + "/summary",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": accessToken
-            },
-        }).then(this._handleResponse.bind(this)).catch(this.handleError.bind(this));
+                Authorization: accessToken
+            }
+        })
+            .then(this._handleResponse.bind(this))
+            .catch(this.handleError.bind(this));
     }
 
     getStationById(id) {
@@ -192,9 +198,11 @@ export default class PortalInterface {
             url: Config.baseUri + "/stations/@/" + id,
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": accessToken
-            },
-        }).then(this._handleResponse.bind(this)).catch(this.handleError.bind(this));
+                Authorization: accessToken
+            }
+        })
+            .then(this._handleResponse.bind(this))
+            .catch(this.handleError.bind(this));
     }
 
     _handleResponse(response) {

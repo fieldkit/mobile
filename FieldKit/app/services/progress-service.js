@@ -1,6 +1,6 @@
 import { Observable } from "tns-core-modules/data/observable";
-import { BetterObservable } from './rx';
-import Config from '../config';
+import { BetterObservable } from "./rx";
+import Config from "../config";
 
 const log = Config.logger("Progress");
 
@@ -10,7 +10,7 @@ class ProgressTracker {
         this.kind = kind;
         this.progress = {
             message: null,
-            progress: 0.0,
+            progress: 0.0
         };
     }
 
@@ -28,7 +28,7 @@ class ProgressTracker {
 
     complete() {
         log.info("complete");
-        this.service.publish({message: "complete", progress: 100});
+        this.service.publish({ message: "complete", progress: 100 });
         this.service._remove(this);
         return Promise.resolve();
     }
@@ -36,7 +36,7 @@ class ProgressTracker {
 
 const Kinds = {
     DOWNLOAD: "DOWNLOAD",
-    UPLOAD:    "UPLOAD",
+    UPLOAD: "UPLOAD"
 };
 
 export default class ProgressService extends BetterObservable {
@@ -64,8 +64,7 @@ export default class ProgressService extends BetterObservable {
         if (index >= 0) {
             this.active.splice(index, 1);
             this._publish();
-        }
-        else {
+        } else {
             console.warn("Removing operation twice?");
         }
     }
@@ -76,14 +75,17 @@ export default class ProgressService extends BetterObservable {
 
     _calculateProgress() {
         if (this.active.length == 1) {
-            return { ...{ }, ...this.active[0].progress, ...{ message: this._getMessage(this.active[0].kind) } };
-        }
-        else {
+            return {
+                ...{},
+                ...this.active[0].progress,
+                ...{ message: this._getMessage(this.active[0].kind) }
+            };
+        } else {
             log.info("active", this.active);
         }
         return {
             message: null,
-            progress: 0.0,
+            progress: 0.0
         };
     }
 

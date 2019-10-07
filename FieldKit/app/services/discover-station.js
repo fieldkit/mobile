@@ -1,7 +1,10 @@
-import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
+import {
+    Observable,
+    PropertyChangeData
+} from "tns-core-modules/data/observable";
 import { Zeroconf } from "nativescript-zeroconf";
 import { isIOS } from "tns-core-modules/platform";
-import { WifiInfo } from 'nativescript-wifi-info';
+import { WifiInfo } from "nativescript-wifi-info";
 
 class Station {
     constructor(info) {
@@ -49,23 +52,22 @@ export default class DiscoverStation extends Observable {
 
     startServiceDiscovery() {
         this.wifiMonitor = new WiFiMonitor((ssid, couldBeStation) => {
-            console.log('new ssid', ssid, couldBeStation);
+            console.log("new ssid", ssid, couldBeStation);
             if (couldBeStation) {
                 this.stationFound({
-                    type: '._fk._tcp',
+                    type: "._fk._tcp",
                     name: ssid,
-                    host: '192.168.2.1',
+                    host: "192.168.2.1",
                     port: 80
                 });
-            }
-            else {
+            } else {
                 // HACK Fake onServiceLost for any connection stations.
                 const connected = Object.values(this.stations_);
                 console.log(connected);
                 connected.forEach(station => {
                     this.stationLost({
                         type: station.type,
-                        name: station.name,
+                        name: station.name
                     });
                 });
             }
@@ -84,7 +86,11 @@ export default class DiscoverStation extends Observable {
                         break;
                     }
                     default: {
-                        console.log(data.propertyName.toString() + " " + data.value.toString());
+                        console.log(
+                            data.propertyName.toString() +
+                                " " +
+                                data.value.toString()
+                        );
                         break;
                     }
                 }
@@ -102,7 +108,13 @@ export default class DiscoverStation extends Observable {
     }
 
     stationFound(info) {
-        console.log("found service:", info.type, info.name, info.host, info.port);
+        console.log(
+            "found service:",
+            info.type,
+            info.name,
+            info.host,
+            info.port
+        );
         const key = this.makeKey(info);
         const station = new Station(info);
         this.stations_[key] = station;

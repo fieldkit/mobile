@@ -1,4 +1,4 @@
-import { CONFIG } from './secrets';
+import { CONFIG } from "./secrets";
 
 function get_blank_developer_config() {
     return {
@@ -6,13 +6,13 @@ function get_blank_developer_config() {
             SaveLogs: true,
             QueryStation: false,
             DownloadManager: false,
-            UploadManager: false,
+            UploadManager: false
         },
         developer: {
             machine: null,
-            stationFilter: (url) => {
+            stationFilter: url => {
                 return true;
-            },
+            }
         }
     };
 }
@@ -27,7 +27,7 @@ function get_developer_config() {
 const configs = {
     default: {
         vue: {
-            verbose: false,
+            verbose: false
         },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
@@ -39,7 +39,7 @@ const configs = {
     },
     test: {
         vue: {
-            verbose: false,
+            verbose: false
         },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
@@ -61,7 +61,7 @@ function get_config() {
 
 const final = get_config();
 
-final.logger = (name) => {
+final.logger = name => {
     if (final.logging[name]) {
         return {
             info: function() {
@@ -82,21 +82,18 @@ final.logger = (name) => {
         };
     }
     return {
-        info: () => {
-        },
-        verbose: () => {
-        },
-        error: () => {
-        }
+        info: () => {},
+        verbose: () => {},
+        error: () => {}
     };
 };
 
 export default final;
 
 export const Build = {
-    buildTime: FK_BUILD_TIMESTAMP || '',
-    buildNumber: FK_BUILD_NUMBER || '',
-    buildTag: FK_BUILD_TAG || '',
-    commit: FK_GIT_COMMIT || '',
-    branch: FK_GIT_BRANCH || '',
+    buildTime: FK_BUILD_TIMESTAMP || "",
+    buildNumber: FK_BUILD_NUMBER || "",
+    buildTag: FK_BUILD_TAG || "",
+    commit: FK_GIT_COMMIT || "",
+    branch: FK_GIT_BRANCH || ""
 };

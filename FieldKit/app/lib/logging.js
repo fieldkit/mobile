@@ -3,7 +3,7 @@ import moment from "moment";
 import Promise from "bluebird";
 import protobuf from "protobufjs";
 import { setText } from "nativescript-clipboard";
-import Config from '../config';
+import Config from "../config";
 
 const logs = [];
 
@@ -14,21 +14,21 @@ function flush() {
 // NOTE This won't work yet.
 export function getLogsAsProtobufs() {
     const encoded = _(logs)
-          .map(log => {
-              return {
-                  log: {
-                      time: 0,
-                      uptime: 0,
-                      level: 0,
-                      facility: "App",
-                      message: JSON.stringify(log)
-                  }
-              };
-          })
-          .map(log => {
-              return DataRecord.encodeDelimited(row, buffer).finish();
-          })
-          .value();
+        .map(log => {
+            return {
+                log: {
+                    time: 0,
+                    uptime: 0,
+                    level: 0,
+                    facility: "App",
+                    message: JSON.stringify(log)
+                }
+            };
+        })
+        .map(log => {
+            return DataRecord.encodeDelimited(row, buffer).finish();
+        })
+        .value();
 
     logs.length = 0; // Empty logs.
 
@@ -37,10 +37,10 @@ export function getLogsAsProtobufs() {
 
 export function getLogsAsString() {
     const encoded = _(logs)
-          .map(log => {
-              return _(log).join(" ");
-          })
-          .join('\n');
+        .map(log => {
+            return _(log).join(" ");
+        })
+        .join("\n");
 
     logs.length = 0; // Empty logs.
 
@@ -94,8 +94,7 @@ export function initializeLogging() {
                 } else {
                     original(Array.prototype.slice.apply(arguments).join(" ")); // IE
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 originalConsole.log(e);
             }
         };

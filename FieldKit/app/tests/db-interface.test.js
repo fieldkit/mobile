@@ -1,4 +1,4 @@
-import Services from '../services/services';
+import Services from "../services/services";
 
 const dbInterface = Services.Database();
 const createDB = Services.CreateDb();
@@ -127,7 +127,8 @@ describe("DatabaseInterface", () => {
 
     test("setStationDeployAudio should set a station's deployment audio file", async () => {
         const data = await dbInterface.getStation(1);
-        const audioFiles = "Audio recording Jul 24 2019.m4a,Audio recording Jul 24 2019 2.m4a";
+        const audioFiles =
+            "Audio recording Jul 24 2019.m4a,Audio recording Jul 24 2019 2.m4a";
         data[0].deployAudioFiles = audioFiles;
         const change = await dbInterface.setStationDeployAudio(data[0]);
         const newData = await dbInterface.getStation(1);
@@ -151,7 +152,9 @@ describe("DatabaseInterface", () => {
             affectedField: "name",
             author: "tester"
         };
-        const change = await dbInterface.recordStationConfigChange(configChange);
+        const change = await dbInterface.recordStationConfigChange(
+            configChange
+        );
         const newData = await dbInterface.getStationConfigs(1);
         const lastIndex = newData.length - 1;
         expect(newData[lastIndex].before).toEqual(configChange.before);

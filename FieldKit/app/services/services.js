@@ -26,7 +26,13 @@ class Services {
     StateManager() {
         if (!this.stateManager) {
             const StateManager = require("./state-manager").default;
-            this.stateManager = new StateManager(this.Database(), this.QueryStation(), this.StationMonitor(), this.PortalInterface(), this.ProgressService());
+            this.stateManager = new StateManager(
+                this.Database(),
+                this.QueryStation(),
+                this.StationMonitor(),
+                this.PortalInterface(),
+                this.ProgressService()
+            );
         }
         return this.stateManager;
     }
@@ -34,7 +40,11 @@ class Services {
     StationMonitor() {
         if (!this.stationMonitor) {
             const StationMonitor = require("./station-monitor").default;
-            this.stationMonitor = new StationMonitor(this.DiscoverStation(), this.Database(), this.QueryStation());
+            this.stationMonitor = new StationMonitor(
+                this.DiscoverStation(),
+                this.Database(),
+                this.QueryStation()
+            );
         }
         return this.stationMonitor;
     }
