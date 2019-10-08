@@ -382,7 +382,8 @@ export default class DownloadManager {
     _getStationFolder(station) {
         return knownFolders
             .currentApp()
-            .getFolder("FieldKitData/" + station.deviceId);
+            .getFolder("FieldKitData")
+            .getFolder(station.deviceId);
     }
 
     _getNewDownloadFolder(station) {
