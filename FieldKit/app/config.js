@@ -30,7 +30,7 @@ const configs = {
             verbose: false
         },
         baseUri: "https://api.fkdev.org",
-        ingestionUri: "https://api.fkdev.org/ingestion",
+        ingestionUri: "http://192.168.0.100:8080/ingestion",
         seedDB: true,
         dropTables: true,
         stationTimeoutMs: 30000,
