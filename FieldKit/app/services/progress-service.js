@@ -8,6 +8,7 @@ class ProgressTracker {
     constructor(service, kind) {
         this.service = service;
         this.kind = kind;
+        this.finished = false;
         this.progress = {
             message: null,
             progress: 0.0
@@ -15,20 +16,32 @@ class ProgressTracker {
     }
 
     update(progress) {
+        if (this.finished) {
+            return;
+        }
         this.progress = progress;
         this.service._publish(this, progress);
         return Promise.resolve();
     }
 
     cancel(error) {
+        if (this.finished) {
+            return;
+        }
         log.info("cancel");
+        this.finished = true;
+        this.service.publish({ complete: true, cancel: true, progress: 100 });
         this.service._remove(this);
         return Promise.reject(error);
     }
 
     complete() {
+        if (this.finished) {
+            return;
+        }
         log.info("complete");
-        this.service.publish({ message: "complete", progress: 100 });
+        this.finished = true;
+        this.service.publish({ complete: true, cancel: false, progress: 100 });
         this.service._remove(this);
         return Promise.resolve();
     }
