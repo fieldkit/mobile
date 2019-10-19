@@ -74,6 +74,8 @@ export default {
                 if (this.station) {
                     const station = status.station.forStation(this.station.id);
                     if (station) {
+                        this.canDownload = station.pending.records > 0;
+                        this.canUpload = status.portal.pending.bytes > 0;
                         this.pending = {
                             station: {
                                 bytes: this.convertBytesToLabel(station.pending.bytes),
