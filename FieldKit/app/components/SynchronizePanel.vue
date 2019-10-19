@@ -1,16 +1,20 @@
 <template>
 <StackLayout class="sync-panel-container" @loaded="onLoaded">
 
-    <StackLayout class="sync-button-panel">
+    <StackLayout class="sync-button-panel" v-if="canDownload">
         <Label :text="stationStatus" textWrap="true"></Label>
 
         <Button class="btn btn-primary m-t-10" text="Sync Station" isEnabled="true" @tap="onSyncStation" style="sync-button"></Button>
     </StackLayout>
 
-    <StackLayout class="sync-button-panel">
+    <StackLayout class="sync-button-panel" v-if="canUpload">
         <Label :text="portalStatus" textWrap="true"></Label>
 
         <Button class="btn btn-primary m-t-10" text="Sync Portal" isEnabled="true" @tap="onSyncPortal" style="sync-button"></Button>
+    </StackLayout>
+
+    <StackLayout class="sync-button-panel" v-if="!canDownload && !canUpload">
+        <Label text="There is nothing to download or upload."></Label>
     </StackLayout>
 
     <StackLayout class="sync-panel-progress">
@@ -38,7 +42,8 @@ export default {
 
     data() {
         return {
-            visible: true,
+            canDownload: false,
+            canUpload: false,
             pending: {
                 station: 0,
                 portal: 0,
