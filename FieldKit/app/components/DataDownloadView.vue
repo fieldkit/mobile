@@ -2,7 +2,6 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="*,80">
             <StackLayout row="0">
-                <Label class="h2 m-y-20 text-center" :text="message" textWrap="true"></Label>
                 <SynchronizePanel :station="station" />
             </StackLayout>
 
@@ -18,15 +17,17 @@ import SynchronizePanel from './SynchronizePanel';
 import StationFooterTabs from './StationFooterTabs';
 
 export default {
-    data() {
-        return {
-        };
+    props: {
+        station: Object,
     },
     components: {
         SynchronizePanel,
         StationFooterTabs,
     },
-    props: ['station'],
+    data() {
+        return {
+        };
+    },
     methods: {
         onPageLoaded(args) {
         }
