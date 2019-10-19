@@ -70,7 +70,7 @@ export default {
         onLoaded(args) {
             // TODO Cancel subscription?
             Services.ProgressService().subscribe(data => {
-                if (data.message == "complete") {
+                if (data.complete) {
                     this.complete(data);
                     return;
                 }
