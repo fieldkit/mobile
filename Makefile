@@ -63,3 +63,7 @@ android-logs-verbose:
 
 android-debug:
 	cd FieldKit && tns debug android --bundle --no-hmr | grep -v NSVue
+
+clean:
+	rm -rf FieldKit/node_modules
+	rm -rf FieldKit/platforms
