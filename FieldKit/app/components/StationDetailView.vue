@@ -1,43 +1,43 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
-        <ScrollView>
-            <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
-                <GridLayout rows="auto" columns="15*,70*,15*">
-                    <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
-                        <Image width="21" src="~/images/Icon_backarrow.png"></Image>
-                    </StackLayout>
-                    <GridLayout col="1" rows="auto,auto" columns="*">
-                        <Label row="0"
-                            class="title m-t-10 text-center"
-                            :text="station.name"
-                            textWrap="true"></Label>
-                        <Label row="1"
-                            class="text-center size-12"
-                            :text="deployedStatus"
-                            textWrap="true"></Label>
+        <GridLayout rows="*,80">
+            <ScrollView row="0">
+                <FlexboxLayout flexDirection="column" class="p-t-10">
+                    <GridLayout rows="auto" columns="15*,70*,15*">
+                        <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
+                            <Image width="21" src="~/images/Icon_backarrow.png"></Image>
+                        </StackLayout>
+                        <GridLayout col="1" rows="auto,auto" columns="*">
+                            <Label row="0"
+                                class="title m-t-10 text-center"
+                                :text="station.name"
+                                textWrap="true"></Label>
+                            <Label row="1"
+                                class="text-center size-12"
+                                :text="deployedStatus"
+                                textWrap="true"></Label>
+                        </GridLayout>
+                        <StackLayout col="2" class="round-bkgd" @tap="goToSettings">
+                            <Image
+                                width="25"
+                                src="~/images/Icon_Congfigure.png"></Image>
+                        </StackLayout>
                     </GridLayout>
-                    <StackLayout col="2" class="round-bkgd" @tap="goToSettings">
-                        <Image
-                            width="25"
-                            src="~/images/Icon_Congfigure.png"></Image>
-                    </StackLayout>
-                </GridLayout>
 
-                <!-- loading circle -->
-                <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
-                    <StackLayout id="loading-circle-blue"></StackLayout>
-                    <StackLayout id="loading-circle-white"></StackLayout>
-                </GridLayout>
+                    <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
+                        <StackLayout id="loading-circle-blue"></StackLayout>
+                        <StackLayout id="loading-circle-white"></StackLayout>
+                    </GridLayout>
 
-                <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
+                    <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
 
-                <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
+                    <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
+                </FlexboxLayout>
+            </ScrollView>
 
-                <!-- footer -->
-                <StationFooterTabs :station="station" active="station" />
-
-            </FlexboxLayout>
-        </ScrollView>
+            <!-- footer -->
+            <StationFooterTabs row="1" :station="station" active="station" />
+        </GridLayout>
     </Page>
 </template>
 
@@ -138,7 +138,7 @@ export default {
                 this.$stationMonitor.stopLiveReadings(this.station.url);
             }
             clearInterval(this.intervalTimer);
-            this.$refs.statusBox.stopProcesses();
+            // this.$refs.statusBox.stopProcesses();
         },
 
         onPageLoaded(args) {

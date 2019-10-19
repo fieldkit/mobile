@@ -55,6 +55,7 @@ Vue.use(RadChart);
 
 // Uncommment the following to see NativeScript-Vue output logs
 if (Config.vue.verbose) {
+    console.log("VERBOSE");
     Vue.config.silent = false;
 }
 
