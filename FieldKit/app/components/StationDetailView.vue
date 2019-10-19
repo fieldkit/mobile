@@ -1,37 +1,70 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
+    <Page
+        class="page plain"
+        actionBarHidden="true"
+        @loaded="onPageLoaded"
+        @navigatingFrom="onNavigatingFrom"
+    >
         <GridLayout rows="*,80">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <GridLayout rows="auto" columns="15*,70*,15*">
-                        <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
-                            <Image width="21" src="~/images/Icon_backarrow.png"></Image>
+                        <StackLayout
+                            col="0"
+                            class="round-bkgd"
+                            verticalAlignment="top"
+                            @tap="goBack"
+                        >
+                            <Image
+                                width="21"
+                                src="~/images/Icon_backarrow.png"
+                            ></Image>
                         </StackLayout>
                         <GridLayout col="1" rows="auto,auto" columns="*">
-                            <Label row="0"
+                            <Label
+                                row="0"
                                 class="title m-t-10 text-center"
                                 :text="station.name"
-                                textWrap="true"></Label>
-                            <Label row="1"
+                                textWrap="true"
+                            ></Label>
+                            <Label
+                                row="1"
                                 class="text-center size-12"
                                 :text="deployedStatus"
-                                textWrap="true"></Label>
+                                textWrap="true"
+                            ></Label>
                         </GridLayout>
-                        <StackLayout col="2" class="round-bkgd" @tap="goToSettings">
+                        <StackLayout
+                            col="2"
+                            class="round-bkgd"
+                            @tap="goToSettings"
+                        >
                             <Image
                                 width="25"
-                                src="~/images/Icon_Congfigure.png"></Image>
+                                src="~/images/Icon_Congfigure.png"
+                            ></Image>
                         </StackLayout>
                     </GridLayout>
 
-                    <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
+                    <GridLayout
+                        rows="auto"
+                        columns="*"
+                        v-if="loading"
+                        class="text-center"
+                    >
                         <StackLayout id="loading-circle-blue"></StackLayout>
                         <StackLayout id="loading-circle-white"></StackLayout>
                     </GridLayout>
 
-                    <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
+                    <StationStatusBox
+                        ref="statusBox"
+                        @deployTapped="goToDeploy"
+                    />
 
-                    <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
+                    <ModuleListView
+                        ref="moduleList"
+                        @moduleTapped="goToModule"
+                    />
                 </FlexboxLayout>
             </ScrollView>
 
@@ -47,13 +80,13 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 import routes from "../routes";
-import Services from '../services/services';
-import Config from '../config';
-import StationStatusBox from './StationStatusBox';
-import ModuleListView from './ModuleListView';
-import StationFooterTabs from './StationFooterTabs';
+import Services from "../services/services";
+import Config from "../config";
+import StationStatusBox from "./StationStatusBox";
+import ModuleListView from "./ModuleListView";
+import StationFooterTabs from "./StationFooterTabs";
 
-const log = Config.logger('StationDetailView');
+const log = Config.logger("StationDetailView");
 
 const dbInterface = Services.Database();
 
@@ -150,7 +183,7 @@ export default {
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
 
-            if(this.station.name == "") {
+            if (this.station.name == "") {
                 this.getFromDatabase();
             } else {
                 this.stationId = this.station.id;
@@ -167,39 +200,50 @@ export default {
         },
 
         respondToUpdates() {
-            const saved = this.$stationMonitor.sortStations().filter(s => s.id == this.stationId);
+            const saved = this.$stationMonitor
+                .sortStations()
+                .filter(s => s.id == this.stationId);
             if (saved.length > 0) {
                 this.station.connected = saved[0].connected;
             }
 
-            this.$stationMonitor.on(Observable.propertyChangeEvent, data => {
-                switch (data.propertyName.toString()) {
-                case this.$stationMonitor.StationRefreshedProperty: {
-                    if (!data.value || !this.station) {
-                        console.log('bad station refresh', data.value);
-                    }
-                    else {
-                        if (Number(data.value.id) === Number(this.stationId)) {
-                            this.station.connected = data.value.connected;
+            this.$stationMonitor.on(
+                Observable.propertyChangeEvent,
+                data => {
+                    switch (data.propertyName.toString()) {
+                        case this.$stationMonitor.StationRefreshedProperty: {
+                            if (!data.value || !this.station) {
+                                console.log("bad station refresh", data.value);
+                            } else {
+                                if (
+                                    Number(data.value.id) ===
+                                    Number(this.stationId)
+                                ) {
+                                    this.station.connected =
+                                        data.value.connected;
+                                }
+                            }
+                            break;
+                        }
+                        case this.$stationMonitor.ReadingsChangedProperty: {
+                            if (data.value.stationId == this.stationId) {
+                                this.$refs.statusBox.updateStatus(data.value);
+                                this.$refs.moduleList.updateReadings(
+                                    data.value.readings
+                                );
+                            }
+                            break;
                         }
                     }
-                    break;
+                },
+                error => {
+                    // console.log("propertyChangeEvent error", error);
                 }
-                case this.$stationMonitor.ReadingsChangedProperty: {
-                    if (data.value.stationId == this.stationId) {
-                        this.$refs.statusBox.updateStatus(data.value);
-                        this.$refs.moduleList.updateReadings(data.value.readings);
-                    }
-                    break;
-                }
-                }
-            }, error => {
-                // console.log("propertyChangeEvent error", error);
-            });
+            );
         },
 
         getModules(station) {
-            if(station.length == 0) {
+            if (station.length == 0) {
                 // adding to db in background hasn't finished yet,
                 // wait a few seconds and try again
                 setTimeout(this.getFromDatabase, 2000);
@@ -223,10 +267,17 @@ export default {
         completeSetup() {
             this.loading = false;
             clearInterval(this.intervalTimer);
-            if(this.station.deployStartTime && typeof this.station.deployStartTime == "string") {
-                this.station.deployStartTime = new Date(this.station.deployStartTime);
+            if (
+                this.station.deployStartTime &&
+                typeof this.station.deployStartTime == "string"
+            ) {
+                this.station.deployStartTime = new Date(
+                    this.station.deployStartTime
+                );
             }
-            if(this.station.status == "recording") {this.setDeployedStatus();}
+            if (this.station.status == "recording") {
+                this.setDeployedStatus();
+            }
             this.$refs.statusBox.updateStation(this.station);
             this.$refs.moduleList.updateModules(this.station.moduleObjects);
             this.station.origName = this.station.name;
@@ -254,10 +305,12 @@ export default {
             }
 
             // start getting live readings for this station
-            if(this.station.url != "no_url") {
+            if (this.station.url != "no_url") {
                 // see if live readings have been stored already
-                const readings = this.$stationMonitor.getStationReadings(this.station);
-                if(readings) {
+                const readings = this.$stationMonitor.getStationReadings(
+                    this.station
+                );
+                if (readings) {
                     this.$refs.moduleList.updateReadings(readings);
                 }
                 this.$stationMonitor.startLiveReadings(this.station.url);
@@ -265,18 +318,18 @@ export default {
 
             // now that station and modules are defined, respond to updates
             this.respondToUpdates();
-
         },
 
         setDeployedStatus() {
-            if(!this.station.deployStartTime) {
+            if (!this.station.deployStartTime) {
                 this.deployedStatus = "Deployed";
-                return
+                return;
             }
             let month = this.station.deployStartTime.getMonth() + 1;
             let day = this.station.deployStartTime.getDate();
             let year = this.station.deployStartTime.getFullYear();
-            this.deployedStatus = "Deployed (" + month + "/" + day + "/" + year + ")";
+            this.deployedStatus =
+                "Deployed (" + month + "/" + day + "/" + year + ")";
         },
 
         onNavigatingFrom() {
@@ -303,7 +356,8 @@ export default {
 // End custom common variables
 
 // Custom styles
-#loading-circle-blue, #loading-circle-white {
+#loading-circle-blue,
+#loading-circle-white {
     width: 90;
     height: 90;
     background: $fk-gray-white;
@@ -317,5 +371,4 @@ export default {
 #loading-circle-blue {
     border-color: $fk-secondary-blue;
 }
-
 </style>

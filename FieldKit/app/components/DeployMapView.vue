@@ -1,14 +1,33 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <FlexboxLayout flexDirection="column" justifyContent="space-between">
+            <FlexboxLayout
+                flexDirection="column"
+                justifyContent="space-between"
+            >
                 <GridLayout rows="auto" columns="10*,90*">
-                    <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
-                        <Image width="21" src="~/images/Icon_backarrow.png"></Image>
+                    <StackLayout
+                        col="0"
+                        class="round-bkgd"
+                        verticalAlignment="top"
+                        @tap="goBack"
+                    >
+                        <Image
+                            width="21"
+                            src="~/images/Icon_backarrow.png"
+                        ></Image>
                     </StackLayout>
                     <StackLayout col="1" class="title-container m-t-10 m-r-30">
-                        <Label class="bold text-center" :text="viewTitle" textWrap="true"></Label>
-                        <Label class="bold text-center" :text="station.name" textWrap="true"></Label>
+                        <Label
+                            class="bold text-center"
+                            :text="viewTitle"
+                            textWrap="true"
+                        ></Label>
+                        <Label
+                            class="bold text-center"
+                            :text="station.name"
+                            textWrap="true"
+                        ></Label>
                     </StackLayout>
                 </GridLayout>
 
@@ -24,7 +43,8 @@
                     disableRotation="false"
                     disableScroll="false"
                     disableTilt="false"
-                    @mapReady="onMapReady">
+                    @mapReady="onMapReady"
+                >
                 </Mapbox>
 
                 <!-- Name your location -->
@@ -41,7 +61,8 @@
                                 autocapitalizationType="none"
                                 v-model="station.locationName"
                                 @focus="toggleLocationEdit"
-                                @blur="checkLocationName"></TextField>
+                                @blur="checkLocationName"
+                            ></TextField>
                         </FlexboxLayout>
                         <Label
                             class="validation-error"
@@ -49,34 +70,53 @@
                             horizontalAlignment="left"
                             :text="_L('locationRequired')"
                             textWrap="true"
-                            :visibility="noLocation ? 'visible' : 'collapsed'"></Label>
+                            :visibility="noLocation ? 'visible' : 'collapsed'"
+                        ></Label>
                         <Label
                             class="validation-error"
                             id="location-too-long"
                             horizontalAlignment="left"
                             :text="_L('locationOver255')"
                             textWrap="true"
-                            :visibility="locationTooLong ? 'visible' : 'collapsed'"></Label>
+                            :visibility="
+                                locationTooLong ? 'visible' : 'collapsed'
+                            "
+                        ></Label>
                         <Label
                             class="validation-error"
                             id="location-not-printable"
                             horizontalAlignment="left"
                             :text="_L('locationNotPrintable')"
                             textWrap="true"
-                            :visibility="locationNotPrintable ? 'visible' : 'collapsed'"></Label>
+                            :visibility="
+                                locationNotPrintable ? 'visible' : 'collapsed'
+                            "
+                        ></Label>
                     </StackLayout>
                 </GridLayout>
                 <!-- end: Name your location -->
 
                 <!-- Data capture interval -->
-                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-20">
-                    <Label row="0" colSpan="2" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
-                    <Label row="1"
+                <GridLayout
+                    rows="auto,auto,auto,auto"
+                    columns="*,*"
+                    class="m-x-10 m-y-20"
+                >
+                    <Label
+                        row="0"
+                        colSpan="2"
+                        class="size-20"
+                        :text="_L('dataCaptureSchedule')"
+                    ></Label>
+                    <Label
+                        row="1"
                         colSpan="2"
                         class="size-14 m-y-5"
                         textWrap="true"
-                        :text="_L('dataCaptureNotice')"></Label>
-                    <TextField row="2"
+                        :text="_L('dataCaptureNotice')"
+                    ></Label>
+                    <TextField
+                        row="2"
                         col="0"
                         class="input"
                         id="interval-field"
@@ -85,13 +125,16 @@
                         autocorrect="false"
                         autocapitalizationType="none"
                         v-model="displayInterval"
-                        @blur="checkInterval"></TextField>
+                        @blur="checkInterval"
+                    ></TextField>
                     <StackLayout row="2" col="1" id="drop-down-container">
-                        <DropDown :items="timeUnits"
+                        <DropDown
+                            :items="timeUnits"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
                             class="drop-down"
-                            :selectedIndex="currentUnit" ></DropDown>
+                            :selectedIndex="currentUnit"
+                        ></DropDown>
                     </StackLayout>
                     <StackLayout row="3" col="0">
                         <Label
@@ -100,25 +143,30 @@
                             horizontalAlignment="left"
                             :text="_L('intervalRequired')"
                             textWrap="true"
-                            :visibility="noInterval ? 'visible' : 'collapsed'"></Label>
+                            :visibility="noInterval ? 'visible' : 'collapsed'"
+                        ></Label>
                         <Label
                             class="validation-error"
                             id="interval-not-numeric"
                             horizontalAlignment="left"
                             :text="_L('intervalNotNumber')"
                             textWrap="true"
-                            :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
+                            :visibility="
+                                intervalNotNumber ? 'visible' : 'collapsed'
+                            "
+                        ></Label>
                     </StackLayout>
                 </GridLayout>
                 <!-- end: Data capture interval -->
 
-                <Button class="btn btn-primary m-b-10"
+                <Button
+                    class="btn btn-primary m-b-10"
                     text="Continue"
                     automationText="nextButton"
-                    @tap="goToNext"></Button>
+                    @tap="goToNext"
+                ></Button>
 
                 <TextView id="hidden-field" />
-
             </FlexboxLayout>
         </ScrollView>
     </Page>
@@ -128,7 +176,7 @@
 import * as geolocation from "nativescript-geolocation";
 import { Accuracy } from "tns-core-modules/ui/enums";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
-import Services from '../services/services';
+import Services from "../services/services";
 import routes from "../routes";
 
 const dbInterface = Services.Database();
@@ -150,7 +198,13 @@ export default {
             intervalNotNumber: false,
             currentUnit: 0,
             displayInterval: "",
-            timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
+            timeUnits: [
+                _L("seconds"),
+                _L("minutes"),
+                _L("hours"),
+                _L("days"),
+                _L("weeks")
+            ]
         };
     },
     props: ["station"],
@@ -383,7 +437,9 @@ export default {
             this.intervalNotNumber = false;
             // then check
             this.noInterval =
-                !this.displayInterval || this.displayInterval == 0 || this.displayInterval.length == 0;
+                !this.displayInterval ||
+                this.displayInterval == 0 ||
+                this.displayInterval.length == 0;
             if (this.noInterval) {
                 return false;
             }
@@ -461,8 +517,6 @@ export default {
     border-top-width: 2;
     padding-top: 5;
 }
-
-
 
 #hidden-field {
     opacity: 0;

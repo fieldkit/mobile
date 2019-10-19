@@ -1,64 +1,106 @@
 <template>
     <StackLayout id="module-list-container" class="m-10">
-        <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in modules" :key="m.id">
+        <GridLayout
+            rows="auto"
+            columns="*"
+            v-for="(m, moduleIndex) in modules"
+            :key="m.id"
+        >
             <StackLayout class="bordered-container p-10 m-y-10">
                 <!-- top row of module list -->
                 <GridLayout rows="auto" columns="15*,70*,15*">
                     <!-- module icon -->
-                    <Image row="0" col="0"
+                    <Image
+                        row="0"
+                        col="0"
                         width="40"
                         horizontalAlignment="left"
-                        :src="(m.name.indexOf('Water') > -1 ? '~/images/Icon_Water_Module.png' :
-                            m.name.indexOf('Weather') > -1 ? '~/images/Icon_Weather_Module.png' :
-                            '~/images/Icon_Generic_Module.png')"></Image>
+                        :src="
+                            m.name.indexOf('Water') > -1
+                                ? '~/images/Icon_Water_Module.png'
+                                : m.name.indexOf('Weather') > -1
+                                ? '~/images/Icon_Weather_Module.png'
+                                : '~/images/Icon_Generic_Module.png'
+                        "
+                    ></Image>
                     <!-- module name -->
-                    <Label row="0" col="1"
+                    <Label
+                        row="0"
+                        col="1"
                         :text="m.name"
                         class="module-name"
-                        textWrap="true" />
+                        textWrap="true"
+                    />
                     <!-- toggle sensor container icons -->
-                    <Image row="0" col="2"
+                    <Image
+                        row="0"
+                        col="2"
                         verticalAlignment="top"
                         horizontalAlignment="right"
                         src="~/images/pointing_up.png"
                         width="30"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
-                        v-if="(open.indexOf(m.id) > -1)"></Image>
-                    <Image row="0" col="2"
+                        v-if="open.indexOf(m.id) > -1"
+                    ></Image>
+                    <Image
+                        row="0"
+                        col="2"
                         verticalAlignment="top"
                         horizontalAlignment="right"
                         width="30"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
                         src="~/images/pointing_down.png"
-                        v-if="(open.indexOf(m.id) == -1)"></Image>
+                        v-if="open.indexOf(m.id) == -1"
+                    ></Image>
                 </GridLayout>
                 <!-- sensor container -->
-                <WrapLayout orientation="horizontal" v-if="(open.indexOf(m.id) > -1)">
-                    <WrapLayout orientation="horizontal"
+                <WrapLayout
+                    orientation="horizontal"
+                    v-if="open.indexOf(m.id) > -1"
+                >
+                    <WrapLayout
+                        orientation="horizontal"
                         v-for="(s, sensorIndex) in m.sensorObjects"
                         :key="s.id"
-                        class="sensor-block">
+                        class="sensor-block"
+                    >
                         <!-- trend arrow -->
-                        <Image width="7"
+                        <Image
+                            width="7"
                             verticalAlignment="bottom"
                             :src="s.icon"
-                            class="trend-icon"></Image>
+                            class="trend-icon"
+                        ></Image>
                         <!-- reading -->
-                        <Label :text="s.displayReading" verticalAlignment="bottom" class="size-24 m-l-2" />
+                        <Label
+                            :text="s.displayReading"
+                            verticalAlignment="bottom"
+                            class="size-24 m-l-2"
+                        />
                         <!-- unit -->
-                        <Label :text="s.unit" verticalAlignment="bottom" class="unit size-12" />
+                        <Label
+                            :text="s.unit"
+                            verticalAlignment="bottom"
+                            class="unit size-12"
+                        />
                         <!-- name -->
-                        <Label :text="s.name" textWrap="true" class="sensor-name size-14" />
+                        <Label
+                            :text="s.name"
+                            textWrap="true"
+                            class="sensor-name size-14"
+                        />
                     </WrapLayout>
                     <!-- view graph link -->
                     <StackLayout class="link-container text-center">
-                        <Label text="View Graph"
+                        <Label
+                            text="View Graph"
                             :id="'m_id-' + m.id"
                             class="view-graph-link text-center"
                             :automationText="'moduleLink' + moduleIndex"
-                            @tap="emitModuleTapped" />
+                            @tap="emitModuleTapped"
+                        />
                     </StackLayout>
                 </WrapLayout>
             </StackLayout>
@@ -67,7 +109,7 @@
 </template>
 
 <script>
-import Services from '../services/services';
+import Services from "../services/services";
 const dbInterface = Services.Database();
 
 export default {
@@ -85,7 +127,9 @@ export default {
             this.modules.forEach(m => {
                 this.open.push(m.id);
                 m.sensorObjects.forEach(s => {
-                    s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--";
+                    s.displayReading = s.currentReading
+                        ? s.currentReading.toFixed(1)
+                        : "--";
                     s.icon = "~/images/Icon_Neutral.png";
                 });
             });
@@ -93,11 +137,15 @@ export default {
 
         updateReadings(liveReadings) {
             this.modules.forEach(m => {
-                let sensors = []
+                let sensors = [];
                 m.sensorObjects.forEach(s => {
                     if (liveReadings && liveReadings[m.name + s.name]) {
-                        let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0;
-                        let newReading = +liveReadings[m.name + s.name].toFixed(1);
+                        let prevReading = s.currentReading
+                            ? +s.currentReading.toFixed(1)
+                            : 0;
+                        let newReading = +liveReadings[m.name + s.name].toFixed(
+                            1
+                        );
                         s.currentReading = newReading;
                         s.displayReading = newReading;
                         dbInterface.setCurrentReading(s);
@@ -113,7 +161,7 @@ export default {
                     }
                 });
                 // vue isn't rendering these dynamically, so set them
-                this.$set(m, 'sensorObjects', sensors);
+                this.$set(m, "sensorObjects", sensors);
             });
         },
 
@@ -125,7 +173,7 @@ export default {
             let id = event.object.dataId.split("m_id-")[1];
             id = parseInt(id);
             let index = this.open.indexOf(id);
-            if(index == -1) {
+            if (index == -1) {
                 this.open.push(id);
             } else {
                 this.open.splice(index, 1);
@@ -184,5 +232,4 @@ export default {
     margin: 5;
     text-decoration: underline;
 }
-
 </style>

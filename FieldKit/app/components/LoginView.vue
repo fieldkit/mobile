@@ -5,7 +5,11 @@
                 <Image class="logo" src="~/images/logo.png"></Image>
                 <StackLayout class="form">
                     <GridLayout rows="auto, auto, auto, auto">
-                        <StackLayout row="0" v-show="!isLoggingIn" class="input-field">
+                        <StackLayout
+                            row="0"
+                            v-show="!isLoggingIn"
+                            class="input-field"
+                        >
                             <TextField
                                 id="name-field"
                                 class="input"
@@ -19,26 +23,37 @@
                                 returnKeyType="next"
                                 @returnPress="focusPassword"
                                 @focus="showActive"
-                                @blur="checkName"></TextField>
-                            <StackLayout class="spacer-top" id="name-field-spacer"></StackLayout>
+                                @blur="checkName"
+                            ></TextField>
+                            <StackLayout
+                                class="spacer-top"
+                                id="name-field-spacer"
+                            ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-name"
                                 :text="_L('nameRequired')"
                                 textWrap="true"
-                                :visibility="noName ? 'visible' : 'collapsed'"></Label>
+                                :visibility="noName ? 'visible' : 'collapsed'"
+                            ></Label>
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
                                 :text="_L('nameOver255')"
                                 textWrap="true"
-                                :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
+                                :visibility="
+                                    nameTooLong ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
                             <Label
                                 class="validation-error"
                                 id="name-has-space"
                                 :text="_L('nameNoSpaces')"
                                 textWrap="true"
-                                :visibility="nameHasSpace ? 'visible' : 'collapsed'"></Label>
+                                :visibility="
+                                    nameHasSpace ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
                         </StackLayout>
 
                         <StackLayout row="1" class="input-field">
@@ -58,27 +73,36 @@
                                     returnKeyType="next"
                                     @focus="showActive"
                                     @returnPress="focusPassword"
-                                    @blur="checkEmail"></TextField>
+                                    @blur="checkEmail"
+                                ></TextField>
                                 <Image
                                     row="0"
                                     width="25"
                                     horizontalAlignment="right"
                                     v-show="isLoggingIn"
-                                    src="~/images/Icon_Email_login.png"></Image>
+                                    src="~/images/Icon_Email_login.png"
+                                ></Image>
                             </GridLayout>
-                            <StackLayout class="spacer-top" id="email-field-spacer"></StackLayout>
+                            <StackLayout
+                                class="spacer-top"
+                                id="email-field-spacer"
+                            ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-email"
                                 :text="_L('emailRequired')"
                                 textWrap="true"
-                                :visibility="noEmail ? 'visible' : 'collapsed'"></Label>
+                                :visibility="noEmail ? 'visible' : 'collapsed'"
+                            ></Label>
                             <Label
                                 class="validation-error"
                                 id="email-not-valid"
                                 :text="_L('emailNotValid')"
                                 textWrap="true"
-                                :visibility="emailNotValid ? 'visible' : 'collapsed'"></Label>
+                                :visibility="
+                                    emailNotValid ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
                         </StackLayout>
 
                         <StackLayout row="2" class="input-field">
@@ -93,39 +117,57 @@
                                     :isEnabled="!processing"
                                     v-model="user.password"
                                     automationText="loginPasswordInput"
-                                    :returnKeyType="isLoggingIn ? 'done' : 'next'"
+                                    :returnKeyType="
+                                        isLoggingIn ? 'done' : 'next'
+                                    "
                                     @focus="showActive"
                                     @returnPress="focusConfirmPassword"
-                                    @blur="checkPassword"></TextField>
+                                    @blur="checkPassword"
+                                ></TextField>
                                 <Image
                                     row="0"
                                     width="25"
                                     horizontalAlignment="right"
                                     v-show="isLoggingIn"
-                                    src="~/images/Icon_Password_login.png"></Image>
+                                    src="~/images/Icon_Password_login.png"
+                                ></Image>
                             </GridLayout>
-                            <StackLayout class="spacer-top" id="password-field-spacer"></StackLayout>
+                            <StackLayout
+                                class="spacer-top"
+                                id="password-field-spacer"
+                            ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-password"
                                 :text="_L('passwordRequired')"
                                 textWrap="true"
-                                :visibility="noPassword ? 'visible' : 'collapsed'"></Label>
+                                :visibility="
+                                    noPassword ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
                             <Label
                                 class="validation-error"
                                 id="password-too-short"
                                 :text="_L('passwordTooShort')"
                                 textWrap="true"
-                                :visibility="passwordTooShort ? 'visible' : 'collapsed'"></Label>
+                                :visibility="
+                                    passwordTooShort ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
                             <Label
                                 class="m-t-5"
                                 horizontalAlignment="right"
                                 v-show="isLoggingIn"
                                 :text="_L('forgotLink')"
-                                @tap="forgotPassword()"></Label>
+                                @tap="forgotPassword()"
+                            ></Label>
                         </StackLayout>
 
-                        <StackLayout row="3" v-show="!isLoggingIn" class="input-field">
+                        <StackLayout
+                            row="3"
+                            v-show="!isLoggingIn"
+                            class="input-field"
+                        >
                             <TextField
                                 id="confirm-password-field"
                                 class="input"
@@ -137,31 +179,52 @@
                                 v-model="user.confirmPassword"
                                 returnKeyType="done"
                                 @focus="showActive"
-                                @blur="checkConfirmPassword"></TextField>
-                            <StackLayout class="spacer-top" id="confirm-password-field-spacer"></StackLayout>
+                                @blur="checkConfirmPassword"
+                            ></TextField>
+                            <StackLayout
+                                class="spacer-top"
+                                id="confirm-password-field-spacer"
+                            ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="passwords-not-match"
                                 :text="_L('noMatch')"
                                 textWrap="true"
-                                :visibility="passwordsNotMatch ? 'visible' : 'collapsed'"></Label>
+                                :visibility="
+                                    passwordsNotMatch ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
                         </StackLayout>
 
-                        <ActivityIndicator rowSpan="4" :busy="processing"></ActivityIndicator>
+                        <ActivityIndicator
+                            rowSpan="4"
+                            :busy="processing"
+                        ></ActivityIndicator>
                     </GridLayout>
 
                     <Button
                         class="btn btn-primary m-t-20"
                         :text="isLoggingIn ? _L('logIn') : _L('signUp')"
                         :isEnabled="!processing"
-                        @tap="submit"></Button>
+                        @tap="submit"
+                    ></Button>
 
-                    <Button class="btn btn-primary m-t-20" text="Continue Offline" @tap="continueOffline"></Button>
+                    <Button
+                        class="btn btn-primary m-t-20"
+                        text="Continue Offline"
+                        @tap="continueOffline"
+                    ></Button>
                 </StackLayout>
 
                 <Label class="sign-up-label" @tap="toggleForm">
                     <FormattedString>
-                        <Span :text="isLoggingIn ? _L('needAccount') : _L('backToLogin')"></Span>
+                        <Span
+                            :text="
+                                isLoggingIn
+                                    ? _L('needAccount')
+                                    : _L('backToLogin')
+                            "
+                        ></Span>
                     </FormattedString>
                 </Label>
             </FlexboxLayout>
@@ -244,7 +307,8 @@ export default {
         checkPassword(event) {
             let spacer = this.page.getViewById("password-field-spacer");
             spacer.className = "spacer-top";
-            this.noPassword = !this.user.password || this.user.password.length == 0;
+            this.noPassword =
+                !this.user.password || this.user.password.length == 0;
             if (this.noPassword) {
                 return;
             }
@@ -254,7 +318,8 @@ export default {
         checkConfirmPassword(event) {
             let spacer = this.page.getViewById("confirm-password-field-spacer");
             spacer.className = "spacer-top";
-            this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
+            this.passwordsNotMatch =
+                this.user.password != this.user.confirmPassword;
         },
 
         continueOffline() {
@@ -283,7 +348,9 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    this.$navigateTo(Config.seedDB ? Home : Stations, { clearHistory: true });
+                    this.$navigateTo(Config.seedDB ? Home : Stations, {
+                        clearHistory: true
+                    });
                 })
                 .catch(error => {
                     this.processing = false;

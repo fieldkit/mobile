@@ -13,33 +13,30 @@
 <script>
 import routes from "../routes";
 
-import SynchronizePanel from './SynchronizePanel';
-import StationFooterTabs from './StationFooterTabs';
+import SynchronizePanel from "./SynchronizePanel";
+import StationFooterTabs from "./StationFooterTabs";
 
 export default {
     props: {
-        station: Object,
+        station: Object
     },
     components: {
         SynchronizePanel,
-        StationFooterTabs,
+        StationFooterTabs
     },
     data() {
-        return {
-        };
+        return {};
     },
     methods: {
-        onPageLoaded(args) {
-        }
+        onPageLoaded(args) {}
     }
 };
 </script>
 
 <style scoped lang="scss">
 // Start custom common variables
-@import '../app-variables';
+@import "../app-variables";
 // End custom common variables
 
 // Custom styles
-
 </style>

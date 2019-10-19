@@ -25,7 +25,7 @@ $(APP)/app/secrets.ts: $(APP)/app/secrets.ts.template
 	cp $^ $@
 
 prettier:
-	prettier --write "$(APP)/app/**/*.{ts,js,css,json}"
+	prettier --write "$(APP)/app/**/*.{ts,js,css,json,vue}"
 
 $(APP)/node_modules:
 	rm -rf $(APP)/node_modules/*/.git $(APP)/node-modules/fk-*-protocol

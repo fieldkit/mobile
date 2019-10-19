@@ -1,10 +1,23 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <FlexboxLayout flexDirection="column" justifyContent="space-between">
+            <FlexboxLayout
+                flexDirection="column"
+                justifyContent="space-between"
+            >
                 <GridLayout rows="auto" columns="15*,70*,15*">
-                    <StackLayout row="0" col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
-                        <Image width="21" v-show="!isEditingName" src="~/images/Icon_backarrow.png"></Image>
+                    <StackLayout
+                        row="0"
+                        col="0"
+                        class="round-bkgd"
+                        verticalAlignment="top"
+                        @tap="goBack"
+                    >
+                        <Image
+                            width="21"
+                            v-show="!isEditingName"
+                            src="~/images/Icon_backarrow.png"
+                        ></Image>
                     </StackLayout>
                     <Image
                         row="0"
@@ -13,16 +26,23 @@
                         width="17"
                         v-show="isEditingName"
                         @tap="cancelRename"
-                        src="~/images/Icon_Close.png"></Image>
+                        src="~/images/Icon_Close.png"
+                    ></Image>
                     <Label
                         row="0"
                         col="1"
                         class="title m-y-10 text-center module-name"
                         :text="module.name"
                         v-show="!isEditingName"
-                        textWrap="true"></Label>
+                        textWrap="true"
+                    ></Label>
                     <!-- Edit name form -->
-                    <StackLayout row="0" col="1" id="module-name-field" class="input-field m-y-10 text-left">
+                    <StackLayout
+                        row="0"
+                        col="1"
+                        id="module-name-field"
+                        class="input-field m-y-10 text-left"
+                    >
                         <FlexboxLayout>
                             <TextField
                                 class="input"
@@ -34,35 +54,45 @@
                                 v-model="module.name"
                                 v-show="isEditingName"
                                 returnKeyType="next"
-                                @blur="checkName"></TextField>
+                                @blur="checkName"
+                            ></TextField>
                             <Label
                                 class="size-10 char-count"
                                 horizontalAlignment="right"
                                 :text="module.name.length"
-                                v-show="isEditingName"></Label>
+                                v-show="isEditingName"
+                            ></Label>
                         </FlexboxLayout>
-                        <StackLayout class="spacer-top" id="name-field-spacer"></StackLayout>
+                        <StackLayout
+                            class="spacer-top"
+                            id="name-field-spacer"
+                        ></StackLayout>
                         <Label
                             class="validation-error"
                             id="no-name"
                             horizontalAlignment="left"
                             :text="_L('nameRequired')"
                             textWrap="true"
-                            :visibility="noName ? 'visible' : 'collapsed'"></Label>
+                            :visibility="noName ? 'visible' : 'collapsed'"
+                        ></Label>
                         <Label
                             class="validation-error"
                             id="name-too-long"
                             horizontalAlignment="left"
                             :text="_L('nameOver40')"
                             textWrap="true"
-                            :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
+                            :visibility="nameTooLong ? 'visible' : 'collapsed'"
+                        ></Label>
                         <Label
                             class="validation-error"
                             id="name-not-printable"
                             horizontalAlignment="left"
                             :text="_L('nameNotPrintable')"
                             textWrap="true"
-                            :visibility="nameNotPrintable ? 'visible' : 'collapsed'"></Label>
+                            :visibility="
+                                nameNotPrintable ? 'visible' : 'collapsed'
+                            "
+                        ></Label>
                     </StackLayout>
                     <!-- end edit name form -->
                     <Image
@@ -72,7 +102,8 @@
                         width="14"
                         v-show="!isEditingName"
                         @tap="toggleRename"
-                        src="~/images/Icon_Edit.png"></Image>
+                        src="~/images/Icon_Edit.png"
+                    ></Image>
                     <Image
                         row="0"
                         col="2"
@@ -80,18 +111,31 @@
                         width="17"
                         v-show="isEditingName"
                         @tap="saveModuleName"
-                        src="~/images/Icon_Save.png"></Image>
+                        src="~/images/Icon_Save.png"
+                    ></Image>
                 </GridLayout>
 
                 <!-- Data capture interval -->
-                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-10">
-                    <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
-                    <Label row="1"
+                <GridLayout
+                    rows="auto,auto,auto,auto"
+                    columns="*,*"
+                    class="m-x-10 m-y-10"
+                >
+                    <Label
+                        row="0"
+                        colSpan="4"
+                        class="size-20"
+                        :text="_L('dataCaptureSchedule')"
+                    ></Label>
+                    <Label
+                        row="1"
                         colSpan="2"
                         class="size-14 m-y-5"
                         textWrap="true"
-                        :text="_L('dataCaptureNotice')"></Label>
-                    <TextField row="2"
+                        :text="_L('dataCaptureNotice')"
+                    ></Label>
+                    <TextField
+                        row="2"
                         col="0"
                         class="input interval-input"
                         id="interval-field"
@@ -101,13 +145,16 @@
                         autocorrect="false"
                         autocapitalizationType="none"
                         v-model="displayInterval"
-                        @blur="saveInterval"></TextField>
+                        @blur="saveInterval"
+                    ></TextField>
                     <StackLayout row="2" col="1" id="drop-down-container">
-                        <DropDown :items="timeUnits"
+                        <DropDown
+                            :items="timeUnits"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
                             class="drop-down"
-                            :selectedIndex="currentUnit" ></DropDown>
+                            :selectedIndex="currentUnit"
+                        ></DropDown>
                     </StackLayout>
                     <StackLayout row="3" col="0">
                         <Label
@@ -116,21 +163,24 @@
                             horizontalAlignment="left"
                             :text="_L('intervalRequired')"
                             textWrap="true"
-                            :visibility="noInterval ? 'visible' : 'collapsed'"></Label>
+                            :visibility="noInterval ? 'visible' : 'collapsed'"
+                        ></Label>
                         <Label
                             class="validation-error"
                             id="interval-not-numeric"
                             horizontalAlignment="left"
                             :text="_L('intervalNotNumber')"
                             textWrap="true"
-                            :visibility="intervalNotNumber ? 'visible' : 'collapsed'"></Label>
+                            :visibility="
+                                intervalNotNumber ? 'visible' : 'collapsed'
+                            "
+                        ></Label>
                     </StackLayout>
                 </GridLayout>
                 <!-- end: Data capture interval -->
 
                 <!-- footer -->
                 <StationFooterTabs :station="station" active="station" />
-
             </FlexboxLayout>
         </ScrollView>
     </Page>
@@ -138,8 +188,8 @@
 
 <script>
 import routes from "../routes";
-import Services from '../services/services';
-import StationFooterTabs from './StationFooterTabs';
+import Services from "../services/services";
+import StationFooterTabs from "./StationFooterTabs";
 
 const dbInterface = Services.Database();
 
@@ -158,7 +208,13 @@ export default {
                 name: "",
                 origName: ""
             },
-            timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")]
+            timeUnits: [
+                _L("seconds"),
+                _L("minutes"),
+                _L("hours"),
+                _L("days"),
+                _L("weeks")
+            ]
         };
     },
     props: ["moduleId", "station", "origin"],
@@ -190,7 +246,7 @@ export default {
             }, 500);
 
             // TODO: handle history better
-            if(this.origin == "detail") {
+            if (this.origin == "detail") {
                 this.$navigateTo(routes.module, {
                     props: {
                         moduleId: this.module.id,
@@ -198,7 +254,7 @@ export default {
                     }
                 });
             }
-            if(this.origin == "settings") {
+            if (this.origin == "settings") {
                 this.$navigateTo(routes.stationSettings, {
                     props: {
                         station: this.station
@@ -311,7 +367,9 @@ export default {
             this.intervalNotNumber = false;
             // then check
             this.noInterval =
-                !this.displayInterval || this.displayInterval == 0 || this.displayInterval.length == 0;
+                !this.displayInterval ||
+                this.displayInterval == 0 ||
+                this.displayInterval.length == 0;
             if (this.noInterval) {
                 return false;
             }
@@ -397,6 +455,4 @@ export default {
     border-bottom-width: 1;
     border-bottom-color: $fk-primary-black;
 }
-
-
 </style>

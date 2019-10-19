@@ -2,23 +2,51 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <StackLayout id="stations-list" class="m-y-10">
-                <StackLayout class="round-bkgd" horizontalAlignment="left" verticalAlignment="top" @tap="goBack">
+                <StackLayout
+                    class="round-bkgd"
+                    horizontalAlignment="left"
+                    verticalAlignment="top"
+                    @tap="goBack"
+                >
                     <Image width="21" src="~/images/Icon_backarrow.png"></Image>
                 </StackLayout>
-                <Label class="h2 m-y-10 text-center" :text="message" textWrap="true"></Label>
-                <Label v-if="stations.length == 0"
+                <Label
+                    class="h2 m-y-10 text-center"
+                    :text="message"
+                    textWrap="true"
+                ></Label>
+                <Label
+                    v-if="stations.length == 0"
                     :text="_L('lookingForStations')"
-                    class="m-10 p-10 text-center size-20" />
-                <StackLayout v-for="s in stations"
+                    class="m-10 p-10 text-center size-20"
+                />
+                <StackLayout
+                    v-for="s in stations"
                     :key="s.sortedIndex"
-                    :id="'station-'+s.id"
+                    :id="'station-' + s.id"
                     class="station-container m-y-5 m-x-15 p-10"
                     orientation="vertical"
-                    @tap=goToDetail>
-                    <Label :text="s.name" :class="'station-name ' + (s.connected == 0 ? 'disconnected' : '')" />
-                    <Label v-if="s.connected"
-                        :text="s.status == 'recording' ? _L('recording') : _L('connected')"
-                        :class="'stations-list '+(s.status ? s.status : 'connected')" />
+                    @tap="goToDetail"
+                >
+                    <Label
+                        :text="s.name"
+                        :class="
+                            'station-name ' +
+                                (s.connected == 0 ? 'disconnected' : '')
+                        "
+                    />
+                    <Label
+                        v-if="s.connected"
+                        :text="
+                            s.status == 'recording'
+                                ? _L('recording')
+                                : _L('connected')
+                        "
+                        :class="
+                            'stations-list ' +
+                                (s.status ? s.status : 'connected')
+                        "
+                    />
                 </StackLayout>
             </StackLayout>
         </ScrollView>
@@ -45,10 +73,10 @@ export default {
             this.page = args.object;
 
             this.stations = this.$stationMonitor.getStations();
-            if(this.station) {
+            if (this.station) {
                 // update from station detail view
                 this.stations.forEach(s => {
-                    if(s.id == this.station.id) {
+                    if (s.id == this.station.id) {
                         s.status = this.station.status;
                         s.connected = this.station.connected;
                         s.name = this.station.name;
@@ -57,7 +85,10 @@ export default {
                 });
             }
 
-            this.$stationMonitor.on(Observable.propertyChangeEvent, this.updateStations);
+            this.$stationMonitor.on(
+                Observable.propertyChangeEvent,
+                this.updateStations
+            );
         },
 
         goBack(event) {
@@ -72,13 +103,13 @@ export default {
 
         updateStations(data) {
             switch (data.propertyName.toString()) {
-            case this.$stationMonitor.StationsUpdatedProperty: {
-                this.stations = data.value;
-                break;
-            }
-            case this.$stationMonitor.StationRefreshedProperty: {
-                break;
-            }
+                case this.$stationMonitor.StationsUpdatedProperty: {
+                    this.stations = data.value;
+                    break;
+                }
+                case this.$stationMonitor.StationRefreshedProperty: {
+                    break;
+                }
             }
         },
 
@@ -92,8 +123,8 @@ export default {
 
             let id = event.object.id.split("station-")[1];
             // necessary to have station name defined on page load
-            let stationObj = {name: ""};
-            if(this.station && this.station.id == id) {
+            let stationObj = { name: "" };
+            if (this.station && this.station.id == id) {
                 stationObj = this.station;
             }
 
@@ -111,7 +142,7 @@ export default {
 
 <style scoped lang="scss">
 // Start custom common variables
-@import '../app-variables';
+@import "../app-variables";
 // End custom common variables
 
 // Custom styles
@@ -128,7 +159,14 @@ export default {
 .station-name.disconnected {
     color: $fk-gray-dark;
 }
-.stations-list {font-size: 16;}
-.recording {color: $fk-primary-blue;}
-.connected, .idle {color: $fk-tertiary-green;}
+.stations-list {
+    font-size: 16;
+}
+.recording {
+    color: $fk-primary-blue;
+}
+.connected,
+.idle {
+    color: $fk-tertiary-green;
+}
 </style>

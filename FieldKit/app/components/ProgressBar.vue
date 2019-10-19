@@ -1,28 +1,38 @@
 <template>
     <StackLayout id="progress-container">
-        <Label class="plain m-20 text-center" :text="message" textWrap="true"></Label>
-       <GridLayout
+        <Label
+            class="plain m-20 text-center"
+            :text="message"
+            textWrap="true"
+        ></Label>
+        <GridLayout
             rows="auto, auto, auto"
             columns="*"
             v-show="visible"
             class="progress-bar-container"
-            @loaded="onLoaded">
-
+            @loaded="onLoaded"
+        >
             <StackLayout row="0" class="progress-bar"></StackLayout>
-            <StackLayout row="0"
+            <StackLayout
+                row="0"
                 :style="styling"
                 class="progress-bar"
                 horizontalAlignment="left"
-                id="transfer-progress-bar"></StackLayout>
+                id="transfer-progress-bar"
+            ></StackLayout>
 
-            <Label row="1"
+            <Label
+                row="1"
                 class="m-t-5 size-12"
                 horizontalAlignment="right"
-                :text="percentTransferred"></Label>
-            <Label row="2"
+                :text="percentTransferred"
+            ></Label>
+            <Label
+                row="2"
                 class="m-t-5 size-12"
                 horizontalAlignment="right"
-                :text="sizeTransferred"></Label>
+                :text="sizeTransferred"
+            ></Label>
         </GridLayout>
         <FlexboxLayout justifyContent="center">
             <Label :text="transferComplete"></Label>
@@ -31,10 +41,10 @@
 </template>
 
 <script>
-import Services from '../services/services';
-import Config from '../config';
+import Services from "../services/services";
+import Config from "../config";
 
-const log = Config.logger('ProgressBar');
+const log = Config.logger("ProgressBar");
 
 export default {
     data() {
@@ -51,39 +61,50 @@ export default {
     computed: {
         styling: function() {
             return {
-                width: this.progress + "%",
+                width: this.progress + "%"
             };
-        },
+        }
     },
 
     methods: {
         onLoaded(args) {
             // TODO Cancel subscription?
-            Services.ProgressService().subscribe((data) => {
-                if(data.message == "complete") { this.complete(data); return }
+            Services.ProgressService().subscribe(data => {
+                if (data.message == "complete") {
+                    this.complete(data);
+                    return;
+                }
                 this.progress = data.progress;
                 this.message = data.message;
                 // only show progress for data. meta will always be fast, and two bars is confusing
-                this.visible = data.message != null && this.message.length > 0 && data.type != "meta";
-                if(data.totalSize && data.currentSize) {
-                    if(data.totalSize < 1000000.0) {
-                        this.sizeTransferred = (data.currentSize / 1024.0).toFixed(2) + " KB";
+                this.visible =
+                    data.message != null &&
+                    this.message.length > 0 &&
+                    data.type != "meta";
+                if (data.totalSize && data.currentSize) {
+                    if (data.totalSize < 1000000.0) {
+                        this.sizeTransferred =
+                            (data.currentSize / 1024.0).toFixed(2) + " KB";
                     } else {
-                        this.sizeTransferred = (data.currentSize / 1048576.0).toFixed(2) + " MB";
+                        this.sizeTransferred =
+                            (data.currentSize / 1048576.0).toFixed(2) + " MB";
                     }
                 }
-                this.percentTransferred = data.progress+"%";
-                if(data.message != null) {
+                this.percentTransferred = data.progress + "%";
+                if (data.message != null) {
                     this.transferComplete = "";
                 }
             });
         },
 
         complete(data) {
-            if(data.type == "meta") { return }
+            if (data.type == "meta") {
+                return;
+            }
             this.message = "";
-            let completeMessage = this.sizeTransferred == 0 ? "File" : this.sizeTransferred;
-            this.transferComplete = completeMessage + ' ' + _L('transferred');
+            let completeMessage =
+                this.sizeTransferred == 0 ? "File" : this.sizeTransferred;
+            this.transferComplete = completeMessage + " " + _L("transferred");
             this.percentTransferred = 0;
             this.sizeTransferred = 0;
         }
@@ -114,5 +135,4 @@ export default {
 #transfer-progress-bar {
     background: $fk-secondary-blue;
 }
-
 </style>

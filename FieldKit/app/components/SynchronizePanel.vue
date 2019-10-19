@@ -1,39 +1,53 @@
 <template>
-<StackLayout class="sync-panel-container" @loaded="onLoaded">
+    <StackLayout class="sync-panel-container" @loaded="onLoaded">
+        <StackLayout class="sync-button-panel" v-if="canDownload">
+            <Label :text="stationStatus" textWrap="true"></Label>
 
-    <StackLayout class="sync-button-panel" v-if="canDownload">
-        <Label :text="stationStatus" textWrap="true"></Label>
+            <Button
+                class="btn btn-primary m-t-10"
+                text="Sync Station"
+                isEnabled="true"
+                @tap="onSyncStation"
+                style="sync-button"
+            ></Button>
+        </StackLayout>
 
-        <Button class="btn btn-primary m-t-10" text="Sync Station" isEnabled="true" @tap="onSyncStation" style="sync-button"></Button>
+        <StackLayout class="sync-button-panel" v-if="canUpload">
+            <Label :text="portalStatus" textWrap="true"></Label>
+
+            <Button
+                class="btn btn-primary m-t-10"
+                text="Sync Portal"
+                isEnabled="true"
+                @tap="onSyncPortal"
+                style="sync-button"
+            ></Button>
+        </StackLayout>
+
+        <StackLayout
+            class="sync-button-panel"
+            v-if="!canDownload && !canUpload"
+        >
+            <Label text="There is nothing to download or upload."></Label>
+        </StackLayout>
+
+        <StackLayout class="sync-panel-progress">
+            <ProgressBar />
+        </StackLayout>
     </StackLayout>
-
-    <StackLayout class="sync-button-panel" v-if="canUpload">
-        <Label :text="portalStatus" textWrap="true"></Label>
-
-        <Button class="btn btn-primary m-t-10" text="Sync Portal" isEnabled="true" @tap="onSyncPortal" style="sync-button"></Button>
-    </StackLayout>
-
-    <StackLayout class="sync-button-panel" v-if="!canDownload && !canUpload">
-        <Label text="There is nothing to download or upload."></Label>
-    </StackLayout>
-
-    <StackLayout class="sync-panel-progress">
-        <ProgressBar />
-    </StackLayout>
-</StackLayout>
 </template>
 
 <script>
-import ProgressBar from './ProgressBar';
-import Services from '../services/services';
-import Config from '../config';
+import ProgressBar from "./ProgressBar";
+import Services from "../services/services";
+import Config from "../config";
 import routes from "../routes";
 
-const log = Config.logger('SynchronizePanel');
+const log = Config.logger("SynchronizePanel");
 
 export default {
     props: {
-        station: Object,
+        station: Object
     },
 
     components: {
@@ -46,7 +60,7 @@ export default {
             canUpload: false,
             pending: {
                 station: 0,
-                portal: 0,
+                portal: 0
             }
         };
     },
@@ -61,7 +75,7 @@ export default {
         portalStatus: function() {
             const bytes = this.pending.portal;
             return `There are ${bytes} waiting to upload.`;
-        },
+        }
     },
 
     methods: {
@@ -78,10 +92,14 @@ export default {
                         this.canUpload = status.portal.pending.bytes > 0;
                         this.pending = {
                             station: {
-                                bytes: this.convertBytesToLabel(station.pending.bytes),
-                                records: station.pending.records,
+                                bytes: this.convertBytesToLabel(
+                                    station.pending.bytes
+                                ),
+                                records: station.pending.records
                             },
-                            portal: this.convertBytesToLabel(status.portal.pending.bytes)
+                            portal: this.convertBytesToLabel(
+                                status.portal.pending.bytes
+                            )
                         };
                     }
                 }
@@ -89,35 +107,40 @@ export default {
         },
 
         onSyncStation() {
-            return Services.StateManager().synchronizeStation(this.station.deviceId).catch(error => {
-                console.log("ERROR SYNC STATION", JSON.stringify(error));
-                console.log("ERROR SYNC STATION", error.message, error);
-                console.error("ERROR SYNC STATION", error.message, error);
-            });
+            return Services.StateManager()
+                .synchronizeStation(this.station.deviceId)
+                .catch(error => {
+                    console.log("ERROR SYNC STATION", JSON.stringify(error));
+                    console.log("ERROR SYNC STATION", error.message, error);
+                    console.error("ERROR SYNC STATION", error.message, error);
+                });
         },
 
         onSyncPortal() {
-            return Services.StateManager().synchronizePortal().catch(error => {
-                if (error.offline) {
-                    return confirm({
-                        title: "FieldKit",
-                        message: "You're not logged in. Would you like to login so that you can upload your data?",
-                        okButtonText: "Yes",
-                        cancelButtonText: "Not Now",
-                    }).then((res) => {
-                        if (res) {
-                            this.$navigateTo(routes.login, {});
-                        }
-                    });
-                }
-                console.error("ERROR SYNC PORTAL", error);
-            });
+            return Services.StateManager()
+                .synchronizePortal()
+                .catch(error => {
+                    if (error.offline) {
+                        return confirm({
+                            title: "FieldKit",
+                            message:
+                                "You're not logged in. Would you like to login so that you can upload your data?",
+                            okButtonText: "Yes",
+                            cancelButtonText: "Not Now"
+                        }).then(res => {
+                            if (res) {
+                                this.$navigateTo(routes.login, {});
+                            }
+                        });
+                    }
+                    console.error("ERROR SYNC PORTAL", error);
+                });
         },
 
         convertBytesToLabel(bytes) {
             let label = "";
             // convert to kilobytes or megabytes
-            if(bytes < 1000000.0) {
+            if (bytes < 1000000.0) {
                 label = (bytes / 1024.0).toFixed(2) + " KB";
             } else {
                 label = (bytes / 1048576.0).toFixed(2) + " MB";
@@ -150,5 +173,4 @@ export default {
 
 .sync-button {
 }
-
 </style>

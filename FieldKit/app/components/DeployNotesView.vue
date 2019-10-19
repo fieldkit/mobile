@@ -3,94 +3,150 @@
         <ScrollView>
             <StackLayout>
                 <GridLayout rows="auto" columns="10*,90*">
-                    <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
-                        <Image width="21" src="~/images/Icon_backarrow.png"></Image>
+                    <StackLayout
+                        col="0"
+                        class="round-bkgd"
+                        verticalAlignment="top"
+                        @tap="goBack"
+                    >
+                        <Image
+                            width="21"
+                            src="~/images/Icon_backarrow.png"
+                        ></Image>
                     </StackLayout>
                     <StackLayout col="1" class="title-container m-t-10 m-r-30">
-                        <Label class="bold text-center" :text="viewTitle" textWrap="true"></Label>
-                        <Label class="bold m-b-10 text-center" :text="station.name" textWrap="true"></Label>
+                        <Label
+                            class="bold text-center"
+                            :text="viewTitle"
+                            textWrap="true"
+                        ></Label>
+                        <Label
+                            class="bold m-b-10 text-center"
+                            :text="station.name"
+                            textWrap="true"
+                        ></Label>
                     </StackLayout>
                 </GridLayout>
 
                 <!-- Add audio note and photo -->
                 <GridLayout rows="auto" columns="*,*" class="m-x-10">
-                    <StackLayout row="0"
+                    <StackLayout
+                        row="0"
                         col="0"
                         class="col left-col"
                         automationText="addAudioNote"
-                        @tap="onAudioTap">
-                        <Label class="text-center size-18" :text="_L('audioNotes')"></Label>
+                        @tap="onAudioTap"
+                    >
+                        <Label
+                            class="text-center size-18"
+                            :text="_L('audioNotes')"
+                        ></Label>
                     </StackLayout>
-                    <StackLayout row="0"
+                    <StackLayout
+                        row="0"
                         col="1"
                         class="col right-col"
                         automationText="addPhoto"
-                        @tap="onPhotoTap">
-                        <Label class="text-center size-18" :text="_L('photo')"></Label>
+                        @tap="onPhotoTap"
+                    >
+                        <Label
+                            class="text-center size-18"
+                            :text="_L('photo')"
+                        ></Label>
                     </StackLayout>
                 </GridLayout>
                 <!-- end: Add audio note and photo -->
 
                 <!-- Add text note -->
-                <GridLayout rows="auto", columns="*" class="m-10">
-                    <TextView class="size-18"
+                <GridLayout rows="auto" , columns="*" class="m-10">
+                    <TextView
+                        class="size-18"
                         id="note-text-field"
                         :hint="_L('notesInstructions')"
                         v-model="noteText"
                         @blur="saveNote"
-                        textWrap="true" ></TextView>
+                        textWrap="true"
+                    ></TextView>
                 </GridLayout>
                 <!-- end: Add text note -->
 
                 <!-- List audio recordings -->
-                <GridLayout rows="auto" columns="90*,10*" v-for="(r, recordingIndex) in displayRecordings"
+                <GridLayout
+                    rows="auto"
+                    columns="90*,10*"
+                    v-for="(r, recordingIndex) in displayRecordings"
                     :key="r"
                     class="link-style"
-                    orientation="vertical">
-                    <Label col="0"
+                    orientation="vertical"
+                >
+                    <Label
+                        col="0"
                         :text="r"
                         :data="r"
                         :automationText="'audioRecording' + recordingIndex"
                         textWrap="true"
-                        @tap=playAudio />
-                    <Image col="1"
+                        @tap="playAudio"
+                    />
+                    <Image
+                        col="1"
                         width="17"
                         class="small-round"
-                        :automationText="'removeAudioRecording' + recordingIndex"
+                        :automationText="
+                            'removeAudioRecording' + recordingIndex
+                        "
                         :data="r"
                         @tap="removeRecording"
-                        src="~/images/Icon_Close.png"></Image>
+                        src="~/images/Icon_Close.png"
+                    ></Image>
                 </GridLayout>
                 <!-- end: List audio recordings -->
 
                 <!-- Add photo -->
-                <GridLayout rows="*, auto" columns="*" v-show="havePhoto" class="m-10 photo-label">
-                    <Image row="0"
+                <GridLayout
+                    rows="*, auto"
+                    columns="*"
+                    v-show="havePhoto"
+                    class="m-10 photo-label"
+                >
+                    <Image
+                        row="0"
                         :src="imageSrc"
                         id="image"
                         automationText="deploymentPhoto"
-                        stretch="aspectFit" />
-                    <TextView row="1"
+                        stretch="aspectFit"
+                    />
+                    <TextView
+                        row="1"
                         :hint="_L('describePhoto')"
                         id="photo-label-input"
                         @blur="saveLabel"
-                        v-model="labelText"></TextView>
+                        v-model="labelText"
+                    ></TextView>
                 </GridLayout>
                 <!-- end: Add photo -->
 
                 <StackLayout v-show="havePhoto" class="m-15">
-                    <Label v-show="!isRecordingData" :text="_L('startRecordingPrompt')" textWrap="true" />
-                    <Label v-show="isRecordingData"
+                    <Label
+                        v-show="!isRecordingData"
+                        :text="_L('startRecordingPrompt')"
+                        textWrap="true"
+                    />
+                    <Label
+                        v-show="isRecordingData"
                         :text="_L('recording')"
                         class="recording-notice bold text-center m-y-10"
-                        textWrap="true" />
-                    <Button class="btn btn-primary m-b-10"
-                        :text="isRecordingData ? _L('stopRecording') : _L('record')"
-                        @tap="recordButtonTapped"></Button>
+                        textWrap="true"
+                    />
+                    <Button
+                        class="btn btn-primary m-b-10"
+                        :text="
+                            isRecordingData ? _L('stopRecording') : _L('record')
+                        "
+                        @tap="recordButtonTapped"
+                    ></Button>
                 </StackLayout>
 
                 <TextView id="hidden-field" />
-
             </StackLayout>
         </ScrollView>
     </Page>
@@ -103,7 +159,7 @@ import { takePicture, requestPermissions } from "nativescript-camera";
 import * as imagepicker from "nativescript-imagepicker";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import AudioInterface from "../services/audio-interface";
-import Services from '../services/services';
+import Services from "../services/services";
 import routes from "../routes";
 
 const dbInterface = Services.Database();
@@ -187,7 +243,7 @@ export default {
         },
 
         setup() {
-            if(this.station.status == "recording") {
+            if (this.station.status == "recording") {
                 this.isRecordingData = true;
             }
             this.noteText = this.station.deployNote;
@@ -237,7 +293,8 @@ export default {
             let month = monthNames[now.getMonth()];
             let day = now.getDate();
             let year = now.getFullYear();
-            let filename = _L("audioNote") + " " + month + " " + day + " " + year;
+            let filename =
+                _L("audioNote") + " " + month + " " + day + " " + year;
             // colons not allowed in audio file names - if time is needed, re-work this
             // let time = now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
             let dateIndex = month + "_" + day + "_" + year;
@@ -430,7 +487,11 @@ export default {
 
         saveNote() {
             let textField = this.page.getViewById("note-text-field");
-            if (!this.noteText || this.noteText == "" || this.noteText.length == 0) {
+            if (
+                !this.noteText ||
+                this.noteText == "" ||
+                this.noteText.length == 0
+            ) {
                 // show full hint text
                 textField.className = "size-18 full-height";
             } else {
@@ -454,7 +515,7 @@ export default {
         },
 
         recordButtonTapped(event) {
-            if(event.object.text == _L("record")) {
+            if (event.object.text == _L("record")) {
                 this.deployStation(event);
             } else {
                 this.stopStation(event);
@@ -477,14 +538,13 @@ export default {
 
             queryStation.startDataRecording(this.station.url).then(result => {
                 const priorValue = null;
-                this.updateStationStatus(priorValue)
-                    .then(() => {
-                        this.$navigateTo(routes.stationDetail, {
-                            props: {
-                                station: this.station
-                            }
-                        });
+                this.updateStationStatus(priorValue).then(() => {
+                    this.$navigateTo(routes.stationDetail, {
+                        props: {
+                            station: this.station
+                        }
                     });
+                });
             });
         },
 
@@ -546,7 +606,6 @@ export default {
 // End custom common variables
 
 // Custom styles
-
 
 .small-round {
     width: 40;

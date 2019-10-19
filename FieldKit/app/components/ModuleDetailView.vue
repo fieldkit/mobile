@@ -1,101 +1,161 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <FlexboxLayout flexDirection="column" justifyContent="space-between">
+            <FlexboxLayout
+                flexDirection="column"
+                justifyContent="space-between"
+            >
                 <GridLayout rows="auto" columns="15*,70*,15*">
-                    <StackLayout row="0" col="0"
+                    <StackLayout
+                        row="0"
+                        col="0"
                         class="round-bkgd"
                         verticalAlignment="top"
                         automationText="backButton"
-                        @tap="goBack">
-                        <Image width="21" src="~/images/Icon_backarrow.png"></Image>
+                        @tap="goBack"
+                    >
+                        <Image
+                            width="21"
+                            src="~/images/Icon_backarrow.png"
+                        ></Image>
                     </StackLayout>
                     <Label
                         row="0"
                         col="1"
                         class="title m-y-10 text-center module-name"
                         :text="module.name"
-                        textWrap="true"></Label>
-                    <StackLayout row="0" col="2" class="round-bkgd" @tap="goToConfigure">
+                        textWrap="true"
+                    ></Label>
+                    <StackLayout
+                        row="0"
+                        col="2"
+                        class="round-bkgd"
+                        @tap="goToConfigure"
+                    >
                         <Image
                             width="25"
-                            src="~/images/Icon_Congfigure.png"></Image>
+                            src="~/images/Icon_Congfigure.png"
+                        ></Image>
                     </StackLayout>
                 </GridLayout>
 
-                <GridLayout rows="auto" columns="40*,60*" class="location-container m-x-10">
-                    <StackLayout
-                        row="0"
-                        col="0"
-                        class="m-y-8 m-x-5">
-                        <Image width=100 src="~/images/placeholder_module_location.png"></Image>
+                <GridLayout
+                    rows="auto"
+                    columns="40*,60*"
+                    class="location-container m-x-10"
+                >
+                    <StackLayout row="0" col="0" class="m-y-8 m-x-5">
+                        <Image
+                            width="100"
+                            src="~/images/placeholder_module_location.png"
+                        ></Image>
                     </StackLayout>
-                    <StackLayout
-                        row="0"
-                        col="1"
-                        class="m-y-8">
-                        <Label class="size-14"
+                    <StackLayout row="0" col="1" class="m-y-8">
+                        <Label
+                            class="size-14"
                             :text="_L('locateYourModule', module.name)"
-                            textWrap="true"></Label>
+                            textWrap="true"
+                        ></Label>
                     </StackLayout>
                 </GridLayout>
 
                 <template v-if="sensors.length > 1">
                     <StackLayout id="drop-down-container" class="m-10">
-                        <DropDown :items="sensorNames"
+                        <DropDown
+                            :items="sensorNames"
                             @opened="onOpened"
                             @closed="onClosed"
                             @selectedIndexChanged="onSelectedIndexChanged"
                             backgroundColor="#F4F5F7"
                             class="drop-down"
-                            selectedIndex="0" ></DropDown>
+                            selectedIndex="0"
+                        ></DropDown>
                     </StackLayout>
                 </template>
 
-                <StackLayout v-for="(g, graphIndex) in graphedSensors" :key="g.id" class="m-b-15">
-                    <GridLayout rows="auto,auto,auto,auto"
+                <StackLayout
+                    v-for="(g, graphIndex) in graphedSensors"
+                    :key="g.id"
+                    class="m-b-15"
+                >
+                    <GridLayout
+                        rows="auto,auto,auto,auto"
                         columns="10*,80*,10*"
-                        :automationText="'graphedSensorChart'+graphIndex"
-                        class="chart-section-container m-x-10">
-                        <Label row="0" colSpan="2" class="text-center center-title" :text="g.name"></Label>
-                        <StackLayout v-if="sensors.length > 1"
+                        :automationText="'graphedSensorChart' + graphIndex"
+                        class="chart-section-container m-x-10"
+                    >
+                        <Label
+                            row="0"
+                            colSpan="2"
+                            class="text-center center-title"
+                            :text="g.name"
+                        ></Label>
+                        <StackLayout
+                            v-if="sensors.length > 1"
                             row="0"
                             col="2"
                             class="round small-round"
                             :id="'chart-' + g.id"
                             @tap="removeChart"
-                            verticalAlignment="top">
-                            <Image width="17" src="~/images/Icon_Close.png"></Image>
+                            verticalAlignment="top"
+                        >
+                            <Image
+                                width="17"
+                                src="~/images/Icon_Close.png"
+                            ></Image>
                         </StackLayout>
-                        <Label row="1" col="0" class="size-10 m-l-2" :text="g.unit"></Label>
-                        <RadCartesianChart row="2" colSpan="3" class="chart-container">
-                            <LinearAxis v-tkCartesianHorizontalAxis labelFormat="%.1f" :majorStep="timeStep" />
-                            <LinearAxis v-tkCartesianVerticalAxis
+                        <Label
+                            row="1"
+                            col="0"
+                            class="size-10 m-l-2"
+                            :text="g.unit"
+                        ></Label>
+                        <RadCartesianChart
+                            row="2"
+                            colSpan="3"
+                            class="chart-container"
+                        >
+                            <LinearAxis
+                                v-tkCartesianHorizontalAxis
+                                labelFormat="%.1f"
+                                :majorStep="timeStep"
+                            />
+                            <LinearAxis
+                                v-tkCartesianVerticalAxis
                                 labelLayoutMode="Outer"
                                 lineHidden="false"
-                                labelMargin="5" />
-                            <ScatterSeries v-tkCartesianSeries
+                                labelMargin="5"
+                            />
+                            <ScatterSeries
+                                v-tkCartesianSeries
                                 :items="g.readings"
                                 seriesName="scatterplot"
                                 xProperty="time"
-                                yProperty="reading" />
-                            <Palette v-tkCartesianPalette seriesName="scatterplot" >
-                                <PaletteEntry v-tkCartesianPaletteEntry
+                                yProperty="reading"
+                            />
+                            <Palette
+                                v-tkCartesianPalette
+                                seriesName="scatterplot"
+                            >
+                                <PaletteEntry
+                                    v-tkCartesianPaletteEntry
                                     fillColor="#1B80C9"
                                     strokeColor="#FFFFFF"
-                                    strokeWidth="2" />
+                                    strokeWidth="2"
+                                />
                             </Palette>
                         </RadCartesianChart>
-                        <Label row="3"
+                        <Label
+                            row="3"
                             colSpan="3"
                             class="text-center size-10 m-b-5 capitalize"
-                            :text="g.intervalUnit"></Label>
+                            :text="g.intervalUnit"
+                        ></Label>
                     </GridLayout>
                 </StackLayout>
 
                 <!-- footer -->
                 <StationFooterTabs :station="station" active="station" />
-
             </FlexboxLayout>
         </ScrollView>
     </Page>
@@ -103,8 +163,8 @@
 
 <script>
 import routes from "../routes";
-import Services from '../services/services';
-import StationFooterTabs from './StationFooterTabs';
+import Services from "../services/services";
+import StationFooterTabs from "./StationFooterTabs";
 
 const dbInterface = Services.Database();
 
@@ -181,7 +241,9 @@ export default {
         },
 
         completeSetup(sensors) {
-            let graphs = this.module.graphs ? this.module.graphs.split(",") : [];
+            let graphs = this.module.graphs
+                ? this.module.graphs.split(",")
+                : [];
             // number of faux readings
             let numReadings = Math.round(Math.random() * 20 + 10);
             let names = [_L("select")];
@@ -191,13 +253,12 @@ export default {
                 s.intervalUnit = this.calculateTimeUnit();
                 s.readings = [];
                 // generate faux readings, if not a real device
-                if(this.station.url == "no_url") {
+                if (this.station.url == "no_url") {
                     let low = s.currentReading / 2;
                     for (var i = 0; i < numReadings; i++) {
                         let reading = Math.random() * low + low;
                         s.readings.push({ time: i, reading: reading });
                     }
-
                 }
             });
             // separate iteration to preserve order - worth it?
@@ -212,7 +273,8 @@ export default {
             });
             this.sensors = sensors;
             this.sensorNames = names;
-            this.graphedSensors = toDisplay.length == 0 ? [this.sensors[0]] : toDisplay;
+            this.graphedSensors =
+                toDisplay.length == 0 ? [this.sensors[0]] : toDisplay;
         },
 
         calculateTimeUnit() {
