@@ -88,6 +88,7 @@ export default class StationMonitor extends Observable {
         // (seeded stations exempt for now due to above return statement)
         const elapsed = new Date() - station.lastSeen;
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
+            console.log("station inactive");
             this.deactivateStation(station.deviceId);
         }
 
@@ -102,7 +103,7 @@ export default class StationMonitor extends Observable {
                 );
             })
             .catch(error => {
-                console.log("error", error);
+                console.log("requestStationData error", error);
             });
     }
 
@@ -173,6 +174,7 @@ export default class StationMonitor extends Observable {
                     }
                     case "stationLost": {
                         if (data.value) {
+                            console.log("station lost");
                             this.deactivateStation(data.value.name);
                         }
                         break;

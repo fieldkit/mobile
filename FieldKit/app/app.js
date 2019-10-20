@@ -12,12 +12,15 @@ import Config from "./config";
 import Services from "./services/services";
 
 import { initializeLogging } from "./lib/logging";
+import registerLifecycleEvents from "./services/lifecycle";
 
 try {
     initializeLogging();
 } catch (e) {
     console.log("logging error", e);
 }
+
+registerLifecycleEvents();
 
 Services.CreateDb()
     .initialize()
