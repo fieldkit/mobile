@@ -8,6 +8,7 @@ import RadChart from "nativescript-ui-chart/vue";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Config from "./config";
+import * as traceModule from "tns-core-modules/trace";
 
 import Services from "./services/services";
 
@@ -16,7 +17,29 @@ import registerLifecycleEvents from "./services/lifecycle";
 
 try {
     initializeLogging();
-} catch (e) {
+}
+catch (e) {
+    console.log("logging error", e);
+}
+
+try {
+    traceModule.setErrorHandler({
+        handleError(err) {
+            console.log(err);
+        }
+    });
+    /*
+    traceModule.setCategories(traceModule.categories.concat(
+        traceModule.categories.Binding,
+        traceModule.categories.Layout,
+        traceModule.categories.Style,
+        traceModule.categories.ViewHierarchy,
+        traceModule.categories.VisualTreeEvents
+    ));
+    */
+    traceModule.enable();
+}
+catch (e) {
     console.log("logging error", e);
 }
 
