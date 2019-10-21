@@ -63,6 +63,17 @@ export default class UploadManager {
             });
     }
 
+    _getFile(path) {
+        try {
+            log.info("file", File);
+            return File.fromPath(path);
+        }
+        catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
     _uploadDownload(operation, download) {
         log.info("uploading", download);
 
@@ -73,7 +84,7 @@ export default class UploadManager {
         };
 
         log.info("headers", headers);
-        const file = File.fromPath(download.path);
+        const file = this._getFile(download.path);
         log.info("file", file);
         return this._upload(download.deviceId, headers, file, operation).then(() => {
             return this.databaseInterface.markDownloadAsUploaded(download);
