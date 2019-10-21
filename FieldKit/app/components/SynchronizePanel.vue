@@ -43,6 +43,8 @@ import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
 
+import { convertBytesToLabel } from "../utilities";
+
 const log = Config.logger("SynchronizePanel");
 
 export default {
@@ -67,13 +69,12 @@ export default {
 
     computed: {
         stationStatus: function() {
-            const bytes = this.pending.station.bytes;
-            const records = this.pending.station.records;
+            const { bytes, records } = this.pending.station;
             return `This station has ${bytes} of data waiting to be downloaded (${records} records).`;
         },
 
         portalStatus: function() {
-            const bytes = this.pending.portal;
+            const { bytes, records } = this.pending.portal;
             return `There are ${bytes} waiting to upload.`;
         }
     },
@@ -84,25 +85,44 @@ export default {
 
             const stateManager = Services.StateManager();
 
+            log.info("subscribed");
+
             stateManager.subscribe(status => {
-                if (this.station) {
-                    const station = status.station.forStation(this.station.id);
+                log.info("status", this.station.id, 'status', status, 'portal', status.portal);
+
+                function getPortal() {
+                    return {
+                        bytes: convertBytesToLabel(status.portal.pending.bytes),
+                        size: status.portal.pending.bytes,
+                    };
+                }
+
+                function getStation(id) {
+                    const station = status.station.forStation(id);
                     if (station) {
-                        this.canDownload = station.pending.records > 0;
-                        this.canUpload = status.portal.pending.bytes > 0;
-                        this.pending = {
-                            station: {
-                                bytes: this.convertBytesToLabel(
-                                    station.pending.bytes
-                                ),
-                                records: station.pending.records
-                            },
-                            portal: this.convertBytesToLabel(
-                                status.portal.pending.bytes
-                            )
+                        return {
+                            bytes: convertBytesToLabel(station.pending.bytes),
+                            size: station.pending.bytes,
+                            records: station.pending.records
                         };
                     }
+                    return {
+                        bytes: '',
+                        size: 0,
+                        records: 0,
+                    };
                 }
+
+                const portal = getPortal();
+                const station = getStation(this.station.id);
+
+                this.canDownload = station.size > 0;
+                this.canUpload = portal.size > 0;
+
+                this.pending = {
+                    station: station,
+                    portal: portal,
+                };
             });
         },
 
@@ -136,17 +156,6 @@ export default {
                     console.error("ERROR SYNC PORTAL", error);
                 });
         },
-
-        convertBytesToLabel(bytes) {
-            let label = "";
-            // convert to kilobytes or megabytes
-            if (bytes < 1000000.0) {
-                label = (bytes / 1024.0).toFixed(2) + " KB";
-            } else {
-                label = (bytes / 1048576.0).toFixed(2) + " MB";
-            }
-            return label;
-        }
     }
 };
 </script>

@@ -70,3 +70,11 @@ export function hexStringToByteWiseString(str) {
         })
         .join("");
 }
+
+export function convertBytesToLabel(bytes) {
+    // convert to kilobytes or megabytes
+    if (bytes < 1000000.0) {
+        return (bytes / 1024.0).toFixed(2) + " KB";
+    }
+    return (bytes / 1048576.0).toFixed(2) + " MB";
+}

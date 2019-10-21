@@ -16,6 +16,7 @@ export default class UploadManager {
 
     getStatus() {
         return this.databaseInterface.getPendingDownloads().then(pending => {
+            log.info("pending", pending);
             return {
                 pending: {
                     files: pending.length,
@@ -48,6 +49,7 @@ export default class UploadManager {
             .getPendingDownloads()
             .then(keysToCamel)
             .then(downloads => {
+                log.info("pending", downloads);
                 return serializePromiseChain(
                     downloads,
                     this._uploadDownload.bind(this, operation)
