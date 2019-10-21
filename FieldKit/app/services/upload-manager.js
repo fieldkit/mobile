@@ -63,17 +63,6 @@ export default class UploadManager {
             });
     }
 
-    _getFile(path) {
-        try {
-            log.info("file", File);
-            return File.fromPath(path);
-        }
-        catch (error) {
-            console.log(error);
-            throw error;
-        }
-    }
-
     _uploadDownload(operation, download) {
         log.info("uploading", download);
 
@@ -83,15 +72,14 @@ export default class UploadManager {
             "Fk-Type": download.type
         };
 
-        log.info("headers", headers);
-        const file = this._getFile(download.path);
-        log.info("file", file);
-        return this._upload(download.deviceId, headers, file, operation).then(() => {
+        // This was failing miserably on Bradley's phone.
+        // const file = File.fromPath(path);
+        return this._upload(download.deviceId, headers, download.path, operation).then(() => {
             return this.databaseInterface.markDownloadAsUploaded(download);
         });
     }
 
-    _upload(deviceId, headers, file, operation) {
+    _upload(deviceId, headers, filePath, operation) {
         return new Promise((resolve, reject) => {
             const url = Config.ingestionUri;
             log.info("url", url);
@@ -102,7 +90,7 @@ export default class UploadManager {
             delete headers["Connection"];
             delete headers["Content-Length"];
 
-            log.info("uploading", file.path, headers);
+            log.info("uploading", filePath, headers);
 
             const defaultHeaders = {
                 "Content-Type": "application/octet-stream",
@@ -117,7 +105,7 @@ export default class UploadManager {
                 // androidRingToneEnabled: false,
                 // androidAutoClearNotification: true,
             };
-            const task = session.uploadFile(file.path, req);
+            const task = session.uploadFile(filePath, req);
 
             task.on("progress", e => {
                 const rv = {
