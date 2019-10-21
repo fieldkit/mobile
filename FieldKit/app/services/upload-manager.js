@@ -64,23 +64,29 @@ export default class UploadManager {
     }
 
     _uploadDownload(operation, download) {
+        log.info("uploading", download);
+
         const headers = {
             "Fk-Blocks": download.blocks,
             "Fk-Generation": download.generation,
             "Fk-Type": download.type
         };
+
+        log.info("headers", headers);
         const file = File.fromPath(download.path);
-        return this._upload(download.deviceId, headers, file, operation).then(
-            () => {
-                return this.databaseInterface.markDownloadAsUploaded(download);
-            }
-        );
+        log.info("file", file);
+        return this._upload(download.deviceId, headers, file, operation).then(() => {
+            return this.databaseInterface.markDownloadAsUploaded(download);
+        });
     }
 
     _upload(deviceId, headers, file, operation) {
         return new Promise((resolve, reject) => {
             const url = Config.ingestionUri;
+            log.info("url", url);
+
             const session = BackgroundHttp.session(SessionName);
+            log.info("session", session);
 
             delete headers["Connection"];
             delete headers["Content-Length"];
