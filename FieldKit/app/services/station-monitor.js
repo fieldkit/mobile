@@ -85,7 +85,6 @@ export default class StationMonitor extends Observable {
 
     requestStationData(station, takeReadings) {
         // if station hasn't been heard from in awhile, disable it
-        // (seeded stations exempt for now due to above return statement)
         const elapsed = new Date() - station.lastSeen;
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
             console.log("station inactive");
