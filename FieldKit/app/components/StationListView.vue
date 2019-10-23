@@ -116,16 +116,15 @@ export default {
                 event.object.className = cn;
             }, 500);
 
+            // remove the "station-" prefix
             let id = event.object.id.split("station-")[1];
-            // necessary to have station name defined on page load
-            let stationObj = { name: "" };
+            let stationObj = null;
             if (this.station && this.station.id == id) {
                 stationObj = this.station;
             }
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    // remove the "station-" prefix
                     stationId: id,
                     station: stationObj
                 }

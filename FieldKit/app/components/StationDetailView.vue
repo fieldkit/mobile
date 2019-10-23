@@ -3,7 +3,7 @@
         <GridLayout rows="*,80">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <ScreenHeader :title="station.name" :subtitle="deployedStatus" :onBack="goBack" :onSettings="goToSettings" />
+                    <ScreenHeader :title="activeStation.name" :subtitle="deployedStatus" :onBack="goBack" :onSettings="goToSettings" />
 
                     <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
                         <StackLayout id="loading-circle-blue"></StackLayout>
@@ -17,7 +17,7 @@
             </ScrollView>
 
             <!-- footer -->
-            <StationFooterTabs row="1" :station="station" active="station" />
+            <StationFooterTabs row="1" :station="activeStation" active="station" />
         </GridLayout>
     </Page>
 </template>
@@ -44,7 +44,9 @@ export default {
         return {
             loading: true,
             deployedStatus: "Ready to deploy",
-            modules: []
+            modules: [],
+            activeStation: { name: "", id: 0 },
+            paramId: null
         };
     },
     components: {
@@ -74,7 +76,7 @@ export default {
 
             this.$navigateTo(routes.stations, {
                 props: {
-                    station: this.station
+                    station: this.activeStation
                 }
             });
         },
@@ -84,7 +86,7 @@ export default {
 
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    station: this.station
+                    station: this.activeStation
                 }
             });
         },
@@ -102,7 +104,7 @@ export default {
                 props: {
                     // remove the "m_id-" prefix
                     moduleId: event.object.id.split("m_id-")[1],
-                    station: this.station
+                    station: this.activeStation
                 }
             });
         },
@@ -118,14 +120,14 @@ export default {
 
             this.$navigateTo(routes.stationSettings, {
                 props: {
-                    station: this.station
+                    station: this.activeStation
                 }
             });
         },
 
         stopProcesses() {
-            if (this.station && this.station.url != "no_url") {
-                this.$stationMonitor.stopLiveReadings(this.station.url);
+            if (this.activeStation && this.activeStation.url != "no_url") {
+                this.$stationMonitor.stopLiveReadings(this.activeStation.url);
             }
             clearInterval(this.intervalTimer);
             this.$refs.statusBox.stopProcesses();
@@ -140,19 +142,19 @@ export default {
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
 
-            if (this.station.name == "") {
-                this.getFromDatabase();
-            } else {
-                // Vuejs is warning about this, as this gets blown away on a re-render.
-                // Need to find sitauations where it's necessary and remove them, defering to station.id.
-                this.stationId = this.station.id;
+            if (this.station) {
+                this.activeStation = this.station;
+                this.paramId = this.activeStation.id;
                 this.completeSetup();
+            } else {
+                this.paramId = this.stationId;
+                this.getFromDatabase();
             }
         },
 
         getFromDatabase() {
             dbInterface
-                .getStation(this.stationId)
+                .getStation(this.paramId)
                 .then(this.getModules)
                 .then(this.setupModules)
                 .then(this.completeSetup);
@@ -161,9 +163,9 @@ export default {
         respondToUpdates() {
             const saved = this.$stationMonitor
                 .sortStations()
-                .filter(s => s.id == this.stationId);
+                .filter(s => s.id == this.paramId);
             if (saved.length > 0) {
-                this.station.connected = saved[0].connected;
+                this.activeStation.connected = saved[0].connected;
             }
 
             this.$stationMonitor.on(
@@ -171,21 +173,21 @@ export default {
                 data => {
                     switch (data.propertyName.toString()) {
                         case this.$stationMonitor.StationRefreshedProperty: {
-                            if (!data.value || !this.station) {
+                            if (!data.value || !this.activeStation) {
                                 console.log("bad station refresh", data.value);
                             } else {
                                 if (
                                     Number(data.value.id) ===
-                                    Number(this.stationId)
+                                    Number(this.paramId)
                                 ) {
-                                    this.station.connected =
+                                    this.activeStation.connected =
                                         data.value.connected;
                                 }
                             }
                             break;
                         }
                         case this.$stationMonitor.ReadingsChangedProperty: {
-                            if (data.value.stationId == this.stationId) {
+                            if (data.value.stationId == this.paramId) {
                                 this.$refs.statusBox.updateStatus(data.value);
                                 this.$refs.moduleList.updateReadings(
                                     data.value.readings
@@ -201,17 +203,15 @@ export default {
             );
         },
 
-        getModules(station) {
-            if (station.length == 0) {
+        getModules(stations) {
+            if (stations.length == 0) {
                 // adding to db in background hasn't finished yet,
                 // wait a few seconds and try again
                 setTimeout(this.getFromDatabase, 2000);
                 return Promise.reject();
             }
-            // Vuejs is warning about this, as this gets blown away on a re-render.
-            // Need to find sitauations where it's necessary and remove them, defering to station.id.
-            this.station = station[0];
-            return dbInterface.getModules(this.station.id);
+            this.activeStation = stations[0];
+            return dbInterface.getModules(this.activeStation.id);
         },
 
         getSensors(moduleObject) {
@@ -221,74 +221,74 @@ export default {
         },
 
         setupModules(modules) {
-            this.station.moduleObjects = modules;
-            return Promise.all(this.station.moduleObjects.map(this.getSensors));
+            this.activeStation.moduleObjects = modules;
+            return Promise.all(this.activeStation.moduleObjects.map(this.getSensors));
         },
 
         completeSetup() {
             this.loading = false;
             clearInterval(this.intervalTimer);
             if (
-                this.station.deployStartTime &&
-                typeof this.station.deployStartTime == "string"
+                this.activeStation.deployStartTime &&
+                typeof this.activeStation.deployStartTime == "string"
             ) {
-                this.station.deployStartTime = new Date(
-                    this.station.deployStartTime
+                this.activeStation.deployStartTime = new Date(
+                    this.activeStation.deployStartTime
                 );
             }
-            if (this.station.status == "recording") {
+            if (this.activeStation.status == "recording") {
                 this.setDeployedStatus();
             }
-            this.$refs.statusBox.updateStation(this.station);
-            this.$refs.moduleList.updateModules(this.station.moduleObjects);
-            this.station.origName = this.station.name;
+            this.$refs.statusBox.updateStation(this.activeStation);
+            this.$refs.moduleList.updateModules(this.activeStation.moduleObjects);
+            this.activeStation.origName = this.activeStation.name;
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portalIds
             let params = {
-                name: this.station.name,
-                device_id: this.station.deviceId,
-                status_json: this.station
+                name: this.activeStation.name,
+                device_id: this.activeStation.deviceId,
+                status_json: this.activeStation
             };
-            if (!this.station.portalId && this.station.url != "no_url") {
+            if (!this.activeStation.portalId && this.activeStation.url != "no_url") {
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
-                        this.station.portalId = stationPortalId;
-                        dbInterface.setStationPortalID(this.station);
+                        this.activeStation.portalId = stationPortalId;
+                        dbInterface.setStationPortalID(this.activeStation);
                     });
-            } else if (this.station.portalId && this.station.url != "no_url") {
+            } else if (this.activeStation.portalId && this.activeStation.url != "no_url") {
                 this.$portalInterface
-                    .updateStation(params, this.station.portalId)
+                    .updateStation(params, this.activeStation.portalId)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
                     });
             }
 
             // start getting live readings for this station
-            if (this.station.url != "no_url") {
+            if (this.activeStation.url != "no_url") {
                 // see if live readings have been stored already
                 const readings = this.$stationMonitor.getStationReadings(
-                    this.station
+                    this.activeStation
                 );
                 if (readings) {
                     this.$refs.moduleList.updateReadings(readings);
                 }
-                this.$stationMonitor.startLiveReadings(this.station.url);
+                this.$stationMonitor.startLiveReadings(this.activeStation.url);
             }
 
-            // now that station and modules are defined, respond to updates
+            // now that activeStation and modules are defined, respond to updates
             this.respondToUpdates();
         },
 
         setDeployedStatus() {
-            if (!this.station.deployStartTime) {
+            if (!this.activeStation.deployStartTime) {
                 this.deployedStatus = "Deployed";
                 return;
             }
-            let month = this.station.deployStartTime.getMonth() + 1;
-            let day = this.station.deployStartTime.getDate();
-            let year = this.station.deployStartTime.getFullYear();
+            let month = this.activeStation.deployStartTime.getMonth() + 1;
+            let day = this.activeStation.deployStartTime.getDate();
+            let year = this.activeStation.deployStartTime.getFullYear();
             this.deployedStatus =
                 "Deployed (" + month + "/" + day + "/" + year + ")";
         },
