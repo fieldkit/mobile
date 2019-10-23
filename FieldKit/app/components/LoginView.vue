@@ -28,31 +28,28 @@
                             <StackLayout
                                 class="spacer-top"
                                 id="name-field-spacer"
+                                v-show="!noName && !nameTooLong && !nameHasSpace"
                             ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-name"
                                 :text="_L('nameRequired')"
                                 textWrap="true"
-                                :visibility="noName ? 'visible' : 'collapsed'"
+                                v-show-"noName"
                             ></Label>
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
                                 :text="_L('nameOver255')"
                                 textWrap="true"
-                                :visibility="
-                                    nameTooLong ? 'visible' : 'collapsed'
-                                "
+                                v-show-"nameTooLong"
                             ></Label>
                             <Label
                                 class="validation-error"
                                 id="name-has-space"
                                 :text="_L('nameNoSpaces')"
                                 textWrap="true"
-                                :visibility="
-                                    nameHasSpace ? 'visible' : 'collapsed'
-                                "
+                                v-show-"nameHasSpace"
                             ></Label>
                         </StackLayout>
 
@@ -86,22 +83,21 @@
                             <StackLayout
                                 class="spacer-top"
                                 id="email-field-spacer"
+                                v-show="!noEmail && !emailNotValid"
                             ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-email"
                                 :text="_L('emailRequired')"
                                 textWrap="true"
-                                :visibility="noEmail ? 'visible' : 'collapsed'"
+                                v-show="noEmail"
                             ></Label>
                             <Label
                                 class="validation-error"
                                 id="email-not-valid"
                                 :text="_L('emailNotValid')"
                                 textWrap="true"
-                                :visibility="
-                                    emailNotValid ? 'visible' : 'collapsed'
-                                "
+                                v-show="emailNotValid"
                             ></Label>
                         </StackLayout>
 
@@ -135,24 +131,21 @@
                             <StackLayout
                                 class="spacer-top"
                                 id="password-field-spacer"
+                                v-show="!noPassword && !passwordTooShort"
                             ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-password"
                                 :text="_L('passwordRequired')"
                                 textWrap="true"
-                                :visibility="
-                                    noPassword ? 'visible' : 'collapsed'
-                                "
+                                v-show-"noPassword"
                             ></Label>
                             <Label
                                 class="validation-error"
                                 id="password-too-short"
                                 :text="_L('passwordTooShort')"
                                 textWrap="true"
-                                :visibility="
-                                    passwordTooShort ? 'visible' : 'collapsed'
-                                "
+                                v-show-"passwordTooShort"
                             ></Label>
                             <Label
                                 class="m-t-5"
@@ -184,15 +177,14 @@
                             <StackLayout
                                 class="spacer-top"
                                 id="confirm-password-field-spacer"
+                                v-show="!passwordsNotMatch"
                             ></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="passwords-not-match"
                                 :text="_L('noMatch')"
                                 textWrap="true"
-                                :visibility="
-                                    passwordsNotMatch ? 'visible' : 'collapsed'
-                                "
+                                v-show-"passwordsNotMatch"
                             ></Label>
                         </StackLayout>
 
@@ -447,7 +439,7 @@ export default {
 }
 
 .spacer-top {
-    border-top-color: $fk-gray-border;
+    border-top-color: $fk-gray-lighter;
     border-top-width: 2;
 }
 
