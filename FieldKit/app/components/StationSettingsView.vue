@@ -360,7 +360,7 @@
                         v-if="haveLora"
                     ></StackLayout>
 
-                    <!-- links to module settings -->
+                    <!-- modules -->
                     <StackLayout class="full-width">
                         <GridLayout
                             rows="auto"
@@ -397,7 +397,7 @@
                                         textWrap="true"
                                     />
                                     <!-- links to config -->
-                                    <Image
+                                    <!-- <Image
                                         row="0"
                                         col="2"
                                         width="30"
@@ -405,7 +405,7 @@
                                         src="~/images/pointing_right.png"
                                         :dataId="'m_id-' + m.id"
                                         @tap="goToModuleConfig"
-                                    ></Image>
+                                    ></Image> -->
                                 </GridLayout>
                             </StackLayout>
                         </GridLayout>

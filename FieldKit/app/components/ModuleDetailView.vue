@@ -32,10 +32,10 @@
                         class="round-bkgd"
                         @tap="goToConfigure"
                     >
-                        <Image
+                        <!-- <Image
                             width="25"
                             src="~/images/Icon_Congfigure.png"
-                        ></Image>
+                        ></Image> -->
                     </StackLayout>
                 </GridLayout>
 
