@@ -1,49 +1,61 @@
 <template>
     <FlexboxLayout
         justifyContent="space-between"
-        class="size-12 p-30 footer"
+        class="size-12 footer"
         @loaded="onLoaded"
     >
         <StackLayout @tap="goToStation" class="footer-btn">
             <template v-if="active == 'station'">
                 <Image
-                    width="20"
+                    width="22"
+                    height="22"
                     src="~/images/Icon_Station_Active.png"
                 ></Image>
-                <Label class="bold m-t-2" :text="_L('station')"></Label>
+                <Label class="bold m-t-5" :text="_L('station')"></Label>
             </template>
             <template v-else>
                 <Image
-                    width="20"
+                    width="22"
+                    height="22"
                     src="~/images/Icon_Station_Inactive.png"
                 ></Image>
-                <Label class="light m-t-2" :text="_L('station')"></Label>
+                <Label class="light m-t-5" :text="_L('station')"></Label>
             </template>
         </StackLayout>
         <StackLayout @tap="goToData" class="footer-btn">
             <template v-if="active == 'data'">
-                <Image width="20" src="~/images/Icon_DataSync_Active.png"></Image>
-                <Label class="bold m-t-2" :text="_L('data')"></Label>
+                <Image
+                    width="22"
+                    height="22"
+                    src="~/images/Icon_DataSync_Active.png"
+                ></Image>
+                <Label class="bold m-t-5" :text="_L('data')"></Label>
             </template>
             <template v-else>
-                <Image width="20" src="~/images/Icon_DataSync_Inactive.png"></Image>
-                <Label class="light m-t-2" :text="_L('data')"></Label>
+                <Image
+                    width="22"
+                    height="22"
+                    src="~/images/Icon_DataSync_Inactive.png"
+                ></Image>
+                <Label class="light m-t-5" :text="_L('data')"></Label>
             </template>
         </StackLayout>
         <StackLayout @tap="goToSettings" class="footer-btn">
             <template v-if="active == 'settings'">
                 <Image
-                    width="20"
+                    width="22"
+                    height="22"
                     src="~/images/Icon_Settings_Active.png"
                 ></Image>
-                <Label class="bold m-t-2" :text="_L('settings')"></Label>
+                <Label class="bold m-t-5" :text="_L('settings')"></Label>
             </template>
             <template v-else>
                 <Image
-                    width="20"
+                    width="22"
+                    height="22"
                     src="~/images/Icon_Settings_Inactive.png"
                 ></Image>
-                <Label class="light m-t-2" :text="_L('settings')"></Label>
+                <Label class="light m-t-5" :text="_L('settings')"></Label>
             </template>
         </StackLayout>
     </FlexboxLayout>
