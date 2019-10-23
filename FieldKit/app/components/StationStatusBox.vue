@@ -44,16 +44,16 @@
                 <GridLayout rows="auto" columns="15*,85*" class="m-t-20">
                     <Image
                         col="0"
-                        width="25"
+                        width="20"
                         v-if="station.connected == 1"
-                        src="~/images/connected.png"
+                        src="~/images/Icon_Connected.png"
                     ></Image>
-                    <Label
+                    <Image
                         col="0"
-                        class="m-t-10 text-center red"
+                        width="20"
                         v-if="station.connected == 0"
-                        >✘</Label
-                    >
+                        src="~/images/Icon_not_Connected.png"
+                    ></Image>
                     <Label
                         col="1"
                         class="m-10 size-14"
@@ -68,9 +68,9 @@
                     <Image
                         col="0"
                         rowSpan="3"
-                        src="~/images/memory.png"
+                        width="20"
+                        src="~/images/Icon_memory.png"
                     ></Image>
-
                     <Label
                         row="0"
                         col="1"
@@ -297,10 +297,6 @@ export default {
 .rec-time-top {
     margin-top: 35;
     margin-bottom: 5;
-}
-
-.red {
-    color: $fk-tertiary-red;
 }
 
 .memory-bar-container {
