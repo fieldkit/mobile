@@ -2,34 +2,10 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <StackLayout>
-                <GridLayout rows="auto" columns="10*,90*">
-                    <StackLayout
-                        col="0"
-                        class="round-bkgd"
-                        verticalAlignment="top"
-                        @tap="goBack"
-                    >
-                        <Image
-                            width="21"
-                            src="~/images/Icon_backarrow.png"
-                        ></Image>
-                    </StackLayout>
-                    <StackLayout col="1" class="title-container m-t-10 m-r-30">
-                        <Label
-                            class="bold text-center"
-                            :text="viewTitle"
-                            textWrap="true"
-                        ></Label>
-                        <Label
-                            class="bold m-b-10 text-center"
-                            :text="station.name"
-                            textWrap="true"
-                        ></Label>
-                    </StackLayout>
-                </GridLayout>
+                <ScreenHeader :title="viewTitle" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                 <!-- Add audio note and photo -->
-                <GridLayout rows="auto" columns="*,*" class="m-x-10">
+                <GridLayout rows="auto" columns="*,*" class="m-x-10 m-t-20">
                     <StackLayout
                         row="0"
                         col="0"
@@ -159,6 +135,7 @@ import { takePicture, requestPermissions } from "nativescript-camera";
 import * as imagepicker from "nativescript-imagepicker";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import AudioInterface from "../services/audio-interface";
+import ScreenHeader from "./ScreenHeader";
 import Services from "../services/services";
 import routes from "../routes";
 
@@ -203,6 +180,9 @@ export default {
         };
     },
     props: ["station"],
+    components: {
+        ScreenHeader
+    },
     methods: {
         goBack(event) {
             let cn = event.object.className;

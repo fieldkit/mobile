@@ -5,31 +5,7 @@
                 flexDirection="column"
                 justifyContent="space-between"
             >
-                <GridLayout rows="auto" columns="10*,90*">
-                    <StackLayout
-                        col="0"
-                        class="round-bkgd"
-                        verticalAlignment="top"
-                        @tap="goBack"
-                    >
-                        <Image
-                            width="21"
-                            src="~/images/Icon_backarrow.png"
-                        ></Image>
-                    </StackLayout>
-                    <StackLayout col="1" class="title-container m-t-10 m-r-30">
-                        <Label
-                            class="bold text-center"
-                            :text="viewTitle"
-                            textWrap="true"
-                        ></Label>
-                        <Label
-                            class="bold text-center"
-                            :text="station.name"
-                            textWrap="true"
-                        ></Label>
-                    </StackLayout>
-                </GridLayout>
+                <ScreenHeader :title="viewTitle" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                 <Mapbox
                     :accessToken="mapboxToken"
@@ -117,6 +93,7 @@
 import * as geolocation from "nativescript-geolocation";
 import { Accuracy } from "tns-core-modules/ui/enums";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
+import ScreenHeader from "./ScreenHeader";
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
 import Services from "../services/services";
 import routes from "../routes";
@@ -139,6 +116,7 @@ export default {
     },
     props: ["station"],
     components: {
+        ScreenHeader,
         ConfigureCaptureInterval
     },
     methods: {

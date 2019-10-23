@@ -5,39 +5,7 @@
                 flexDirection="column"
                 justifyContent="space-between"
             >
-                <GridLayout rows="auto" columns="15*,70*,15*">
-                    <StackLayout
-                        row="0"
-                        col="0"
-                        class="round-bkgd"
-                        verticalAlignment="top"
-                        automationText="backButton"
-                        @tap="goBack"
-                    >
-                        <Image
-                            width="21"
-                            src="~/images/Icon_backarrow.png"
-                        ></Image>
-                    </StackLayout>
-                    <Label
-                        row="0"
-                        col="1"
-                        class="title m-y-10 text-center module-name"
-                        :text="module.name"
-                        textWrap="true"
-                    ></Label>
-                    <StackLayout
-                        row="0"
-                        col="2"
-                        class="round-bkgd"
-                        @tap="goToConfigure"
-                    >
-                        <!-- <Image
-                            width="25"
-                            src="~/images/Icon_Congfigure.png"
-                        ></Image> -->
-                    </StackLayout>
-                </GridLayout>
+                <ScreenHeader :title="module.name" :onBack="goBack" :canNavigateSettings="false" />
 
                 <GridLayout
                     rows="auto"
@@ -164,6 +132,7 @@
 <script>
 import routes from "../routes";
 import Services from "../services/services";
+import ScreenHeader from "./ScreenHeader";
 import StationFooterTabs from "./StationFooterTabs";
 
 const dbInterface = Services.Database();
@@ -188,6 +157,7 @@ export default {
     },
     props: ["moduleId", "station"],
     components: {
+        ScreenHeader,
         StationFooterTabs
     },
     methods: {

@@ -7,38 +7,13 @@
                     justifyContent="space-between"
                     class="p-t-10"
                 >
-                    <GridLayout
-                        rows="auto"
-                        columns="15*,70*,15*"
-                        class="bottom-border p-b-10"
-                    >
-                        <StackLayout
-                            col="0"
-                            class="round-bkgd"
-                            verticalAlignment="top"
-                            @tap="goBack"
-                        >
-                            <Image
-                                width="21"
-                                src="~/images/Icon_backarrow.png"
-                            ></Image>
-                        </StackLayout>
-                        <GridLayout col="1" rows="auto,auto" columns="*">
-                            <Label
-                                row="0"
-                                class="size-20 m-y-0 text-center"
-                                text="Station Settings"
-                                textWrap="true"
-                            ></Label>
-                            <Label
-                                row="1"
-                                class="text-center size-14"
-                                :text="station.name"
-                                textWrap="true"
-                            ></Label>
-                        </GridLayout>
-                        <StackLayout col="2" class="placeholder"></StackLayout>
-                    </GridLayout>
+                    <ScreenHeader
+                        title="Station Settings"
+                        :subtitle="station.name"
+                        :onBack="goBack"
+                        :canNavigateSettings="false"
+                    />
+                    <StackLayout class="bottom-border p-b-10"></StackLayout>
 
                     <!-- edit station name -->
                     <WrapLayout orientation="horizontal" class="m-10">
@@ -437,6 +412,7 @@
 <script>
 import routes from "../routes";
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
+import ScreenHeader from "./ScreenHeader";
 import StationFooterTabs from "./StationFooterTabs";
 import Services from "../services/services";
 import { hexStringToByteWiseString } from "../utilities";
@@ -476,6 +452,7 @@ export default {
     },
     props: ["station"],
     components: {
+        ScreenHeader,
         ConfigureCaptureInterval,
         StationFooterTabs
     },
