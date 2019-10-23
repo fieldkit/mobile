@@ -77,6 +77,17 @@ export default class QueryStation {
         });
     }
 
+    setInterval(station) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            schedules: { modifying: true, readings: { interval: station.interval } }
+        });
+
+        return this.stationQuery(station.url, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
     sendNetworkSettings(address, networks) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,

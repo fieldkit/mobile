@@ -172,6 +172,9 @@
                         v-if="station.status == 'recording'"
                     ></StackLayout>
 
+                    <ConfigureCaptureInterval :station="station" />
+                    <StackLayout class="section-border"></StackLayout>
+
                     <!-- add/remove networks -->
                     <StackLayout class="m-x-10">
                         <Label text="WiFi Networks" class="size-20"></Label>
@@ -433,6 +436,7 @@
 
 <script>
 import routes from "../routes";
+import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
 import StationFooterTabs from "./StationFooterTabs";
 import Services from "../services/services";
 import { hexStringToByteWiseString } from "../utilities";
@@ -472,6 +476,7 @@ export default {
     },
     props: ["station"],
     components: {
+        ConfigureCaptureInterval,
         StationFooterTabs
     },
     methods: {
