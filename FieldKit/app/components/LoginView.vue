@@ -35,21 +35,21 @@
                                 id="no-name"
                                 :text="_L('nameRequired')"
                                 textWrap="true"
-                                v-show-"noName"
+                                v-show="noName"
                             ></Label>
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
                                 :text="_L('nameOver255')"
                                 textWrap="true"
-                                v-show-"nameTooLong"
+                                v-show="nameTooLong"
                             ></Label>
                             <Label
                                 class="validation-error"
                                 id="name-has-space"
                                 :text="_L('nameNoSpaces')"
                                 textWrap="true"
-                                v-show-"nameHasSpace"
+                                v-show="nameHasSpace"
                             ></Label>
                         </StackLayout>
 
@@ -138,14 +138,14 @@
                                 id="no-password"
                                 :text="_L('passwordRequired')"
                                 textWrap="true"
-                                v-show-"noPassword"
+                                v-show="noPassword"
                             ></Label>
                             <Label
                                 class="validation-error"
                                 id="password-too-short"
                                 :text="_L('passwordTooShort')"
                                 textWrap="true"
-                                v-show-"passwordTooShort"
+                                v-show="passwordTooShort"
                             ></Label>
                             <Label
                                 class="m-t-5"
@@ -184,7 +184,7 @@
                                 id="passwords-not-match"
                                 :text="_L('noMatch')"
                                 textWrap="true"
-                                v-show-"passwordsNotMatch"
+                                v-show="passwordsNotMatch"
                             ></Label>
                         </StackLayout>
 
