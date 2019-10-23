@@ -66,25 +66,29 @@
                         :key="s.id"
                         class="sensor-block"
                     >
-                        <!-- trend arrow -->
-                        <Image
-                            width="7"
-                            verticalAlignment="bottom"
-                            :src="s.icon"
-                            class="trend-icon"
-                        ></Image>
-                        <!-- reading -->
-                        <Label
-                            :text="s.displayReading"
-                            verticalAlignment="bottom"
-                            class="size-24 m-l-2"
-                        />
-                        <!-- unit -->
-                        <Label
-                            :text="s.unit"
-                            verticalAlignment="bottom"
-                            class="unit size-12"
-                        />
+                        <!-- keep arrows, reading, and unit on same line -->
+                        <FlexboxLayout>
+                            <!-- trend arrow -->
+                            <Image
+                                width="7"
+                                verticalAlignment="bottom"
+                                :src="s.icon"
+                                class="trend-icon"
+                            ></Image>
+                            <!-- reading -->
+                            <Label
+                                flexShrink="0.25"
+                                :text="s.displayReading"
+                                verticalAlignment="bottom"
+                                class="size-24 m-l-2"
+                            />
+                            <!-- unit -->
+                            <Label
+                                :text="s.unit"
+                                verticalAlignment="bottom"
+                                class="unit size-12 m-t-10"
+                            />
+                        </FlexboxLayout>
                         <!-- name -->
                         <Label
                             :text="s.name"
@@ -201,9 +205,9 @@ export default {
 }
 
 .sensor-block {
-    width: 47%;
+    width: 46%;
     padding: 10;
-    margin: 5;
+    margin: 5 2%;
     background: $fk-gray-lightest;
 }
 
