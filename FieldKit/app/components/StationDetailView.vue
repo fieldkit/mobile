@@ -1,70 +1,18 @@
 <template>
-    <Page
-        class="page plain"
-        actionBarHidden="true"
-        @loaded="onPageLoaded"
-        @navigatingFrom="onNavigatingFrom"
-    >
+    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
         <GridLayout rows="*,80">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <GridLayout rows="auto" columns="15*,70*,15*">
-                        <StackLayout
-                            col="0"
-                            class="round-bkgd"
-                            verticalAlignment="top"
-                            @tap="goBack"
-                        >
-                            <Image
-                                width="21"
-                                src="~/images/Icon_backarrow.png"
-                            ></Image>
-                        </StackLayout>
-                        <GridLayout col="1" rows="auto,auto" columns="*">
-                            <Label
-                                row="0"
-                                class="title m-t-10 text-center"
-                                :text="station.name"
-                                textWrap="true"
-                            ></Label>
-                            <Label
-                                row="1"
-                                class="text-center size-12"
-                                :text="deployedStatus"
-                                textWrap="true"
-                            ></Label>
-                        </GridLayout>
-                        <StackLayout
-                            col="2"
-                            class="round-bkgd"
-                            @tap="goToSettings"
-                        >
-                            <Image
-                                width="25"
-                                src="~/images/Icon_Congfigure.png"
-                            ></Image>
-                        </StackLayout>
-                    </GridLayout>
+                    <ScreenHeader :title="station.name" :subtitle="deployedStatus" :onBack="goBack" :onSettings="goToSettings" />
 
-                    <GridLayout
-                        rows="auto"
-                        columns="*"
-                        v-if="loading"
-                        class="text-center"
-                    >
+                    <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
                         <StackLayout id="loading-circle-blue"></StackLayout>
                         <StackLayout id="loading-circle-white"></StackLayout>
                     </GridLayout>
 
-                    <StationStatusBox
-                        ref="statusBox"
-                        @deployTapped="goToDeploy"
-                    />
+                    <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
 
-                    <ModuleListView
-                        ref="moduleList"
-                        @moduleTapped="goToModule"
-                    />
+                    <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
                 </FlexboxLayout>
             </ScrollView>
 
@@ -84,6 +32,7 @@ import Services from "../services/services";
 import Config from "../config";
 import StationStatusBox from "./StationStatusBox";
 import ModuleListView from "./ModuleListView";
+import ScreenHeader from "./ScreenHeader";
 import StationFooterTabs from "./StationFooterTabs";
 
 const log = Config.logger("StationDetailView");
@@ -99,11 +48,19 @@ export default {
         };
     },
     components: {
+        ScreenHeader,
         StationStatusBox,
         ModuleListView,
         StationFooterTabs
     },
-    props: ["stationId", "station"],
+    props: {
+        stationId: {
+            type: String,
+        },
+        station: {
+            type: Object,
+        }
+    },
     methods: {
         goBack(event) {
             // Change background color when pressed
@@ -186,6 +143,8 @@ export default {
             if (this.station.name == "") {
                 this.getFromDatabase();
             } else {
+                // Vuejs is warning about this, as this gets blown away on a re-render.
+                // Need to find sitauations where it's necessary and remove them, defering to station.id.
                 this.stationId = this.station.id;
                 this.completeSetup();
             }
@@ -249,6 +208,8 @@ export default {
                 setTimeout(this.getFromDatabase, 2000);
                 return Promise.reject();
             }
+            // Vuejs is warning about this, as this gets blown away on a re-render.
+            // Need to find sitauations where it's necessary and remove them, defering to station.id.
             this.station = station[0];
             return dbInterface.getModules(this.station.id);
         },

@@ -2,19 +2,7 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <StackLayout id="stations-list" class="m-y-10">
-                <StackLayout
-                    class="round-bkgd"
-                    horizontalAlignment="left"
-                    verticalAlignment="top"
-                    @tap="goBack"
-                >
-                    <Image width="21" src="~/images/Icon_backarrow.png"></Image>
-                </StackLayout>
-                <Label
-                    class="h2 m-y-10 text-center"
-                    :text="message"
-                    textWrap="true"
-                ></Label>
+                <ScreenHeader title="FieldKit Stations" :onBack="goBack" :canNavigateSettings="false" />
                 <Label
                     v-if="stations.length == 0"
                     :text="_L('lookingForStations')"
@@ -60,19 +48,26 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 
+import ScreenHeader from "./ScreenHeader";
+
 export default {
     data() {
         return {
-            message: "FieldKit Stations",
             stations: []
         };
     },
-    props: ["station"],
+    components: {
+        ScreenHeader
+    },
+    props: {
+        station: Object,
+    },
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
 
             this.stations = this.$stationMonitor.getStations();
+
             if (this.station) {
                 // update from station detail view
                 this.stations.forEach(s => {

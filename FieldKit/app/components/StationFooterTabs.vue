@@ -8,7 +8,7 @@
             <template v-if="active == 'station'">
                 <Image
                     width="20"
-                    src="~/images/Icon_Station_Selected.png"
+                    src="~/images/Icon_Station_Active.png"
                 ></Image>
                 <Label class="bold m-t-2" :text="_L('station')"></Label>
             </template>
@@ -22,11 +22,11 @@
         </StackLayout>
         <StackLayout @tap="goToData" class="footer-btn">
             <template v-if="active == 'data'">
-                <Image width="20" src="~/images/Icon_Data_Selected.png"></Image>
+                <Image width="20" src="~/images/Icon_DataSync_Active.png"></Image>
                 <Label class="bold m-t-2" :text="_L('data')"></Label>
             </template>
             <template v-else>
-                <Image width="20" src="~/images/Icon_Data_Inactive.png"></Image>
+                <Image width="20" src="~/images/Icon_DataSync_Inactive.png"></Image>
                 <Label class="light m-t-2" :text="_L('data')"></Label>
             </template>
         </StackLayout>
@@ -34,7 +34,7 @@
             <template v-if="active == 'settings'">
                 <Image
                     width="20"
-                    src="~/images/Icon_Settings_Selected.png"
+                    src="~/images/Icon_Settings_Active.png"
                 ></Image>
                 <Label class="bold m-t-2" :text="_L('settings')"></Label>
             </template>

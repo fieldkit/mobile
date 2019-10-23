@@ -1,9 +1,13 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="*,80">
-            <StackLayout row="0">
-                <SynchronizePanel :station="station" />
-            </StackLayout>
+            <ScrollView row="0">
+                <StackLayout>
+                    <ScreenHeader title="Data Sync" :canNavigateBack="false" :canNavigateSettings="false" />
+
+                    <SynchronizePanel :station="station" />
+                </StackLayout>
+            </ScrollView>
 
             <StationFooterTabs row="1" :station="station" active="data" />
         </GridLayout>
@@ -15,12 +19,14 @@ import routes from "../routes";
 
 import SynchronizePanel from "./SynchronizePanel";
 import StationFooterTabs from "./StationFooterTabs";
+import ScreenHeader from "./ScreenHeader";
 
 export default {
     props: {
         station: Object
     },
     components: {
+        ScreenHeader,
         SynchronizePanel,
         StationFooterTabs
     },
