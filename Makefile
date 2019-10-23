@@ -77,12 +77,12 @@ images:
 		DIR=`dirname $$a`; \
 		PNG=`basename $$a .svg`.png; \
 		OUTPUT=../$$DIR/$$PNG;   \
-		(cd FieldKit && svgexport $$SOURCE $$OUTPUT 16x); \
+		(cd FieldKit && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 16x); \
   done; \
 	for a in FieldKit/app/images/*logo*.svg; do  \
 		SOURCE=../$$a;    \
 		DIR=`dirname $$a`; \
 		PNG=`basename $$a .svg`.png; \
 		OUTPUT=../$$DIR/$$PNG;   \
-		(cd FieldKit && svgexport $$SOURCE $$OUTPUT 8x); \
+		(cd FieldKit && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 2x); \
   done; \

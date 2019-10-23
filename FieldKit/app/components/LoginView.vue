@@ -2,7 +2,7 @@
     <Page actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <FlexboxLayout class="page" justifyContent="space-between">
-                <Image class="logo" src="~/images/fieldkit-logo-black.png"></Image>
+                <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
                 <StackLayout class="form">
                     <GridLayout rows="auto, auto, auto, auto">
                         <StackLayout
