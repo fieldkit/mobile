@@ -174,7 +174,7 @@ export default {
                 if (this.origInterval != this.station.interval) {
                     // send to station
                     queryStation.setInterval(this.station).then(result => {
-                        console.log("sent interval and received", result);
+                        // console.log("sent interval and received", result);
                     });
 
                     // save to database
