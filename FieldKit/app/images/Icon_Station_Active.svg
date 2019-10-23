@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="26px" height="28px" viewBox="0 0 26 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59 (86127) - https://sketch.com -->
+    <title>Icon_Station_active</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-5.0%" y="-29.1%" width="110.0%" height="158.2%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Deploy" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1_Mobile_Deploy" transform="translate(-35.000000, -505.000000)" fill="#515151">
+            <g id="StickyBottomNav" filter="url(#filter-1)" transform="translate(0.000000, 497.000000)">
+                <path d="M56,10 C56.5522847,10 57,10.4477153 57,11 L57,29 C57,29.5522847 56.5522847,30 56,30 L40,30 C39.4477153,30 39,29.5522847 39,29 L39,11 C39,10.4477153 39.4477153,10 40,10 L56,10 Z M43,16 L46.6,22.75 L53.1052632,25 L49.75,19.15 L43,16 Z M48.4,20.05 C48.8970563,20.05 49.3,20.4529437 49.3,20.95 C49.3,21.4470563 48.8970563,21.85 48.4,21.85 C47.9029437,21.85 47.5,21.4470563 47.5,20.95 C47.5,20.4529437 47.9029437,20.05 48.4,20.05 Z" id="Icon_Station_active"></path>
+            </g>
+        </g>
+    </g>
+</svg>

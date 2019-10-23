@@ -70,3 +70,19 @@ ios-debug:
 clean:
 	rm -rf FieldKit/node_modules
 	rm -rf FieldKit/platforms
+
+images:
+	for a in FieldKit/app/images/Icon*.svg; do  \
+		SOURCE=../$$a;    \
+		DIR=`dirname $$a`; \
+		PNG=`basename $$a .svg`.png; \
+		OUTPUT=../$$DIR/$$PNG;   \
+		(cd FieldKit && svgexport $$SOURCE $$OUTPUT 16x); \
+  done; \
+	for a in FieldKit/app/images/*logo*.svg; do  \
+		SOURCE=../$$a;    \
+		DIR=`dirname $$a`; \
+		PNG=`basename $$a .svg`.png; \
+		OUTPUT=../$$DIR/$$PNG;   \
+		(cd FieldKit && svgexport $$SOURCE $$OUTPUT 8x); \
+  done; \
