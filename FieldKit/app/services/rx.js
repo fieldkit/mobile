@@ -52,6 +52,7 @@ export class BetterObservable extends Observable {
 
 export function every(time, value) {
     const observable = new Observable()
+    observable.notifyPropertyChange(HiddenProperty, value);
     setInterval(() => {
         observable.notifyPropertyChange(HiddenProperty, value);
     }, time);
