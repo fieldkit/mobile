@@ -4,8 +4,14 @@
             <FlexboxLayout
                 flexDirection="column"
                 justifyContent="space-between"
+                class="p-t-10"
             >
-                <ScreenHeader :title="viewTitle" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                <ScreenHeader
+                    :title="viewTitle"
+                    :subtitle="station.name"
+                    :onBack="goBack"
+                    :canNavigateSettings="false"
+                />
 
                 <Mapbox
                     :accessToken="mapboxToken"

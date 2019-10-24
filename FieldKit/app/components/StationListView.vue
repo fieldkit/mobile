@@ -2,7 +2,11 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <StackLayout id="stations-list" class="m-y-10">
-                <ScreenHeader title="FieldKit Stations" :onBack="goBack" :canNavigateSettings="false" />
+                <ScreenHeader
+                    title="FieldKit Stations"
+                    :onBack="goBack"
+                    :canNavigateSettings="false"
+                />
                 <Label
                     v-if="stations.length == 0"
                     :text="_L('lookingForStations')"

@@ -1,8 +1,13 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <StackLayout>
-                <ScreenHeader :title="viewTitle" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+            <StackLayout class="p-t-10">
+                <ScreenHeader
+                    :title="viewTitle"
+                    :subtitle="station.name"
+                    :onBack="goBack"
+                    :canNavigateSettings="false"
+                />
 
                 <!-- Add audio note and photo -->
                 <GridLayout rows="auto" columns="*,*" class="m-x-10 m-t-20">

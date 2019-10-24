@@ -3,7 +3,12 @@
         <GridLayout rows="*,80">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <ScreenHeader :title="activeStation.name" :subtitle="deployedStatus" :onBack="goBack" :onSettings="goToSettings" />
+                    <ScreenHeader
+                        :title="activeStation.name"
+                        :subtitle="deployedStatus"
+                        :onBack="goBack"
+                        :onSettings="goToSettings"
+                    />
 
                     <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
                         <StackLayout id="loading-circle-blue"></StackLayout>
