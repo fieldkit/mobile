@@ -90,7 +90,13 @@ export default {
             });
         },
 
-        goToData() {
+        goToData(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
             this.$navigateTo(routes.dataDownload, {
                 props: {
                     station: this.station
