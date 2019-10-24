@@ -85,6 +85,8 @@ if (Config.vue.verbose) {
     Vue.config.silent = false;
 }
 
+console.log('config', Config);
+
 new Vue({
     render: h =>
         h("frame", [

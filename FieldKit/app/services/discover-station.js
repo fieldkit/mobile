@@ -5,6 +5,8 @@ import {
 import { Zeroconf } from "nativescript-zeroconf";
 import { isIOS } from "tns-core-modules/platform";
 import { WifiInfo } from "nativescript-wifi-info";
+import { every } from "./rx";
+import Config from "../config";
 
 class Station {
     constructor(info) {
@@ -50,7 +52,22 @@ export default class DiscoverStation extends Observable {
         this.stations_ = {};
     }
 
-    startServiceDiscovery() {
+    _watchFakePreconfiguredDiscoveries() {
+        if (Config.discover && Config.discover.enabled) {
+            every(1000).on(Observable.propertyChangeEvent, data => {
+                Config.discover.stations.forEach(fake => {
+                    this.stationFound({
+                        type: "_fck._tcp",
+                        name: fake.deviceId,
+                        host: fake.address,
+                        port: fake.port,
+                    });
+                });
+            });
+        }
+    }
+
+    _watchWifiNetworks() {
         this.wifiMonitor = new WiFiMonitor((ssid, couldBeStation) => {
             console.log("new ssid", ssid, couldBeStation);
             if (couldBeStation) {
@@ -72,27 +89,29 @@ export default class DiscoverStation extends Observable {
                 });
             }
         });
+    }
 
+    _watchZeroconf() {
         this.zeroconf_.on(
             Observable.propertyChangeEvent,
             data => {
                 switch (data.propertyName.toString()) {
-                    case "serviceFound": {
-                        this.stationFound(data.value);
-                        break;
-                    }
-                    case "serviceLost": {
-                        this.stationLost(data.value);
-                        break;
-                    }
-                    default: {
-                        console.log(
-                            data.propertyName.toString() +
-                                " " +
-                                data.value.toString()
-                        );
-                        break;
-                    }
+                case "serviceFound": {
+                    this.stationFound(data.value);
+                    break;
+                }
+                case "serviceLost": {
+                    this.stationLost(data.value);
+                    break;
+                }
+                default: {
+                    console.log(
+                        data.propertyName.toString() +
+                            " " +
+                            data.value.toString()
+                    );
+                    break;
+                }
                 }
             },
             error => {
@@ -100,6 +119,12 @@ export default class DiscoverStation extends Observable {
             }
         );
         this.zeroconf_.startServiceDiscovery();
+    }
+
+    startServiceDiscovery() {
+        this._watchFakePreconfiguredDiscoveries();
+        this._watchWifiNetworks();
+        this._watchZeroconf();
     }
 
     stopServiceDiscovery() {
