@@ -57,7 +57,7 @@ export default class DiscoverStation extends Observable {
             every(10000).on(Observable.propertyChangeEvent, data => {
                 Config.discover.stations.forEach(fake => {
                     this.stationFound({
-                        type: "_fck._tcp",
+                        type: "_fk._tcp",
                         name: fake.deviceId,
                         host: fake.address,
                         port: fake.port,
