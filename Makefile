@@ -62,27 +62,30 @@ android-logs-verbose:
 	adb logcat | grep -i " JS"
 
 android-debug:
-	cd FieldKit && tns debug android --bundle --no-hmr | grep -v NSVue
+	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
 
 ios-debug:
-	cd FieldKit && tns debug ios --bundle --no-hmr | grep -v NSVue
+	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue
 
 clean:
-	rm -rf FieldKit/node_modules
-	rm -rf FieldKit/platforms
+	rm -rf $(APP)/node_modules
+	rm -rf $(APP)/platforms
 
 images:
-	for a in FieldKit/app/images/Icon*.svg; do  \
+	for a in $(APP)/app/images/Icon*.svg; do  \
 		SOURCE=../$$a;    \
 		DIR=`dirname $$a`; \
 		PNG=`basename $$a .svg`.png; \
 		OUTPUT=../$$DIR/$$PNG;   \
-		(cd FieldKit && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 16x); \
+		(cd $(APP) && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 16x); \
   done; \
-	for a in FieldKit/app/images/*logo*.svg; do  \
+	for a in $(APP)/app/images/*logo*.svg; do  \
 		SOURCE=../$$a;    \
 		DIR=`dirname $$a`; \
 		PNG=`basename $$a .svg`.png; \
 		OUTPUT=../$$DIR/$$PNG;   \
-		(cd FieldKit && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 2x); \
+		(cd $(APP) && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 2x); \
   done; \
+
+update-third-party:
+	cd $(APP) && third-party/update.sh

@@ -3,6 +3,7 @@ import {
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 import { Zeroconf } from "nativescript-zeroconf";
+import { Conservify } from "nativescript-conservify";
 import { isIOS } from "tns-core-modules/platform";
 import { WifiInfo } from "nativescript-wifi-info";
 import { every } from "./rx";
@@ -48,6 +49,7 @@ class WiFiMonitor {
 export default class DiscoverStation extends Observable {
     constructor() {
         super();
+        console.log("Conservify", Conservify);
         this.zeroconf_ = new Zeroconf("_fk._tcp");
         this.stations_ = {};
     }
