@@ -485,7 +485,16 @@ export default {
 
             if (this.origNote != this.noteText) {
                 this.station.deployNote = this.noteText;
+                // save in db
                 dbInterface.setStationDeployNote(this.station);
+                // send note as field note to portal
+                let portalParams = {
+                    stationId: this.station.id,
+                    created: new Date(),
+                    category_id: 1,
+                    note: this.station.deployNote
+                }
+                this.$portalInterface.addFieldNote(portalParams);
                 let configChange = {
                     stationId: this.station.id,
                     before: this.origNote,

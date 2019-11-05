@@ -205,6 +205,20 @@ export default class PortalInterface {
             .catch(this.handleError.bind(this));
     }
 
+    addFieldNote(data) {
+        return axios({
+            method: "POST",
+            url: Config.baseUri + "/stations/" + data.stationId + "/field-notes",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: accessToken
+            },
+            data: data
+        })
+            .then(this._handleResponse.bind(this))
+            .catch(this.handleError.bind(this));
+    }
+
     _handleResponse(response) {
         if (response.status === 200) {
             return response.data;

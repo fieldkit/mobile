@@ -248,6 +248,15 @@ export default {
 
             let valid = this.checkLocationName();
             if (valid && this.origLocationName != this.station.locationName) {
+                // send location name as field note to portal
+                let portalParams = {
+                    stationId: this.station.id,
+                    created: new Date(),
+                    category_id: 1,
+                    note: this.station.locationName
+                }
+                this.$portalInterface.addFieldNote(portalParams);
+
                 if (this.mapMarker) {
                     this.mapMarker.update({ title: this.station.locationName });
                 }
