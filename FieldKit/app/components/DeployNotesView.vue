@@ -4,7 +4,7 @@
             <StackLayout class="p-t-10">
                 <ScreenHeader
                     :title="viewTitle"
-                    :subtitle="station.name"
+                    :subtitle="stationName"
                     :onBack="goBack"
                     :canNavigateSettings="false"
                 />
@@ -160,9 +160,7 @@ export default {
     data() {
         return {
             viewTitle: _L("deployment"),
-            station: {
-                name: "FieldKit Station"
-            },
+            stationName: "",
             saveToGallery: true,
             allowsEditing: true,
             keepAspectRatio: true,
@@ -231,6 +229,7 @@ export default {
             if (this.station.status == "recording") {
                 this.isRecordingData = true;
             }
+            this.stationName = this.station.name;
             this.noteText = this.station.deployNote;
             this.origNote = this.noteText;
             this.recordings = this.station.deployAudioFiles;
