@@ -158,11 +158,13 @@ export default {
             this.station.availableMemory = parseFloat(
                 this.station.availableMemory
             ).toFixed(2);
-            this.page.addCss(
-                "#station-memory-bar {width: " +
-                    this.station.occupiedMemory +
-                    "%;}"
-            );
+            if (this.station.occupiedMemory) {
+                this.page.addCss(
+                    "#station-memory-bar {width: " +
+                        this.station.occupiedMemory +
+                        "%;}"
+                );
+            }
         },
 
         updateStatus(data) {
@@ -171,11 +173,13 @@ export default {
             this.setBatteryImage();
             this.station.occupiedMemory = data.consumedMemory.toFixed(2);
             this.station.availableMemory = 100 - this.station.occupiedMemory;
-            this.page.addCss(
-                "#station-memory-bar {width: " +
-                    this.station.occupiedMemory +
-                    "%;}"
-            );
+            if (this.station.occupiedMemory) {
+                this.page.addCss(
+                    "#station-memory-bar {width: " +
+                        this.station.occupiedMemory +
+                        "%;}"
+                );
+            }
         },
 
         setBatteryImage() {
