@@ -1,1 +1,7 @@
-pod 'FKNetworking', :path => '../../../../FKNetworking'
+path = '../../../../FKNetworking'
+
+if File.directory?(path)
+    pod 'FKNetworking', :path => path
+else
+    pod 'FKNetworking', :git => "https://github.com/conservify/FKNetworking.git"
+end
