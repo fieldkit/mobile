@@ -1,32 +1,14 @@
-import * as BackgroundHttp from "nativescript-background-http";
 import axios from "axios";
 import Config from "../config";
-
-const SessionName = "fk-image-upload";
-const session = BackgroundHttp.session(SessionName);
+import Networking from "../wrappers/networking";
 
 let accessToken = null;
 let currentUser = {};
 
 export default class PortalInterface {
-    handleError(error) {
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            // console.log("error.response", error.response);
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser
-            // and an instance of http.ClientRequest in node.js
-            // console.log("error.request", error.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            // console.log("error.message", error.message);
-        }
-        // console.log(error.config);
-
-        throw error;
-    }
+	constructor() {
+		this.networking = new Networking("fk-image-upload");
+	}
 
     storeCurrentUser() {
         let portalInterface = this;
@@ -40,7 +22,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(this.handleError);
+            .catch(this._handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -78,7 +60,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(this.handleError);
+            .catch(this._handleError);
 
         function handleResponse(response) {
             if (response.status == "204") {
@@ -104,7 +86,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(this.handleError);
+            .catch(this._handleError);
 
         function handleResponse(response) {
             if (response.status == "204") {
@@ -233,7 +215,7 @@ export default class PortalInterface {
                 method: "POST",
                 headers: { ...headers }
             };
-            const task = session.uploadFile(data.pathDest, req);
+            const task = this.networking.uploadFile(data.pathDest, req);
             task.on("progress", e => {
                 const rv = {
                     progress: 100.0 * (e.currentBytes / e.totalBytes),
@@ -263,5 +245,24 @@ export default class PortalInterface {
         } else {
             throw new Error("Query failed");
         }
+    }
+
+    _handleError(error) {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            // console.log("error.response", error.response);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser
+            // and an instance of http.ClientRequest in node.js
+            // console.log("error.request", error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            // console.log("error.message", error.message);
+        }
+        // console.log(error.config);
+
+        throw error;
     }
 }
