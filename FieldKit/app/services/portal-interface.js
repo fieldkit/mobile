@@ -1,5 +1,9 @@
+import * as BackgroundHttp from "nativescript-background-http";
 import axios from "axios";
 import Config from "../config";
+
+const SessionName = "fk-image-upload";
+const session = BackgroundHttp.session(SessionName);
 
 let accessToken = null;
 let currentUser = {};
@@ -217,6 +221,40 @@ export default class PortalInterface {
         })
             .then(this._handleResponse.bind(this))
             .catch(this.handleError.bind(this));
+    }
+
+    addFieldNoteMedia(data) {
+        return new Promise((resolve, reject) => {
+            const headers = {
+                Authorization: accessToken
+            };
+            const req = {
+                url: Config.baseUri + "/stations/" + data.stationId + "/field-note-media",
+                method: "POST",
+                headers: { ...headers }
+            };
+            const task = session.uploadFile(data.pathDest, req);
+            task.on("progress", e => {
+                const rv = {
+                    progress: 100.0 * (e.currentBytes / e.totalBytes),
+                    currentBytes: e.currentBytes,
+                    totalBytes: e.totalBytes
+                };
+                if(rv.progress == 100) {
+                    resolve(rv);
+                }
+            });
+            task.on("responded", e => {
+                const rv = {
+                    data: e.data,
+                    status: e.responseCode
+                };
+                resolve(rv);
+            });
+            task.on("error", e => {
+                reject(e.error);
+            });
+        });
     }
 
     _handleResponse(response) {

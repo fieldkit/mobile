@@ -435,7 +435,13 @@ export default {
                     let saved = imageSource.saveToFile(this.pathDest, "jpg");
                     if (saved) {
                         this.station.deployImageName = this.deployImageName;
+                        // save in db
                         dbInterface.setStationDeployImage(this.station);
+                        // send image to portal as field note media
+                        let params = { stationId: this.station.id, pathDest: this.pathDest };
+                        this.$portalInterface.addFieldNoteMedia(params).then(result => {
+                            // console.log("result? ---->", result)
+                        });
                         let configChange = {
                             stationId: this.station.id,
                             before: this.origImageName,
