@@ -1,9 +1,10 @@
 import axios from "axios";
 import Config from "../config";
 import Networking from "../wrappers/networking";
+import AppSettings from "../wrappers/app-settings";
 
-let accessToken = null;
 let currentUser = {};
+const appSettings = new AppSettings();
 
 export default class PortalInterface {
 	constructor() {
@@ -18,7 +19,7 @@ export default class PortalInterface {
             url: Config.baseUri + "/user",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             }
         })
             .then(handleResponse)
@@ -40,11 +41,11 @@ export default class PortalInterface {
     }
 
     isLoggedIn() {
-        return accessToken ? true : false;
+        return appSettings.getString("accessToken") ? true : false;
     }
 
     getCurrentToken() {
-        return accessToken;
+        return appSettings.getString("accessToken");
     }
 
     login(user) {
@@ -65,9 +66,10 @@ export default class PortalInterface {
         function handleResponse(response) {
             if (response.status == "204") {
                 // success
-                accessToken = response.headers.authorization
+                const accessToken = response.headers.authorization
                     ? response.headers.authorization
                     : response.headers.Authorization;
+                appSettings.setString("accessToken", accessToken);
                 portalInterface.storeCurrentUser();
                 return;
             } else {
@@ -82,7 +84,7 @@ export default class PortalInterface {
             url: Config.baseUri + "/logout",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             }
         })
             .then(handleResponse)
@@ -90,7 +92,7 @@ export default class PortalInterface {
 
         function handleResponse(response) {
             if (response.status == "204") {
-                accessToken = null;
+                appSettings.remove("accessToken")
                 return;
             } else {
                 throw new Error(response);
@@ -129,7 +131,7 @@ export default class PortalInterface {
             url: Config.baseUri + "/stations",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             },
             data: data
         })
@@ -151,7 +153,7 @@ export default class PortalInterface {
             url: Config.baseUri + "/stations/" + portalId,
             headers: {
                 "Content-Type": "application/json",
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             },
             data: data
         })
@@ -172,7 +174,7 @@ export default class PortalInterface {
             url: Config.baseUri + "/data/devices/" + deviceId + "/summary",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             }
         })
             .then(this._handleResponse.bind(this))
@@ -184,7 +186,7 @@ export default class PortalInterface {
             url: Config.baseUri + "/stations/@/" + id,
             headers: {
                 "Content-Type": "application/json",
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             }
         })
             .then(this._handleResponse.bind(this))
@@ -197,7 +199,7 @@ export default class PortalInterface {
             url: Config.baseUri + "/stations/" + data.stationId + "/field-notes",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             },
             data: data
         })
@@ -208,7 +210,7 @@ export default class PortalInterface {
     addFieldNoteMedia(data) {
         return new Promise((resolve, reject) => {
             const headers = {
-                Authorization: accessToken
+                Authorization: appSettings.getString("accessToken")
             };
             const req = {
                 url: Config.baseUri + "/stations/" + data.stationId + "/field-note-media",
