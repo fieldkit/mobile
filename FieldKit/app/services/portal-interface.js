@@ -112,7 +112,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(this.handleError);
+            .catch(this._handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -136,7 +136,7 @@ export default class PortalInterface {
             data: data
         })
             .then(handleResponse)
-            .catch(this.handleError);
+            .catch(this._handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -158,7 +158,7 @@ export default class PortalInterface {
             data: data
         })
             .then(handleResponse)
-            .catch(this.handleError);
+            .catch(this._handleError);
 
         function handleResponse(response) {
             if (response.status == "200") {
@@ -178,7 +178,7 @@ export default class PortalInterface {
             }
         })
             .then(this._handleResponse.bind(this))
-            .catch(this.handleError.bind(this));
+            .catch(this._handleError.bind(this));
     }
 
     getStationById(id) {
@@ -190,7 +190,7 @@ export default class PortalInterface {
             }
         })
             .then(this._handleResponse.bind(this))
-            .catch(this.handleError.bind(this));
+            .catch(this._handleError.bind(this));
     }
 
     addFieldNote(data) {
@@ -204,7 +204,7 @@ export default class PortalInterface {
             data: data
         })
             .then(this._handleResponse.bind(this))
-            .catch(this.handleError.bind(this));
+            .catch(this._handleError.bind(this));
     }
 
     addFieldNoteMedia(data) {
