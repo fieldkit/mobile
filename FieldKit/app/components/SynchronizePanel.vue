@@ -1,44 +1,116 @@
 <template>
     <StackLayout class="sync-panel-container" @loaded="onLoaded">
-        <StackLayout class="sync-button-panel" v-if="canDownload">
-            <Label :text="stationStatus" textWrap="true"></Label>
-
-            <Button
-                class="btn btn-primary m-t-10"
-                text="Sync Station"
-                isEnabled="true"
-                @tap="onSyncStation"
-                style="sync-button"
-            ></Button>
-        </StackLayout>
-
-        <StackLayout class="sync-button-panel" v-if="canUpload">
-            <Label :text="portalStatus" textWrap="true"></Label>
-
-            <Button
-                class="btn btn-primary m-t-10"
-                text="Sync Portal"
-                isEnabled="true"
-                @tap="onSyncPortal"
-                style="sync-button"
-            ></Button>
-        </StackLayout>
-
         <StackLayout
-            class="sync-button-panel"
-            v-if="!canDownload && !canUpload"
+            v-for="s in stations"
+            :key="s.station.id"
+            class="station-container"
         >
-            <Label text="There is nothing to download or upload."></Label>
-        </StackLayout>
+            <Label
+                :text="s.station.name"
+                textWrap="true"
+                class="station-name"
+            ></Label>
+            <template v-if="s.canDownload">
+                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
+                    <Image
+                        rowSpan="2"
+                        col="0"
+                        width="25"
+                        src="~/images/readings.png"
+                        verticalAlignment="top"
+                    ></Image>
+                    <Label
+                        row="0"
+                        col="1"
+                        :text="s.downloadStatus"
+                        textWrap="true"
+                        class="status"
+                    ></Label>
+                    <Label
+                        row="1"
+                        col="1"
+                        text="Ready to download"
+                        textWrap="true"
+                    ></Label>
+                    <Image
+                        rowSpan="2"
+                        col="2"
+                        width="25"
+                        src="~/images/download.png"
+                        v-if="!downloading[s.station.deviceId]"
+                        :dataDeviceId="s.station.deviceId"
+                        @tap="onDownloadData"
+                    ></Image>
+                    <Image
+                        rowSpan="2"
+                        col="2"
+                        width="25"
+                        src="~/images/syncing.png"
+                        v-if="downloading[s.station.deviceId]"
+                    ></Image>
+                    <StackLayout
+                        row="2"
+                        colSpan="3"
+                        class="bottom-border"
+                    ></StackLayout>
+                </GridLayout>
+            </template>
+            <template v-else>
+                <StackLayout class="m-20">
+                    <Label text="Nothing to download" />
+                </StackLayout>
+            </template>
 
-        <StackLayout class="sync-panel-progress">
-            <ProgressBar />
+            <template v-if="s.canUpload">
+                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
+                    <Image
+                        rowSpan="2"
+                        col="0"
+                        width="25"
+                        src="~/images/readings.png"
+                        verticalAlignment="top"
+                    ></Image>
+                    <Label
+                        row="0"
+                        col="1"
+                        :text="s.uploadStatus"
+                        textWrap="true"
+                        class="status"
+                    ></Label>
+                    <Label
+                        row="1"
+                        col="1"
+                        text="Ready to upload"
+                        textWrap="true"
+                    ></Label>
+                    <Image
+                        rowSpan="2"
+                        col="2"
+                        width="25"
+                        src="~/images/ready.png"
+                        v-if="!uploading[s.station.deviceId]"
+                        :dataDeviceId="s.station.deviceId"
+                        @tap="onUploadData"
+                    ></Image>
+                    <Image
+                        rowSpan="2"
+                        col="2"
+                        width="25"
+                        src="~/images/syncing.png"
+                        v-if="uploading[s.station.deviceId]"
+                    ></Image>
+                    <StackLayout
+                        row="2"
+                        colSpan="3"
+                        class="bottom-border"
+                    ></StackLayout>
+                </GridLayout>
+            </template>
         </StackLayout>
     </StackLayout>
 </template>
 
 <script>
-import ProgressBar from "./ProgressBar";
 import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
@@ -48,35 +120,12 @@ import { convertBytesToLabel } from "../utilities";
 const log = Config.logger("SynchronizePanel");
 
 export default {
-    props: {
-        station: Object
-    },
-
-    components: {
-        ProgressBar
-    },
-
     data() {
         return {
-            canDownload: false,
-            canUpload: false,
-            pending: {
-                station: 0,
-                portal: 0
-            }
+            downloading: {},
+            uploading: {},
+            stations: []
         };
-    },
-
-    computed: {
-        stationStatus: function() {
-            const { bytes, records } = this.pending.station;
-            return `This station has ${bytes} of data waiting to be downloaded (${records} records).`;
-        },
-
-        portalStatus: function() {
-            const { bytes, records } = this.pending.portal;
-            return `There are ${bytes} waiting to upload.`;
-        }
     },
 
     methods: {
@@ -88,47 +137,58 @@ export default {
             log.info("subscribed");
 
             stateManager.subscribe(status => {
-                log.info("status", this.station.id, 'status', status, 'portal', status.portal);
+                log.info('status', status, 'portal', status.portal);
 
-                function getPortal() {
-                    return {
-                        bytes: convertBytesToLabel(status.portal.pending.bytes),
-                        size: status.portal.pending.bytes,
-                    };
-                }
+                this.stations = status.station.stations.sort((a, b) => {
+                    return b.station.name > a.station.name
+                        ? 1
+                        : b.station.name < a.station.name
+                        ? -1
+                        : 0;
+                });
 
-                function getStation(id) {
-                    const station = status.station.forStation(id);
-                    if (station) {
-                        return {
-                            bytes: convertBytesToLabel(station.pending.bytes),
-                            size: station.pending.bytes,
-                            records: station.pending.records
-                        };
+                // update stations with new status
+                this.stations.forEach(s => {
+                    s.readings = s.pending.records;
+                    s.downloadStatus = s.readings + " Readings";
+                    s.canDownload = s.readings > 0;
+                    const toUpload = status.portal.find(p => {
+                        return p.stationId == s.station.id.toString();
+                    });
+                    if(toUpload) {
+                        s.uploadStatus = convertBytesToLabel(toUpload.size) + " to upload";
+                        s.canUpload = true;
+                    } else {
+                        s.canUpload = false;
                     }
-                    return {
-                        bytes: '',
-                        size: 0,
-                        records: 0,
-                    };
+                });
+            });
+
+            Services.ProgressService().subscribe(data => {
+                if(data.message) {
+                    if(data.message == "Downloading") {
+                        if(data.station && data.progress == 100) {
+                            // give it a bit extra time, as status does not update immedately
+                            setTimeout(() => {
+                                this.$set(this.downloading, data.station.deviceId, false);
+                            }, 1000);
+                        }
+                    } else if(data.message == "Uploading") {
+                        if(data.station && data.progress == 100) {
+                            setTimeout(() => {
+                                this.$set(this.uploading, data.station.deviceId, false);
+                            }, 1000);
+                        }
+                    }
                 }
-
-                const portal = getPortal();
-                const station = getStation(this.station.id);
-
-                this.canDownload = station.size > 0;
-                this.canUpload = portal.size > 0;
-
-                this.pending = {
-                    station: station,
-                    portal: portal,
-                };
             });
         },
 
-        onSyncStation() {
+        onDownloadData(event) {
+            const deviceId = event.object.dataDeviceId;
+            this.$set(this.downloading, deviceId, true);
             return Services.StateManager()
-                .synchronizeStation(this.station.deviceId)
+                .synchronizeStation(deviceId)
                 .catch(error => {
                     console.log("ERROR SYNC STATION", JSON.stringify(error));
                     console.log("ERROR SYNC STATION", error.message, error);
@@ -136,7 +196,9 @@ export default {
                 });
         },
 
-        onSyncPortal() {
+        onUploadData(event) {
+            const deviceId = event.object.dataDeviceId;
+            this.$set(this.uploading, deviceId, true);
             return Services.StateManager()
                 .synchronizePortal()
                 .catch(error => {
@@ -166,20 +228,25 @@ export default {
 // End custom common variables
 // Custom styles
 
-.sync-bar-container {
-    width: 100%;
-    text-align: center;
+.station-container {
+    margin: 20;
 }
-
-.sync-panel-progress {
-    margin-left: 20px;
-    margin-right: 20px;
+.station-name {
+    background-color: $fk-primary-blue;
+    clip-path: polygon(0 0, 92% 0%, 98% 100%, 0% 100%);
+    color: white;
+    padding: 10 20;
+    font-size: 18;
 }
-
-.sync-button-panel {
-    text-align: center;
+.bottom-border {
+    margin-left: 15%;
+    margin-right: 2%;
+    margin-top: 10;
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
 }
-
-.sync-button {
+.status {
+    font-size: 18;
+    color: $fk-gray-dark;
 }
 </style>

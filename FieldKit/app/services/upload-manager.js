@@ -17,18 +17,13 @@ export default class UploadManager {
     getStatus() {
         return this.databaseInterface.getPendingDownloads().then(pending => {
             log.info("pending", pending);
-            return {
-                pending: {
-                    files: pending.length,
-                    allowed: pending.length > 0,
-                    bytes: _(pending)
-                        .map("size")
-                        .sum(),
-                    devices: _(pending)
-                        .groupBy("deviceId")
-                        .size()
-                }
-            };
+            return _(pending)
+                .groupBy('stationId')
+                .map((record, id) => ({
+                    stationId: id,
+                    size: _.sumBy(record, 'size')
+                }))
+                .value();
         });
     }
 
