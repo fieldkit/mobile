@@ -45,7 +45,7 @@
                         rowSpan="2"
                         col="2"
                         width="25"
-                        src="~/images/syncing.png"
+                        :src="downloadingIcon"
                         v-if="downloading[s.station.deviceId]"
                     ></Image>
                     <StackLayout
@@ -57,7 +57,7 @@
             </template>
             <template v-else>
                 <StackLayout class="m-20">
-                    <Label text="Nothing to download" />
+                    <Label text="Checking for data to download..." />
                 </StackLayout>
             </template>
 
@@ -96,7 +96,7 @@
                         rowSpan="2"
                         col="2"
                         width="25"
-                        src="~/images/syncing.png"
+                        :src="uploadingIcon"
                         v-if="uploading[s.station.deviceId]"
                     ></Image>
                     <StackLayout
@@ -122,6 +122,8 @@ const log = Config.logger("SynchronizePanel");
 export default {
     data() {
         return {
+            downloadingIcon: "~/images/syncing.png",
+            uploadingIcon: "~/images/syncing.png",
             downloading: {},
             uploading: {},
             stations: []
@@ -139,6 +141,8 @@ export default {
             stateManager.subscribe(status => {
                 log.info('status', status, 'portal', status.portal);
 
+                // the constant jumping around and switching places is
+                // problematic here, so sort alphabetically
                 this.stations = status.station.stations.sort((a, b) => {
                     return b.station.name > a.station.name
                         ? 1
@@ -171,13 +175,21 @@ export default {
                             // give it a bit extra time, as status does not update immedately
                             setTimeout(() => {
                                 this.$set(this.downloading, data.station.deviceId, false);
+                                const inProgress = Object.values(this.downloading).filter(v => {return v;});
+                                if(inProgress.length == 0) {
+                                    clearInterval(this.downloadIntervalTimer);
+                                }
                             }, 1000);
                         }
                     } else if(data.message == "Uploading") {
                         if(data.station && data.progress == 100) {
                             setTimeout(() => {
                                 this.$set(this.uploading, data.station.deviceId, false);
-                            }, 1000);
+                                const inProgress = Object.values(this.uploading).filter(v => {return v;});
+                                if(inProgress.length == 0) {
+                                    clearInterval(this.uploadIntervalTimer);
+                                }
+                             }, 1000);
                         }
                     }
                 }
@@ -187,6 +199,8 @@ export default {
         onDownloadData(event) {
             const deviceId = event.object.dataDeviceId;
             this.$set(this.downloading, deviceId, true);
+            this.downloadIntervalTimer = setInterval(this.rotateDownloadingIcon, 500);
+
             return Services.StateManager()
                 .synchronizeStation(deviceId)
                 .catch(error => {
@@ -199,6 +213,8 @@ export default {
         onUploadData(event) {
             const deviceId = event.object.dataDeviceId;
             this.$set(this.uploading, deviceId, true);
+            this.uploadIntervalTimer = setInterval(this.rotateUploadingIcon, 500);
+
             return Services.StateManager()
                 .synchronizePortal()
                 .catch(error => {
@@ -217,6 +233,18 @@ export default {
                     }
                     console.error("ERROR SYNC PORTAL", error);
                 });
+        },
+
+        rotateDownloadingIcon() {
+            this.downloadingIcon = this.downloadingIcon == "~/images/syncing.png"
+                ? "~/images/syncing2.png"
+                : "~/images/syncing.png";
+        },
+
+        rotateUploadingIcon() {
+            this.uploadingIcon = this.uploadingIcon == "~/images/syncing.png"
+                ? "~/images/syncing2.png"
+                : "~/images/syncing.png";
         },
     }
 };
