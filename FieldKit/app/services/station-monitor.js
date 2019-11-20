@@ -217,7 +217,8 @@ export default class StationMonitor extends Observable {
                     });
             })
             .catch(err => {
-                console.log("error getting status in checkDatabase", err);
+                // console.log("error getting status in checkDatabase", err);
+                console.log("the station at", address, "did not respond with a status. instead:", err)
             });
     }
 

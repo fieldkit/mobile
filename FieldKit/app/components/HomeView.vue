@@ -32,6 +32,13 @@
                 text="Delete app copies of station data"
                 @tap="deleteFiles"
             ></Button>
+            <StackLayout class="m-t-20">
+                <Button
+                    class="btn btn-primary"
+                    text="Start QR code scanning"
+                    @tap="doScanWithBackCamera">
+                </Button>
+            </StackLayout>
         </StackLayout>
     </Page>
 </template>
@@ -41,6 +48,7 @@ import routes from "../routes";
 import { sendLogs } from "../lib/logging";
 import Services from "../services/services";
 import { knownFolders } from "tns-core-modules/file-system";
+import { BarcodeScanner } from "nativescript-barcodescanner";
 
 const createDB = Services.CreateDb();
 
@@ -50,6 +58,9 @@ export default {
             message: _L("authenticated"),
             loggedIn: this.$portalInterface.isLoggedIn()
         };
+    },
+    components: {
+        BarcodeScanner
     },
     methods: {
         onPageLoaded() {},
@@ -77,6 +88,37 @@ export default {
                 .catch(err => {
                     console.log("Error removing data folder", err.stack);
                 });
+        },
+        scan(front) {
+            new BarcodeScanner().scan({
+                cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
+                cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
+                showFlipCameraButton: true,   // default false
+                showTorchButton: true,        // iOS only, default false
+                torchOn: false,               // launch with the flashlight on (default false)
+                resultDisplayDuration: 500,   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
+                beepOnScan: true,             // Play or Suppress beep on scan (default true)
+                openSettingsIfPermissionWasPreviouslyDenied: true, // On iOS you can send the user to the settings app if access was previously denied
+                closeCallback: () => {
+                    // console.log("Scanner closed @ " + new Date().getTime());
+                }
+            }).then(result => {
+                // console.log("--- scanned: " + result.text);
+                // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
+                setTimeout(() => {
+                    alert({
+                        title: "Scan result",
+                        message: "Format: " + result.format + ",\nValue: " + result.text,
+                        okButtonText: "OK"
+                    });
+                }, 200);
+            }, errorMessage => {
+                // console.log("No scan. " + errorMessage);
+            });
+        },
+
+        doScanWithBackCamera() {
+            this.scan(false);
         }
     }
 };

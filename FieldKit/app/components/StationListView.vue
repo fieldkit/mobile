@@ -1,58 +1,67 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <ScrollView>
-            <StackLayout id="stations-list" class="m-y-10">
-                <ScreenHeader
-                    title="FieldKit Stations"
-                    :onBack="goBack"
-                    :canNavigateSettings="false"
-                />
-                <Label
-                    v-if="stations.length == 0"
-                    :text="_L('lookingForStations')"
-                    class="m-10 p-10 text-center size-20"
-                />
-                <StackLayout
-                    v-for="s in stations"
-                    :key="s.sortedIndex"
-                    :id="'station-' + s.id"
-                    class="station-container m-y-5 m-x-15 p-10"
-                    orientation="vertical"
-                    @tap="goToDetail"
-                >
-                    <Label
-                        :text="s.name"
-                        :class="
-                            'station-name ' +
-                                (s.connected == 0 ? 'disconnected' : '')
-                        "
+        <GridLayout rows="*,80">
+            <ScrollView row="0">
+                <StackLayout id="stations-list" class="m-y-10">
+                    <ScreenHeader
+                        title="FieldKit Stations"
+                        :canNavigateBack="false"
+                        :canNavigateSettings="false"
                     />
                     <Label
-                        v-if="s.connected"
-                        :text="
-                            s.status == 'recording'
-                                ? _L('recording')
-                                : _L('connected')
-                        "
-                        :class="
-                            'stations-list ' +
-                                (s.status ? s.status : 'connected')
-                        "
+                        v-if="stations.length == 0"
+                        :text="_L('lookingForStations')"
+                        class="m-10 p-10 text-center size-20"
                     />
+                    <StackLayout
+                        v-for="s in stations"
+                        :key="s.sortedIndex"
+                        :id="'station-' + s.id"
+                        class="station-container m-y-5 m-x-15 p-10"
+                        orientation="vertical"
+                        @tap="goToDetail"
+                    >
+                        <Label
+                            :text="s.name"
+                            :class="
+                                'station-name ' +
+                                    (s.connected == 0 ? 'disconnected' : '')
+                            "
+                        />
+                        <Label
+                            v-if="s.connected"
+                            :text="
+                                s.status == 'recording'
+                                    ? _L('recording')
+                                    : _L('connected')
+                            "
+                            :class="
+                                'stations-list ' +
+                                    (s.status ? s.status : 'connected')
+                            "
+                        />
+                    </StackLayout>
                 </StackLayout>
+            </ScrollView>
+            <StackLayout horizontalAlignment="right" verticalAlignment="bottom">
+                <Label text="dev" class="dev-link" @doubleTap="showDev" />
             </StackLayout>
-        </ScrollView>
+            <!-- footer -->
+            <StationFooterTabs row="1" :station="station" active="stations" />
+        </GridLayout>
     </Page>
 </template>
 
 <script>
 import routes from "../routes";
+import * as dialogs from "tns-core-modules/ui/dialogs";
 import {
     Observable,
     PropertyChangeData
 } from "tns-core-modules/data/observable";
 
 import ScreenHeader from "./ScreenHeader";
+import StationFooterTabs from "./StationFooterTabs";
 
 export default {
     data() {
@@ -61,7 +70,8 @@ export default {
         };
     },
     components: {
-        ScreenHeader
+        ScreenHeader,
+        StationFooterTabs
     },
     props: {
         station: Object,
@@ -133,6 +143,20 @@ export default {
                     station: stationObj
                 }
             });
+        },
+
+        showDev() {
+            dialogs
+                .confirm({
+                    title: "Do you want to view developer options?",
+                    okButtonText: _L("yes"),
+                    cancelButtonText: _L("cancel")
+                })
+                .then(result => {
+                    if (result) {
+                        this.$navigateTo(routes.home);
+                    }
+                });
         }
     }
 };
@@ -166,5 +190,9 @@ export default {
 .connected,
 .idle {
     color: $fk-tertiary-green;
+}
+.dev-link {
+    color: $fk-gray-lightest;
+    padding: 10;
 }
 </style>
