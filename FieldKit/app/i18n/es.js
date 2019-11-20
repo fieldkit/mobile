@@ -105,6 +105,7 @@ module.exports = {
     notRecording: "No grabando",
     recordingData: "Grabando datos",
     station: "Estación",
+    stations: "Estaciones",
     data: "Datos",
     settings: "Ajustes",
     // StationListView

@@ -22,7 +22,7 @@
             </ScrollView>
 
             <!-- footer -->
-            <StationFooterTabs row="1" :station="activeStation" active="station" />
+            <StationFooterTabs row="1" :station="activeStation" active="stations" />
         </GridLayout>
     </Page>
 </template>

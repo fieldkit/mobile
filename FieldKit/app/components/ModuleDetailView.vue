@@ -128,7 +128,7 @@
                 </StackLayout>
 
                 <!-- footer -->
-                <StationFooterTabs :station="station" active="station" />
+                <StationFooterTabs :station="station" active="stations" />
             </FlexboxLayout>
         </ScrollView>
     </Page>

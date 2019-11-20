@@ -404,7 +404,7 @@
                 </FlexboxLayout>
             </ScrollView>
 
-            <StationFooterTabs row="1" :station="station" active="station" />
+            <StationFooterTabs row="1" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

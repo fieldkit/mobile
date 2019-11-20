@@ -103,6 +103,7 @@ module.exports = {
     notRecording: "Not Recording",
     recordingData: "Recording Data",
     station: "Station",
+    stations: "Stations",
     data: "Data",
     settings: "Settings",
     // StationListView

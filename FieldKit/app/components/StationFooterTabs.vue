@@ -5,13 +5,13 @@
         @loaded="onLoaded"
     >
         <StackLayout @tap="goToStation" class="footer-btn">
-            <template v-if="active == 'station'">
+            <template v-if="active == 'stations'">
                 <Image
                     width="22"
                     height="22"
                     src="~/images/Icon_Station_Active.png"
                 ></Image>
-                <Label class="bold m-t-5" :text="_L('station')"></Label>
+                <Label class="bold m-t-5" :text="_L('stations')"></Label>
             </template>
             <template v-else>
                 <Image
@@ -19,7 +19,7 @@
                     height="22"
                     src="~/images/Icon_Station_Inactive.png"
                 ></Image>
-                <Label class="light m-t-5" :text="_L('station')"></Label>
+                <Label class="light m-t-5" :text="_L('stations')"></Label>
             </template>
         </StackLayout>
         <StackLayout @tap="goToData" class="footer-btn">
@@ -83,7 +83,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stationDetail, {
+            this.$navigateTo(routes.stations, {
                 props: {
                     station: this.station
                 }
@@ -97,11 +97,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.dataDownload, {
-                props: {
-                    station: this.station
-                }
-            });
+            this.$navigateTo(routes.dataDownload);
         },
 
         goToSettings() {}
