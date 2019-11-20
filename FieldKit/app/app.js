@@ -92,7 +92,7 @@ new Vue({
         h("frame", [
             h(
                 Services.PortalInterface().isLoggedIn()
-                    ? routes.home
+                    ? routes.stations
                     : routes.login
             )
         ])
