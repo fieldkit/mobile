@@ -85,40 +85,6 @@
                             "
                         ></Label>
                         <!-- end edit name form -->
-                        <Label
-                            :text="'Firmware: ' + versions.firmware"
-                            class="size-16 full-width m-t-10"
-                        />
-                        <Label
-                            :text="'Firmware build: ' + versions.firmwareBuild"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'Device ID: ' + versions.device"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'App build time: ' + versions.appBuildTime"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="
-                                'App build number: ' + versions.appBuildNumber
-                            "
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'Build Tag: ' + versions.appBuildTag"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'Commit: ' + versions.appCommit"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'Branch: ' + versions.appBranch"
-                            class="size-16 full-width"
-                        />
                     </WrapLayout>
                     <StackLayout class="section-border"></StackLayout>
 
@@ -147,6 +113,7 @@
                         v-if="station.status == 'recording'"
                     ></StackLayout>
 
+                    <!-- data capture schedule -->
                     <ConfigureCaptureInterval :station="station" />
                     <StackLayout class="section-border"></StackLayout>
 
@@ -338,57 +305,6 @@
                         v-if="haveLora"
                     ></StackLayout>
 
-                    <!-- modules -->
-                    <StackLayout class="full-width">
-                        <GridLayout
-                            rows="auto"
-                            columns="*"
-                            v-for="m in station.moduleObjects"
-                            :key="m.id"
-                        >
-                            <StackLayout
-                                class="y-bordered-container p-10 m-x-10 m-y-1"
-                            >
-                                <!-- top row of module list -->
-                                <GridLayout rows="auto" columns="15*,70*,15*">
-                                    <!-- module icon -->
-                                    <Image
-                                        row="0"
-                                        col="0"
-                                        width="40"
-                                        horizontalAlignment="left"
-                                        :src="
-                                            m.name.indexOf('Water') > -1
-                                                ? '~/images/Icon_Water_Module.png'
-                                                : m.name.indexOf('Weather') > -1
-                                                ? '~/images/Icon_Weather_Module.png'
-                                                : '~/images/Icon_Generic_Module.png'
-                                        "
-                                    ></Image>
-                                    <!-- module name -->
-                                    <Label
-                                        row="0"
-                                        col="1"
-                                        :text="m.name"
-                                        verticalAlignment="center"
-                                        class="module-name"
-                                        textWrap="true"
-                                    />
-                                    <!-- links to config -->
-                                    <!-- <Image
-                                        row="0"
-                                        col="2"
-                                        width="30"
-                                        horizontalAlignment="right"
-                                        src="~/images/pointing_right.png"
-                                        :dataId="'m_id-' + m.id"
-                                        @tap="goToModuleConfig"
-                                    ></Image> -->
-                                </GridLayout>
-                            </StackLayout>
-                        </GridLayout>
-                    </StackLayout>
-
                     <Button
                         v-if="loggedIn"
                         class="btn btn-secondary"
@@ -401,6 +317,45 @@
                         :text="_L('logIn')"
                         @tap="goToLogin"
                     ></Button>
+
+                    <WrapLayout orientation="horizontal" class="m-10">
+                        <Label
+                            :text="'Firmware: ' + versions.firmware"
+                            class="size-16 full-width m-t-10"
+                        />
+                        <Label
+                            :text="'Firmware build: ' + versions.firmwareBuild"
+                            class="size-16 full-width"
+                        />
+                        <Label
+                            :text="'Device ID: ' + versions.device"
+                            class="size-16 full-width"
+                        />
+                        <Label
+                            :text="'App build time: ' + versions.appBuildTime"
+                            class="size-16 full-width"
+                        />
+                        <Label
+                            :text="
+                                'App build number: ' + versions.appBuildNumber
+                            "
+                            class="size-16 full-width"
+                        />
+                        <Label
+                            :text="'Build Tag: ' + versions.appBuildTag"
+                            class="size-16 full-width"
+                        />
+                        <Label
+                            :text="'Commit: ' + versions.appCommit"
+                            class="size-16 full-width"
+                        />
+                        <Label
+                            :text="'Branch: ' + versions.appBranch"
+                            class="size-16 full-width"
+                        />
+                    </WrapLayout>
+
+
                 </FlexboxLayout>
             </ScrollView>
 

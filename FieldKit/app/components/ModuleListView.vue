@@ -97,7 +97,7 @@
                         />
                     </WrapLayout>
                     <!-- view graph link -->
-                    <StackLayout class="link-container text-center">
+                    <!-- <StackLayout class="link-container text-center">
                         <Label
                             text="View Graph"
                             :id="'m_id-' + m.id"
@@ -105,7 +105,7 @@
                             :automationText="'moduleLink' + moduleIndex"
                             @tap="emitModuleTapped"
                         />
-                    </StackLayout>
+                    </StackLayout> -->
                 </WrapLayout>
             </StackLayout>
         </GridLayout>
