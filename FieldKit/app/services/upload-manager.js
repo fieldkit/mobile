@@ -18,9 +18,9 @@ export default class UploadManager {
         return this.databaseInterface.getPendingDownloads().then(pending => {
             log.info("pending", pending);
             return _(pending)
-                .groupBy('stationId')
+                .groupBy('deviceId')
                 .map((record, id) => ({
-                    stationId: id,
+                    deviceId: id,
                     size: _.sumBy(record, 'size')
                 }))
                 .value();

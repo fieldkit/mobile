@@ -1,15 +1,11 @@
 <template>
     <StackLayout class="sync-panel-container" @loaded="onLoaded">
         <StackLayout
-            v-for="s in stations"
-            :key="s.station.id"
+            v-for="s in recentSyncs"
+            :key="s.stationId"
             class="station-container"
         >
-            <Label
-                :text="s.station.name"
-                textWrap="true"
-                class="station-name"
-            ></Label>
+            <Label :text="s.name" textWrap="true" class="station-name"></Label>
             <template v-if="s.canDownload">
                 <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
                     <Image
@@ -22,14 +18,14 @@
                     <Label
                         row="0"
                         col="1"
-                        :text="s.downloadStatus"
+                        :text="s.downloadReadingsLabel"
                         textWrap="true"
                         class="status"
                     ></Label>
                     <Label
                         row="1"
                         col="1"
-                        text="Ready to download"
+                        text="Downloading"
                         textWrap="true"
                     ></Label>
                     <Image
@@ -37,16 +33,14 @@
                         col="2"
                         width="25"
                         src="~/images/download.png"
-                        v-if="!downloading[s.station.deviceId]"
-                        :dataDeviceId="s.station.deviceId"
-                        @tap="onDownloadData"
+                        v-if="!downloading[s.deviceId]"
                     ></Image>
                     <Image
                         rowSpan="2"
                         col="2"
                         width="25"
                         :src="downloadingIcon"
-                        v-if="downloading[s.station.deviceId]"
+                        v-if="downloading[s.deviceId]"
                     ></Image>
                     <StackLayout
                         row="2"
@@ -80,7 +74,7 @@
                     <Label
                         row="1"
                         col="1"
-                        text="Ready to upload"
+                        :text="s.uploadProgressLabel"
                         textWrap="true"
                     ></Label>
                     <Image
@@ -88,16 +82,14 @@
                         col="2"
                         width="25"
                         src="~/images/ready.png"
-                        v-if="!uploading[s.station.deviceId]"
-                        :dataDeviceId="s.station.deviceId"
-                        @tap="onUploadData"
+                        v-if="!uploading[s.deviceId]"
                     ></Image>
                     <Image
                         rowSpan="2"
                         col="2"
                         width="25"
                         :src="uploadingIcon"
-                        v-if="uploading[s.station.deviceId]"
+                        v-if="uploading[s.deviceId]"
                     ></Image>
                     <StackLayout
                         row="2"
@@ -111,6 +103,7 @@
 </template>
 
 <script>
+import _ from "lodash";
 import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
@@ -122,11 +115,11 @@ const log = Config.logger("SynchronizePanel");
 export default {
     data() {
         return {
+            recentSyncs: [],
             downloadingIcon: "~/images/syncing.png",
             uploadingIcon: "~/images/syncing.png",
             downloading: {},
-            uploading: {},
-            stations: []
+            uploading: {}
         };
     },
 
@@ -139,68 +132,138 @@ export default {
             log.info("subscribed");
 
             stateManager.subscribe(status => {
-                log.info('status', status, 'portal', status.portal);
-
-                // the constant jumping around and switching places is
-                // problematic here, so sort alphabetically
-                this.stations = status.station.stations.sort((a, b) => {
-                    return b.station.name > a.station.name
-                        ? 1
-                        : b.station.name < a.station.name
-                        ? -1
-                        : 0;
-                });
-
-                // update stations with new status
-                this.stations.forEach(s => {
-                    s.readings = s.pending.records;
-                    s.downloadStatus = s.readings + " Readings";
-                    s.canDownload = s.readings > 0;
-                    const toUpload = status.portal.find(p => {
-                        return p.stationId == s.station.id.toString();
-                    });
-                    if(toUpload) {
-                        s.uploadStatus = convertBytesToLabel(toUpload.size) + " to upload";
-                        s.canUpload = true;
-                    } else {
-                        s.canUpload = false;
-                    }
-                });
-            });
-
-            Services.ProgressService().subscribe(data => {
-                if(data.message) {
-                    if(data.message == "Downloading") {
-                        if(data.station && data.progress == 100) {
-                            // give it a bit extra time, as status does not update immedately
-                            setTimeout(() => {
-                                this.$set(this.downloading, data.station.deviceId, false);
-                                const inProgress = Object.values(this.downloading).filter(v => {return v;});
-                                if(inProgress.length == 0) {
-                                    clearInterval(this.downloadIntervalTimer);
-                                }
-                            }, 1000);
-                        }
-                    } else if(data.message == "Uploading") {
-                        if(data.station && data.progress == 100) {
-                            setTimeout(() => {
-                                this.$set(this.uploading, data.station.deviceId, false);
-                                const inProgress = Object.values(this.uploading).filter(v => {return v;});
-                                if(inProgress.length == 0) {
-                                    clearInterval(this.uploadIntervalTimer);
-                                }
-                             }, 1000);
-                        }
-                    }
-                }
+                log.info("status", status, "portal", status.portal);
+                this.manageRecentSyncs(status);
             });
         },
 
-        onDownloadData(event) {
-            const deviceId = event.object.dataDeviceId;
-            this.$set(this.downloading, deviceId, true);
-            this.downloadIntervalTimer = setInterval(this.rotateDownloadingIcon, 500);
+        manageRecentSyncs(status) {
+            status.station.stations.forEach(s => {
+                const station = s;
+                let recent = this.recentSyncs.find(r => {
+                    return r.deviceId == station.station.deviceId;
+                });
+                if (recent) {
+                    this.updateRecent(recent, station, status);
+                } else {
+                    this.createRecent(station, status);
+                }
+            });
 
+            // check for disconnected stations in recentSyncs
+            const disconnected = _.differenceBy(
+                this.recentSyncs,
+                status.station.stations,
+                s => {
+                    return s.deviceId ? s.deviceId : s.station.deviceId;
+                }
+            );
+            if (disconnected.length > 0) {
+                disconnected.forEach(d => {
+                    const index = this.recentSyncs.findIndex(s => {
+                        return s.deviceId == d.deviceId;
+                    });
+                    if (index > -1) {
+                        this.recentSyncs.splice(index, 1);
+                    }
+                });
+            }
+
+            // the constant jumping around and switching places is
+            // problematic here, so sort alphabetically
+            this.recentSyncs = this.recentSyncs.sort((a, b) => {
+                return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
+            });
+        },
+
+        updateRecent(recent, station, status) {
+            recent.readings = station.pending.records;
+            recent.downloadReadingsLabel = recent.readings + " Readings";
+            // need higher limit than 0, or get stuck in loop
+            recent.canDownload = recent.readings > 3;
+            // automatically download data if not already in progress
+            if (recent.canDownload && !this.downloading[recent.deviceId]) {
+                this.downloadData(recent.deviceId);
+            } else {
+                if (!recent.readings || recent.readings < 3) {
+                    delete this.downloading[recent.deviceId];
+                    const inProgress = Object.keys(this.downloading);
+                    if (inProgress.length == 0) {
+                        clearInterval(this.downloadIntervalTimer);
+                        this.downloadIntervalTimer = null;
+                    }
+                }
+            }
+            const deviceUpload = status.portal.find(p => {
+                return p.deviceId == recent.deviceId;
+            });
+            this.handleDeviceUpload(recent, deviceUpload);
+        },
+
+        createRecent(station, status) {
+            let newSync = {
+                name: station.station.name,
+                deviceId: station.station.deviceId,
+                stationId: station.station.id,
+                readings: station.pending.records,
+                downloadReadingsLabel: station.pending.records + " Readings",
+                canDownload: station.pending.records > 0
+            };
+            const deviceUpload = status.portal.find(p => {
+                return p.deviceId == station.station.deviceId;
+            });
+            this.handleDeviceUpload(newSync, deviceUpload);
+            this.recentSyncs.push(newSync);
+            // automatically download data
+            if (newSync.canDownload) {
+                this.downloadData(newSync.deviceId);
+            }
+        },
+
+        handleDeviceUpload(recent, deviceUpload) {
+            if (deviceUpload) {
+                recent.uploadStatus =
+                    convertBytesToLabel(deviceUpload.size) + " to upload";
+                recent.uploadProgressLabel = "Uploading";
+                recent.canUpload = true;
+                // start uploading if none in progress
+                const uploading = Object.keys(this.uploading);
+                if (uploading.length == 0) {
+                    this.$set(this.uploading, recent.deviceId, true);
+                    this.uploadData().catch(e => {
+                        // not parsing error message for now,
+                        // unsure about iOS side, seems to be breaking
+                        // if (
+                        //     e.toString().indexOf("Unable to resolve host") > -1
+                        // ) {
+                        //     recent.uploadProgressLabel =
+                        //         "Unable to upload. Are you connected to the internet?";
+                        // }
+                        recent.uploadProgressLabel =
+                            "Unable to upload. Are you connected to the internet?";
+                        delete this.uploading[recent.deviceId];
+                        const inProgress = Object.keys(this.uploading);
+                        if (inProgress.length == 0) {
+                            clearInterval(this.uploadIntervalTimer);
+                            this.uploadIntervalTimer = null;
+                        }
+                    });
+                }
+            } else {
+                delete this.uploading[recent.deviceId];
+                recent.canUpload = false;
+                recent.uploadProgressLabel = "Nothing to upload";
+            }
+        },
+
+        downloadData(deviceId) {
+            this.$set(this.downloading, deviceId, true);
+            if (!this.downloadIntervalTimer) {
+                this.downloadIntervalTimer = setInterval(
+                    this.rotateDownloadingIcon,
+                    500
+                );
+            }
             return Services.StateManager()
                 .synchronizeStation(deviceId)
                 .catch(error => {
@@ -210,14 +273,18 @@ export default {
                 });
         },
 
-        onUploadData(event) {
-            const deviceId = event.object.dataDeviceId;
-            this.$set(this.uploading, deviceId, true);
-            this.uploadIntervalTimer = setInterval(this.rotateUploadingIcon, 500);
+        uploadData() {
+            if (!this.uploadIntervalTimer) {
+                this.uploadIntervalTimer = setInterval(
+                    this.rotateUploadingIcon,
+                    500
+                );
+            }
 
             return Services.StateManager()
                 .synchronizePortal()
                 .catch(error => {
+                    console.error("ERROR SYNC PORTAL", error);
                     if (error.offline) {
                         return confirm({
                             title: "FieldKit",
@@ -231,21 +298,23 @@ export default {
                             }
                         });
                     }
-                    console.error("ERROR SYNC PORTAL", error);
+                    throw new Error(error);
                 });
         },
 
         rotateDownloadingIcon() {
-            this.downloadingIcon = this.downloadingIcon == "~/images/syncing.png"
-                ? "~/images/syncing2.png"
-                : "~/images/syncing.png";
+            this.downloadingIcon =
+                this.downloadingIcon == "~/images/syncing.png"
+                    ? "~/images/syncing2.png"
+                    : "~/images/syncing.png";
         },
 
         rotateUploadingIcon() {
-            this.uploadingIcon = this.uploadingIcon == "~/images/syncing.png"
-                ? "~/images/syncing2.png"
-                : "~/images/syncing.png";
-        },
+            this.uploadingIcon =
+                this.uploadingIcon == "~/images/syncing.png"
+                    ? "~/images/syncing2.png"
+                    : "~/images/syncing.png";
+        }
     }
 };
 </script>
