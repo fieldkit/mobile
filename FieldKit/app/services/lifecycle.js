@@ -1,5 +1,7 @@
 import { on, launchEvent, suspendEvent, resumeEvent, displayedEvent, orientationChangedEvent, exitEvent, lowMemoryEvent, uncaughtErrorEvent } from "tns-core-modules/application";
 
+import Services from "./services";
+
 export default function() {
     on(launchEvent, (args) => {
         if (args.android) {
@@ -14,6 +16,7 @@ export default function() {
     on(suspendEvent, (args) => {
         if (args.android) {
             // For Android applications, args.android is an android activity class.
+			Services.DiscoverStation().stopServiceDiscovery();
             console.log("Suspend Activity: " + args.android);
         } else if (args.ios) {
             // For iOS applications, args.ios is UIApplication.
@@ -25,6 +28,7 @@ export default function() {
         if (args.android) {
             // For Android applications, args.android is an android activity class.
             console.log("Resume Activity: " + args.android);
+			Services.DiscoverStation().startServiceDiscovery();
         } else if (args.ios) {
             // For iOS applications, args.ios is UIApplication.
             console.log("Resume UIApplication: " + args.ios);

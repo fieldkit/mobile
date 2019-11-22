@@ -87,5 +87,8 @@ images:
 		(cd $(APP) && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 2x); \
   done; \
 
+test:
+	cd $(APP) && jest
+
 update-third-party:
 	cd $(APP) && third-party/update.sh
