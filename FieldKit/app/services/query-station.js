@@ -160,7 +160,8 @@ export default class QueryStation {
 				log.info(url, "query success", "<empty>");
 				return {};
 			}
-			const decoded = HttpReply.decodeDelimited(response.body);
+
+			const decoded = this._getResponseBody(response);
 			return this._handlePotentialBusyReply(
 				decoded,
 				url,
@@ -173,6 +174,13 @@ export default class QueryStation {
 			log.error(url, "query error", err);
 			return Promise.reject(err);
 		});
+	}
+
+	_getResponseBody(response) {
+		if (Buffer.isBuffer(response.body)) {
+			return HttpReply.decodeDelimited(response.body);
+		}
+		return response.body;
 	}
 
 	_fixupStatus(reply) {

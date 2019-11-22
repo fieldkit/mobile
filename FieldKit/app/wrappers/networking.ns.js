@@ -1,11 +1,3 @@
-import * as BackgroundHttp from "nativescript-background-http";
+import { Conservify } from 'nativescript-conservify';
 
-export default class NetworkingNativeScript {
-	constructor(sessionName) {
-		this.session = BackgroundHttp.session(sessionName);
-	}
-
-	uploadFile(path, req) {
-		return this.session.uploadFile(path, req);
-	}
-}
+export default Conservify;

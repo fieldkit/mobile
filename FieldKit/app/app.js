@@ -48,9 +48,9 @@ registerLifecycleEvents();
 Services.CreateDb()
     .initialize()
     .then(() => {
-        Services.DiscoverStation().startServiceDiscovery();
-
         Vue.prototype.$stationMonitor = Services.StationMonitor();
+
+        Services.DiscoverStation().startServiceDiscovery();
     })
     .catch(err => {
         console.log(err);

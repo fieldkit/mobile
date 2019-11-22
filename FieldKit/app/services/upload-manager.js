@@ -119,7 +119,7 @@ export default class UploadManager {
 			url: url,
 			path: filePath,
 			headers: { ...headers, ...defaultHeaders },
-			progress: () => {
+			progress: (total, copied, info) => {
                 operation.updateStation({
 					deviceId: deviceId,
 					key: filePath, // This is the same key used when generating the progress summary.

@@ -99,7 +99,7 @@ class Services {
 
 	Conservify() {
         if (!this.conservify) {
-            const Conservify = require("nativescript-conservify").Conservify;
+            const Conservify = require("../wrappers/networking").default;
             this.conservify = new Conservify(this.DiscoveryEvents());
         }
         return this.conservify;

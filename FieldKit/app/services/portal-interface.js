@@ -1,14 +1,13 @@
 import axios from "axios";
 import Config from "../config";
-import Networking from "../wrappers/networking";
 import AppSettings from "../wrappers/app-settings";
+import Services from "./services";
 
 let currentUser = {};
 const appSettings = new AppSettings();
 
 export default class PortalInterface {
 	constructor() {
-		this.networking = new Networking("fk-image-upload");
 	}
 
     storeCurrentUser() {
@@ -208,37 +207,25 @@ export default class PortalInterface {
     }
 
     addFieldNoteMedia(data) {
-        return new Promise((resolve, reject) => {
-            const headers = {
-                Authorization: appSettings.getString("accessToken")
-            };
-            const req = {
-                url: Config.baseUri + "/stations/" + data.stationId + "/field-note-media",
-                method: "POST",
-                headers: { ...headers }
-            };
-            const task = this.networking.uploadFile(data.pathDest, req);
-            task.on("progress", e => {
-                const rv = {
-                    progress: 100.0 * (e.currentBytes / e.totalBytes),
-                    currentBytes: e.currentBytes,
-                    totalBytes: e.totalBytes
-                };
-                if(rv.progress == 100) {
-                    resolve(rv);
-                }
-            });
-            task.on("responded", e => {
-                const rv = {
-                    data: e.data,
-                    status: e.responseCode
-                };
-                resolve(rv);
-            });
-            task.on("error", e => {
-                reject(e.error);
-            });
-        });
+		const headers = {
+			Authorization: appSettings.getString("accessToken")
+		};
+		return Services.Conservify().upload({
+			url: Config.baseUri + "/stations/" + data.stationId + "/field-note-media",
+			method: "POST",
+			path: data.pathDest,
+			headers: { ...headers },
+			progress: (total, copied, info) => {
+				// Do nothing.
+			}
+		}).then(e => {
+			return {
+				data: e.body,
+				status: e.responseCode
+			};
+		}, e => {
+			return Promise.reject(e);
+		});
     }
 
     _handleResponse(response) {
