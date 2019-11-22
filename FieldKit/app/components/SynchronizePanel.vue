@@ -34,6 +34,8 @@
                         width="25"
                         src="~/images/download.png"
                         v-if="!downloading[s.deviceId]"
+                        :dataDeviceId="s.deviceId"
+                        @tap="onDownloadTap"
                     ></Image>
                     <Image
                         rowSpan="2"
@@ -88,6 +90,8 @@
                         width="25"
                         src="~/images/ready.png"
                         v-if="s.uploadState == 'waiting'"
+                        :dataDeviceId="s.deviceId"
+                        @tap="onUploadTap"
                     ></Image>
                     <Image
                         rowSpan="2"
@@ -158,6 +162,7 @@ export default {
         },
 
         manageRecentSyncs(status) {
+            // manage downloads
             status.station.stations.forEach(s => {
                 const station = s;
                 let recent = this.recentSyncs.find(r => {
@@ -166,8 +171,19 @@ export default {
                 if (recent) {
                     this.updateRecent(recent, station, status);
                 } else {
-                    this.createRecent(station, status);
+                    this.createRecent(station);
                 }
+            });
+
+            // manage uploads
+            status.portal.forEach(u => {
+                let recent = this.recentSyncs.find(r => {
+                    return r.deviceId == u.deviceId;
+                });
+                if (!recent) {
+                    recent = this.createRecent(u);
+                }
+                this.handleDeviceUpload(recent, u);
             });
 
             // check for disconnected stations in recentSyncs
@@ -195,45 +211,59 @@ export default {
             recent.downloadReadingsLabel = recent.readings + " Readings";
             // need higher limit than 0, or get stuck in loop
             recent.canDownload = recent.readings > 3;
+
             // automatically download data if not already in progress
-            if (recent.canDownload && !this.downloading[recent.deviceId]) {
-                this.downloadData(recent.deviceId);
-            } else {
-                if (!recent.readings || recent.readings < 3) {
-                    delete this.downloading[recent.deviceId];
-                    const inProgress = Object.keys(this.downloading);
-                    if (inProgress.length == 0) {
-                        clearInterval(this.downloadIntervalTimer);
-                        this.downloadIntervalTimer = null;
-                    }
+            // if (recent.canDownload && !this.downloading[recent.deviceId]) {
+            //     this.downloadData(recent.deviceId);
+            // } else {
+            //     if (!recent.readings || recent.readings < 3) {
+            //         delete this.downloading[recent.deviceId];
+            //         const inProgress = Object.keys(this.downloading);
+            //         if (inProgress.length == 0) {
+            //             clearInterval(this.downloadIntervalTimer);
+            //             this.downloadIntervalTimer = null;
+            //         }
+            //     }
+            // }
+
+            // in manual mode
+            if(!recent.canDownload) {
+                delete this.downloading[recent.deviceId];
+                const inProgress = Object.keys(this.downloading);
+                if (inProgress.length == 0) {
+                    clearInterval(this.downloadIntervalTimer);
+                    this.downloadIntervalTimer = null;
                 }
             }
-            const deviceUpload = status.portal.find(p => {
-                return p.deviceId == recent.deviceId;
-            });
-            this.handleDeviceUpload(recent, deviceUpload);
         },
 
-        createRecent(station, status) {
-            let newSync = {
-                name: station.station.name,
-                deviceId: station.station.deviceId,
-                stationId: station.station.id,
-                readings: station.pending.records,
-                downloadReadingsLabel: station.pending.records + " Readings",
-                canDownload: station.pending.records > 0,
-                uploadProgressLabel: "Waiting to upload",
-                uploadState: "waiting"
-            };
-            const deviceUpload = status.portal.find(p => {
-                return p.deviceId == station.station.deviceId;
-            });
-            this.handleDeviceUpload(newSync, deviceUpload);
-            this.recentSyncs.push(newSync);
-            // automatically download data
-            if (newSync.canDownload) {
-                this.downloadData(newSync.deviceId);
+        createRecent(station) {
+            let newSync = {};
+            if (station.station) {
+                newSync = {
+                    name: station.station.name,
+                    deviceId: station.station.deviceId,
+                    readings: station.pending.records,
+                    downloadReadingsLabel: station.pending.records + " Readings",
+                    canDownload: station.pending.records > 0
+                };
+            } else {
+                newSync = {
+                    name: station.name,
+                    deviceId: station.deviceId,
+                    readings: 0,
+                    downloadReadingsLabel: "",
+                    canDownload: false
+                }
             }
+            newSync.uploadProgressLabel = "Waiting to upload";
+            newSync.uploadState = "waiting";
+            this.recentSyncs.push(newSync);
+            return newSync;
+            // automatically download data
+            // if (newSync.canDownload) {
+            //     this.downloadData(newSync.deviceId);
+            // }
         },
 
         handleDeviceUpload(recent, deviceUpload) {
@@ -242,28 +272,28 @@ export default {
                 recent.uploadStatus = recent.uploadSize + " to upload";
                 recent.canUpload = true;
 
-                // start uploading if none in progress
-                if (!this.uploadInProgress) {
-                    this.uploadData().catch(e => {
-                        // not parsing error message for now,
-                        // unsure about iOS side, seems to be breaking
-                        // if (
-                        //     e.toString().indexOf("Unable to resolve host") > -1
-                        // ) {
-                        //     recent.uploadProgressLabel =
-                        //         "Unable to upload. Are you connected to the internet?";
-                        // }
-                        recent.uploadProgressLabel =
-                            "Unable to upload. Are you connected to the internet?";
-                        recent.uploadStatus = recent.uploadSize + " to upload";
-                        recent.uploadState = "waiting";
-                        const inProgress = Object.keys(this.uploading);
-                        if (inProgress.length == 0) {
-                            clearInterval(this.uploadIntervalTimer);
-                            this.uploadIntervalTimer = null;
-                        }
-                    });
-                }
+                // // automatically start uploading if none in progress
+                // if (!this.uploadInProgress) {
+                //     this.uploadData().catch(e => {
+                //         // not parsing error message for now,
+                //         // unsure about iOS side, seems to be breaking
+                //         // if (
+                //         //     e.toString().indexOf("Unable to resolve host") > -1
+                //         // ) {
+                //         //     recent.uploadProgressLabel =
+                //         //         "Unable to upload. Are you connected to the internet?";
+                //         // }
+                //         recent.uploadProgressLabel =
+                //             "Unable to upload. Are you connected to the internet?";
+                //         recent.uploadStatus = recent.uploadSize + " to upload";
+                //         recent.uploadState = "waiting";
+                //         const inProgress = Object.keys(this.uploading);
+                //         if (inProgress.length == 0) {
+                //             clearInterval(this.uploadIntervalTimer);
+                //             this.uploadIntervalTimer = null;
+                //         }
+                //     });
+                // }
             }
         },
 
@@ -290,6 +320,11 @@ export default {
             }
         },
 
+        onDownloadTap(event) {
+            const deviceId = event.object.dataDeviceId;
+            this.downloadData(deviceId);
+        },
+
         downloadData(deviceId) {
             this.$set(this.downloading, deviceId, true);
             if (!this.downloadIntervalTimer) {
@@ -305,6 +340,35 @@ export default {
                     console.log("ERROR SYNC STATION", error.message, error);
                     console.error("ERROR SYNC STATION", error.message, error);
                 });
+        },
+
+        onUploadTap(event) {
+            const deviceId = event.object.dataDeviceId;
+            let recent = this.recentSyncs.find(r => {
+                return r.deviceId == deviceId;
+            });
+
+            if (!this.uploadInProgress) {
+                this.uploadData().catch(e => {
+                    // not parsing error message for now,
+                    // unsure about iOS side, seems to be breaking
+                    // if (
+                    //     e.toString().indexOf("Unable to resolve host") > -1
+                    // ) {
+                    //     recent.uploadProgressLabel =
+                    //         "Unable to upload. Are you connected to the internet?";
+                    // }
+                    recent.uploadProgressLabel =
+                        "Unable to upload. Are you connected to the internet?";
+                    recent.uploadStatus = recent.uploadSize + " to upload";
+                    recent.uploadState = "waiting";
+                    const inProgress = Object.keys(this.uploading);
+                    if (inProgress.length == 0) {
+                        clearInterval(this.uploadIntervalTimer);
+                        this.uploadIntervalTimer = null;
+                    }
+                });
+            }
         },
 
         uploadData() {
