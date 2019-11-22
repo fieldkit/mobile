@@ -55,7 +55,7 @@ export default class DiscoverStation extends Observable {
         if (Config.discover && Config.discover.enabled) {
             every(10000).on(Observable.propertyChangeEvent, data => {
                 Config.discover.stations.forEach(fake => {
-                    this.stationFound({
+                    this.onFoundService({
                         type: "_fk._tcp",
                         name: fake.deviceId,
                         host: fake.address,
@@ -77,11 +77,11 @@ export default class DiscoverStation extends Observable {
                     port: 80
                 });
             } else {
-                // HACK Fake onServiceLost for any connection stations.
+                // HACK Fake onLostService for any connection stations.
                 const connected = Object.values(this.stations_);
                 console.log(connected);
                 connected.forEach(station => {
-                    this.stationLost({
+                    this.onLostService({
                         type: station.type,
                         name: station.name
                     });
