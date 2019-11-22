@@ -177,9 +177,6 @@ export default class DownloadManager {
 
                 log.info("filtered", filtered);
 
-				return { };
-
-				/*
 				return this._summarize(filtered).then((progressSummary) => {
 					console.log("progressSummary", progressSummary);
 
@@ -200,7 +197,6 @@ export default class DownloadManager {
 						return operation.cancel(error);
 					});
 				});
-				*/
             });
     }
 
