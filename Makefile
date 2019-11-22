@@ -61,10 +61,10 @@ android-logs:
 android-logs-verbose:
 	adb logcat | grep -i " JS"
 
-android-debug:
+android-debug: $(APP)/node_modules
 	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
 
-ios-debug:
+ios-debug: $(APP)/node_modules
 	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue
 
 clean:
