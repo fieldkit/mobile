@@ -1,3 +1,13 @@
+class DiscoveryEvents {
+    onFoundService(info) {
+        console.log('onServiceFound', info);
+    }
+
+    onLostService(info) {
+        console.log('onServiceLost', info);
+    }
+}
+
 class Services {
     DiscoverStation() {
         if (!this.discoverStation) {
@@ -72,6 +82,15 @@ class Services {
         }
         return this.progressService;
     }
+
+	Conservify() {
+        if (!this.conservify) {
+            const Conservify = require("nativescript-conservify").Conservify;
+            this.conservify = new Conservify(new DiscoveryEvents());
+			this.conservify.start("_fk._tcp");
+        }
+        return this.conservify;
+	}
 }
 
 const services = new Services();

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Observable } from "tns-core-modules/data/observable";
 import { BetterObservable } from "./rx";
 import Config from "../config";
@@ -5,24 +6,55 @@ import Config from "../config";
 const log = Config.logger("Progress");
 
 class ProgressTracker {
-    constructor(service, kind) {
+    constructor(service, kind, info) {
         this.service = service;
         this.kind = kind;
         this.finished = false;
-        this.progress = {
-            message: null,
-            progress: 0.0
-        };
-    }
+		this.progress = _.merge(info || {}, this.progress, { message: null,
+															 completed: false,
+															 cancel: false,
+															 progress: 0.0
+														   });
+	}
 
     update(progress) {
         if (this.finished) {
             return;
         }
         this.progress = progress;
-        this.service._publish(this, progress);
+        this.service._publish(this, this.progress);
         return Promise.resolve();
     }
+
+	/**
+     * I'm trying to keep the mutation of the internal progress object
+     * in this single place.
+     */
+	updateStation(updatedTask) {
+        if (this.finished) {
+            return;
+        }
+
+		const device = this.progress[updatedTask.deviceId];
+		const tasks = device.tasks;
+		const task = tasks[updatedTask.key] = _.merge(tasks[updatedTask.key], updatedTask);
+
+		task.progress = task.currentSize / task.totalSize * 100.0;
+
+		// console.log('updating', task);
+
+		const deviceTotal = _(tasks).map(t => t.totalSize || 0).sum();
+		const deviceCurrent = _(tasks).map(t => t.currentSize || 0).sum();
+
+		device.totalSize = deviceTotal;
+		device.currentSize = deviceCurrent;
+		device.progress = deviceCurrent / deviceTotal * 100.0;
+
+		// console.log('device', device)
+
+        this.service._publish(this, this.progress);
+        return Promise.resolve();
+	}
 
     cancel(error) {
         if (this.finished) {
@@ -58,18 +90,18 @@ export default class ProgressService extends BetterObservable {
         this.active = [];
     }
 
-    startOperation(kind) {
-        const op = new ProgressTracker(this, kind);
+    startOperation(kind, info) {
+        const op = new ProgressTracker(this, kind, info);
         this.active.push(op);
         return op;
     }
 
-    startDownload() {
-        return this.startOperation(Kinds.DOWNLOAD);
+    startDownload(info) {
+        return this.startOperation(Kinds.DOWNLOAD, info);
     }
 
-    startUpload() {
-        return this.startOperation(Kinds.UPLOAD);
+    startUpload(info) {
+        return this.startOperation(Kinds.UPLOAD, info);
     }
 
     _remove(operation) {

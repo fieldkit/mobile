@@ -2,6 +2,8 @@ import _ from "lodash";
 import { Downloader } from "nativescript-downloader";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 
+import Services from "./services";
+
 import { keysToCamel, getPathTimestamp } from "../utilities";
 import Constants from "../constants";
 import Config from "../config";
@@ -119,14 +121,10 @@ export default class DownloadManager {
                             Constants.DataStreamType
                         );
                         const downloadStatus = getDownloadsStatus(streams);
-                        const pendingMetaBytes =
-                            deviceMeta.size - downloadStatus.meta.size;
-                        const pendingDataBytes =
-                            deviceData.size - downloadStatus.data.size;
-                        const pendingMetaRecords =
-                            deviceMeta.blocks - downloadStatus.meta.lastBlock;
-                        const pendingDataRecords =
-                            deviceData.blocks - downloadStatus.data.lastBlock;
+                        const pendingMetaBytes = deviceMeta.size - downloadStatus.meta.size;
+                        const pendingDataBytes = deviceData.size - downloadStatus.data.size;
+                        const pendingMetaRecords = deviceMeta.blocks - downloadStatus.meta.lastBlock;
+                        const pendingDataRecords = deviceData.blocks - downloadStatus.data.lastBlock;
 
                         return {
                             station: station,
@@ -152,7 +150,7 @@ export default class DownloadManager {
             log.info("bad status", status);
             return {};
         }
-        log.info("status", status);
+        log.verbose("status", status);
         const s = status.streams[index];
         return {
             blocks: s.block,
@@ -171,27 +169,88 @@ export default class DownloadManager {
     _synchronizeConnectedStations(stationFilter) {
         log.info("synchronizeConnectedStations");
 
-        const operation = this.progressService.startDownload();
-
         return this._createServiceModel()
             .then(connectedStations => {
                 log.info("connected", connectedStations);
-                // NOTE Right now this will download concurrently, we may want to make this serialized.
-                return Promise.all(
-                    connectedStations.filter(stationFilter).map(station => {
-                        return this._prepare(station).then(() => {
-                            return this._synchronizeStation(station, operation);
-                        });
-                    })
-                );
-            })
-            .then(() => {
-                return operation.complete();
-            })
-            .catch(error => {
-                return operation.cancel(error);
+
+				const filtered = connectedStations.filter(stationFilter);
+
+                log.info("filtered", filtered);
+
+				return { };
+
+				/*
+				return this._summarize(filtered).then((progressSummary) => {
+					console.log("progressSummary", progressSummary);
+
+					const operation = this.progressService.startDownload(progressSummary);
+
+					// NOTE Right now this will download concurrently, we may want to make this serialized.
+					return Promise.all(
+						filtered.map(station => {
+							return this._prepare(station).then(() => {
+								return this._synchronizeStation(station, operation);
+							});
+						})
+					)
+					.then(() => {
+						return operation.complete();
+					})
+					.catch(error => {
+						return operation.cancel(error);
+					});
+				});
+				*/
             });
     }
+
+	/**
+	 * Calculates the total size of all the files to be
+	 * downloaded. This requires us to query the device for those
+	 * files to get the actual sizes based on the number of blocks to
+	 * download. Then we group those by the devices and calculate some
+	 * sizes. This data structure is taylored to something the
+	 * ProgressService is expecting. Key's refer to individual
+	 * transfers, we just use the URL, progress service doesn't care.
+     */
+	_summarize(stations) {
+		return Promise.all(
+			stations.map(station => {
+				return [
+					this._calculateSize(station.meta.url).then(s => {
+						return {
+							deviceId: station.deviceId,
+							key: station.meta.url,
+							size: s.size,
+						}
+					}),
+					this._calculateSize(station.data.url).then(s => {
+						return {
+							deviceId: station.deviceId,
+							key: station.data.url,
+							size: s.size,
+						}
+					}),
+				];
+			}).flat()
+		).then(sizes => {
+			return _(sizes)
+				.groupBy(s => s.deviceId)
+				.map((group, key) => {
+					return {
+						deviceId: key,
+						tasks: _(group).keyBy(g => g.key).value(),
+						totalSize: _(group).map(s => s.size).sum(),
+					};
+				})
+				.keyBy(s => s.deviceId)
+				.value();
+		});
+	}
+
+	_calculateSize(url) {
+		return Services.QueryStation().calculateDownloadSize(url);
+	}
 
     _prepare(station) {
         // NS File stuff is dumb, the getFile effectively does a touch. So the
@@ -216,25 +275,23 @@ export default class DownloadManager {
             "meta",
             station.meta.destination,
             operation
-        )
-            .then(metaDownload => {
-                return this._download(
-                    station,
-                    station.data.url,
-                    "data",
-                    station.data.destination,
-                    operation
-                ).then(dataDownload => {
-                    return { meta: metaDownload, data: dataDownload };
-                });
-            })
-            .then(downloads => {
-                return this._updateDatabase(station, downloads);
-            });
-    }
+		).then(metaDownload => {
+			return this._download(
+				station,
+				station.data.url,
+				"data",
+				station.data.destination,
+				operation
+			).then(dataDownload => {
+				return { meta: metaDownload, data: dataDownload };
+			});
+		}).then(downloads => {
+			return this._updateDatabase(station, downloads);
+		});
+	}
 
-    _parseBlocks(blocks) {
-        if (Array.isArray(blocks)) {
+	_parseBlocks(blocks) {
+		if (Array.isArray(blocks)) {
             blocks = blocks[0];
         }
 
@@ -293,14 +350,12 @@ export default class DownloadManager {
 
             this.downloader
                 .start(transfer, progress => {
-                    operation.update({
-                        station: {
-                            deviceId: station.deviceId
-                        },
-                        progress: progress.value,
+                    operation.updateStation({
+						key: url, // This is the same key used when generating the progress summary.
+                                  // Right now this is local to the deviceId.
+						deviceId: station.deviceId,
                         currentSize: progress.currentSize,
                         totalSize: progress.totalSize,
-                        type: type
                     });
                     log.verbose("progress", progress);
                 })
@@ -328,11 +383,7 @@ export default class DownloadManager {
         function toFileModel(download, station, urlPath, name, lastDownload) {
             if (lastDownload) {
                 return {
-                    url:
-                        station.url +
-                        urlPath +
-                        "?first=" +
-                        (lastDownload.lastBlock + 1),
+                    url: station.url + urlPath + "?first=" + (lastDownload.lastBlock + 1),
                     destination: download.getFile(name)
                 };
             }

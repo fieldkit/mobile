@@ -4,6 +4,7 @@ import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
 import { promiseAfter } from "../utilities";
 import Config from "../config";
+import Services from "./services";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpQuery = appRoot.lookupType("fk_app.HttpQuery");
@@ -119,6 +120,25 @@ export default class QueryStation {
             return this._fixupStatus(reply);
         });
     }
+
+	calculateDownloadSize(url) {
+        if (!Config.developer.stationFilter(url)) {
+            return Promise.reject("ignored");
+        }
+
+		return Services.Conservify().json({
+			url: url,
+			method: "HEAD",
+		}).then(response => {
+			const size = Number(response.headers.get("content-length"));
+			return {
+				size
+			};
+		}, err => {
+			log.error(url, "query error", err);
+			return Promise.reject(err);
+		});
+	}
 
     /**
      * Perform a single station query, setting all the critical defaults for the
