@@ -162,6 +162,7 @@ export default {
         },
 
         manageRecentSyncs(status) {
+            // manage downloads
             status.station.stations.forEach(s => {
                 const station = s;
                 let recent = this.recentSyncs.find(r => {
@@ -170,8 +171,19 @@ export default {
                 if (recent) {
                     this.updateRecent(recent, station, status);
                 } else {
-                    this.createRecent(station, status);
+                    this.createRecent(station);
                 }
+            });
+
+            // manage uploads
+            status.portal.forEach(u => {
+                let recent = this.recentSyncs.find(r => {
+                    return r.deviceId == u.deviceId;
+                });
+                if (!recent) {
+                    recent = this.createRecent(u);
+                }
+                this.handleDeviceUpload(recent, u);
             });
 
             // check for disconnected stations in recentSyncs
@@ -223,29 +235,31 @@ export default {
                     this.downloadIntervalTimer = null;
                 }
             }
-
-            const deviceUpload = status.portal.find(p => {
-                return p.deviceId == recent.deviceId;
-            });
-            this.handleDeviceUpload(recent, deviceUpload);
         },
 
-        createRecent(station, status) {
-            let newSync = {
-                name: station.station.name,
-                deviceId: station.station.deviceId,
-                stationId: station.station.id,
-                readings: station.pending.records,
-                downloadReadingsLabel: station.pending.records + " Readings",
-                canDownload: station.pending.records > 0,
-                uploadProgressLabel: "Waiting to upload",
-                uploadState: "waiting"
-            };
-            const deviceUpload = status.portal.find(p => {
-                return p.deviceId == station.station.deviceId;
-            });
-            this.handleDeviceUpload(newSync, deviceUpload);
+        createRecent(station) {
+            let newSync = {};
+            if (station.station) {
+                newSync = {
+                    name: station.station.name,
+                    deviceId: station.station.deviceId,
+                    readings: station.pending.records,
+                    downloadReadingsLabel: station.pending.records + " Readings",
+                    canDownload: station.pending.records > 0
+                };
+            } else {
+                newSync = {
+                    name: station.name,
+                    deviceId: station.deviceId,
+                    readings: 0,
+                    downloadReadingsLabel: "",
+                    canDownload: false
+                }
+            }
+            newSync.uploadProgressLabel = "Waiting to upload";
+            newSync.uploadState = "waiting";
             this.recentSyncs.push(newSync);
+            return newSync;
             // automatically download data
             // if (newSync.canDownload) {
             //     this.downloadData(newSync.deviceId);

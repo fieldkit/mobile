@@ -15,16 +15,31 @@ export default class UploadManager {
     }
 
     getStatus() {
-        return this.databaseInterface.getPendingDownloads().then(pending => {
-            log.verbose("pending (status)", pending);
-            return _(pending)
-                .groupBy('deviceId')
-                .map((record, id) => ({
-                    deviceId: id,
-                    size: _.sumBy(record, 'size')
-                }))
-                .value();
-        });
+        return this.databaseInterface
+            .getPendingDownloads()
+            .then(keysToCamel)
+            .then(pending => {
+                log.verbose("pending (status)", pending);
+                return _(pending)
+                    .groupBy('deviceId')
+                    .map((record, id) => ({
+                        deviceId: id,
+                        size: _.sumBy(record, 'size')
+                    }))
+                    .value();
+            })
+            .then(uploads => {
+                return Promise.all(
+                    uploads.map(upload => {
+                        return this.databaseInterface
+                            .getStationByDeviceId(upload.deviceId)
+                            .then(data => {
+                                upload.name = data[0].name;
+                                return upload;
+                            });
+                    })
+                );
+            });
     }
 
     synchronizePortal() {
