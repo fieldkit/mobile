@@ -3,6 +3,7 @@ import { promiseAfter } from "../utilities";
 import Config from "../config";
 
 const pastDate = new Date(2000, 0, 1);
+const oneHour = 3600000;
 
 function is_internal_module(module) {
     return !Config.includeInternalModules && module.flags & 1; // TODO Pull this enum in from the protobuf file.
@@ -257,12 +258,19 @@ export default class StationMonitor extends Observable {
 
     sortStations() {
         let stations = Object.values(this.stations);
+        // sort by recency first, rounded to hour
         stations.sort((a, b) => {
-            return b.lastSeen > a.lastSeen
+            const aTime = ((a.lastSeen / oneHour) * oneHour);
+            const bTime = ((b.lastSeen / oneHour) * oneHour);
+            return bTime > aTime
                 ? 1
-                : b.lastSeen < a.lastSeen
+                : bTime < aTime
                 ? -1
                 : 0;
+        });
+        // then sort by alpha
+        stations.sort((a, b) => {
+            return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
         });
         stations.forEach((s, i) => {
             s.sortedIndex = i + "-" + s.deviceId;
