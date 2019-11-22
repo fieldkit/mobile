@@ -255,6 +255,8 @@ export default {
                         // }
                         recent.uploadProgressLabel =
                             "Unable to upload. Are you connected to the internet?";
+                        recent.uploadStatus = recent.uploadSize + " to upload";
+                        recent.uploadState = "waiting";
                         const inProgress = Object.keys(this.uploading);
                         if (inProgress.length == 0) {
                             clearInterval(this.uploadIntervalTimer);
