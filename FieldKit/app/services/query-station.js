@@ -1,5 +1,4 @@
 import _ from "lodash";
-import axios from "axios";
 import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
 import { promiseAfter } from "../utilities";
@@ -127,8 +126,8 @@ export default class QueryStation {
         }
 
 		return Services.Conservify().json({
-			url: url,
 			method: "HEAD",
+			url: url,
 		}).then(response => {
 			const size = Number(response.headers.get("content-length"));
 			return {
@@ -150,42 +149,33 @@ export default class QueryStation {
             return Promise.reject("ignored");
         }
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
-        const requestBody = new Buffer.from(binaryQuery).toString("hex");
-        log.info(url, "querying", message, requestBody);
-        return axios({
-            method: "POST",
-            url: url,
-            headers: {
-                /* When we get rid of this hex encoding nonsense we'll fix this, too */
-                // 'Content-Type': 'application/octet-stream',
-                "Content-Type": "text/plain"
-            },
-            data: requestBody
-        }).then(
-            response => {
-                if (response.data.length == 0) {
-                    log.info(url, "query success", "<empty>");
-                    return {};
-                }
-                const binaryReply = Buffer.from(response.data, "hex");
-                const decoded = HttpReply.decodeDelimited(binaryReply);
-                return this._handlePotentialBusyReply(
-                    decoded,
-                    url,
-                    message
-                ).then(finalReply => {
-                    log.verbose(url, "query success", finalReply);
-                    return finalReply;
-                });
-            },
-            err => {
-                log.error(url, "query error", err);
-                return Promise.reject(err);
-            }
-        );
-    }
+        log.info(url, "querying", message);
 
-    _fixupStatus(reply) {
+		return Services.Conservify().protobuf({
+			method: "POST",
+			url: url,
+			body: binaryQuery
+		}).then(response => {
+			if (response.body.length == 0) {
+				log.info(url, "query success", "<empty>");
+				return {};
+			}
+			const decoded = HttpReply.decodeDelimited(response.body);
+			return this._handlePotentialBusyReply(
+				decoded,
+				url,
+				message
+			).then(finalReply => {
+				log.verbose(url, "query success", finalReply);
+				return finalReply;
+			});
+		}, err => {
+			log.error(url, "query error", err);
+			return Promise.reject(err);
+		});
+	}
+
+	_fixupStatus(reply) {
         if (reply.errors && reply.errors.length > 0) {
             return reply;
         }
