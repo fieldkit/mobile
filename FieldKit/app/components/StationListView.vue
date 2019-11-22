@@ -25,7 +25,7 @@
                             :text="s.name"
                             :class="
                                 'station-name ' +
-                                    (s.connected == 0 ? 'disconnected' : '')
+                                    (s.connected ? '' : 'disconnected')
                             "
                         />
                         <Label
@@ -81,18 +81,6 @@ export default {
             this.page = args.object;
 
             this.stations = this.$stationMonitor.getStations();
-
-            if (this.station) {
-                // update from station detail view
-                this.stations.forEach(s => {
-                    if (s.id == this.station.id) {
-                        s.status = this.station.status;
-                        s.connected = this.station.connected;
-                        s.name = this.station.name;
-                        // s.sortedIndex += 1;
-                    }
-                });
-            }
 
             this.$stationMonitor.on(
                 Observable.propertyChangeEvent,

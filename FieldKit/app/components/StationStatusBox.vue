@@ -45,13 +45,13 @@
                     <Image
                         col="0"
                         width="20"
-                        v-if="station.connected == 1"
+                        v-if="station.connected"
                         src="~/images/Icon_Connected.png"
                     ></Image>
                     <Image
                         col="0"
                         width="20"
-                        v-if="station.connected == 0"
+                        v-if="!station.connected"
                         src="~/images/Icon_not_Connected.png"
                     ></Image>
                     <Label
@@ -128,7 +128,7 @@ export default {
                 availableMemory: 0,
                 batteryLevel: 0,
                 batteryImage: "~/images/Icon_Battery_0.png",
-                connected: 0,
+                connected: false,
                 status: ""
             }
         };
@@ -168,7 +168,7 @@ export default {
         },
 
         updateStatus(data) {
-            this.station.connected = 1;
+            this.station.connected = data.connected;
             this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
             this.station.occupiedMemory = data.consumedMemory.toFixed(2);

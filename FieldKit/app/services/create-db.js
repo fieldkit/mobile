@@ -232,7 +232,6 @@ export default class CreateDB {
         // these numbers are only generated for seeded stations
         station.batteryLevel = Math.floor(Math.random() * Math.floor(100));
         station.availableMemory = Math.floor(Math.random() * Math.floor(100));
-        station.connected = 0;
         station.longitude = -122.65397644042969;
         station.latitude = 45.500099182128906;
         return this.dbInterface.insertStation(station).then(id => {

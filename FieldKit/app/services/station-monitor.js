@@ -18,6 +18,7 @@ export default class StationMonitor extends Observable {
         this.dbInterface = dbInterface;
         this.queryStation = queryStation;
         this.stations = {};
+        // stations whose details are being viewed in app are "active"
         this.activeAddresses = [];
         this.discoverStation = discoverStation;
         this.subscribeToStationDiscovery();
@@ -35,20 +36,11 @@ export default class StationMonitor extends Observable {
     initializeStations(result) {
         const thisMonitor = this;
         result.map(r => {
-            r.lastSeen = r.connected ? new Date() : pastDate;
+            r.lastSeen = pastDate;
+            // not getting connected from db anymore
+            // all are disconnected until discovered
+            r.connected = false;
             thisMonitor.stations[r.deviceId] = r;
-        });
-
-        let index = 0; // seeded stations cause delay otherwise
-        // kickoff station queries, staggered
-        Object.values(this.stations).forEach(station => {
-            if (station.url == "no_url") {
-                return;
-            }
-            promiseAfter(3000 * index).then(() =>
-                this.requestInitialReadings(station)
-            );
-            index += 1;
         });
     }
 
@@ -118,7 +110,7 @@ export default class StationMonitor extends Observable {
             return this.checkDatabase(station.deviceId, station.url);
         }
 
-        station.connected = 1;
+        station.connected = true;
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
         station.name = result.status.identity.device;
@@ -137,7 +129,7 @@ export default class StationMonitor extends Observable {
             return this.checkDatabase(station.deviceId, station.url);
         }
 
-        station.connected = 1;
+        station.connected = true;
         station.lastSeen = new Date();
         station.status = result.status.recording.enabled ? "recording" : "idle";
         const readings = {};
@@ -233,7 +225,7 @@ export default class StationMonitor extends Observable {
             name: deviceStatus.identity.device,
             url: data.address,
             status: recordingStatus,
-            connected: 1,
+            connected: true,
             batteryLevel: deviceStatus.power.battery.percentage,
             availableMemory:
                 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
@@ -281,6 +273,7 @@ export default class StationMonitor extends Observable {
     activateStation(station) {
         console.log("activating station --------->", station.name);
         station.lastSeen = new Date();
+        station.connected = true;
         this.stations[station.deviceId] = station;
 
         // start getting readings
@@ -297,7 +290,7 @@ export default class StationMonitor extends Observable {
             // TODO: is there an old k:v pair we need to delete?
             this.stations[deviceId] = databaseStation;
         }
-        this.stations[deviceId].connected = 1;
+        this.stations[deviceId].connected = true;
         this.stations[deviceId].lastSeen = new Date();
         // prefer statusResult name over database name
         this.stations[deviceId].name = statusResult.status.identity.device;
@@ -306,11 +299,6 @@ export default class StationMonitor extends Observable {
 
         // start getting readings
         this.requestInitialReadings(this.stations[deviceId]);
-        this.dbInterface
-            .setStationConnectionStatus(this.stations[deviceId])
-            .then(() => {
-                this._updateStationStatus(this.stations[deviceId], status);
-            });
     }
 
     deactivateStation(deviceId) {
@@ -322,11 +310,8 @@ export default class StationMonitor extends Observable {
                 "deactivating station --------->",
                 this.stations[deviceId].name
             );
-            this.stations[deviceId].connected = 0;
+            this.stations[deviceId].connected = false;
             this.stations[deviceId].lastSeen = pastDate;
-            this.dbInterface.setStationConnectionStatus(
-                this.stations[deviceId]
-            );
             this._publishStationsUpdated();
             this._publishStationRefreshed(this.stations[deviceId]);
         } else {
