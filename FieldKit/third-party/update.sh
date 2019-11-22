@@ -6,6 +6,10 @@ echo updating third-party from `pwd`...
 
 SOURCE=../../nativescript-conservify
 if [ -d $SOURCE ]; then
+	pushd $SOURCE
+    ./update-android.sh
+	popd
+
     SOURCE=$(cd $SOURCE; pwd)
     pushd $SOURCE/publish
     ./pack.sh

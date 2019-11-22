@@ -129,7 +129,7 @@ export default class QueryStation {
 			method: "HEAD",
 			url: url,
 		}).then(response => {
-			const size = Number(response.headers.get("content-length"));
+			const size = Number(response.headers["content-length"]);
 			return {
 				size
 			};

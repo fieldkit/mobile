@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { Downloader } from "nativescript-downloader";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 
 import Services from "./services";
@@ -23,21 +22,11 @@ class DownloadStatus {
 }
 
 export default class DownloadManager {
-    constructor(
-        databaseInterface,
-        queryStation,
-        stationMonitor,
-        progressService
-    ) {
+    constructor(databaseInterface, queryStation, stationMonitor, progressService) {
         this.databaseInterface = databaseInterface;
         this.queryStation = queryStation;
         this.stationMonitor = stationMonitor;
         this.progressService = progressService;
-
-        // NOTE Can we set these on our instance?
-        Downloader.init();
-        Downloader.setTimeout(120);
-        this.downloader = new Downloader();
     }
 
     getStatus() {
@@ -88,7 +77,6 @@ export default class DownloadManager {
         }
 
         const stations = this.stationMonitor.getStations().filter(s => {
-            log.info("url", s.url, "deviceId", s.deviceId);
             return s.deviceId && s.url && s.connected;
         });
 
@@ -292,7 +280,7 @@ export default class DownloadManager {
         }
 
         if (!_.isString(blocks)) {
-            throw new Error("Invalid Fk-Blocks header: " + blocks);
+            throw new Error("Invalid fk-blocks header: " + blocks);
         }
 
         const parts = blocks
@@ -300,7 +288,7 @@ export default class DownloadManager {
             .map(s => s.trim())
             .map(s => Number(s));
         if (parts.length != 2) {
-            throw new Error("Invalid Fk-Blocks header: " + blocks);
+            throw new Error("Invalid fk-blocks header: " + blocks);
         }
 
         return {
@@ -311,12 +299,12 @@ export default class DownloadManager {
     }
 
     _createDownloadRow(station, url, type, destination, headers) {
-        delete headers["Connection"];
+        delete headers["connection"];
 
         const { range, firstBlock, lastBlock } = this._parseBlocks(
-            headers["Fk-Blocks"]
+            headers["fk-blocks"]
         );
-        const generation = headers["Fk-Generation"];
+        const generation = headers["fk-generation"];
 
         return {
             stationId: station.id,
@@ -335,44 +323,23 @@ export default class DownloadManager {
     }
 
     _download(station, url, type, destination, operation) {
-        return new Promise((resolve, reject) => {
-            log.info("download", url, "to", destination.path);
-
-            const transfer = this.downloader.createDownload({
-                url: url,
-                path: destination.parent.path,
-                fileName: destination.name
-            });
-
-            this.downloader
-                .start(transfer, progress => {
-                    operation.updateStation({
-						deviceId: station.deviceId,
-						key: url, // This is the same key used when generating the progress summary.
-                                  // Right now this is local to the deviceId.
-                        currentSize: progress.currentSize,
-                        totalSize: progress.totalSize,
-                    });
-                    log.verbose("progress", progress);
-                })
-                .then(completed => {
-                    log.info("headers", completed.headers);
-                    log.info("status", completed.statusCode);
-                    resolve(
-                        this._createDownloadRow(
-                            station,
-                            url,
-                            type,
-                            destination,
-                            completed.headers
-                        )
-                    );
-                })
-                .catch(error => {
-                    log.error("error", error.message);
-                    reject(error);
-                });
-        });
+		return Services.Conservify().download({
+			method: "GET",
+			url: url,
+			path: destination.path,
+			progress: (total, copied, info) => {
+				operation.updateStation({
+					deviceId: station.deviceId,
+					key: url,
+					currentSize: copied,
+					totalSize: total,
+				});
+			}
+		}).then(completed => {
+			log.info("headers", completed.headers);
+			log.info("status", completed.statusCode);
+			return this._createDownloadRow(station, url, type, destination, completed.headers);
+		});
     }
 
     _createServiceModel() {

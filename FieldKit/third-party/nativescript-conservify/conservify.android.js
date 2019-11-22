@@ -8,6 +8,16 @@ var debug = (function () {
     }
     return function () { };
 })();
+function toJsHeaders(headers) {
+    var jsHeaders = {};
+    var iter = headers.entrySet().iterator();
+    while (iter.hasNext()) {
+        var entry = iter.next();
+        var key = entry.getKey();
+        jsHeaders[key.toLowerCase()] = entry.getValue();
+    }
+    return jsHeaders;
+}
 var Conservify = (function (_super) {
     __extends(Conservify, _super);
     function Conservify(discoveryEvents) {
@@ -109,7 +119,7 @@ var Conservify = (function (_super) {
                 delete active[taskId];
                 task.resolve({
                     info: info,
-                    headers: headers,
+                    headers: toJsHeaders(headers),
                     statusCode: statusCode,
                     body: getBody(),
                 });
@@ -154,7 +164,7 @@ var Conservify = (function (_super) {
                 delete active[taskId];
                 task.resolve({
                     info: info,
-                    headers: headers,
+                    headers: toJsHeaders(headers),
                     statusCode: statusCode,
                     body: getBody(),
                 });

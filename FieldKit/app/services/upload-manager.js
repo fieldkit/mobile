@@ -1,11 +1,10 @@
 import _ from "lodash";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
-import * as BackgroundHttp from "nativescript-background-http";
 import { keysToCamel, serializePromiseChain } from "../utilities";
+import Services from "./services";
 import Config from "../config";
 
 const log = Config.logger("UploadManager");
-const SessionName = "fk-data-upload";
 
 export default class UploadManager {
     constructor(databaseInterface, portalInterface, progressService) {
@@ -102,34 +101,25 @@ export default class UploadManager {
     }
 
     _upload(deviceId, headers, filePath, operation) {
-        return new Promise((resolve, reject) => {
-            const url = Config.ingestionUri;
-            log.info("url", url);
+		const url = Config.ingestionUri;
+		log.info("url", url);
+		log.info("uploading", filePath, headers);
 
-            const session = BackgroundHttp.session(SessionName);
-            log.info("session", session);
+		const defaultHeaders = {
+			"Content-Type": "application/octet-stream",
+			Authorization: this.portalInterface.getCurrentToken(),
+			"Fk-DeviceId": deviceId
+		};
 
-            delete headers["Connection"];
-            delete headers["Content-Length"];
+		delete headers["connection"];
+		delete headers["content-length"];
 
-            log.info("uploading", filePath, headers);
-
-            const defaultHeaders = {
-                "Content-Type": "application/octet-stream",
-                Authorization: this.portalInterface.getCurrentToken(),
-                "Fk-DeviceId": deviceId
-            };
-            const req = {
-                url: url,
-                method: "POST",
-                headers: { ...headers, ...defaultHeaders }
-                // androidDisplayNotificationProgress: false, // Won't work going foward.
-                // androidRingToneEnabled: false,
-                // androidAutoClearNotification: true,
-            };
-            const task = session.uploadFile(filePath, req);
-
-            task.on("progress", e => {
+		return Services.Conservify().upload({
+			method: "POST",
+			url: url,
+			path: filePath,
+			headers: { ...headers, ...defaultHeaders },
+			progress: () => {
                 operation.updateStation({
 					deviceId: deviceId,
 					key: filePath, // This is the same key used when generating the progress summary.
@@ -137,32 +127,11 @@ export default class UploadManager {
                     currentSize: e.currentBytes,
                     totalSize: e.totalBytes
                 });
-            });
-            task.on("error", e => {
-                log.error("error", e.error);
-                reject(e.error);
-            });
-            task.on("responded", e => {
-                const rv = {
-                    data: e.data,
-                    status: e.responseCode
-                };
-                log.info("responded", rv);
-                // NOTE This was easier than using complete, though I think I'd rather this happen there.
-                resolve(rv);
-            });
-            task.on("complete", e => {
-                const rv = {
-                    status: e.responseCode
-                };
-                log.info("complete", rv);
-            });
-
-            // Android only
-            task.on("cancelled", e => {
-                log.info("cancelled", e);
-                reject("cancelled");
-            });
-        });
+			}
+		}).then(response => {
+			return response;
+		}, err => {
+			return Promise.reject(err);
+		});
     }
 }
