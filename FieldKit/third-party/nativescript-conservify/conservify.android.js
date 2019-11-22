@@ -25,11 +25,11 @@ var Conservify = (function (_super) {
         this.networkingListener = new org.conservify.networking.NetworkingListener({
             onFoundService: function (service) {
                 debug("onFoundService", service);
-                this.discoveryEvents.onFoundService(service);
+                owner.discoveryEvents.onFoundService(service);
             },
             onLostService: function (service) {
                 debug("onLostService", service);
-                this.discoveryEvents.onLostService(service);
+                owner.discoveryEvents.onLostService(service);
             },
             onConnectionInfo: function (connected) {
                 debug("onConnectionInfo", connected);
@@ -179,6 +179,7 @@ var Conservify = (function (_super) {
     Conservify.prototype.json = function (info) {
         var _this = this;
         var transfer = new org.conservify.networking.WebTransfer();
+        transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
@@ -197,8 +198,13 @@ var Conservify = (function (_super) {
     Conservify.prototype.protobuf = function (info) {
         var _this = this;
         var transfer = new org.conservify.networking.WebTransfer();
+        transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setBase64EncodeResponseBody(true);
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.header(key, value);
+        }
         if (info.body) {
             var requestBody = Buffer.from(info.body).toString("base64");
             transfer.setBody(requestBody);
@@ -217,8 +223,13 @@ var Conservify = (function (_super) {
     Conservify.prototype.download = function (info) {
         var _this = this;
         var transfer = new org.conservify.networking.WebTransfer();
+        transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setPath(info.path);
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.header(key, value);
+        }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.getId()] = {
                 info: info,
@@ -232,8 +243,13 @@ var Conservify = (function (_super) {
     Conservify.prototype.upload = function (info) {
         var _this = this;
         var transfer = new org.conservify.networking.WebTransfer();
+        transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setPath(info.path);
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.header(key, value);
+        }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.getId()] = {
                 info: info,

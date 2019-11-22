@@ -91,7 +91,7 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
     networkingListener: MyNetworkingListener;
     uploadListener: WebTransferListener;
     downloadListener: WebTransferListener;
-    constructor();
+    constructor(discoveryEvents: any);
     getTask(id: string): any;
     removeTask(id: string): void;
     start(serviceType: string): Promise<{}>;

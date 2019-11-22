@@ -170,10 +170,11 @@ var DownloadListener = (function (_super) {
 }(NSObject));
 var Conservify = (function (_super) {
     __extends(Conservify, _super);
-    function Conservify() {
+    function Conservify(discoveryEvents) {
         var _this = _super.call(this) || this;
         _this.active = {};
         _this.scan = null;
+        _this.discoveryEvents = discoveryEvents;
         return _this;
     }
     Conservify.prototype.getTask = function (id) {
@@ -195,6 +196,7 @@ var Conservify = (function (_super) {
     Conservify.prototype.json = function (info) {
         var _this = this;
         var transfer = WebTransfer.alloc().init();
+        transfer.method = info.method;
         transfer.url = info.url;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
@@ -213,8 +215,13 @@ var Conservify = (function (_super) {
     Conservify.prototype.protobuf = function (info) {
         var _this = this;
         var transfer = WebTransfer.alloc().init();
+        transfer.method = info.method;
         transfer.url = info.url;
         transfer.base64EncodeResponseBody = true;
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.headerWithKeyValue(key, value);
+        }
         if (info.body) {
             var requestBody = Buffer.from(info.body).toString("base64");
             transfer.body = requestBody;
@@ -233,8 +240,13 @@ var Conservify = (function (_super) {
     Conservify.prototype.download = function (info) {
         var _this = this;
         var transfer = WebTransfer.alloc().init();
+        transfer.method = info.method;
         transfer.url = info.url;
         transfer.path = info.path;
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.headerWithKeyValue(key, value);
+        }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {
                 info: info,
@@ -248,8 +260,13 @@ var Conservify = (function (_super) {
     Conservify.prototype.upload = function (info) {
         var _this = this;
         var transfer = WebTransfer.alloc().init();
+        transfer.method = info.method;
         transfer.url = info.url;
         transfer.path = info.path;
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.headerWithKeyValue(key, value);
+        }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {
                 info: info,

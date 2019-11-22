@@ -15,6 +15,5 @@ if [ -d $SOURCE ]; then
     rm -rf nativescript-conservify
     mkdir nativescript-conservify
     tar xf $SOURCE/publish/package/*.tgz --strip 1 -C nativescript-conservify
-    mv nativescript-conservify/platforms/android/{app-debug.aar,fk-networking.aar}
     popd
 fi
