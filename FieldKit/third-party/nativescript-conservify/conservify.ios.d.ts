@@ -28,6 +28,7 @@ declare class WifiNetworks extends NSObject {
 declare class WebTransfer extends NSObject {
     static alloc(): WebTransfer;
     static new(): WebTransfer;
+    method: string;
     url: string;
     path: string;
     body: any;

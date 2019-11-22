@@ -103,7 +103,7 @@ var UploadListener = (function (_super) {
         this.tasks.removeTask(taskId, message);
         task.reject({
             info: info,
-            message: message
+            message: message,
         });
     };
     UploadListener.ObjCProtocols = [WebTransferListener];
@@ -162,7 +162,7 @@ var DownloadListener = (function (_super) {
         this.tasks.removeTask(taskId);
         task.reject({
             info: info,
-            message: message
+            message: message,
         });
     };
     DownloadListener.ObjCProtocols = [WebTransferListener];

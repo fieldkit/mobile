@@ -124,13 +124,14 @@ var Conservify = (function (_super) {
                     body: getBody(),
                 });
             },
-            onError: function (taskId) {
-                debug("upload:onError", taskId);
+            onError: function (taskId, message) {
+                debug("upload:onError", taskId, message);
                 var task = active[taskId];
                 var info = task.info;
                 delete active[taskId];
                 task.reject({
                     info: info,
+                    message: message,
                 });
             },
         });
@@ -169,13 +170,14 @@ var Conservify = (function (_super) {
                     body: getBody(),
                 });
             },
-            onError: function (taskId) {
-                debug("download:onError", taskId);
+            onError: function (taskId, message) {
+                debug("download:onError", taskId, message);
                 var task = active[taskId];
                 var info = task.info;
                 delete active[taskId];
                 task.reject({
-                    info: info
+                    info: info,
+                    message: message,
                 });
             },
         });
