@@ -1,11 +1,25 @@
 class DiscoveryEvents {
+	constructor() {
+		this.listeners = [];
+	}
+
     onFoundService(info) {
         console.log('onServiceFound', info);
+		for (let i = 0; i < this.listeners.length; ++i) {
+			this.listeners[i].onFoundService(info);
+		}
     }
 
     onLostService(info) {
         console.log('onServiceLost', info);
+		for (let i = 0; i < this.listeners.length; ++i) {
+			this.listeners[i].onLostService(info);
+		}
     }
+
+	add(listener) {
+		this.listeners.push(listener);
+	}
 }
 
 class Services {
@@ -86,10 +100,16 @@ class Services {
 	Conservify() {
         if (!this.conservify) {
             const Conservify = require("nativescript-conservify").Conservify;
-            this.conservify = new Conservify(new DiscoveryEvents());
-			this.conservify.start("_fk._tcp");
+            this.conservify = new Conservify(this.DiscoveryEvents());
         }
         return this.conservify;
+	}
+
+	DiscoveryEvents() {
+        if (!this.discoveryEvents) {
+            this.discoveryEvents = new DiscoveryEvents();
+        }
+        return this.discoveryEvents;
 	}
 }
 

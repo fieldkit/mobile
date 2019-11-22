@@ -1,12 +1,10 @@
-import {
-    Observable,
-    PropertyChangeData
-} from "tns-core-modules/data/observable";
-import { Zeroconf } from "nativescript-zeroconf";
-import { Conservify } from "nativescript-conservify";
+import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import { isIOS } from "tns-core-modules/platform";
 import { WifiInfo } from "nativescript-wifi-info";
 import { every } from "./rx";
+
+import Services from "./services";
+
 import Config from "../config";
 
 class Station {
@@ -49,9 +47,8 @@ class WiFiMonitor {
 export default class DiscoverStation extends Observable {
     constructor() {
         super();
-        console.log("Conservify", Conservify);
-        this.zeroconf_ = new Zeroconf("_fk._tcp");
         this.stations_ = {};
+		Services.DiscoveryEvents().add(this);
     }
 
     _watchFakePreconfiguredDiscoveries() {
@@ -93,62 +90,30 @@ export default class DiscoverStation extends Observable {
         });
     }
 
-    _watchZeroconf() {
-        this.zeroconf_.on(
-            Observable.propertyChangeEvent,
-            data => {
-                switch (data.propertyName.toString()) {
-                case "serviceFound": {
-                    this.stationFound(data.value);
-                    break;
-                }
-                case "serviceLost": {
-                    this.stationLost(data.value);
-                    break;
-                }
-                default: {
-                    console.log(
-                        data.propertyName.toString() +
-                            " " +
-                            data.value.toString()
-                    );
-                    break;
-                }
-                }
-            },
-            error => {
-                console.log("propertyChangeEvent error", error);
-            }
-        );
-        this.zeroconf_.startServiceDiscovery();
+    _watchZeroconfAndMdns() {
+		return Services.Conservify().start("_fk._tcp");
     }
 
     startServiceDiscovery() {
         this._watchFakePreconfiguredDiscoveries();
         this._watchWifiNetworks();
-        this._watchZeroconf();
+        this._watchZeroconfAndMdns();
     }
 
     stopServiceDiscovery() {
-        this.zeroconf_.stopServiceDiscovery();
         this.stations_ = {};
     }
 
-    stationFound(info) {
-        console.log(
-            "found service:",
-            info.type,
-            info.name,
-            info.host,
-            info.port
-        );
+    onFoundService(info) {
+        console.log("found service:", info);
+        console.log("found service:", info.type, info.name, info.host, info.port);
         const key = this.makeKey(info);
         const station = new Station(info);
         this.stations_[key] = station;
         this.notifyPropertyChange("stationFound", station);
     }
 
-    stationLost(info) {
+    onLostService(info) {
         console.log("lost service:", info.type, info.name);
         if (!isIOS && info.type == "_fk._tcp.") {
             info.type = "._fk._tcp";

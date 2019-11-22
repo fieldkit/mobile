@@ -25,11 +25,21 @@ var Conservify = (function (_super) {
         this.networkingListener = new org.conservify.networking.NetworkingListener({
             onFoundService: function (service) {
                 debug("onFoundService", service);
-                owner.discoveryEvents.onFoundService(service);
+                owner.discoveryEvents.onFoundService({
+                    name: service.getName(),
+                    type: service.getType(),
+                    host: service.getAddress(),
+                    port: service.getPort(),
+                });
             },
             onLostService: function (service) {
                 debug("onLostService", service);
-                owner.discoveryEvents.onLostService(service);
+                owner.discoveryEvents.onLostService({
+                    name: service.getName(),
+                    type: service.getType(),
+                    host: service.getAddress(),
+                    port: service.getPort(),
+                });
             },
             onConnectionInfo: function (connected) {
                 debug("onConnectionInfo", connected);
