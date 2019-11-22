@@ -351,9 +351,9 @@ export default class DownloadManager {
             this.downloader
                 .start(transfer, progress => {
                     operation.updateStation({
+						deviceId: station.deviceId,
 						key: url, // This is the same key used when generating the progress summary.
                                   // Right now this is local to the deviceId.
-						deviceId: station.deviceId,
                         currentSize: progress.currentSize,
                         totalSize: progress.totalSize,
                     });

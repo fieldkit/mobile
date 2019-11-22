@@ -16,7 +16,7 @@ export default class UploadManager {
 
     getStatus() {
         return this.databaseInterface.getPendingDownloads().then(pending => {
-            log.info("pending", pending);
+            log.verbose("pending (status)", pending);
             return _(pending)
                 .groupBy('deviceId')
                 .map((record, id) => ({
@@ -38,25 +38,52 @@ export default class UploadManager {
             });
         }
 
-        const operation = this.progressService.startUpload();
-
         return this.databaseInterface
             .getPendingDownloads()
             .then(keysToCamel)
             .then(downloads => {
-                log.info("pending", downloads);
-                return serializePromiseChain(
-                    downloads,
-                    this._uploadDownload.bind(this, operation)
-                );
-            })
-            .then(() => {
-                return operation.complete();
-            })
-            .catch(error => {
-                return operation.cancel(error);
+                log.info("pending (sync)", downloads);
+
+				return this._summarize(downloads).then(progressSummary => {
+					const operation = this.progressService.startUpload(progressSummary);
+
+					return serializePromiseChain(
+						downloads,
+						this._uploadDownload.bind(this, operation)
+					)
+					.then(() => {
+						return operation.complete();
+					})
+					.catch(error => {
+						return operation.cancel(error);
+					});
+				});
             });
     }
+
+	_summarize(downloads) {
+		const byDevice = _(downloads).
+			  groupBy(d => d.deviceId).
+			  map((files, key) => {
+				  return {
+					  deviceId: key,
+					  tasks: _(files).
+						  map(f => {
+							  return {
+								  deviceId: key,
+								  key: path,
+								  path: path,
+							  };
+						  }).
+						  keyBy(r => r.key).
+						  value(),
+				  };
+			  }).
+			  keyBy(row => row.deviceId).
+			  value();
+
+		return Promise.resolve(byDevice);
+	}
 
     _uploadDownload(operation, download) {
         log.info("uploading", download);
@@ -103,20 +130,13 @@ export default class UploadManager {
             const task = session.uploadFile(filePath, req);
 
             task.on("progress", e => {
-                const rv = {
-                    progress: 100.0 * (e.currentBytes / e.totalBytes),
-                    currentBytes: e.currentBytes,
-                    totalBytes: e.totalBytes
-                };
-                operation.update({
-                    station: {
-                        deviceId: deviceId
-                    },
-                    progress: Math.round(rv.progress),
+                operation.updateStation({
+					deviceId: deviceId,
+					key: filePath, // This is the same key used when generating the progress summary.
+                                   // Right now this is local to the deviceId.
                     currentSize: e.currentBytes,
                     totalSize: e.totalBytes
                 });
-                log.verbose("progress", rv);
             });
             task.on("error", e => {
                 log.error("error", e.error);

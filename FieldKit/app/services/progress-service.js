@@ -11,6 +11,7 @@ class ProgressTracker {
         this.kind = kind;
         this.finished = false;
 		this.progress = _.merge(info || {}, this.progress, { message: null,
+															 finished: true,
 															 completed: false,
 															 cancel: false,
 															 progress: 0.0
@@ -41,7 +42,7 @@ class ProgressTracker {
 
 		task.progress = task.currentSize / task.totalSize * 100.0;
 
-		// console.log('updating', task);
+		log.info('updating', task);
 
 		const deviceTotal = _(tasks).map(t => t.totalSize || 0).sum();
 		const deviceCurrent = _(tasks).map(t => t.currentSize || 0).sum();
@@ -50,7 +51,7 @@ class ProgressTracker {
 		device.currentSize = deviceCurrent;
 		device.progress = deviceCurrent / deviceTotal * 100.0;
 
-		// console.log('device', device)
+		log.info('device', device)
 
         this.service._publish(this, this.progress);
         return Promise.resolve();
@@ -61,8 +62,13 @@ class ProgressTracker {
             return;
         }
         log.info("cancel");
-        this.finished = true;
-        this.service.publish({ complete: true, cancel: true, progress: 100 });
+		this.finished = true;
+        this.progress = _.merge(this.progress, {
+			finished: true,
+			completed: false,
+			cancel: true,
+		});
+        this.service.publish(this.progress);
         this.service._remove(this);
         return Promise.reject(error);
     }
@@ -72,8 +78,13 @@ class ProgressTracker {
             return;
         }
         log.info("complete");
-        this.finished = true;
-        this.service.publish({ complete: true, cancel: false, progress: 100 });
+		this.finished = true;
+        this.progress = _.merge(this.progress, {
+			finished: true,
+			completed: true,
+			cancel: false,
+		});
+        this.service.publish(this.progress);
         this.service._remove(this);
         return Promise.resolve();
     }
@@ -93,6 +104,7 @@ export default class ProgressService extends BetterObservable {
     startOperation(kind, info) {
         const op = new ProgressTracker(this, kind, info);
         this.active.push(op);
+		log.info("started", kind, info);
         return op;
     }
 
