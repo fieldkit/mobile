@@ -148,15 +148,6 @@ export default class DatabaseInterface {
         );
     }
 
-    setStationConnectionStatus(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET connected = ? WHERE id = ?", [
-                station.connected,
-                station.id
-            ])
-        );
-    }
-
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
             db.query(
@@ -334,14 +325,13 @@ export default class DatabaseInterface {
     insertStation(station, statusJson) {
         const newStation = new Station(station);
         return this.database.execute(
-            `INSERT INTO stations (device_id, name, url, status, battery_level, connected, available_memory, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (device_id, name, url, status, battery_level, available_memory, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.name,
                 newStation.url,
                 newStation.status,
                 newStation.batteryLevel,
-                newStation.connected,
                 newStation.availableMemory,
                 newStation.interval,
                 JSON.stringify(statusJson),
@@ -627,7 +617,6 @@ class Station {
         this.batteryLevel = _station.batteryLevel;
         this.availableMemory = _station.availableMemory;
         this.interval = Math.round(Math.random() * maxInterval + minInterval);
-        this.connected = _station.connected ? _station.connected : 0;
         this.longitude = _station.longitude;
         this.latitude = _station.latitude;
     }

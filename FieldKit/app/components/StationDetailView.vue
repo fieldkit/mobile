@@ -166,13 +166,6 @@ export default {
         },
 
         respondToUpdates() {
-            const saved = this.$stationMonitor
-                .sortStations()
-                .filter(s => s.id == this.paramId);
-            if (saved.length > 0) {
-                this.activeStation.connected = saved[0].connected;
-            }
-
             this.$stationMonitor.on(
                 Observable.propertyChangeEvent,
                 data => {
