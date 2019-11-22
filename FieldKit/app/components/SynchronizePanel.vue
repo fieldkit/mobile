@@ -2,7 +2,7 @@
     <StackLayout class="sync-panel-container" @loaded="onLoaded">
         <StackLayout
             v-for="s in recentSyncs"
-            :key="s.stationId"
+            :key="s.deviceId"
             class="station-container"
         >
             <Label :text="s.name" textWrap="true" class="station-name"></Label>
@@ -49,6 +49,11 @@
                     ></StackLayout>
                 </GridLayout>
             </template>
+            <template v-else-if="s.disconnected">
+                <StackLayout class="m-20">
+                    <Label text="Not connected to station" />
+                </StackLayout>
+            </template>
             <template v-else>
                 <StackLayout class="m-20">
                     <Label text="Checking for data to download..." />
@@ -82,14 +87,21 @@
                         col="2"
                         width="25"
                         src="~/images/ready.png"
-                        v-if="!uploading[s.deviceId]"
+                        v-if="s.uploadState == 'waiting'"
                     ></Image>
                     <Image
                         rowSpan="2"
                         col="2"
                         width="25"
                         :src="uploadingIcon"
-                        v-if="uploading[s.deviceId]"
+                        v-if="s.uploadState == 'uploading'"
+                    ></Image>
+                    <Image
+                        rowSpan="2"
+                        col="2"
+                        width="25"
+                        src="~/images/success.png"
+                        v-if="s.uploadState == 'success'"
                     ></Image>
                     <StackLayout
                         row="2"
@@ -119,7 +131,8 @@ export default {
             downloadingIcon: "~/images/syncing.png",
             uploadingIcon: "~/images/syncing.png",
             downloading: {},
-            uploading: {}
+            uploading: {},
+            uploadInProgress: false
         };
     },
 
@@ -134,6 +147,13 @@ export default {
             stateManager.subscribe(status => {
                 log.info("status", status, "portal", status.portal);
                 this.manageRecentSyncs(status);
+            });
+
+            Services.ProgressService().subscribe(data => {
+                if (data.message && data.message == "Uploading") {
+                    this.uploadInProgress = true;
+                    this.handleUploadProgress(data);
+                }
             });
         },
 
@@ -158,16 +178,9 @@ export default {
                     return s.deviceId ? s.deviceId : s.station.deviceId;
                 }
             );
-            if (disconnected.length > 0) {
-                disconnected.forEach(d => {
-                    const index = this.recentSyncs.findIndex(s => {
-                        return s.deviceId == d.deviceId;
-                    });
-                    if (index > -1) {
-                        this.recentSyncs.splice(index, 1);
-                    }
-                });
-            }
+            disconnected.forEach(d => {
+                d.disconnected = true;
+            });
 
             // the constant jumping around and switching places is
             // problematic here, so sort alphabetically
@@ -177,6 +190,7 @@ export default {
         },
 
         updateRecent(recent, station, status) {
+            recent.disconnected = false;
             recent.readings = station.pending.records;
             recent.downloadReadingsLabel = recent.readings + " Readings";
             // need higher limit than 0, or get stuck in loop
@@ -207,7 +221,9 @@ export default {
                 stationId: station.station.id,
                 readings: station.pending.records,
                 downloadReadingsLabel: station.pending.records + " Readings",
-                canDownload: station.pending.records > 0
+                canDownload: station.pending.records > 0,
+                uploadProgressLabel: "Waiting to upload",
+                uploadState: "waiting"
             };
             const deviceUpload = status.portal.find(p => {
                 return p.deviceId == station.station.deviceId;
@@ -222,14 +238,12 @@ export default {
 
         handleDeviceUpload(recent, deviceUpload) {
             if (deviceUpload) {
-                recent.uploadStatus =
-                    convertBytesToLabel(deviceUpload.size) + " to upload";
-                recent.uploadProgressLabel = "Uploading";
+                recent.uploadSize = convertBytesToLabel(deviceUpload.size);
+                recent.uploadStatus = recent.uploadSize + " to upload";
                 recent.canUpload = true;
+
                 // start uploading if none in progress
-                const uploading = Object.keys(this.uploading);
-                if (uploading.length == 0) {
-                    this.$set(this.uploading, recent.deviceId, true);
+                if (!this.uploadInProgress) {
                     this.uploadData().catch(e => {
                         // not parsing error message for now,
                         // unsure about iOS side, seems to be breaking
@@ -241,7 +255,8 @@ export default {
                         // }
                         recent.uploadProgressLabel =
                             "Unable to upload. Are you connected to the internet?";
-                        delete this.uploading[recent.deviceId];
+                        recent.uploadStatus = recent.uploadSize + " to upload";
+                        recent.uploadState = "waiting";
                         const inProgress = Object.keys(this.uploading);
                         if (inProgress.length == 0) {
                             clearInterval(this.uploadIntervalTimer);
@@ -249,10 +264,29 @@ export default {
                         }
                     });
                 }
-            } else {
+            }
+        },
+
+        handleUploadProgress(data) {
+            let recent = this.recentSyncs.find(r => {
+                return r.deviceId == data.station.deviceId;
+            });
+            recent.canUpload = true;
+            if (data.progress == 100) {
                 delete this.uploading[recent.deviceId];
-                recent.canUpload = false;
-                recent.uploadProgressLabel = "Nothing to upload";
+                recent.uploadStatus = "Upload successful";
+                recent.uploadProgressLabel = recent.uploadSize + " uploaded";
+                recent.uploadState = "success";
+            } else {
+                this.$set(this.uploading, recent.deviceId, true);
+                recent.uploadProgressLabel = "Uploading";
+                recent.uploadState = "uploading";
+            }
+            const inProgress = Object.keys(this.uploading);
+            if (inProgress.length == 0) {
+                this.uploadInProgress = false;
+                clearInterval(this.uploadIntervalTimer);
+                this.uploadIntervalTimer = null;
             }
         },
 
