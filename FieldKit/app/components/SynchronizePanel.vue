@@ -298,26 +298,29 @@ export default {
         },
 
         handleUploadProgress(data) {
-            let recent = this.recentSyncs.find(r => {
-                return r.deviceId == data.station.deviceId;
+            this.recentSyncs.forEach(s => {
+                if (data[s.deviceId]) {
+                    let recent = s;
+                    let uploadData = data[s.deviceId];
+                    recent.canUpload = true;
+                    if (uploadData.progress == 100) {
+                        delete this.uploading[recent.deviceId];
+                        recent.uploadStatus = "Upload successful";
+                        recent.uploadProgressLabel = recent.uploadSize + " uploaded";
+                        recent.uploadState = "success";
+                    } else {
+                        this.$set(this.uploading, recent.deviceId, true);
+                        recent.uploadProgressLabel = "Uploading";
+                        recent.uploadState = "uploading";
+                    }
+                    const inProgress = Object.keys(this.uploading);
+                    if (inProgress.length == 0) {
+                        this.uploadInProgress = false;
+                        clearInterval(this.uploadIntervalTimer);
+                        this.uploadIntervalTimer = null;
+                    }
+                }
             });
-            recent.canUpload = true;
-            if (data.progress == 100) {
-                delete this.uploading[recent.deviceId];
-                recent.uploadStatus = "Upload successful";
-                recent.uploadProgressLabel = recent.uploadSize + " uploaded";
-                recent.uploadState = "success";
-            } else {
-                this.$set(this.uploading, recent.deviceId, true);
-                recent.uploadProgressLabel = "Uploading";
-                recent.uploadState = "uploading";
-            }
-            const inProgress = Object.keys(this.uploading);
-            if (inProgress.length == 0) {
-                this.uploadInProgress = false;
-                clearInterval(this.uploadIntervalTimer);
-                this.uploadIntervalTimer = null;
-            }
         },
 
         onDownloadTap(event) {
