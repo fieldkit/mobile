@@ -125,6 +125,7 @@ import Config from "../config";
 import routes from "../routes";
 
 import { convertBytesToLabel } from "../utilities";
+import { SYNC_MODE } from "../secrets";
 
 const log = Config.logger("SynchronizePanel");
 
@@ -212,27 +213,29 @@ export default {
             // need higher limit than 0, or get stuck in loop
             recent.canDownload = recent.readings > 3;
 
-            // automatically download data if not already in progress
-            // if (recent.canDownload && !this.downloading[recent.deviceId]) {
-            //     this.downloadData(recent.deviceId);
-            // } else {
-            //     if (!recent.readings || recent.readings < 3) {
-            //         delete this.downloading[recent.deviceId];
-            //         const inProgress = Object.keys(this.downloading);
-            //         if (inProgress.length == 0) {
-            //             clearInterval(this.downloadIntervalTimer);
-            //             this.downloadIntervalTimer = null;
-            //         }
-            //     }
-            // }
-
-            // in manual mode
-            if(!recent.canDownload) {
-                delete this.downloading[recent.deviceId];
-                const inProgress = Object.keys(this.downloading);
-                if (inProgress.length == 0) {
-                    clearInterval(this.downloadIntervalTimer);
-                    this.downloadIntervalTimer = null;
+            if (SYNC_MODE == "auto") {
+                // automatically download data if not already in progress
+                if (recent.canDownload && !this.downloading[recent.deviceId]) {
+                    this.downloadData(recent.deviceId);
+                } else {
+                    if (!recent.readings || recent.readings < 3) {
+                        delete this.downloading[recent.deviceId];
+                        const inProgress = Object.keys(this.downloading);
+                        if (inProgress.length == 0) {
+                            clearInterval(this.downloadIntervalTimer);
+                            this.downloadIntervalTimer = null;
+                        }
+                    }
+                }
+            } else {
+                // in manual mode
+                if(!recent.canDownload) {
+                    delete this.downloading[recent.deviceId];
+                    const inProgress = Object.keys(this.downloading);
+                    if (inProgress.length == 0) {
+                        clearInterval(this.downloadIntervalTimer);
+                        this.downloadIntervalTimer = null;
+                    }
                 }
             }
         },
@@ -259,11 +262,13 @@ export default {
             newSync.uploadProgressLabel = "Waiting to upload";
             newSync.uploadState = "waiting";
             this.recentSyncs.push(newSync);
+            if (SYNC_MODE == "auto") {
+                // automatically download data
+                if (newSync.canDownload) {
+                    this.downloadData(newSync.deviceId);
+                }
+            }
             return newSync;
-            // automatically download data
-            // if (newSync.canDownload) {
-            //     this.downloadData(newSync.deviceId);
-            // }
         },
 
         handleDeviceUpload(recent, deviceUpload) {
@@ -272,28 +277,30 @@ export default {
                 recent.uploadStatus = recent.uploadSize + " to upload";
                 recent.canUpload = true;
 
-                // // automatically start uploading if none in progress
-                // if (!this.uploadInProgress) {
-                //     this.uploadData().catch(e => {
-                //         // not parsing error message for now,
-                //         // unsure about iOS side, seems to be breaking
-                //         // if (
-                //         //     e.toString().indexOf("Unable to resolve host") > -1
-                //         // ) {
-                //         //     recent.uploadProgressLabel =
-                //         //         "Unable to upload. Are you connected to the internet?";
-                //         // }
-                //         recent.uploadProgressLabel =
-                //             "Unable to upload. Are you connected to the internet?";
-                //         recent.uploadStatus = recent.uploadSize + " to upload";
-                //         recent.uploadState = "waiting";
-                //         const inProgress = Object.keys(this.uploading);
-                //         if (inProgress.length == 0) {
-                //             clearInterval(this.uploadIntervalTimer);
-                //             this.uploadIntervalTimer = null;
-                //         }
-                //     });
-                // }
+                if (SYNC_MODE == "auto") {
+                    // automatically start uploading if none in progress
+                    if (!this.uploadInProgress) {
+                        this.uploadData().catch(e => {
+                            // not parsing error message for now,
+                            // unsure about iOS side, seems to be breaking
+                            // if (
+                            //     e.toString().indexOf("Unable to resolve host") > -1
+                            // ) {
+                            //     recent.uploadProgressLabel =
+                            //         "Unable to upload. Are you connected to the internet?";
+                            // }
+                            recent.uploadProgressLabel =
+                                "Unable to upload. Are you connected to the internet?";
+                            recent.uploadStatus = recent.uploadSize + " to upload";
+                            recent.uploadState = "waiting";
+                            const inProgress = Object.keys(this.uploading);
+                            if (inProgress.length == 0) {
+                                clearInterval(this.uploadIntervalTimer);
+                                this.uploadIntervalTimer = null;
+                            }
+                        });
+                    }
+                }
             }
         },
 
@@ -324,6 +331,9 @@ export default {
         },
 
         onDownloadTap(event) {
+            if (SYNC_MODE == "auto") {
+                return;
+            }
             const deviceId = event.object.dataDeviceId;
             this.downloadData(deviceId);
         },
@@ -346,6 +356,9 @@ export default {
         },
 
         onUploadTap(event) {
+            if (SYNC_MODE == "auto") {
+                return;
+            }
             const deviceId = event.object.dataDeviceId;
             let recent = this.recentSyncs.find(r => {
                 return r.deviceId == deviceId;
