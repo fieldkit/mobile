@@ -139,8 +139,8 @@ export default class UploadManager {
 					deviceId: deviceId,
 					key: filePath, // This is the same key used when generating the progress summary.
                                    // Right now this is local to the deviceId.
-                    currentSize: e.currentBytes,
-                    totalSize: e.totalBytes
+                    currentSize: copied,
+                    totalSize: total
                 });
 			}
 		}).then(response => {
