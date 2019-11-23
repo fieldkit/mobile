@@ -115,6 +115,11 @@ export default {
         },
 
         goToSettings(event) {
+            // prevent taps before page finishes loading
+            if (!this.activeStation) {
+                return;
+            }
+
             let cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
@@ -146,6 +151,8 @@ export default {
             this.loadingBlue = this.page.getViewById("loading-circle-blue");
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
+
+            this.stations = this.$stationMonitor.getStations();
 
             if (this.station) {
                 this.activeStation = this.station;
@@ -209,6 +216,13 @@ export default {
                 return Promise.reject();
             }
             this.activeStation = stations[0];
+            // update via stationMonitor
+            let listStation = this.stations.find(s => {
+                return s.deviceId == this.activeStation.deviceId;
+            });
+            if (listStation) {
+                this.activeStation.connected = listStation.connected;
+            }
             return dbInterface.getModules(this.activeStation.id);
         },
 
