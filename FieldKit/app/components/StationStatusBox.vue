@@ -45,19 +45,25 @@
                     <Image
                         col="0"
                         width="20"
-                        v-if="station.connected"
+                        v-if="station.connected && !syncing"
                         src="~/images/Icon_Connected.png"
                     ></Image>
                     <Image
                         col="0"
                         width="20"
-                        v-if="!station.connected"
+                        v-if="!station.connected && !syncing"
                         src="~/images/Icon_not_Connected.png"
+                    ></Image>
+                    <Image
+                        col="0"
+                        width="20"
+                        :src="dataSyncingIcon"
+                        v-if="syncing"
                     ></Image>
                     <Label
                         col="1"
                         class="m-10 size-14"
-                        :text="_L('connected')"
+                        :text="dataSyncMessage"
                     ></Label>
                 </GridLayout>
                 <GridLayout
@@ -117,6 +123,8 @@
 </template>
 
 <script>
+import Services from "../services/services";
+
 export default {
     name: "StationStatusBox",
     data: () => {
@@ -124,6 +132,9 @@ export default {
             loading: true,
             elapsedRecTime: "00:00:00",
             elapsedTimeLabel: "hrs min sec",
+            syncing: false,
+            dataSyncingIcon: "~/images/syncing.png",
+            dataSyncMessage: _L("connected"),
             station: {
                 availableMemory: 0,
                 batteryLevel: 0,
@@ -137,6 +148,22 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
+
+            Services.ProgressService().subscribe(data => {
+                if (data.message) {
+                    this.syncing = true;
+                    this.dataSyncMessage = data.message;
+                    if (!this.syncIconIntervalTimer) {
+                        this.syncIconIntervalTimer = setInterval(
+                            this.rotateSyncingIcon,
+                            500
+                        );
+                    }
+                } else {
+                    this.syncing = false;
+                    this.dataSyncMessage = _L("connected");
+                }
+            });
         },
 
         emitDeployTap() {
@@ -168,7 +195,6 @@ export default {
         },
 
         updateStatus(data) {
-            this.station.connected = data.connected;
             this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
             this.station.occupiedMemory = data.consumedMemory.toFixed(2);
@@ -250,8 +276,16 @@ export default {
             }
         },
 
+        rotateSyncingIcon() {
+            this.dataSyncingIcon =
+                this.dataSyncingIcon == "~/images/syncing.png"
+                    ? "~/images/syncing2.png"
+                    : "~/images/syncing.png";
+        },
+
         stopProcesses() {
             clearInterval(this.intervalTimer);
+            clearInterval(this.syncIconIntervalTimer);
         }
     }
 };
