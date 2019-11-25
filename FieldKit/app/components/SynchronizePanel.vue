@@ -399,7 +399,7 @@ export default {
                 .synchronizePortal()
                 .catch(error => {
                     console.error("ERROR SYNC PORTAL", error);
-                    if (error.offline) {
+                    if (error.offline && !this.askedOnce) {
                         return confirm({
                             title: "FieldKit",
                             message:
@@ -409,6 +409,8 @@ export default {
                         }).then(res => {
                             if (res) {
                                 this.$navigateTo(routes.login, {});
+                            } else {
+                                this.askedOnce = true;
                             }
                         });
                     }
