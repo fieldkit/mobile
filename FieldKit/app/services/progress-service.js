@@ -12,7 +12,7 @@ class ProgressTracker {
         this.finished = false;
 		this.progress = _.merge(info || {}, this.progress, { message: null,
 															 finished: true,
-															 completed: false,
+															 success: false,
 															 cancel: false,
 															 progress: 0.0
 														   });
@@ -65,7 +65,7 @@ class ProgressTracker {
 		this.finished = true;
         this.progress = _.merge(this.progress, {
 			finished: true,
-			completed: false,
+			success: false,
 			cancel: true,
 		});
         this.service.publish(this.progress);
@@ -81,7 +81,7 @@ class ProgressTracker {
 		this.finished = true;
         this.progress = _.merge(this.progress, {
 			finished: true,
-			completed: true,
+			success: true,
 			cancel: false,
 		});
         this.service.publish(this.progress);
