@@ -35,7 +35,8 @@ const configs = {
         dropTables: true,
         stationTimeoutMs: 30000,
         includeInternalModules: false,
-        includeInternalSensors: false
+        includeInternalSensors: false,
+        syncMode: "auto"
     },
     test: {
         vue: {
@@ -47,7 +48,8 @@ const configs = {
         dropTables: true,
         stationTimeoutMs: 30000,
         includeInternalModules: false,
-        includeInternalSensors: false
+        includeInternalSensors: false,
+        syncMode: "auto"
     }
 };
 

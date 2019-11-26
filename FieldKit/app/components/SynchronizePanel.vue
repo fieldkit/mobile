@@ -125,7 +125,6 @@ import Config from "../config";
 import routes from "../routes";
 
 import { convertBytesToLabel } from "../utilities";
-import { SYNC_MODE } from "../secrets";
 
 const log = Config.logger("SynchronizePanel");
 
@@ -213,7 +212,17 @@ export default {
             // need higher limit than 0, or get stuck in loop
             recent.canDownload = recent.readings > 3;
 
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode == "manual") {
+                // in manual mode
+                if(!recent.canDownload) {
+                    delete this.downloading[recent.deviceId];
+                    const inProgress = Object.keys(this.downloading);
+                    if (inProgress.length == 0) {
+                        clearInterval(this.downloadIntervalTimer);
+                        this.downloadIntervalTimer = null;
+                    }
+                }
+            } else {
                 // automatically download data if not already in progress
                 if (recent.canDownload && !this.downloading[recent.deviceId]) {
                     this.downloadData(recent.deviceId);
@@ -225,16 +234,6 @@ export default {
                             clearInterval(this.downloadIntervalTimer);
                             this.downloadIntervalTimer = null;
                         }
-                    }
-                }
-            } else {
-                // in manual mode
-                if(!recent.canDownload) {
-                    delete this.downloading[recent.deviceId];
-                    const inProgress = Object.keys(this.downloading);
-                    if (inProgress.length == 0) {
-                        clearInterval(this.downloadIntervalTimer);
-                        this.downloadIntervalTimer = null;
                     }
                 }
             }
@@ -262,7 +261,7 @@ export default {
             newSync.uploadProgressLabel = "Waiting to upload";
             newSync.uploadState = "waiting";
             this.recentSyncs.push(newSync);
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode != "manual") {
                 // automatically download data
                 if (newSync.canDownload) {
                     this.downloadData(newSync.deviceId);
@@ -277,7 +276,7 @@ export default {
                 recent.uploadStatus = recent.uploadSize + " to upload";
                 recent.canUpload = true;
 
-                if (SYNC_MODE == "auto") {
+                if (Config.syncMode != "manual") {
                     // automatically start uploading if none in progress
                     if (!this.uploadInProgress) {
                         this.uploadData().catch(e => {
@@ -331,7 +330,7 @@ export default {
         },
 
         onDownloadTap(event) {
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode != "manual") {
                 return;
             }
             const deviceId = event.object.dataDeviceId;
@@ -356,7 +355,7 @@ export default {
         },
 
         onUploadTap(event) {
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode != "manual") {
                 return;
             }
             const deviceId = event.object.dataDeviceId;
