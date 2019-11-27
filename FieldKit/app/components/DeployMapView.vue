@@ -26,8 +26,7 @@
                     disableScroll="false"
                     disableTilt="false"
                     @mapReady="onMapReady"
-                >
-                </Mapbox>
+                ></Mapbox>
 
                 <!-- Name your location -->
                 <GridLayout rows="*" columns="*" class="m-t-20 m-x-10">

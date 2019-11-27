@@ -13,6 +13,23 @@
                         :text="_L('lookingForStations')"
                         class="m-10 p-10 text-center size-20"
                     />
+
+                    <Mapbox
+                        :accessToken="mapboxToken"
+                        automationText="currentLocationMap"
+                        mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                        height="150"
+                        zoomLevel="0"
+                        hideCompass="false"
+                        showUserLocation="false"
+                        disableZoom="false"
+                        disableRotation="false"
+                        disableScroll="false"
+                        disableTilt="false"
+                        class="m-b-10"
+                        @mapReady="onMapReady"
+                    ></Mapbox>
+
                     <StackLayout
                         v-for="s in stations"
                         :key="s.sortedIndex"
@@ -62,11 +79,13 @@ import {
 
 import ScreenHeader from "./ScreenHeader";
 import StationFooterTabs from "./StationFooterTabs";
+import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 
 export default {
     data() {
         return {
-            stations: []
+            stations: [],
+            mapboxToken: MAPBOX_ACCESS_TOKEN
         };
     },
     components: {
@@ -88,6 +107,13 @@ export default {
             );
         },
 
+        onMapReady(args) {
+            this.map = args.map;
+            if (this.stations && this.stations.length > 0) {
+                this.showStations();
+            }
+        },
+
         goBack(event) {
             // Change background color when pressed
             let cn = event.object.className;
@@ -102,11 +128,74 @@ export default {
             switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationsUpdatedProperty: {
                     this.stations = data.value;
+                    if (this.stations && this.stations.length > 0) {
+                        this.showStations();
+                    }
                     break;
                 }
                 case this.$stationMonitor.StationRefreshedProperty: {
                     break;
                 }
+            }
+        },
+
+        showStations() {
+            let longMax = -180;
+            let longMin = 180;
+            let latMin = 90;
+            let latMax = -90;
+            let stationMarkers = [];
+            let mappable = this.stations.filter(s => {
+                return s.latitude && s.latitude != 1000 && s.longitude && s.longitude != 1000;
+            });
+            mappable.forEach(s => {
+                let coordinates = [s.latitude, s.longitude];
+                if (mappable.length == 1) {
+                    this.map.setCenter({
+                        lat: coordinates[0],
+                        lng: coordinates[1]
+                    });
+                    this.map.setZoomLevel({
+                        level: 14
+                    });
+                } else {
+                    if (s.latitude > latMax) {
+                        latMax = s.latitude;
+                    }
+                    if (s.latitude < latMin) {
+                        latMin = s.latitude;
+                    }
+                    if (s.longitude > longMax) {
+                        longMax = s.longitude;
+                    }
+                    if (s.longitude < longMin) {
+                        longMin = s.longitude;
+                    }
+                }
+                stationMarkers.push({
+                    lat: s.latitude,
+                    lng: s.longitude,
+                    title: s.name,
+                    subtitle: s.locationName,
+                });
+            });
+
+            this.map.addMarkers(stationMarkers);
+
+            if (mappable.length > 1) {
+                const smallLatMargin = (latMax - latMin) / 10;
+                // const smallLongMargin = (longMax - longMin) / 10;
+                this.map.setViewport(
+                    {
+                        bounds: {
+                            // zoom north out a little to fit marker
+                            north: latMax + smallLatMargin,
+                            east: longMax,
+                            south: latMin,
+                            west: longMin
+                        }
+                    }
+                );
             }
         },
 
