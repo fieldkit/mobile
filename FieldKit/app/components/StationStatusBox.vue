@@ -307,7 +307,7 @@ export default {
 #inner-circle {
     background: $fk-gray-white;
     border-width: 2;
-    border-color: $fk-gray-light;
+    border-color: $fk-primary-black;
     border-radius: 60%;
 }
 #outer-circle {
@@ -318,14 +318,15 @@ export default {
     width: 110;
     height: 110;
     margin-top: 3;
-    background: $fk-gray-light;
+    background: $fk-primary-black;
 }
+// was blue
 #outer-circle.active,
 #inner-circle.active {
-    border-color: $fk-secondary-blue;
+    border-color: $fk-primary-black;
 }
 #inner-circle.active {
-    background: $fk-secondary-blue;
+    background: $fk-primary-black;
 }
 
 .rec-time {
