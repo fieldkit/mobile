@@ -325,12 +325,13 @@ export default class DatabaseInterface {
     insertStation(station, statusJson) {
         const newStation = new Station(station);
         return this.database.execute(
-            `INSERT INTO stations (device_id, name, url, status, battery_level, available_memory, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (device_id, name, url, status, deploy_start_time, battery_level, available_memory, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.name,
                 newStation.url,
                 newStation.status,
+                newStation.deployStartTime,
                 newStation.batteryLevel,
                 newStation.availableMemory,
                 newStation.interval,
@@ -614,6 +615,7 @@ class Station {
         this.name = _station.name;
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
+        this.deployStartTime = _station.deployStartTime;
         this.batteryLevel = _station.batteryLevel;
         this.availableMemory = _station.availableMemory;
         this.interval = Math.round(Math.random() * maxInterval + minInterval);

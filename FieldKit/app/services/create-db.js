@@ -234,6 +234,7 @@ export default class CreateDB {
         station.availableMemory = Math.floor(Math.random() * Math.floor(100));
         station.longitude = -122.65397644042969;
         station.latitude = 45.500099182128906;
+        station.deployStartTime = "";
         return this.dbInterface.insertStation(station).then(id => {
             station.id = id;
             station.modules.map(m => {

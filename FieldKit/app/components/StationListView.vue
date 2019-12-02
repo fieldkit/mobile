@@ -30,15 +30,19 @@
                         @mapReady="onMapReady"
                     ></Mapbox>
 
-                    <StackLayout
+                    <GridLayout
                         v-for="s in stations"
                         :key="s.sortedIndex"
                         :id="'station-' + s.id"
+                        rows="*,*"
+                        columns="85*,15*"
                         class="station-container m-y-5 m-x-15 p-10"
                         orientation="vertical"
                         @tap="goToDetail"
                     >
                         <Label
+                            row="0"
+                            col="0"
                             :text="s.name"
                             :class="
                                 'station-name ' +
@@ -47,17 +51,19 @@
                         />
                         <Label
                             v-if="s.connected"
-                            :text="
-                                s.status == 'recording'
-                                    ? _L('recording')
-                                    : _L('connected')
-                            "
-                            :class="
-                                'stations-list ' +
-                                    (s.status ? s.status : 'connected')
-                            "
+                            row="1"
+                            col="0"
+                            :text="getDeployStatus(s)"
+                            class="m-t-5"
                         />
-                    </StackLayout>
+                        <Image
+                            col="1"
+                            rowSpan="2"
+                            width="20"
+                            v-if="s.connected"
+                            src="~/images/Icon_Connected.png"
+                        ></Image>
+                    </GridLayout>
                 </StackLayout>
             </ScrollView>
             <StackLayout horizontalAlignment="right" verticalAlignment="bottom">
@@ -124,6 +130,32 @@ export default {
             this.$navigateTo(routes.home);
         },
 
+        getDeployStatus(station) {
+            if (station.status != "recording") {
+                return "Ready to deploy";
+            }
+            // try using hardware's startedTime first
+            try {
+                // multiply by 1000 so the arg is in ms, not s
+                const start = new Date(station.statusReply.status.recording.startedTime * 1000);
+                let month = start.getMonth() + 1;
+                let day = start.getDate();
+                let year = start.getFullYear();
+                return "Deployed: " + month + "/" + day + "/" + year;
+            } catch (error) {
+                // console.log("error using hardware startedTime", error)
+            }
+            // try using db's start time
+            try {
+                let month = station.deployStartTime.getMonth() + 1;
+                let day = station.deployStartTime.getDate();
+                let year = station.deployStartTime.getFullYear();
+                return "Deployed: " + month + "/" + day + "/" + year;
+            } catch (error) {
+                return "Deployed";
+            }
+        },
+
         updateStations(data) {
             switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationsUpdatedProperty: {
@@ -149,11 +181,10 @@ export default {
                 return s.latitude && s.latitude != 1000 && s.longitude && s.longitude != 1000;
             });
             mappable.forEach(s => {
-                let coordinates = [s.latitude, s.longitude];
                 if (mappable.length == 1) {
                     this.map.setCenter({
-                        lat: coordinates[0],
-                        lng: coordinates[1]
+                        lat: s.latitude,
+                        lng: s.longitude
                     });
                     this.map.setZoomLevel({
                         level: 14
