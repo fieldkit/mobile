@@ -16,8 +16,8 @@
                 <Mapbox
                     :accessToken="mapboxToken"
                     automationText="currentLocationMap"
-                    mapStyle="satellite"
-                    height="200"
+                    mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                    height="150"
                     hideCompass="false"
                     zoomLevel="0"
                     showUserLocation="false"
@@ -215,7 +215,8 @@ export default {
                             this.mapMarker = {
                                 lat: this.station.latitude,
                                 lng: this.station.longitude,
-                                title: this.station.locationName
+                                title: this.station.locationName,
+                                iconPath: 'images/map_dot.png'
                             };
                             this.map.addMarkers([this.mapMarker]);
                             this.saveLocationCoordinates();
