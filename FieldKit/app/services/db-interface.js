@@ -618,7 +618,9 @@ class Station {
         this.deployStartTime = _station.deployStartTime;
         this.batteryLevel = _station.batteryLevel;
         this.availableMemory = _station.availableMemory;
-        this.interval = Math.round(Math.random() * maxInterval + minInterval);
+        this.interval = _station.interval
+            ? _station.interval
+            : Math.round(Math.random() * maxInterval + minInterval);
         this.longitude = _station.longitude;
         this.latitude = _station.latitude;
     }

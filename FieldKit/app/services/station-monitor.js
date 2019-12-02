@@ -221,12 +221,10 @@ export default class StationMonitor extends Observable {
         const recordingStatus = data.result.status.recording.enabled
             ? "recording"
             : "idle";
-        let deployStartTime = "";
-        try {
-            deployStartTime = new Date(data.result.status.recording.startedTime * 1000);
-        } catch (e) {
-            // console.log("error getting deploy start time", e)
-        }
+        let deployStartTime = data.result.status.recording.startedTime
+            ? new Date(data.result.status.recording.startedTime * 1000)
+            : null;
+
         const station = {
             deviceId: data.deviceId,
             name: deviceStatus.identity.device,
@@ -234,6 +232,7 @@ export default class StationMonitor extends Observable {
             status: recordingStatus,
             deployStartTime: deployStartTime,
             connected: true,
+            interval: data.result.schedules.readings.interval,
             batteryLevel: deviceStatus.power.battery.percentage,
             availableMemory:
                 100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),

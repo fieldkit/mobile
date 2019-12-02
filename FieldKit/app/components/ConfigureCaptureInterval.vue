@@ -1,65 +1,108 @@
 <template>
     <!-- Data capture interval -->
-    <GridLayout
-        rows="auto,auto,auto,auto"
-        columns="*,*"
-        class="m-x-10 m-y-10"
-        @loaded="onLoaded"
-    >
+    <StackLayout class="m-x-10 m-t-20 m-b-10">
+        <Label class="size-18" :text="_L('dataCaptureSchedule')"></Label>
         <Label
-            row="0"
-            colSpan="4"
-            class="size-20"
-            :text="_L('dataCaptureSchedule')"
-        ></Label>
-        <Label
-            row="1"
-            colSpan="2"
-            class="size-14 m-y-5"
+            class="size-12 m-y-5"
             textWrap="true"
             :text="_L('dataCaptureNotice')"
         ></Label>
-        <TextField
-            row="2"
-            col="0"
-            class="input interval-input"
-            id="interval-field"
-            :isEnabled="true"
-            verticalAligment="bottom"
-            keyboardType="name"
-            autocorrect="false"
-            autocapitalizationType="none"
-            v-model="displayInterval"
-            @blur="saveInterval"
-        ></TextField>
-        <StackLayout row="2" col="1" id="drop-down-container">
-            <DropDown
-                :items="timeUnits"
-                @selectedIndexChanged="onSelectedIndexChanged"
-                backgroundColor="#F4F5F7"
-                class="drop-down"
-                :selectedIndex="currentUnit"
-            ></DropDown>
-        </StackLayout>
-        <StackLayout row="3" col="0">
-            <Label
-                class="validation-error"
-                id="no-interval"
-                horizontalAlignment="left"
-                :text="_L('intervalRequired')"
-                textWrap="true"
-                :visibility="noInterval ? 'visible' : 'collapsed'"
-            ></Label>
-            <Label
-                class="validation-error"
-                id="interval-not-numeric"
-                horizontalAlignment="left"
-                :text="_L('intervalNotNumber')"
-                textWrap="true"
-                :visibility="intervalNotNumber ? 'visible' : 'collapsed'"
-            ></Label>
-        </StackLayout>
-    </GridLayout>
+
+        <GridLayout rows="*" columns="*" class="m-t-10">
+            <!-- nested grid layouts to achieve borders -->
+            <GridLayout row="0" col="0" class="inner-border" />
+            <GridLayout
+                row="0"
+                col="0"
+                rows="auto,auto,auto,auto"
+                columns="*,*"
+                class="m-y-10 interval-container"
+                @loaded="onLoaded"
+            >
+                <GridLayout
+                    row="0"
+                    colSpan="2"
+                    rows="*"
+                    columns="*"
+                    id="schedule-btn-container"
+                    class="m-b-20"
+                >
+                    <Label
+                        col="0"
+                        text="Scheduled"
+                        horizontalAlignment="right"
+                        :class="
+                            'schedule-type-btn ' + (daily ? '' : 'selected')
+                        "
+                        dataType="daily"
+                        @tap="switchType"
+                    ></Label>
+                    <Label
+                        col="0"
+                        text="24-hour"
+                        horizontalAlignment="left"
+                        :class="
+                            'schedule-type-btn ' + (daily ? 'selected' : '')
+                        "
+                        dataType="scheduled"
+                        @tap="switchType"
+                    ></Label>
+                </GridLayout>
+                <Label
+                    row="1"
+                    col="0"
+                    class="size-12 m-t-5"
+                    text="Every"
+                ></Label>
+                <TextField
+                    row="2"
+                    col="0"
+                    :class="
+                        !noInterval && !intervalNotNumber
+                            ? 'interval-input'
+                            : 'no-border'
+                    "
+                    id="interval-field"
+                    :isEnabled="true"
+                    verticalAligment="bottom"
+                    keyboardType="name"
+                    autocorrect="false"
+                    autocapitalizationType="none"
+                    v-model="displayInterval"
+                    @blur="saveInterval"
+                ></TextField>
+                <StackLayout row="2" col="1" id="drop-down-container">
+                    <DropDown
+                        :items="timeUnits"
+                        @selectedIndexChanged="onSelectedIndexChanged"
+                        backgroundColor="#F4F5F7"
+                        class="drop-down"
+                        :selectedIndex="currentUnit"
+                    ></DropDown>
+                </StackLayout>
+                <StackLayout row="3" col="0">
+                    <Label
+                        class="validation-error"
+                        id="no-interval"
+                        horizontalAlignment="left"
+                        :text="_L('intervalRequired')"
+                        textWrap="true"
+                        :visibility="noInterval ? 'visible' : 'collapsed'"
+                    ></Label>
+                    <Label
+                        class="validation-error"
+                        id="interval-not-numeric"
+                        horizontalAlignment="left"
+                        :text="_L('intervalNotNumber')"
+                        textWrap="true"
+                        :visibility="
+                            intervalNotNumber ? 'visible' : 'collapsed'
+                        "
+                    ></Label>
+                </StackLayout>
+            </GridLayout>
+        </GridLayout>
+    </StackLayout>
     <!-- end: Data capture interval -->
 </template>
 
@@ -72,6 +115,7 @@ const dbInterface = Services.Database();
 export default {
     data() {
         return {
+            daily: true,
             currentUnit: 0,
             origUnit: 0,
             displayInterval: "",
@@ -88,7 +132,9 @@ export default {
     },
     props: ["station"],
     methods: {
-        onLoaded() {
+        onLoaded(args) {
+            this.page = args.object;
+
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
@@ -124,7 +170,7 @@ export default {
                 // weeks
                 this.currentUnit = 4;
                 displayValue /= 604800;
-                displayValue = displayValue.toFixed(1);
+                displayValue = Math.round(displayValue);
             }
             this.displayInterval = displayValue;
         },
@@ -189,6 +235,14 @@ export default {
             // console.log(event.oldIndex, event.newIndex)
             this.currentUnit = event.newIndex;
             this.saveInterval();
+        },
+
+        switchType(event) {
+            this.daily = event.object.dataType != "daily";
+
+            let container = this.page.getViewById("schedule-btn-container");
+            container.removeChild(event.object);
+            container.addChild(event.object);
         }
     }
 };
@@ -199,16 +253,34 @@ export default {
 @import "../app-variables";
 // End custom common variables
 // Custom styles
+.interval-container {
+    padding-bottom: 40;
+    padding-left: 20;
+    padding-right: 20;
+}
+
 #interval-field {
     padding: 0;
+    margin-right: 20;
     font-size: 18;
-    width: 50%;
+}
+.interval-input {
     border-bottom-width: 1;
     border-bottom-color: $fk-primary-black;
 }
+.no-border {
+    border-bottom-width: 1;
+    border-bottom-color: white;
+}
+
+.inner-border {
+    margin-top: 30;
+    border-width: 1;
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+}
 
 .validation-error {
-    width: 195;
     font-size: 12;
     color: $fk-tertiary-red;
     border-top-color: $fk-tertiary-red;
@@ -216,11 +288,19 @@ export default {
     padding-top: 5;
 }
 
-.interval-input {
-    font-size: 18;
-    width: 50%;
-    padding: 5;
-    border-bottom-width: 1;
-    border-bottom-color: $fk-primary-black;
+.schedule-type-btn {
+    width: 55%;
+    text-align: center;
+    background-color: white;
+    color: $fk-gray-light;
+    border-radius: 20;
+    border-width: 1;
+    border-color: $fk-gray-lighter;
+    padding-top: 10;
+    padding-bottom: 10;
+}
+#schedule-btn-container .selected {
+    background-color: $fk-primary-black;
+    color: white;
 }
 </style>

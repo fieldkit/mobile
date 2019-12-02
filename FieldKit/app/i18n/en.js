@@ -1,7 +1,7 @@
 module.exports = {
     // ConfigureModuleView
     dataCaptureSchedule: "Data capture schedule",
-    dataCaptureNotice: "More frequent data reduces the battery quicker",
+    dataCaptureNotice: "Frequent data capture drains the battery at a quicker rate",
     intervalRequired: "Interval must not be blank.",
     intervalNotNumber: "Interval must be a number.",
     seconds: "seconds",
