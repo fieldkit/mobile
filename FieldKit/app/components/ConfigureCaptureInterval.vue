@@ -50,11 +50,55 @@
                 <!-- end grid for schedule type buttons -->
 
                 <!-- interval definitions, as many as needed -->
-                <StackLayout row="1" v-for="interval in intervals" :key="interval.id">
-                    <StackLayout v-if="!daily" class="slider-container">
-                        <Label text="(hour slider)" />
+                <StackLayout
+                    row="1"
+                    v-for="interval in intervals"
+                    :key="interval.id"
+                >
+                    <!-- slider only shows if not daily -->
+                    <StackLayout v-if="!daily && !ios" class="m-b-20">
+                        <GridLayout rows="auto, auto, auto" columns="*">
+                            <Label
+                                row="0"
+                                class="size-16 bold m-t-15 m-b-20"
+                                :text="interval.displayRange"
+                            ></Label>
+                            <RangeSeekBar
+                                row="1"
+                                minValue="0"
+                                maxValue="24"
+                                :minStartValue="interval.startMin"
+                                :maxStartValue="interval.startMax"
+                                minRange="1"
+                                step="1"
+                                :id="'range-seek-' + interval.id"
+                                @rangeSeekBarChanged="
+                                    onRangeSeekBarChanged($event, interval)
+                                "
+                                class="range-seek-bar"
+                            ></RangeSeekBar>
+                            <Label
+                                row="2"
+                                class="size-12 m-t-5"
+                                horizontalAlignment="left"
+                                text="12 am"
+                            ></Label>
+                            <Label
+                                row="2"
+                                class="size-12 m-t-5"
+                                horizontalAlignment="center"
+                                text="12 pm"
+                            ></Label>
+                            <Label
+                                row="2"
+                                class="size-12 m-t-5"
+                                horizontalAlignment="right"
+                                text="12 am"
+                            ></Label>
+                        </GridLayout>
                     </StackLayout>
-                    <GridLayout rows="auto,auto,auto", columns="*,*">
+                    <!-- end slider -->
+                    <GridLayout rows="auto,auto,auto" , columns="*,*">
                         <Label
                             row="0"
                             col="0"
@@ -66,9 +110,10 @@
                             col="0"
                             :class="
                                 'interval-field ' +
-                                !interval.noInterval && !interval.intervalNotNumber
-                                    ? 'interval-input'
-                                    : 'no-border'
+                                    (!interval.noInterval &&
+                                    !interval.intervalNotNumber
+                                        ? 'interval-input'
+                                        : 'no-border')
                             "
                             verticalAligment="bottom"
                             keyboardType="name"
@@ -77,11 +122,15 @@
                             v-model="interval.display"
                             @blur="saveInterval"
                         ></TextField>
-                        <StackLayout row="1" col="1" class="drop-down-container">
+                        <StackLayout
+                            row="1"
+                            col="1"
+                            class="drop-down-container"
+                        >
                             <DropDown
                                 :items="timeUnits"
-                                :id="interval.id"
-                                @selectedIndexChanged="onSelectedIndexChanged"
+                                :id="'drop-down-' + interval.id"
+                                @selectedIndexChanged="onDropDownSelection"
                                 backgroundColor="#F4F5F7"
                                 class="drop-down"
                                 :selectedIndex="interval.unit"
@@ -93,7 +142,11 @@
                                 horizontalAlignment="left"
                                 :text="_L('intervalRequired')"
                                 textWrap="true"
-                                :visibility="interval.noInterval ? 'visible' : 'collapsed'"
+                                :visibility="
+                                    interval.noInterval
+                                        ? 'visible'
+                                        : 'collapsed'
+                                "
                             ></Label>
                             <Label
                                 class="validation-error"
@@ -101,15 +154,19 @@
                                 :text="_L('intervalNotNumber')"
                                 textWrap="true"
                                 :visibility="
-                                    interval.intervalNotNumber ? 'visible' : 'collapsed'
+                                    interval.intervalNotNumber
+                                        ? 'visible'
+                                        : 'collapsed'
                                 "
                             ></Label>
                         </StackLayout>
                     </GridLayout>
+                    <!-- ready to allow addition of more intervals if not daily -->
                     <FlexboxLayout
                         justifyContent="center"
                         class="m-t-30"
-                        v-if="!daily">
+                        v-if="!daily"
+                    >
                         <Image src="~/images/add.png" width="20" />
                         <Label text="Add Time" class="p-l-5"></Label>
                     </FlexboxLayout>
@@ -123,6 +180,8 @@
 
 <script>
 import Services from "../services/services";
+// *** TEMP ***
+import { isIOS } from "tns-core-modules/platform";
 
 const queryStation = Services.QueryStation();
 const dbInterface = Services.Database();
@@ -130,6 +189,7 @@ const dbInterface = Services.Database();
 export default {
     data() {
         return {
+            ios: isIOS,
             daily: true,
             intervals: [],
             timeUnits: [
@@ -158,7 +218,10 @@ export default {
                 display: converted.display,
                 unit: converted.unit,
                 noInterval: false,
-                intervalNotNumber: false
+                intervalNotNumber: false,
+                startMin: 0,
+                startMax: 6,
+                displayRange: "12am - 6am"
             };
             this.intervals.push(interval);
         },
@@ -191,7 +254,7 @@ export default {
                 displayValue /= 604800;
                 displayValue = Math.round(displayValue);
             }
-            return {display: displayValue, unit: unit};
+            return { display: displayValue, unit: unit };
         },
 
         convertToSeconds(interval) {
@@ -261,8 +324,8 @@ export default {
             });
         },
 
-        onSelectedIndexChanged(event) {
-            let id = event.object.id;
+        onDropDownSelection(event) {
+            let id = event.object.id.split("drop-down-")[1];
             let interval = this.intervals.find(i => {
                 return i.id == id;
             });
@@ -276,6 +339,21 @@ export default {
             let container = this.page.getViewById("schedule-btn-container");
             container.removeChild(event.object);
             container.addChild(event.object);
+        },
+
+        onRangeSeekBarChanged(event, interval) {
+            interval.minRange = event.value.minValue;
+            interval.maxRange = event.value.maxValue;
+            const minSuffix = interval.minRange < 12 ? "am" : "pm";
+            const maxSuffix = interval.maxRange < 12 ? "am" : "pm";
+            const min =
+                interval.minRange % 12 == 0 ? 12 : interval.minRange % 12;
+            const max =
+                interval.maxRange % 12 == 0 ? 12 : interval.maxRange % 12;
+            interval.displayRange = min + minSuffix + " - " + max + maxSuffix;
+            // *** TEMP ***
+            // not saving these because firmware doesn't support it yet
+            // also it doesn't work at all in iOS
         }
     }
 };
@@ -312,13 +390,17 @@ export default {
     background-color: $fk-primary-black;
     color: white;
 }
-.slider-container {
-    text-align: center;
+.range-seek-bar {
+    bar-color: $fk-gray-light;
+    bar-highlight-color: $fk-primary-blue;
+    thumb-color: $fk-primary-blue;
+    bar-height: 20;
+    corner-radius: 10;
 }
 .interval-field {
     padding: 0;
-    margin-right: 20;
     font-size: 18;
+    margin-right: 20;
 }
 .interval-input {
     border-bottom-width: 1;
@@ -329,6 +411,7 @@ export default {
     border-bottom-color: white;
 }
 .validation-error {
+    margin-right: 20;
     font-size: 12;
     color: $fk-tertiary-red;
     border-top-color: $fk-tertiary-red;

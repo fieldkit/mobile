@@ -181,7 +181,7 @@ export default {
                 return s.latitude && s.latitude != 1000 && s.longitude && s.longitude != 1000;
             });
             mappable.forEach(s => {
-                if (mappable.length == 1) {
+                if (mappable.length == 1 && this.map) {
                     this.map.setCenter({
                         lat: s.latitude,
                         lng: s.longitude
