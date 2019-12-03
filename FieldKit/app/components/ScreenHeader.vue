@@ -1,6 +1,6 @@
 <template>
     <!-- Fix Invalid handler when these aren't provdied? -->
-    <GridLayout rows="auto" columns="15*,70*,15*">
+    <GridLayout rows="auto" columns="15*,70*,15*" class="m-b-20">
         <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="onBack" v-if="canNavigateBack">
             <Image width="21" src="~/images/Icon_backarrow.png"></Image>
         </StackLayout>

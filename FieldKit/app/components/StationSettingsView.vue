@@ -149,7 +149,7 @@
                             <Image
                                 col="0"
                                 src="~/images/add.png"
-                                width="30"
+                                width="20"
                             ></Image>
                             <Label
                                 col="1"
@@ -224,7 +224,7 @@
                             <Image
                                 col="0"
                                 src="~/images/add.png"
-                                width="30"
+                                width="20"
                             ></Image>
                             <Label
                                 col="1"

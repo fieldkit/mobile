@@ -1,6 +1,6 @@
 <template>
     <!-- Data capture interval -->
-    <StackLayout class="m-x-10 m-t-20 m-b-10">
+    <StackLayout class="m-x-10 m-t-20 m-b-10" @loaded="onLoaded">
         <Label class="size-18" :text="_L('dataCaptureSchedule')"></Label>
         <Label
             class="size-12 m-y-5"
@@ -14,14 +14,13 @@
             <GridLayout
                 row="0"
                 col="0"
-                rows="auto,auto,auto,auto"
-                columns="*,*"
+                rows="auto,auto"
+                columns="*"
                 class="m-y-10 interval-container"
-                @loaded="onLoaded"
             >
+                <!-- grid for schedule type buttons -->
                 <GridLayout
                     row="0"
-                    colSpan="2"
                     rows="*"
                     columns="*"
                     id="schedule-btn-container"
@@ -48,58 +47,74 @@
                         @tap="switchType"
                     ></Label>
                 </GridLayout>
-                <Label
-                    row="1"
-                    col="0"
-                    class="size-12 m-t-5"
-                    text="Every"
-                ></Label>
-                <TextField
-                    row="2"
-                    col="0"
-                    :class="
-                        !noInterval && !intervalNotNumber
-                            ? 'interval-input'
-                            : 'no-border'
-                    "
-                    id="interval-field"
-                    :isEnabled="true"
-                    verticalAligment="bottom"
-                    keyboardType="name"
-                    autocorrect="false"
-                    autocapitalizationType="none"
-                    v-model="displayInterval"
-                    @blur="saveInterval"
-                ></TextField>
-                <StackLayout row="2" col="1" id="drop-down-container">
-                    <DropDown
-                        :items="timeUnits"
-                        @selectedIndexChanged="onSelectedIndexChanged"
-                        backgroundColor="#F4F5F7"
-                        class="drop-down"
-                        :selectedIndex="currentUnit"
-                    ></DropDown>
+                <!-- end grid for schedule type buttons -->
+
+                <!-- interval definitions, as many as needed -->
+                <StackLayout row="1" v-for="interval in intervals" :key="interval.id">
+                    <StackLayout v-if="!daily" class="slider-container">
+                        <Label text="(hour slider)" />
+                    </StackLayout>
+                    <GridLayout rows="auto,auto,auto", columns="*,*">
+                        <Label
+                            row="0"
+                            col="0"
+                            class="size-12 m-t-5"
+                            text="Every"
+                        ></Label>
+                        <TextField
+                            row="1"
+                            col="0"
+                            :class="
+                                'interval-field ' +
+                                !interval.noInterval && !interval.intervalNotNumber
+                                    ? 'interval-input'
+                                    : 'no-border'
+                            "
+                            verticalAligment="bottom"
+                            keyboardType="name"
+                            autocorrect="false"
+                            autocapitalizationType="none"
+                            v-model="interval.display"
+                            @blur="saveInterval"
+                        ></TextField>
+                        <StackLayout row="1" col="1" class="drop-down-container">
+                            <DropDown
+                                :items="timeUnits"
+                                :id="interval.id"
+                                @selectedIndexChanged="onSelectedIndexChanged"
+                                backgroundColor="#F4F5F7"
+                                class="drop-down"
+                                :selectedIndex="interval.unit"
+                            ></DropDown>
+                        </StackLayout>
+                        <StackLayout row="2" col="0">
+                            <Label
+                                class="validation-error"
+                                horizontalAlignment="left"
+                                :text="_L('intervalRequired')"
+                                textWrap="true"
+                                :visibility="interval.noInterval ? 'visible' : 'collapsed'"
+                            ></Label>
+                            <Label
+                                class="validation-error"
+                                horizontalAlignment="left"
+                                :text="_L('intervalNotNumber')"
+                                textWrap="true"
+                                :visibility="
+                                    interval.intervalNotNumber ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
+                        </StackLayout>
+                    </GridLayout>
+                    <FlexboxLayout
+                        justifyContent="center"
+                        class="m-t-30"
+                        v-if="!daily">
+                        <Image src="~/images/add.png" width="20" />
+                        <Label text="Add Time" class="p-l-5"></Label>
+                    </FlexboxLayout>
                 </StackLayout>
-                <StackLayout row="3" col="0">
-                    <Label
-                        class="validation-error"
-                        id="no-interval"
-                        horizontalAlignment="left"
-                        :text="_L('intervalRequired')"
-                        textWrap="true"
-                        :visibility="noInterval ? 'visible' : 'collapsed'"
-                    ></Label>
-                    <Label
-                        class="validation-error"
-                        id="interval-not-numeric"
-                        horizontalAlignment="left"
-                        :text="_L('intervalNotNumber')"
-                        textWrap="true"
-                        :visibility="
-                            intervalNotNumber ? 'visible' : 'collapsed'
-                        "
-                    ></Label>
-                </StackLayout>
+                <!-- end interval definitions -->
             </GridLayout>
         </GridLayout>
     </StackLayout>
@@ -116,11 +131,7 @@ export default {
     data() {
         return {
             daily: true,
-            currentUnit: 0,
-            origUnit: 0,
-            displayInterval: "",
-            noInterval: false,
-            intervalNotNumber: false,
+            intervals: [],
             timeUnits: [
                 _L("seconds"),
                 _L("minutes"),
@@ -138,102 +149,124 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            this.origInterval = this.station.interval;
-            this.convertFromSeconds();
-            // save original time unit created in convertFromSeconds()
-            this.origUnit = this.currentUnit;
+            let converted = this.convertFromSeconds(this.station.interval);
+            let interval = {
+                id: 1,
+                origValue: this.station.interval,
+                origUnit: converted.unit,
+                value: this.station.interval,
+                display: converted.display,
+                unit: converted.unit,
+                noInterval: false,
+                intervalNotNumber: false
+            };
+            this.intervals.push(interval);
         },
 
-        convertFromSeconds() {
-            let displayValue = this.station.interval;
-            // this.currentUnit is an index into timeUnits:
+        convertFromSeconds(interval) {
+            let displayValue = interval;
+            let unit = 0;
+            // unit is an index into timeUnits:
             // timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
-            if (this.station.interval < 60) {
-                // seconds
-                this.currentUnit = 0;
-            } else if (this.station.interval < 3600) {
+            if (interval < 60) {
+                // already set to seconds
+            } else if (interval < 3600) {
                 // minutes
-                this.currentUnit = 1;
+                unit = 1;
                 displayValue /= 60;
                 displayValue = Math.round(displayValue);
-            } else if (this.station.interval < 86400) {
+            } else if (interval < 86400) {
                 // hours
-                this.currentUnit = 2;
+                unit = 2;
                 displayValue /= 3600;
                 displayValue = Math.round(displayValue);
-            } else if (this.station.interval < 604800) {
+            } else if (interval < 604800) {
                 // days
-                this.currentUnit = 3;
+                unit = 3;
                 displayValue /= 86400;
                 displayValue = Math.round(displayValue);
             } else {
                 // weeks
-                this.currentUnit = 4;
+                unit = 4;
                 displayValue /= 604800;
                 displayValue = Math.round(displayValue);
             }
-            this.displayInterval = displayValue;
+            return {display: displayValue, unit: unit};
         },
 
-        convertToSeconds() {
-            switch (this.currentUnit) {
+        convertToSeconds(interval) {
+            switch (interval.unit) {
                 case 0:
-                    this.station.interval = this.displayInterval;
+                    interval.value = interval.display;
                     break;
                 case 1:
-                    this.station.interval = this.displayInterval * 60;
+                    interval.value = interval.display * 60;
                     break;
                 case 2:
-                    this.station.interval = this.displayInterval * 3600;
+                    interval.value = interval.display * 3600;
                     break;
                 case 3:
-                    this.station.interval = this.displayInterval * 86400;
+                    interval.value = interval.display * 86400;
                     break;
                 case 4:
-                    this.station.interval = this.displayInterval * 604800;
+                    interval.value = interval.display * 604800;
                     break;
                 default:
                     break;
             }
         },
 
-        checkInterval() {
+        checkInterval(interval) {
             // reset these first
-            this.noInterval = false;
-            this.intervalNotNumber = false;
+            interval.noInterval = false;
+            interval.intervalNotNumber = false;
             // then check
-            this.noInterval =
-                !this.displayInterval ||
-                this.displayInterval == 0 ||
-                this.displayInterval.length == 0;
-            if (this.noInterval) {
+            interval.noInterval =
+                !interval.display ||
+                interval.display == 0 ||
+                interval.display.length == 0;
+            if (interval.noInterval) {
                 return false;
             }
-            this.intervalNotNumber = isNaN(this.displayInterval);
-            return !this.intervalNotNumber;
+            interval.intervalNotNumber = isNaN(interval.display);
+            return !interval.intervalNotNumber;
         },
 
         saveInterval() {
-            let valid = this.checkInterval();
-            if (valid) {
-                this.convertToSeconds(); // assigns displayInterval to this.station.interval
-                if (this.origInterval != this.station.interval) {
-                    // send to station
-                    queryStation.setInterval(this.station).then(result => {
-                        // console.log("sent interval and received", result);
-                    });
+            this.intervals.forEach(interval => {
+                let valid = this.checkInterval(interval);
+                if (valid) {
+                    let convertedBack = this.convertToSeconds(interval);
+                    if (interval.origValue != interval.value) {
+                        // send to station
 
-                    // save to database
-                    dbInterface.setStationInterval(this.station);
-                    this.origInterval = this.station.interval;
-                    this.origUnit = this.currentUnit;
+                        // *** TEMP ***
+                        // because firmware doesn't support multiple intervals yet
+                        // just send each one, the last one will be it for now
+                        this.station.interval = interval.value;
+                        queryStation.setInterval(this.station).then(result => {
+                            // console.log("sent interval and received", result);
+                        });
+
+                        // save to database
+
+                        // *** TEMP ***
+                        // database also doesn't support multiple intervals yet
+                        // just keep in sync with station for npw
+                        dbInterface.setStationInterval(this.station);
+                        interval.origValue = interval.value;
+                        interval.origUnit = interval.unit;
+                    }
                 }
-            }
+            });
         },
 
         onSelectedIndexChanged(event) {
-            // console.log(event.oldIndex, event.newIndex)
-            this.currentUnit = event.newIndex;
+            let id = event.object.id;
+            let interval = this.intervals.find(i => {
+                return i.id == id;
+            });
+            interval.unit = event.newIndex;
             this.saveInterval();
         },
 
@@ -254,40 +287,16 @@ export default {
 // End custom common variables
 // Custom styles
 .interval-container {
-    padding-bottom: 40;
+    padding-bottom: 30;
     padding-left: 20;
     padding-right: 20;
 }
-
-#interval-field {
-    padding: 0;
-    margin-right: 20;
-    font-size: 18;
-}
-.interval-input {
-    border-bottom-width: 1;
-    border-bottom-color: $fk-primary-black;
-}
-.no-border {
-    border-bottom-width: 1;
-    border-bottom-color: white;
-}
-
 .inner-border {
     margin-top: 30;
     border-width: 1;
     border-radius: 4;
     border-color: $fk-gray-lighter;
 }
-
-.validation-error {
-    font-size: 12;
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
-}
-
 .schedule-type-btn {
     width: 55%;
     text-align: center;
@@ -302,5 +311,33 @@ export default {
 #schedule-btn-container .selected {
     background-color: $fk-primary-black;
     color: white;
+}
+.slider-container {
+    text-align: center;
+}
+.interval-field {
+    padding: 0;
+    margin-right: 20;
+    font-size: 18;
+}
+.interval-input {
+    border-bottom-width: 1;
+    border-bottom-color: $fk-primary-black;
+}
+.no-border {
+    border-bottom-width: 1;
+    border-bottom-color: white;
+}
+.validation-error {
+    font-size: 12;
+    color: $fk-tertiary-red;
+    border-top-color: $fk-tertiary-red;
+    border-top-width: 2;
+    padding-top: 5;
+}
+.drop-down-container {
+    border-radius: 4;
+    border-width: 1;
+    border-color: $fk-gray-lighter;
 }
 </style>
