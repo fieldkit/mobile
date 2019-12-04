@@ -40,14 +40,26 @@
 
                     <StackLayout class="m-t-20">
                         <Label text="Photos (required)" class="size-12 m-b-10"></Label>
-                        <StackLayout class="photo-btn" horizontalAlignment="left">
-                            <Image
-                                src="~/images/add.png"
-                                width="20"
-                                opacity="0.25"
-                                class="photo-btn-img"
-                            />
-                        </StackLayout>
+                        <WrapLayout orientation="horizontal">
+                            <StackLayout
+                                v-for="photo in photos"
+                                :key="photo.id"
+                                class="photo-display"
+                            >
+                                <Image
+                                    :src="photo.src"
+                                    stretch="aspectFit"
+                                />
+                            </StackLayout>
+                            <StackLayout class="photo-btn" @tap="onPhotoTap">
+                                <Image
+                                    src="~/images/add.png"
+                                    width="20"
+                                    opacity="0.25"
+                                    class="photo-btn-img"
+                                />
+                            </StackLayout>
+                        </WrapLayout>
                     </StackLayout>
 
                     <StackLayout class="m-t-30">
@@ -72,12 +84,21 @@
 </template>
 
 <script>
+import { Folder, path, knownFolders } from "tns-core-modules/file-system";
+import { ImageSource, fromFile } from "tns-core-modules/image-source";
+import { takePicture, requestPermissions } from "nativescript-camera";
+import * as imagepicker from "nativescript-imagepicker";
+import * as dialogs from "tns-core-modules/ui/dialogs";
 import ScreenHeader from "./ScreenHeader";
 import Services from "../services/services";
 import routes from "../routes";
 
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
+
+const documents = knownFolders.documents();
+const folder = documents.getFolder("FieldKitImages");
+const source = new ImageSource();
 
 export default {
     data() {
@@ -87,7 +108,13 @@ export default {
             objective: "Click to add your study objective",
             locationPurpose: "Click to add the purpose of your site location",
             criteria: "Click to add your site criteria",
-            description: "Click to add your site description"
+            description: "Click to add your site description",
+            photos: [],
+            saveToGallery: true,
+            allowsEditing: true,
+            keepAspectRatio: true,
+            imageSrc: null,
+            havePhoto: false,
         };
     },
     props: ["station"],
@@ -147,10 +174,113 @@ export default {
                 // add additional notes
             });
 
-            this.fieldMedia.forEach(img => {
-                // display images
+            this.photos = [];
+            this.fieldMedia.forEach((img, i) => {
+                // load previously saved images
+                const dest = path.join(folder.path, img.imageName);
+                const imageFromLocalFile = fromFile(dest);
+                this.photos.push({
+                    id: i,
+                    src: imageFromLocalFile
+                });
+                this.havePhoto = true;
             });
-        }
+        },
+
+        onPhotoTap(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            dialogs
+                .action({
+                    message: _L("addPhoto"),
+                    cancelButtonText: _L("cancel"),
+                    actions: [_L("takePicture"), _L("selectFromGallery")]
+                })
+                .then(result => {
+                    if (result == _L("takePicture")) {
+                        this.takePicture();
+                    } else if (result == _L("selectFromGallery")) {
+                        this.selectPicture();
+                    }
+                });
+        },
+
+        takePicture() {
+            requestPermissions().then(
+                () => {
+                    takePicture({
+                        keepAspectRatio: this.keepAspectRatio,
+                        saveToGallery: this.saveToGallery,
+                        allowsEditing: this.allowsEditing
+                    }).then(
+                        imageAsset => {
+                            this.imageSrc = imageAsset;
+                            this.savePicture();
+                            this.havePhoto = true;
+                        },
+                        err => {
+                            // console.log("Error -> " + err.message);
+                        }
+                    );
+                },
+                () => {
+                    // console.log('Camera permissions rejected');
+                }
+            );
+        },
+
+        selectPicture() {
+            let context = imagepicker.create({
+                mode: "single" // only one picture can be selected
+            });
+            context
+                .authorize()
+                .then(() => {
+                    this.imageSrc = null;
+                    return context.present();
+                })
+                .then(selection => {
+                    this.imageSrc = selection[0];
+                    this.savePicture();
+                    this.havePhoto = true;
+                })
+                .catch(e => {
+                    // console.log(e);
+                });
+        },
+
+        savePicture() {
+            const name = this.station.id + "_img_" + Date.now() + ".jpg";
+            const dest = path.join(folder.path, name);
+            let media = {
+                stationId: this.station.id,
+                imageName: name,
+                imageLabel: "",
+                category: "default",
+                author: this.userName
+            };
+            dbInterface.insertFieldMedia(media);
+
+            source.fromAsset(this.imageSrc).then(
+                imageSource => {
+                    let saved = imageSource.saveToFile(dest, "jpg");
+                    if (saved) {
+                        // send image to portal as field note media
+                        let params = { stationId: this.station.id, pathDest: dest };
+                        this.$portalInterface.addFieldNoteMedia(params).then(result => {
+                            // console.log("result? ---->", result)
+                        });
+                    }
+                },
+                error => {
+                    // console.log("Error saving image", error);
+                }
+            );
+        },
     }
 };
 </script>
@@ -175,9 +305,11 @@ export default {
     margin-bottom: 10;
 }
 
+.photo-display,
 .photo-btn {
     width: 100;
     height: 100;
+    margin: 20;
     background-color: $fk-gray-lightest;
 }
 .photo-btn-img {
