@@ -70,7 +70,7 @@
                 <Label text="dev" class="dev-link" @doubleTap="showDev" />
             </StackLayout>
             <!-- footer -->
-            <StationFooterTabs row="1" :station="station" active="stations" />
+            <ScreenFooter row="1" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -84,7 +84,7 @@ import {
 } from "tns-core-modules/data/observable";
 
 import ScreenHeader from "./ScreenHeader";
-import StationFooterTabs from "./StationFooterTabs";
+import ScreenFooter from "./ScreenFooter";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 
 export default {
@@ -96,7 +96,7 @@ export default {
     },
     components: {
         ScreenHeader,
-        StationFooterTabs
+        ScreenFooter
     },
     props: {
         station: Object,

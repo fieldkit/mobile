@@ -22,7 +22,7 @@
             </ScrollView>
 
             <!-- footer -->
-            <StationFooterTabs row="1" :station="activeStation" active="stations" />
+            <ScreenFooter row="1" :station="activeStation" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -38,7 +38,7 @@ import Config from "../config";
 import StationStatusBox from "./StationStatusBox";
 import ModuleListView from "./ModuleListView";
 import ScreenHeader from "./ScreenHeader";
-import StationFooterTabs from "./StationFooterTabs";
+import ScreenFooter from "./ScreenFooter";
 
 const log = Config.logger("StationDetailView");
 
@@ -58,7 +58,7 @@ export default {
         ScreenHeader,
         StationStatusBox,
         ModuleListView,
-        StationFooterTabs
+        ScreenFooter
     },
     props: {
         stationId: {

@@ -1,5 +1,5 @@
-import ConfigureModule from "../components/ConfigureModuleView";
-import DataDownload from "../components/DataDownloadView";
+import ConfigureModule from "../components/unused/ConfigureModuleView";
+import DataSync from "../components/DataSyncView";
 import DeployMap from "../components/DeployMapView";
 import DeployNotes from "../components/DeployNotesView";
 import Home from "../components/HomeView";
@@ -11,7 +11,7 @@ import StationSettings from "../components/StationSettingsView";
 
 const routes = {
     configureModule: ConfigureModule,
-    dataDownload: DataDownload,
+    dataSync: DataSync,
     deployMap: DeployMap,
     deployNotes: DeployNotes,
     home: Home,

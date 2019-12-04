@@ -359,7 +359,7 @@
                 </FlexboxLayout>
             </ScrollView>
 
-            <StationFooterTabs row="1" :station="station" active="stations" />
+            <ScreenFooter row="1" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -368,7 +368,7 @@
 import routes from "../routes";
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
 import ScreenHeader from "./ScreenHeader";
-import StationFooterTabs from "./StationFooterTabs";
+import ScreenFooter from "./ScreenFooter";
 import Services from "../services/services";
 import { hexStringToByteWiseString } from "../utilities";
 import { Build } from "../config";
@@ -409,7 +409,7 @@ export default {
     components: {
         ScreenHeader,
         ConfigureCaptureInterval,
-        StationFooterTabs
+        ScreenFooter
     },
     methods: {
         onPageLoaded(args) {

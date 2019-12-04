@@ -66,7 +66,7 @@ import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
 
-const log = Config.logger("StationFooterTabs");
+const log = Config.logger("ScreenFooter");
 
 export default {
     data() {
@@ -97,7 +97,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.dataDownload);
+            this.$navigateTo(routes.dataSync);
         },
 
         goToSettings() {}

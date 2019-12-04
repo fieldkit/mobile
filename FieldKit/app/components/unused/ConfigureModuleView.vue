@@ -180,16 +180,16 @@
                 <!-- end: Data capture interval -->
 
                 <!-- footer -->
-                <StationFooterTabs :station="station" active="stations" />
+                <ScreenFooter :station="station" active="stations" />
             </FlexboxLayout>
         </ScrollView>
     </Page>
 </template>
 
 <script>
-import routes from "../routes";
-import Services from "../services/services";
-import StationFooterTabs from "./StationFooterTabs";
+import routes from "../../routes";
+import Services from "../../services/services";
+import ScreenFooter from "../ScreenFooter";
 
 const dbInterface = Services.Database();
 
@@ -219,7 +219,7 @@ export default {
     },
     props: ["moduleId", "station", "origin"],
     components: {
-        StationFooterTabs
+        ScreenFooter
     },
     methods: {
         onPageLoaded(args) {
@@ -408,7 +408,7 @@ export default {
 
 <style scoped lang="scss">
 // Start custom common variables
-@import "../app-variables";
+@import "../../app-variables";
 // End custom common variables
 
 // Custom styles

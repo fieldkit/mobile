@@ -128,7 +128,7 @@
                 </StackLayout>
 
                 <!-- footer -->
-                <StationFooterTabs :station="station" active="stations" />
+                <ScreenFooter :station="station" active="stations" />
             </FlexboxLayout>
         </ScrollView>
     </Page>
@@ -138,7 +138,7 @@
 import routes from "../routes";
 import Services from "../services/services";
 import ScreenHeader from "./ScreenHeader";
-import StationFooterTabs from "./StationFooterTabs";
+import ScreenFooter from "./ScreenFooter";
 
 const dbInterface = Services.Database();
 
@@ -163,7 +163,7 @@ export default {
     props: ["moduleId", "station"],
     components: {
         ScreenHeader,
-        StationFooterTabs
+        ScreenFooter
     },
     methods: {
         onPageLoaded(args) {
