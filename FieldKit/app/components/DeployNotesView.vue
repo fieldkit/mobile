@@ -1,7 +1,10 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <StackLayout class="p-t-10">
+            <FlexboxLayout
+                flexDirection="column"
+                class="p-t-10"
+            >
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="stationName"
@@ -9,137 +12,66 @@
                     :canNavigateSettings="false"
                 />
 
-                <!-- Add audio note and photo -->
-                <GridLayout rows="auto" columns="*,*" class="m-x-10 m-t-20">
-                    <StackLayout
-                        row="0"
-                        col="0"
-                        class="col left-col"
-                        automationText="addAudioNote"
-                        @tap="onAudioTap"
-                    >
+                <StackLayout class="m-x-20">
+                    <StackLayout class="m-b-20">
+                        <Label text="Field Notes" class="size-18 m-b-10"></Label>
                         <Label
-                            class="text-center size-18"
-                            :text="_L('audioNotes')"
+                            text="Provide details about your station location and objective."
+                            textWrap="true"
+                            class="size-12"
                         ></Label>
                     </StackLayout>
-                    <StackLayout
-                        row="0"
-                        col="1"
-                        class="col right-col"
-                        automationText="addPhoto"
-                        @tap="onPhotoTap"
-                    >
-                        <Label
-                            class="text-center size-18"
-                            :text="_L('photo')"
-                        ></Label>
+                    <StackLayout class="note-section">
+                        <Label text="Study Objective" class="size-16 m-b-5"></Label>
+                        <Label :text="objective" class="size-12 m-b-10"></Label>
                     </StackLayout>
-                </GridLayout>
-                <!-- end: Add audio note and photo -->
+                    <StackLayout class="note-section">
+                        <Label text="Purpose of Site Location" class="size-16 m-b-5"></Label>
+                        <Label :text="locationPurpose" class="size-12 m-b-10"></Label>
+                    </StackLayout>
+                    <StackLayout class="note-section">
+                        <Label text="Site Criteria" class="size-16 m-b-5"></Label>
+                        <Label :text="criteria" class="size-12 m-b-10"></Label>
+                    </StackLayout>
+                    <StackLayout class="note-section">
+                        <Label text="Site Description" class="size-16 m-b-5"></Label>
+                        <Label :text="description" class="size-12 m-b-10"></Label>
+                    </StackLayout>
 
-                <!-- Add text note -->
-                <GridLayout rows="auto" , columns="*" class="m-10">
-                    <TextView
-                        class="size-18"
-                        id="note-text-field"
-                        :hint="_L('notesInstructions')"
-                        v-model="noteText"
-                        @blur="saveNote"
-                        textWrap="true"
-                    ></TextView>
-                </GridLayout>
-                <!-- end: Add text note -->
+                    <StackLayout class="m-t-20">
+                        <Label text="Photos (required)" class="size-12 m-b-10"></Label>
+                        <StackLayout class="photo-btn" horizontalAlignment="left">
+                            <Image
+                                src="~/images/add.png"
+                                width="20"
+                                opacity="0.25"
+                                class="photo-btn-img"
+                            />
+                        </StackLayout>
+                    </StackLayout>
 
-                <!-- List audio recordings -->
-                <GridLayout
-                    rows="auto"
-                    columns="90*,10*"
-                    v-for="(r, recordingIndex) in displayRecordings"
-                    :key="r"
-                    class="link-style"
-                    orientation="vertical"
-                >
-                    <Label
-                        col="0"
-                        :text="r"
-                        :data="r"
-                        :automationText="'audioRecording' + recordingIndex"
-                        textWrap="true"
-                        @tap="playAudio"
-                    />
-                    <Image
-                        col="1"
-                        width="17"
-                        class="small-round"
-                        :automationText="
-                            'removeAudioRecording' + recordingIndex
-                        "
-                        :data="r"
-                        @tap="removeRecording"
-                        src="~/images/Icon_Close.png"
-                    ></Image>
-                </GridLayout>
-                <!-- end: List audio recordings -->
+                    <StackLayout class="m-t-30">
+                        <Label text="Additional Notes" class="size-12 m-b-10"></Label>
+                    </StackLayout>
 
-                <!-- Add photo -->
-                <GridLayout
-                    rows="*, auto"
-                    columns="*"
-                    v-show="havePhoto"
-                    class="m-10 photo-label"
-                >
-                    <Image
-                        row="0"
-                        :src="imageSrc"
-                        id="image"
-                        automationText="deploymentPhoto"
-                        stretch="aspectFit"
-                    />
-                    <TextView
-                        row="1"
-                        :hint="_L('describePhoto')"
-                        id="photo-label-input"
-                        @blur="saveLabel"
-                        v-model="labelText"
-                    ></TextView>
-                </GridLayout>
-                <!-- end: Add photo -->
+                    <FlexboxLayout justifyContent="center" class="m-t-20 m-b-20">
+                        <Image src="~/images/add.png" width="20" />
+                        <Label text="Add Note" class="p-l-5"></Label>
+                    </FlexboxLayout>
 
-                <StackLayout v-show="havePhoto" class="m-15">
-                    <Label
-                        v-show="!isRecordingData"
-                        :text="_L('startRecordingPrompt')"
-                        textWrap="true"
-                    />
-                    <Label
-                        v-show="isRecordingData"
-                        :text="_L('recording')"
-                        class="recording-notice bold text-center m-y-10"
-                        textWrap="true"
-                    />
                     <Button
                         class="btn btn-primary m-b-10"
-                        :text="
-                            isRecordingData ? _L('stopRecording') : _L('record')
-                        "
-                        @tap="recordButtonTapped"
+                        text="Continue"
+                        automationText="nextButton"
                     ></Button>
                 </StackLayout>
-
                 <TextView id="hidden-field" />
-            </StackLayout>
+            </FlexboxLayout>
         </ScrollView>
     </Page>
 </template>
 
 <script>
-import { Folder, path, knownFolders } from "tns-core-modules/file-system";
-import { ImageSource, fromFile } from "tns-core-modules/image-source";
-import { takePicture, requestPermissions } from "nativescript-camera";
-import * as imagepicker from "nativescript-imagepicker";
-import * as dialogs from "tns-core-modules/ui/dialogs";
-import AudioInterface from "../services/audio-interface";
 import ScreenHeader from "./ScreenHeader";
 import Services from "../services/services";
 import routes from "../routes";
@@ -147,39 +79,15 @@ import routes from "../routes";
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
 
-const audioInterface = new AudioInterface();
-const documents = knownFolders.documents();
-const folder = documents.getFolder("FieldKitImages");
-const source = new ImageSource();
-
-// note: global variable _L not defined here
-// so month name abbreviations are set below
-let monthNames = [];
-
 export default {
     data() {
         return {
             viewTitle: _L("deployment"),
             stationName: "",
-            saveToGallery: true,
-            allowsEditing: true,
-            keepAspectRatio: true,
-            width: 640,
-            height: 360,
-            imageSrc: null,
-            labelText: "",
-            origLabel: "",
-            havePhoto: false,
-            pathDest: "",
-            deployImageName: "",
-            origImageName: "",
-            noteText: "",
-            origNote: "",
-            recordings: "",
-            origRecordings: "",
-            newRecordings: {},
-            displayRecordings: [],
-            isRecordingData: false
+            objective: "Click to add your study objective",
+            locationPurpose: "Click to add the purpose of your site location",
+            criteria: "Click to add your site criteria",
+            description: "Click to add your site description"
         };
     },
     props: ["station"],
@@ -204,396 +112,44 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            monthNames = [
-                _L("jan"),
-                _L("feb"),
-                _L("mar"),
-                _L("apr"),
-                _L("may"),
-                _L("jun"),
-                _L("jul"),
-                _L("aug"),
-                _L("sep"),
-                _L("oct"),
-                _L("nov"),
-                _L("dec")
-            ];
-
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            this.setup();
+            dbInterface
+                .getFieldNotes(this.station.id)
+                .then(this.getFieldMedia)
+                .then(this.setup);
         },
 
-        setup() {
-            if (this.station.status == "recording") {
-                this.isRecordingData = true;
-            }
+        getFieldMedia(notes) {
+            this.fieldNotes = notes;
+            return dbInterface.getFieldMedia(this.station.id);
+        },
+
+        setup(media) {
+            this.fieldMedia = media;
+
             this.stationName = this.station.name;
-            this.noteText = this.station.deployNote;
-            this.origNote = this.noteText;
-            this.recordings = this.station.deployAudioFiles;
-            this.origRecordings = this.recordings;
-            if (this.recordings) {
-                this.displayRecordings = this.recordings.split(",");
+            if (this.station.studyObjective) {
+                this.objective = this.station.studyObjective;
             }
-            this.deployImageName = this.station.id + "_deploy.jpg";
-            this.origLabel = this.station.deployImageLabel;
-            this.origImageName = this.station.deployImageName;
-            this.pathDest = path.join(folder.path, this.deployImageName);
-            if (this.origImageName && this.origImageName.length > 0) {
-                // load previously saved image
-                this.pathDest = path.join(folder.path, this.origImageName);
-                const imageFromLocalFile = fromFile(this.pathDest);
-                this.imageSrc = imageFromLocalFile;
-                this.labelText = this.origLabel;
-                this.havePhoto = true;
+            if (this.station.locationPurpose) {
+                this.locationPurpose = this.station.locationPurpose;
             }
-        },
-
-        onAudioTap(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            dialogs
-                .action({
-                    message: _L("addAudio"),
-                    cancelButtonText: _L("cancel"),
-                    actions: [_L("startRecording")]
-                })
-                .then(result => {
-                    if (result == _L("startRecording")) {
-                        this.startAudioRecording();
-                    }
-                });
-        },
-
-        startAudioRecording() {
-            // Create unique filename
-            let now = new Date();
-            let month = monthNames[now.getMonth()];
-            let day = now.getDate();
-            let year = now.getFullYear();
-            let filename =
-                _L("audioNote") + " " + month + " " + day + " " + year;
-            // colons not allowed in audio file names - if time is needed, re-work this
-            // let time = now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
-            let dateIndex = month + "_" + day + "_" + year;
-            if (this.newRecordings[dateIndex]) {
-                // increment filename if we already have any
-                let numRecordings = this.newRecordings[dateIndex].length;
-                filename += " " + (numRecordings + 1);
-            } else {
-                this.newRecordings[dateIndex] = [];
+            if (this.station.siteCriteria) {
+                this.criteria = this.station.siteCriteria;
             }
-            this.newRecordings[dateIndex].push(filename);
+            if (this.station.siteDescription) {
+                this.description = this.station.siteDescription;
+            }
 
-            audioInterface.startAudioRecording(filename);
-
-            dialogs
-                .action({
-                    message: _L("recording"),
-                    actions: [_L("stopRecording")]
-                })
-                .then(result => {
-                    if (result == _L("stopRecording")) {
-                        audioInterface.stopAudioRecording();
-                        // automatically save recording
-                        this.addRecording(filename);
-                    }
-                });
-        },
-
-        addRecording(filename) {
-            this.displayRecordings.push(filename);
-            this.saveRecordings();
-        },
-
-        removeRecording(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            let filename = event.object.data;
-            // confirm removal
-            dialogs
-                .confirm({
-                    title: _L("confirmDeleteRecording"),
-                    okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel")
-                })
-                .then(result => {
-                    if (result) {
-                        let index = this.displayRecordings.indexOf(filename);
-                        if (index == -1) {
-                            return;
-                        }
-                        this.displayRecordings.splice(index, 1);
-                        this.saveRecordings();
-                        // delete file on phone
-                        audioInterface.deleteRecordedFile(filename);
-                    }
-                });
-        },
-
-        saveRecordings() {
-            this.station.deployAudioFiles = this.displayRecordings.join(",");
-            dbInterface.setStationDeployAudio(this.station);
-            let configChange = {
-                stationId: this.station.id,
-                before: this.origRecordings,
-                after: this.station.deployAudioFiles,
-                affectedField: "deployAudioFiles",
-                author: this.userName
-            };
-            dbInterface.recordStationConfigChange(configChange);
-            this.origRecordings = this.station.deployAudioFiles;
-        },
-
-        playAudio(event) {
-            audioInterface.playRecordedFile(event.object.data);
-        },
-
-        onPhotoTap(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            dialogs
-                .action({
-                    message: _L("addPhoto"),
-                    cancelButtonText: _L("cancel"),
-                    actions: [_L("takePicture"), _L("selectFromGallery")]
-                })
-                .then(result => {
-                    if (result == _L("takePicture")) {
-                        this.takePicture();
-                    } else if (result == _L("selectFromGallery")) {
-                        this.selectPicture();
-                    }
-                });
-        },
-
-        takePicture() {
-            requestPermissions().then(
-                () => {
-                    takePicture({
-                        // width: this.width,
-                        // height: this.height,
-                        keepAspectRatio: this.keepAspectRatio,
-                        saveToGallery: this.saveToGallery,
-                        allowsEditing: this.allowsEditing
-                    }).then(
-                        imageAsset => {
-                            this.imageSrc = imageAsset;
-                            this.savePicture();
-                            this.havePhoto = true;
-                        },
-                        err => {
-                            // console.log("Error -> " + err.message);
-                        }
-                    );
-                },
-                () => {
-                    // console.log('Camera permissions rejected');
-                }
-            );
-        },
-
-        selectPicture() {
-            let context = imagepicker.create({
-                mode: "single" // only one picture can be selected
+            this.fieldNotes.forEach(note => {
+                // add additional notes
             });
-            context
-                .authorize()
-                .then(() => {
-                    this.imageSrc = null;
-                    return context.present();
-                })
-                .then(selection => {
-                    this.imageSrc = selection[0];
-                    this.savePicture();
-                    this.havePhoto = true;
-                    // selection[0].options.width = this.width;
-                    // selection[0].options.height = this.height;
-                })
-                .catch(e => {
-                    // console.log(e);
-                });
-        },
 
-        savePicture() {
-            source.fromAsset(this.imageSrc).then(
-                imageSource => {
-                    let saved = imageSource.saveToFile(this.pathDest, "jpg");
-                    if (saved) {
-                        this.station.deployImageName = this.deployImageName;
-                        // save in db
-                        dbInterface.setStationDeployImage(this.station);
-                        // send image to portal as field note media
-                        let params = { stationId: this.station.id, pathDest: this.pathDest };
-                        this.$portalInterface.addFieldNoteMedia(params).then(result => {
-                            // console.log("result? ---->", result)
-                        });
-                        let configChange = {
-                            stationId: this.station.id,
-                            before: this.origImageName,
-                            after: this.deployImageName,
-                            affectedField: "deployImageName",
-                            author: this.userName
-                        };
-                        dbInterface.recordStationConfigChange(configChange);
-                        this.origImageName = this.deployImageName;
-                    }
-                },
-                error => {
-                    // console.log("Error saving image", error);
-                }
-            );
-        },
-
-        saveLabel() {
-            if (this.origLabel != this.labelText) {
-                this.station.deployImageLabel = this.labelText;
-                dbInterface.setStationDeployImageLabel(this.station);
-                let configChange = {
-                    stationId: this.station.id,
-                    before: this.origLabel,
-                    after: this.labelText,
-                    affectedField: "deployImageLabel",
-                    author: this.userName
-                };
-                dbInterface.recordStationConfigChange(configChange);
-                this.origLabel = this.labelText;
-            }
-        },
-
-        saveNote() {
-            let textField = this.page.getViewById("note-text-field");
-            if (
-                !this.noteText ||
-                this.noteText == "" ||
-                this.noteText.length == 0
-            ) {
-                // show full hint text
-                textField.className = "size-18 full-height";
-            } else {
-                // let height auto-adjust
-                textField.className = "size-18";
-            }
-
-            if (this.origNote != this.noteText) {
-                this.station.deployNote = this.noteText;
-                // save in db
-                dbInterface.setStationDeployNote(this.station);
-                // send note as field note to portal
-                let portalParams = {
-                    stationId: this.station.id,
-                    created: new Date(),
-                    category_id: 1,
-                    note: this.station.deployNote
-                }
-                this.$portalInterface.addFieldNote(portalParams);
-                let configChange = {
-                    stationId: this.station.id,
-                    before: this.origNote,
-                    after: this.noteText,
-                    affectedField: "deployNote",
-                    author: this.userName
-                };
-                dbInterface.recordStationConfigChange(configChange);
-                this.origNote = this.noteText;
-            }
-        },
-
-        recordButtonTapped(event) {
-            if (event.object.text == _L("record")) {
-                this.deployStation(event);
-            } else {
-                this.stopStation(event);
-            }
-        },
-
-        deployStation(event) {
-            this.removeFocus("note-text-field");
-            this.removeFocus("photo-label-input");
-            // just in case?
-            this.saveNote();
-            this.saveLabel();
-
-            this.isRecordingData = true;
-            this.station.status = "recording";
-            event.object.text = _L("stopRecording");
-
-            this.station.deployStartTime = new Date();
-            dbInterface.setStationDeployStartTime(this.station);
-
-            queryStation.startDataRecording(this.station.url).then(result => {
-                const priorValue = null;
-                this.updateStationStatus(priorValue).then(() => {
-                    this.$navigateTo(routes.stationDetail, {
-                        props: {
-                            station: this.station
-                        }
-                    });
-                });
+            this.fieldMedia.forEach(img => {
+                // display images
             });
-        },
-
-        stopStation(event) {
-            event.object.text = _L("record");
-            this.isRecordingData = false;
-            queryStation.stopDataRecording(this.station.url).then(result => {
-                const priorValue = "recording";
-                this.station.status = null;
-                this.updateStationStatus(priorValue);
-            });
-        },
-
-        updateStationStatus(priorValue) {
-            // update db
-            dbInterface.setStationDeployStatus(this.station);
-            let configChange = {
-                stationId: this.station.id,
-                before: priorValue,
-                after: this.station.status,
-                affectedField: "status",
-                author: this.userName
-            };
-            dbInterface.recordStationConfigChange(configChange);
-
-            // update portal
-            if (this.station.portalId && this.station.url != "no_url") {
-                let params = {
-                    name: this.station.name,
-                    device_id: this.station.deviceId,
-                    status_json: this.station
-                };
-                return this.$portalInterface
-                    .updateStation(params, this.station.portalId)
-                    .then(stationPortalId => {
-                        // console.log("successfully updated", stationPortalId)
-                        return Promise.resolve();
-                    });
-            } else {
-                return Promise.resolve();
-            }
-        },
-
-        removeFocus(id) {
-            let textField = this.page.getViewById(id);
-            textField.dismissSoftInput();
-
-            let hiddenField = this.page.getViewById("hidden-field");
-            hiddenField.focus();
-            hiddenField.dismissSoftInput();
         }
     }
 };
@@ -612,56 +168,20 @@ export default {
     border-radius: 20;
 }
 
-.col {
-    padding-top: 10;
-    padding-bottom: 10;
-    border-width: 1;
-    border-color: $fk-gray-lighter;
-    background: $fk-gray-white;
-}
-
-.left-col {
-    border-top-left-radius: 4;
-    border-bottom-left-radius: 4;
-}
-
-.right-col {
-    border-top-right-radius: 4;
-    border-bottom-right-radius: 4;
-}
-
-.photo-label {
-    width: 96%;
-    padding: 0;
-    font-size: 18;
-}
-
-#photo-label-input {
-    width: 96%;
+.note-section {
     border-bottom-width: 1;
-    border-bottom-color: $fk-primary-black;
-}
-
-.link-style {
-    color: $fk-primary-blue;
-    margin-left: 20;
-    margin-right: 10;
-    margin-top: 5;
+    border-color: $fk-gray-lighter;
+    margin-top: 10;
     margin-bottom: 10;
 }
 
-#note-text-field {
-    border-bottom-width: 1;
-    border-bottom-color: $fk-primary-black;
+.photo-btn {
+    width: 100;
+    height: 100;
+    background-color: $fk-gray-lightest;
 }
-
-.recording-notice {
-    color: $fk-primary-red;
-    font-size: 18;
-}
-
-.full-height {
-    height: 75;
+.photo-btn-img {
+    margin-top: 40;
 }
 
 #hidden-field {

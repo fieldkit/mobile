@@ -24,6 +24,8 @@ export default class CreateDB {
             .then(this.createModuleConfigLogTable.bind(this))
             .then(this.createDownloadsTable.bind(this))
             .then(this.createStreamsTable.bind(this))
+            .then(this.createFieldNotesTable.bind(this))
+            .then(this.createFieldMediaTable.bind(this))
             .then(() => {
                 if (Config.seedDB) {
                     return this.seedDB();
@@ -77,6 +79,8 @@ export default class CreateDB {
             `DROP TABLE IF EXISTS stations_config`,
             `DROP TABLE IF EXISTS sensors`,
             `DROP TABLE IF EXISTS modules`,
+            `DROP TABLE IF EXISTS fieldnotes`,
+            `DROP TABLE IF EXISTS fieldmedia`,
             `DROP TABLE IF EXISTS stations`
         ]);
     }
@@ -176,10 +180,10 @@ export default class CreateDB {
                 location_name TEXT,
                 latitude NUMERIC,
                 longitude NUMERIC,
-                deploy_image_name TEXT,
-                deploy_image_label TEXT,
-                deploy_note TEXT,
-                deploy_audio_files TEXT,
+                study_objective TEXT,
+                location_purpose TEXT,
+                site_criteria TEXT,
+                site_description TEXT,
                 deploy_start_time DATETIME,
                 portal_id INTEGER,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -187,6 +191,36 @@ export default class CreateDB {
                 status_json TEXT
             )`,
             `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`
+        ]);
+    }
+
+    createFieldNotesTable() {
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS fieldnotes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                station_id INTEGER,
+                note TEXT,
+                audio_file TEXT,
+                category TEXT,
+                author TEXT,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`
+        ]);
+    }
+
+    createFieldMediaTable() {
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS fieldmedia (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                station_id INTEGER,
+                image_name TEXT,
+                image_label TEXT,
+                category TEXT,
+                author TEXT,
+                created DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`
         ]);
     }
 
@@ -223,9 +257,11 @@ export default class CreateDB {
     }
 
     seedDB() {
-        return Promise.all(stations.map(this.addStation.bind(this))).then(
-            this.handleModules.bind(this)
-        );
+        return Promise.all(stations.map(this.addStation.bind(this)))
+                .then(this.handleModules.bind(this))
+                .then(this.handleSensors.bind(this))
+                .then(this.handleFieldNotes.bind(this))
+                .then(this.handleFieldMedia.bind(this))
     }
 
     addStation(station) {
@@ -249,9 +285,7 @@ export default class CreateDB {
             return s.modules;
         });
         modules = [].concat.apply([], modules);
-        return Promise.all(modules.map(this.insertModule.bind(this))).then(
-            this.handleSensors.bind(this)
-        );
+        return Promise.all(modules.map(this.insertModule.bind(this)));
     }
 
     insertModule(module) {
@@ -279,6 +313,22 @@ export default class CreateDB {
     insertSensor(sensor) {
         sensor.currentReading = this.generateReading(sensor.name);
         return this.dbInterface.insertSensor(sensor);
+    }
+
+    handleFieldNotes() {
+        return Promise.all(fieldnotes.map(this.insertFieldNote.bind(this)));
+    }
+
+    insertFieldNote(note) {
+        return this.dbInterface.insertFieldNote(note);
+    }
+
+    handleFieldMedia() {
+        return Promise.all(fieldmedia.map(this.insertFieldMedia.bind(this)));
+    }
+
+    insertFieldMedia(media) {
+        return this.dbInterface.insertFieldMedia(media);
     }
 
     generateReading(name) {
@@ -448,5 +498,25 @@ const stations = [
                 ]
             }
         ]
+    }
+];
+
+const fieldnotes = [
+    {
+        stationId: 1,
+        note: "This study will help us understand weather patterns in our neighborhood.",
+        audioFile: "",
+        category: "default",
+        author: "Test User"
+    }
+];
+
+const fieldmedia = [
+    {
+        stationId: 1,
+        imageName: "waterfall.jpg",
+        imageLabel: "To the left of the waterfall",
+        category: "default",
+        author: "Test User"
     }
 ];
