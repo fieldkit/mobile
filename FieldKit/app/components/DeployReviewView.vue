@@ -8,7 +8,9 @@
                     :onBack="goBack"
                     :canNavigateSettings="false"
                 />
-                <StackLayout class="top-line"></StackLayout>
+                <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
+                    <StackLayout colSpan="3" class="top-line"></StackLayout>
+                </GridLayout>
 
                 <StackLayout class="review-section">
                     <Label
@@ -194,7 +196,6 @@ export default {
         },
 
         getInterval() {
-            // TODO: move to utilities
             let displayValue = this.station.interval;
             let unit = "";
             if (this.station.interval < 60) {
@@ -266,9 +267,12 @@ export default {
 // End custom common variables
 
 // Custom styles
+.top-line-bkgd {
+    background-color: $fk-gray-lighter;
+}
 .top-line {
-    border-bottom-width: 2;
-    border-bottom-color: $fk-gray-dark;
+    border-bottom-width: 3;
+    border-bottom-color: $fk-primary-blue;
 }
 .review-section,
 .review-section-no-border {

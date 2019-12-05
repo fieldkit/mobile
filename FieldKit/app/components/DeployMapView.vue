@@ -12,6 +12,9 @@
                     :onBack="goBack"
                     :canNavigateSettings="false"
                 />
+                <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
+                    <StackLayout col="0" class="top-line"></StackLayout>
+                </GridLayout>
 
                 <Mapbox
                     :accessToken="mapboxToken"
@@ -317,6 +320,14 @@ export default {
 // End custom common variables
 
 // Custom styles
+.top-line-bkgd {
+    background-color: $fk-gray-lighter;
+}
+.top-line {
+    border-bottom-width: 3;
+    border-bottom-color: $fk-primary-blue;
+}
+
 #location-name-field {
     padding: 0;
     width: 100%;

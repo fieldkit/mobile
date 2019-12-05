@@ -9,6 +9,14 @@
                     :canNavigateSettings="false"
                     v-if="!isEditing"
                 />
+                <GridLayout
+                    rows="auto"
+                    columns="33*,33*,34*"
+                    class="top-line-bkgd m-b-20"
+                    v-if="!isEditing"
+                >
+                    <StackLayout colSpan="2" class="top-line"></StackLayout>
+                </GridLayout>
 
                 <FieldNoteForm
                     :fieldNote="currentNote"
@@ -502,6 +510,13 @@ export default {
 // End custom common variables
 
 // Custom styles
+.top-line-bkgd {
+    background-color: $fk-gray-lighter;
+}
+.top-line {
+    border-bottom-width: 3;
+    border-bottom-color: $fk-primary-blue;
+}
 
 .small-round {
     width: 40;
