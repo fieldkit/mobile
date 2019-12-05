@@ -400,6 +400,14 @@ export default class DatabaseInterface {
         );
     }
 
+    removeFieldNoteByAudioFile(audioFile) {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM fieldnotes WHERE audio_file = ?", [
+                audioFile
+            ])
+        );
+    }
+
     removeFieldMedia(mediaId) {
         return this.getDatabase().then(db =>
             db.query("DELETE FROM fieldmedia WHERE id = ?", [

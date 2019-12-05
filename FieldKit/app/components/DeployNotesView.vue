@@ -1,55 +1,96 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <FlexboxLayout
-                flexDirection="column"
-                class="p-t-10"
-            >
+            <FlexboxLayout flexDirection="column" class="p-t-10">
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="stationName"
                     :onBack="goBack"
                     :canNavigateSettings="false"
+                    v-if="!isEditing"
                 />
 
-                <StackLayout class="m-x-20">
-                    <StackLayout class="m-b-20">
-                        <Label text="Field Notes" class="size-18 m-b-10"></Label>
+                <FieldNoteForm
+                    :fieldNote="currentNote"
+                    v-if="isEditing"
+                    @cancel="cancelEdit"
+                    @saveEdit="saveNote"
+                    @saveAudio="saveAudio"
+                    @removeAudio="removeAudio"
+                />
+
+                <StackLayout class="m-x-20" v-if="!isEditing">
+                    <GridLayout
+                        rows="auto,auto"
+                        columns="35*,65*"
+                        class="m-b-20"
+                    >
                         <Label
+                            row="0"
+                            col="0"
+                            text="Field Notes"
+                            class="size-18"
+                        ></Label>
+                        <Label
+                            row="0"
+                            col="1"
+                            :text="percentComplete + '% Complete'"
+                            class="size-14 blue"
+                            verticalAlignment="bottom"
+                        ></Label>
+                        <Label
+                            row="1"
+                            colSpan="2"
                             text="Provide details about your station location and objective."
                             textWrap="true"
-                            class="size-12"
+                            class="size-12 m-t-5"
                         ></Label>
-                    </StackLayout>
-                    <StackLayout class="note-section">
-                        <Label text="Study Objective" class="size-16 m-b-5"></Label>
-                        <Label :text="objective" class="size-12 m-b-10"></Label>
-                    </StackLayout>
-                    <StackLayout class="note-section">
-                        <Label text="Purpose of Site Location" class="size-16 m-b-5"></Label>
-                        <Label :text="locationPurpose" class="size-12 m-b-10"></Label>
-                    </StackLayout>
-                    <StackLayout class="note-section">
-                        <Label text="Site Criteria" class="size-16 m-b-5"></Label>
-                        <Label :text="criteria" class="size-12 m-b-10"></Label>
-                    </StackLayout>
-                    <StackLayout class="note-section">
-                        <Label text="Site Description" class="size-16 m-b-5"></Label>
-                        <Label :text="description" class="size-12 m-b-10"></Label>
-                    </StackLayout>
+                    </GridLayout>
+
+                    <!-- display the four defined note fields -->
+                    <GridLayout
+                        rows="auto,auto"
+                        columns="90*,10*"
+                        v-for="note in fieldNotes"
+                        :key="note.field"
+                        :dataNote="note"
+                        class="note-section"
+                        @tap="onEditTap"
+                    >
+                        <Label
+                            row="0"
+                            col="0"
+                            :text="note.title"
+                            class="size-16 m-b-5"
+                        ></Label>
+                        <Label
+                            row="1"
+                            col="0"
+                            :text="note.value ? note.value : note.instruction"
+                            class="size-12 m-b-10"
+                            textWrap="true"
+                        ></Label>
+                        <Image
+                            rowSpan="2"
+                            col="1"
+                            v-if="note.audioFile"
+                            src="~/images/mic.png"
+                            width="17"
+                        />
+                    </GridLayout>
 
                     <StackLayout class="m-t-20">
-                        <Label text="Photos (required)" class="size-12 m-b-10"></Label>
+                        <Label
+                            text="Photos (1 required)"
+                            class="size-12"
+                        ></Label>
                         <WrapLayout orientation="horizontal">
                             <StackLayout
                                 v-for="photo in photos"
                                 :key="photo.id"
                                 class="photo-display"
                             >
-                                <Image
-                                    :src="photo.src"
-                                    stretch="aspectFit"
-                                />
+                                <Image :src="photo.src" stretch="aspectFit" />
                             </StackLayout>
                             <StackLayout class="photo-btn" @tap="onPhotoTap">
                                 <Image
@@ -62,19 +103,27 @@
                         </WrapLayout>
                     </StackLayout>
 
-                    <StackLayout class="m-t-30">
-                        <Label text="Additional Notes" class="size-12 m-b-10"></Label>
+                    <!-- <StackLayout class="m-t-30">
+                        <Label
+                            text="Additional Notes"
+                            class="size-12 m-b-10"
+                        ></Label>
                     </StackLayout>
 
-                    <FlexboxLayout justifyContent="center" class="m-t-20 m-b-20">
+                    <FlexboxLayout
+                        justifyContent="center"
+                        class="m-t-20 m-b-20"
+                    >
                         <Image src="~/images/add.png" width="20" />
                         <Label text="Add Note" class="p-l-5"></Label>
-                    </FlexboxLayout>
+                    </FlexboxLayout> -->
 
                     <Button
                         class="btn btn-primary m-b-10"
                         text="Continue"
                         automationText="nextButton"
+                        :isEnabled="havePhoto"
+                        @tap="goToReview"
                     ></Button>
                 </StackLayout>
                 <TextView id="hidden-field" />
@@ -89,7 +138,9 @@ import { ImageSource, fromFile } from "tns-core-modules/image-source";
 import { takePicture, requestPermissions } from "nativescript-camera";
 import * as imagepicker from "nativescript-imagepicker";
 import * as dialogs from "tns-core-modules/ui/dialogs";
+import { isIOS } from "tns-core-modules/platform";
 import ScreenHeader from "./ScreenHeader";
+import FieldNoteForm from "./FieldNoteForm";
 import Services from "../services/services";
 import routes from "../routes";
 
@@ -105,21 +156,50 @@ export default {
         return {
             viewTitle: _L("deployment"),
             stationName: "",
-            objective: "Click to add your study objective",
-            locationPurpose: "Click to add the purpose of your site location",
-            criteria: "Click to add your site criteria",
-            description: "Click to add your site description",
+            isEditing: false,
+            fieldNotes: [
+                {
+                    field: "objective",
+                    value: "",
+                    title: "Study Objective",
+                    instruction: "Tap to add your study objective",
+                    complete: 0
+                },
+                {
+                    field: "locationPurpose",
+                    value: "",
+                    title: "Purpose of Site Location",
+                    instruction: "Tap to add the purpose of your site location",
+                    complete: 0
+                },
+                {
+                    field: "criteria",
+                    value: "",
+                    title: "Site Criteria",
+                    instruction: "Tap to add your site criteria",
+                    complete: 0
+                },
+                {
+                    field: "description",
+                    value: "",
+                    title: "Site Description",
+                    instruction: "Tap to add your site description",
+                    complete: 0
+                }
+            ],
             photos: [],
             saveToGallery: true,
             allowsEditing: true,
             keepAspectRatio: true,
             imageSrc: null,
             havePhoto: false,
+            percentComplete: 0
         };
     },
     props: ["station"],
     components: {
-        ScreenHeader
+        ScreenHeader,
+        FieldNoteForm
     },
     methods: {
         goBack(event) {
@@ -132,6 +212,17 @@ export default {
             this.$navigateTo(routes.deployMap, {
                 props: {
                     station: this.station
+                }
+            });
+        },
+
+        goToReview() {
+            this.$navigateTo(routes.deployReview, {
+                props: {
+                    station: this.station,
+                    fieldNotes: this.fieldNotes,
+                    photos: this.photos,
+                    percentComplete: this.percentComplete
                 }
             });
         },
@@ -149,7 +240,7 @@ export default {
         },
 
         getFieldMedia(notes) {
-            this.fieldNotes = notes;
+            this.otherNotes = notes;
             return dbInterface.getFieldMedia(this.station.id);
         },
 
@@ -157,26 +248,29 @@ export default {
             this.fieldMedia = media;
 
             this.stationName = this.station.name;
-            if (this.station.studyObjective) {
-                this.objective = this.station.studyObjective;
-            }
-            if (this.station.locationPurpose) {
-                this.locationPurpose = this.station.locationPurpose;
-            }
-            if (this.station.siteCriteria) {
-                this.criteria = this.station.siteCriteria;
-            }
-            if (this.station.siteDescription) {
-                this.description = this.station.siteDescription;
-            }
 
             this.fieldNotes.forEach(note => {
-                // add additional notes
+                if (this.station[note.field]) {
+                    note.value = this.station[note.field];
+                    //note.instruction = this.station[note.field];
+                }
+            });
+
+            // audio or additional notes
+            this.otherNotes.forEach(note => {
+                let fieldNote = this.fieldNotes.find(n => {
+                    return n.field == note.category;
+                });
+                if (fieldNote && fieldNote.audioFile) {
+                    fieldNote.audioFile += "," + note.audioFile;
+                } else if (fieldNote) {
+                    fieldNote.audioFile = note.audioFile;
+                }
             });
 
             this.photos = [];
+            // load previously saved images
             this.fieldMedia.forEach((img, i) => {
-                // load previously saved images
                 const dest = path.join(folder.path, img.imageName);
                 const imageFromLocalFile = fromFile(dest);
                 this.photos.push({
@@ -185,6 +279,112 @@ export default {
                 });
                 this.havePhoto = true;
             });
+            this.updatePercentComplete();
+        },
+
+        onEditTap(event) {
+            let note = event.object.dataNote;
+            this.currentNote = note;
+            this.isEditing = true;
+        },
+
+        cancelEdit() {
+            this.isEditing = false;
+        },
+
+        saveNote(note) {
+            let fieldNote = this.fieldNotes.find(n => {
+                return n.field == note.field;
+            });
+            fieldNote.value = note.value;
+            if (note.value) {
+                fieldNote.complete = true;
+            } else {
+                fieldNote.complete = fieldNote.audioFile ? true : false;
+            }
+
+            let savingStation = this.station;
+            savingStation[note.field] = note.value;
+            switch (note.field) {
+                case "objective":
+                    dbInterface.setStationStudyObjective(savingStation);
+                    break;
+                case "locationPurpose":
+                    dbInterface.setStationLocationPurpose(savingStation);
+                    break;
+                case "criteria":
+                    dbInterface.setStationSiteCriteria(savingStation);
+                    break;
+                case "description":
+                    dbInterface.setStationSiteDescription(savingStation);
+                    break;
+            }
+            // send note as field note to portal
+            let portalParams = {
+                stationId: this.station.id,
+                created: new Date(),
+                category_id: 1,
+                note: note.value
+            };
+            this.$portalInterface.addFieldNote(portalParams);
+            this.isEditing = false;
+            this.updatePercentComplete();
+        },
+
+        saveAudio(note, recordings) {
+            let fieldNote = this.fieldNotes.find(n => {
+                return n.field == note.field;
+            });
+            fieldNote.complete = true;
+            recordings.forEach(r => {
+                if (fieldNote.audioFile) {
+                    fieldNote.audioFile += "," + r;
+                } else {
+                    fieldNote.audioFile = r;
+                }
+                const audioNote = {
+                    stationId: this.station.id,
+                    note: note.value,
+                    category: note.field,
+                    audioFile: r,
+                    author: this.userName
+                };
+                dbInterface.insertFieldNote(audioNote);
+            });
+            this.updatePercentComplete();
+        },
+
+        removeAudio(note, filename) {
+            let fieldNote = this.fieldNotes.find(n => {
+                return n.field == note.field;
+            });
+            let recordings = fieldNote.audioFile.split(",");
+            let index = recordings.indexOf(filename);
+            if (index > -1) {
+                recordings.splice(index, 1);
+            }
+            fieldNote.audioFile = recordings.join(",");
+            if (!fieldNote.value && !fieldNote.audioFile) {
+                fieldNote.complete = false;
+            }
+            this.updatePercentComplete();
+
+            dbInterface.removeFieldNoteByAudioFile(filename);
+        },
+
+        updatePercentComplete() {
+            // Note: hard-coded total - four notes and photo
+            const total = 5.0;
+            let done = 0;
+            if (this.photos.length > 0) {
+                done += 1;
+            }
+            this.fieldNotes.forEach(n => {
+                if (n.complete) {
+                    done += 1;
+                }
+            });
+            this.percentComplete = Math.round((done / total) * 100);
         },
 
         onPhotoTap(event) {
@@ -220,7 +420,6 @@ export default {
                         imageAsset => {
                             this.imageSrc = imageAsset;
                             this.savePicture();
-                            this.havePhoto = true;
                         },
                         err => {
                             // console.log("Error -> " + err.message);
@@ -246,7 +445,6 @@ export default {
                 .then(selection => {
                     this.imageSrc = selection[0];
                     this.savePicture();
-                    this.havePhoto = true;
                 })
                 .catch(e => {
                     // console.log(e);
@@ -254,6 +452,7 @@ export default {
         },
 
         savePicture() {
+            this.havePhoto = true;
             const name = this.station.id + "_img_" + Date.now() + ".jpg";
             const dest = path.join(folder.path, name);
             let media = {
@@ -264,23 +463,35 @@ export default {
                 author: this.userName
             };
             dbInterface.insertFieldMedia(media);
+            this.updatePercentComplete();
+            if (isIOS) {
+                this.photos.push({
+                    id: this.photos.length + 1,
+                    src: this.imageSrc
+                });
+            }
 
             source.fromAsset(this.imageSrc).then(
                 imageSource => {
                     let saved = imageSource.saveToFile(dest, "jpg");
                     if (saved) {
                         // send image to portal as field note media
-                        let params = { stationId: this.station.id, pathDest: dest };
-                        this.$portalInterface.addFieldNoteMedia(params).then(result => {
-                            // console.log("result? ---->", result)
-                        });
+                        let params = {
+                            stationId: this.station.id,
+                            pathDest: dest
+                        };
+                        this.$portalInterface
+                            .addFieldNoteMedia(params)
+                            .then(result => {
+                                // console.log("result? ---->", result);
+                            });
                     }
                 },
                 error => {
                     // console.log("Error saving image", error);
                 }
             );
-        },
+        }
     }
 };
 </script>
@@ -296,6 +507,10 @@ export default {
     width: 40;
     padding: 2;
     border-radius: 20;
+}
+
+.blue {
+    color: $fk-primary-blue;
 }
 
 .note-section {
