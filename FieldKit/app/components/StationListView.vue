@@ -99,7 +99,7 @@ export default {
         ScreenFooter
     },
     props: {
-        station: Object,
+        station: Object
     },
     methods: {
         onPageLoaded(args) {
@@ -137,7 +137,9 @@ export default {
             // try using hardware's startedTime first
             try {
                 // multiply by 1000 so the arg is in ms, not s
-                const start = new Date(station.statusReply.status.recording.startedTime * 1000);
+                const start = new Date(
+                    station.statusReply.status.recording.startedTime * 1000
+                );
                 let month = start.getMonth() + 1;
                 let day = start.getDate();
                 let year = start.getFullYear();
@@ -178,9 +180,16 @@ export default {
             let latMax = -90;
             let stationMarkers = [];
             let mappable = this.stations.filter(s => {
-                return s.latitude && s.latitude != 1000 && s.longitude && s.longitude != 1000;
+                return (
+                    s.latitude &&
+                    Number(s.latitude) != 1000 &&
+                    s.longitude &&
+                    Number(s.longitude) != 1000
+                );
             });
             mappable.forEach(s => {
+                s.latitude = Number(s.latitude);
+                s.longitude = Number(s.longitude);
                 if (mappable.length == 1 && this.map) {
                     this.map.setCenter({
                         lat: s.latitude,
@@ -208,7 +217,7 @@ export default {
                     lng: s.longitude,
                     title: s.name,
                     subtitle: s.locationName,
-                    iconPath: 'images/map_dot.png',
+                    iconPath: "images/map_dot.png"
                 });
             });
 
@@ -217,17 +226,15 @@ export default {
             if (mappable.length > 1) {
                 const smallLatMargin = (latMax - latMin) / 10;
                 // const smallLongMargin = (longMax - longMin) / 10;
-                this.map.setViewport(
-                    {
-                        bounds: {
-                            // zoom north out a little to fit marker
-                            north: latMax + smallLatMargin,
-                            east: longMax,
-                            south: latMin,
-                            west: longMin
-                        }
+                this.map.setViewport({
+                    bounds: {
+                        // zoom north out a little to fit marker
+                        north: latMax + smallLatMargin,
+                        east: longMax,
+                        south: latMin,
+                        west: longMin
                     }
-                );
+                });
             }
         },
 
@@ -293,13 +300,7 @@ export default {
 .stations-list {
     font-size: 16;
 }
-.recording {
-    color: $fk-primary-blue;
-}
-.connected,
-.idle {
-    color: $fk-tertiary-green;
-}
+
 .dev-link {
     color: $fk-gray-lightest;
     padding: 10;

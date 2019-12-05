@@ -111,7 +111,7 @@
             <!-- deploy button -->
             <StackLayout row="2" colSpan="2" class="m-10">
                 <Button
-                    v-if="station.status == 'idle'"
+                    v-if="station.status != 'recording'"
                     class="btn btn-primary"
                     :text="_L('deploy')"
                     automationText="deployButton"
@@ -130,7 +130,7 @@ export default {
     data: () => {
         return {
             loading: true,
-            elapsedRecTime: "00:00:00",
+            elapsedRecTime: "--:--:--",
             elapsedTimeLabel: "hrs min sec",
             syncing: false,
             dataSyncingIcon: "~/images/syncing.png",
@@ -179,6 +179,8 @@ export default {
                 this.outer.className = this.outer.className + " active";
                 this.inner.className = this.inner.className + " active";
                 this.intervalTimer = setInterval(this.displayElapsedTime, 1000);
+            } else {
+                this.elapsedRecTime = "00:00:00";
             }
             this.setBatteryImage();
             this.station.occupiedMemory = 100 - this.station.availableMemory;
@@ -229,6 +231,7 @@ export default {
 
         displayElapsedTime() {
             if (!this.station.deployStartTime) {
+                this.elapsedRecTime = "00:00:00";
                 return;
             }
             let now = new Date();

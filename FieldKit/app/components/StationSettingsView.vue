@@ -525,31 +525,21 @@ export default {
         },
 
         stopRecording(event) {
+            let savingStation = this.station;
+            savingStation.status = null;
+            dbInterface.setStationDeployStatus(savingStation);
+
             queryStation.stopDataRecording(this.station.url).then(result => {
-                const priorValue = "recording";
-                this.station.status = "idle";
-                this.updateStationStatus(priorValue);
+                this.updatePortal(savingStation);
             });
         },
 
-        updateStationStatus(priorValue) {
-            // update db
-            dbInterface.setStationDeployStatus(this.station);
-            let configChange = {
-                stationId: this.station.id,
-                before: priorValue,
-                after: this.station.status,
-                affectedField: "status",
-                author: this.userName
-            };
-            dbInterface.recordStationConfigChange(configChange);
-
-            // update portal
+        updatePortal(savingStation) {
             if (this.station.portalId && this.station.url != "no_url") {
                 let params = {
                     name: this.station.name,
                     device_id: this.station.deviceId,
-                    status_json: this.station
+                    status_json: savingStation
                 };
                 return this.$portalInterface
                     .updateStation(params, this.station.portalId)
