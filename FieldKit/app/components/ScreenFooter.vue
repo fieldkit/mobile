@@ -110,4 +110,19 @@ export default {
 @import "../app-variables";
 // End custom common variables
 // Custom styles
+.footer {
+    border-top-color: $fk-gray-lightest;
+    border-top-width: 2;
+    margin-bottom: 5;
+    padding-left: 20;
+    padding-right: 20;
+    height: 100%;
+}
+
+.footer-btn {
+    padding-top: 10;
+    padding-left: 10;
+    padding-right: 10;
+    border-radius: 20;
+}
 </style>

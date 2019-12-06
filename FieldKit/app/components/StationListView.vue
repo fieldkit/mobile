@@ -1,6 +1,6 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="*,80">
+        <GridLayout rows="*,55">
             <ScrollView row="0">
                 <StackLayout id="stations-list" class="m-y-10">
                     <ScreenHeader

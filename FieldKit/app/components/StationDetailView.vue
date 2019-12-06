@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
-        <GridLayout rows="*,80">
+        <GridLayout rows="*,55">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <ScreenHeader

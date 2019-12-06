@@ -5,7 +5,7 @@
         @loaded="onLoaded"
         @unloaded="onUnloaded"
     >
-        <GridLayout rows="*,80">
+        <GridLayout rows="*,55">
             <ScrollView row="0">
                 <GridLayout rows="60,*">
                     <ScreenHeader
