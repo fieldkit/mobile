@@ -28,6 +28,7 @@
                         disableTilt="false"
                         class="m-b-10"
                         @mapReady="onMapReady"
+                        v-if="connectedToInternet"
                     ></Mapbox>
 
                     <GridLayout
@@ -50,7 +51,6 @@
                             "
                         />
                         <Label
-                            v-if="s.connected"
                             row="1"
                             col="0"
                             :text="getDeployStatus(s)"
@@ -62,6 +62,13 @@
                             width="20"
                             v-if="s.connected"
                             src="~/images/Icon_Connected.png"
+                        ></Image>
+                        <Image
+                            col="1"
+                            rowSpan="2"
+                            width="20"
+                            v-if="!s.connected"
+                            src="~/images/Icon_not_Connected.png"
                         ></Image>
                     </GridLayout>
                 </StackLayout>
@@ -82,6 +89,7 @@ import {
     Observable,
     PropertyChangeData
 } from "tns-core-modules/data/observable";
+import { request } from "tns-core-modules/http";
 
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
@@ -91,6 +99,7 @@ export default {
     data() {
         return {
             stations: [],
+            connectedToInternet: false,
             mapboxToken: MAPBOX_ACCESS_TOKEN
         };
     },
@@ -104,6 +113,19 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
+
+            // This is a sad hack...
+            // TODO: something more sensible
+            // (the NS connectivity module
+            // does not help in the case of
+            // self AP connections)
+            request({
+                url: "https://google.com",
+                method: "GET"
+            }).then((response) => {
+                this.connectedToInternet = true;
+            }, (e) => {
+            });
 
             this.stations = this.$stationMonitor.getStations();
 
@@ -221,9 +243,11 @@ export default {
                 });
             });
 
-            this.map.addMarkers(stationMarkers);
+            if (this.map) {
+                this.map.addMarkers(stationMarkers);
+            }
 
-            if (mappable.length > 1) {
+            if (mappable.length > 1 && this.map) {
                 const smallLatMargin = (latMax - latMin) / 10;
                 // const smallLongMargin = (longMax - longMin) / 10;
                 this.map.setViewport({
@@ -292,7 +316,7 @@ export default {
 }
 .station-name {
     font-size: 18;
-    color: black;
+    color: $fk-primary-black;
 }
 .station-name.disconnected {
     color: $fk-gray-dark;

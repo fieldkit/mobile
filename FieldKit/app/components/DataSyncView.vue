@@ -134,7 +134,7 @@
                                         rowSpan="2"
                                         col="2"
                                         width="25"
-                                        src="~/images/success.png"
+                                        src="~/images/Icon_Success.png"
                                         v-if="s.uploadState == 'success'"
                                     ></Image>
                                     <StackLayout

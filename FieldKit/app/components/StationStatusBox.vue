@@ -8,7 +8,7 @@
             <!-- recording status -->
             <StackLayout row="0" col="0">
                 <Label
-                    class="text-center m-y-10 size-16"
+                    class="text-center nudge-top size-16"
                     :text="
                         station.status == 'recording'
                             ? _L('recordingData')
@@ -300,6 +300,9 @@ export default {
 // End custom common variables
 
 // Custom styles
+.nudge-top {
+    margin-top: 7;
+}
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
