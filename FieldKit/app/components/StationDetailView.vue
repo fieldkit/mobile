@@ -116,7 +116,7 @@ export default {
 
         goToSettings(event) {
             // prevent taps before page finishes loading
-            if (!this.activeStation) {
+            if (!this.activeStation || this.activeStation.id == 0) {
                 return;
             }
 
