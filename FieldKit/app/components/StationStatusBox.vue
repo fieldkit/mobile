@@ -134,7 +134,7 @@ export default {
             elapsedTimeLabel: "hrs min sec",
             syncing: false,
             dataSyncingIcon: "~/images/syncing.png",
-            dataSyncMessage: _L("connected"),
+            dataSyncMessage: "",
             station: {
                 availableMemory: 0,
                 batteryLevel: 0,
@@ -161,7 +161,9 @@ export default {
                     }
                 } else {
                     this.syncing = false;
-                    this.dataSyncMessage = _L("connected");
+                    this.dataSyncMessage = this.station.connected
+                        ? _L("connected")
+                        : "Not connected";
                 }
             });
         },
@@ -173,6 +175,9 @@ export default {
         updateStation(station) {
             this.loading = false;
             this.station = station;
+            this.dataSyncMessage = this.station.connected
+                ? _L("connected")
+                : "Not connected";
             if (this.station.status == "recording") {
                 this.outer = this.page.getViewById("outer-circle");
                 this.inner = this.page.getViewById("inner-circle");
