@@ -53,7 +53,6 @@
             :class="'size-14 p-x-20 ' + (displayRecordings.length > 1 ? 'med-text-field' : 'large-text-field')"
             :hint="fieldNote.instruction"
             v-model="fieldNote.value"
-            @blur="onSave"
         ></TextView>
 
         <Image
@@ -109,7 +108,11 @@ export default {
         },
 
         onUnloaded() {
-            this.$emit("saveEdit", this.fieldNote);
+            // if (this.fieldNote.field == "additional") {
+            //     this.$emit("saveAdditional", this.fieldNote);
+            // } else {
+            //     this.$emit("saveEdit", this.fieldNote);
+            // }
         },
 
         onCancel() {
@@ -203,6 +206,7 @@ export default {
                             return;
                         }
                         this.displayRecordings.splice(index, 1);
+                        this.fieldNote.audioFile = this.displayRecordings.join(",");
                         this.removeFromDatabase(filename);
                         // delete file on phone
                         audioInterface.deleteRecordedFile(filename);
@@ -211,7 +215,11 @@ export default {
         },
 
         saveRecordings() {
-            this.$emit("saveAudio", this.fieldNote, this.displayRecordings);
+            if (this.fieldNote.field == "additional") {
+                this.fieldNote.audioFile = this.displayRecordings.join(",");
+            } else {
+                this.$emit("saveAudio", this.fieldNote, this.displayRecordings);
+            }
         },
 
         removeFromDatabase(filename) {

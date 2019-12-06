@@ -12,6 +12,7 @@
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
 
+                <!-- station coordinates -->
                 <StackLayout class="review-section">
                     <Label
                         text="Station Coordinates"
@@ -34,6 +35,7 @@
                     </GridLayout>
                 </StackLayout>
 
+                <!-- location name and data capture interval -->
                 <StackLayout class="review-section">
                     <GridLayout rows="auto" columns="90*,10*">
                         <Label col="0" text="Name your location" />
@@ -57,6 +59,7 @@
                     <Label :text="getInterval()" />
                 </StackLayout>
 
+                <!-- field notes -->
                 <StackLayout class="review-section-no-border">
                     <GridLayout
                         rows="auto"
@@ -107,6 +110,7 @@
                     </StackLayout>
                 </StackLayout>
 
+                <!-- photos -->
                 <StackLayout class="review-section-no-border">
                     <Label text="Photos (1 required)" class="size-12"></Label>
                     <WrapLayout orientation="horizontal">
@@ -120,8 +124,39 @@
                     </WrapLayout>
                 </StackLayout>
 
-                <!-- Additional Notes -->
+                <!-- additional notes -->
+                <GridLayout
+                    row="0"
+                    rows="auto,auto"
+                    columns="90*,10*"
+                    class="additional-note-section"
+                    v-for="note in additionalNotes"
+                    :key="note.fieldNoteId"
+                >
+                    <Label
+                        row="0"
+                        col="0"
+                        :text="note.title"
+                        class="size-14 m-b-5"
+                    ></Label>
+                    <Label
+                        row="1"
+                        col="0"
+                        :text="note.value"
+                        v-if="note.value"
+                        class="size-12 m-b-10"
+                        textWrap="true"
+                    ></Label>
+                    <Image
+                        rowSpan="2"
+                        col="1"
+                        v-if="note.audioFile"
+                        src="~/images/mic.png"
+                        width="17"
+                    />
+                </GridLayout>
 
+                <!-- record button -->
                 <Button
                     class="btn btn-primary m-20"
                     text="Record"
@@ -148,7 +183,7 @@ export default {
             completeNotes: []
         };
     },
-    props: ["station", "fieldNotes", "photos", "percentComplete"],
+    props: ["station", "fieldNotes", "photos", "additionalNotes", "percentComplete"],
     components: {
         ScreenHeader
     },
@@ -288,6 +323,16 @@ export default {
 .review-section-no-border {
     border-bottom-width: 0;
     padding-bottom: 0;
+}
+.additional-note-section {
+    border-width: 1;
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    padding: 10;
+    margin-top: 10;
+    margin-bottom: 10;
+    margin-left: 20;
+    margin-right: 20;
 }
 .blue {
     color: $fk-primary-blue;

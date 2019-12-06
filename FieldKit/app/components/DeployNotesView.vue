@@ -27,6 +27,7 @@
                     @removeAudio="removeAudio"
                 />
 
+                <!-- top label section -->
                 <StackLayout class="m-x-20" v-if="!isEditing">
                     <GridLayout
                         rows="auto,auto"
@@ -76,7 +77,6 @@
                             col="0"
                             :text="note.value ? note.value : note.instruction"
                             class="size-12 m-b-10"
-                            textWrap="true"
                         ></Label>
                         <Image
                             rowSpan="2"
@@ -87,6 +87,7 @@
                         />
                     </GridLayout>
 
+                    <!-- photos -->
                     <StackLayout class="m-t-20">
                         <Label
                             text="Photos (1 required)"
@@ -111,21 +112,72 @@
                         </WrapLayout>
                     </StackLayout>
 
-                    <!-- <StackLayout class="m-t-30">
+                    <!-- additional notes -->
+                    <StackLayout class="m-t-30">
                         <Label
                             text="Additional Notes"
                             class="size-12 m-b-10"
                         ></Label>
                     </StackLayout>
 
+                    <GridLayout
+                        rows="auto"
+                        columns="*"
+                        v-for="note in additionalNotes"
+                        :key="note.field"
+                    >
+                        <GridLayout
+                            row="0"
+                            rows="auto,auto"
+                            columns="90*,10*"
+                            class="additional-note-section"
+                        >
+                            <Label
+                                row="0"
+                                col="0"
+                                :text="note.title"
+                                class="size-16 m-b-5"
+                            ></Label>
+                            <Label
+                                row="1"
+                                col="0"
+                                :text="note.value"
+                                v-if="note.value"
+                                class="size-12 m-b-10"
+                            ></Label>
+                            <Image
+                                rowSpan="2"
+                                col="1"
+                                v-if="note.audioFile"
+                                src="~/images/mic.png"
+                                width="17"
+                            />
+                        </GridLayout>
+                        <GridLayout row="0" rows="auto" columns="*">
+                            <Image
+                                horizontalAlignment="right"
+                                src="~/images/small_close.png"
+                                width="15"
+                                class="m-t-5"
+                                :dataNote="note"
+                                @tap="removeAdditionalNote"
+                            />
+                        </GridLayout>
+                    </GridLayout>
+
                     <FlexboxLayout
                         justifyContent="center"
                         class="m-t-20 m-b-20"
                     >
                         <Image src="~/images/add.png" width="20" />
-                        <Label text="Add Note" class="p-l-5"></Label>
-                    </FlexboxLayout> -->
+                        <Label
+                            text="Add Note"
+                            class="p-l-5"
+                            @tap="createAdditionalNote"
+                        ></Label>
+                    </FlexboxLayout>
 
+                    <!-- continue button -->
                     <Button
                         class="btn btn-primary m-b-10"
                         text="Continue"
@@ -134,7 +186,6 @@
                         @tap="goToReview"
                     ></Button>
                 </StackLayout>
-                <TextView id="hidden-field" />
             </FlexboxLayout>
         </ScrollView>
     </Page>
@@ -195,6 +246,7 @@ export default {
                     complete: 0
                 }
             ],
+            additionalNotes: [],
             photos: [],
             saveToGallery: true,
             allowsEditing: true,
@@ -230,7 +282,8 @@ export default {
                     station: this.station,
                     fieldNotes: this.fieldNotes,
                     photos: this.photos,
-                    percentComplete: this.percentComplete
+                    percentComplete: this.percentComplete,
+                    additionalNotes: this.additionalNotes
                 }
             });
         },
@@ -260,11 +313,11 @@ export default {
             this.fieldNotes.forEach(note => {
                 if (this.station[note.field]) {
                     note.value = this.station[note.field];
-                    //note.instruction = this.station[note.field];
                 }
             });
 
-            // audio or additional notes
+            // audio and/or additional notes
+            this.additionalNotes = [];
             this.otherNotes.forEach(note => {
                 let fieldNote = this.fieldNotes.find(n => {
                     return n.field == note.category;
@@ -273,6 +326,16 @@ export default {
                     fieldNote.audioFile += "," + note.audioFile;
                 } else if (fieldNote) {
                     fieldNote.audioFile = note.audioFile;
+                } else {
+                    // display additional note
+                    this.additionalNotes.push({
+                        fieldNoteId: note.id,
+                        field: note.category,
+                        value: note.note,
+                        title: "Field Note",
+                        audioFile: note.audioFile,
+                        instruction: note.note
+                    });
                 }
             });
 
@@ -304,6 +367,12 @@ export default {
             let fieldNote = this.fieldNotes.find(n => {
                 return n.field == note.field;
             });
+            if (!fieldNote) {
+                // save as additional note
+                this.saveAdditional(note);
+                return;
+            }
+
             fieldNote.value = note.value;
             if (note.value) {
                 fieldNote.complete = true;
@@ -339,10 +408,87 @@ export default {
             this.updatePercentComplete();
         },
 
+        createAdditionalNote(event) {
+            // note: saving ~requires field to be 'additional'
+            this.currentNote = {
+                field: "additional",
+                value: "",
+                title: "Field Note",
+                instruction: "Tap to add additional notes",
+                audioFile: ""
+            };
+            this.isEditing = true;
+        },
+
+        saveAdditional(note) {
+           this.isEditing = false;
+            const newNote = {
+                stationId: this.station.id,
+                note: note.value,
+                category: note.field,
+                audioFile: note.audioFile,
+                author: this.userName
+            };
+            dbInterface.insertFieldNote(newNote).then(id => {
+                this.additionalNotes.push({
+                    fieldNoteId: id,
+                    field: note.field,
+                    value: note.value,
+                    title: "Field Note",
+                    instruction: "Tap to add additional notes",
+                    audioFile: note.audioFile
+                });
+            });
+            // send note as field note to portal
+            // NOTE: portal category IDs are not set up yet
+            let portalParams = {
+                stationId: this.station.id,
+                created: new Date(),
+                category_id: 1,
+                note: note.value
+            };
+            this.$portalInterface.addFieldNote(portalParams);
+        },
+
+        removeAdditionalNote(event) {
+            let note = event.object.dataNote;
+            // confirm removal
+            dialogs
+                .confirm({
+                    title: "Are you sure you want to delete this note?",
+                    okButtonText: _L("yes"),
+                    cancelButtonText: _L("cancel")
+                })
+                .then(result => {
+                    if (result) {
+                        let index = this.additionalNotes.findIndex(n => {
+                            return n.fieldNoteId == note.fieldNoteId;
+                        });
+                        if (index > -1) {
+                            this.additionalNotes.splice(index, 1);
+                        }
+                        dbInterface.removeFieldNote(note.id);
+                        if (note.audioFile && note.audioFile != "") {
+                            dbInterface.removeFieldNoteByAudioFile(
+                                note.audioFile
+                            );
+                        }
+
+                        // *** NOTE: probably more places need this:
+                        // TODO: delete from portal
+                    }
+                });
+        },
+
         saveAudio(note, recordings) {
             let fieldNote = this.fieldNotes.find(n => {
                 return n.field == note.field;
             });
+            if (!fieldNote) {
+                // additional note audio
+                // gets saved elsewhere
+                return;
+            }
             fieldNote.complete = true;
             recordings.forEach(r => {
                 if (fieldNote.audioFile) {
@@ -366,6 +512,12 @@ export default {
             let fieldNote = this.fieldNotes.find(n => {
                 return n.field == note.field;
             });
+            if (!fieldNote) {
+                // additional note audio
+                // hasn't been saved in db yet
+                return;
+            }
+
             let recordings = fieldNote.audioFile.split(",");
             let index = recordings.indexOf(filename);
             if (index > -1) {
@@ -381,7 +533,7 @@ export default {
         },
 
         updatePercentComplete() {
-            // Note: hard-coded total - four notes and photo
+            // Note: hard-coded total - 4 notes and 1 photo
             const total = 5.0;
             let done = 0;
             if (this.photos.length > 0) {
@@ -534,6 +686,15 @@ export default {
     margin-top: 10;
     margin-bottom: 10;
 }
+.additional-note-section {
+    border-width: 1;
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    padding: 10;
+    margin-top: 10;
+    margin-bottom: 10;
+    margin-right: 5;
+}
 
 .photo-display,
 .photo-btn {
@@ -544,9 +705,5 @@ export default {
 }
 .photo-btn-img {
     margin-top: 40;
-}
-
-#hidden-field {
-    opacity: 0;
 }
 </style>
