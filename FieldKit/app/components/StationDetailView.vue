@@ -81,7 +81,7 @@ export default {
 
             this.$navigateTo(routes.stations, {
                 props: {
-                    station: this.activeStation
+                    station: this.currentStation
                 }
             });
         },
@@ -91,7 +91,7 @@ export default {
 
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    station: this.activeStation
+                    station: this.currentStation
                 }
             });
         },
@@ -109,14 +109,14 @@ export default {
                 props: {
                     // remove the "m_id-" prefix
                     moduleId: event.object.id.split("m_id-")[1],
-                    station: this.activeStation
+                    station: this.currentStation
                 }
             });
         },
 
         goToSettings(event) {
             // prevent taps before page finishes loading
-            if (!this.activeStation || this.activeStation.id == 0) {
+            if (!this.currentStation || this.currentStation.id == 0) {
                 return;
             }
 
@@ -130,14 +130,14 @@ export default {
 
             this.$navigateTo(routes.stationSettings, {
                 props: {
-                    station: this.activeStation
+                    station: this.currentStation
                 }
             });
         },
 
         stopProcesses() {
-            if (this.activeStation && this.activeStation.url != "no_url") {
-                this.$stationMonitor.stopLiveReadings(this.activeStation.url);
+            if (this.currentStation && this.currentStation.url != "no_url") {
+                this.$stationMonitor.stopLiveReadings(this.currentStation.url);
             }
             clearInterval(this.intervalTimer);
             this.$refs.statusBox.stopProcesses();
@@ -155,8 +155,8 @@ export default {
             this.stations = this.$stationMonitor.getStations();
 
             if (this.station) {
-                this.activeStation = this.station;
-                this.paramId = this.activeStation.id;
+                this.currentStation = this.station;
+                this.paramId = this.currentStation.id;
                 this.completeSetup();
             } else {
                 this.paramId = this.stationId;
@@ -178,14 +178,14 @@ export default {
                 data => {
                     switch (data.propertyName.toString()) {
                         case this.$stationMonitor.StationRefreshedProperty: {
-                            if (!data.value || !this.activeStation) {
+                            if (!data.value || !this.currentStation) {
                                 console.log("bad station refresh", data.value);
                             } else {
                                 if (
                                     Number(data.value.id) ===
                                     Number(this.paramId)
                                 ) {
-                                    this.activeStation.connected =
+                                    this.currentStation.connected =
                                         data.value.connected;
                                 }
                             }
@@ -215,15 +215,15 @@ export default {
                 setTimeout(this.getFromDatabase, 2000);
                 return Promise.reject();
             }
-            this.activeStation = stations[0];
+            this.currentStation = stations[0];
             // update via stationMonitor
             let listStation = this.stations.find(s => {
-                return s.deviceId == this.activeStation.deviceId;
+                return s.deviceId == this.currentStation.deviceId;
             });
             if (listStation) {
-                this.activeStation.connected = listStation.connected;
+                this.currentStation.connected = listStation.connected;
             }
-            return dbInterface.getModules(this.activeStation.id);
+            return dbInterface.getModules(this.currentStation.id);
         },
 
         getSensors(moduleObject) {
@@ -233,60 +233,60 @@ export default {
         },
 
         setupModules(modules) {
-            this.activeStation.moduleObjects = modules;
-            return Promise.all(this.activeStation.moduleObjects.map(this.getSensors));
+            this.currentStation.moduleObjects = modules;
+            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors));
         },
 
         completeSetup() {
             this.loading = false;
             clearInterval(this.intervalTimer);
             if (
-                this.activeStation.deployStartTime &&
-                typeof this.activeStation.deployStartTime == "string"
+                this.currentStation.deployStartTime &&
+                typeof this.currentStation.deployStartTime == "string"
             ) {
-                this.activeStation.deployStartTime = new Date(
-                    this.activeStation.deployStartTime
+                this.currentStation.deployStartTime = new Date(
+                    this.currentStation.deployStartTime
                 );
             }
-            if (this.activeStation.status == "recording") {
+            if (this.currentStation.status == "recording") {
                 this.setDeployedStatus();
             }
-            this.$refs.statusBox.updateStation(this.activeStation);
-            this.$refs.moduleList.updateModules(this.activeStation.moduleObjects);
-            this.activeStation.origName = this.activeStation.name;
+            this.$refs.statusBox.updateStation(this.currentStation);
+            this.$refs.moduleList.updateModules(this.currentStation.moduleObjects);
+            this.currentStation.origName = this.currentStation.name;
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portalIds
             let params = {
-                name: this.activeStation.name,
-                device_id: this.activeStation.deviceId,
-                status_json: this.activeStation
+                name: this.currentStation.name,
+                device_id: this.currentStation.deviceId,
+                status_json: this.currentStation
             };
-            if (!this.activeStation.portalId && this.activeStation.url != "no_url") {
+            if (!this.currentStation.portalId && this.currentStation.url != "no_url") {
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
-                        this.activeStation.portalId = stationPortalId;
-                        dbInterface.setStationPortalID(this.activeStation);
+                        this.currentStation.portalId = stationPortalId;
+                        dbInterface.setStationPortalID(this.currentStation);
                     });
-            } else if (this.activeStation.portalId && this.activeStation.url != "no_url") {
+            } else if (this.currentStation.portalId && this.currentStation.url != "no_url") {
                 this.$portalInterface
-                    .updateStation(params, this.activeStation.portalId)
+                    .updateStation(params, this.currentStation.portalId)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
                     });
             }
 
             // start getting live readings for this station
-            if (this.activeStation.url != "no_url") {
+            if (this.currentStation.url != "no_url") {
                 // see if live readings have been stored already
                 const readings = this.$stationMonitor.getStationReadings(
-                    this.activeStation
+                    this.currentStation
                 );
                 if (readings) {
                     this.$refs.moduleList.updateReadings(readings);
                 }
-                this.$stationMonitor.startLiveReadings(this.activeStation.url);
+                this.$stationMonitor.startLiveReadings(this.currentStation.url);
             }
 
             // now that activeStation and modules are defined, respond to updates
@@ -294,13 +294,13 @@ export default {
         },
 
         setDeployedStatus() {
-            if (!this.activeStation.deployStartTime) {
+            if (!this.currentStation.deployStartTime) {
                 this.deployedStatus = "Deployed";
                 return;
             }
-            let month = this.activeStation.deployStartTime.getMonth() + 1;
-            let day = this.activeStation.deployStartTime.getDate();
-            let year = this.activeStation.deployStartTime.getFullYear();
+            let month = this.currentStation.deployStartTime.getMonth() + 1;
+            let day = this.currentStation.deployStartTime.getDate();
+            let year = this.currentStation.deployStartTime.getFullYear();
             this.deployedStatus =
                 "Deployed (" + month + "/" + day + "/" + year + ")";
         },
