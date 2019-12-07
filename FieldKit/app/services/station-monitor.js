@@ -118,7 +118,12 @@ export default class StationMonitor extends Observable {
 
         station.connected = true;
         station.lastSeen = new Date();
-        station.status = result.status.recording.enabled ? "recording" : null;
+        const newStatus = result.status.recording.enabled ? "recording" : "";
+        // db needs to be kept in sync
+        if (newStatus != station.status) {
+            this.dbInterface.setStationDeployStatus(station);
+        }
+        station.status = newStatus;
         station.name = result.status.identity.device;
         return this._updateStationStatus(station, result);
     }
@@ -137,7 +142,11 @@ export default class StationMonitor extends Observable {
 
         station.connected = true;
         station.lastSeen = new Date();
-        station.status = result.status.recording.enabled ? "recording" : null;
+        const newStatus = result.status.recording.enabled ? "recording" : "";
+        // db needs to be kept in sync
+        if (newStatus != station.status) {
+            this.dbInterface.setStationDeployStatus(station);
+        }
         const readings = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
@@ -225,10 +234,10 @@ export default class StationMonitor extends Observable {
         const modules = data.result.modules;
         const recordingStatus = data.result.status.recording.enabled
             ? "recording"
-            : null;
+            : "";
         let deployStartTime = data.result.status.recording.startedTime
             ? new Date(data.result.status.recording.startedTime * 1000)
-            : null;
+            : "";
 
         const station = {
             deviceId: data.deviceId,
