@@ -4,7 +4,7 @@
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <ScreenHeader
-                        :title="activeStation.name"
+                        :title="currentStation.name"
                         :subtitle="deployedStatus"
                         :onBack="goBack"
                         :onSettings="goToSettings"
@@ -22,7 +22,7 @@
             </ScrollView>
 
             <!-- footer -->
-            <ScreenFooter row="1" :station="activeStation" active="stations" />
+            <ScreenFooter row="1" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -50,7 +50,7 @@ export default {
             loading: true,
             deployedStatus: "Ready to deploy",
             modules: [],
-            activeStation: { name: "", id: 0 },
+            currentStation: { name: "", id: 0 },
             paramId: null
         };
     },
@@ -289,7 +289,7 @@ export default {
                 this.$stationMonitor.startLiveReadings(this.currentStation.url);
             }
 
-            // now that activeStation and modules are defined, respond to updates
+            // now that currentStation and modules are defined, respond to updates
             this.respondToUpdates();
         },
 
