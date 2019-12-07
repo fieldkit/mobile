@@ -21,6 +21,7 @@ export default class StationMonitor extends Observable {
         this.stations = {};
         // stations whose details are being viewed in app are "active"
         this.activeAddresses = [];
+        this.queriesInProgress = {};
         this.discoverStation = discoverStation;
         this.subscribeToStationDiscovery();
         this.dbInterface.getAll().then(this.initializeStations.bind(this));
@@ -81,12 +82,16 @@ export default class StationMonitor extends Observable {
         const elapsed = new Date() - station.lastSeen;
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
             console.log("station inactive");
+            delete this.queriesInProgress[station.deviceId];
             this.deactivateStation(station.deviceId);
         }
 
         if (!station.connected) {
+            delete this.queriesInProgress[station.deviceId];
             return Promise.reject();
         }
+
+        this.queriesInProgress[station.deviceId] = true;
 
         return this._statusOrReadings(station, takeReadings)
             .finally(() => {
@@ -314,7 +319,9 @@ export default class StationMonitor extends Observable {
         this.dbInterface.setStationUrl(this.stations[deviceId]);
 
         // start getting readings
-        this.requestInitialReadings(this.stations[deviceId]);
+        if (!this.queriesInProgress[deviceId]) {
+            this.requestInitialReadings(this.stations[deviceId]);
+        }
     }
 
     deactivateStation(deviceId) {
