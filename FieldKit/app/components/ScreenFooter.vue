@@ -72,7 +72,7 @@ export default {
     data() {
         return {};
     },
-    props: ["station", "active"],
+    props: ["active"],
     methods: {
         onLoaded(args) {},
 
@@ -83,11 +83,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stations, {
-                props: {
-                    station: this.station
-                }
-            });
+            this.$navigateTo(routes.stations);
         },
 
         goToData(event) {
