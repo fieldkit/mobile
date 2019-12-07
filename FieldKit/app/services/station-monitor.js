@@ -310,6 +310,8 @@ export default class StationMonitor extends Observable {
         this.stations[deviceId].name = statusResult.status.identity.device;
         // prefer discovered url over database url
         this.stations[deviceId].url = address;
+        // and update the database url!
+        this.dbInterface.setStationUrl(this.stations[deviceId]);
 
         // start getting readings
         this.requestInitialReadings(this.stations[deviceId]);

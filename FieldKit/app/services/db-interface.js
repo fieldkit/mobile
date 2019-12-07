@@ -163,6 +163,15 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationUrl(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET url = ? WHERE id = ?", [
+                station.url,
+                station.id
+            ])
+        );
+    }
+
     setStationPortalID(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [
