@@ -159,7 +159,12 @@
                 <!-- record button -->
                 <Button
                     class="btn btn-primary m-20"
-                    text="Record"
+                    :text="(
+                        station.connected
+                        ? 'Record'
+                        : 'Must be connected to station to start recording'
+                    )"
+                    :isEnabled="station.connected"
                     @tap="deployStation"
                 ></Button>
             </FlexboxLayout>
