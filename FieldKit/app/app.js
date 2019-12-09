@@ -9,7 +9,7 @@ import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Config from "./config";
 import * as traceModule from "tns-core-modules/trace";
-import { RangeSeekBar } from "nativescript-range-seek-bar/range-seek-bar";
+// import { RangeSeekBar } from "nativescript-range-seek-bar/range-seek-bar";
 
 import Services from "./services/services";
 
@@ -62,7 +62,7 @@ Vue.prototype._L = _L;
 
 Vue.prototype.$portalInterface = Services.PortalInterface();
 
-Vue.registerElement('RangeSeekBar', () => RangeSeekBar);
+// Vue.registerElement('RangeSeekBar', () => RangeSeekBar);
 
 Vue.registerElement(
     "DropDown",

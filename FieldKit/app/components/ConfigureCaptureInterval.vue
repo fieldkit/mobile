@@ -56,7 +56,7 @@
                     :key="interval.id"
                 >
                     <!-- slider only shows if not daily -->
-                    <StackLayout v-if="!daily && !ios" class="m-b-20">
+                    <!-- <StackLayout v-if="!daily && !ios" class="m-b-20">
                         <GridLayout rows="auto, auto, auto" columns="*">
                             <Label
                                 row="0"
@@ -96,7 +96,7 @@
                                 text="12 am"
                             ></Label>
                         </GridLayout>
-                    </StackLayout>
+                    </StackLayout> -->
                     <!-- end slider -->
                     <GridLayout rows="auto,auto,auto" , columns="*,*">
                         <Label
@@ -341,20 +341,20 @@ export default {
             container.addChild(event.object);
         },
 
-        onRangeSeekBarChanged(event, interval) {
-            interval.minRange = event.value.minValue;
-            interval.maxRange = event.value.maxValue;
-            const minSuffix = interval.minRange < 12 ? "am" : "pm";
-            const maxSuffix = interval.maxRange < 12 ? "am" : "pm";
-            const min =
-                interval.minRange % 12 == 0 ? 12 : interval.minRange % 12;
-            const max =
-                interval.maxRange % 12 == 0 ? 12 : interval.maxRange % 12;
-            interval.displayRange = min + minSuffix + " - " + max + maxSuffix;
-            // *** TEMP ***
-            // not saving these because firmware doesn't support it yet
-            // also it doesn't work at all in iOS
-        }
+        // onRangeSeekBarChanged(event, interval) {
+        //     interval.minRange = event.value.minValue;
+        //     interval.maxRange = event.value.maxValue;
+        //     const minSuffix = interval.minRange < 12 ? "am" : "pm";
+        //     const maxSuffix = interval.maxRange < 12 ? "am" : "pm";
+        //     const min =
+        //         interval.minRange % 12 == 0 ? 12 : interval.minRange % 12;
+        //     const max =
+        //         interval.maxRange % 12 == 0 ? 12 : interval.maxRange % 12;
+        //     interval.displayRange = min + minSuffix + " - " + max + maxSuffix;
+        //     // *** TEMP ***
+        //     // not saving these because firmware doesn't support it yet
+        //     // also it doesn't work at all in iOS
+        // }
     }
 };
 </script>
