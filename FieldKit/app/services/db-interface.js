@@ -358,7 +358,7 @@ export default class DatabaseInterface {
     insertStation(station, statusJson) {
         const newStation = new Station(station);
         return this.database.execute(
-            `INSERT INTO stations (device_id, name, url, status, deploy_start_time, battery_level, available_memory, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (device_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.name,
@@ -366,7 +366,9 @@ export default class DatabaseInterface {
                 newStation.status,
                 newStation.deployStartTime,
                 newStation.batteryLevel,
-                newStation.availableMemory,
+                newStation.consumedMemory,
+                newStation.totalMemory,
+                newStation.consumedMemoryPercent,
                 newStation.interval,
                 JSON.stringify(statusJson),
                 newStation.longitude,
@@ -700,7 +702,9 @@ class Station {
         this.status = _station.status;
         this.deployStartTime = _station.deployStartTime;
         this.batteryLevel = _station.batteryLevel;
-        this.availableMemory = _station.availableMemory;
+        this.consumedMemoryPercent = _station.consumedMemoryPercent;
+        this.consumedMemory = _station.consumedMemory;
+        this.totalMemory = _station.totalMemory;
         this.interval = _station.interval
             ? _station.interval
             : Math.round(Math.random() * maxInterval + minInterval);

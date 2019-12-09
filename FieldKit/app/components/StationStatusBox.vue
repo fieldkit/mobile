@@ -82,14 +82,14 @@
                         col="1"
                         class="m-t-15 m-l-10 size-14"
                         horizontalAlignment="left"
-                        :text="_L('availableMemory')"
+                        text="Memory used"
                     ></Label>
                     <Label
                         row="1"
                         col="1"
                         class="m-l-10 m-t-5 m-b-10 size-12"
                         horizontalAlignment="left"
-                        :text="station.availableMemory + '%'"
+                        :text="station.consumedMemory + ' of ' + station.totalMemory"
                     ></Label>
                     <GridLayout
                         row="2"
@@ -124,6 +124,7 @@
 
 <script>
 import Services from "../services/services";
+import { convertBytesToLabel } from "../utilities";
 
 export default {
     name: "StationStatusBox",
@@ -136,7 +137,8 @@ export default {
             dataSyncingIcon: "~/images/syncing.png",
             dataSyncMessage: "",
             station: {
-                availableMemory: 0,
+                consumedMemory: 0,
+                totalMemory: 0,
                 batteryLevel: 0,
                 batteryImage: "~/images/Icon_Battery_0.png",
                 connected: false,
@@ -188,14 +190,12 @@ export default {
                 this.elapsedRecTime = "00:00:00";
             }
             this.setBatteryImage();
-            this.station.occupiedMemory = 100 - this.station.availableMemory;
-            this.station.availableMemory = parseFloat(
-                this.station.availableMemory
-            ).toFixed(2);
-            if (this.station.occupiedMemory) {
+            this.station.consumedMemory = convertBytesToLabel(this.station.consumedMemory);
+            this.station.totalMemory = convertBytesToLabel(this.station.totalMemory);
+            if (this.station.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
-                        this.station.occupiedMemory +
+                        this.station.consumedMemoryPercent +
                         "%;}"
                 );
             }
@@ -204,12 +204,13 @@ export default {
         updateStatus(data) {
             this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
-            this.station.occupiedMemory = data.consumedMemory.toFixed(2);
-            this.station.availableMemory = 100 - this.station.occupiedMemory;
-            if (this.station.occupiedMemory) {
+
+            this.station.consumedMemory = data.consumedMemory;
+            this.station.totalMemory = data.totalMemory;
+            if (data.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
-                        this.station.occupiedMemory +
+                        data.consumedMemoryPercent +
                         "%;}"
                 );
             }

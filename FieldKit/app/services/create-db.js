@@ -175,7 +175,9 @@ export default class CreateDB {
                 status TEXT,
                 battery_level NUMERIC,
                 connected INTEGER,
-                available_memory NUMERIC,
+                consumed_memory_percent NUMERIC,
+                consumed_memory NUMERIC,
+                total_memory NUMERIC,
                 interval NUMERIC,
                 location_name TEXT,
                 latitude NUMERIC,
@@ -267,7 +269,9 @@ export default class CreateDB {
     addStation(station) {
         // these numbers are only generated for seeded stations
         station.batteryLevel = Math.floor(Math.random() * Math.floor(100));
-        station.availableMemory = Math.floor(Math.random() * Math.floor(100));
+        station.totalMemory = 536870914; // 512 MB
+        station.consumedMemory = Math.floor(Math.random() * 536870914);
+        station.consumedMemoryPercent = Math.round((station.consumedMemory / station.totalMemory ) * 100);
         station.longitude = -122.65397644042969;
         station.latitude = 45.500099182128906;
         station.deployStartTime = "";

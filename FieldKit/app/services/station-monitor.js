@@ -1,5 +1,5 @@
 import { Observable } from "tns-core-modules/data/observable";
-import { promiseAfter } from "../utilities";
+import { promiseAfter, convertBytesToLabel } from "../utilities";
 import Config from "../config";
 
 const pastDate = new Date(2000, 0, 1);
@@ -159,7 +159,9 @@ export default class StationMonitor extends Observable {
             stationId: station.id,
             readings: readings,
             batteryLevel: result.status.power.battery.percentage,
-            consumedMemory: result.status.memory.dataMemoryConsumption
+            consumedMemory: convertBytesToLabel(result.status.memory.dataMemoryUsed),
+            totalMemory: convertBytesToLabel(result.status.memory.dataMemoryInstalled),
+            consumedMemoryPercent: result.status.memory.dataMemoryConsumption
         };
         // store one set of live readings per station
         station.readings = readings;
@@ -248,10 +250,11 @@ export default class StationMonitor extends Observable {
             connected: true,
             interval: data.result.schedules.readings.interval,
             batteryLevel: deviceStatus.power.battery.percentage,
-            availableMemory:
-                100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
             longitude: deviceStatus.gps.longitude.toFixed(6),
-            latitude: deviceStatus.gps.latitude.toFixed(6)
+            latitude: deviceStatus.gps.latitude.toFixed(6),
+            consumedMemory: deviceStatus.memory.dataMemoryUsed,
+            totalMemory: deviceStatus.memory.dataMemoryInstalled,
+            consumedMemoryPercent: deviceStatus.memory.dataMemoryConsumption
         };
         this.dbInterface.insertStation(station, data.result).then(id => {
             station.id = id;
