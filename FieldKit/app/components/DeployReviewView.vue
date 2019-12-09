@@ -42,7 +42,7 @@
                         <Image
                             col="1"
                             src="~/images/Icon_Edit.png"
-                            width="14"
+                            width="18"
                             @tap="editLocation"
                         />
                     </GridLayout>
@@ -83,7 +83,7 @@
                             row="0"
                             col="2"
                             src="~/images/Icon_Edit.png"
-                            width="14"
+                            width="18"
                             @tap="editNotes"
                         />
                     </GridLayout>
