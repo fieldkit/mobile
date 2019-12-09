@@ -467,7 +467,7 @@ export default {
                         if (index > -1) {
                             this.additionalNotes.splice(index, 1);
                         }
-                        dbInterface.removeFieldNote(note.id);
+                        dbInterface.removeFieldNote(note.fieldNoteId);
                         if (note.audioFile && note.audioFile != "") {
                             dbInterface.removeFieldNoteByAudioFile(
                                 note.audioFile
@@ -480,7 +480,7 @@ export default {
                 });
         },
 
-        saveAudio(note, recordings) {
+        saveAudio(note, recording) {
             let fieldNote = this.fieldNotes.find(n => {
                 return n.field == note.field;
             });
@@ -490,21 +490,19 @@ export default {
                 return;
             }
             fieldNote.complete = true;
-            recordings.forEach(r => {
-                if (fieldNote.audioFile) {
-                    fieldNote.audioFile += "," + r;
-                } else {
-                    fieldNote.audioFile = r;
-                }
-                const audioNote = {
-                    stationId: this.station.id,
-                    note: note.value,
-                    category: note.field,
-                    audioFile: r,
-                    author: this.userName
-                };
-                dbInterface.insertFieldNote(audioNote);
-            });
+            if (fieldNote.audioFile) {
+                fieldNote.audioFile += "," + recording;
+            } else {
+                fieldNote.audioFile = recording;
+            }
+            const audioNote = {
+                stationId: this.station.id,
+                note: note.value,
+                category: note.field,
+                audioFile: recording,
+                author: this.userName
+            };
+            dbInterface.insertFieldNote(audioNote);
             this.updatePercentComplete();
         },
 
