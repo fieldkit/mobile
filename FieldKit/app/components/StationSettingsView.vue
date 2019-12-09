@@ -148,7 +148,7 @@
                         >
                             <Image
                                 col="0"
-                                src="~/images/add.png"
+                                src="~/images/Icon_Add_Button.png"
                                 width="20"
                             ></Image>
                             <Label
@@ -223,7 +223,7 @@
                         >
                             <Image
                                 col="0"
-                                src="~/images/add.png"
+                                src="~/images/Icon_Add_Button.png"
                                 width="20"
                             ></Image>
                             <Label

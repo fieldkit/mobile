@@ -239,7 +239,7 @@ export default {
                     lng: s.longitude,
                     title: s.name,
                     subtitle: s.locationName,
-                    iconPath: "images/map_dot.png"
+                    iconPath: "images/Icon_Map_Dot.png"
                 });
             });
 

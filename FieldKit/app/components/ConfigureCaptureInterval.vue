@@ -167,7 +167,7 @@
                         class="m-t-30"
                         v-if="!daily"
                     >
-                        <Image src="~/images/add.png" width="20" />
+                        <Image src="~/images/Icon_Add_Button.png" width="20" />
                         <Label text="Add Time" class="p-l-5"></Label>
                     </FlexboxLayout>
                 </StackLayout>

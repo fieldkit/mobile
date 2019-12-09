@@ -219,7 +219,7 @@ export default {
                                 lat: this.station.latitude,
                                 lng: this.station.longitude,
                                 title: this.station.locationName,
-                                iconPath: 'images/map_dot.png'
+                                iconPath: 'images/Icon_Map_Dot.png'
                             };
                             this.map.addMarkers([this.mapMarker]);
                             this.saveLocationCoordinates();

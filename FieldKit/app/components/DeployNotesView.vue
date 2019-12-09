@@ -82,7 +82,7 @@
                             rowSpan="2"
                             col="1"
                             v-if="note.audioFile"
-                            src="~/images/mic.png"
+                            src="~/images/Icon_Mic.png"
                             width="17"
                         />
                     </GridLayout>
@@ -103,7 +103,7 @@
                             </StackLayout>
                             <StackLayout class="photo-btn" @tap="onPhotoTap">
                                 <Image
-                                    src="~/images/add.png"
+                                    src="~/images/Icon_Add_Button.png"
                                     width="20"
                                     opacity="0.25"
                                     class="photo-btn-img"
@@ -149,14 +149,14 @@
                                 rowSpan="2"
                                 col="1"
                                 v-if="note.audioFile"
-                                src="~/images/mic.png"
+                                src="~/images/Icon_Mic.png"
                                 width="17"
                             />
                         </GridLayout>
                         <GridLayout row="0" rows="auto" columns="*">
                             <Image
                                 horizontalAlignment="right"
-                                src="~/images/small_close.png"
+                                src="~/images/Icon_Close_Circle.png"
                                 width="15"
                                 class="m-t-5"
                                 :dataNote="note"
@@ -169,7 +169,7 @@
                         justifyContent="center"
                         class="m-t-20 m-b-20"
                     >
-                        <Image src="~/images/add.png" width="20" />
+                        <Image src="~/images/Icon_Add_Button.png" width="20" />
                         <Label
                             text="Add Note"
                             class="p-l-5"

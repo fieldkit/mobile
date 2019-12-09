@@ -103,7 +103,7 @@
                         ></Label>
                         <Image
                             v-if="note.audioFile"
-                            src="~/images/mic.png"
+                            src="~/images/Icon_Mic.png"
                             width="17"
                             horizontalAlignment="left"
                         />
@@ -151,7 +151,7 @@
                         rowSpan="2"
                         col="1"
                         v-if="note.audioFile"
-                        src="~/images/mic.png"
+                        src="~/images/Icon_Mic.png"
                         width="17"
                     />
                 </GridLayout>

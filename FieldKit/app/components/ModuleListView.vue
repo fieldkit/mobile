@@ -37,7 +37,7 @@
                         col="2"
                         verticalAlignment="top"
                         horizontalAlignment="right"
-                        src="~/images/pointing_up.png"
+                        src="~/images/Icon_Cheveron_Up.png"
                         width="30"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
@@ -51,7 +51,7 @@
                         width="30"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
-                        src="~/images/pointing_down.png"
+                        src="~/images/Icon_Cheveron_Down.png"
                         v-if="open.indexOf(m.id) == -1"
                     ></Image>
                 </GridLayout>

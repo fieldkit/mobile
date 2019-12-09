@@ -8,7 +8,7 @@
             @tap="onBack"
             v-if="canNavigateBack"
         >
-            <Image width="21" src="~/images/Icon_backarrow.png"></Image>
+            <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
         </StackLayout>
         <GridLayout col="1" rows="auto,auto" columns="*">
             <Label

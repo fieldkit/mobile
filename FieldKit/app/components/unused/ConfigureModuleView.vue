@@ -16,7 +16,7 @@
                         <Image
                             width="21"
                             v-show="!isEditingName"
-                            src="~/images/Icon_backarrow.png"
+                            src="~/images/Icon_Backarrow.png"
                         ></Image>
                     </StackLayout>
                     <Image

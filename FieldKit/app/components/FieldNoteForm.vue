@@ -27,7 +27,7 @@
                 width="20"
                 class="small-round"
                 :data="recording"
-                src="~/images/play.png"
+                src="~/images/Icon_Play.png"
                 @tap="playAudio"
             ></Image>
             <Label
@@ -39,10 +39,10 @@
             />
             <Image
                 col="2"
-                width="17"
+                width="20"
                 class="small-round"
                 :data="recording"
-                src="~/images/trash.png"
+                src="~/images/Icon_Delete.png"
                 @tap="removeRecording"
             ></Image>
         </GridLayout>
@@ -57,7 +57,7 @@
 
         <Image
             width="40"
-            src="~/images/mic_outlined.png"
+            src="~/images/Icon_Mic_Button.png"
             horizontalAlignment="right"
             class="m-10"
             @tap="onAudioTap"

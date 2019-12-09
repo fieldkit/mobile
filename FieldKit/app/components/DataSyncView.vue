@@ -36,7 +36,7 @@
                                         rowSpan="2"
                                         col="0"
                                         width="25"
-                                        src="~/images/readings.png"
+                                        src="~/images/Icon_Datafile.png"
                                         verticalAlignment="top"
                                     ></Image>
                                     <Label
@@ -56,7 +56,7 @@
                                         rowSpan="2"
                                         col="2"
                                         width="25"
-                                        src="~/images/download.png"
+                                        src="~/images/Icon_Download.png"
                                         v-if="!downloading[s.deviceId]"
                                         :dataDeviceId="s.deviceId"
                                         @tap="onDownloadTap"
@@ -98,7 +98,7 @@
                                         rowSpan="2"
                                         col="0"
                                         width="25"
-                                        src="~/images/readings.png"
+                                        src="~/images/Icon_Datafile.png"
                                         verticalAlignment="top"
                                     ></Image>
                                     <Label
@@ -118,7 +118,7 @@
                                         rowSpan="2"
                                         col="2"
                                         width="25"
-                                        src="~/images/ready.png"
+                                        src="~/images/Icon_Pending_Clock.png"
                                         v-if="s.uploadState == 'waiting'"
                                         :dataDeviceId="s.deviceId"
                                         @tap="onUploadTap"
@@ -169,8 +169,8 @@ export default {
     data() {
         return {
             recentSyncs: [],
-            downloadingIcon: "~/images/syncing.png",
-            uploadingIcon: "~/images/syncing.png",
+            downloadingIcon: "~/images/Icon_Syncing.png",
+            uploadingIcon: "~/images/Icon_Syncing.png",
             downloading: {},
             uploading: {},
             uploadInProgress: false
@@ -466,16 +466,16 @@ export default {
 
         rotateDownloadingIcon() {
             this.downloadingIcon =
-                this.downloadingIcon == "~/images/syncing.png"
-                    ? "~/images/syncing2.png"
-                    : "~/images/syncing.png";
+                this.downloadingIcon == "~/images/Icon_Syncing.png"
+                    ? "~/images/Icon_Syncing2.png"
+                    : "~/images/Icon_Syncing.png";
         },
 
         rotateUploadingIcon() {
             this.uploadingIcon =
-                this.uploadingIcon == "~/images/syncing.png"
-                    ? "~/images/syncing2.png"
-                    : "~/images/syncing.png";
+                this.uploadingIcon == "~/images/Icon_Syncing.png"
+                    ? "~/images/Icon_Syncing2.png"
+                    : "~/images/Icon_Syncing.png";
         }
     }
 };

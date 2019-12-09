@@ -134,7 +134,7 @@ export default {
             elapsedRecTime: "--:--:--",
             elapsedTimeLabel: "hrs min sec",
             syncing: false,
-            dataSyncingIcon: "~/images/syncing.png",
+            dataSyncingIcon: "~/images/Icon_Syncing.png",
             dataSyncMessage: "",
             station: {
                 consumedMemory: 0,
@@ -287,9 +287,9 @@ export default {
 
         rotateSyncingIcon() {
             this.dataSyncingIcon =
-                this.dataSyncingIcon == "~/images/syncing.png"
-                    ? "~/images/syncing2.png"
-                    : "~/images/syncing.png";
+                this.dataSyncingIcon == "~/images/Icon_Syncing.png"
+                    ? "~/images/Icon_Syncing2.png"
+                    : "~/images/Icon_Syncing.png";
         },
 
         stopProcesses() {
