@@ -222,28 +222,28 @@ export default {
                     value: "",
                     title: "Study Objective",
                     instruction: "Tap to add your study objective",
-                    complete: 0
+                    complete: false
                 },
                 {
                     field: "locationPurpose",
                     value: "",
                     title: "Purpose of Site Location",
                     instruction: "Tap to add the purpose of your site location",
-                    complete: 0
+                    complete: false
                 },
                 {
                     field: "criteria",
                     value: "",
                     title: "Site Criteria",
                     instruction: "Tap to add your site criteria",
-                    complete: 0
+                    complete: false
                 },
                 {
                     field: "description",
                     value: "",
                     title: "Site Description",
                     instruction: "Tap to add your site description",
-                    complete: 0
+                    complete: false
                 }
             ],
             additionalNotes: [],
@@ -313,6 +313,9 @@ export default {
             this.fieldNotes.forEach(note => {
                 if (this.station[note.field]) {
                     note.value = this.station[note.field];
+                    if (note.value != "") {
+                        note.complete = true;
+                    }
                 }
             });
 
