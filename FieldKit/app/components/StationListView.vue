@@ -53,7 +53,7 @@
                         <Label
                             row="1"
                             col="0"
-                            :text="getDeployStatus(s)"
+                            :text="s.deployStatus"
                             class="m-t-5"
                         />
                         <Image
@@ -158,6 +158,9 @@ export default {
             }
             // try using hardware's startedTime first
             try {
+                if (!station.statusReply.status.recording.startedTime) {
+                    throw new Error("no startedTime")
+                }
                 // multiply by 1000 so the arg is in ms, not s
                 const start = new Date(
                     station.statusReply.status.recording.startedTime * 1000
@@ -196,6 +199,10 @@ export default {
         },
 
         showStations() {
+            this.stations.forEach(s => {
+                s.deployStatus = this.getDeployStatus(s);
+            });
+
             let longMax = -180;
             let longMin = 180;
             let latMin = 90;
@@ -244,6 +251,8 @@ export default {
             });
 
             if (this.map) {
+                // remove first to keep them from stacking up
+                this.map.removeMarkers();
                 this.map.addMarkers(stationMarkers);
             }
 

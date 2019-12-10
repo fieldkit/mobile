@@ -173,6 +173,19 @@ export default class StationMonitor extends Observable {
         return this._updateStationStatus(station, result);
     }
 
+    recordingStatusChange(address, recording) {
+        const stations = Object.values(this.stations);
+        let station = stations.find(s => {
+            return s.url == address;
+        });
+        if (station) {
+            const newStatus = recording == "started" ? "recording" : "";
+            station.status = newStatus;
+            this.stations[station.deviceId] = station;
+            this._publishStationsUpdated();
+        }
+    }
+
     subscribeToStationDiscovery() {
         this.discoverStation.on(
             Observable.propertyChangeEvent,
