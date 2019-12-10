@@ -187,6 +187,7 @@ export default class CreateDB {
                 site_criteria TEXT,
                 site_description TEXT,
                 deploy_start_time DATETIME,
+                percent_complete INTEGER,
                 portal_id INTEGER,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP,

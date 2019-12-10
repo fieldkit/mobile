@@ -244,6 +244,15 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationPercentComplete(station) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET percent_complete = ? WHERE id = ?",
+                [station.percentComplete, station.id]
+            )
+        );
+    }
+
     setStationDeployStatus(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET status = ? WHERE id = ?", [

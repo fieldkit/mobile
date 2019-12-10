@@ -270,6 +270,9 @@ export default {
             savingStation.deployStartTime = new Date();
             dbInterface.setStationDeployStartTime(savingStation);
 
+            savingStation.percentComplete = this.percentComplete;
+            dbInterface.setStationPercentComplete(savingStation);
+
             queryStation.startDataRecording(this.station.url).then(result => {
                 this.updatePortal(savingStation).then(() => {
                     this.$navigateTo(routes.stationDetail, {
