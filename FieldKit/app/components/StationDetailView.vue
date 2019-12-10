@@ -1,23 +1,104 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
+    <Page
+        class="page plain"
+        actionBarHidden="true"
+        @loaded="onPageLoaded"
+        @navigatingFrom="onNavigatingFrom"
+    >
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <ScreenHeader
+                        order="1"
                         :title="currentStation.name"
                         :subtitle="deployedStatus"
                         :onBack="goBack"
                         :onSettings="goToSettings"
                     />
 
-                    <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
+                    <!-- loading animation -->
+                    <GridLayout
+                        order="2"
+                        rows="auto"
+                        columns="*"
+                        v-if="loading"
+                        class="text-center"
+                    >
                         <StackLayout id="loading-circle-blue"></StackLayout>
                         <StackLayout id="loading-circle-white"></StackLayout>
                     </GridLayout>
 
-                    <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
+                    <!-- grid to allow overlapping elements -->
+                    <GridLayout order="3" rows="*" columns="*">
+                        <!-- background elements -->
+                        <GridLayout row="0" col="0">
+                            <FlexboxLayout flexDirection="column">
+                                <!-- station status details -->
+                                <StationStatusBox
+                                    order="1"
+                                    ref="statusBox"
+                                    @deployTapped="goToDeploy"
+                                />
+                                <!-- field notes section -->
+                                <GridLayout
+                                    order="2"
+                                    rows="auto"
+                                    columns="10*,55*,35*"
+                                    v-if="isDeployed"
+                                    class="m-t-10 m-x-10 p-10 bordered-container"
+                                    @tap="goToFieldNotes"
+                                >
+                                    <Image
+                                        col="0"
+                                        width="25"
+                                        src="~/images/Icon_FieldNotes.png"
+                                    ></Image>
+                                    <Label
+                                        col="1"
+                                        text="Field Notes"
+                                        class="size-18 m-l-10"
+                                        verticalAlignment="middle"
+                                    />
+                                    <Label
+                                        col="2"
+                                        :text="percentComplete + '% Complete'"
+                                        class="size-16 blue"
+                                        verticalAlignment="middle"
+                                    />
+                                </GridLayout>
+                                <!-- module list with current readings -->
+                                <ModuleListView
+                                    order="3"
+                                    ref="moduleList"
+                                    @moduleTapped="goToModule"
+                                />
+                            </FlexboxLayout>
+                        </GridLayout>
+                        <!-- end background elements -->
 
-                    <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
+                        <!-- foreground elements -->
+                        <AbsoluteLayout
+                            row="0"
+                            col="0"
+                            class="text-center"
+                            v-if="newlyDeployed"
+                        >
+                            <!-- center dialog with grid layout -->
+                            <GridLayout top="75" width="100%">
+                                <StackLayout class="deployed-dialog-container">
+                                    <Image
+                                        width="60"
+                                        src="~/images/Icon_Success.png"
+                                    ></Image>
+                                    <Label
+                                        text="Station Deployed"
+                                        class="deployed-dialog-text"
+                                    />
+                                </StackLayout>
+                            </GridLayout>
+                        </AbsoluteLayout>
+                        <!-- end foreground elements -->
+                    </GridLayout>
                 </FlexboxLayout>
             </ScrollView>
 
@@ -48,10 +129,13 @@ export default {
     data() {
         return {
             loading: true,
+            isDeployed: false,
             deployedStatus: "Ready to deploy",
+            percentComplete: 0,
             modules: [],
             currentStation: { name: "", id: 0 },
-            paramId: null
+            paramId: null,
+            newlyDeployed: false
         };
     },
     components: {
@@ -62,10 +146,13 @@ export default {
     },
     props: {
         stationId: {
-            type: String,
+            type: String
         },
         station: {
-            type: Object,
+            type: Object
+        },
+        redirectedFromDeploy: {
+            type: String
         }
     },
     methods: {
@@ -90,6 +177,16 @@ export default {
             this.stopProcesses();
 
             this.$navigateTo(routes.deployMap, {
+                props: {
+                    station: this.currentStation
+                }
+            });
+        },
+
+        goToFieldNotes() {
+            this.stopProcesses();
+
+            this.$navigateTo(routes.deployNotes, {
                 props: {
                     station: this.currentStation
                 }
@@ -234,12 +331,22 @@ export default {
 
         setupModules(modules) {
             this.currentStation.moduleObjects = modules;
-            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors));
+            return Promise.all(
+                this.currentStation.moduleObjects.map(this.getSensors)
+            );
         },
 
         completeSetup() {
             this.loading = false;
             clearInterval(this.intervalTimer);
+
+            if (this.redirectedFromDeploy) {
+                this.newlyDeployed = true;
+                setTimeout(() => {
+                    this.newlyDeployed = false;
+                }, 3000);
+            }
+
             if (
                 this.currentStation.deployStartTime &&
                 typeof this.currentStation.deployStartTime == "string"
@@ -250,9 +357,13 @@ export default {
             }
             if (this.currentStation.status == "recording") {
                 this.setDeployedStatus();
+                this.isDeployed = true;
+                this.percentComplete = this.currentStation.percentComplete;
             }
             this.$refs.statusBox.updateStation(this.currentStation);
-            this.$refs.moduleList.updateModules(this.currentStation.moduleObjects);
+            this.$refs.moduleList.updateModules(
+                this.currentStation.moduleObjects
+            );
             this.currentStation.origName = this.currentStation.name;
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
@@ -262,14 +373,20 @@ export default {
                 device_id: this.currentStation.deviceId,
                 status_json: this.currentStation
             };
-            if (!this.currentStation.portalId && this.currentStation.url != "no_url") {
+            if (
+                !this.currentStation.portalId &&
+                this.currentStation.url != "no_url"
+            ) {
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
                         this.currentStation.portalId = stationPortalId;
                         dbInterface.setStationPortalID(this.currentStation);
                     });
-            } else if (this.currentStation.portalId && this.currentStation.url != "no_url") {
+            } else if (
+                this.currentStation.portalId &&
+                this.currentStation.url != "no_url"
+            ) {
                 this.$portalInterface
                     .updateStation(params, this.currentStation.portalId)
                     .then(stationPortalId => {
@@ -343,5 +460,27 @@ export default {
 }
 #loading-circle-blue {
     border-color: $fk-secondary-blue;
+}
+.bordered-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
+.blue {
+    color: $fk-primary-blue;
+}
+
+.deployed-dialog-container {
+    border-radius: 4;
+    background-color: $fk-gray-lightest;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+    width: 225;
+    height: 225;
+    padding-top: 50;
+}
+.deployed-dialog-text {
+    margin-top: 20;
+    font-size: 18;
 }
 </style>

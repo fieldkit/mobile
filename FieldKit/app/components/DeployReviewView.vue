@@ -277,7 +277,8 @@ export default {
                 this.updatePortal(savingStation).then(() => {
                     this.$navigateTo(routes.stationDetail, {
                         props: {
-                            station: this.station
+                            station: this.station,
+                            redirectedFromDeploy: true
                         }
                     });
                 });
