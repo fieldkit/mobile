@@ -89,7 +89,7 @@
                         col="1"
                         class="m-l-10 m-t-5 m-b-10 size-12"
                         horizontalAlignment="left"
-                        :text="station.consumedMemory + ' of ' + station.totalMemory"
+                        :text="station.displayConsumedMemory + ' of ' + station.displayTotalMemory"
                     ></Label>
                     <GridLayout
                         row="2"
@@ -137,8 +137,8 @@ export default {
             dataSyncingIcon: "~/images/Icon_Syncing.png",
             dataSyncMessage: "",
             station: {
-                consumedMemory: 0,
-                totalMemory: 0,
+                displayConsumedMemory: 0,
+                displayTotalMemory: 0,
                 batteryLevel: 0,
                 batteryImage: "~/images/Icon_Battery_0.png",
                 connected: false,
@@ -190,8 +190,8 @@ export default {
                 this.elapsedRecTime = "00:00:00";
             }
             this.setBatteryImage();
-            this.station.consumedMemory = convertBytesToLabel(this.station.consumedMemory);
-            this.station.totalMemory = convertBytesToLabel(this.station.totalMemory);
+            this.station.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
+            this.station.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
             if (this.station.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
@@ -205,8 +205,8 @@ export default {
             this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
 
-            this.station.consumedMemory = data.consumedMemory;
-            this.station.totalMemory = data.totalMemory;
+            this.station.displayConsumedMemory = data.consumedMemory;
+            this.station.displayTotalMemory = data.totalMemory;
             if (data.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
