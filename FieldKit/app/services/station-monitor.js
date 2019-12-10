@@ -159,7 +159,9 @@ export default class StationMonitor extends Observable {
             stationId: station.id,
             readings: readings,
             batteryLevel: result.status.power.battery.percentage,
-            consumedMemory: convertBytesToLabel(result.status.memory.dataMemoryUsed),
+            consumedMemory: result.status.memory.dataMemoryUsed
+                ? convertBytesToLabel(result.status.memory.dataMemoryUsed)
+                : "Unknown",
             totalMemory: convertBytesToLabel(result.status.memory.dataMemoryInstalled),
             consumedMemoryPercent: result.status.memory.dataMemoryConsumption
         };

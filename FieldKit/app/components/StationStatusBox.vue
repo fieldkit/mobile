@@ -63,7 +63,16 @@
                     <Label
                         col="1"
                         class="m-10 size-14"
+                        :text="this.station.connected
+                            ? _L('connected')
+                            : 'Not connected'"
+                        v-if="!syncing"
+                    ></Label>
+                    <Label
+                        col="1"
+                        class="m-10 size-14"
                         :text="dataSyncMessage"
+                        v-if="syncing"
                     ></Label>
                 </GridLayout>
                 <GridLayout
@@ -89,7 +98,7 @@
                         col="1"
                         class="m-l-10 m-t-5 m-b-10 size-12"
                         horizontalAlignment="left"
-                        :text="station.displayConsumedMemory + ' of ' + station.displayTotalMemory"
+                        :text="displayConsumedMemory + ' of ' + displayTotalMemory"
                     ></Label>
                     <GridLayout
                         row="2"
@@ -136,9 +145,9 @@ export default {
             syncing: false,
             dataSyncingIcon: "~/images/Icon_Syncing.png",
             dataSyncMessage: "",
+            displayConsumedMemory: 0,
+            displayTotalMemory: 0,
             station: {
-                displayConsumedMemory: 0,
-                displayTotalMemory: 0,
                 batteryLevel: 0,
                 batteryImage: "~/images/Icon_Battery_0.png",
                 connected: false,
@@ -163,9 +172,6 @@ export default {
                     }
                 } else {
                     this.syncing = false;
-                    this.dataSyncMessage = this.station.connected
-                        ? _L("connected")
-                        : "Not connected";
                 }
             });
         },
@@ -177,9 +183,6 @@ export default {
         updateStation(station) {
             this.loading = false;
             this.station = station;
-            this.dataSyncMessage = this.station.connected
-                ? _L("connected")
-                : "Not connected";
             if (this.station.status == "recording") {
                 this.outer = this.page.getViewById("outer-circle");
                 this.inner = this.page.getViewById("inner-circle");
@@ -190,8 +193,8 @@ export default {
                 this.elapsedRecTime = "00:00:00";
             }
             this.setBatteryImage();
-            this.station.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
-            this.station.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
+            this.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
+            this.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
             if (this.station.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
@@ -204,9 +207,8 @@ export default {
         updateStatus(data) {
             this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
-
-            this.station.displayConsumedMemory = data.consumedMemory;
-            this.station.displayTotalMemory = data.totalMemory;
+            this.displayConsumedMemory = data.consumedMemory;
+            this.displayTotalMemory = data.totalMemory;
             if (data.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
