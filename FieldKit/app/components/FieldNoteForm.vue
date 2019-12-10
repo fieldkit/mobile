@@ -13,14 +13,60 @@
             </StackLayout>
         </GridLayout>
 
+        <!-- Recording in progress -->
+        <GridLayout
+            rows="auto"
+            columns="10*,10*,70*,10*"
+            class="recording-box"
+            v-if="preRecord || recordingInProgress"
+        >
+            <Image
+                col="0"
+                width="20"
+                class="small-round"
+                src="~/images/Icon_Pause.png"
+                v-if="recordingInProgress"
+                @tap="pauseRecording"
+            ></Image>
+            <Image
+                col="0"
+                width="20"
+                class="small-round"
+                src="~/images/Icon_Record.png"
+                v-if="preRecord"
+                @tap="(recordingInProgress ? resumeRecording() : startAudioRecording())"
+            ></Image>
+            <Image
+                col="1"
+                width="20"
+                class="small-round"
+                src="~/images/Icon_Stop.png"
+                v-if="recordingInProgress"
+                @tap="stopRecording"
+            ></Image>
+            <Label
+                col="2"
+                :colSpan="(recordingInProgress ? 1 : 2)"
+                :text="recordingTime"
+                textWrap="true"
+            />
+            <Image
+                col="3"
+                width="20"
+                class="small-round"
+                src="~/images/Icon_Close_Circle.png"
+                @tap="cancelRecording"
+            ></Image>
+        </GridLayout>
+        <!-- end recording in progress -->
+
         <!-- List audio recordings -->
         <GridLayout
             rows="auto"
             columns="10*,80*,10*"
-            v-for="(recording, index) in displayRecordings"
+            v-for="recording in displayRecordings"
             :key="recording"
             class="link-style recording-box"
-            orientation="vertical"
         >
             <Image
                 col="0"
@@ -28,11 +74,21 @@
                 class="small-round"
                 :data="recording"
                 src="~/images/Icon_Play.png"
+                v-if="isPlaying != recording"
                 @tap="playAudio"
+            ></Image>
+            <Image
+                col="0"
+                width="20"
+                class="small-round"
+                :data="recording"
+                src="~/images/Icon_Stop.png"
+                v-if="isPlaying == recording"
+                @tap="stopPlaying"
             ></Image>
             <Label
                 col="1"
-                :text="fieldNote.title + ' audio note ' + (displayRecordings.length > 1 ? index+1 : '')"
+                :text="recording"
                 :data="recording"
                 textWrap="true"
                 @tap="playAudio"
@@ -79,8 +135,12 @@ let monthNames = [];
 export default {
     data() {
         return {
-            newRecordings: {},
             displayRecordings: [],
+            isPlaying: false,
+            preRecord: false,
+            timer: 0,
+            recordingTime: "00:00:00",
+            recordingInProgress: false
         };
     },
     props: ["fieldNote"],
@@ -130,17 +190,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            dialogs
-                .action({
-                    message: _L("addAudio"),
-                    cancelButtonText: _L("cancel"),
-                    actions: [_L("startRecording")]
-                })
-                .then(result => {
-                    if (result == _L("startRecording")) {
-                        this.startAudioRecording();
-                    }
-                });
+            this.preRecord = true;
         },
 
         startAudioRecording() {
@@ -149,39 +199,63 @@ export default {
             let month = monthNames[now.getMonth()];
             let day = now.getDate();
             let year = now.getFullYear();
-            let filename =
-                _L("audioNote") + " " + this.fieldNote.title + " " + month + " " + day + " " + year;
-            // colons not allowed in audio file names - if time is needed, re-work this
-            // let time = now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
-            let dateIndex = month + "_" + day + "_" + year;
-            if (this.newRecordings[dateIndex]) {
-                // increment filename if we already have any
-                let numRecordings = this.newRecordings[dateIndex].length;
-                filename += " " + (numRecordings + 1);
-            } else {
-                this.newRecordings[dateIndex] = [];
+            let filename = this.fieldNote.title + " audio note " + month + " " + day + " " + year;
+            let index = 2;
+            while (this.displayRecordings.indexOf(filename) > -1) {
+                filename = filename + " " + index;
+                index += 1;
             }
-            this.newRecordings[dateIndex].push(filename);
-
             audioInterface.startAudioRecording(filename);
-
-            dialogs
-                .action({
-                    message: _L("recording"),
-                    actions: [_L("stopRecording")]
-                })
-                .then(result => {
-                    if (result == _L("stopRecording")) {
-                        audioInterface.stopAudioRecording();
-                        // automatically save recording
-                        this.addRecording(filename);
-                    }
-                });
+            this.preRecord = false;
+            this.recordingInProgress = filename;
+            this.timer = 0;
+            this.timerInterval = setInterval(this.tickRecordingTimer, 1000);
         },
 
-        addRecording(filename) {
-            this.displayRecordings.push(filename);
-            this.saveRecordings();
+        pauseRecording() {
+            this.preRecord = true;
+            audioInterface.pauseAudioRecording();
+            clearInterval(this.timerInterval);
+        },
+
+        resumeRecording() {
+            this.preRecord = false;
+            audioInterface.resumeAudioRecording();
+            this.timerInterval = setInterval(this.tickRecordingTimer, 1000);
+        },
+
+        stopRecording() {
+            audioInterface.stopAudioRecording();
+            const recording = this.recordingInProgress;
+            this.displayRecordings.push(recording);
+            // automatically save recording
+            this.saveRecording(recording);
+            this.recordingTime = "00:00:00";
+            this.timer = 0;
+            this.preRecord = false;
+            this.recordingInProgress = false;
+            clearInterval(this.timerInterval);
+        },
+
+        cancelRecording() {
+            audioInterface.stopAudioRecording();
+            this.recordingTime = "00:00:00";
+            this.timer = 0;
+            this.preRecord = false;
+            this.recordingInProgress = false;
+            clearInterval(this.timerInterval);
+        },
+
+        tickRecordingTimer() {
+            this.timer += 1;
+            let origSeconds = this.timer;
+            let seconds = Math.floor(origSeconds % 60);
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            let minutes = Math.floor((origSeconds / 60) % 60);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            let hours = Math.floor((origSeconds / (60 * 60)) % 24);
+            hours = hours < 10 ? "0" + hours : hours;
+            this.recordingTime = hours + ":" + minutes + ":" + seconds;
         },
 
         removeRecording(event) {
@@ -214,11 +288,11 @@ export default {
                 });
         },
 
-        saveRecordings() {
+        saveRecording(recording) {
             if (this.fieldNote.field == "additional") {
                 this.fieldNote.audioFile = this.displayRecordings.join(",");
             } else {
-                this.$emit("saveAudio", this.fieldNote, this.displayRecordings);
+                this.$emit("saveAudio", this.fieldNote, recording);
             }
         },
 
@@ -227,8 +301,16 @@ export default {
         },
 
         playAudio(event) {
-            audioInterface.playRecordedFile(event.object.data);
+            this.isPlaying = event.object.data;
+            audioInterface.playRecordedFile(event.object.data, () => {
+                this.isPlaying = false;
+            });
         },
+
+        stopPlaying(event) {
+            this.isPlaying = false;
+            audioInterface.pausePlayer();
+        }
     }
 };
 </script>
