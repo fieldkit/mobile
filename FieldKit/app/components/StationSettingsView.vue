@@ -526,7 +526,7 @@ export default {
 
         stopRecording(event) {
             let savingStation = this.station;
-            savingStation.status = null;
+            savingStation.status = "";
             dbInterface.setStationDeployStatus(savingStation);
 
             queryStation.stopDataRecording(this.station.url).then(result => {
