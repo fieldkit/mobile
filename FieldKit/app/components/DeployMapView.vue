@@ -12,27 +12,30 @@
                     :onBack="goBack"
                     :canNavigateSettings="false"
                 />
-                <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
-                    <StackLayout col="0" class="top-line"></StackLayout>
-                </GridLayout>
 
-                <Mapbox
-                    :accessToken="mapboxToken"
-                    automationText="currentLocationMap"
-                    mapStyle="mapbox://styles/mapbox/outdoors-v11"
-                    height="150"
-                    hideCompass="false"
-                    zoomLevel="0"
-                    showUserLocation="false"
-                    disableZoom="false"
-                    disableRotation="false"
-                    disableScroll="false"
-                    disableTilt="false"
-                    @mapReady="onMapReady"
-                ></Mapbox>
+                <StackLayout>
+                    <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
+                        <StackLayout col="0" class="top-line"></StackLayout>
+                    </GridLayout>
+
+                    <Mapbox
+                        :accessToken="mapboxToken"
+                        automationText="currentLocationMap"
+                        mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                        height="150"
+                        hideCompass="false"
+                        zoomLevel="0"
+                        showUserLocation="false"
+                        disableZoom="false"
+                        disableRotation="false"
+                        disableScroll="false"
+                        disableTilt="false"
+                        @mapReady="onMapReady"
+                    ></Mapbox>
+                </StackLayout>
 
                 <!-- Name your location -->
-                <GridLayout rows="*" columns="*" class="m-t-20 m-x-10">
+                <GridLayout rows="*" columns="*" class="m-t-30 m-b-20 m-x-10">
                     <StackLayout row="0">
                         <FlexboxLayout>
                             <TextField
@@ -85,7 +88,7 @@
                 <!-- end: Data capture interval -->
 
                 <Button
-                    class="btn btn-primary m-b-10"
+                    class="btn btn-primary m-y-20"
                     text="Continue"
                     automationText="nextButton"
                     @tap="goToNext"

@@ -165,6 +165,7 @@
                         : 'Must be connected to station to start recording'
                     )"
                     :isEnabled="station.connected"
+                    textWrap="true"
                     @tap="deployStation"
                 ></Button>
             </FlexboxLayout>
