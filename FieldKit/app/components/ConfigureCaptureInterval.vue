@@ -31,19 +31,19 @@
                         text="Scheduled"
                         horizontalAlignment="right"
                         :class="
-                            'schedule-type-btn ' + (daily ? '' : 'selected')
+                            'schedule-type-btn ' + (basic ? '' : 'selected')
                         "
-                        dataType="daily"
+                        dataType="scheduled"
                         @tap="switchType"
                     ></Label>
                     <Label
                         col="0"
-                        text="24-hour"
+                        text="Basic"
                         horizontalAlignment="left"
                         :class="
-                            'schedule-type-btn ' + (daily ? 'selected' : '')
+                            'schedule-type-btn ' + (basic ? 'selected' : '')
                         "
-                        dataType="scheduled"
+                        dataType="basic"
                         @tap="switchType"
                     ></Label>
                 </GridLayout>
@@ -55,8 +55,8 @@
                     v-for="interval in intervals"
                     :key="interval.id"
                 >
-                    <!-- slider only shows if not daily -->
-                    <!-- <StackLayout v-if="!daily && !ios" class="m-b-20">
+                    <!-- slider only shows if not basic -->
+                    <!-- <StackLayout v-if="!basic && !ios" class="m-b-20">
                         <GridLayout rows="auto, auto, auto" columns="*">
                             <Label
                                 row="0"
@@ -161,11 +161,11 @@
                             ></Label>
                         </StackLayout>
                     </GridLayout>
-                    <!-- ready to allow addition of more intervals if not daily -->
+                    <!-- ready to allow addition of more intervals if not basic -->
                     <FlexboxLayout
                         justifyContent="center"
                         class="m-t-30"
-                        v-if="!daily"
+                        v-if="!basic"
                     >
                         <Image src="~/images/Icon_Add_Button.png" width="20" />
                         <Label text="Add Time" class="p-l-5"></Label>
@@ -190,7 +190,7 @@ export default {
     data() {
         return {
             ios: isIOS,
-            daily: true,
+            basic: true,
             intervals: [],
             timeUnits: [
                 _L("seconds"),
@@ -334,7 +334,7 @@ export default {
         },
 
         switchType(event) {
-            this.daily = event.object.dataType != "daily";
+            this.basic = event.object.dataType == "basic";
 
             let container = this.page.getViewById("schedule-btn-container");
             container.removeChild(event.object);

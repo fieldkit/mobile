@@ -54,7 +54,7 @@
                         "
                     />
                     <Label text="Data capture interval" class="m-t-20 m-b-5" />
-                    <Label text="24-hour" />
+                    <Label text="Basic" />
                     <Label text="Every" class="m-t-20 m-b-5" />
                     <Label :text="getInterval()" />
                 </StackLayout>
