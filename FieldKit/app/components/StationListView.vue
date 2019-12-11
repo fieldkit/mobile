@@ -28,7 +28,6 @@
                         disableTilt="false"
                         class="m-b-10"
                         @mapReady="onMapReady"
-                        v-if="connectedToInternet"
                     ></Mapbox>
 
                     <GridLayout
@@ -101,7 +100,6 @@ export default {
     data() {
         return {
             stations: [],
-            connectedToInternet: false,
             mapboxToken: MAPBOX_ACCESS_TOKEN
         };
     },
@@ -115,19 +113,6 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
-
-            // This is a sad hack...
-            // TODO: something more sensible
-            // (the NS connectivity module
-            // does not help in the case of
-            // self AP connections)
-            request({
-                url: "https://google.com",
-                method: "GET"
-            }).then((response) => {
-                this.connectedToInternet = true;
-            }, (e) => {
-            });
 
             this.stations = this.$stationMonitor.getStations();
 
