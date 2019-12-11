@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="fk_primary">#1B80C9</color>
+    <color name="fk_primary">#0A67AA</color>
 	<color name="fk_primaryDark">#2C3E50</color>
 	<color name="fk_accent">#CE596B</color>
 </resources>

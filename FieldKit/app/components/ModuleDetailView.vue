@@ -112,7 +112,7 @@
                             >
                                 <PaletteEntry
                                     v-tkCartesianPaletteEntry
-                                    fillColor="#1B80C9"
+                                    fillColor="#0A67AA"
                                     strokeColor="#FFFFFF"
                                     strokeWidth="2"
                                 />
