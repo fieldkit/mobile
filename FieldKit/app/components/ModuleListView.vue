@@ -31,28 +31,18 @@
                         class="module-name"
                         textWrap="true"
                     />
-                    <!-- toggle sensor container icons -->
+                    <!-- toggle sensor container -->
                     <Image
                         row="0"
                         col="2"
-                        verticalAlignment="top"
+                        verticalAlignment="center"
                         horizontalAlignment="right"
-                        src="~/images/Icon_Cheveron_Up.png"
-                        width="30"
+                        :src="open.indexOf(m.id) > -1
+                            ? '~/images/Icon_Cheveron_Up.png'
+                            : '~/images/Icon_Cheveron_Down.png'"
+                        width="25"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
-                        v-if="open.indexOf(m.id) > -1"
-                    ></Image>
-                    <Image
-                        row="0"
-                        col="2"
-                        verticalAlignment="top"
-                        horizontalAlignment="right"
-                        width="30"
-                        :dataId="'m_id-' + m.id"
-                        @tap="toggleContainer"
-                        src="~/images/Icon_Cheveron_Down.png"
-                        v-if="open.indexOf(m.id) == -1"
                     ></Image>
                 </GridLayout>
                 <!-- sensor container -->
