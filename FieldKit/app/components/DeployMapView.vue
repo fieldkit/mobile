@@ -37,8 +37,15 @@
                 <!-- Name your location -->
                 <GridLayout rows="*" columns="*" class="m-t-30 m-b-20 m-x-10">
                     <StackLayout row="0">
-                        <FlexboxLayout>
+                        <GridLayout rows="auto,auto" columns="*">
+                            <Label
+                                row="0"
+                                :text="_L('nameYourLocation')"
+                                class="size-12"
+                                v-if="station.locationName"
+                            />
                             <TextField
+                                row="1"
                                 class="input"
                                 id="location-name-field"
                                 :hint="_L('nameYourLocation')"
@@ -50,7 +57,7 @@
                                 @focus="toggleLocationEdit"
                                 @blur="checkLocationName"
                             ></TextField>
-                        </FlexboxLayout>
+                        </GridLayout>
                         <Label
                             class="validation-error"
                             id="no-location"
@@ -332,7 +339,7 @@ export default {
 }
 
 #location-name-field {
-    padding: 0;
+    padding-bottom: 5;
     width: 100%;
     font-size: 18;
     border-bottom-color: $fk-primary-black;
