@@ -33,17 +33,29 @@
                 </GridLayout>
 
                 <template v-if="sensors.length > 1">
-                    <StackLayout id="drop-down-container" class="m-10">
+                    <GridLayout rows="*" columns="*" class="m-10">
                         <DropDown
+                            row="0"
+                            col="0"
+                            class="p-5 size-18 drop-down"
+                            id="sensors-drop-down"
                             :items="sensorNames"
                             @opened="onOpened"
                             @closed="onClosed"
-                            @selectedIndexChanged="onSelectedIndexChanged"
-                            backgroundColor="#F4F5F7"
-                            class="drop-down"
                             selectedIndex="0"
+                            @selectedIndexChanged="onSelectedIndexChanged"
                         ></DropDown>
-                    </StackLayout>
+                        <Image
+                            row="0"
+                            col="0"
+                            width="15"
+                            class="m-r-5"
+                            horizontalAlignment="right"
+                            verticalAlignment="middle"
+                            src="~/images/Icon_Cheveron_Down.png"
+                            @tap="openDropDown"
+                        />
+                    </GridLayout>
                 </template>
 
                 <StackLayout
@@ -268,6 +280,11 @@ export default {
             return unit;
         },
 
+        openDropDown(event) {
+            const dropDown = this.page.getViewById("sensors-drop-down");
+            dropDown.open();
+        },
+
         onOpened(event) {
             this.changeEvents = 0;
             // provide feedback by temporarily changing background color
@@ -389,5 +406,12 @@ export default {
 
 .capitalize {
     text-transform: capitalize;
+}
+
+.drop-down {
+    background-color: white;
+    border-width: 0;
+    border-bottom-width: 1;
+    border-bottom-color: $fk-primary-black;
 }
 </style>

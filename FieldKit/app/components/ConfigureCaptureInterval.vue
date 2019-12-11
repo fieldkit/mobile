@@ -122,19 +122,30 @@
                             v-model="interval.display"
                             @blur="saveInterval"
                         ></TextField>
-                        <StackLayout
-                            row="1"
-                            col="1"
-                            class="drop-down-container"
-                        >
-                            <DropDown
-                                :items="timeUnits"
-                                :id="'drop-down-' + interval.id"
-                                @selectedIndexChanged="onDropDownSelection"
-                                backgroundColor="#F4F5F7"
-                                class="drop-down"
-                                :selectedIndex="interval.unit"
-                            ></DropDown>
+                        <StackLayout row="1" col="1">
+                            <GridLayout rows="*" columns="*">
+                                <DropDown
+                                    row="0"
+                                    col="0"
+                                    class="p-5 size-18 drop-down"
+                                    :items="timeUnits"
+                                    :id="'drop-down-' + interval.id"
+                                    :selectedIndex="interval.unit"
+                                    @opened="onOpened"
+                                    @selectedIndexChanged="onDropDownSelection"
+                                ></DropDown>
+                                <Image
+                                    row="0"
+                                    col="0"
+                                    width="15"
+                                    class="m-r-5"
+                                    horizontalAlignment="right"
+                                    verticalAlignment="middle"
+                                    src="~/images/Icon_Cheveron_Down.png"
+                                    :dataIntervalId="interval.id"
+                                    @tap="openDropDown"
+                                />
+                            </GridLayout>
                         </StackLayout>
                         <StackLayout row="2" col="0">
                             <Label
@@ -324,6 +335,20 @@ export default {
             });
         },
 
+        openDropDown(event) {
+            let id = event.object.dataIntervalId;
+            const dropDown = this.page.getViewById("drop-down-"+id);
+            dropDown.open();
+        },
+
+        onOpened(event) {
+            // provide feedback by changing background color
+            event.object.backgroundColor = "#F4F5F7";
+            setTimeout(() => {
+                event.object.backgroundColor = "white";
+            }, 500);
+        },
+
         onDropDownSelection(event) {
             let id = event.object.id.split("drop-down-")[1];
             let interval = this.intervals.find(i => {
@@ -418,9 +443,10 @@ export default {
     border-top-width: 2;
     padding-top: 5;
 }
-.drop-down-container {
-    border-radius: 4;
-    border-width: 1;
-    border-color: $fk-gray-lighter;
+.drop-down {
+    background-color: white;
+    border-width: 0;
+    border-bottom-width: 1;
+    border-bottom-color: $fk-primary-black;
 }
 </style>
