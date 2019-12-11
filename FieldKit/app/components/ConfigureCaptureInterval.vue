@@ -220,6 +220,7 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
+            this.intervals = [];
             let converted = this.convertFromSeconds(this.station.interval);
             let interval = {
                 id: 1,

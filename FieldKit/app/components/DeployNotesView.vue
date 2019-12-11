@@ -27,8 +27,8 @@
                     @removeAudio="removeAudio"
                 />
 
-                <!-- top label section -->
                 <StackLayout class="m-x-20" v-if="!isEditing">
+                    <!-- top label section -->
                     <GridLayout
                         rows="auto,auto"
                         columns="35*,65*"
@@ -75,7 +75,13 @@
                         <Label
                             row="1"
                             col="0"
-                            :text="note.value ? note.value : note.instruction"
+                            :text="
+                                note.value
+                                    ? note.value
+                                    : note.audioFile
+                                    ? ''
+                                    : note.instruction
+                            "
                             class="size-12 m-b-10"
                         ></Label>
                         <Image

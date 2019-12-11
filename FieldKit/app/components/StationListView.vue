@@ -54,7 +54,9 @@
                             row="1"
                             col="0"
                             :text="s.deployStatus"
-                            class="m-t-5"
+                            :class="
+                                'm-t-5 ' + (s.connected ? '' : 'disconnected')
+                            "
                         />
                         <Image
                             col="1"
@@ -328,7 +330,7 @@ export default {
     font-size: 18;
     color: $fk-primary-black;
 }
-.station-name.disconnected {
+.disconnected {
     color: $fk-gray-dark;
 }
 .stations-list {
