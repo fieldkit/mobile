@@ -200,7 +200,8 @@ export default {
 
         showStations() {
             this.stations.forEach(s => {
-                s.deployStatus = this.getDeployStatus(s);
+                const deployStatus = this.getDeployStatus(s);
+                this.$set(s, "deployStatus", deployStatus);
             });
 
             let longMax = -180;
