@@ -253,7 +253,7 @@ export default {
             isEditing: false,
             fieldNotes: [
                 {
-                    field: "objective",
+                    field: "studyObjective",
                     value: "",
                     title: "Study Objective",
                     instruction: "Tap to add your study objective",
@@ -267,14 +267,14 @@ export default {
                     complete: false
                 },
                 {
-                    field: "criteria",
+                    field: "siteCriteria",
                     value: "",
                     title: "Site Criteria",
                     instruction: "Tap to add your site criteria",
                     complete: false
                 },
                 {
-                    field: "description",
+                    field: "siteDescription",
                     value: "",
                     title: "Site Description",
                     instruction: "Tap to add your site description",
@@ -421,16 +421,16 @@ export default {
             let savingStation = this.station;
             savingStation[note.field] = note.value;
             switch (note.field) {
-                case "objective":
+                case "studyObjective":
                     dbInterface.setStationStudyObjective(savingStation);
                     break;
                 case "locationPurpose":
                     dbInterface.setStationLocationPurpose(savingStation);
                     break;
-                case "criteria":
+                case "siteCriteria":
                     dbInterface.setStationSiteCriteria(savingStation);
                     break;
-                case "description":
+                case "siteDescription":
                     dbInterface.setStationSiteDescription(savingStation);
                     break;
             }
