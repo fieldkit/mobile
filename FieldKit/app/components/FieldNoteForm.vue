@@ -1,12 +1,12 @@
 <template>
     <StackLayout @loaded="onPageLoaded" @unloaded="onUnloaded">
 
-        <GridLayout rows="auto" columns="15*,70*,15*" class="m-y-10 bottom-border">
+        <GridLayout rows="auto" columns="15*,70*,15*" class="bottom-border">
             <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="onCancel">
                 <Image width="21" src="~/images/Icon_Close.png"></Image>
             </StackLayout>
-            <StackLayout col="1">
-                <Label class="title m-t-10 text-center" :text="fieldNote.title" textWrap="true"></Label>
+            <StackLayout col="1"  verticalAlignment="middle">
+                <Label class="title text-center" :text="fieldNote.title" textWrap="true"></Label>
             </StackLayout>
             <StackLayout col="2" class="round-bkgd" @tap="onSave">
                 <Image width="25" src="~/images/Icon_Save.png"></Image>
@@ -323,7 +323,8 @@ export default {
 // Custom styles
 
 .bottom-border {
-    padding-bottom: 20;
+    padding-bottom: 10;
+    margin-top: 5;
     margin-bottom: 40;
     border-bottom-width: 1;
     border-color: $fk-gray-lighter;
@@ -337,6 +338,7 @@ export default {
     height: 300;
     border-width: 1;
     border-color: white;
+    placeholder-color: $fk-gray-hint;
 }
 
 .recording-box {

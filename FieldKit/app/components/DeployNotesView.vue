@@ -97,7 +97,7 @@
                     <StackLayout class="m-t-20">
                         <Label
                             text="Photos (1 required)"
-                            class="size-12"
+                            class="size-16"
                         ></Label>
                         <WrapLayout orientation="horizontal">
                             <StackLayout
@@ -122,6 +122,10 @@
                     <StackLayout class="m-t-30">
                         <Label
                             text="Additional Notes"
+                            class="size-16 m-b-5"
+                        ></Label>
+                        <Label
+                            text="Add details to help your project"
                             class="size-12 m-b-10"
                         ></Label>
                     </StackLayout>
@@ -131,6 +135,7 @@
                         columns="*"
                         v-for="note in additionalNotes"
                         :key="note.field"
+                        class="m-b-10"
                     >
                         <GridLayout
                             row="0"
@@ -171,10 +176,7 @@
                         </GridLayout>
                     </GridLayout>
 
-                    <FlexboxLayout
-                        justifyContent="center"
-                        class="m-t-20 m-b-20"
-                    >
+                    <FlexboxLayout class="m-b-20">
                         <Image src="~/images/Icon_Add_Button.png" width="20" />
                         <Label
                             text="Add Note"
