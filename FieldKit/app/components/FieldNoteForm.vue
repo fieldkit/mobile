@@ -1,12 +1,31 @@
 <template>
-    <GridLayout rows="auto,auto,auto,*,auto" height="100%" @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <GridLayout
+        rows="auto,auto,auto,*,auto"
+        height="100%"
+        @loaded="onPageLoaded"
+        @unloaded="onUnloaded"
+    >
         <!-- header section -->
-        <GridLayout row="0" rows="auto" columns="15*,70*,15*" class="bottom-border">
-            <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="onCancel">
+        <GridLayout
+            row="0"
+            rows="auto"
+            columns="15*,70*,15*"
+            class="bottom-border"
+        >
+            <StackLayout
+                col="0"
+                class="round-bkgd"
+                verticalAlignment="top"
+                @tap="onCancel"
+            >
                 <Image width="21" src="~/images/Icon_Close.png"></Image>
             </StackLayout>
-            <StackLayout col="1"  verticalAlignment="middle">
-                <Label class="title text-center" :text="fieldNote.title" textWrap="true"></Label>
+            <StackLayout col="1" verticalAlignment="middle">
+                <Label
+                    class="title text-center"
+                    :text="fieldNote.title"
+                    textWrap="true"
+                ></Label>
             </StackLayout>
             <StackLayout col="2" class="round-bkgd" @tap="onSave">
                 <Image width="25" src="~/images/Icon_Save.png"></Image>
@@ -35,7 +54,11 @@
                 class="small-round"
                 src="~/images/Icon_Record.png"
                 v-if="preRecord"
-                @tap="(recordingInProgress ? resumeRecording() : startAudioRecording())"
+                @tap="
+                    recordingInProgress
+                        ? resumeRecording()
+                        : startAudioRecording()
+                "
             ></Image>
             <Image
                 col="1"
@@ -47,7 +70,7 @@
             ></Image>
             <Label
                 col="2"
-                :colSpan="(recordingInProgress ? 1 : 2)"
+                :colSpan="recordingInProgress ? 1 : 2"
                 :text="recordingTime"
                 textWrap="true"
             />
@@ -204,7 +227,14 @@ export default {
             let month = monthNames[now.getMonth()];
             let day = now.getDate();
             let year = now.getFullYear();
-            let filename = this.fieldNote.title + " audio note " + month + " " + day + " " + year;
+            let filename =
+                this.fieldNote.title +
+                " audio note " +
+                month +
+                " " +
+                day +
+                " " +
+                year;
             let index = 2;
             while (this.displayRecordings.indexOf(filename) > -1) {
                 filename = filename + " " + index;

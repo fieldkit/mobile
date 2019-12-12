@@ -2,7 +2,7 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="75,*,65">
             <!-- sticky header section and progress bar -->
-            <StackLayout row="0">
+            <StackLayout row="0" v-if="!linkedFromStation">
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="stationName"
@@ -19,6 +19,43 @@
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
             </StackLayout>
+
+            <!-- alternate header section -->
+            <GridLayout
+                row="0"
+                rows="auto,auto"
+                columns="85*,15*"
+                class="alternate-header"
+                v-if="linkedFromStation"
+            >
+                <StackLayout
+                    row="0"
+                    colSpan="2"
+                    verticalAlignment="middle"
+                    v-if="!isEditing"
+                >
+                    <Label
+                        class="title text-center"
+                        text="Field Notes"
+                    ></Label>
+                </StackLayout>
+                <StackLayout
+                    row="0"
+                    col="2"
+                    class="round-bkgd m-r-10"
+                    verticalAlignment="top"
+                    @tap="onEditDone"
+                    v-if="!isEditing"
+                >
+                    <Image width="21" src="~/images/Icon_Close.png"></Image>
+                </StackLayout>
+                <StackLayout
+                    row="1"
+                    colSpan="2"
+                    class="alternate-header-border"
+                    v-if="!isEditing"
+                />
+            </GridLayout>
 
             <!-- main notes view section -->
             <ScrollView row="1">
@@ -101,9 +138,15 @@
                                     :key="photo.id"
                                     class="photo-display"
                                 >
-                                    <Image :src="photo.src" stretch="aspectFit" />
+                                    <Image
+                                        :src="photo.src"
+                                        stretch="aspectFit"
+                                    />
                                 </StackLayout>
-                                <StackLayout class="photo-btn" @tap="onPhotoTap">
+                                <StackLayout
+                                    class="photo-btn"
+                                    @tap="onPhotoTap"
+                                >
                                     <Image
                                         src="~/images/Icon_Add_Button.png"
                                         width="20"
@@ -173,7 +216,10 @@
                         </GridLayout>
 
                         <FlexboxLayout class="m-b-20">
-                            <Image src="~/images/Icon_Add_Button.png" width="20" />
+                            <Image
+                                src="~/images/Icon_Add_Button.png"
+                                width="20"
+                            />
                             <Label
                                 text="Add Note"
                                 class="p-l-5"
@@ -185,13 +231,23 @@
             </ScrollView>
 
             <!-- sticky continue button -->
-            <StackLayout row="2">
+            <StackLayout row="2" v-if="!linkedFromStation">
                 <Button
                     class="btn btn-primary m-b-10"
                     text="Continue"
                     automationText="nextButton"
                     :isEnabled="havePhoto"
                     @tap="goToReview"
+                    v-if="!isEditing"
+                ></Button>
+            </StackLayout>
+
+            <!-- alternate sticky button -->
+            <StackLayout row="2" v-if="linkedFromStation">
+                <Button
+                    class="btn btn-primary m-b-10"
+                    text="Save"
+                    @tap="onEditDone"
                     v-if="!isEditing"
                 ></Button>
             </StackLayout>
@@ -291,7 +347,7 @@ export default {
             percentComplete: 0
         };
     },
-    props: ["station"],
+    props: ["station", "linkedFromStation"],
     components: {
         ScreenHeader,
         FieldNoteForm
@@ -321,6 +377,25 @@ export default {
                     additionalNotes: this.additionalNotes
                 }
             });
+        },
+
+        onEditDone(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            let savingStation = this.station;
+            savingStation.percentComplete = this.percentComplete;
+            dbInterface.setStationPercentComplete(savingStation)
+                .then(() => {
+                    this.$navigateTo(routes.stationDetail, {
+                        props: {
+                            station: this.station
+                        }
+                    });
+                });
         },
 
         onPageLoaded(args) {
@@ -459,7 +534,7 @@ export default {
         },
 
         saveAdditional(note) {
-           this.isEditing = false;
+            this.isEditing = false;
             const newNote = {
                 stationId: this.station.id,
                 note: note.value,
@@ -698,6 +773,15 @@ export default {
 // End custom common variables
 
 // Custom styles
+.alternate-header {
+    padding-bottom: 10;
+    margin-top: 10;
+}
+.alternate-header-border {
+    padding-top: 10;
+    border-bottom-width: 1;
+    border-color: $fk-gray-lighter;
+}
 .top-line-bkgd {
     background-color: $fk-gray-lighter;
 }

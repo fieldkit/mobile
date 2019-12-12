@@ -188,7 +188,8 @@ export default {
 
             this.$navigateTo(routes.deployNotes, {
                 props: {
-                    station: this.currentStation
+                    station: this.currentStation,
+                    linkedFromStation: true
                 }
             });
         },
