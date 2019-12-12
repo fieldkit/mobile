@@ -1,7 +1,8 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <ScrollView>
-            <FlexboxLayout flexDirection="column" class="p-t-10">
+        <GridLayout rows="75,*,65">
+            <!-- sticky header section and progress bar -->
+            <StackLayout row="0">
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="stationName"
@@ -12,136 +13,54 @@
                 <GridLayout
                     rows="auto"
                     columns="33*,33*,34*"
-                    class="top-line-bkgd m-b-20"
+                    class="top-line-bkgd"
                     v-if="!isEditing"
                 >
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
+            </StackLayout>
 
-                <FieldNoteForm
-                    :fieldNote="currentNote"
-                    v-if="isEditing"
-                    @cancel="cancelEdit"
-                    @saveEdit="saveNote"
-                    @saveAudio="saveAudio"
-                    @removeAudio="removeAudio"
-                />
-
-                <StackLayout class="m-x-20" v-if="!isEditing">
-                    <!-- top label section -->
-                    <GridLayout
-                        rows="auto,auto"
-                        columns="35*,65*"
-                        class="m-b-20"
-                    >
-                        <Label
-                            row="0"
-                            col="0"
-                            text="Field Notes"
-                            class="size-18"
-                        ></Label>
-                        <Label
-                            row="0"
-                            col="1"
-                            :text="percentComplete + '% Complete'"
-                            class="size-14 blue"
-                            verticalAlignment="bottom"
-                        ></Label>
-                        <Label
-                            row="1"
-                            colSpan="2"
-                            text="Provide details about your station location and objective."
-                            textWrap="true"
-                            class="size-12 m-t-5"
-                        ></Label>
-                    </GridLayout>
-
-                    <!-- display the four defined note fields -->
-                    <GridLayout
-                        rows="auto,auto"
-                        columns="90*,10*"
-                        v-for="note in fieldNotes"
-                        :key="note.field"
-                        :dataNote="note"
-                        class="note-section"
-                        @tap="onEditTap"
-                    >
-                        <Label
-                            row="0"
-                            col="0"
-                            :text="note.title"
-                            class="size-16 m-b-5"
-                        ></Label>
-                        <Label
-                            row="1"
-                            col="0"
-                            :text="
-                                note.value
-                                    ? note.value
-                                    : note.audioFile
-                                    ? ''
-                                    : note.instruction
-                            "
-                            class="size-12 m-b-10"
-                        ></Label>
-                        <Image
-                            rowSpan="2"
-                            col="1"
-                            v-if="note.audioFile"
-                            src="~/images/Icon_Mic.png"
-                            width="17"
-                        />
-                    </GridLayout>
-
-                    <!-- photos -->
-                    <StackLayout class="m-t-20">
-                        <Label
-                            text="Photos (1 required)"
-                            class="size-16"
-                        ></Label>
-                        <WrapLayout orientation="horizontal">
-                            <StackLayout
-                                v-for="photo in photos"
-                                :key="photo.id"
-                                class="photo-display"
-                            >
-                                <Image :src="photo.src" stretch="aspectFit" />
-                            </StackLayout>
-                            <StackLayout class="photo-btn" @tap="onPhotoTap">
-                                <Image
-                                    src="~/images/Icon_Add_Button.png"
-                                    width="20"
-                                    opacity="0.25"
-                                    class="photo-btn-img"
-                                />
-                            </StackLayout>
-                        </WrapLayout>
-                    </StackLayout>
-
-                    <!-- additional notes -->
-                    <StackLayout class="m-t-30">
-                        <Label
-                            text="Additional Notes"
-                            class="size-16 m-b-5"
-                        ></Label>
-                        <Label
-                            text="Add details to help your project"
-                            class="size-12 m-b-10"
-                        ></Label>
-                    </StackLayout>
-
-                    <GridLayout
-                        rows="auto"
-                        columns="*"
-                        v-for="note in additionalNotes"
-                        :key="note.field"
-                        class="m-b-10"
-                    >
+            <!-- main notes view section -->
+            <ScrollView row="1">
+                <FlexboxLayout flexDirection="column" class="p-t-10">
+                    <StackLayout class="m-x-20" v-if="!isEditing">
+                        <!-- top label section -->
                         <GridLayout
-                            row="0"
+                            rows="auto,auto"
+                            columns="35*,65*"
+                            class="m-b-20"
+                        >
+                            <Label
+                                row="0"
+                                col="0"
+                                text="Field Notes"
+                                class="size-18"
+                            ></Label>
+                            <Label
+                                row="0"
+                                col="1"
+                                :text="percentComplete + '% Complete'"
+                                class="size-14 blue"
+                                verticalAlignment="bottom"
+                            ></Label>
+                            <Label
+                                row="1"
+                                colSpan="2"
+                                text="Provide details about your station location and objective."
+                                textWrap="true"
+                                class="size-12 m-t-5"
+                            ></Label>
+                        </GridLayout>
+
+                        <!-- display the four defined note fields -->
+                        <GridLayout
                             rows="auto,auto"
                             columns="90*,10*"
-                            class="additional-note-section"
+                            v-for="note in fieldNotes"
+                            :key="note.field"
+                            :dataNote="note"
+                            class="note-section"
+                            @tap="onEditTap"
                         >
                             <Label
                                 row="0"
@@ -152,8 +71,13 @@
                             <Label
                                 row="1"
                                 col="0"
-                                :text="note.value"
-                                v-if="note.value"
+                                :text="
+                                    note.value
+                                        ? note.value
+                                        : note.audioFile
+                                        ? ''
+                                        : note.instruction
+                                "
                                 class="size-12 m-b-10"
                             ></Label>
                             <Image
@@ -164,38 +88,141 @@
                                 width="17"
                             />
                         </GridLayout>
-                        <GridLayout row="0" rows="auto" columns="*">
-                            <Image
-                                horizontalAlignment="right"
-                                src="~/images/Icon_Close_Circle.png"
-                                width="15"
-                                class="m-t-5"
-                                :dataNote="note"
-                                @tap="removeAdditionalNote"
-                            />
+
+                        <!-- photos -->
+                        <StackLayout class="m-t-20">
+                            <Label
+                                text="Photos (1 required)"
+                                class="size-16"
+                            ></Label>
+                            <WrapLayout orientation="horizontal">
+                                <StackLayout
+                                    v-for="photo in photos"
+                                    :key="photo.id"
+                                    class="photo-display"
+                                >
+                                    <Image :src="photo.src" stretch="aspectFit" />
+                                </StackLayout>
+                                <StackLayout class="photo-btn" @tap="onPhotoTap">
+                                    <Image
+                                        src="~/images/Icon_Add_Button.png"
+                                        width="20"
+                                        opacity="0.25"
+                                        class="photo-btn-img"
+                                    />
+                                </StackLayout>
+                            </WrapLayout>
+                        </StackLayout>
+
+                        <!-- additional notes -->
+                        <StackLayout class="m-t-30">
+                            <Label
+                                text="Additional Notes"
+                                class="size-16 m-b-5"
+                            ></Label>
+                            <Label
+                                text="Add details to help your project"
+                                class="size-12 m-b-10"
+                            ></Label>
+                        </StackLayout>
+
+                        <GridLayout
+                            rows="auto"
+                            columns="*"
+                            v-for="note in additionalNotes"
+                            :key="note.field"
+                            class="m-b-10"
+                        >
+                            <GridLayout
+                                row="0"
+                                rows="auto,auto"
+                                columns="90*,10*"
+                                class="additional-note-section"
+                            >
+                                <Label
+                                    row="0"
+                                    col="0"
+                                    :text="note.title"
+                                    class="size-16 m-b-5"
+                                ></Label>
+                                <Label
+                                    row="1"
+                                    col="0"
+                                    :text="note.value"
+                                    v-if="note.value"
+                                    class="size-12 m-b-10"
+                                ></Label>
+                                <Image
+                                    rowSpan="2"
+                                    col="1"
+                                    v-if="note.audioFile"
+                                    src="~/images/Icon_Mic.png"
+                                    width="17"
+                                />
+                            </GridLayout>
+                            <GridLayout row="0" rows="auto" columns="*">
+                                <Image
+                                    horizontalAlignment="right"
+                                    src="~/images/Icon_Close_Circle.png"
+                                    width="15"
+                                    class="m-t-5"
+                                    :dataNote="note"
+                                    @tap="removeAdditionalNote"
+                                />
+                            </GridLayout>
                         </GridLayout>
-                    </GridLayout>
 
-                    <FlexboxLayout class="m-b-20">
-                        <Image src="~/images/Icon_Add_Button.png" width="20" />
-                        <Label
-                            text="Add Note"
-                            class="p-l-5"
-                            @tap="createAdditionalNote"
-                        ></Label>
-                    </FlexboxLayout>
+                        <FlexboxLayout class="m-b-20">
+                            <Image src="~/images/Icon_Add_Button.png" width="20" />
+                            <Label
+                                text="Add Note"
+                                class="p-l-5"
+                                @tap="createAdditionalNote"
+                            ></Label>
+                        </FlexboxLayout>
+                    </StackLayout>
+                </FlexboxLayout>
+            </ScrollView>
 
-                    <!-- continue button -->
-                    <Button
-                        class="btn btn-primary m-b-10"
-                        text="Continue"
-                        automationText="nextButton"
-                        :isEnabled="havePhoto"
-                        @tap="goToReview"
-                    ></Button>
+            <!-- sticky continue button -->
+            <StackLayout row="2">
+                <Button
+                    class="btn btn-primary m-b-10"
+                    text="Continue"
+                    automationText="nextButton"
+                    :isEnabled="havePhoto"
+                    @tap="goToReview"
+                    v-if="!isEditing"
+                ></Button>
+            </StackLayout>
+
+            <!-- field note form -->
+            <!-- & jumping through hoops for ios -->
+            <template v-if="!isEditing">
+                <StackLayout rowSpan="3" ios:isUserInteractionEnabled="false">
+                    <FieldNoteForm
+                        :fieldNote="currentNote"
+                        @cancel="cancelEdit"
+                        @saveEdit="saveNote"
+                        @saveAudio="saveAudio"
+                        @removeAudio="removeAudio"
+                        v-if="isEditing"
+                    />
                 </StackLayout>
-            </FlexboxLayout>
-        </ScrollView>
+            </template>
+            <template v-else>
+                <StackLayout rowSpan="3" ios:isUserInteractionEnabled="true">
+                    <FieldNoteForm
+                        :fieldNote="currentNote"
+                        @cancel="cancelEdit"
+                        @saveEdit="saveNote"
+                        @saveAudio="saveAudio"
+                        @removeAudio="removeAudio"
+                        v-if="isEditing"
+                    />
+                </StackLayout>
+            </template>
+        </GridLayout>
     </Page>
 </template>
 

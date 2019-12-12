@@ -1,7 +1,7 @@
 <template>
-    <StackLayout @loaded="onPageLoaded" @unloaded="onUnloaded">
-
-        <GridLayout rows="auto" columns="15*,70*,15*" class="bottom-border">
+    <GridLayout rows="auto,auto,auto,*,auto" height="100%" @loaded="onPageLoaded" @unloaded="onUnloaded">
+        <!-- header section -->
+        <GridLayout row="0" rows="auto" columns="15*,70*,15*" class="bottom-border">
             <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="onCancel">
                 <Image width="21" src="~/images/Icon_Close.png"></Image>
             </StackLayout>
@@ -15,6 +15,7 @@
 
         <!-- Recording in progress -->
         <GridLayout
+            row="1"
             rows="auto"
             columns="10*,10*,70*,10*"
             class="recording-box"
@@ -62,6 +63,7 @@
 
         <!-- List audio recordings -->
         <GridLayout
+            row="2"
             rows="auto"
             columns="10*,80*,10*"
             v-for="recording in displayRecordings"
@@ -104,22 +106,25 @@
         </GridLayout>
         <!-- end: List audio recordings -->
 
+        <!-- main text input section -->
         <TextView
+            row="3"
             textWrap="true"
-            :class="'size-14 p-x-20 ' + (displayRecordings.length > 1 ? 'med-text-field' : 'large-text-field')"
+            class="size-14 p-x-20 large-text-field"
             :hint="fieldNote.instruction"
             v-model="fieldNote.value"
         ></TextView>
 
+        <!-- mic icon -->
         <Image
+            row="4"
             width="40"
             src="~/images/Icon_Mic_Button.png"
             horizontalAlignment="right"
             class="m-10"
             @tap="onAudioTap"
         ></Image>
-
-    </StackLayout>
+    </GridLayout>
 </template>
 
 <script>
@@ -329,13 +334,7 @@ export default {
     border-bottom-width: 1;
     border-color: $fk-gray-lighter;
 }
-.med-text-field {
-    height: 100;
-    border-width: 1;
-    border-color: white;
-}
 .large-text-field {
-    height: 300;
     border-width: 1;
     border-color: white;
     placeholder-color: $fk-gray-hint;
@@ -350,5 +349,4 @@ export default {
 .link-style {
     color: $fk-primary-blue;
 }
-
 </style>
