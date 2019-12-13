@@ -6,6 +6,7 @@ import DeployReview from "../components/DeployReviewView";
 import Home from "../components/HomeView";
 import Login from "../components/LoginView";
 import Module from "../components/ModuleDetailView";
+import Notifications from "../components/NotificationView";
 import StationDetail from "../components/StationDetailView";
 import Stations from "../components/StationListView";
 import StationSettings from "../components/StationSettingsView";
@@ -19,6 +20,7 @@ const routes = {
     home: Home,
     login: Login,
     module: Module,
+    notifications: Notifications,
     stationDetail: StationDetail,
     stations: Stations,
     stationSettings: StationSettings

@@ -5,7 +5,7 @@
         @loaded="onPageLoaded"
         @navigatingFrom="onNavigatingFrom"
     >
-        <GridLayout rows="*,55">
+        <GridLayout :rows="hasNotifications ? '*,35,55' : '*,55'">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <ScreenHeader
@@ -102,8 +102,17 @@
                 </FlexboxLayout>
             </ScrollView>
 
+            <!-- notifications -->
+            <NotificationFooter
+                row="1"
+                :onClose="goToDetail"
+                v-if="hasNotifications"
+            />
             <!-- footer -->
-            <ScreenFooter row="1" active="stations" />
+            <ScreenFooter
+                :row="hasNotifications ? '2' : '1'"
+                active="stations"
+            />
         </GridLayout>
     </Page>
 </template>
@@ -118,6 +127,7 @@ import Services from "../services/services";
 import Config from "../config";
 import StationStatusBox from "./StationStatusBox";
 import ModuleListView from "./ModuleListView";
+import NotificationFooter from "./NotificationFooter";
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
 
@@ -135,13 +145,15 @@ export default {
             modules: [],
             currentStation: { name: "", id: 0 },
             paramId: null,
-            newlyDeployed: false
+            newlyDeployed: false,
+            hasNotifications: false
         };
     },
     components: {
         ScreenHeader,
         StationStatusBox,
         ModuleListView,
+        NotificationFooter,
         ScreenFooter
     },
     props: {
@@ -227,6 +239,20 @@ export default {
             this.stopProcesses();
 
             this.$navigateTo(routes.stationSettings, {
+                props: {
+                    station: this.currentStation
+                }
+            });
+        },
+
+        goToDetail(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            this.$navigateTo(routes.stationDetail, {
                 props: {
                     station: this.currentStation
                 }

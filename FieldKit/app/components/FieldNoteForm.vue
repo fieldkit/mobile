@@ -283,7 +283,7 @@ export default {
 
         tickRecordingTimer() {
             this.timer += 1;
-            let origSeconds = this.timer;
+            const origSeconds = this.timer;
             let seconds = Math.floor(origSeconds % 60);
             seconds = seconds < 10 ? "0" + seconds : seconds;
             let minutes = Math.floor((origSeconds / 60) % 60);
@@ -374,6 +374,7 @@ export default {
     padding: 10;
     margin: 10;
     border-width: 1;
+    border-radius: 4;
     border-color: $fk-gray-lighter;
 }
 .link-style {
