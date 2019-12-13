@@ -253,21 +253,8 @@
             </StackLayout>
 
             <!-- field note form -->
-            <!-- & jumping through hoops for ios -->
-            <template v-if="!isEditing">
-                <StackLayout rowSpan="3" ios:isUserInteractionEnabled="false">
-                    <FieldNoteForm
-                        :fieldNote="currentNote"
-                        @cancel="cancelEdit"
-                        @saveEdit="saveNote"
-                        @saveAudio="saveAudio"
-                        @removeAudio="removeAudio"
-                        v-if="isEditing"
-                    />
-                </StackLayout>
-            </template>
-            <template v-else>
-                <StackLayout rowSpan="3" ios:isUserInteractionEnabled="true">
+            <template v-if="isEditing">
+                <StackLayout rowSpan="3">
                     <FieldNoteForm
                         :fieldNote="currentNote"
                         @cancel="cancelEdit"
