@@ -24,7 +24,6 @@
                     rows="*"
                     columns="*"
                     id="schedule-btn-container"
-                    class="m-b-20"
                 >
                     <Label
                         col="0"
@@ -50,139 +49,217 @@
                 <!-- end grid for schedule type buttons -->
 
                 <!-- interval definitions, as many as needed -->
-                <StackLayout
-                    row="1"
-                    v-for="interval in intervals"
-                    :key="interval.id"
-                >
-                    <!-- slider only shows if not basic -->
-                    <!-- <StackLayout v-if="!basic && !ios" class="m-b-20">
-                        <GridLayout rows="auto, auto, auto" columns="*">
-                            <Label
-                                row="0"
-                                class="size-16 bold m-t-15 m-b-20"
-                                :text="interval.displayRange"
-                            ></Label>
-                            <RangeSeekBar
-                                row="1"
-                                minValue="0"
-                                maxValue="24"
-                                :minStartValue="interval.startMin"
-                                :maxStartValue="interval.startMax"
-                                minRange="1"
-                                step="1"
-                                :id="'range-seek-' + interval.id"
-                                @rangeSeekBarChanged="
-                                    onRangeSeekBarChanged($event, interval)
-                                "
-                                class="range-seek-bar"
-                            ></RangeSeekBar>
-                            <Label
-                                row="2"
-                                class="size-12 m-t-5"
-                                horizontalAlignment="left"
-                                text="12 am"
-                            ></Label>
-                            <Label
-                                row="2"
-                                class="size-12 m-t-5"
-                                horizontalAlignment="center"
-                                text="12 pm"
-                            ></Label>
-                            <Label
-                                row="2"
-                                class="size-12 m-t-5"
-                                horizontalAlignment="right"
-                                text="12 am"
-                            ></Label>
-                        </GridLayout>
-                    </StackLayout> -->
-                    <!-- end slider -->
-                    <GridLayout rows="auto,auto,auto" , columns="*,*">
-                        <Label
-                            row="0"
-                            col="0"
-                            class="size-12 m-t-5"
-                            text="Every"
-                        ></Label>
-                        <TextField
-                            row="1"
-                            col="0"
-                            :class="
-                                'interval-field ' +
-                                    (!interval.noInterval &&
-                                    !interval.intervalNotNumber
-                                        ? 'interval-input'
-                                        : 'no-border')
-                            "
-                            verticalAligment="bottom"
-                            keyboardType="name"
-                            autocorrect="false"
-                            autocapitalizationType="none"
-                            v-model="interval.display"
-                            @blur="saveInterval"
-                        ></TextField>
-                        <StackLayout row="1" col="1">
-                            <GridLayout rows="*" columns="*">
-                                <DropDown
+                <StackLayout row="1">
+                    <FlexboxLayout
+                        flexDirection="column"
+                        class="m-t-20"
+                        v-for="(interval, index) in intervals"
+                        :key="interval.id"
+                    >
+                        <!-- start and end only show if not basic -->
+                        <StackLayout order="1" v-if="!basic" class="m-b-20">
+                            <GridLayout rows="auto,auto,auto,auto" columns="50*,50*">
+                                <Label
                                     row="0"
+                                    colSpan="2"
+                                    class="size-18 m-t-15 m-b-10"
+                                    :text="'Capture Time ' + (index + 1)"
+                                ></Label>
+                                <!-- start time -->
+                                <Label
+                                    row="1"
                                     col="0"
-                                    class="p-5 size-18 drop-down"
-                                    :items="timeUnits"
-                                    :id="'drop-down-' + interval.id"
-                                    :selectedIndex="interval.unit"
-                                    @opened="onOpened"
-                                    @selectedIndexChanged="onDropDownSelection"
-                                ></DropDown>
-                                <Image
-                                    row="0"
-                                    col="0"
-                                    width="15"
-                                    class="m-r-5"
-                                    horizontalAlignment="right"
-                                    verticalAlignment="middle"
-                                    src="~/images/Icon_Cheveron_Down.png"
-                                    :dataIntervalId="interval.id"
-                                    @tap="openDropDown"
+                                    text="Start"
+                                    class="size-12 m-b-5"
                                 />
+                                <Label
+                                    row="2"
+                                    col="0"
+                                    :class="
+                                        'time-field '
+                                        + (interval.startError
+                                        ? 'red no-border'
+                                        : '')
+                                    "
+                                    verticalAligment="bottom"
+                                    :text="interval.start.display"
+                                    :dataTime="'start-' + interval.id"
+                                    @tap="openTimePicker"
+                                ></Label>
+                                <Label
+                                    row="3"
+                                    col="0"
+                                    class="validation-error"
+                                    text="Start must be before end"
+                                    textWrap="true"
+                                    :visibility="
+                                        interval.startError
+                                            ? 'visible'
+                                            : 'collapsed'
+                                    "
+                                ></Label>
+
+                                <!-- end time -->
+                                <Label
+                                    row="1"
+                                    col="1"
+                                    text="End"
+                                    class="size-12 m-b-5"
+                                />
+                                <Label
+                                    row="2"
+                                    col="1"
+                                    :class="
+                                        'time-field '
+                                        + (interval.endError
+                                        ? 'red no-border'
+                                        : '')
+                                    "
+                                    verticalAligment="bottom"
+                                    :text="interval.end.display"
+                                    :dataTime="'end-' + interval.id"
+                                    @tap="openTimePicker"
+                                ></Label>
+                                <Label
+                                    row="3"
+                                    col="1"
+                                    class="validation-error"
+                                    text="End must be after start"
+                                    textWrap="true"
+                                    :visibility="
+                                        interval.endError
+                                            ? 'visible'
+                                            : 'collapsed'
+                                    "
+                                ></Label>
+
+                                <!-- time picker window -->
+                                <StackLayout
+                                    rowSpan="3"
+                                    colSpan="2"
+                                    class="time-picker-container"
+                                    v-if="interval.editingTime"
+                                >
+                                    <Image
+                                        width="20"
+                                        horizontalAlignment="right"
+                                        src="~/images/Icon_Close.png"
+                                        :dataIntervalId="interval.id"
+                                        @tap="closeTimePicker"
+                                    />
+                                    <TimePicker
+                                        height="100"
+                                        scaleY="0.85"
+                                        v-model="selectedTime"
+                                    />
+                                    <!-- @timeChange="onTimeChange" -->
+                                    <Button
+                                        class="btn btn-primary m-y-20"
+                                        :text="currentlyPicking.label"
+                                        @tap="submitTime"
+                                    ></Button>
+                                </StackLayout>
                             </GridLayout>
                         </StackLayout>
-                        <StackLayout row="2" col="0">
-                            <Label
-                                class="validation-error"
-                                horizontalAlignment="left"
-                                :text="_L('intervalRequired')"
-                                textWrap="true"
-                                :visibility="
-                                    interval.noInterval
-                                        ? 'visible'
-                                        : 'collapsed'
-                                "
-                            ></Label>
-                            <Label
-                                class="validation-error"
-                                horizontalAlignment="left"
-                                :text="_L('intervalNotNumber')"
-                                textWrap="true"
-                                :visibility="
-                                    interval.intervalNotNumber
-                                        ? 'visible'
-                                        : 'collapsed'
-                                "
-                            ></Label>
+                        <StackLayout v-if="basic">
+                            <!-- placeholder StackLayout required
+                                 by DropDown below in iOS -->
                         </StackLayout>
-                    </GridLayout>
-                    <!-- ready to allow addition of more intervals if not basic -->
+                        <!-- end scheduled section -->
+
+                        <GridLayout
+                            order="2"
+                            rows="auto,auto,auto"
+                            columns="*,*"
+                            v-if="!basic || index == 0"
+                        >
+                            <Label
+                                row="0"
+                                col="0"
+                                class="size-12 m-t-5"
+                                text="Every"
+                            ></Label>
+                            <TextField
+                                row="1"
+                                col="0"
+                                :class="
+                                    'interval-field ' +
+                                        (!interval.noInterval &&
+                                        !interval.intervalNotNumber
+                                            ? 'interval-input'
+                                            : 'no-border')
+                                "
+                                verticalAligment="bottom"
+                                keyboardType="name"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                v-model="interval.display"
+                                @blur="saveInterval"
+                            ></TextField>
+                            <StackLayout row="1" col="1">
+                                <GridLayout rows="*" columns="*">
+                                    <DropDown
+                                        row="0"
+                                        col="0"
+                                        class="p-l-5 p-b-2 size-18 drop-down"
+                                        :items="timeUnits"
+                                        :id="'drop-down-' + interval.id"
+                                        :selectedIndex="interval.unit"
+                                        @opened="onOpened"
+                                        @selectedIndexChanged="onDropDownSelection"
+                                    ></DropDown>
+                                    <Image
+                                        row="0"
+                                        col="0"
+                                        width="15"
+                                        class="m-r-5"
+                                        horizontalAlignment="right"
+                                        verticalAlignment="middle"
+                                        src="~/images/Icon_Cheveron_Down.png"
+                                        :dataIntervalId="interval.id"
+                                        @tap="openDropDown"
+                                    />
+                                </GridLayout>
+                            </StackLayout>
+                            <StackLayout row="2" col="0">
+                                <Label
+                                    class="validation-error"
+                                    horizontalAlignment="left"
+                                    :text="_L('intervalRequired')"
+                                    textWrap="true"
+                                    :visibility="
+                                        interval.noInterval
+                                            ? 'visible'
+                                            : 'collapsed'
+                                    "
+                                ></Label>
+                                <Label
+                                    class="validation-error"
+                                    horizontalAlignment="left"
+                                    :text="_L('intervalNotNumber')"
+                                    textWrap="true"
+                                    :visibility="
+                                        interval.intervalNotNumber
+                                            ? 'visible'
+                                            : 'collapsed'
+                                    "
+                                ></Label>
+                            </StackLayout>
+                        </GridLayout>
+                    </FlexboxLayout>
+                    <!-- end interval definitions -->
+
+                    <!-- allow addition of more intervals if not basic -->
                     <FlexboxLayout
                         justifyContent="center"
                         class="m-t-30"
+                        @tap="addTime"
                         v-if="!basic"
                     >
                         <Image src="~/images/Icon_Add_Button.png" width="20" />
                         <Label text="Add Time" class="p-l-5"></Label>
                     </FlexboxLayout>
                 </StackLayout>
-                <!-- end interval definitions -->
             </GridLayout>
         </GridLayout>
     </StackLayout>
@@ -190,9 +267,8 @@
 </template>
 
 <script>
+import * as TimePicker from "tns-core-modules/ui/time-picker";
 import Services from "../services/services";
-// *** TEMP ***
-import { isIOS } from "tns-core-modules/platform";
 
 const queryStation = Services.QueryStation();
 const dbInterface = Services.Database();
@@ -200,9 +276,10 @@ const dbInterface = Services.Database();
 export default {
     data() {
         return {
-            ios: isIOS,
             basic: true,
             intervals: [],
+            selectedTime: new Date(),
+            currentlyPicking: {},
             timeUnits: [
                 _L("seconds"),
                 _L("minutes"),
@@ -223,7 +300,7 @@ export default {
             this.intervals = [];
             let converted = this.convertFromSeconds(this.station.interval);
             let interval = {
-                id: 1,
+                id: Date.now(),
                 origValue: this.station.interval,
                 origUnit: converted.unit,
                 value: this.station.interval,
@@ -231,9 +308,31 @@ export default {
                 unit: converted.unit,
                 noInterval: false,
                 intervalNotNumber: false,
-                startMin: 0,
-                startMax: 6,
-                displayRange: "12am - 6am"
+                editingTime: false,
+                start: {hour: 6, minute: 1, display: "06:00 AM"},
+                end: {hour: 8, minute: 1, display: "08:00 AM"},
+                startError: false,
+                endError: false
+            };
+            this.intervals.push(interval);
+        },
+
+        addTime() {
+            let converted = this.convertFromSeconds(this.station.interval);
+            let interval = {
+                id: Date.now(),
+                origValue: this.station.interval,
+                origUnit: converted.unit,
+                value: this.station.interval,
+                display: converted.display,
+                unit: converted.unit,
+                noInterval: false,
+                intervalNotNumber: false,
+                editingTime: false,
+                start: {hour: 6, minute: 1, display: "06:00 AM"},
+                end: {hour: 8, minute: 1, display: "08:00 AM"},
+                startError: false,
+                endError: false
             };
             this.intervals.push(interval);
         },
@@ -327,13 +426,89 @@ export default {
 
                         // *** TEMP ***
                         // database also doesn't support multiple intervals yet
-                        // just keep in sync with station for npw
+                        // just keep in sync with station for now
                         dbInterface.setStationInterval(this.station);
                         interval.origValue = interval.value;
                         interval.origUnit = interval.unit;
                     }
                 }
             });
+        },
+
+        openTimePicker(event) {
+            const data = event.object.dataTime.split("-");
+            const current = data[0];
+            const id = data[1];
+            const interval = this.intervals.find(i => {
+                return i.id == id;
+            });
+            // touch events pass through
+            if (interval.editingTime) {
+                return;
+            }
+            interval.startError = false;
+            interval.endError = false;
+            if (current == "start") {
+                // handle ridiculous no-zero bug in TimePicker
+                // but note: midnight will still get set to current hour
+                let minute = interval.start.minute == 0 ? 1 : interval.start.minute;
+                this.selectedTime.setHours(interval.start.hour, minute, 0);
+                this.currentlyPicking = {time: "start", id: id, label: "Save Start Time"};
+            } else if (current == "end") {
+                let minute = interval.end.minute == 0 ? 1 : interval.end.minute;
+                this.selectedTime.setHours(interval.end.hour, minute, 0);
+                this.currentlyPicking = {time: "end", id: id, label: "Save End Time"};
+            }
+            interval.editingTime = true;
+        },
+
+        closeTimePicker(event) {
+            const id = event.object.dataIntervalId;
+            const interval = this.intervals.find(i => {
+                return i.id == id;
+            });
+            interval.editingTime = false;
+        },
+
+        submitTime() {
+            const time = new Date(this.selectedTime);
+            const origHour = time.getHours();
+            const suffix = origHour < 12 ? " AM" : " PM";
+            let hour = origHour % 12 == 0 ? 12 : origHour % 12;
+            hour = hour < 10 ? "0" + hour : hour;
+            let origMinutes = time.getMinutes();
+            const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
+
+            let interval = this.intervals.find(i => {
+                return i.id == this.currentlyPicking.id;
+            });
+
+            // will be checking to make sure end is after start
+            let attemptingStart = new Date();
+            let attemptingEnd = new Date();
+            if (this.currentlyPicking.time == "start") {
+                attemptingStart.setHours(origHour, origMinutes, 0);
+                attemptingEnd.setHours(interval.end.hour, interval.end.minute, 0);
+                if (attemptingStart < attemptingEnd){
+                    // *** TEMP: not sure yet what hardware will want
+                    interval.start.hour = origHour;
+                    interval.start.minute = origMinutes;
+                    interval.start.display = hour + ":" + minutes + suffix;
+                } else {
+                    interval.startError = true;
+                }
+            } else if (this.currentlyPicking.time == "end") {
+                attemptingStart.setHours(interval.start.hour, interval.start.minute, 0);
+                attemptingEnd.setHours(origHour, origMinutes, 0);
+                if (attemptingStart < attemptingEnd){
+                    interval.end.hour = origHour;
+                    interval.end.minute = origMinutes;
+                    interval.end.display = hour + ":" + minutes + suffix;
+                } else {
+                    interval.endError = true;
+                }
+            }
+            interval.editingTime = false;
         },
 
         openDropDown(event) {
@@ -365,22 +540,7 @@ export default {
             let container = this.page.getViewById("schedule-btn-container");
             container.removeChild(event.object);
             container.addChild(event.object);
-        },
-
-        // onRangeSeekBarChanged(event, interval) {
-        //     interval.minRange = event.value.minValue;
-        //     interval.maxRange = event.value.maxValue;
-        //     const minSuffix = interval.minRange < 12 ? "am" : "pm";
-        //     const maxSuffix = interval.maxRange < 12 ? "am" : "pm";
-        //     const min =
-        //         interval.minRange % 12 == 0 ? 12 : interval.minRange % 12;
-        //     const max =
-        //         interval.maxRange % 12 == 0 ? 12 : interval.maxRange % 12;
-        //     interval.displayRange = min + minSuffix + " - " + max + maxSuffix;
-        //     // *** TEMP ***
-        //     // not saving these because firmware doesn't support it yet
-        //     // also it doesn't work at all in iOS
-        // }
+        }
     }
 };
 </script>
@@ -416,12 +576,15 @@ export default {
     background-color: $fk-primary-black;
     color: white;
 }
-.range-seek-bar {
-    bar-color: $fk-gray-light;
-    bar-highlight-color: $fk-primary-blue;
-    thumb-color: $fk-primary-blue;
-    bar-height: 20;
-    corner-radius: 10;
+.time-field {
+    font-size: 18;
+    margin-right: 20;
+    padding-bottom: 2;
+    border-bottom-width: 1;
+    border-bottom-color: $fk-primary-black;
+}
+.red {
+    color: $fk-tertiary-red;
 }
 .interval-field {
     padding: 0;
@@ -449,5 +612,12 @@ export default {
     border-width: 0;
     border-bottom-width: 1;
     border-bottom-color: $fk-primary-black;
+}
+.time-picker-container {
+    padding: 10;
+    border-radius: 4;
+    background-color: $fk-gray-lightest;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
 }
 </style>
