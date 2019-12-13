@@ -162,7 +162,9 @@ export default class StationMonitor extends Observable {
             consumedMemory: result.status.memory.dataMemoryUsed
                 ? convertBytesToLabel(result.status.memory.dataMemoryUsed)
                 : "Unknown",
-            totalMemory: convertBytesToLabel(result.status.memory.dataMemoryInstalled),
+            totalMemory: convertBytesToLabel(
+                result.status.memory.dataMemoryInstalled
+            ),
             consumedMemoryPercent: result.status.memory.dataMemoryConsumption
         };
         // store one set of live readings per station
@@ -242,7 +244,12 @@ export default class StationMonitor extends Observable {
             })
             .catch(err => {
                 // console.log("error getting status in checkDatabase", err);
-                console.log("the station at", address, "did not respond with a status. instead:", err)
+                console.log(
+                    "the station at",
+                    address,
+                    "did not respond with a status. instead:",
+                    err
+                );
             });
     }
 
@@ -298,13 +305,9 @@ export default class StationMonitor extends Observable {
         let stations = Object.values(this.stations);
         // sort by recency first, rounded to hour
         stations.sort((a, b) => {
-            const aTime = ((a.lastSeen / oneHour) * oneHour);
-            const bTime = ((b.lastSeen / oneHour) * oneHour);
-            return bTime > aTime
-                ? 1
-                : bTime < aTime
-                ? -1
-                : 0;
+            const aTime = (a.lastSeen / oneHour) * oneHour;
+            const bTime = (b.lastSeen / oneHour) * oneHour;
+            return bTime > aTime ? 1 : bTime < aTime ? -1 : 0;
         });
         // then sort by alpha
         stations.sort((a, b) => {
