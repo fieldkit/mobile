@@ -105,6 +105,7 @@ export default class StationMonitor extends Observable {
     }
 
     updateStatus(station, result) {
+        delete this.queriesInProgress[station.deviceId];
         if (
             result.errors.length > 0 ||
             station.deviceId != result.status.identity.deviceId
@@ -129,6 +130,7 @@ export default class StationMonitor extends Observable {
     }
 
     updateStationReadings(station, result) {
+        delete this.queriesInProgress[station.deviceId];
         if (
             result.errors.length > 0 ||
             station.deviceId != result.status.identity.deviceId
