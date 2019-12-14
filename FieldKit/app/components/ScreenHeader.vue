@@ -1,5 +1,5 @@
 <template>
-    <!-- Fix Invalid handler when these aren't provdied? -->
+    <!-- Fix Invalid handler when these aren't provided? -->
     <GridLayout rows="auto" columns="15*,70*,15*" class="m-b-20">
         <StackLayout
             col="0"

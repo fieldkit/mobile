@@ -27,7 +27,7 @@
                 >
                     <Label
                         col="0"
-                        text="Scheduled"
+                        :text="_L('scheduled')"
                         horizontalAlignment="right"
                         :class="
                             'schedule-type-btn ' + (basic ? '' : 'selected')
@@ -37,7 +37,7 @@
                     ></Label>
                     <Label
                         col="0"
-                        text="Basic"
+                        :text="_L('basic')"
                         horizontalAlignment="left"
                         :class="
                             'schedule-type-btn ' + (basic ? 'selected' : '')
@@ -63,13 +63,13 @@
                                     row="0"
                                     colSpan="2"
                                     class="size-18 m-t-15 m-b-10"
-                                    :text="'Capture Time ' + (index + 1)"
+                                    :text="_L('captureTime') + ' ' + (index + 1)"
                                 ></Label>
                                 <!-- start time -->
                                 <Label
                                     row="1"
                                     col="0"
-                                    text="Start"
+                                    :text="_L('start')"
                                     class="size-12 m-b-5"
                                 />
                                 <Label
@@ -90,7 +90,7 @@
                                     row="3"
                                     col="0"
                                     class="validation-error"
-                                    text="Start must be before end"
+                                    :text="_L('startBeforeEnd')"
                                     textWrap="true"
                                     :visibility="
                                         interval.startError
@@ -103,7 +103,7 @@
                                 <Label
                                     row="1"
                                     col="1"
-                                    text="End"
+                                    :text="_L('end')"
                                     class="size-12 m-b-5"
                                 />
                                 <Label
@@ -124,7 +124,7 @@
                                     row="3"
                                     col="1"
                                     class="validation-error"
-                                    text="End must be after start"
+                                    :text="_L('endAfterStart')"
                                     textWrap="true"
                                     :visibility="
                                         interval.endError
@@ -177,7 +177,7 @@
                                 row="0"
                                 col="0"
                                 class="size-12 m-t-5"
-                                text="Every"
+                                :text="_L('every')"
                             ></Label>
                             <TextField
                                 row="1"
@@ -257,7 +257,7 @@
                         v-if="!basic"
                     >
                         <Image src="~/images/Icon_Add_Button.png" width="20" />
-                        <Label text="Add Time" class="p-l-5"></Label>
+                        <Label :text="_L('addTime')" class="p-l-5"></Label>
                     </FlexboxLayout>
                 </StackLayout>
             </GridLayout>
@@ -453,11 +453,11 @@ export default {
                 // but note: midnight will still get set to current hour
                 let minute = interval.start.minute == 0 ? 1 : interval.start.minute;
                 this.selectedTime.setHours(interval.start.hour, minute, 0);
-                this.currentlyPicking = {time: "start", id: id, label: "Save Start Time"};
+                this.currentlyPicking = {time: "start", id: id, label: _L("saveStartTime")};
             } else if (current == "end") {
                 let minute = interval.end.minute == 0 ? 1 : interval.end.minute;
                 this.selectedTime.setHours(interval.end.hour, minute, 0);
-                this.currentlyPicking = {time: "end", id: id, label: "Save End Time"};
+                this.currentlyPicking = {time: "end", id: id, label: _L("saveEndTime")};
             }
             interval.editingTime = true;
         },

@@ -49,7 +49,7 @@
                                     <Label
                                         row="1"
                                         col="1"
-                                        text="Downloading"
+                                        :text="_L('downloading')"
                                         textWrap="true"
                                     ></Label>
                                     <Image
@@ -77,13 +77,13 @@
                             </template>
                             <template v-else-if="s.disconnected">
                                 <StackLayout class="m-20">
-                                    <Label text="Not connected to station" />
+                                    <Label :text="_L('notConnectedToStation')" />
                                 </StackLayout>
                             </template>
                             <template v-else>
                                 <StackLayout class="m-20">
                                     <Label
-                                        text="Checking for data to download..."
+                                        :text="_L('checkingDownload')"
                                     />
                                 </StackLayout>
                             </template>
@@ -252,7 +252,7 @@ export default {
         updateRecent(recent, station, status) {
             recent.disconnected = false;
             recent.readings = station.pending.records;
-            recent.downloadReadingsLabel = recent.readings + " Readings";
+            recent.downloadReadingsLabel = recent.readings + " " + _L("readings");
             // need higher limit than 0, or get stuck in loop
             recent.canDownload = recent.readings > 3;
 
@@ -291,7 +291,7 @@ export default {
                     deviceId: station.station.deviceId,
                     readings: station.pending.records,
                     downloadReadingsLabel:
-                        station.pending.records + " Readings",
+                        station.pending.records + " " + _L("readings"),
                     canDownload: station.pending.records > 0
                 };
             } else {
@@ -303,7 +303,7 @@ export default {
                     canDownload: false
                 };
             }
-            newSync.uploadProgressLabel = "Waiting to upload";
+            newSync.uploadProgressLabel = _L("waitingToUpload");
             newSync.uploadState = "waiting";
             this.recentSyncs.push(newSync);
             if (Config.syncMode != "manual") {
@@ -318,7 +318,7 @@ export default {
         handleDeviceUpload(recent, deviceUpload) {
             if (deviceUpload) {
                 recent.uploadSize = convertBytesToLabel(deviceUpload.size);
-                recent.uploadStatus = recent.uploadSize + " to upload";
+                recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
                 recent.canUpload = true;
 
                 if (Config.syncMode != "manual") {
@@ -334,9 +334,9 @@ export default {
                             //         "Unable to upload. Are you connected to the internet?";
                             // }
                             recent.uploadProgressLabel =
-                                "Unable to upload. Are you connected to the internet?";
+                                _L("failedCheckConnection");
                             recent.uploadStatus =
-                                recent.uploadSize + " to upload";
+                                recent.uploadSize + " " + _L("toUpload");
                             recent.uploadState = "waiting";
                             const inProgress = Object.keys(this.uploading);
                             if (inProgress.length == 0) {
@@ -357,13 +357,13 @@ export default {
                     recent.canUpload = true;
                     if (uploadData.progress == 100) {
                         delete this.uploading[recent.deviceId];
-                        recent.uploadStatus = "Upload successful";
+                        recent.uploadStatus = _L("uploadSuccessful");
                         recent.uploadProgressLabel =
-                            recent.uploadSize + " uploaded";
+                            recent.uploadSize + " " + _L("uploaded");
                         recent.uploadState = "success";
                     } else {
                         this.$set(this.uploading, recent.deviceId, true);
-                        recent.uploadProgressLabel = "Uploading";
+                        recent.uploadProgressLabel = _L("uploading");
                         recent.uploadState = "uploading";
                     }
                     const inProgress = Object.keys(this.uploading);
@@ -421,8 +421,8 @@ export default {
                     //         "Unable to upload. Are you connected to the internet?";
                     // }
                     recent.uploadProgressLabel =
-                        "Unable to upload. Are you connected to the internet?";
-                    recent.uploadStatus = recent.uploadSize + " to upload";
+                        _L("failedCheckConnection");
+                    recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
                     recent.uploadState = "waiting";
                     const inProgress = Object.keys(this.uploading);
                     if (inProgress.length == 0) {
@@ -448,10 +448,9 @@ export default {
                     if (error.offline && !this.askedOnce) {
                         return confirm({
                             title: "FieldKit",
-                            message:
-                                "You're not logged in. Would you like to login so that you can upload your data?",
-                            okButtonText: "Yes",
-                            cancelButtonText: "Not Now"
+                            message: _L("loginPrompt"),
+                            okButtonText: _L("yes"),
+                            cancelButtonText: _L("notNow")
                         }).then(res => {
                             if (res) {
                                 this.$navigateTo(routes.login, {});

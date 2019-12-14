@@ -76,14 +76,14 @@
                             <Label
                                 row="0"
                                 col="1"
-                                :text="percentComplete + '% Complete'"
+                                :text="percentComplete + '% ' + _L('complete')"
                                 class="size-14 blue"
                                 verticalAlignment="bottom"
                             ></Label>
                             <Label
                                 row="1"
                                 colSpan="2"
-                                text="Provide details about your station location and objective."
+                                :text="_L('provideDetails')"
                                 textWrap="true"
                                 class="size-12 m-t-5"
                             ></Label>
@@ -129,7 +129,7 @@
                         <!-- photos -->
                         <StackLayout class="m-t-20">
                             <Label
-                                text="Photos (1 required)"
+                                :text="_L('photosRequired')"
                                 class="size-16"
                             ></Label>
                             <WrapLayout orientation="horizontal">
@@ -160,11 +160,11 @@
                         <!-- additional notes -->
                         <StackLayout class="m-t-30">
                             <Label
-                                text="Additional Notes"
+                                :text="_L('additionalNotes')"
                                 class="size-16 m-b-5"
                             ></Label>
                             <Label
-                                text="Add details to help your project"
+                                :text="_L('addDetails')"
                                 class="size-12 m-b-10"
                             ></Label>
                         </StackLayout>
@@ -221,7 +221,7 @@
                                 width="20"
                             />
                             <Label
-                                text="Add Note"
+                                :text="_L('addNote')"
                                 class="p-l-5"
                                 @tap="createAdditionalNote"
                             ></Label>
@@ -234,7 +234,7 @@
             <StackLayout row="2" v-if="!linkedFromStation">
                 <Button
                     class="btn btn-primary m-b-10"
-                    text="Continue"
+                    :text="_L('continue')"
                     automationText="nextButton"
                     :isEnabled="havePhoto"
                     @tap="goToReview"
@@ -246,7 +246,7 @@
             <StackLayout row="2" v-if="linkedFromStation">
                 <Button
                     class="btn btn-primary m-b-10"
-                    text="Save"
+                    :text="_L('save')"
                     @tap="onEditDone"
                     v-if="!isEditing"
                 ></Button>
@@ -298,29 +298,29 @@ export default {
                 {
                     field: "studyObjective",
                     value: "",
-                    title: "Study Objective",
-                    instruction: "Tap to add your study objective",
+                    title: _L("studyObjective"),
+                    instruction: _L("studyObjectiveInstruction"),
                     complete: false
                 },
                 {
                     field: "locationPurpose",
                     value: "",
-                    title: "Purpose of Site Location",
-                    instruction: "Tap to add the purpose of your site location",
+                    title: _L("siteLocation"),
+                    instruction: _L("siteLocationInstruction"),
                     complete: false
                 },
                 {
                     field: "siteCriteria",
                     value: "",
-                    title: "Site Criteria",
-                    instruction: "Tap to add your site criteria",
+                    title: _L("siteCriteria"),
+                    instruction: _L("siteCriteriaInstruction"),
                     complete: false
                 },
                 {
                     field: "siteDescription",
                     value: "",
-                    title: "Site Description",
-                    instruction: "Tap to add your site description",
+                    title: _L("siteDescription"),
+                    instruction: _L("siteDescriptionInstruction"),
                     complete: false
                 }
             ],
@@ -514,7 +514,7 @@ export default {
                 field: "additional",
                 value: "",
                 title: "Field Note",
-                instruction: "Tap to add additional notes",
+                instruction: _L("additionalNoteInstruction"),
                 audioFile: ""
             };
             this.isEditing = true;
@@ -535,7 +535,7 @@ export default {
                     field: note.field,
                     value: note.value,
                     title: "Field Note",
-                    instruction: "Tap to add additional notes",
+                    instruction: _L("additionalNoteInstruction"),
                     audioFile: note.audioFile
                 });
             });
@@ -555,7 +555,7 @@ export default {
             // confirm removal
             dialogs
                 .confirm({
-                    title: "Are you sure you want to delete this note?",
+                    title: _L("confirmDeleteNote"),
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel")
                 })

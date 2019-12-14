@@ -61,7 +61,7 @@
                                     />
                                     <Label
                                         col="2"
-                                        :text="percentComplete + '% Complete'"
+                                        :text="percentComplete + '% ' + _L('complete')"
                                         class="size-16 blue"
                                         verticalAlignment="middle"
                                     />
@@ -91,7 +91,7 @@
                                         src="~/images/Icon_Success.png"
                                     ></Image>
                                     <Label
-                                        text="Station Deployed"
+                                        :text="_L('stationDeployed')"
                                         class="deployed-dialog-text"
                                     />
                                 </StackLayout>
@@ -140,7 +140,7 @@ export default {
         return {
             loading: true,
             isDeployed: false,
-            deployedStatus: "Ready to deploy",
+            deployedStatus: _L("readyToDeploy"),
             percentComplete: 0,
             modules: [],
             currentStation: { name: "", id: 0 },
@@ -439,14 +439,14 @@ export default {
 
         setDeployedStatus() {
             if (!this.currentStation.deployStartTime) {
-                this.deployedStatus = "Deployed";
+                this.deployedStatus = _L("deployed");
                 return;
             }
             let month = this.currentStation.deployStartTime.getMonth() + 1;
             let day = this.currentStation.deployStartTime.getDate();
             let year = this.currentStation.deployStartTime.getFullYear();
             this.deployedStatus =
-                "Deployed (" + month + "/" + day + "/" + year + ")";
+                _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
         },
 
         onNavigatingFrom() {

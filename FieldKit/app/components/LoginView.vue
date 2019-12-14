@@ -203,7 +203,7 @@
 
                     <Button
                         class="btn btn-primary m-t-20"
-                        text="Continue Offline"
+                        :text="_L('continueOffline')"
                         @tap="continueOffline"
                     ></Button>
                 </StackLayout>

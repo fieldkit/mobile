@@ -229,7 +229,7 @@ export default {
             let year = now.getFullYear();
             let filename =
                 this.fieldNote.title +
-                " audio note " +
+                " " + _L("audioNote") + " " +
                 month +
                 " " +
                 day +

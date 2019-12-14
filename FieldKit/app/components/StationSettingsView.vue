@@ -94,17 +94,17 @@
                         v-if="station.status == 'recording'"
                     >
                         <Label
-                            text="End Deployment"
+                            :text="_L('endDeployment')"
                             class="size-20 m-y-5 full-width"
                         />
                         <Label
-                            text="To undeploy and stop recording data, you must be connected to your station."
+                            :text="_L('mustBeConnectedToStop')"
                             class="size-16 m-y-5"
                             textWrap="true"
                         />
                         <Button
                             class="btn btn-primary full-width"
-                            text="Stop Recording"
+                            :text="_L('stopRecording')"
                             @tap="stopRecording"
                         ></Button>
                     </StackLayout>
@@ -119,7 +119,7 @@
 
                     <!-- add/remove networks -->
                     <StackLayout class="m-x-10">
-                        <Label text="WiFi Networks" class="size-20"></Label>
+                        <Label :text="_L('wifiNetworks')" class="size-20"></Label>
                         <GridLayout
                             rows="auto"
                             columns="75*,25*"
@@ -153,7 +153,7 @@
                             ></Image>
                             <Label
                                 col="1"
-                                text="Add a network to station"
+                                :text="_L('addNetwork')"
                                 class="size-16"
                             ></Label>
                         </GridLayout>
@@ -163,7 +163,7 @@
                                 <Label
                                     row="0"
                                     col="0"
-                                    text="Network name: "
+                                    :text="_L('networkName') + ': '"
                                     verticalAlignment="middle"
                                     class="text-right"
                                 ></Label>
@@ -179,7 +179,7 @@
                                 <Label
                                     row="1"
                                     col="0"
-                                    text="Password: "
+                                    :text="_L('password') + ': '"
                                     verticalAlignment="middle"
                                     class="text-right"
                                 ></Label>
@@ -196,7 +196,7 @@
                                     row="2"
                                     colSpan="2"
                                     class="btn btn-secondary"
-                                    text="Add"
+                                    :text="_L('add')"
                                     @tap="addNetwork"
                                 ></Button>
                             </GridLayout>
@@ -207,11 +207,11 @@
                     <!-- edit LoRa -->
                     <StackLayout class="m-x-10" v-if="haveLora">
                         <Label
-                            text="LoRa (Long Range) Network"
+                            :text="_L('loraNetwork')"
                             class="size-20"
                         ></Label>
                         <Label
-                            :text="'Device EUI: ' + lora.deviceEui"
+                            :text="_L('deviceEUI') + ': ' + lora.deviceEui"
                             col="0"
                             class="m-l-15 m-y-10"
                         ></Label>
@@ -228,7 +228,7 @@
                             ></Image>
                             <Label
                                 col="1"
-                                text="Edit App EUI and Key"
+                                :text="_L('editAppEUI')"
                                 class="size-16"
                             ></Label>
                         </GridLayout>
@@ -241,7 +241,7 @@
                                 <Label
                                     row="0"
                                     col="0"
-                                    text="App EUI: "
+                                    :text="_L('appEUI') + ': '"
                                     verticalAlignment="middle"
                                     class="text-right"
                                 ></Label>
@@ -258,7 +258,7 @@
                                     row="1"
                                     col="1"
                                     class="validation-error m-l-10"
-                                    text="Invalid App EUI"
+                                    :text="_L('invalidAppEUI')"
                                     textWrap="true"
                                     :visibility="
                                         invalidEui ? 'visible' : 'collapsed'
@@ -267,7 +267,7 @@
                                 <Label
                                     row="2"
                                     col="0"
-                                    text="App Key: "
+                                    :text="_L('appKey') + ': '"
                                     verticalAlignment="middle"
                                     class="text-right"
                                 ></Label>
@@ -284,7 +284,7 @@
                                     row="3"
                                     col="1"
                                     class="validation-error m-l-10"
-                                    text="Invalid App Key"
+                                    :text="_L('invalidAppKey')"
                                     textWrap="true"
                                     :visibility="
                                         invalidKey ? 'visible' : 'collapsed'
@@ -294,7 +294,7 @@
                                     row="4"
                                     colSpan="2"
                                     class="btn btn-secondary"
-                                    text="Submit"
+                                    :text="_L('submit')"
                                     @tap="editLora"
                                 ></Button>
                             </GridLayout>

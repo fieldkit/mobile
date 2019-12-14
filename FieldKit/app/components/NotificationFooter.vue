@@ -6,14 +6,14 @@
         @tap="goToNotifications"
     >
         <Label
-            text="Notifications"
+            :text="_L('notifications')"
             horizontalAlignment="right"
         />
         <GridLayout rows="auto" columns="*" horizontalAlignment="left">
             <Label
                 row="0"
                 col="0"
-                text="2"
+                :text="numNotifications"
                 class="notify-num text-center"
             />
         </GridLayout>
@@ -26,7 +26,9 @@ import routes from "../routes";
 
 export default {
     data() {
-        return {};
+        return {
+            numNotifications: 2
+        };
     },
     props: {
         onClose: {

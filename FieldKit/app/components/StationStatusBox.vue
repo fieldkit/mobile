@@ -65,7 +65,7 @@
                         class="m-10 size-14"
                         :text="this.station.connected
                             ? _L('connected')
-                            : 'Not connected'"
+                            : _L('notConnected')"
                         v-if="!syncing"
                     ></Label>
                     <Label
@@ -91,14 +91,20 @@
                         col="1"
                         class="m-t-15 m-l-10 size-14"
                         horizontalAlignment="left"
-                        text="Memory used"
+                        :text="_L('memoryUsed')"
                     ></Label>
                     <Label
                         row="1"
                         col="1"
                         class="m-l-10 m-t-5 m-b-10 size-12"
                         horizontalAlignment="left"
-                        :text="displayConsumedMemory + ' of ' + displayTotalMemory"
+                        :text="
+                            displayConsumedMemory
+                            + ' '
+                            + _L('of')
+                            + ' '
+                            + displayTotalMemory
+                        "
                     ></Label>
                     <GridLayout
                         row="2"
@@ -141,7 +147,7 @@ export default {
         return {
             loading: true,
             elapsedRecTime: "--:--:--",
-            elapsedTimeLabel: "hrs min sec",
+            elapsedTimeLabel: _L("hrsMinSec"),
             syncing: false,
             dataSyncingIcon: "~/images/Icon_Syncing.png",
             dataSyncMessage: "",
@@ -254,10 +260,10 @@ export default {
             let days = Math.floor(elapsedMillis / (1000 * 60 * 60 * 24));
             if (days > 1) {
                 this.elapsedRecTime = days + ":" + hours + ":" + minutes;
-                this.elapsedTimeLabel = "days hrs min";
+                this.elapsedTimeLabel = _L("daysHrsMin");
             } else {
                 this.elapsedRecTime = hours + ":" + minutes + ":" + seconds;
-                this.elapsedTimeLabel = "hrs min sec";
+                this.elapsedTimeLabel = _L("hrsMinSec");
             }
 
             if (parseInt(seconds) % 2 == 0) {

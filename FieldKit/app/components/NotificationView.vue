@@ -12,7 +12,7 @@
                     <StackLayout colSpan="2" verticalAlignment="middle">
                         <Label
                             class="title text-center"
-                            text="Notifications"
+                            :text="_L('notifications')"
                         ></Label>
                     </StackLayout>
                     <StackLayout
@@ -35,7 +35,7 @@
                     <Image col="0" row="0" src="~/images/notify-bell.png" width="25" />
                     <Label col="1" row="0" :text="n.heading" textWrap="true" />
                     <Label col="1" row="1" :text="n.text" textWrap="true" />
-                    <Label col="1" row="2" text="Dismiss" class="dismiss-btn" />
+                    <Label col="1" row="2" :text="_L('dismiss')" class="dismiss-btn" />
                 </GridLayout>
             </StackLayout>
         </ScrollView>

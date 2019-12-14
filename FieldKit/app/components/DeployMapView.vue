@@ -96,7 +96,7 @@
 
                 <Button
                     class="btn btn-primary m-y-20"
-                    text="Continue"
+                    :text="_L('continue')"
                     automationText="nextButton"
                     @tap="goToNext"
                 ></Button>

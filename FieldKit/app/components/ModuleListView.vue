@@ -89,7 +89,7 @@
                     <!-- view graph link -->
                     <!-- <StackLayout class="link-container text-center">
                         <Label
-                            text="View Graph"
+                            :text="_L('viewGraph')"
                             :id="'m_id-' + m.id"
                             class="view-graph-link text-center"
                             :automationText="'moduleLink' + moduleIndex"

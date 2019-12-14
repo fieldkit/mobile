@@ -141,7 +141,7 @@ export default {
 
         getDeployStatus(station) {
             if (station.status != "recording") {
-                return "Ready to deploy";
+                return _L("readyToDeploy");
             }
             // try using hardware's startedTime first
             try {
@@ -155,7 +155,7 @@ export default {
                 let month = start.getMonth() + 1;
                 let day = start.getDate();
                 let year = start.getFullYear();
-                return "Deployed: " + month + "/" + day + "/" + year;
+                return _L("deployed") + ": " + month + "/" + day + "/" + year;
             } catch (error) {
                 // console.log("error using hardware startedTime", error)
             }
@@ -164,9 +164,9 @@ export default {
                 let month = station.deployStartTime.getMonth() + 1;
                 let day = station.deployStartTime.getDate();
                 let year = station.deployStartTime.getFullYear();
-                return "Deployed: " + month + "/" + day + "/" + year;
+                return _L("deployed") + ": " + month + "/" + day + "/" + year;
             } catch (error) {
-                return "Deployed";
+                return _L("deployed");
             }
         },
 
