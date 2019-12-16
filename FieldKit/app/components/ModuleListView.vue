@@ -8,7 +8,7 @@
         >
             <StackLayout class="bordered-container p-10 m-y-10">
                 <!-- top row of module list -->
-                <GridLayout rows="auto" columns="15*,70*,15*">
+                <GridLayout rows="auto" columns="15*,70*,15*" class="m-b-20">
                     <!-- module icon -->
                     <Image
                         row="0"
