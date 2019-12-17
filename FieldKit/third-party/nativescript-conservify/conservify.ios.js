@@ -28,9 +28,21 @@ var MyNetworkingListener = (function (_super) {
     };
     MyNetworkingListener.prototype.onFoundServiceWithService = function (service) {
         debug("onFoundServiceWithService", service.type, service.name, service.host, service.port);
+        this.promises.getDiscoveryEvents().onFoundService({
+            name: service.name,
+            type: service.type,
+            host: service.host,
+            port: service.port,
+        });
     };
     MyNetworkingListener.prototype.onLostServiceWithService = function (service) {
         debug("onLostServiceWithService", service.type, service.name);
+        this.promises.getDiscoveryEvents().onLostService({
+            name: service.name,
+            type: service.type,
+            host: service.host,
+            port: service.port,
+        });
     };
     MyNetworkingListener.prototype.onConnectionInfoWithConnected = function (connected) {
         debug("onConnectionInfoWithConnected", connected);
@@ -276,6 +288,9 @@ var Conservify = (function (_super) {
             };
             _this.networking.web.uploadWithInfo(transfer);
         });
+    };
+    Conservify.prototype.getDiscoveryEvents = function () {
+        return this.discoveryEvents;
     };
     Conservify.prototype.getConnectedNetworkPromise = function () {
         return this.connected;

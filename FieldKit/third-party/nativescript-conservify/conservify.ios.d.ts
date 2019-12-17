@@ -61,6 +61,7 @@ declare class Networking extends NSObject {
     wifi: WifiNetworksManager;
 }
 interface OtherPromises {
+    getDiscoveryEvents(): any;
     getConnectedNetworkPromise(): Promise;
     getScanPromise(): Promise;
 }
@@ -92,6 +93,7 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
     networkingListener: MyNetworkingListener;
     uploadListener: WebTransferListener;
     downloadListener: WebTransferListener;
+    discoveryEvents: any;
     constructor(discoveryEvents: any);
     getTask(id: string): any;
     removeTask(id: string): void;
@@ -100,6 +102,7 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
     protobuf(info: any): Promise<{}>;
     download(info: any): Promise<{}>;
     upload(info: any): Promise<{}>;
+    getDiscoveryEvents(): any;
     getConnectedNetworkPromise(): Promise;
     getScanPromise(): Promise;
     findConnectedNetwork(): Promise<{}>;

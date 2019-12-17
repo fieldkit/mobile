@@ -27,7 +27,7 @@ $(APP)/app/secrets.ts: $(APP)/app/secrets.ts.template
 prettier:
 	prettier --write "$(APP)/app/**/*.{ts,js,css,json,vue}"
 
-$(APP)/node_modules:
+$(APP)/node_modules: setup
 	rm -rf $(APP)/node_modules/*/.git $(APP)/node-modules/fk-*-protocol
 	cd $(APP) && npm install
 	git config core.hooksPath .githooks
