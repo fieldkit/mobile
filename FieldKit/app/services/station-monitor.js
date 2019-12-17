@@ -1,5 +1,5 @@
 import { Observable } from "tns-core-modules/data/observable";
-import { promiseAfter } from "../utilities";
+import { promiseAfter, convertBytesToLabel } from "../utilities";
 import Config from "../config";
 
 const pastDate = new Date(2000, 0, 1);
@@ -21,6 +21,7 @@ export default class StationMonitor extends Observable {
         this.stations = {};
         // stations whose details are being viewed in app are "active"
         this.activeAddresses = [];
+        this.queriesInProgress = {};
         this.discoverStation = discoverStation;
         this.subscribeToStationDiscovery();
         this.dbInterface.getAll().then(this.initializeStations.bind(this));
@@ -81,12 +82,16 @@ export default class StationMonitor extends Observable {
         const elapsed = new Date() - station.lastSeen;
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
             console.log("station inactive");
+            delete this.queriesInProgress[station.deviceId];
             this.deactivateStation(station.deviceId);
         }
 
         if (!station.connected) {
+            delete this.queriesInProgress[station.deviceId];
             return Promise.reject();
         }
+
+        this.queriesInProgress[station.deviceId] = true;
 
         return this._statusOrReadings(station, takeReadings)
             .finally(() => {
@@ -100,6 +105,7 @@ export default class StationMonitor extends Observable {
     }
 
     updateStatus(station, result) {
+        delete this.queriesInProgress[station.deviceId];
         if (
             result.errors.length > 0 ||
             station.deviceId != result.status.identity.deviceId
@@ -113,12 +119,18 @@ export default class StationMonitor extends Observable {
 
         station.connected = true;
         station.lastSeen = new Date();
-        station.status = result.status.recording.enabled ? "recording" : "idle";
+        const newStatus = result.status.recording.enabled ? "recording" : "";
+        // db needs to be kept in sync
+        if (newStatus != station.status) {
+            this.dbInterface.setStationDeployStatus(station);
+        }
+        station.status = newStatus;
         station.name = result.status.identity.device;
         return this._updateStationStatus(station, result);
     }
 
     updateStationReadings(station, result) {
+        delete this.queriesInProgress[station.deviceId];
         if (
             result.errors.length > 0 ||
             station.deviceId != result.status.identity.deviceId
@@ -132,7 +144,11 @@ export default class StationMonitor extends Observable {
 
         station.connected = true;
         station.lastSeen = new Date();
-        station.status = result.status.recording.enabled ? "recording" : "idle";
+        const newStatus = result.status.recording.enabled ? "recording" : "";
+        // db needs to be kept in sync
+        if (newStatus != station.status) {
+            this.dbInterface.setStationDeployStatus(station);
+        }
         const readings = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
@@ -145,7 +161,13 @@ export default class StationMonitor extends Observable {
             stationId: station.id,
             readings: readings,
             batteryLevel: result.status.power.battery.percentage,
-            consumedMemory: result.status.memory.dataMemoryConsumption
+            consumedMemory: result.status.memory.dataMemoryUsed
+                ? convertBytesToLabel(result.status.memory.dataMemoryUsed)
+                : "Unknown",
+            totalMemory: convertBytesToLabel(
+                result.status.memory.dataMemoryInstalled
+            ),
+            consumedMemoryPercent: result.status.memory.dataMemoryConsumption
         };
         // store one set of live readings per station
         station.readings = readings;
@@ -153,6 +175,19 @@ export default class StationMonitor extends Observable {
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
 
         return this._updateStationStatus(station, result);
+    }
+
+    recordingStatusChange(address, recording) {
+        const stations = Object.values(this.stations);
+        let station = stations.find(s => {
+            return s.url == address;
+        });
+        if (station) {
+            const newStatus = recording == "started" ? "recording" : "";
+            station.status = newStatus;
+            this.stations[station.deviceId] = station;
+            this._publishStationsUpdated();
+        }
     }
 
     subscribeToStationDiscovery() {
@@ -211,7 +246,12 @@ export default class StationMonitor extends Observable {
             })
             .catch(err => {
                 // console.log("error getting status in checkDatabase", err);
-                console.log("the station at", address, "did not respond with a status. instead:", err)
+                console.log(
+                    "the station at",
+                    address,
+                    "did not respond with a status. instead:",
+                    err
+                );
             });
     }
 
@@ -220,18 +260,25 @@ export default class StationMonitor extends Observable {
         const modules = data.result.modules;
         const recordingStatus = data.result.status.recording.enabled
             ? "recording"
-            : "idle";
+            : "";
+        let deployStartTime = data.result.status.recording.startedTime
+            ? new Date(data.result.status.recording.startedTime * 1000)
+            : "";
+
         const station = {
             deviceId: data.deviceId,
             name: deviceStatus.identity.device,
             url: data.address,
             status: recordingStatus,
+            deployStartTime: deployStartTime,
             connected: true,
+            interval: data.result.schedules.readings.interval,
             batteryLevel: deviceStatus.power.battery.percentage,
-            availableMemory:
-                100 - deviceStatus.memory.dataMemoryConsumption.toFixed(2),
             longitude: deviceStatus.gps.longitude.toFixed(6),
-            latitude: deviceStatus.gps.latitude.toFixed(6)
+            latitude: deviceStatus.gps.latitude.toFixed(6),
+            consumedMemory: deviceStatus.memory.dataMemoryUsed,
+            totalMemory: deviceStatus.memory.dataMemoryInstalled,
+            consumedMemoryPercent: deviceStatus.memory.dataMemoryConsumption
         };
         this.dbInterface.insertStation(station, data.result).then(id => {
             station.id = id;
@@ -260,13 +307,9 @@ export default class StationMonitor extends Observable {
         let stations = Object.values(this.stations);
         // sort by recency first, rounded to hour
         stations.sort((a, b) => {
-            const aTime = ((a.lastSeen / oneHour) * oneHour);
-            const bTime = ((b.lastSeen / oneHour) * oneHour);
-            return bTime > aTime
-                ? 1
-                : bTime < aTime
-                ? -1
-                : 0;
+            const aTime = (a.lastSeen / oneHour) * oneHour;
+            const bTime = (b.lastSeen / oneHour) * oneHour;
+            return bTime > aTime ? 1 : bTime < aTime ? -1 : 0;
         });
         // then sort by alpha
         stations.sort((a, b) => {
@@ -304,9 +347,13 @@ export default class StationMonitor extends Observable {
         this.stations[deviceId].name = statusResult.status.identity.device;
         // prefer discovered url over database url
         this.stations[deviceId].url = address;
+        // and update the database url!
+        this.dbInterface.setStationUrl(this.stations[deviceId]);
 
         // start getting readings
-        this.requestInitialReadings(this.stations[deviceId]);
+        if (!this.queriesInProgress[deviceId]) {
+            this.requestInitialReadings(this.stations[deviceId]);
+        }
     }
 
     deactivateStation(deviceId) {

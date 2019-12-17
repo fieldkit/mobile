@@ -1,135 +1,271 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <ScrollView>
-            <StackLayout class="p-t-10">
+        <GridLayout rows="75,*,65">
+            <!-- sticky header section and progress bar -->
+            <StackLayout row="0" v-if="!linkedFromStation">
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="stationName"
                     :onBack="goBack"
                     :canNavigateSettings="false"
+                    v-if="!isEditing"
                 />
-
-                <!-- Add audio note and photo -->
-                <GridLayout rows="auto" columns="*,*" class="m-x-10 m-t-20">
-                    <StackLayout
-                        row="0"
-                        col="0"
-                        class="col left-col"
-                        automationText="addAudioNote"
-                        @tap="onAudioTap"
-                    >
-                        <Label
-                            class="text-center size-18"
-                            :text="_L('audioNotes')"
-                        ></Label>
-                    </StackLayout>
-                    <StackLayout
-                        row="0"
-                        col="1"
-                        class="col right-col"
-                        automationText="addPhoto"
-                        @tap="onPhotoTap"
-                    >
-                        <Label
-                            class="text-center size-18"
-                            :text="_L('photo')"
-                        ></Label>
-                    </StackLayout>
-                </GridLayout>
-                <!-- end: Add audio note and photo -->
-
-                <!-- Add text note -->
-                <GridLayout rows="auto" , columns="*" class="m-10">
-                    <TextView
-                        class="size-18"
-                        id="note-text-field"
-                        :hint="_L('notesInstructions')"
-                        v-model="noteText"
-                        @blur="saveNote"
-                        textWrap="true"
-                    ></TextView>
-                </GridLayout>
-                <!-- end: Add text note -->
-
-                <!-- List audio recordings -->
                 <GridLayout
                     rows="auto"
-                    columns="90*,10*"
-                    v-for="(r, recordingIndex) in displayRecordings"
-                    :key="r"
-                    class="link-style"
-                    orientation="vertical"
+                    columns="33*,33*,34*"
+                    class="top-line-bkgd"
+                    v-if="!isEditing"
                 >
-                    <Label
-                        col="0"
-                        :text="r"
-                        :data="r"
-                        :automationText="'audioRecording' + recordingIndex"
-                        textWrap="true"
-                        @tap="playAudio"
-                    />
-                    <Image
-                        col="1"
-                        width="17"
-                        class="small-round"
-                        :automationText="
-                            'removeAudioRecording' + recordingIndex
-                        "
-                        :data="r"
-                        @tap="removeRecording"
-                        src="~/images/Icon_Close.png"
-                    ></Image>
+                    <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
-                <!-- end: List audio recordings -->
-
-                <!-- Add photo -->
-                <GridLayout
-                    rows="*, auto"
-                    columns="*"
-                    v-show="havePhoto"
-                    class="m-10 photo-label"
-                >
-                    <Image
-                        row="0"
-                        :src="imageSrc"
-                        id="image"
-                        automationText="deploymentPhoto"
-                        stretch="aspectFit"
-                    />
-                    <TextView
-                        row="1"
-                        :hint="_L('describePhoto')"
-                        id="photo-label-input"
-                        @blur="saveLabel"
-                        v-model="labelText"
-                    ></TextView>
-                </GridLayout>
-                <!-- end: Add photo -->
-
-                <StackLayout v-show="havePhoto" class="m-15">
-                    <Label
-                        v-show="!isRecordingData"
-                        :text="_L('startRecordingPrompt')"
-                        textWrap="true"
-                    />
-                    <Label
-                        v-show="isRecordingData"
-                        :text="_L('recording')"
-                        class="recording-notice bold text-center m-y-10"
-                        textWrap="true"
-                    />
-                    <Button
-                        class="btn btn-primary m-b-10"
-                        :text="
-                            isRecordingData ? _L('stopRecording') : _L('record')
-                        "
-                        @tap="recordButtonTapped"
-                    ></Button>
-                </StackLayout>
-
-                <TextView id="hidden-field" />
             </StackLayout>
-        </ScrollView>
+
+            <!-- alternate header section -->
+            <GridLayout
+                row="0"
+                rows="auto,auto"
+                columns="85*,15*"
+                class="alternate-header"
+                v-if="linkedFromStation"
+            >
+                <StackLayout
+                    row="0"
+                    colSpan="2"
+                    verticalAlignment="middle"
+                    v-if="!isEditing"
+                >
+                    <Label
+                        class="title text-center"
+                        text="Field Notes"
+                    ></Label>
+                </StackLayout>
+                <StackLayout
+                    row="0"
+                    col="2"
+                    class="round-bkgd m-r-10"
+                    verticalAlignment="top"
+                    @tap="onEditDone"
+                    v-if="!isEditing"
+                >
+                    <Image width="21" src="~/images/Icon_Close.png"></Image>
+                </StackLayout>
+                <StackLayout
+                    row="1"
+                    colSpan="2"
+                    class="alternate-header-border"
+                    v-if="!isEditing"
+                />
+            </GridLayout>
+
+            <!-- main notes view section -->
+            <ScrollView row="1">
+                <FlexboxLayout flexDirection="column" class="p-t-10">
+                    <StackLayout class="m-x-20" v-if="!isEditing">
+                        <!-- top label section -->
+                        <GridLayout
+                            rows="auto,auto"
+                            columns="35*,65*"
+                            class="m-b-20"
+                        >
+                            <Label
+                                row="0"
+                                col="0"
+                                text="Field Notes"
+                                class="size-18"
+                            ></Label>
+                            <Label
+                                row="0"
+                                col="1"
+                                :text="percentComplete + '% ' + _L('complete')"
+                                class="size-14 blue"
+                                verticalAlignment="bottom"
+                            ></Label>
+                            <Label
+                                row="1"
+                                colSpan="2"
+                                :text="_L('provideDetails')"
+                                textWrap="true"
+                                class="size-12 m-t-5"
+                            ></Label>
+                        </GridLayout>
+
+                        <!-- display the four defined note fields -->
+                        <GridLayout
+                            rows="auto,auto"
+                            columns="90*,10*"
+                            v-for="note in fieldNotes"
+                            :key="note.field"
+                            :dataNote="note"
+                            class="note-section"
+                            @tap="onEditTap"
+                        >
+                            <Label
+                                row="0"
+                                col="0"
+                                :text="note.title"
+                                class="size-16 m-b-5"
+                            ></Label>
+                            <Label
+                                row="1"
+                                col="0"
+                                :text="
+                                    note.value
+                                        ? note.value
+                                        : note.audioFile
+                                        ? ''
+                                        : note.instruction
+                                "
+                                class="size-12 m-b-10"
+                            ></Label>
+                            <Image
+                                rowSpan="2"
+                                col="1"
+                                v-if="note.audioFile"
+                                src="~/images/Icon_Mic.png"
+                                width="17"
+                            />
+                        </GridLayout>
+
+                        <!-- photos -->
+                        <StackLayout class="m-t-20">
+                            <Label
+                                :text="_L('photosRequired')"
+                                class="size-16"
+                            ></Label>
+                            <WrapLayout orientation="horizontal">
+                                <StackLayout
+                                    v-for="photo in photos"
+                                    :key="photo.id"
+                                    class="photo-display"
+                                >
+                                    <Image
+                                        :src="photo.src"
+                                        stretch="aspectFit"
+                                    />
+                                </StackLayout>
+                                <StackLayout
+                                    class="photo-btn"
+                                    @tap="onPhotoTap"
+                                >
+                                    <Image
+                                        src="~/images/Icon_Add_Button.png"
+                                        width="20"
+                                        opacity="0.25"
+                                        class="photo-btn-img"
+                                    />
+                                </StackLayout>
+                            </WrapLayout>
+                        </StackLayout>
+
+                        <!-- additional notes -->
+                        <StackLayout class="m-t-30">
+                            <Label
+                                :text="_L('additionalNotes')"
+                                class="size-16 m-b-5"
+                            ></Label>
+                            <Label
+                                :text="_L('addDetails')"
+                                class="size-12 m-b-10"
+                            ></Label>
+                        </StackLayout>
+
+                        <GridLayout
+                            rows="auto"
+                            columns="*"
+                            v-for="note in additionalNotes"
+                            :key="note.field"
+                            class="m-b-10"
+                        >
+                            <GridLayout
+                                row="0"
+                                rows="auto,auto"
+                                columns="90*,10*"
+                                class="additional-note-section"
+                            >
+                                <Label
+                                    row="0"
+                                    col="0"
+                                    :text="note.title"
+                                    class="size-16 m-b-5"
+                                ></Label>
+                                <Label
+                                    row="1"
+                                    col="0"
+                                    :text="note.value"
+                                    v-if="note.value"
+                                    class="size-12 m-b-10"
+                                ></Label>
+                                <Image
+                                    rowSpan="2"
+                                    col="1"
+                                    v-if="note.audioFile"
+                                    src="~/images/Icon_Mic.png"
+                                    width="17"
+                                />
+                            </GridLayout>
+                            <GridLayout row="0" rows="auto" columns="*">
+                                <Image
+                                    horizontalAlignment="right"
+                                    src="~/images/Icon_Close_Circle.png"
+                                    width="15"
+                                    class="m-t-5"
+                                    :dataNote="note"
+                                    @tap="removeAdditionalNote"
+                                />
+                            </GridLayout>
+                        </GridLayout>
+
+                        <FlexboxLayout class="m-b-20">
+                            <Image
+                                src="~/images/Icon_Add_Button.png"
+                                width="20"
+                            />
+                            <Label
+                                :text="_L('addNote')"
+                                class="p-l-5"
+                                @tap="createAdditionalNote"
+                            ></Label>
+                        </FlexboxLayout>
+                    </StackLayout>
+                </FlexboxLayout>
+            </ScrollView>
+
+            <!-- sticky continue button -->
+            <StackLayout row="2" v-if="!linkedFromStation">
+                <Button
+                    class="btn btn-primary m-b-10"
+                    :text="_L('continue')"
+                    automationText="nextButton"
+                    :isEnabled="havePhoto"
+                    @tap="goToReview"
+                    v-if="!isEditing"
+                ></Button>
+            </StackLayout>
+
+            <!-- alternate sticky button -->
+            <StackLayout row="2" v-if="linkedFromStation">
+                <Button
+                    class="btn btn-primary m-b-10"
+                    :text="_L('save')"
+                    @tap="onEditDone"
+                    v-if="!isEditing"
+                ></Button>
+            </StackLayout>
+
+            <!-- field note form -->
+            <template v-if="isEditing">
+                <StackLayout rowSpan="3">
+                    <FieldNoteForm
+                        :fieldNote="currentNote"
+                        @cancel="cancelEdit"
+                        @saveEdit="saveNote"
+                        @saveAudio="saveAudio"
+                        @removeAudio="removeAudio"
+                        v-if="isEditing"
+                    />
+                </StackLayout>
+            </template>
+        </GridLayout>
     </Page>
 </template>
 
@@ -139,52 +275,69 @@ import { ImageSource, fromFile } from "tns-core-modules/image-source";
 import { takePicture, requestPermissions } from "nativescript-camera";
 import * as imagepicker from "nativescript-imagepicker";
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import AudioInterface from "../services/audio-interface";
+import { isIOS } from "tns-core-modules/platform";
 import ScreenHeader from "./ScreenHeader";
+import FieldNoteForm from "./FieldNoteForm";
 import Services from "../services/services";
 import routes from "../routes";
 
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
 
-const audioInterface = new AudioInterface();
 const documents = knownFolders.documents();
 const folder = documents.getFolder("FieldKitImages");
 const source = new ImageSource();
-
-// note: global variable _L not defined here
-// so month name abbreviations are set below
-let monthNames = [];
 
 export default {
     data() {
         return {
             viewTitle: _L("deployment"),
             stationName: "",
+            isEditing: false,
+            fieldNotes: [
+                {
+                    field: "studyObjective",
+                    value: "",
+                    title: _L("studyObjective"),
+                    instruction: _L("studyObjectiveInstruction"),
+                    complete: false
+                },
+                {
+                    field: "locationPurpose",
+                    value: "",
+                    title: _L("siteLocation"),
+                    instruction: _L("siteLocationInstruction"),
+                    complete: false
+                },
+                {
+                    field: "siteCriteria",
+                    value: "",
+                    title: _L("siteCriteria"),
+                    instruction: _L("siteCriteriaInstruction"),
+                    complete: false
+                },
+                {
+                    field: "siteDescription",
+                    value: "",
+                    title: _L("siteDescription"),
+                    instruction: _L("siteDescriptionInstruction"),
+                    complete: false
+                }
+            ],
+            additionalNotes: [],
+            photos: [],
             saveToGallery: true,
             allowsEditing: true,
             keepAspectRatio: true,
-            width: 640,
-            height: 360,
             imageSrc: null,
-            labelText: "",
-            origLabel: "",
             havePhoto: false,
-            pathDest: "",
-            deployImageName: "",
-            origImageName: "",
-            noteText: "",
-            origNote: "",
-            recordings: "",
-            origRecordings: "",
-            newRecordings: {},
-            displayRecordings: [],
-            isRecordingData: false
+            percentComplete: 0
         };
     },
-    props: ["station"],
+    props: ["station", "linkedFromStation"],
     components: {
-        ScreenHeader
+        ScreenHeader,
+        FieldNoteForm
     },
     methods: {
         goBack(event) {
@@ -201,162 +354,295 @@ export default {
             });
         },
 
+        goToReview() {
+            this.$navigateTo(routes.deployReview, {
+                props: {
+                    station: this.station,
+                    fieldNotes: this.fieldNotes,
+                    photos: this.photos,
+                    percentComplete: this.percentComplete,
+                    additionalNotes: this.additionalNotes
+                }
+            });
+        },
+
+        onEditDone(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            let savingStation = this.station;
+            savingStation.percentComplete = this.percentComplete;
+            dbInterface.setStationPercentComplete(savingStation)
+                .then(() => {
+                    this.$navigateTo(routes.stationDetail, {
+                        props: {
+                            station: this.station
+                        }
+                    });
+                });
+        },
+
         onPageLoaded(args) {
             this.page = args.object;
-
-            monthNames = [
-                _L("jan"),
-                _L("feb"),
-                _L("mar"),
-                _L("apr"),
-                _L("may"),
-                _L("jun"),
-                _L("jul"),
-                _L("aug"),
-                _L("sep"),
-                _L("oct"),
-                _L("nov"),
-                _L("dec")
-            ];
 
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            this.setup();
+            dbInterface
+                .getFieldNotes(this.station.id)
+                .then(this.getFieldMedia)
+                .then(this.setup);
         },
 
-        setup() {
-            if (this.station.status == "recording") {
-                this.isRecordingData = true;
-            }
+        getFieldMedia(notes) {
+            this.otherNotes = notes;
+            return dbInterface.getFieldMedia(this.station.id);
+        },
+
+        setup(media) {
+            this.fieldMedia = media;
+
             this.stationName = this.station.name;
-            this.noteText = this.station.deployNote;
-            this.origNote = this.noteText;
-            this.recordings = this.station.deployAudioFiles;
-            this.origRecordings = this.recordings;
-            if (this.recordings) {
-                this.displayRecordings = this.recordings.split(",");
-            }
-            this.deployImageName = this.station.id + "_deploy.jpg";
-            this.origLabel = this.station.deployImageLabel;
-            this.origImageName = this.station.deployImageName;
-            this.pathDest = path.join(folder.path, this.deployImageName);
-            if (this.origImageName && this.origImageName.length > 0) {
-                // load previously saved image
-                this.pathDest = path.join(folder.path, this.origImageName);
-                const imageFromLocalFile = fromFile(this.pathDest);
-                this.imageSrc = imageFromLocalFile;
-                this.labelText = this.origLabel;
+
+            this.fieldNotes.forEach(note => {
+                if (this.station[note.field]) {
+                    note.value = this.station[note.field];
+                    if (note.value != "") {
+                        note.complete = true;
+                    }
+                }
+            });
+
+            // audio and/or additional notes
+            this.additionalNotes = [];
+            this.otherNotes.forEach(note => {
+                let fieldNote = this.fieldNotes.find(n => {
+                    return n.field == note.category;
+                });
+                if (fieldNote && fieldNote.audioFile) {
+                    fieldNote.audioFile += "," + note.audioFile;
+                } else if (fieldNote) {
+                    fieldNote.audioFile = note.audioFile;
+                } else {
+                    // display additional note
+                    this.additionalNotes.push({
+                        fieldNoteId: note.id,
+                        field: note.category,
+                        value: note.note,
+                        title: "Field Note",
+                        audioFile: note.audioFile,
+                        instruction: note.note
+                    });
+                }
+            });
+
+            this.photos = [];
+            // load previously saved images
+            this.fieldMedia.forEach((img, i) => {
+                const dest = path.join(folder.path, img.imageName);
+                const imageFromLocalFile = fromFile(dest);
+                this.photos.push({
+                    id: i,
+                    src: imageFromLocalFile
+                });
                 this.havePhoto = true;
+            });
+            this.updatePercentComplete();
+        },
+
+        onEditTap(event) {
+            let note = event.object.dataNote;
+            this.currentNote = note;
+            this.isEditing = true;
+        },
+
+        cancelEdit() {
+            this.isEditing = false;
+        },
+
+        saveNote(note) {
+            let fieldNote = this.fieldNotes.find(n => {
+                return n.field == note.field;
+            });
+            if (!fieldNote) {
+                // save as additional note
+                this.saveAdditional(note);
+                return;
             }
-        },
 
-        onAudioTap(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            dialogs
-                .action({
-                    message: _L("addAudio"),
-                    cancelButtonText: _L("cancel"),
-                    actions: [_L("startRecording")]
-                })
-                .then(result => {
-                    if (result == _L("startRecording")) {
-                        this.startAudioRecording();
-                    }
-                });
-        },
-
-        startAudioRecording() {
-            // Create unique filename
-            let now = new Date();
-            let month = monthNames[now.getMonth()];
-            let day = now.getDate();
-            let year = now.getFullYear();
-            let filename =
-                _L("audioNote") + " " + month + " " + day + " " + year;
-            // colons not allowed in audio file names - if time is needed, re-work this
-            // let time = now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
-            let dateIndex = month + "_" + day + "_" + year;
-            if (this.newRecordings[dateIndex]) {
-                // increment filename if we already have any
-                let numRecordings = this.newRecordings[dateIndex].length;
-                filename += " " + (numRecordings + 1);
+            fieldNote.value = note.value;
+            if (note.value) {
+                fieldNote.complete = true;
             } else {
-                this.newRecordings[dateIndex] = [];
+                fieldNote.complete = fieldNote.audioFile ? true : false;
             }
-            this.newRecordings[dateIndex].push(filename);
 
-            audioInterface.startAudioRecording(filename);
+            let savingStation = this.station;
+            savingStation[note.field] = note.value;
+            switch (note.field) {
+                case "studyObjective":
+                    dbInterface.setStationStudyObjective(savingStation);
+                    break;
+                case "locationPurpose":
+                    dbInterface.setStationLocationPurpose(savingStation);
+                    break;
+                case "siteCriteria":
+                    dbInterface.setStationSiteCriteria(savingStation);
+                    break;
+                case "siteDescription":
+                    dbInterface.setStationSiteDescription(savingStation);
+                    break;
+            }
+            // send note as field note to portal
+            let portalParams = {
+                stationId: this.station.id,
+                created: new Date(),
+                category_id: 1,
+                note: note.value
+            };
+            this.$portalInterface.addFieldNote(portalParams);
+            this.isEditing = false;
+            this.updatePercentComplete();
+        },
 
-            dialogs
-                .action({
-                    message: _L("recording"),
-                    actions: [_L("stopRecording")]
-                })
-                .then(result => {
-                    if (result == _L("stopRecording")) {
-                        audioInterface.stopAudioRecording();
-                        // automatically save recording
-                        this.addRecording(filename);
-                    }
+        createAdditionalNote(event) {
+            // note: saving ~requires field to be 'additional'
+            this.currentNote = {
+                field: "additional",
+                value: "",
+                title: "Field Note",
+                instruction: _L("additionalNoteInstruction"),
+                audioFile: ""
+            };
+            this.isEditing = true;
+        },
+
+        saveAdditional(note) {
+            this.isEditing = false;
+            const newNote = {
+                stationId: this.station.id,
+                note: note.value,
+                category: note.field,
+                audioFile: note.audioFile,
+                author: this.userName
+            };
+            dbInterface.insertFieldNote(newNote).then(id => {
+                this.additionalNotes.push({
+                    fieldNoteId: id,
+                    field: note.field,
+                    value: note.value,
+                    title: "Field Note",
+                    instruction: _L("additionalNoteInstruction"),
+                    audioFile: note.audioFile
                 });
+            });
+            // send note as field note to portal
+            // NOTE: portal category IDs are not set up yet
+            let portalParams = {
+                stationId: this.station.id,
+                created: new Date(),
+                category_id: 1,
+                note: note.value
+            };
+            this.$portalInterface.addFieldNote(portalParams);
         },
 
-        addRecording(filename) {
-            this.displayRecordings.push(filename);
-            this.saveRecordings();
-        },
-
-        removeRecording(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            let filename = event.object.data;
+        removeAdditionalNote(event) {
+            let note = event.object.dataNote;
             // confirm removal
             dialogs
                 .confirm({
-                    title: _L("confirmDeleteRecording"),
+                    title: _L("confirmDeleteNote"),
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel")
                 })
                 .then(result => {
                     if (result) {
-                        let index = this.displayRecordings.indexOf(filename);
-                        if (index == -1) {
-                            return;
+                        let index = this.additionalNotes.findIndex(n => {
+                            return n.fieldNoteId == note.fieldNoteId;
+                        });
+                        if (index > -1) {
+                            this.additionalNotes.splice(index, 1);
                         }
-                        this.displayRecordings.splice(index, 1);
-                        this.saveRecordings();
-                        // delete file on phone
-                        audioInterface.deleteRecordedFile(filename);
+                        dbInterface.removeFieldNote(note.fieldNoteId);
+                        if (note.audioFile && note.audioFile != "") {
+                            dbInterface.removeFieldNoteByAudioFile(
+                                note.audioFile
+                            );
+                        }
+
+                        // *** NOTE: probably more places need this:
+                        // TODO: delete from portal
                     }
                 });
         },
 
-        saveRecordings() {
-            this.station.deployAudioFiles = this.displayRecordings.join(",");
-            dbInterface.setStationDeployAudio(this.station);
-            let configChange = {
+        saveAudio(note, recording) {
+            let fieldNote = this.fieldNotes.find(n => {
+                return n.field == note.field;
+            });
+            if (!fieldNote) {
+                // additional note audio
+                // gets saved elsewhere
+                return;
+            }
+            fieldNote.complete = true;
+            if (fieldNote.audioFile) {
+                fieldNote.audioFile += "," + recording;
+            } else {
+                fieldNote.audioFile = recording;
+            }
+            const audioNote = {
                 stationId: this.station.id,
-                before: this.origRecordings,
-                after: this.station.deployAudioFiles,
-                affectedField: "deployAudioFiles",
+                note: note.value,
+                category: note.field,
+                audioFile: recording,
                 author: this.userName
             };
-            dbInterface.recordStationConfigChange(configChange);
-            this.origRecordings = this.station.deployAudioFiles;
+            dbInterface.insertFieldNote(audioNote);
+            this.updatePercentComplete();
         },
 
-        playAudio(event) {
-            audioInterface.playRecordedFile(event.object.data);
+        removeAudio(note, filename) {
+            let fieldNote = this.fieldNotes.find(n => {
+                return n.field == note.field;
+            });
+            if (!fieldNote) {
+                // additional note audio
+                // hasn't been saved in db yet
+                return;
+            }
+
+            let recordings = fieldNote.audioFile.split(",");
+            let index = recordings.indexOf(filename);
+            if (index > -1) {
+                recordings.splice(index, 1);
+            }
+            fieldNote.audioFile = recordings.join(",");
+            if (!fieldNote.value && !fieldNote.audioFile) {
+                fieldNote.complete = false;
+            }
+            this.updatePercentComplete();
+
+            dbInterface.removeFieldNoteByAudioFile(filename);
+        },
+
+        updatePercentComplete() {
+            // Note: hard-coded total - 4 notes and 1 photo
+            const total = 5.0;
+            let done = 0;
+            if (this.photos.length > 0) {
+                done += 1;
+            }
+            this.fieldNotes.forEach(n => {
+                if (n.complete) {
+                    done += 1;
+                }
+            });
+            this.percentComplete = Math.round((done / total) * 100);
         },
 
         onPhotoTap(event) {
@@ -385,8 +671,6 @@ export default {
             requestPermissions().then(
                 () => {
                     takePicture({
-                        // width: this.width,
-                        // height: this.height,
                         keepAspectRatio: this.keepAspectRatio,
                         saveToGallery: this.saveToGallery,
                         allowsEditing: this.allowsEditing
@@ -394,7 +678,6 @@ export default {
                         imageAsset => {
                             this.imageSrc = imageAsset;
                             this.savePicture();
-                            this.havePhoto = true;
                         },
                         err => {
                             // console.log("Error -> " + err.message);
@@ -420,9 +703,6 @@ export default {
                 .then(selection => {
                     this.imageSrc = selection[0];
                     this.savePicture();
-                    this.havePhoto = true;
-                    // selection[0].options.width = this.width;
-                    // selection[0].options.height = this.height;
                 })
                 .catch(e => {
                     // console.log(e);
@@ -430,170 +710,45 @@ export default {
         },
 
         savePicture() {
+            this.havePhoto = true;
+            const name = this.station.id + "_img_" + Date.now() + ".jpg";
+            const dest = path.join(folder.path, name);
+            let media = {
+                stationId: this.station.id,
+                imageName: name,
+                imageLabel: "",
+                category: "default",
+                author: this.userName
+            };
+            dbInterface.insertFieldMedia(media);
+            this.updatePercentComplete();
+            if (isIOS) {
+                this.photos.push({
+                    id: this.photos.length + 1,
+                    src: this.imageSrc
+                });
+            }
+
             source.fromAsset(this.imageSrc).then(
                 imageSource => {
-                    let saved = imageSource.saveToFile(this.pathDest, "jpg");
+                    let saved = imageSource.saveToFile(dest, "jpg");
                     if (saved) {
-                        this.station.deployImageName = this.deployImageName;
-                        // save in db
-                        dbInterface.setStationDeployImage(this.station);
                         // send image to portal as field note media
-                        let params = { stationId: this.station.id, pathDest: this.pathDest };
-                        this.$portalInterface.addFieldNoteMedia(params).then(result => {
-                            // console.log("result? ---->", result)
-                        });
-                        let configChange = {
+                        let params = {
                             stationId: this.station.id,
-                            before: this.origImageName,
-                            after: this.deployImageName,
-                            affectedField: "deployImageName",
-                            author: this.userName
+                            pathDest: dest
                         };
-                        dbInterface.recordStationConfigChange(configChange);
-                        this.origImageName = this.deployImageName;
+                        this.$portalInterface
+                            .addFieldNoteMedia(params)
+                            .then(result => {
+                                // console.log("result? ---->", result);
+                            });
                     }
                 },
                 error => {
                     // console.log("Error saving image", error);
                 }
             );
-        },
-
-        saveLabel() {
-            if (this.origLabel != this.labelText) {
-                this.station.deployImageLabel = this.labelText;
-                dbInterface.setStationDeployImageLabel(this.station);
-                let configChange = {
-                    stationId: this.station.id,
-                    before: this.origLabel,
-                    after: this.labelText,
-                    affectedField: "deployImageLabel",
-                    author: this.userName
-                };
-                dbInterface.recordStationConfigChange(configChange);
-                this.origLabel = this.labelText;
-            }
-        },
-
-        saveNote() {
-            let textField = this.page.getViewById("note-text-field");
-            if (
-                !this.noteText ||
-                this.noteText == "" ||
-                this.noteText.length == 0
-            ) {
-                // show full hint text
-                textField.className = "size-18 full-height";
-            } else {
-                // let height auto-adjust
-                textField.className = "size-18";
-            }
-
-            if (this.origNote != this.noteText) {
-                this.station.deployNote = this.noteText;
-                // save in db
-                dbInterface.setStationDeployNote(this.station);
-                // send note as field note to portal
-                let portalParams = {
-                    stationId: this.station.id,
-                    created: new Date(),
-                    category_id: 1,
-                    note: this.station.deployNote
-                }
-                this.$portalInterface.addFieldNote(portalParams);
-                let configChange = {
-                    stationId: this.station.id,
-                    before: this.origNote,
-                    after: this.noteText,
-                    affectedField: "deployNote",
-                    author: this.userName
-                };
-                dbInterface.recordStationConfigChange(configChange);
-                this.origNote = this.noteText;
-            }
-        },
-
-        recordButtonTapped(event) {
-            if (event.object.text == _L("record")) {
-                this.deployStation(event);
-            } else {
-                this.stopStation(event);
-            }
-        },
-
-        deployStation(event) {
-            this.removeFocus("note-text-field");
-            this.removeFocus("photo-label-input");
-            // just in case?
-            this.saveNote();
-            this.saveLabel();
-
-            this.isRecordingData = true;
-            this.station.status = "recording";
-            event.object.text = _L("stopRecording");
-
-            this.station.deployStartTime = new Date();
-            dbInterface.setStationDeployStartTime(this.station);
-
-            queryStation.startDataRecording(this.station.url).then(result => {
-                const priorValue = null;
-                this.updateStationStatus(priorValue).then(() => {
-                    this.$navigateTo(routes.stationDetail, {
-                        props: {
-                            station: this.station
-                        }
-                    });
-                });
-            });
-        },
-
-        stopStation(event) {
-            event.object.text = _L("record");
-            this.isRecordingData = false;
-            queryStation.stopDataRecording(this.station.url).then(result => {
-                const priorValue = "recording";
-                this.station.status = null;
-                this.updateStationStatus(priorValue);
-            });
-        },
-
-        updateStationStatus(priorValue) {
-            // update db
-            dbInterface.setStationDeployStatus(this.station);
-            let configChange = {
-                stationId: this.station.id,
-                before: priorValue,
-                after: this.station.status,
-                affectedField: "status",
-                author: this.userName
-            };
-            dbInterface.recordStationConfigChange(configChange);
-
-            // update portal
-            if (this.station.portalId && this.station.url != "no_url") {
-                let params = {
-                    name: this.station.name,
-                    device_id: this.station.deviceId,
-                    status_json: this.station
-                };
-                return this.$portalInterface
-                    .updateStation(params, this.station.portalId)
-                    .then(stationPortalId => {
-                        // console.log("successfully updated", stationPortalId)
-                        return Promise.resolve();
-                    });
-            } else {
-                return Promise.resolve();
-            }
-        },
-
-        removeFocus(id) {
-            let textField = this.page.getViewById(id);
-            textField.dismissSoftInput();
-
-            let hiddenField = this.page.getViewById("hidden-field");
-            hiddenField.focus();
-            hiddenField.dismissSoftInput();
         }
     }
 };
@@ -605,6 +760,22 @@ export default {
 // End custom common variables
 
 // Custom styles
+.alternate-header {
+    padding-bottom: 10;
+    margin-top: 10;
+}
+.alternate-header-border {
+    padding-top: 10;
+    border-bottom-width: 1;
+    border-color: $fk-gray-lighter;
+}
+.top-line-bkgd {
+    background-color: $fk-gray-lighter;
+}
+.top-line {
+    border-bottom-width: 3;
+    border-bottom-color: $fk-primary-blue;
+}
 
 .small-round {
     width: 40;
@@ -612,59 +783,34 @@ export default {
     border-radius: 20;
 }
 
-.col {
-    padding-top: 10;
-    padding-bottom: 10;
-    border-width: 1;
-    border-color: $fk-gray-lighter;
-    background: $fk-gray-white;
-}
-
-.left-col {
-    border-top-left-radius: 4;
-    border-bottom-left-radius: 4;
-}
-
-.right-col {
-    border-top-right-radius: 4;
-    border-bottom-right-radius: 4;
-}
-
-.photo-label {
-    width: 96%;
-    padding: 0;
-    font-size: 18;
-}
-
-#photo-label-input {
-    width: 96%;
-    border-bottom-width: 1;
-    border-bottom-color: $fk-primary-black;
-}
-
-.link-style {
+.blue {
     color: $fk-primary-blue;
-    margin-left: 20;
-    margin-right: 10;
-    margin-top: 5;
+}
+
+.note-section {
+    border-bottom-width: 1;
+    border-color: $fk-gray-lighter;
+    margin-top: 10;
     margin-bottom: 10;
 }
-
-#note-text-field {
-    border-bottom-width: 1;
-    border-bottom-color: $fk-primary-black;
+.additional-note-section {
+    border-width: 1;
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    padding: 10;
+    margin-top: 10;
+    margin-bottom: 10;
+    margin-right: 5;
 }
 
-.recording-notice {
-    color: $fk-primary-red;
-    font-size: 18;
+.photo-display,
+.photo-btn {
+    width: 100;
+    height: 100;
+    margin: 20;
+    background-color: $fk-gray-lightest;
 }
-
-.full-height {
-    height: 75;
-}
-
-#hidden-field {
-    opacity: 0;
+.photo-btn-img {
+    margin-top: 40;
 }
 </style>

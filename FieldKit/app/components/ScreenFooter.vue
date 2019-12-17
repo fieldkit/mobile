@@ -66,13 +66,13 @@ import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
 
-const log = Config.logger("StationFooterTabs");
+const log = Config.logger("ScreenFooter");
 
 export default {
     data() {
         return {};
     },
-    props: ["station", "active"],
+    props: ["active"],
     methods: {
         onLoaded(args) {},
 
@@ -83,11 +83,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stations, {
-                props: {
-                    station: this.station
-                }
-            });
+            this.$navigateTo(routes.stations);
         },
 
         goToData(event) {
@@ -97,7 +93,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.dataDownload);
+            this.$navigateTo(routes.dataSync);
         },
 
         goToSettings() {}
@@ -110,4 +106,19 @@ export default {
 @import "../app-variables";
 // End custom common variables
 // Custom styles
+.footer {
+    border-top-color: $fk-gray-lightest;
+    border-top-width: 2;
+    margin-bottom: 5;
+    padding-left: 20;
+    padding-right: 20;
+    height: 100%;
+}
+
+.footer-btn {
+    padding-top: 10;
+    padding-left: 10;
+    padding-right: 10;
+    border-radius: 20;
+}
 </style>

@@ -50,13 +50,25 @@ export default class AudioInterface {
         await recorder.start(recorderOptions);
     }
 
+    pauseAudioRecording() {
+        recorder.pause().then(() => {
+            // console.log("paused recording");
+        });
+    }
+
+    resumeAudioRecording() {
+        recorder.resume().then(() => {
+            // console.log("resumed recording");
+        });
+    }
+
     stopAudioRecording() {
         recorder.stop().then(() => {
             // console.log("stopped recording");
         });
     }
 
-    playRecordedFile(filename) {
+    playRecordedFile(filename, callback) {
         const playerOptions = {
             audioFile: path.join(folder.path, filename + this.extension),
             loop: false,
@@ -64,6 +76,7 @@ export default class AudioInterface {
                 if (!playerOptions.loop) {
                     await player.dispose();
                 }
+                callback();
             },
             errorCallback: errorObject => {
                 // console.log(JSON.stringify(errorObject));
@@ -76,11 +89,19 @@ export default class AudioInterface {
         player
             .playFromFile(playerOptions)
             .then(() => {
-                // console.log('playing', filename);
+                // console.log('playing', player.duration, filename);
             })
             .catch(e => {
                 // console.log('error playing', e);
             });
+    }
+
+    pausePlayer() {
+        player.pause();
+    }
+
+    getDuration() {
+        return player.getAudioTrackDuration;
     }
 
     deleteRecordedFile(filename) {

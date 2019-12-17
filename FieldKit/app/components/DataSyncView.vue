@@ -1,121 +1,156 @@
 <template>
-    <StackLayout class="sync-panel-container" @loaded="onLoaded">
-        <StackLayout
-            v-for="s in recentSyncs"
-            :key="s.deviceId"
-            class="station-container"
-        >
-            <Label :text="s.name" textWrap="true" class="station-name"></Label>
-            <template v-if="s.canDownload">
-                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
-                    <Image
-                        rowSpan="2"
-                        col="0"
-                        width="25"
-                        src="~/images/readings.png"
-                        verticalAlignment="top"
-                    ></Image>
-                    <Label
+    <Page
+        class="page"
+        actionBarHidden="true"
+        @loaded="onLoaded"
+        @unloaded="onUnloaded"
+    >
+        <GridLayout rows="*,55">
+            <ScrollView row="0">
+                <GridLayout rows="60,*">
+                    <ScreenHeader
                         row="0"
-                        col="1"
-                        :text="s.downloadReadingsLabel"
-                        textWrap="true"
-                        class="status"
-                    ></Label>
-                    <Label
-                        row="1"
-                        col="1"
-                        text="Downloading"
-                        textWrap="true"
-                    ></Label>
-                    <Image
-                        rowSpan="2"
-                        col="2"
-                        width="25"
-                        src="~/images/download.png"
-                        v-if="!downloading[s.deviceId]"
-                        :dataDeviceId="s.deviceId"
-                        @tap="onDownloadTap"
-                    ></Image>
-                    <Image
-                        rowSpan="2"
-                        col="2"
-                        width="25"
-                        :src="downloadingIcon"
-                        v-if="downloading[s.deviceId]"
-                    ></Image>
-                    <StackLayout
-                        row="2"
-                        colSpan="3"
-                        class="bottom-border"
-                    ></StackLayout>
-                </GridLayout>
-            </template>
-            <template v-else-if="s.disconnected">
-                <StackLayout class="m-20">
-                    <Label text="Not connected to station" />
-                </StackLayout>
-            </template>
-            <template v-else>
-                <StackLayout class="m-20">
-                    <Label text="Checking for data to download..." />
-                </StackLayout>
-            </template>
+                        class="p-t-10"
+                        title="Data Sync"
+                        :canNavigateBack="false"
+                        :canNavigateSettings="false"
+                    />
+                    <StackLayout row="1" class="sync-panel-container">
+                        <StackLayout
+                            v-for="s in recentSyncs"
+                            :key="s.deviceId"
+                            class="station-container"
+                        >
+                            <Label
+                                :text="s.name"
+                                textWrap="true"
+                                class="station-name"
+                            ></Label>
+                            <template v-if="s.canDownload">
+                                <GridLayout
+                                    rows="*,*,*"
+                                    columns="15*,70*,15*"
+                                    class="m-t-20"
+                                >
+                                    <Image
+                                        rowSpan="2"
+                                        col="0"
+                                        width="25"
+                                        src="~/images/Icon_Datafile.png"
+                                        verticalAlignment="top"
+                                    ></Image>
+                                    <Label
+                                        row="0"
+                                        col="1"
+                                        :text="s.downloadReadingsLabel"
+                                        textWrap="true"
+                                        class="status"
+                                    ></Label>
+                                    <Label
+                                        row="1"
+                                        col="1"
+                                        :text="_L('downloading')"
+                                        textWrap="true"
+                                    ></Label>
+                                    <Image
+                                        rowSpan="2"
+                                        col="2"
+                                        width="25"
+                                        src="~/images/Icon_Download.png"
+                                        v-if="!downloading[s.deviceId]"
+                                        :dataDeviceId="s.deviceId"
+                                        @tap="onDownloadTap"
+                                    ></Image>
+                                    <Image
+                                        rowSpan="2"
+                                        col="2"
+                                        width="25"
+                                        :src="downloadingIcon"
+                                        v-if="downloading[s.deviceId]"
+                                    ></Image>
+                                    <StackLayout
+                                        row="2"
+                                        colSpan="3"
+                                        class="bottom-border"
+                                    ></StackLayout>
+                                </GridLayout>
+                            </template>
+                            <template v-else-if="s.disconnected">
+                                <StackLayout class="m-20">
+                                    <Label :text="_L('notConnectedToStation')" />
+                                </StackLayout>
+                            </template>
+                            <template v-else>
+                                <StackLayout class="m-20">
+                                    <Label
+                                        :text="_L('checkingDownload')"
+                                    />
+                                </StackLayout>
+                            </template>
 
-            <template v-if="s.canUpload">
-                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
-                    <Image
-                        rowSpan="2"
-                        col="0"
-                        width="25"
-                        src="~/images/readings.png"
-                        verticalAlignment="top"
-                    ></Image>
-                    <Label
-                        row="0"
-                        col="1"
-                        :text="s.uploadStatus"
-                        textWrap="true"
-                        class="status"
-                    ></Label>
-                    <Label
-                        row="1"
-                        col="1"
-                        :text="s.uploadProgressLabel"
-                        textWrap="true"
-                    ></Label>
-                    <Image
-                        rowSpan="2"
-                        col="2"
-                        width="25"
-                        src="~/images/ready.png"
-                        v-if="s.uploadState == 'waiting'"
-                        :dataDeviceId="s.deviceId"
-                        @tap="onUploadTap"
-                    ></Image>
-                    <Image
-                        rowSpan="2"
-                        col="2"
-                        width="25"
-                        :src="uploadingIcon"
-                        v-if="s.uploadState == 'uploading'"
-                    ></Image>
-                    <Image
-                        rowSpan="2"
-                        col="2"
-                        width="25"
-                        src="~/images/success.png"
-                        v-if="s.uploadState == 'success'"
-                    ></Image>
-                    <StackLayout
-                        row="2"
-                        colSpan="3"
-                        class="bottom-border"
-                    ></StackLayout>
+                            <template v-if="s.canUpload">
+                                <GridLayout
+                                    rows="*,*,*"
+                                    columns="15*,70*,15*"
+                                    class="m-t-20"
+                                >
+                                    <Image
+                                        rowSpan="2"
+                                        col="0"
+                                        width="25"
+                                        src="~/images/Icon_Datafile.png"
+                                        verticalAlignment="top"
+                                    ></Image>
+                                    <Label
+                                        row="0"
+                                        col="1"
+                                        :text="s.uploadStatus"
+                                        textWrap="true"
+                                        class="status"
+                                    ></Label>
+                                    <Label
+                                        row="1"
+                                        col="1"
+                                        :text="s.uploadProgressLabel"
+                                        textWrap="true"
+                                    ></Label>
+                                    <Image
+                                        rowSpan="2"
+                                        col="2"
+                                        width="25"
+                                        src="~/images/Icon_Pending_Clock.png"
+                                        v-if="s.uploadState == 'waiting'"
+                                        :dataDeviceId="s.deviceId"
+                                        @tap="onUploadTap"
+                                    ></Image>
+                                    <Image
+                                        rowSpan="2"
+                                        col="2"
+                                        width="25"
+                                        :src="uploadingIcon"
+                                        v-if="s.uploadState == 'uploading'"
+                                    ></Image>
+                                    <Image
+                                        rowSpan="2"
+                                        col="2"
+                                        width="25"
+                                        src="~/images/Icon_Success.png"
+                                        v-if="s.uploadState == 'success'"
+                                    ></Image>
+                                    <StackLayout
+                                        row="2"
+                                        colSpan="3"
+                                        class="bottom-border"
+                                    ></StackLayout>
+                                </GridLayout>
+                            </template>
+                        </StackLayout>
+                    </StackLayout>
                 </GridLayout>
-            </template>
-        </StackLayout>
-    </StackLayout>
+            </ScrollView>
+            <ScreenFooter row="1" active="data" />
+        </GridLayout>
+    </Page>
 </template>
 
 <script>
@@ -123,9 +158,10 @@ import _ from "lodash";
 import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
+import ScreenFooter from "./ScreenFooter";
+import ScreenHeader from "./ScreenHeader";
 
 import { convertBytesToLabel } from "../utilities";
-import { SYNC_MODE } from "../secrets";
 
 const log = Config.logger("SynchronizePanel");
 
@@ -133,14 +169,17 @@ export default {
     data() {
         return {
             recentSyncs: [],
-            downloadingIcon: "~/images/syncing.png",
-            uploadingIcon: "~/images/syncing.png",
+            downloadingIcon: "~/images/Icon_Syncing.png",
+            uploadingIcon: "~/images/Icon_Syncing.png",
             downloading: {},
             uploading: {},
             uploadInProgress: false
         };
     },
-
+    components: {
+        ScreenHeader,
+        ScreenFooter
+    },
     methods: {
         onLoaded(args) {
             log.info("loaded");
@@ -160,6 +199,10 @@ export default {
                     this.handleUploadProgress(data);
                 }
             });
+        },
+
+        onUnloaded(args) {
+            // TODO: unsubscribe from stateManager and ProgressService updates
         },
 
         manageRecentSyncs(status) {
@@ -209,11 +252,21 @@ export default {
         updateRecent(recent, station, status) {
             recent.disconnected = false;
             recent.readings = station.pending.records;
-            recent.downloadReadingsLabel = recent.readings + " Readings";
+            recent.downloadReadingsLabel = recent.readings + " " + _L("readings");
             // need higher limit than 0, or get stuck in loop
             recent.canDownload = recent.readings > 3;
 
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode == "manual") {
+                // in manual mode
+                if (!recent.canDownload) {
+                    delete this.downloading[recent.deviceId];
+                    const inProgress = Object.keys(this.downloading);
+                    if (inProgress.length == 0) {
+                        clearInterval(this.downloadIntervalTimer);
+                        this.downloadIntervalTimer = null;
+                    }
+                }
+            } else {
                 // automatically download data if not already in progress
                 if (recent.canDownload && !this.downloading[recent.deviceId]) {
                     this.downloadData(recent.deviceId);
@@ -227,16 +280,6 @@ export default {
                         }
                     }
                 }
-            } else {
-                // in manual mode
-                if(!recent.canDownload) {
-                    delete this.downloading[recent.deviceId];
-                    const inProgress = Object.keys(this.downloading);
-                    if (inProgress.length == 0) {
-                        clearInterval(this.downloadIntervalTimer);
-                        this.downloadIntervalTimer = null;
-                    }
-                }
             }
         },
 
@@ -247,7 +290,8 @@ export default {
                     name: station.station.name,
                     deviceId: station.station.deviceId,
                     readings: station.pending.records,
-                    downloadReadingsLabel: station.pending.records + " Readings",
+                    downloadReadingsLabel:
+                        station.pending.records + " " + _L("readings"),
                     canDownload: station.pending.records > 0
                 };
             } else {
@@ -257,12 +301,12 @@ export default {
                     readings: 0,
                     downloadReadingsLabel: "",
                     canDownload: false
-                }
+                };
             }
-            newSync.uploadProgressLabel = "Waiting to upload";
+            newSync.uploadProgressLabel = _L("waitingToUpload");
             newSync.uploadState = "waiting";
             this.recentSyncs.push(newSync);
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode != "manual") {
                 // automatically download data
                 if (newSync.canDownload) {
                     this.downloadData(newSync.deviceId);
@@ -274,10 +318,10 @@ export default {
         handleDeviceUpload(recent, deviceUpload) {
             if (deviceUpload) {
                 recent.uploadSize = convertBytesToLabel(deviceUpload.size);
-                recent.uploadStatus = recent.uploadSize + " to upload";
+                recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
                 recent.canUpload = true;
 
-                if (SYNC_MODE == "auto") {
+                if (Config.syncMode != "manual") {
                     // automatically start uploading if none in progress
                     if (!this.uploadInProgress) {
                         this.uploadData().catch(e => {
@@ -290,8 +334,9 @@ export default {
                             //         "Unable to upload. Are you connected to the internet?";
                             // }
                             recent.uploadProgressLabel =
-                                "Unable to upload. Are you connected to the internet?";
-                            recent.uploadStatus = recent.uploadSize + " to upload";
+                                _L("failedCheckConnection");
+                            recent.uploadStatus =
+                                recent.uploadSize + " " + _L("toUpload");
                             recent.uploadState = "waiting";
                             const inProgress = Object.keys(this.uploading);
                             if (inProgress.length == 0) {
@@ -312,12 +357,13 @@ export default {
                     recent.canUpload = true;
                     if (uploadData.progress == 100) {
                         delete this.uploading[recent.deviceId];
-                        recent.uploadStatus = "Upload successful";
-                        recent.uploadProgressLabel = recent.uploadSize + " uploaded";
+                        recent.uploadStatus = _L("uploadSuccessful");
+                        recent.uploadProgressLabel =
+                            recent.uploadSize + " " + _L("uploaded");
                         recent.uploadState = "success";
                     } else {
                         this.$set(this.uploading, recent.deviceId, true);
-                        recent.uploadProgressLabel = "Uploading";
+                        recent.uploadProgressLabel = _L("uploading");
                         recent.uploadState = "uploading";
                     }
                     const inProgress = Object.keys(this.uploading);
@@ -331,7 +377,7 @@ export default {
         },
 
         onDownloadTap(event) {
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode != "manual") {
                 return;
             }
             const deviceId = event.object.dataDeviceId;
@@ -356,7 +402,7 @@ export default {
         },
 
         onUploadTap(event) {
-            if (SYNC_MODE == "auto") {
+            if (Config.syncMode != "manual") {
                 return;
             }
             const deviceId = event.object.dataDeviceId;
@@ -375,8 +421,8 @@ export default {
                     //         "Unable to upload. Are you connected to the internet?";
                     // }
                     recent.uploadProgressLabel =
-                        "Unable to upload. Are you connected to the internet?";
-                    recent.uploadStatus = recent.uploadSize + " to upload";
+                        _L("failedCheckConnection");
+                    recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
                     recent.uploadState = "waiting";
                     const inProgress = Object.keys(this.uploading);
                     if (inProgress.length == 0) {
@@ -399,16 +445,17 @@ export default {
                 .synchronizePortal()
                 .catch(error => {
                     console.error("ERROR SYNC PORTAL", error);
-                    if (error.offline) {
+                    if (error.offline && !this.askedOnce) {
                         return confirm({
                             title: "FieldKit",
-                            message:
-                                "You're not logged in. Would you like to login so that you can upload your data?",
-                            okButtonText: "Yes",
-                            cancelButtonText: "Not Now"
+                            message: _L("loginPrompt"),
+                            okButtonText: _L("yes"),
+                            cancelButtonText: _L("notNow")
                         }).then(res => {
                             if (res) {
                                 this.$navigateTo(routes.login, {});
+                            } else {
+                                this.askedOnce = true;
                             }
                         });
                     }
@@ -418,16 +465,16 @@ export default {
 
         rotateDownloadingIcon() {
             this.downloadingIcon =
-                this.downloadingIcon == "~/images/syncing.png"
-                    ? "~/images/syncing2.png"
-                    : "~/images/syncing.png";
+                this.downloadingIcon == "~/images/Icon_Syncing.png"
+                    ? "~/images/Icon_Syncing2.png"
+                    : "~/images/Icon_Syncing.png";
         },
 
         rotateUploadingIcon() {
             this.uploadingIcon =
-                this.uploadingIcon == "~/images/syncing.png"
-                    ? "~/images/syncing2.png"
-                    : "~/images/syncing.png";
+                this.uploadingIcon == "~/images/Icon_Syncing.png"
+                    ? "~/images/Icon_Syncing2.png"
+                    : "~/images/Icon_Syncing.png";
         }
     }
 };

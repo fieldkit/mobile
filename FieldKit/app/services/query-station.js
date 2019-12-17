@@ -62,6 +62,8 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
+            // notify StationMonitor
+            Services.StationMonitor().recordingStatusChange(address, "started");
             return this._fixupStatus(reply);
         });
     }
@@ -73,6 +75,8 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
+            // notify StationMonitor
+            Services.StationMonitor().recordingStatusChange(address, "stopped");
             return this._fixupStatus(reply);
         });
     }

@@ -13,27 +13,39 @@
                     :canNavigateSettings="false"
                 />
 
-                <Mapbox
-                    :accessToken="mapboxToken"
-                    automationText="currentLocationMap"
-                    mapStyle="satellite"
-                    height="200"
-                    hideCompass="false"
-                    zoomLevel="0"
-                    showUserLocation="false"
-                    disableZoom="false"
-                    disableRotation="false"
-                    disableScroll="false"
-                    disableTilt="false"
-                    @mapReady="onMapReady"
-                >
-                </Mapbox>
+                <StackLayout>
+                    <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
+                        <StackLayout col="0" class="top-line"></StackLayout>
+                    </GridLayout>
+
+                    <Mapbox
+                        :accessToken="mapboxToken"
+                        automationText="currentLocationMap"
+                        mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                        height="150"
+                        hideCompass="false"
+                        zoomLevel="0"
+                        showUserLocation="false"
+                        disableZoom="false"
+                        disableRotation="false"
+                        disableScroll="false"
+                        disableTilt="false"
+                        @mapReady="onMapReady"
+                    ></Mapbox>
+                </StackLayout>
 
                 <!-- Name your location -->
-                <GridLayout rows="*" columns="*" class="m-t-20 m-x-10">
+                <GridLayout rows="*" columns="*" class="m-t-30 m-b-20 m-x-10">
                     <StackLayout row="0">
-                        <FlexboxLayout>
+                        <GridLayout rows="auto,auto" columns="*">
+                            <Label
+                                row="0"
+                                :text="_L('nameYourLocation')"
+                                class="size-12"
+                                v-if="station.locationName"
+                            />
                             <TextField
+                                row="1"
                                 class="input"
                                 id="location-name-field"
                                 :hint="_L('nameYourLocation')"
@@ -45,7 +57,7 @@
                                 @focus="toggleLocationEdit"
                                 @blur="checkLocationName"
                             ></TextField>
-                        </FlexboxLayout>
+                        </GridLayout>
                         <Label
                             class="validation-error"
                             id="no-location"
@@ -83,8 +95,8 @@
                 <!-- end: Data capture interval -->
 
                 <Button
-                    class="btn btn-primary m-b-10"
-                    text="Continue"
+                    class="btn btn-primary m-y-20"
+                    :text="_L('continue')"
                     automationText="nextButton"
                     @tap="goToNext"
                 ></Button>
@@ -216,7 +228,8 @@ export default {
                             this.mapMarker = {
                                 lat: this.station.latitude,
                                 lng: this.station.longitude,
-                                title: this.station.locationName
+                                title: this.station.locationName,
+                                iconPath: 'images/Icon_Map_Dot.png'
                             };
                             this.map.addMarkers([this.mapMarker]);
                             this.saveLocationCoordinates();
@@ -317,8 +330,16 @@ export default {
 // End custom common variables
 
 // Custom styles
+.top-line-bkgd {
+    background-color: $fk-gray-lighter;
+}
+.top-line {
+    border-bottom-width: 3;
+    border-bottom-color: $fk-primary-blue;
+}
+
 #location-name-field {
-    padding: 0;
+    padding-bottom: 5;
     width: 100%;
     font-size: 18;
     border-bottom-color: $fk-primary-black;

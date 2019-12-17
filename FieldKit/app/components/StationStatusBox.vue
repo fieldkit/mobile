@@ -8,7 +8,7 @@
             <!-- recording status -->
             <StackLayout row="0" col="0">
                 <Label
-                    class="text-center m-y-10 size-16"
+                    class="text-center nudge-top size-16"
                     :text="
                         station.status == 'recording'
                             ? _L('recordingData')
@@ -45,19 +45,34 @@
                     <Image
                         col="0"
                         width="20"
-                        v-if="station.connected"
+                        v-if="station.connected && !syncing"
                         src="~/images/Icon_Connected.png"
                     ></Image>
                     <Image
                         col="0"
                         width="20"
-                        v-if="!station.connected"
+                        v-if="!station.connected && !syncing"
                         src="~/images/Icon_not_Connected.png"
+                    ></Image>
+                    <Image
+                        col="0"
+                        width="20"
+                        :src="dataSyncingIcon"
+                        v-if="syncing"
                     ></Image>
                     <Label
                         col="1"
                         class="m-10 size-14"
-                        :text="_L('connected')"
+                        :text="this.station.connected
+                            ? _L('connected')
+                            : _L('notConnected')"
+                        v-if="!syncing"
+                    ></Label>
+                    <Label
+                        col="1"
+                        class="m-10 size-14"
+                        :text="dataSyncMessage"
+                        v-if="syncing"
                     ></Label>
                 </GridLayout>
                 <GridLayout
@@ -76,14 +91,20 @@
                         col="1"
                         class="m-t-15 m-l-10 size-14"
                         horizontalAlignment="left"
-                        :text="_L('availableMemory')"
+                        :text="_L('memoryUsed')"
                     ></Label>
                     <Label
                         row="1"
                         col="1"
                         class="m-l-10 m-t-5 m-b-10 size-12"
                         horizontalAlignment="left"
-                        :text="station.availableMemory + '%'"
+                        :text="
+                            displayConsumedMemory
+                            + ' '
+                            + _L('of')
+                            + ' '
+                            + displayTotalMemory
+                        "
                     ></Label>
                     <GridLayout
                         row="2"
@@ -105,7 +126,7 @@
             <!-- deploy button -->
             <StackLayout row="2" colSpan="2" class="m-10">
                 <Button
-                    v-if="station.status == 'idle'"
+                    v-if="station.status != 'recording'"
                     class="btn btn-primary"
                     :text="_L('deploy')"
                     automationText="deployButton"
@@ -117,15 +138,22 @@
 </template>
 
 <script>
+import Services from "../services/services";
+import { convertBytesToLabel } from "../utilities";
+
 export default {
     name: "StationStatusBox",
     data: () => {
         return {
             loading: true,
-            elapsedRecTime: "00:00:00",
-            elapsedTimeLabel: "hrs min sec",
+            elapsedRecTime: "--:--:--",
+            elapsedTimeLabel: _L("hrsMinSec"),
+            syncing: false,
+            dataSyncingIcon: "~/images/Icon_Syncing.png",
+            dataSyncMessage: "",
+            displayConsumedMemory: 0,
+            displayTotalMemory: 0,
             station: {
-                availableMemory: 0,
                 batteryLevel: 0,
                 batteryImage: "~/images/Icon_Battery_0.png",
                 connected: false,
@@ -137,6 +165,21 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
+
+            Services.ProgressService().subscribe(data => {
+                if (data.message) {
+                    this.syncing = true;
+                    this.dataSyncMessage = data.message;
+                    if (!this.syncIconIntervalTimer) {
+                        this.syncIconIntervalTimer = setInterval(
+                            this.rotateSyncingIcon,
+                            500
+                        );
+                    }
+                } else {
+                    this.syncing = false;
+                }
+            });
         },
 
         emitDeployTap() {
@@ -152,31 +195,30 @@ export default {
                 this.outer.className = this.outer.className + " active";
                 this.inner.className = this.inner.className + " active";
                 this.intervalTimer = setInterval(this.displayElapsedTime, 1000);
+            } else {
+                this.elapsedRecTime = "00:00:00";
             }
             this.setBatteryImage();
-            this.station.occupiedMemory = 100 - this.station.availableMemory;
-            this.station.availableMemory = parseFloat(
-                this.station.availableMemory
-            ).toFixed(2);
-            if (this.station.occupiedMemory) {
+            this.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
+            this.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
+            if (this.station.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
-                        this.station.occupiedMemory +
+                        this.station.consumedMemoryPercent +
                         "%;}"
                 );
             }
         },
 
         updateStatus(data) {
-            this.station.connected = data.connected;
             this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
-            this.station.occupiedMemory = data.consumedMemory.toFixed(2);
-            this.station.availableMemory = 100 - this.station.occupiedMemory;
-            if (this.station.occupiedMemory) {
+            this.displayConsumedMemory = data.consumedMemory;
+            this.displayTotalMemory = data.totalMemory;
+            if (data.consumedMemoryPercent) {
                 this.page.addCss(
                     "#station-memory-bar {width: " +
-                        this.station.occupiedMemory +
+                        data.consumedMemoryPercent +
                         "%;}"
                 );
             }
@@ -203,6 +245,7 @@ export default {
 
         displayElapsedTime() {
             if (!this.station.deployStartTime) {
+                this.elapsedRecTime = "00:00:00";
                 return;
             }
             let now = new Date();
@@ -217,10 +260,10 @@ export default {
             let days = Math.floor(elapsedMillis / (1000 * 60 * 60 * 24));
             if (days > 1) {
                 this.elapsedRecTime = days + ":" + hours + ":" + minutes;
-                this.elapsedTimeLabel = "days hrs min";
+                this.elapsedTimeLabel = _L("daysHrsMin");
             } else {
                 this.elapsedRecTime = hours + ":" + minutes + ":" + seconds;
-                this.elapsedTimeLabel = "hrs min sec";
+                this.elapsedTimeLabel = _L("hrsMinSec");
             }
 
             if (parseInt(seconds) % 2 == 0) {
@@ -250,8 +293,16 @@ export default {
             }
         },
 
+        rotateSyncingIcon() {
+            this.dataSyncingIcon =
+                this.dataSyncingIcon == "~/images/Icon_Syncing.png"
+                    ? "~/images/Icon_Syncing2.png"
+                    : "~/images/Icon_Syncing.png";
+        },
+
         stopProcesses() {
             clearInterval(this.intervalTimer);
+            clearInterval(this.syncIconIntervalTimer);
         }
     }
 };
@@ -263,6 +314,9 @@ export default {
 // End custom common variables
 
 // Custom styles
+.nudge-top {
+    margin-top: 7;
+}
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
@@ -273,7 +327,7 @@ export default {
 #inner-circle {
     background: $fk-gray-white;
     border-width: 2;
-    border-color: $fk-gray-light;
+    border-color: $fk-primary-black;
     border-radius: 60%;
 }
 #outer-circle {
@@ -284,14 +338,15 @@ export default {
     width: 110;
     height: 110;
     margin-top: 3;
-    background: $fk-gray-light;
+    background: $fk-primary-black;
 }
+// was blue
 #outer-circle.active,
 #inner-circle.active {
-    border-color: $fk-secondary-blue;
+    border-color: $fk-primary-black;
 }
 #inner-circle.active {
-    background: $fk-secondary-blue;
+    background: $fk-primary-black;
 }
 
 .rec-time {

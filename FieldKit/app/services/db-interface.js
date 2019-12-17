@@ -130,10 +130,43 @@ export default class DatabaseInterface {
             });
     }
 
+    getFieldNotes(stationId) {
+        return this.getDatabase()
+            .then(db =>
+                db.query("SELECT * FROM fieldnotes WHERE station_id = ?", [
+                    stationId
+                ])
+            )
+            .then(rows => {
+                return sqliteToJs(rows);
+            });
+    }
+
+    getFieldMedia(stationId) {
+        return this.getDatabase()
+            .then(db =>
+                db.query("SELECT * FROM fieldmedia WHERE station_id = ?", [
+                    stationId
+                ])
+            )
+            .then(rows => {
+                return sqliteToJs(rows);
+            });
+    }
+
     setStationName(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET name = ? WHERE id = ?", [
                 station.name,
+                station.id
+            ])
+        );
+    }
+
+    setStationUrl(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET url = ? WHERE id = ?", [
+                station.url,
                 station.id
             ])
         );
@@ -175,38 +208,47 @@ export default class DatabaseInterface {
         );
     }
 
-    setStationDeployImage(station) {
+    setStationStudyObjective(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET deploy_image_name = ? WHERE id = ?", [
-                station.deployImageName,
+            db.query("UPDATE stations SET study_objective = ? WHERE id = ?", [
+                station.studyObjective,
                 station.id
             ])
         );
     }
 
-    setStationDeployImageLabel(station) {
+    setStationLocationPurpose(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET deploy_image_label = ? WHERE id = ?",
-                [station.deployImageLabel, station.id]
+                "UPDATE stations SET location_purpose = ? WHERE id = ?",
+                [station.locationPurpose, station.id]
             )
         );
     }
 
-    setStationDeployNote(station) {
+    setStationSiteCriteria(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET deploy_note = ? WHERE id = ?", [
-                station.deployNote,
+            db.query("UPDATE stations SET site_criteria = ? WHERE id = ?", [
+                station.siteCriteria,
                 station.id
             ])
         );
     }
 
-    setStationDeployAudio(station) {
+    setStationSiteDescription(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET deploy_audio_files = ? WHERE id = ?",
-                [station.deployAudioFiles, station.id]
+                "UPDATE stations SET site_description = ? WHERE id = ?",
+                [station.siteDescription, station.id]
+            )
+        );
+    }
+
+    setStationPercentComplete(station) {
+        return this.getDatabase().then(db =>
+            db.query(
+                "UPDATE stations SET percent_complete = ? WHERE id = ?",
+                [station.percentComplete, station.id]
             )
         );
     }
@@ -325,19 +367,72 @@ export default class DatabaseInterface {
     insertStation(station, statusJson) {
         const newStation = new Station(station);
         return this.database.execute(
-            `INSERT INTO stations (device_id, name, url, status, battery_level, available_memory, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (device_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.name,
                 newStation.url,
                 newStation.status,
+                newStation.deployStartTime,
                 newStation.batteryLevel,
-                newStation.availableMemory,
+                newStation.consumedMemory,
+                newStation.totalMemory,
+                newStation.consumedMemoryPercent,
                 newStation.interval,
                 JSON.stringify(statusJson),
                 newStation.longitude,
                 newStation.latitude
             ]
+        );
+    }
+
+    insertFieldNote(note) {
+        return this.database.execute(
+            "INSERT INTO fieldnotes (station_id, note, audio_file, category, author) VALUES (?, ?, ?, ?, ?)",
+            [
+                note.stationId,
+                note.note,
+                note.audioFile,
+                note.category,
+                note.author
+            ]
+        );
+    }
+
+    insertFieldMedia(media) {
+        return this.database.execute(
+            "INSERT INTO fieldmedia (station_id, image_name, image_label, category, author) VALUES (?, ?, ?, ?, ?)",
+            [
+                media.stationId,
+                media.imageName,
+                media.imageLabel,
+                media.category,
+                media.author
+            ]
+        );
+    }
+
+    removeFieldNote(noteId) {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM fieldnotes WHERE id = ?", [
+                noteId
+            ])
+        );
+    }
+
+    removeFieldNoteByAudioFile(audioFile) {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM fieldnotes WHERE audio_file = ?", [
+                audioFile
+            ])
+        );
+    }
+
+    removeFieldMedia(mediaId) {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM fieldmedia WHERE id = ?", [
+                mediaId
+            ])
         );
     }
 
@@ -614,9 +709,14 @@ class Station {
         this.name = _station.name;
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;
+        this.deployStartTime = _station.deployStartTime;
         this.batteryLevel = _station.batteryLevel;
-        this.availableMemory = _station.availableMemory;
-        this.interval = Math.round(Math.random() * maxInterval + minInterval);
+        this.consumedMemoryPercent = _station.consumedMemoryPercent;
+        this.consumedMemory = _station.consumedMemory;
+        this.totalMemory = _station.totalMemory;
+        this.interval = _station.interval
+            ? _station.interval
+            : Math.round(Math.random() * maxInterval + minInterval);
         this.longitude = _station.longitude;
         this.latitude = _station.latitude;
     }

@@ -1,28 +1,118 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @navigatingFrom="onNavigatingFrom">
-        <GridLayout rows="*,80">
+    <Page
+        class="page plain"
+        actionBarHidden="true"
+        @loaded="onPageLoaded"
+        @navigatingFrom="onNavigatingFrom"
+    >
+        <GridLayout :rows="hasNotifications ? '*,35,55' : '*,55'">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <ScreenHeader
-                        :title="activeStation.name"
+                        order="1"
+                        :title="currentStation.name"
                         :subtitle="deployedStatus"
                         :onBack="goBack"
                         :onSettings="goToSettings"
                     />
 
-                    <GridLayout rows="auto" columns="*" v-if="loading" class="text-center">
+                    <!-- loading animation -->
+                    <GridLayout
+                        order="2"
+                        rows="auto"
+                        columns="*"
+                        v-if="loading"
+                        class="text-center"
+                    >
                         <StackLayout id="loading-circle-blue"></StackLayout>
                         <StackLayout id="loading-circle-white"></StackLayout>
                     </GridLayout>
 
-                    <StationStatusBox ref="statusBox" @deployTapped="goToDeploy" />
+                    <!-- grid to allow overlapping elements -->
+                    <GridLayout order="3" rows="*" columns="*">
+                        <!-- background elements -->
+                        <GridLayout row="0" col="0">
+                            <FlexboxLayout flexDirection="column">
+                                <!-- station status details -->
+                                <StationStatusBox
+                                    order="1"
+                                    ref="statusBox"
+                                    @deployTapped="goToDeploy"
+                                />
+                                <!-- field notes section -->
+                                <GridLayout
+                                    order="2"
+                                    rows="auto"
+                                    columns="10*,55*,35*"
+                                    v-if="isDeployed"
+                                    class="m-t-10 m-x-10 p-10 bordered-container"
+                                    @tap="goToFieldNotes"
+                                >
+                                    <Image
+                                        col="0"
+                                        width="25"
+                                        src="~/images/Icon_FieldNotes.png"
+                                    ></Image>
+                                    <Label
+                                        col="1"
+                                        text="Field Notes"
+                                        class="size-18 m-l-10"
+                                        verticalAlignment="middle"
+                                    />
+                                    <Label
+                                        col="2"
+                                        :text="percentComplete + '% ' + _L('complete')"
+                                        class="size-16 blue"
+                                        verticalAlignment="middle"
+                                    />
+                                </GridLayout>
+                                <!-- module list with current readings -->
+                                <ModuleListView
+                                    order="3"
+                                    ref="moduleList"
+                                    @moduleTapped="goToModule"
+                                />
+                            </FlexboxLayout>
+                        </GridLayout>
+                        <!-- end background elements -->
 
-                    <ModuleListView ref="moduleList" @moduleTapped="goToModule" />
+                        <!-- foreground elements -->
+                        <AbsoluteLayout
+                            row="0"
+                            col="0"
+                            class="text-center"
+                            v-if="newlyDeployed"
+                        >
+                            <!-- center dialog with grid layout -->
+                            <GridLayout top="75" width="100%">
+                                <StackLayout class="deployed-dialog-container">
+                                    <Image
+                                        width="60"
+                                        src="~/images/Icon_Success.png"
+                                    ></Image>
+                                    <Label
+                                        :text="_L('stationDeployed')"
+                                        class="deployed-dialog-text"
+                                    />
+                                </StackLayout>
+                            </GridLayout>
+                        </AbsoluteLayout>
+                        <!-- end foreground elements -->
+                    </GridLayout>
                 </FlexboxLayout>
             </ScrollView>
 
+            <!-- notifications -->
+            <NotificationFooter
+                row="1"
+                :onClose="goToDetail"
+                v-if="hasNotifications"
+            />
             <!-- footer -->
-            <StationFooterTabs row="1" :station="activeStation" active="stations" />
+            <ScreenFooter
+                :row="hasNotifications ? '2' : '1'"
+                active="stations"
+            />
         </GridLayout>
     </Page>
 </template>
@@ -37,8 +127,9 @@ import Services from "../services/services";
 import Config from "../config";
 import StationStatusBox from "./StationStatusBox";
 import ModuleListView from "./ModuleListView";
+import NotificationFooter from "./NotificationFooter";
 import ScreenHeader from "./ScreenHeader";
-import StationFooterTabs from "./StationFooterTabs";
+import ScreenFooter from "./ScreenFooter";
 
 const log = Config.logger("StationDetailView");
 
@@ -48,24 +139,32 @@ export default {
     data() {
         return {
             loading: true,
-            deployedStatus: "Ready to deploy",
+            isDeployed: false,
+            deployedStatus: _L("readyToDeploy"),
+            percentComplete: 0,
             modules: [],
-            activeStation: { name: "", id: 0 },
-            paramId: null
+            currentStation: { name: "", id: 0 },
+            paramId: null,
+            newlyDeployed: false,
+            hasNotifications: false
         };
     },
     components: {
         ScreenHeader,
         StationStatusBox,
         ModuleListView,
-        StationFooterTabs
+        NotificationFooter,
+        ScreenFooter
     },
     props: {
         stationId: {
-            type: String,
+            type: String
         },
         station: {
-            type: Object,
+            type: Object
+        },
+        redirectedFromDeploy: {
+            type: String
         }
     },
     methods: {
@@ -81,7 +180,7 @@ export default {
 
             this.$navigateTo(routes.stations, {
                 props: {
-                    station: this.activeStation
+                    station: this.currentStation
                 }
             });
         },
@@ -91,7 +190,18 @@ export default {
 
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    station: this.activeStation
+                    station: this.currentStation
+                }
+            });
+        },
+
+        goToFieldNotes() {
+            this.stopProcesses();
+
+            this.$navigateTo(routes.deployNotes, {
+                props: {
+                    station: this.currentStation,
+                    linkedFromStation: true
                 }
             });
         },
@@ -109,14 +219,14 @@ export default {
                 props: {
                     // remove the "m_id-" prefix
                     moduleId: event.object.id.split("m_id-")[1],
-                    station: this.activeStation
+                    station: this.currentStation
                 }
             });
         },
 
         goToSettings(event) {
             // prevent taps before page finishes loading
-            if (!this.activeStation) {
+            if (!this.currentStation || this.currentStation.id == 0) {
                 return;
             }
 
@@ -130,14 +240,28 @@ export default {
 
             this.$navigateTo(routes.stationSettings, {
                 props: {
-                    station: this.activeStation
+                    station: this.currentStation
+                }
+            });
+        },
+
+        goToDetail(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    station: this.currentStation
                 }
             });
         },
 
         stopProcesses() {
-            if (this.activeStation && this.activeStation.url != "no_url") {
-                this.$stationMonitor.stopLiveReadings(this.activeStation.url);
+            if (this.currentStation && this.currentStation.url != "no_url") {
+                this.$stationMonitor.stopLiveReadings(this.currentStation.url);
             }
             clearInterval(this.intervalTimer);
             this.$refs.statusBox.stopProcesses();
@@ -155,8 +279,8 @@ export default {
             this.stations = this.$stationMonitor.getStations();
 
             if (this.station) {
-                this.activeStation = this.station;
-                this.paramId = this.activeStation.id;
+                this.currentStation = this.station;
+                this.paramId = this.currentStation.id;
                 this.completeSetup();
             } else {
                 this.paramId = this.stationId;
@@ -178,14 +302,14 @@ export default {
                 data => {
                     switch (data.propertyName.toString()) {
                         case this.$stationMonitor.StationRefreshedProperty: {
-                            if (!data.value || !this.activeStation) {
+                            if (!data.value || !this.currentStation) {
                                 console.log("bad station refresh", data.value);
                             } else {
                                 if (
                                     Number(data.value.id) ===
                                     Number(this.paramId)
                                 ) {
-                                    this.activeStation.connected =
+                                    this.currentStation.connected =
                                         data.value.connected;
                                 }
                             }
@@ -215,15 +339,15 @@ export default {
                 setTimeout(this.getFromDatabase, 2000);
                 return Promise.reject();
             }
-            this.activeStation = stations[0];
+            this.currentStation = stations[0];
             // update via stationMonitor
             let listStation = this.stations.find(s => {
-                return s.deviceId == this.activeStation.deviceId;
+                return s.deviceId == this.currentStation.deviceId;
             });
             if (listStation) {
-                this.activeStation.connected = listStation.connected;
+                this.currentStation.connected = listStation.connected;
             }
-            return dbInterface.getModules(this.activeStation.id);
+            return dbInterface.getModules(this.currentStation.id);
         },
 
         getSensors(moduleObject) {
@@ -233,76 +357,96 @@ export default {
         },
 
         setupModules(modules) {
-            this.activeStation.moduleObjects = modules;
-            return Promise.all(this.activeStation.moduleObjects.map(this.getSensors));
+            this.currentStation.moduleObjects = modules;
+            return Promise.all(
+                this.currentStation.moduleObjects.map(this.getSensors)
+            );
         },
 
         completeSetup() {
             this.loading = false;
             clearInterval(this.intervalTimer);
+
+            if (this.redirectedFromDeploy) {
+                this.newlyDeployed = true;
+                setTimeout(() => {
+                    this.newlyDeployed = false;
+                }, 3000);
+            }
+
             if (
-                this.activeStation.deployStartTime &&
-                typeof this.activeStation.deployStartTime == "string"
+                this.currentStation.deployStartTime &&
+                typeof this.currentStation.deployStartTime == "string"
             ) {
-                this.activeStation.deployStartTime = new Date(
-                    this.activeStation.deployStartTime
+                this.currentStation.deployStartTime = new Date(
+                    this.currentStation.deployStartTime
                 );
             }
-            if (this.activeStation.status == "recording") {
+            if (this.currentStation.status == "recording") {
                 this.setDeployedStatus();
+                this.isDeployed = true;
+                this.percentComplete = this.currentStation.percentComplete;
             }
-            this.$refs.statusBox.updateStation(this.activeStation);
-            this.$refs.moduleList.updateModules(this.activeStation.moduleObjects);
-            this.activeStation.origName = this.activeStation.name;
+            this.$refs.statusBox.updateStation(this.currentStation);
+            this.$refs.moduleList.updateModules(
+                this.currentStation.moduleObjects
+            );
+            this.currentStation.origName = this.currentStation.name;
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
             // so stations will not retain these saved portalIds
             let params = {
-                name: this.activeStation.name,
-                device_id: this.activeStation.deviceId,
-                status_json: this.activeStation
+                name: this.currentStation.name,
+                device_id: this.currentStation.deviceId,
+                status_json: this.currentStation
             };
-            if (!this.activeStation.portalId && this.activeStation.url != "no_url") {
+            if (
+                !this.currentStation.portalId &&
+                this.currentStation.url != "no_url"
+            ) {
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
-                        this.activeStation.portalId = stationPortalId;
-                        dbInterface.setStationPortalID(this.activeStation);
+                        this.currentStation.portalId = stationPortalId;
+                        dbInterface.setStationPortalID(this.currentStation);
                     });
-            } else if (this.activeStation.portalId && this.activeStation.url != "no_url") {
+            } else if (
+                this.currentStation.portalId &&
+                this.currentStation.url != "no_url"
+            ) {
                 this.$portalInterface
-                    .updateStation(params, this.activeStation.portalId)
+                    .updateStation(params, this.currentStation.portalId)
                     .then(stationPortalId => {
                         // console.log("successfully updated", stationPortalId)
                     });
             }
 
             // start getting live readings for this station
-            if (this.activeStation.url != "no_url") {
+            if (this.currentStation.url != "no_url") {
                 // see if live readings have been stored already
                 const readings = this.$stationMonitor.getStationReadings(
-                    this.activeStation
+                    this.currentStation
                 );
                 if (readings) {
                     this.$refs.moduleList.updateReadings(readings);
                 }
-                this.$stationMonitor.startLiveReadings(this.activeStation.url);
+                this.$stationMonitor.startLiveReadings(this.currentStation.url);
             }
 
-            // now that activeStation and modules are defined, respond to updates
+            // now that currentStation and modules are defined, respond to updates
             this.respondToUpdates();
         },
 
         setDeployedStatus() {
-            if (!this.activeStation.deployStartTime) {
-                this.deployedStatus = "Deployed";
+            if (!this.currentStation.deployStartTime) {
+                this.deployedStatus = _L("deployed");
                 return;
             }
-            let month = this.activeStation.deployStartTime.getMonth() + 1;
-            let day = this.activeStation.deployStartTime.getDate();
-            let year = this.activeStation.deployStartTime.getFullYear();
+            let month = this.currentStation.deployStartTime.getMonth() + 1;
+            let day = this.currentStation.deployStartTime.getDate();
+            let year = this.currentStation.deployStartTime.getFullYear();
             this.deployedStatus =
-                "Deployed (" + month + "/" + day + "/" + year + ")";
+                _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
         },
 
         onNavigatingFrom() {
@@ -343,5 +487,27 @@ export default {
 }
 #loading-circle-blue {
     border-color: $fk-secondary-blue;
+}
+.bordered-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
+.blue {
+    color: $fk-primary-blue;
+}
+
+.deployed-dialog-container {
+    border-radius: 4;
+    background-color: $fk-gray-lightest;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+    width: 225;
+    height: 225;
+    padding-top: 50;
+}
+.deployed-dialog-text {
+    margin-top: 20;
+    font-size: 18;
 }
 </style>
