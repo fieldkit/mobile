@@ -1,6 +1,7 @@
 import { Common } from './conservify.common';
 interface NetworkingListener {
     onStarted(): void;
+    ondiscoveryfailed(): void;
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
     onConnectionInfoWithConnected(connected: boolean): void;
@@ -61,9 +62,10 @@ declare class Networking extends NSObject {
     wifi: WifiNetworksManager;
 }
 interface OtherPromises {
-    getDiscoveryEvents(): any;
+    getStartedPromise(): Promise;
     getConnectedNetworkPromise(): Promise;
     getScanPromise(): Promise;
+    getDiscoveryEvents(): any;
 }
 declare class MyNetworkingListener extends NSObject implements NetworkingListener {
     static ObjCProtocols: {
@@ -73,6 +75,7 @@ declare class MyNetworkingListener extends NSObject implements NetworkingListene
     static alloc(): MyNetworkingListener;
     initWithPromises(promises: OtherPromises): MyNetworkingListener;
     onStarted(): void;
+    onDiscoveryFailed(): void;
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
     onConnectionInfoWithConnected(connected: boolean): void;
@@ -89,6 +92,7 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
         [key: string]: any;
     };
     scan: any;
+    started: any;
     networking: Networking;
     networkingListener: MyNetworkingListener;
     uploadListener: WebTransferListener;
@@ -104,6 +108,7 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
     upload(info: any): Promise<{}>;
     getDiscoveryEvents(): any;
     getConnectedNetworkPromise(): Promise;
+    getStartedPromise(): Promise;
     getScanPromise(): Promise;
     findConnectedNetwork(): Promise<{}>;
     scanNetworks(): Promise<{}>;

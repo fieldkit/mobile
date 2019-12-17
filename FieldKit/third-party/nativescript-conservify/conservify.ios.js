@@ -25,6 +25,11 @@ var MyNetworkingListener = (function (_super) {
     };
     MyNetworkingListener.prototype.onStarted = function () {
         debug("onStarted");
+        this.promises.getStartedPromise().resolve();
+    };
+    MyNetworkingListener.prototype.onDiscoveryFailed = function () {
+        debug("onDiscoveryFailed");
+        this.promises.getStartedPromise().reject();
     };
     MyNetworkingListener.prototype.onFoundServiceWithService = function (service) {
         debug("onFoundServiceWithService", service.type, service.name, service.host, service.port);
@@ -186,6 +191,7 @@ var Conservify = (function (_super) {
         var _this = _super.call(this) || this;
         _this.active = {};
         _this.scan = null;
+        _this.started = null;
         _this.discoveryEvents = discoveryEvents;
         return _this;
     }
@@ -196,14 +202,20 @@ var Conservify = (function (_super) {
         delete this.active[id];
     };
     Conservify.prototype.start = function (serviceType) {
-        debug("initialize, ok");
+        var _this = this;
         this.networkingListener = MyNetworkingListener.alloc().initWithPromises(this);
         this.uploadListener = UploadListener.alloc().initWithTasks(this);
         this.downloadListener = DownloadListener.alloc().initWithTasks(this);
         this.networking = Networking.alloc().initWithNetworkingListenerUploadListenerDownloadListener(this.networkingListener, this.uploadListener, this.downloadListener);
-        this.networking.serviceDiscovery.startWithServiceType(serviceType);
-        debug("done, ready");
-        return Promise.resolve({});
+        return new Promise(function (resolve, reject) {
+            debug("initialize, ok");
+            _this.started = {
+                resolve: resolve,
+                reject: reject
+            };
+            _this.networking.serviceDiscovery.startWithServiceType(serviceType);
+            debug("starting...");
+        });
     };
     Conservify.prototype.json = function (info) {
         var _this = this;
@@ -294,6 +306,9 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.getConnectedNetworkPromise = function () {
         return this.connected;
+    };
+    Conservify.prototype.getStartedPromise = function () {
+        return this.started;
     };
     Conservify.prototype.getScanPromise = function () {
         return this.scan;

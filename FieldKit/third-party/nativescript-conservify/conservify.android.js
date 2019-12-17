@@ -24,15 +24,23 @@ var Conservify = (function (_super) {
         var _this = _super.call(this) || this;
         _this.active = {};
         _this.scan = null;
+        _this.started = null;
         _this.connected = null;
         _this.discoveryEvents = discoveryEvents;
         return _this;
     }
     Conservify.prototype.start = function (serviceType) {
+        var _this = this;
         debug("initialize");
         var owner = this;
         var active = this.active;
         this.networkingListener = new org.conservify.networking.NetworkingListener({
+            onStarted: function () {
+                owner.started.resolve();
+            },
+            onDiscoveryFailed: function () {
+                owner.started.reject();
+            },
             onFoundService: function (service) {
                 debug("onFoundService", service);
                 owner.discoveryEvents.onFoundService({
@@ -194,9 +202,14 @@ var Conservify = (function (_super) {
         });
         this.fileSystem = new org.conservify.data.FileSystem(application_1.android.context, this.dataListener);
         this.networking = new org.conservify.networking.Networking(application_1.android.context, this.networkingListener, this.uploadListener, this.downloadListener);
-        this.networking.getServiceDiscovery().start(serviceType);
-        debug("ready");
-        return Promise.resolve({});
+        return new Promise(function (resolve, reject) {
+            _this.started = {
+                resolve: resolve,
+                reject: reject
+            };
+            _this.networking.getServiceDiscovery().start(serviceType);
+            debug("starting...");
+        });
     };
     Conservify.prototype.json = function (info) {
         var _this = this;

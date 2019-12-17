@@ -5,6 +5,7 @@ export declare class Conservify extends Common {
         [key: string]: any;
     };
     scan: any;
+    started: any;
     connected: any;
     networkingListener: org.conservify.networking.NetworkingListener;
     downloadListener: org.conservify.networking.WebTransferListener;
