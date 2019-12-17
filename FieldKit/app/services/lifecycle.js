@@ -20,6 +20,7 @@ export default function() {
             console.log("Suspend Activity: " + args.android);
         } else if (args.ios) {
             // For iOS applications, args.ios is UIApplication.
+            Services.DiscoverStation().stopServiceDiscovery();
             console.log("Suspend UIApplication: " + args.ios);
         }
     });
@@ -28,10 +29,11 @@ export default function() {
         if (args.android) {
             // For Android applications, args.android is an android activity class.
             console.log("Resume Activity: " + args.android);
-			Services.DiscoverStation().startServiceDiscovery();
+            Services.DiscoverStation().startServiceDiscovery();
         } else if (args.ios) {
             // For iOS applications, args.ios is UIApplication.
             console.log("Resume UIApplication: " + args.ios);
+            Services.DiscoverStation().startServiceDiscovery();
         }
     });
 
