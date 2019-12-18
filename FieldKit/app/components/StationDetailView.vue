@@ -64,6 +64,7 @@
                                         :text="percentComplete + '% ' + _L('complete')"
                                         class="size-16 blue"
                                         verticalAlignment="middle"
+                                        v-if="percentComplete && percentComplete > 0"
                                     />
                                 </GridLayout>
                                 <!-- module list with current readings -->
@@ -385,7 +386,9 @@ export default {
             if (this.currentStation.status == "recording") {
                 this.setDeployedStatus();
                 this.isDeployed = true;
-                this.percentComplete = this.currentStation.percentComplete;
+                if (this.currentStation.percentComplete) {
+                    this.percentComplete = this.currentStation.percentComplete;
+                }
             }
             this.$refs.statusBox.updateStation(this.currentStation);
             this.$refs.moduleList.updateModules(
