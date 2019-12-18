@@ -27,7 +27,7 @@ $(APP)/app/secrets.ts: $(APP)/app/secrets.ts.template
 prettier:
 	prettier --write "$(APP)/app/**/*.{ts,js,css,json,vue}"
 
-$(APP)/node_modules: setup
+$(APP)/node_modules:
 	rm -rf $(APP)/node_modules/*/.git $(APP)/node_modules/fk-*-protocol
 	cd $(APP) && npm install
 	git config core.hooksPath .githooks
@@ -61,10 +61,10 @@ android-logs:
 android-logs-verbose:
 	adb logcat | grep -i " JS"
 
-android-debug: $(APP)/node_modules
+android-debug: setup
 	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
 
-ios-debug: $(APP)/node_modules
+ios-debug: setup
 	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue
 
 clean:
