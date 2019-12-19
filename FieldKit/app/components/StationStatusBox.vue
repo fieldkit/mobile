@@ -124,7 +124,7 @@
                 </GridLayout>
             </StackLayout>
             <!-- deploy button -->
-            <StackLayout row="2" colSpan="2" class="m-10">
+            <StackLayout row="2" colSpan="2" class="m-l-10 m-r-10">
                 <Button
                     v-if="station.status != 'recording'"
                     class="btn btn-primary"
