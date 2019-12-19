@@ -3,6 +3,19 @@ import { assert, expect } from "chai";
 import { USERNAME, PASSWORD } from "../app/secrets";
 const addContext = require('mochawesome/addContext');
 
+// Note: These tests require at least one undeployed station to be connected
+
+// Note: Install Appium and have it running, iOS test won't run without it
+// http://appium.io/downloads.html
+
+// Note: Appium installs the built version of the app so first run:
+// tns build android --bundle
+// tns build ios --bundle
+
+// To run tests (add targets in appium.capabilities.json):
+// npm run e2e -- --runType libbey_androidPhone
+// npm run e2e -- --runType sim.iPhone6
+
 describe("FieldKit Navigation", () => {
     let driver: AppiumDriver;
 
@@ -23,10 +36,10 @@ describe("FieldKit Navigation", () => {
     });
 
     it("should log in", async function() {
-        const passwordInput = await driver.findElementByAccessibilityId('loginPasswordInput');
-        await passwordInput.type(PASSWORD);
         const emailInput = await driver.findElementByAccessibilityId('loginEmailInput');
         await emailInput.type(USERNAME);
+        const passwordInput = await driver.findElementByAccessibilityId('loginPasswordInput');
+        await passwordInput.type(PASSWORD);
         await driver.driver.hideDeviceKeyboard("Done");
         const logInButton = await driver.findElementByText('Log In', SearchOptions.exact);
         await logInButton.click();
@@ -35,7 +48,6 @@ describe("FieldKit Navigation", () => {
         assert.isTrue(await stationsHeading.isDisplayed());
     });
 
-    // Note: from this point on, there must be at least one undeployed station connected
     it("should go to station detail view", async function() {
         const allFields = await driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
         // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
@@ -90,6 +102,7 @@ describe("FieldKit Navigation", () => {
 
     it("should add an audio note", async function() {
         const addNote = await driver.findElementByAccessibilityId('noteField0');
+        await addNote.click();
         await driver.wait(5000);
         const addAudio = await driver.findElementByAccessibilityId('addAudioNote');
         await addAudio.click();
@@ -109,37 +122,6 @@ describe("FieldKit Navigation", () => {
         await stopButton.click();
         const savedAudio = await driver.findElementByAccessibilityId('audioRecording0');
         assert.isTrue(await savedAudio.isDisplayed());
-    });
-
-    it("should add a picture", async function() {
-        const addPhoto = await driver.findElementByAccessibilityId('addPhoto');
-        await addPhoto.click();
-
-        if (driver.isAndroid) {
-            const takePictureButton = await driver.findElementByText("Take picture");
-            await takePictureButton.click();
-            await driver.wait(1000);
-            let allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
-            await allow.click();
-            allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
-            await allow.click();
-            const shutter = await driver.findElementByAccessibilityId("Shutter");
-            await shutter.click();
-            const acceptBtn = await driver.findElementByAccessibilityId("Done");
-            await acceptBtn.click();
-        } else {
-            const selectFromGallery = await driver.findElementByText("Select from gallery");
-            await selectFromGallery.click();
-            const ok = await driver.findElementByAccessibilityId("OK");
-            await ok.click();
-            const cameraRoll = await driver.findElementByAccessibilityId("Camera Roll");
-            await cameraRoll.click();
-            await driver.wait(2000);
-            await driver.clickPoint(50, 200); // Select image
-        }
-        await driver.wait(10000);
-        const savedPhoto = await driver.findElementByAccessibilityId('deployPhoto0');
-        assert.isTrue(await savedPhoto.isDisplayed());
     });
 
 });

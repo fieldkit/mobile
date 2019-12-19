@@ -13,6 +13,15 @@ const nativescript_dev_appium_1 = require("nativescript-dev-appium");
 const chai_1 = require("chai");
 const secrets_1 = require("../app/secrets");
 const addContext = require('mochawesome/addContext');
+// Note: These tests require at least one undeployed station to be connected
+// Note: Install Appium and have it running, iOS test won't run without it
+// http://appium.io/downloads.html
+// Note: Appium installs the built version of the app so first run:
+// tns build android --bundle
+// tns build ios --bundle
+// To run tests (add targets in appium.capabilities.json):
+// npm run e2e -- --runType libbey_androidPhone
+// npm run e2e -- --runType sim.iPhone6
 describe("FieldKit Navigation", () => {
     let driver;
     before(function () {
@@ -36,10 +45,10 @@ describe("FieldKit Navigation", () => {
     });
     it("should log in", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            const passwordInput = yield driver.findElementByAccessibilityId('loginPasswordInput');
-            yield passwordInput.type(secrets_1.PASSWORD);
             const emailInput = yield driver.findElementByAccessibilityId('loginEmailInput');
             yield emailInput.type(secrets_1.USERNAME);
+            const passwordInput = yield driver.findElementByAccessibilityId('loginPasswordInput');
+            yield passwordInput.type(secrets_1.PASSWORD);
             yield driver.driver.hideDeviceKeyboard("Done");
             const logInButton = yield driver.findElementByText('Log In', nativescript_dev_appium_1.SearchOptions.exact);
             yield logInButton.click();
@@ -48,7 +57,6 @@ describe("FieldKit Navigation", () => {
             chai_1.assert.isTrue(yield stationsHeading.isDisplayed());
         });
     });
-    // Note: from this point on, there must be at least one undeployed station connected
     it("should go to station detail view", function () {
         return __awaiter(this, void 0, void 0, function* () {
             const allFields = yield driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
@@ -110,6 +118,7 @@ describe("FieldKit Navigation", () => {
     it("should add an audio note", function () {
         return __awaiter(this, void 0, void 0, function* () {
             const addNote = yield driver.findElementByAccessibilityId('noteField0');
+            yield addNote.click();
             yield driver.wait(5000);
             const addAudio = yield driver.findElementByAccessibilityId('addAudioNote');
             yield addAudio.click();
@@ -129,55 +138,6 @@ describe("FieldKit Navigation", () => {
             yield stopButton.click();
             const savedAudio = yield driver.findElementByAccessibilityId('audioRecording0');
             chai_1.assert.isTrue(yield savedAudio.isDisplayed());
-        });
-    });
-    it("should add a picture", function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            const addPhoto = yield driver.findElementByAccessibilityId('addPhoto');
-            yield addPhoto.click();
-            if (driver.isAndroid) {
-                const takePictureButton = yield driver.findElementByText("Take picture");
-                yield takePictureButton.click();
-                // await driver.wait(1000);
-                // let allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
-                // await allow.click();
-                // allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
-                // await allow.click();
-                // const shutter = await driver.findElementByAccessibilityId("Shutter");
-                // await shutter.click();
-                // const acceptBtn = await driver.findElementByAccessibilityId("Done");
-                // await acceptBtn.click();
-                yield driver.wait(1000);
-                let allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
-                yield allow.click();
-                allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
-                yield allow.click();
-                // const deny = await driver.findElementByText("Deny", SearchOptions.contains);
-                // await deny.click();
-                // let nextBtnLocationTag = await driver.findElementByText("NEXT", SearchOptions.exact);
-                // await nextBtnLocationTag.click();
-                let shutter = yield driver.findElementByAccessibilityId("Shutter"); // Take a picture
-                yield shutter.click();
-                // workaround for issue in android initial camera app open
-                yield driver.navBack();
-                yield takePictureButton.click();
-                yield shutter.click();
-                let acceptBtn = yield driver.findElementByAccessibilityId("Done"); // Accept it
-                yield acceptBtn.click();
-            }
-            else {
-                const selectFromGallery = yield driver.findElementByText("Select from gallery");
-                yield selectFromGallery.click();
-                const ok = yield driver.findElementByAccessibilityId("OK");
-                yield ok.click();
-                const cameraRoll = yield driver.findElementByAccessibilityId("Camera Roll");
-                yield cameraRoll.click();
-                yield driver.wait(2000);
-                yield driver.clickPoint(50, 200); // Select image
-            }
-            yield driver.wait(10000);
-            const savedPhoto = yield driver.findElementByAccessibilityId('deployPhoto0');
-            chai_1.assert.isTrue(yield savedPhoto.isDisplayed());
         });
     });
 });

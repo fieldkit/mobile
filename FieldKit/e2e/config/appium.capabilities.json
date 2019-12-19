@@ -1,5 +1,5 @@
 {
-    "androidPhone": {
+    "libbey_androidPhone": {
         "platformName": "android",
         "platformVersion": "28",
         "deviceName": "Android_Phone",
