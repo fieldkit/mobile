@@ -31,41 +31,41 @@ describe("FieldKit Navigation", () => {
         const logInButton = await driver.findElementByText('Log In', SearchOptions.exact);
         await logInButton.click();
         await driver.wait(5000);
-        const authenticatedMessage = await driver.findElementByText('authenticated', SearchOptions.contains);
-        assert.isTrue(await authenticatedMessage.isDisplayed());
-    });
-
-    it("should go to stations view", async function() {
-        const viewStationsButton = await driver.findElementByText('View Stations', SearchOptions.exact);
-        viewStationsButton.click();
         const stationsHeading = await driver.findElementByText('FieldKit Stations', SearchOptions.exact);
         assert.isTrue(await stationsHeading.isDisplayed());
     });
 
-    // Note: from this point on, there must be at least one station connected
+    // Note: from this point on, there must be at least one undeployed station connected
     it("should go to station detail view", async function() {
         const allFields = await driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
-        // The first label is the page heading, so click the second label
-        await allFields[1].click()
-        const batteryLevel = await driver.findElementByText('Battery', SearchOptions.contains);
-        assert.isTrue(await batteryLevel.isDisplayed());
+        // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
+        await allFields[2].click();
+        await driver.wait(5000);
+        const memoryLabel = await driver.findElementByText('Memory', SearchOptions.contains);
+        assert.isTrue(await memoryLabel.isDisplayed());
     });
 
-    it("should go to module view and find a chart", async function() {
-        const moduleLink = await driver.findElementByAccessibilityId('moduleLink0');
-        await moduleLink.click();
-        const chart = await driver.findElementByAccessibilityId('graphedSensorChart0');
-        assert.isTrue(await chart.isDisplayed());
+    it("should go to data sync view", async function() {
+        const dataSyncLink = await driver.findElementByAccessibilityId('linkToDataSync');
+        await dataSyncLink.click();
+        await driver.wait(2000);
+        const layout = await driver.findElementByAccessibilityId('dataSyncLayout');
+        assert.isTrue(await layout.isDisplayed());
     });
 
     it("should go back to station detail view", async function() {
-        const backButton = await driver.findElementByAccessibilityId('backButton');
+        const backButton = await driver.findElementByAccessibilityId('linkToStations');
         await backButton.click();
-        const batteryLevel = await driver.findElementByText('Battery', SearchOptions.contains);
-        assert.isTrue(await batteryLevel.isDisplayed());
+        await driver.wait(5000);
+        const allFields = await driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
+        // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
+        await allFields[2].click();
+        await driver.wait(5000);
+        const memoryLabel = await driver.findElementByText('Memory', SearchOptions.contains);
+        assert.isTrue(await memoryLabel.isDisplayed());
     });
 
-    it("should go to first step of deployment wizard", async function() {
+    it("should go to first step of deployment", async function() {
         const deployButton = await driver.findElementByAccessibilityId('deployButton');
         await deployButton.click();
         if(driver.isAndroid) {
@@ -81,11 +81,34 @@ describe("FieldKit Navigation", () => {
         assert.isTrue(await map.isDisplayed());
     });
 
-    it("should go to second step of deployment wizard", async function() {
+    it("should go to second step of deployment", async function() {
         const nextButton = await driver.findElementByAccessibilityId('nextButton');
         await nextButton.click();
+        const layout = await driver.findElementByAccessibilityId('deployNotesLayout');
+        assert.isTrue(await layout.isDisplayed());
+    });
+
+    it("should add an audio note", async function() {
+        const addNote = await driver.findElementByAccessibilityId('noteField0');
+        await driver.wait(5000);
         const addAudio = await driver.findElementByAccessibilityId('addAudioNote');
-        assert.isTrue(await addAudio.isDisplayed());
+        await addAudio.click();
+        const startButton = await driver.findElementByAccessibilityId("startRecording");
+        await startButton.click();
+        await driver.wait(2000);
+
+        if(driver.isAndroid) {
+            const allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
+            await allow.click();
+        } else {
+            const allow = await driver.findElementByText("OK", SearchOptions.exact);
+            await allow.click();
+        }
+        await driver.wait(2000);
+        const stopButton = await driver.findElementByAccessibilityId("stopRecording");
+        await stopButton.click();
+        const savedAudio = await driver.findElementByAccessibilityId('audioRecording0');
+        assert.isTrue(await savedAudio.isDisplayed());
     });
 
     it("should add a picture", async function() {
@@ -114,29 +137,9 @@ describe("FieldKit Navigation", () => {
             await driver.wait(2000);
             await driver.clickPoint(50, 200); // Select image
         }
-        const savedPhoto = await driver.findElementByAccessibilityId('deploymentPhoto');
+        await driver.wait(10000);
+        const savedPhoto = await driver.findElementByAccessibilityId('deployPhoto0');
         assert.isTrue(await savedPhoto.isDisplayed());
-    });
-
-    it("should add an audio note", async function() {
-        const addAudio = await driver.findElementByAccessibilityId('addAudioNote');
-        await addAudio.click();
-        const startButton = await driver.findElementByText("Start recording");
-        await startButton.click();
-        await driver.wait(2000);
-
-        if(driver.isAndroid) {
-            const allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
-            await allow.click();
-        } else {
-            const allow = await driver.findElementByText("OK", SearchOptions.exact);
-            await allow.click();
-        }
-        await driver.wait(2000);
-        const stopButton = await driver.findElementByText("Stop recording");
-        await stopButton.click();
-        const savedAudio = await driver.findElementByAccessibilityId('audioRecording0');
-        assert.isTrue(await savedAudio.isDisplayed());
     });
 
 });

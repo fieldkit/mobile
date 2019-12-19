@@ -7,7 +7,7 @@
     >
         <GridLayout rows="*,55">
             <ScrollView row="0">
-                <GridLayout rows="60,*">
+                <GridLayout rows="60,*" automationText="dataSyncLayout">
                     <ScreenHeader
                         row="0"
                         class="p-t-10"

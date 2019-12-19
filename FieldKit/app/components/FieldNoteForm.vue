@@ -54,6 +54,7 @@
                 class="small-round"
                 src="~/images/Icon_Record.png"
                 v-if="preRecord"
+                automationText="startRecording"
                 @tap="
                     recordingInProgress
                         ? resumeRecording()
@@ -66,6 +67,7 @@
                 class="small-round"
                 src="~/images/Icon_Stop.png"
                 v-if="recordingInProgress"
+                automationText="stopRecording"
                 @tap="stopRecording"
             ></Image>
             <Label
@@ -89,7 +91,7 @@
             row="2"
             rows="auto"
             columns="10*,80*,10*"
-            v-for="recording in displayRecordings"
+            v-for="(recording, index) in displayRecordings"
             :key="recording"
             class="link-style recording-box"
         >
@@ -116,6 +118,7 @@
                 :text="recording"
                 :data="recording"
                 textWrap="true"
+                :automationText="'audioRecording' + index"
                 @tap="playAudio"
             />
             <Image
@@ -145,6 +148,7 @@
             src="~/images/Icon_Mic_Button.png"
             horizontalAlignment="right"
             class="m-10"
+            automationText="addAudioNote"
             @tap="onAudioTap"
         ></Image>
     </GridLayout>

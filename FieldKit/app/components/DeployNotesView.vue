@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="75,*,65">
+        <GridLayout rows="75,*,65" automationText="deployNotesLayout">
             <!-- sticky header section and progress bar -->
             <StackLayout row="0" v-if="!linkedFromStation">
                 <ScreenHeader
@@ -93,10 +93,11 @@
                         <GridLayout
                             rows="auto,auto"
                             columns="90*,10*"
-                            v-for="note in fieldNotes"
+                            v-for="(note, index) in fieldNotes"
                             :key="note.field"
                             :dataNote="note"
                             class="note-section"
+                            :automationText="'noteField' + index"
                             @tap="onEditTap"
                         >
                             <Label
@@ -134,17 +135,19 @@
                             ></Label>
                             <WrapLayout orientation="horizontal">
                                 <StackLayout
-                                    v-for="photo in photos"
+                                    v-for="(photo, index) in photos"
                                     :key="photo.id"
                                     class="photo-display"
                                 >
                                     <Image
                                         :src="photo.src"
                                         stretch="aspectFit"
+                                        :automationText="'deployPhoto' + index"
                                     />
                                 </StackLayout>
                                 <StackLayout
                                     class="photo-btn"
+                                    automationText="addPhoto"
                                     @tap="onPhotoTap"
                                 >
                                     <Image

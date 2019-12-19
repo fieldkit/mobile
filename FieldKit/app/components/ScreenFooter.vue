@@ -4,7 +4,11 @@
         class="size-12 footer"
         @loaded="onLoaded"
     >
-        <StackLayout @tap="goToStation" class="footer-btn">
+        <StackLayout
+            @tap="goToStation"
+            class="footer-btn"
+            automationText="linkToStations"
+        >
             <template v-if="active == 'stations'">
                 <Image
                     width="22"
@@ -22,7 +26,11 @@
                 <Label class="light m-t-5" :text="_L('stations')"></Label>
             </template>
         </StackLayout>
-        <StackLayout @tap="goToData" class="footer-btn">
+        <StackLayout
+            @tap="goToData"
+            class="footer-btn"
+            automationText="linkToDataSync"
+        >
             <template v-if="active == 'data'">
                 <Image
                     width="22"

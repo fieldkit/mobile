@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -43,45 +44,44 @@ describe("FieldKit Navigation", () => {
             const logInButton = yield driver.findElementByText('Log In', nativescript_dev_appium_1.SearchOptions.exact);
             yield logInButton.click();
             yield driver.wait(5000);
-            const authenticatedMessage = yield driver.findElementByText('authenticated', nativescript_dev_appium_1.SearchOptions.contains);
-            chai_1.assert.isTrue(yield authenticatedMessage.isDisplayed());
-        });
-    });
-    it("should go to stations view", function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            const viewStationsButton = yield driver.findElementByText('View Stations', nativescript_dev_appium_1.SearchOptions.exact);
-            viewStationsButton.click();
             const stationsHeading = yield driver.findElementByText('FieldKit Stations', nativescript_dev_appium_1.SearchOptions.exact);
             chai_1.assert.isTrue(yield stationsHeading.isDisplayed());
         });
     });
-    // Note: from this point on, there must be at least one station connected
+    // Note: from this point on, there must be at least one undeployed station connected
     it("should go to station detail view", function () {
         return __awaiter(this, void 0, void 0, function* () {
             const allFields = yield driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
-            // The first label is the page heading, so click the second label
-            yield allFields[1].click();
-            const batteryLevel = yield driver.findElementByText('Battery', nativescript_dev_appium_1.SearchOptions.contains);
-            chai_1.assert.isTrue(yield batteryLevel.isDisplayed());
+            // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
+            yield allFields[2].click();
+            yield driver.wait(5000);
+            const memoryLabel = yield driver.findElementByText('Memory', nativescript_dev_appium_1.SearchOptions.contains);
+            chai_1.assert.isTrue(yield memoryLabel.isDisplayed());
         });
     });
-    it("should go to module view and find a chart", function () {
+    it("should go to data sync view", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            const moduleLink = yield driver.findElementByAccessibilityId('moduleLink0');
-            yield moduleLink.click();
-            const chart = yield driver.findElementByAccessibilityId('graphedSensorChart0');
-            chai_1.assert.isTrue(yield chart.isDisplayed());
+            const dataSyncLink = yield driver.findElementByAccessibilityId('linkToDataSync');
+            yield dataSyncLink.click();
+            yield driver.wait(2000);
+            const layout = yield driver.findElementByAccessibilityId('dataSyncLayout');
+            chai_1.assert.isTrue(yield layout.isDisplayed());
         });
     });
     it("should go back to station detail view", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            const backButton = yield driver.findElementByAccessibilityId('backButton');
+            const backButton = yield driver.findElementByAccessibilityId('linkToStations');
             yield backButton.click();
-            const batteryLevel = yield driver.findElementByText('Battery', nativescript_dev_appium_1.SearchOptions.contains);
-            chai_1.assert.isTrue(yield batteryLevel.isDisplayed());
+            yield driver.wait(5000);
+            const allFields = yield driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
+            // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
+            yield allFields[2].click();
+            yield driver.wait(5000);
+            const memoryLabel = yield driver.findElementByText('Memory', nativescript_dev_appium_1.SearchOptions.contains);
+            chai_1.assert.isTrue(yield memoryLabel.isDisplayed());
         });
     });
-    it("should go to first step of deployment wizard", function () {
+    it("should go to first step of deployment", function () {
         return __awaiter(this, void 0, void 0, function* () {
             const deployButton = yield driver.findElementByAccessibilityId('deployButton');
             yield deployButton.click();
@@ -99,12 +99,36 @@ describe("FieldKit Navigation", () => {
             chai_1.assert.isTrue(yield map.isDisplayed());
         });
     });
-    it("should go to second step of deployment wizard", function () {
+    it("should go to second step of deployment", function () {
         return __awaiter(this, void 0, void 0, function* () {
             const nextButton = yield driver.findElementByAccessibilityId('nextButton');
             yield nextButton.click();
+            const layout = yield driver.findElementByAccessibilityId('deployNotesLayout');
+            chai_1.assert.isTrue(yield layout.isDisplayed());
+        });
+    });
+    it("should add an audio note", function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            const addNote = yield driver.findElementByAccessibilityId('noteField0');
+            yield driver.wait(5000);
             const addAudio = yield driver.findElementByAccessibilityId('addAudioNote');
-            chai_1.assert.isTrue(yield addAudio.isDisplayed());
+            yield addAudio.click();
+            const startButton = yield driver.findElementByAccessibilityId("startRecording");
+            yield startButton.click();
+            yield driver.wait(2000);
+            if (driver.isAndroid) {
+                const allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
+                yield allow.click();
+            }
+            else {
+                const allow = yield driver.findElementByText("OK", nativescript_dev_appium_1.SearchOptions.exact);
+                yield allow.click();
+            }
+            yield driver.wait(2000);
+            const stopButton = yield driver.findElementByAccessibilityId("stopRecording");
+            yield stopButton.click();
+            const savedAudio = yield driver.findElementByAccessibilityId('audioRecording0');
+            chai_1.assert.isTrue(yield savedAudio.isDisplayed());
         });
     });
     it("should add a picture", function () {
@@ -114,14 +138,31 @@ describe("FieldKit Navigation", () => {
             if (driver.isAndroid) {
                 const takePictureButton = yield driver.findElementByText("Take picture");
                 yield takePictureButton.click();
+                // await driver.wait(1000);
+                // let allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
+                // await allow.click();
+                // allow = await driver.findElementByText("ALLOW", SearchOptions.exact);
+                // await allow.click();
+                // const shutter = await driver.findElementByAccessibilityId("Shutter");
+                // await shutter.click();
+                // const acceptBtn = await driver.findElementByAccessibilityId("Done");
+                // await acceptBtn.click();
                 yield driver.wait(1000);
                 let allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
                 yield allow.click();
                 allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
                 yield allow.click();
-                const shutter = yield driver.findElementByAccessibilityId("Shutter");
+                // const deny = await driver.findElementByText("Deny", SearchOptions.contains);
+                // await deny.click();
+                // let nextBtnLocationTag = await driver.findElementByText("NEXT", SearchOptions.exact);
+                // await nextBtnLocationTag.click();
+                let shutter = yield driver.findElementByAccessibilityId("Shutter"); // Take a picture
                 yield shutter.click();
-                const acceptBtn = yield driver.findElementByAccessibilityId("Done");
+                // workaround for issue in android initial camera app open
+                yield driver.navBack();
+                yield takePictureButton.click();
+                yield shutter.click();
+                let acceptBtn = yield driver.findElementByAccessibilityId("Done"); // Accept it
                 yield acceptBtn.click();
             }
             else {
@@ -134,30 +175,9 @@ describe("FieldKit Navigation", () => {
                 yield driver.wait(2000);
                 yield driver.clickPoint(50, 200); // Select image
             }
-            const savedPhoto = yield driver.findElementByAccessibilityId('deploymentPhoto');
+            yield driver.wait(10000);
+            const savedPhoto = yield driver.findElementByAccessibilityId('deployPhoto0');
             chai_1.assert.isTrue(yield savedPhoto.isDisplayed());
-        });
-    });
-    it("should add an audio note", function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            const addAudio = yield driver.findElementByAccessibilityId('addAudioNote');
-            yield addAudio.click();
-            const startButton = yield driver.findElementByText("Start recording");
-            yield startButton.click();
-            yield driver.wait(2000);
-            if (driver.isAndroid) {
-                const allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
-                yield allow.click();
-            }
-            else {
-                const allow = yield driver.findElementByText("OK", nativescript_dev_appium_1.SearchOptions.exact);
-                yield allow.click();
-            }
-            yield driver.wait(2000);
-            const stopButton = yield driver.findElementByText("Stop recording");
-            yield stopButton.click();
-            const savedAudio = yield driver.findElementByAccessibilityId('audioRecording0');
-            chai_1.assert.isTrue(yield savedAudio.isDisplayed());
         });
     });
 });

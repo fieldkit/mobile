@@ -1,4 +1,13 @@
 {
+    "androidPhone": {
+        "platformName": "android",
+        "platformVersion": "28",
+        "deviceName": "Android_Phone",
+        "udid": "5200ac454bcb950d",
+        "noReset": false,
+        "fullReset": false,
+        "app": ""
+    },
     "android28": {
         "platformName": "android",
         "platformVersion": "28",
