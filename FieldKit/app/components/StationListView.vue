@@ -31,13 +31,14 @@
                     ></Mapbox>
 
                     <GridLayout
-                        v-for="s in stations"
+                        v-for="(s, index) in stations"
                         :key="s.sortedIndex"
                         :id="'station-' + s.id"
                         rows="*,*"
                         columns="85*,15*"
                         class="station-container m-y-5 m-x-15 p-10"
                         orientation="vertical"
+                        :automationText="'linkToStation' + index"
                         @tap="goToDetail"
                     >
                         <Label

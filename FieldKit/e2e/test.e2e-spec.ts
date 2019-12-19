@@ -49,9 +49,8 @@ describe("FieldKit Navigation", () => {
     });
 
     it("should go to station detail view", async function() {
-        const allFields = await driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
-        // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
-        await allFields[2].click();
+        const stationLink = await driver.findElementByAccessibilityId('linkToStation0');
+        await stationLink.click();
         await driver.wait(5000);
         const memoryLabel = await driver.findElementByText('Memory', SearchOptions.contains);
         assert.isTrue(await memoryLabel.isDisplayed());
@@ -69,9 +68,8 @@ describe("FieldKit Navigation", () => {
         const backButton = await driver.findElementByAccessibilityId('linkToStations');
         await backButton.click();
         await driver.wait(5000);
-        const allFields = await driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
-        // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
-        await allFields[2].click();
+        const stationLink = await driver.findElementByAccessibilityId('linkToStation0');
+        await stationLink.click();
         await driver.wait(5000);
         const memoryLabel = await driver.findElementByText('Memory', SearchOptions.contains);
         assert.isTrue(await memoryLabel.isDisplayed());
@@ -108,7 +106,6 @@ describe("FieldKit Navigation", () => {
         await addAudio.click();
         const startButton = await driver.findElementByAccessibilityId("startRecording");
         await startButton.click();
-        await driver.wait(2000);
 
         if(driver.isAndroid) {
             const allow = await driver.findElementByText("ALLOW", SearchOptions.exact);

@@ -59,9 +59,8 @@ describe("FieldKit Navigation", () => {
     });
     it("should go to station detail view", function () {
         return __awaiter(this, void 0, void 0, function* () {
-            const allFields = yield driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
-            // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
-            yield allFields[2].click();
+            const stationLink = yield driver.findElementByAccessibilityId('linkToStation0');
+            yield stationLink.click();
             yield driver.wait(5000);
             const memoryLabel = yield driver.findElementByText('Memory', nativescript_dev_appium_1.SearchOptions.contains);
             chai_1.assert.isTrue(yield memoryLabel.isDisplayed());
@@ -81,9 +80,8 @@ describe("FieldKit Navigation", () => {
             const backButton = yield driver.findElementByAccessibilityId('linkToStations');
             yield backButton.click();
             yield driver.wait(5000);
-            const allFields = yield driver.driver.waitForElementsByClassName(driver.locators.getElementByName("label"), 10000);
-            // The first label is the page heading, and the second is 'Looking for stations' (even hidden) so click the third label
-            yield allFields[2].click();
+            const stationLink = yield driver.findElementByAccessibilityId('linkToStation0');
+            yield stationLink.click();
             yield driver.wait(5000);
             const memoryLabel = yield driver.findElementByText('Memory', nativescript_dev_appium_1.SearchOptions.contains);
             chai_1.assert.isTrue(yield memoryLabel.isDisplayed());
@@ -124,7 +122,6 @@ describe("FieldKit Navigation", () => {
             yield addAudio.click();
             const startButton = yield driver.findElementByAccessibilityId("startRecording");
             yield startButton.click();
-            yield driver.wait(2000);
             if (driver.isAndroid) {
                 const allow = yield driver.findElementByText("ALLOW", nativescript_dev_appium_1.SearchOptions.exact);
                 yield allow.click();
