@@ -1,13 +1,77 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="18px" height="20px" viewBox="0 0 18 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 59 (86127) - https://sketch.com -->
-    <title>Icon_Station_active</title>
-    <desc>Created with Sketch.</desc>
-    <g id="UI_Stations" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="01_UI_Mobile_Stations" transform="translate(-43.000000, -595.000000)" fill="#515151">
-            <g id="StickyBottomNav" transform="translate(0.000000, 585.000000)">
-                <path d="M60,10 C60.5522847,10 61,10.4477153 61,11 L61,29 C61,29.5522847 60.5522847,30 60,30 L44,30 C43.4477153,30 43,29.5522847 43,29 L43,11 C43,10.4477153 43.4477153,10 44,10 L60,10 Z M47,16 L50.6,22.75 L57.1052632,25 L53.75,19.15 L47,16 Z M52.4,20.05 C52.8970563,20.05 53.3,20.4529437 53.3,20.95 C53.3,21.4470563 52.8970563,21.85 52.4,21.85 C51.9029437,21.85 51.5,21.4470563 51.5,20.95 C51.5,20.4529437 51.9029437,20.05 52.4,20.05 Z" id="Icon_Station_active"></path>
-            </g>
-        </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="18px"
+   height="20px"
+   viewBox="0 0 18 20"
+   version="1.1"
+   id="svg10"
+   sodipodi:docname="Icon_Station_active.svg"
+   inkscape:export-filename="/Users/computer/Fieldkit/design/01_SVG/Icon_Station_active.png"
+   inkscape:export-xdpi="1625.6"
+   inkscape:export-ydpi="1625.6"
+   inkscape:version="0.92.2 5c3e80d, 2017-08-06">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="740"
+     inkscape:window-height="480"
+     id="namedview12"
+     showgrid="false"
+     inkscape:zoom="11.8"
+     inkscape:cx="9"
+     inkscape:cy="10"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg10" />
+  <!-- Generator: Sketch 61.2 (89653) - https://sketch.com -->
+  <title
+     id="title2">Icon_Station_active</title>
+  <desc
+     id="desc4">Created with Sketch.</desc>
+  <g
+     id="UI_Stations"
+     stroke="none"
+     stroke-width="1"
+     fill="none"
+     fill-rule="evenodd">
+    <g
+       id="01_UI_Mobile_Stations"
+       transform="translate(-43.000000, -595.000000)"
+       fill="#2C3E50">
+      <g
+         id="StickyBottomNav"
+         transform="translate(0.000000, 585.000000)">
+        <path
+           d="M59,10 C60.1045695,10 61,10.8954305 61,12 L61,28 C61,29.1045695 60.1045695,30 59,30 L45,30 C43.8954305,30 43,29.1045695 43,28 L43,12 C43,10.8954305 43.8954305,10 45,10 L59,10 Z M47,16 L50.6,22.75 L57.1052632,25 L53.75,19.15 L47,16 Z M52.4,20.05 C52.8970563,20.05 53.3,20.4529437 53.3,20.95 C53.3,21.4470563 52.8970563,21.85 52.4,21.85 C51.9029437,21.85 51.5,21.4470563 51.5,20.95 C51.5,20.4529437 51.9029437,20.05 52.4,20.05 Z"
+           id="Icon_Station_active" />
+      </g>
     </g>
+  </g>
 </svg>

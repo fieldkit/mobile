@@ -13,17 +13,17 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Station_Active.png"
+                    src="~/images/Icon_Station_active.png"
                 ></Image>
-                <Label class="bold m-t-5" :text="_L('stations')"></Label>
+                <Label class="active m-t-5" :text="_L('stations')"></Label>
             </template>
             <template v-else>
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Station_Inactive.png"
+                    src="~/images/Icon_Station_inactive.png"
                 ></Image>
-                <Label class="light m-t-5" :text="_L('stations')"></Label>
+                <Label class="inactive m-t-5" :text="_L('stations')"></Label>
             </template>
         </StackLayout>
         <StackLayout
@@ -35,17 +35,17 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_DataSync_Active.png"
+                    src="~/images/Icon_DataSync_active.png"
                 ></Image>
-                <Label class="bold m-t-5" :text="_L('data')"></Label>
+                <Label class="active m-t-5" :text="_L('data')"></Label>
             </template>
             <template v-else>
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_DataSync_Inactive.png"
+                    src="~/images/Icon_DataSync_inactive.png"
                 ></Image>
-                <Label class="light m-t-5" :text="_L('data')"></Label>
+                <Label class="inactive m-t-5" :text="_L('data')"></Label>
             </template>
         </StackLayout>
         <StackLayout @tap="goToSettings" class="footer-btn">
@@ -53,17 +53,17 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Settings_Active.png"
+                    src="~/images/Icon_Settings_active.png"
                 ></Image>
-                <Label class="bold m-t-5" :text="_L('settings')"></Label>
+                <Label class="active m-t-5" :text="_L('settings')"></Label>
             </template>
             <template v-else>
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Settings_Inactive.png"
+                    src="~/images/Icon_Settings_inactive.png"
                 ></Image>
-                <Label class="light m-t-5" :text="_L('settings')"></Label>
+                <Label class="inactive m-t-5" :text="_L('settings')"></Label>
             </template>
         </StackLayout>
     </FlexboxLayout>
@@ -122,11 +122,16 @@ export default {
     padding-right: 20;
     height: 100%;
 }
-
 .footer-btn {
     padding-top: 10;
     padding-left: 10;
     padding-right: 10;
     border-radius: 20;
+}
+.active {
+    color: $fk-primary-black;
+}
+.inactive {
+    color: $fk-inactive;
 }
 </style>
