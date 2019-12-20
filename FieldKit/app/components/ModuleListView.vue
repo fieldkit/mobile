@@ -15,13 +15,7 @@
                         col="0"
                         width="40"
                         horizontalAlignment="left"
-                        :src="
-                            m.name.indexOf('Water') > -1
-                                ? '~/images/Icon_Water_Module.png'
-                                : m.name.indexOf('Weather') > -1
-                                ? '~/images/Icon_Weather_Module.png'
-                                : '~/images/Icon_Generic_Module.png'
-                        "
+                        :src="getModuleImage(m)"
                     ></Image>
                     <!-- module name -->
                     <Label
@@ -157,6 +151,39 @@ export default {
                 // vue isn't rendering these dynamically, so set them
                 this.$set(m, "sensorObjects", sensors);
             });
+        },
+
+        getModuleImage(module) {
+            switch(module.name) {
+                case "distance":
+                case "ultrasonic":
+                    return "~/images/Icon_Distance_Module.png";
+                    break;
+                case "weather":
+                    return "~/images/Icon_Weather_Module.png ";
+                    break;
+                case "water":
+                    let icon = "~/images/Icon_Water_Module.png";
+                    module.sensorObjects.forEach(s => {
+                        if (s.name == "ph") {
+                            icon = "~/images/Icon_WaterpH_Module.png ";
+                        }
+                        if (s.name == "do") {
+                            icon = "~/images/Icon_DissolvedOxygen_Module.png ";
+                        }
+                        if (s.name == "temp") {
+                            icon = "~/images/Icon_WaterTemp_Module.png ";
+                        }
+                        if (s.name == "ec" || s.name == "tds" || s.name == "salinity") {
+                            icon = "~/images/Icon_WaterConductivity_Module.png ";
+                        }
+                    });
+                    return icon;
+                    break;
+                default:
+                    return "~/images/Icon_Generic_Module.png";
+                    break;
+            }
         },
 
         emitModuleTapped(event) {
