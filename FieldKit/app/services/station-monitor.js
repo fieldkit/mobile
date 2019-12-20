@@ -122,9 +122,9 @@ export default class StationMonitor extends Observable {
         const newStatus = result.status.recording.enabled ? "recording" : "";
         // db needs to be kept in sync
         if (newStatus != station.status) {
+            station.status = newStatus;
             this.dbInterface.setStationDeployStatus(station);
         }
-        station.status = newStatus;
         station.name = result.status.identity.device;
         return this._updateStationStatus(station, result);
     }
@@ -147,6 +147,7 @@ export default class StationMonitor extends Observable {
         const newStatus = result.status.recording.enabled ? "recording" : "";
         // db needs to be kept in sync
         if (newStatus != station.status) {
+            station.status = newStatus;
             this.dbInterface.setStationDeployStatus(station);
         }
         const readings = {};
