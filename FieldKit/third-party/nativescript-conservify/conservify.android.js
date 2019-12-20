@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var conservify_common_1 = require("./conservify.common");
 var application_1 = require("tns-core-modules/application");
 var debug = (function () {
-    if (false) {
+    if (true) {
         return console.log;
     }
     return function () { };
@@ -73,11 +73,14 @@ var Conservify = (function (_super) {
                 if (owner.scan) {
                     debug("onNetworksFound", networks, networks.getNetworks());
                     var found = [];
-                    for (var i = 0; i < networks.getNetworks().size(); ++i) {
-                        var n = networks.getNetworks()[i];
-                        found.push({
-                            ssid: n.getSsid()
-                        });
+                    var networksArray = networks.getNetworks();
+                    if (networksArray != null) {
+                        for (var i = 0; i < networksArray.size(); ++i) {
+                            var n = networksArray[i];
+                            found.push({
+                                ssid: n.getSsid()
+                            });
+                        }
                     }
                     owner.scan.resolve(found);
                     owner.scan = null;
