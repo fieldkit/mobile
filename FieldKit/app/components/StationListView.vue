@@ -245,7 +245,16 @@ export default {
                 this.map.addMarkers(stationMarkers);
             }
 
-            if (mappable.length > 1 && this.map) {
+            // prevent error caused by setting viewport with identical min max
+            if (latMax == latMin && longMax == longMin && this.map) {
+                this.map.setCenter({
+                    lat: latMax,
+                    lng: longMax
+                });
+                this.map.setZoomLevel({
+                    level: 14
+                });
+            } else if (mappable.length > 1 && this.map) {
                 const smallLatMargin = (latMax - latMin) / 10;
                 // const smallLongMargin = (longMax - longMin) / 10;
                 this.map.setViewport({
