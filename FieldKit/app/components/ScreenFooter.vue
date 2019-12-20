@@ -13,7 +13,7 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Station_active.png"
+                    src="~/images/Icon_Station_active2.png"
                 ></Image>
                 <Label class="active m-t-5" :text="_L('stations')"></Label>
             </template>
@@ -21,7 +21,7 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Station_inactive.png"
+                    src="~/images/Icon_Station_inactive2.png"
                 ></Image>
                 <Label class="inactive m-t-5" :text="_L('stations')"></Label>
             </template>
@@ -35,7 +35,7 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_DataSync_active.png"
+                    src="~/images/Icon_DataSync_active2.png"
                 ></Image>
                 <Label class="active m-t-5" :text="_L('data')"></Label>
             </template>
@@ -43,7 +43,7 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_DataSync_inactive.png"
+                    src="~/images/Icon_DataSync_inactive2.png"
                 ></Image>
                 <Label class="inactive m-t-5" :text="_L('data')"></Label>
             </template>
@@ -53,7 +53,7 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Settings_active.png"
+                    src="~/images/Icon_Settings_active2.png"
                 ></Image>
                 <Label class="active m-t-5" :text="_L('settings')"></Label>
             </template>
@@ -61,7 +61,7 @@
                 <Image
                     width="22"
                     height="22"
-                    src="~/images/Icon_Settings_inactive.png"
+                    src="~/images/Icon_Settings_inactive2.png"
                 ></Image>
                 <Label class="inactive m-t-5" :text="_L('settings')"></Label>
             </template>
