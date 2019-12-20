@@ -14,21 +14,39 @@
                         class="m-10 p-10 text-center size-20"
                     />
 
-                    <Mapbox
-                        :accessToken="mapboxToken"
-                        automationText="currentLocationMap"
-                        mapStyle="mapbox://styles/mapbox/outdoors-v11"
-                        height="150"
-                        zoomLevel="0"
-                        hideCompass="false"
-                        showUserLocation="false"
-                        disableZoom="false"
-                        disableRotation="false"
-                        disableScroll="false"
-                        disableTilt="false"
-                        class="m-b-10"
-                        @mapReady="onMapReady"
-                    ></Mapbox>
+                    <GridLayout row="auto" columns="*" id="mapbox-wrapper">
+                        <Mapbox
+                            row="0"
+                            :accessToken="mapboxToken"
+                            automationText="currentLocationMap"
+                            mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                            :height="mapHeight"
+                            zoomLevel="0"
+                            hideCompass="false"
+                            showUserLocation="false"
+                            disableZoom="false"
+                            disableRotation="false"
+                            disableScroll="false"
+                            disableTilt="false"
+                            class="m-b-10"
+                            @mapReady="onMapReady"
+                        ></Mapbox>
+                        <StackLayout
+                            row="0"
+                            height="32"
+                            verticalAlignment="top"
+                            horizontalAlignment="right"
+                            class="toggle-container"
+                            v-if="showToggle"
+                        >
+                            <Image
+                                width="20"
+                                src="~/images/Icon_Cheveron_Down.png"
+                                dataState="collapsed"
+                                @tap="toggleMap"
+                            ></Image>
+                        </StackLayout>
+                    </GridLayout>
 
                     <GridLayout
                         v-for="(s, index) in stations"
@@ -86,6 +104,7 @@
 
 <script>
 import routes from "../routes";
+import { screen } from "tns-core-modules/platform/platform";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import {
     Observable,
@@ -101,6 +120,8 @@ export default {
     data() {
         return {
             stations: [],
+            mapHeight: 150,
+            showToggle: false,
             mapboxToken: MAPBOX_ACCESS_TOKEN
         };
     },
@@ -125,6 +146,7 @@ export default {
 
         onMapReady(args) {
             this.map = args.map;
+            this.showToggle = true;
             if (this.stations && this.stations.length > 0) {
                 this.showStations();
             }
@@ -231,11 +253,14 @@ export default {
                     }
                 }
                 stationMarkers.push({
+                    id: "marker-" + s.id,
                     lat: s.latitude,
                     lng: s.longitude,
                     title: s.name,
                     subtitle: s.locationName,
-                    iconPath: "images/Icon_Map_Dot.png"
+                    iconPath: "images/Icon_Map_Dot.png",
+                    selected: true,  // only one can be selected, tho
+                    onCalloutTap: this.onMapMarkerTap
                 });
             });
 
@@ -266,6 +291,36 @@ export default {
                         west: longMin
                     }
                 });
+            }
+        },
+
+        onMapMarkerTap(marker) {
+            // remove the "marker-" prefix
+            let id = marker.id.split("marker-")[1];
+            let stationObj = null;
+            if (this.station && this.station.id == id) {
+                stationObj = this.station;
+            }
+
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    stationId: id,
+                    station: stationObj
+                }
+            });
+        },
+
+        toggleMap(event) {
+            const state = event.object.dataState;
+            if (state == "collapsed") {
+                event.object.dataState = "expanded";
+                event.object.src = "~/images/Icon_Cheveron_Up.png";
+                // Footer is 55
+                this.mapHeight = screen.mainScreen.heightDIPs - 55;
+            } else {
+                event.object.dataState = "collapsed";
+                event.object.src = "~/images/Icon_Cheveron_Down.png";
+                this.mapHeight = 150;
             }
         },
 
@@ -315,7 +370,13 @@ export default {
 // End custom common variables
 
 // Custom styles
-
+.toggle-container {
+    padding: 10;
+    margin-top: 4;
+    margin-right: 4;
+    border-radius: 4;
+    background-color: rgba(255, 255, 255, 0.75);
+}
 .station-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
