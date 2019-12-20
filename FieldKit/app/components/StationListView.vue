@@ -33,15 +33,15 @@
                         ></Mapbox>
                         <StackLayout
                             row="0"
-                            height="32"
-                            verticalAlignment="top"
+                            height="35"
+                            verticalAlignment="bottom"
                             horizontalAlignment="right"
                             class="toggle-container"
                             v-if="showToggle"
                         >
                             <Image
-                                width="20"
-                                src="~/images/Icon_Cheveron_Down.png"
+                                width="35"
+                                src="~/images/Icon_Expand_Map.png"
                                 dataState="collapsed"
                                 @tap="toggleMap"
                             ></Image>
@@ -314,12 +314,12 @@ export default {
             const state = event.object.dataState;
             if (state == "collapsed") {
                 event.object.dataState = "expanded";
-                event.object.src = "~/images/Icon_Cheveron_Up.png";
+                event.object.src = "~/images/Icon_Collapse_Map.png";
                 // Footer is 55
                 this.mapHeight = screen.mainScreen.heightDIPs - 55;
             } else {
                 event.object.dataState = "collapsed";
-                event.object.src = "~/images/Icon_Cheveron_Down.png";
+                event.object.src = "~/images/Icon_Expand_Map.png";
                 this.mapHeight = 150;
             }
         },
@@ -371,11 +371,8 @@ export default {
 
 // Custom styles
 .toggle-container {
-    padding: 10;
-    margin-top: 4;
-    margin-right: 4;
-    border-radius: 4;
-    background-color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 16;
+    margin-right: 10;
 }
 .station-container {
     border-radius: 4;
