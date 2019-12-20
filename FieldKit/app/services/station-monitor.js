@@ -126,6 +126,16 @@ export default class StationMonitor extends Observable {
             this.dbInterface.setStationDeployStatus(station);
         }
         station.name = result.status.identity.device;
+        if (
+            (result.status.gps.longitude != 1000 &&
+                station.longitude != result.status.gps.longitude) ||
+            (result.status.gps.latitude != 1000 &&
+                station.latitude != result.status.gps.latitude)
+        ) {
+            station.longitude = result.status.gps.longitude;
+            station.latitude = result.status.gps.latitude;
+            this.dbInterface.setStationLocationCoordinates(station);
+        }
         return this._updateStationStatus(station, result);
     }
 
@@ -149,6 +159,16 @@ export default class StationMonitor extends Observable {
         if (newStatus != station.status) {
             station.status = newStatus;
             this.dbInterface.setStationDeployStatus(station);
+        }
+        if (
+            (result.status.gps.longitude != 1000 &&
+                station.longitude != result.status.gps.longitude) ||
+            (result.status.gps.latitude != 1000 &&
+                station.latitude != result.status.gps.latitude)
+        ) {
+            station.longitude = result.status.gps.longitude;
+            station.latitude = result.status.gps.latitude;
+            this.dbInterface.setStationLocationCoordinates(station);
         }
         const readings = {};
         result.liveReadings.forEach(lr => {
