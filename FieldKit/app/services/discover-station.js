@@ -1,6 +1,5 @@
 import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import { isIOS } from "tns-core-modules/platform";
-import { WifiInfo } from "nativescript-wifi-info";
 import { every } from "./rx";
 
 import Services from "./services";
@@ -20,18 +19,16 @@ class Station {
 
 class WiFiMonitor {
     constructor(callback) {
-        const wifiInfo = new WifiInfo();
-
         this.previous = null;
 
         this.timer = setInterval(() => {
-            const ssid = wifiInfo.getSSID();
+			/*
+            const ssid = "";
             if (ssid != this.previous) {
-                if (false) {
-                    callback(ssid, this.couldBeStation(ssid));
-                }
+				callback(ssid, this.couldBeStation(ssid));
             }
             this.previous = ssid;
+			*/
         }, 1000);
     }
 
