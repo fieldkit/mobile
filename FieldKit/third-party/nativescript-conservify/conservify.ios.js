@@ -49,20 +49,9 @@ var MyNetworkingListener = (function (_super) {
             port: service.port,
         });
     };
-    MyNetworkingListener.prototype.onConnectionInfoWithConnected = function (connected) {
-        debug("onConnectionInfoWithConnected", connected);
-    };
-    MyNetworkingListener.prototype.onConnectedNetworkWithNetwork = function (network) {
-        debug("onConnectedNetworkWithNetwork", network);
-        this.promises.getConnectedNetworkPromise().resolve(network);
-    };
-    MyNetworkingListener.prototype.onNetworksFoundWithNetworks = function (networks) {
-        debug("onNetworksFoundWithNetworks", networks);
-        this.promises.getScanPromise().resolve(networks);
-    };
-    MyNetworkingListener.prototype.onNetworkScanError = function () {
-        debug("onNetworkScanError");
-        this.promises.getScanPromise().reject();
+    MyNetworkingListener.prototype.onNetworkStatusWithStatus = function (status) {
+        debug("onNetworkStatusWithStatus", status);
+        this.promises.getNetworkStatusPromise().resolve(status);
     };
     MyNetworkingListener.ObjCProtocols = [NetworkingListener];
     return MyNetworkingListener;
@@ -304,19 +293,16 @@ var Conservify = (function (_super) {
     Conservify.prototype.getDiscoveryEvents = function () {
         return this.discoveryEvents;
     };
-    Conservify.prototype.getConnectedNetworkPromise = function () {
-        return this.connected;
-    };
     Conservify.prototype.getStartedPromise = function () {
         return this.started;
     };
-    Conservify.prototype.getScanPromise = function () {
-        return this.scan;
+    Conservify.prototype.getNetworkStatusPromise = function () {
+        return this.networkStatus;
     };
     Conservify.prototype.findConnectedNetwork = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.connected = {
+            _this.networkStatus = {
                 resolve: resolve,
                 reject: reject
             };
@@ -326,7 +312,7 @@ var Conservify = (function (_super) {
     Conservify.prototype.scanNetworks = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.scan = {
+            _this.networkStatus = {
                 resolve: resolve,
                 reject: reject
             };

@@ -1,7 +1,6 @@
 import { Common } from './conservify.common';
 interface NetworkingListener {
     onStarted(): void;
-    ondiscoveryfailed(): void;
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
     onConnectionInfoWithConnected(connected: boolean): void;
@@ -29,7 +28,6 @@ declare class WifiNetworks extends NSObject {
 declare class WebTransfer extends NSObject {
     static alloc(): WebTransfer;
     static new(): WebTransfer;
-    method: string;
     url: string;
     path: string;
     body: any;
@@ -62,10 +60,8 @@ declare class Networking extends NSObject {
     wifi: WifiNetworksManager;
 }
 interface OtherPromises {
-    getStartedPromise(): Promise;
     getConnectedNetworkPromise(): Promise;
     getScanPromise(): Promise;
-    getDiscoveryEvents(): any;
 }
 declare class MyNetworkingListener extends NSObject implements NetworkingListener {
     static ObjCProtocols: {
@@ -75,7 +71,6 @@ declare class MyNetworkingListener extends NSObject implements NetworkingListene
     static alloc(): MyNetworkingListener;
     initWithPromises(promises: OtherPromises): MyNetworkingListener;
     onStarted(): void;
-    onDiscoveryFailed(): void;
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
     onConnectionInfoWithConnected(connected: boolean): void;
@@ -92,13 +87,11 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
         [key: string]: any;
     };
     scan: any;
-    started: any;
     networking: Networking;
     networkingListener: MyNetworkingListener;
     uploadListener: WebTransferListener;
     downloadListener: WebTransferListener;
-    discoveryEvents: any;
-    constructor(discoveryEvents: any);
+    constructor();
     getTask(id: string): any;
     removeTask(id: string): void;
     start(serviceType: string): Promise<{}>;
@@ -106,9 +99,7 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
     protobuf(info: any): Promise<{}>;
     download(info: any): Promise<{}>;
     upload(info: any): Promise<{}>;
-    getDiscoveryEvents(): any;
     getConnectedNetworkPromise(): Promise;
-    getStartedPromise(): Promise;
     getScanPromise(): Promise;
     findConnectedNetwork(): Promise<{}>;
     scanNetworks(): Promise<{}>;

@@ -20,15 +20,25 @@ class Station {
 class WiFiMonitor {
     constructor(callback) {
         this.previous = null;
-
         this.timer = setInterval(() => {
-			/*
-            const ssid = "";
-            if (ssid != this.previous) {
-				callback(ssid, this.couldBeStation(ssid));
-            }
-            this.previous = ssid;
-			*/
+			console.log("WiFiManager: status");
+
+			return Services.Conservify().findConnectedNetwork().then((status) => {
+				if (status.connectedWifi) {
+					console.log("WiFiMonitor: ", status.connectedWifi.ssid);
+				}
+				else {
+					console.log("WiFiMonitor: nothing");
+					this.previous = null;
+				}
+				/*
+				const ssid = "";
+				if (ssid != this.previous) {
+					callback(ssid, this.couldBeStation(ssid));
+				}
+				this.previous = ssid;
+				*/
+			});
         }, 1000);
     }
 
@@ -45,7 +55,10 @@ export default class DiscoverStation extends Observable {
     constructor() {
         super();
         this.stations_ = {};
+		this.wifiMonitor = null;
 		Services.DiscoveryEvents().add(this);
+
+		console.log("DiscoverStation::ctor");
     }
 
     _watchFakePreconfiguredDiscoveries() {
@@ -64,6 +77,10 @@ export default class DiscoverStation extends Observable {
     }
 
     _watchWifiNetworks() {
+		if (this.wifiMonitor != null) {
+			return;
+		}
+
         this.wifiMonitor = new WiFiMonitor((ssid, couldBeStation) => {
             console.log("new ssid", ssid, couldBeStation);
             if (couldBeStation) {

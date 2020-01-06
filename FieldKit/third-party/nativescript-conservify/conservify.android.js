@@ -23,9 +23,8 @@ var Conservify = (function (_super) {
     function Conservify(discoveryEvents) {
         var _this = _super.call(this) || this;
         _this.active = {};
-        _this.scan = null;
+        _this.networkStatus = null;
         _this.started = null;
-        _this.connected = null;
         _this.discoveryEvents = discoveryEvents;
         return _this;
     }
@@ -59,44 +58,43 @@ var Conservify = (function (_super) {
                     port: service.getPort(),
                 });
             },
-            onConnectionInfo: function (connected) {
-                debug("onConnectionInfo", connected);
-            },
-            onConnectedNetwork: function (network) {
-                debug("onConnectedNetwork", network.getSsid());
-                if (owner.connected) {
-                    owner.connected.resolve(network);
-                    owner.connected = null;
-                }
-            },
-            onNetworksFound: function (networks) {
-                if (owner.scan) {
-                    debug("onNetworksFound", networks, networks.getNetworks());
-                    var found = [];
-                    var networksArray = networks.getNetworks();
-                    if (networksArray != null) {
-                        for (var i = 0; i < networksArray.size(); ++i) {
-                            var n = networksArray[i];
-                            found.push({
-                                ssid: n.getSsid()
-                            });
+            onNetworkStatus: function (status) {
+                debug("onNetworkStatus");
+                if (owner.networkStatus) {
+                    function getConnectedWifi() {
+                        if (status.getConnectedWifi() == null || status.getConnectedWifi().getSsid() == null) {
+                            return null;
                         }
+                        return {
+                            ssid: status.getConnectedWifi().getSsid().replace(/"/g, '')
+                        };
                     }
-                    owner.scan.resolve(found);
-                    owner.scan = null;
+                    function getWifiNetworks() {
+                        if (status.getWifiNetworks() == null) {
+                            return null;
+                        }
+                        var found = [];
+                        var networksArray = status.getWifiNetworks().getNetworks();
+                        if (networksArray != null) {
+                            for (var i = 0; i < networksArray.size(); ++i) {
+                                var n = networksArray[i];
+                                found.push({
+                                    ssid: n.getSsid()
+                                });
+                            }
+                        }
+                        return found;
+                    }
+                    var jsObject = {
+                        connected: status.getConnected(),
+                        connectedWifi: getConnectedWifi(),
+                        wifiNetworks: getWifiNetworks()
+                    };
+                    owner.networkStatus.resolve(jsObject);
+                    owner.networkStatus = null;
                 }
                 else {
-                    console.error("onNetworksFound no promise");
-                }
-            },
-            onNetworkScanError: function () {
-                if (owner.scan) {
-                    debug("onNetworkScanError");
-                    owner.scan.reject();
-                    owner.scan = null;
-                }
-                else {
-                    console.error("onNetworkScanError no promise");
+                    debug("onNetworkStatus: no promise!");
                 }
             },
         });
@@ -301,7 +299,7 @@ var Conservify = (function (_super) {
     Conservify.prototype.findConnectedNetwork = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.connected = {
+            _this.networkStatus = {
                 resolve: resolve,
                 reject: reject
             };
@@ -311,7 +309,7 @@ var Conservify = (function (_super) {
     Conservify.prototype.scanNetworks = function () {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.scan = {
+            _this.networkStatus = {
                 resolve: resolve,
                 reject: reject
             };
