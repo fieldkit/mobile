@@ -330,7 +330,7 @@ export default {
             additionalNotes: [],
             photos: [],
             saveToGallery: true,
-            allowsEditing: true,
+            allowsEditing: false,
             keepAspectRatio: true,
             imageSrc: null,
             havePhoto: false,
