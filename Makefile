@@ -54,6 +54,7 @@ ios-release: setup
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-app-protocol
 	npm install
+	cd $(APP) && tns platform clean ios || true
 	cd $(APP) && tns build ios --provision || true
 	cd $(APP) && tns build ios --team-id || true
 	cd $(APP) && tns build ios --provision "Conservify Ad Hoc" --for-device
