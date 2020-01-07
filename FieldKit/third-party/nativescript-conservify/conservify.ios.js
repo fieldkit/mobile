@@ -56,6 +56,14 @@ var MyNetworkingListener = (function (_super) {
     MyNetworkingListener.ObjCProtocols = [NetworkingListener];
     return MyNetworkingListener;
 }(NSObject));
+function toJsHeaders(headers) {
+    var jsHeaders = {};
+    for (var i = 0; i < headers.allKeys.count; ++i) {
+        var key = headers.allKeys[i];
+        jsHeaders[key.toLowerCase()] = headers.valueForKey(key);
+    }
+    return jsHeaders;
+}
 var UploadListener = (function (_super) {
     __extends(UploadListener, _super);
     function UploadListener() {
@@ -77,7 +85,8 @@ var UploadListener = (function (_super) {
         }
     };
     UploadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
-        debug("upload:onComplete", taskId, headers, contentType, body, statusCode);
+        var jsHeaders = toJsHeaders(headers);
+        debug("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
         var info = task.info;
         this.tasks.removeTask(taskId);
@@ -97,7 +106,7 @@ var UploadListener = (function (_super) {
         }
         task.resolve({
             info: info,
-            headers: headers,
+            headers: jsHeaders,
             statusCode: statusCode,
             body: getBody(),
         });
@@ -136,7 +145,8 @@ var DownloadListener = (function (_super) {
         }
     };
     DownloadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
-        debug("download:onComplete", taskId, headers, contentType, statusCode);
+        var jsHeaders = toJsHeaders(headers);
+        debug("download:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
         var info = task.info, transfer = task.transfer;
         this.tasks.removeTask(taskId);
@@ -156,7 +166,7 @@ var DownloadListener = (function (_super) {
         }
         task.resolve({
             info: info,
-            headers: headers,
+            headers: jsHeaders,
             statusCode: statusCode,
             body: getBody(),
         });
@@ -214,6 +224,29 @@ var Conservify = (function (_super) {
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
+        }
+        return new Promise(function (resolve, reject) {
+            _this.active[transfer.id] = {
+                info: info,
+                transfer: transfer,
+                resolve: resolve,
+                reject: reject,
+            };
+            _this.networking.web.simpleWithInfo(transfer);
+        });
+    };
+    Conservify.prototype.text = function (info) {
+        var _this = this;
+        var transfer = WebTransfer.alloc().init();
+        transfer.method = info.method;
+        transfer.url = info.url;
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.headerWithKeyValue(key, value);
+        }
+        if (info.body) {
+            var requestBody = Buffer.from(info.body).toString("base64");
+            transfer.body = requestBody;
         }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {

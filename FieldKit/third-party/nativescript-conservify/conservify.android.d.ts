@@ -15,6 +15,7 @@ export declare class Conservify extends Common {
     fileSystem: org.conservify.data.FileSystem;
     constructor(discoveryEvents: any);
     start(serviceType: string): Promise<{}>;
+    text(info: any): Promise<{}>;
     json(info: any): Promise<{}>;
     protobuf(info: any): Promise<{}>;
     download(info: any): Promise<{}>;

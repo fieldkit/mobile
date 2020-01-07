@@ -109,7 +109,7 @@ var Conservify = (function (_super) {
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
                 var jsHeaders = toJsHeaders(headers);
-                debug("upload:onComplete", taskId, jsHeaders, contentType, body, statusCode);
+                debug("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
                 var info = task.info, transfer = task.transfer;
                 function getBody() {
@@ -156,7 +156,7 @@ var Conservify = (function (_super) {
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
                 var jsHeaders = toJsHeaders(headers);
-                debug("download:onComplete", taskId, jsHeaders, contentType, body, statusCode);
+                debug("download:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
                 var info = task.info, transfer = task.transfer;
                 function getBody() {
@@ -212,6 +212,25 @@ var Conservify = (function (_super) {
             };
             _this.networking.getServiceDiscovery().start(serviceType);
             debug("starting...");
+        });
+    };
+    Conservify.prototype.text = function (info) {
+        var _this = this;
+        var transfer = new org.conservify.networking.WebTransfer();
+        transfer.setMethod(info.method);
+        transfer.setUrl(info.url);
+        for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            transfer.header(key, value);
+        }
+        return new Promise(function (resolve, reject) {
+            _this.active[transfer.getId()] = {
+                info: info,
+                transfer: transfer,
+                resolve: resolve,
+                reject: reject,
+            };
+            _this.networking.getWeb().binary(transfer);
         });
     };
     Conservify.prototype.json = function (info) {
