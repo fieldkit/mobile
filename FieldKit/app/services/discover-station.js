@@ -39,7 +39,7 @@ class WiFiMonitor {
 				this.previous = ssid;
 				*/
 			});
-        }, 1000);
+        }, 10000);
     }
 
     couldBeStation(ssid) {
