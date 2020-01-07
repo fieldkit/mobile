@@ -163,6 +163,8 @@ import ScreenHeader from "./ScreenHeader";
 
 import { convertBytesToLabel } from "../utilities";
 
+const dbInterface = Services.Database();
+
 const log = Config.logger("SynchronizePanel");
 
 export default {
@@ -188,6 +190,9 @@ export default {
 
             log.info("subscribed");
 
+            this.stations = this.$stationMonitor.getStations();
+            this.getRecentTransfers();
+
             stateManager.subscribe(status => {
                 log.info("status", status, "portal", status.portal);
                 this.manageRecentSyncs(status);
@@ -203,6 +208,42 @@ export default {
 
         onUnloaded(args) {
             // TODO: unsubscribe from stateManager and ProgressService updates
+        },
+
+        getRecentTransfers() {
+            this.stations.forEach(s => {
+                // maybe just showing uploaded history is enough
+                // dbInterface.getMostRecentDownloadByStationId(s.id).then(result => {
+                // });
+
+                let newSync = {
+                    name: s.name,
+                    deviceId: s.deviceId,
+                    readings: 0,
+                    downloadReadingsLabel: "",
+                    canDownload: false
+                };
+                newSync.uploadProgressLabel = _L("waitingToUpload");
+                newSync.uploadState = "waiting";
+                this.recentSyncs.push(newSync);
+
+                dbInterface.getMostRecentUploadByStationId(s.id).then(result => {
+                    if (result.length > 0) {
+                        let record = result[0];
+                        newSync.uploadState = "success";
+                        newSync.uploadSize = convertBytesToLabel(record.size);
+                        newSync.uploadStatus = newSync.uploadSize + " uploaded";
+                        if (record.uploaded && typeof record.uploaded == "string") {
+                            record.uploaded = new Date(record.uploaded);
+                        }
+                        const month = record.uploaded.getMonth() + 1;
+                        const day = record.uploaded.getDate();
+                        const year = record.uploaded.getFullYear();
+                        newSync.uploadProgressLabel = month + "/" + day + "/" + year;
+                        newSync.canUpload = true;
+                    }
+                });
+            });
         },
 
         manageRecentSyncs(status) {
