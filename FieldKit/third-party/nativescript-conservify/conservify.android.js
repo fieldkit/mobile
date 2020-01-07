@@ -108,7 +108,8 @@ var Conservify = (function (_super) {
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
-                debug("upload:onComplete", taskId, headers, contentType, body, statusCode);
+                var jsHeaders = toJsHeaders(headers);
+                debug("upload:onComplete", taskId, jsHeaders, contentType, body, statusCode);
                 var task = active[taskId];
                 var info = task.info, transfer = task.transfer;
                 function getBody() {
@@ -128,7 +129,7 @@ var Conservify = (function (_super) {
                 delete active[taskId];
                 task.resolve({
                     info: info,
-                    headers: toJsHeaders(headers),
+                    headers: jsHeaders,
                     statusCode: statusCode,
                     body: getBody(),
                 });
@@ -154,7 +155,8 @@ var Conservify = (function (_super) {
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
-                debug("download:onComplete", taskId, headers, contentType, body, statusCode);
+                var jsHeaders = toJsHeaders(headers);
+                debug("download:onComplete", taskId, jsHeaders, contentType, body, statusCode);
                 var task = active[taskId];
                 var info = task.info, transfer = task.transfer;
                 function getBody() {
@@ -174,7 +176,7 @@ var Conservify = (function (_super) {
                 delete active[taskId];
                 task.resolve({
                     info: info,
-                    headers: toJsHeaders(headers),
+                    headers: jsHeaders,
                     statusCode: statusCode,
                     body: getBody(),
                 });
