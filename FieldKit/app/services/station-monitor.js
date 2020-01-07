@@ -125,6 +125,13 @@ export default class StationMonitor extends Observable {
             station.status = newStatus;
             this.dbInterface.setStationDeployStatus(station);
         }
+        const deployStartTime = result.status.recording.startedTime
+            ? new Date(result.status.recording.startedTime * 1000)
+            : "";
+        if (deployStartTime != station.deployStartTime) {
+            station.deployStartTime = deployStartTime;
+            this.dbInterface.setStationDeployStartTime(station);
+        }
         station.name = result.status.identity.device;
         if (
             (result.status.gps.longitude != 1000 &&
@@ -159,6 +166,13 @@ export default class StationMonitor extends Observable {
         if (newStatus != station.status) {
             station.status = newStatus;
             this.dbInterface.setStationDeployStatus(station);
+        }
+        const deployStartTime = result.status.recording.startedTime
+            ? new Date(result.status.recording.startedTime * 1000)
+            : "";
+        if (deployStartTime != station.deployStartTime) {
+            station.deployStartTime = deployStartTime;
+            this.dbInterface.setStationDeployStartTime(station);
         }
         if (
             (result.status.gps.longitude != 1000 &&
