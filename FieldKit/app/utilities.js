@@ -78,3 +78,7 @@ export function convertBytesToLabel(bytes) {
     }
     return Math.round(bytes / 1048576.0) + " MB";
 }
+
+export function unixNow() {
+    return Math.round(new Date().getTime() / 1000);
+}
