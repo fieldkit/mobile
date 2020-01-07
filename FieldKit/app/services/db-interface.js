@@ -511,18 +511,18 @@ export default class DatabaseInterface {
             .then(rows => sqliteToJs(rows));
     }
 
-    getMostRecentDownloadByStationId(id) {
+    getMostRecentDownloadByDeviceId(id) {
         return this.getDatabase()
             .then(db =>
-                db.query("SELECT * FROM downloads WHERE station_id = ? ORDER BY timestamp DESC LIMIT 1", [id])
+                db.query("SELECT * FROM downloads WHERE device_id = ? AND type IS 'data' ORDER BY timestamp DESC LIMIT 1", [id])
             )
             .then(rows => sqliteToJs(rows));
     }
 
-    getMostRecentUploadByStationId(id) {
+    getMostRecentUploadByDeviceId(id) {
         return this.getDatabase()
             .then(db =>
-                db.query("SELECT * FROM downloads WHERE station_id = ? AND uploaded IS NOT NULL ORDER BY timestamp DESC LIMIT 1", [id])
+                db.query("SELECT * FROM downloads WHERE device_id = ? AND type IS 'data' AND uploaded IS NOT NULL ORDER BY timestamp DESC LIMIT 1", [id])
             )
             .then(rows => sqliteToJs(rows));
     }

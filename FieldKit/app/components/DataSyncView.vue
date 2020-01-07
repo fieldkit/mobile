@@ -26,6 +26,32 @@
                                 textWrap="true"
                                 class="station-name"
                             ></Label>
+                            <GridLayout
+                                rows="auto,auto,auto,auto"
+                                columns="*"
+                                class="m-l-10"
+                            >
+                                <Label
+                                    row="0"
+                                    class="history-label"
+                                    :text="s.totalDownloads"
+                                />
+                                <Label
+                                    row="1"
+                                    class="m-l-20"
+                                    :text="s.lastDownloadTime"
+                                />
+                                <Label
+                                    row="2"
+                                    class="history-label"
+                                    :text="s.totalUploads"
+                                />
+                                <Label
+                                    row="3"
+                                    class="m-l-20"
+                                    :text="s.lastUploadTime"
+                                />
+                            </GridLayout>
                             <template v-if="s.canDownload">
                                 <GridLayout
                                     rows="*,*,*"
@@ -77,14 +103,14 @@
                             </template>
                             <template v-else-if="s.disconnected">
                                 <StackLayout class="m-20">
-                                    <Label :text="_L('notConnectedToStation')" />
+                                    <Label
+                                        :text="_L('notConnectedToStation')"
+                                    />
                                 </StackLayout>
                             </template>
                             <template v-else>
                                 <StackLayout class="m-20">
-                                    <Label
-                                        :text="_L('checkingDownload')"
-                                    />
+                                    <Label :text="_L('checkingDownload')" />
                                 </StackLayout>
                             </template>
 
@@ -191,7 +217,10 @@ export default {
             log.info("subscribed");
 
             this.stations = this.$stationMonitor.getStations();
-            this.getRecentTransfers();
+            this.stations.forEach(s => {
+                let recent = this.createRecent(s);
+                this.updateHistory(recent);
+            });
 
             stateManager.subscribe(status => {
                 log.info("status", status, "portal", status.portal);
@@ -210,40 +239,49 @@ export default {
             // TODO: unsubscribe from stateManager and ProgressService updates
         },
 
-        getRecentTransfers() {
-            this.stations.forEach(s => {
-                // maybe just showing uploaded history is enough
-                // dbInterface.getMostRecentDownloadByStationId(s.id).then(result => {
-                // });
-
-                let newSync = {
-                    name: s.name,
-                    deviceId: s.deviceId,
-                    readings: 0,
-                    downloadReadingsLabel: "",
-                    canDownload: false
-                };
-                newSync.uploadProgressLabel = _L("waitingToUpload");
-                newSync.uploadState = "waiting";
-                this.recentSyncs.push(newSync);
-
-                dbInterface.getMostRecentUploadByStationId(s.id).then(result => {
-                    if (result.length > 0) {
-                        let record = result[0];
-                        newSync.uploadState = "success";
-                        newSync.uploadSize = convertBytesToLabel(record.size);
-                        newSync.uploadStatus = newSync.uploadSize + " uploaded";
-                        if (record.uploaded && typeof record.uploaded == "string") {
-                            record.uploaded = new Date(record.uploaded);
-                        }
-                        const month = record.uploaded.getMonth() + 1;
-                        const day = record.uploaded.getDate();
-                        const year = record.uploaded.getFullYear();
-                        newSync.uploadProgressLabel = month + "/" + day + "/" + year;
-                        newSync.canUpload = true;
-                    }
+        updateHistory(recent) {
+            dbInterface
+                .getMostRecentDownloadByDeviceId(recent.deviceId)
+                .then(result => {
+                    this.updateDownloadHistory(result, recent);
                 });
-            });
+        },
+
+        updateDownloadHistory(result, recent) {
+            if (result.length > 0) {
+                const downloadRecord = result[0];
+                if (downloadRecord.uploaded) {
+                    recent.totalDownloads =
+                        downloadRecord.lastBlock +
+                        " total readings down & uploaded";
+                    recent.lastDownloadTime =
+                        "Last down/upload: " +
+                        this.getFormattedDateTime(downloadRecord.uploaded);
+                } else {
+                    recent.totalDownloads =
+                        downloadRecord.lastBlock + " total readings downloaded";
+                    recent.lastDownloadTime =
+                        "Last download: " +
+                        this.getFormattedDateTime(downloadRecord.timestamp);
+
+                    dbInterface
+                        .getMostRecentUploadByDeviceId(recent.deviceId)
+                        .then(uploadResult => {
+                            this.updateUploadHistory(uploadResult, recent);
+                        });
+                }
+            }
+        },
+
+        updateUploadHistory(uploadResult, recent) {
+            if (uploadResult.length > 0) {
+                const uploadRecord = uploadResult[0];
+                recent.totalUploads =
+                    uploadRecord.lastBlock + " total readings uploaded";
+                recent.lastUploadTime =
+                    "Last upload: " +
+                    this.getFormattedDateTime(uploadRecord.uploaded);
+            }
         },
 
         manageRecentSyncs(status) {
@@ -256,8 +294,9 @@ export default {
                 if (recent) {
                     this.updateRecent(recent, station, status);
                 } else {
-                    this.createRecent(station);
+                    recent = this.createRecent(station);
                 }
+                this.updateHistory(recent);
             });
 
             // manage uploads
@@ -269,6 +308,7 @@ export default {
                     recent = this.createRecent(u);
                 }
                 this.handleDeviceUpload(recent, u);
+                this.updateHistory(recent);
             });
 
             // check for disconnected stations in recentSyncs
@@ -293,7 +333,8 @@ export default {
         updateRecent(recent, station, status) {
             recent.disconnected = false;
             recent.readings = station.pending.records;
-            recent.downloadReadingsLabel = recent.readings + " " + _L("readings");
+            recent.downloadReadingsLabel =
+                recent.readings + " " + _L("readings");
             // need higher limit than 0, or get stuck in loop
             recent.canDownload = recent.readings > 3;
 
@@ -325,27 +366,28 @@ export default {
         },
 
         createRecent(station) {
-            let newSync = {};
+            let newSync = {
+                readings: 0,
+                downloadReadingsLabel: "",
+                canDownload: false,
+                totalDownloads: "",
+                totalUploads: "",
+                lastDownloadTime: "",
+                lastUploadTime: "",
+                uploadProgressLabel: _L("waitingToUpload"),
+                uploadState: "waiting"
+            };
             if (station.station) {
-                newSync = {
-                    name: station.station.name,
-                    deviceId: station.station.deviceId,
-                    readings: station.pending.records,
-                    downloadReadingsLabel:
-                        station.pending.records + " " + _L("readings"),
-                    canDownload: station.pending.records > 0
-                };
+                newSync.name = station.station.name;
+                newSync.deviceId = station.station.deviceId;
+                newSync.readings = station.pending.records;
+                newSync.downloadReadingsLabel =
+                    station.pending.records + " " + _L("readings");
+                newSync.canDownload = station.pending.records > 0;
             } else {
-                newSync = {
-                    name: station.name,
-                    deviceId: station.deviceId,
-                    readings: 0,
-                    downloadReadingsLabel: "",
-                    canDownload: false
-                };
+                newSync.name = station.name;
+                newSync.deviceId = station.deviceId;
             }
-            newSync.uploadProgressLabel = _L("waitingToUpload");
-            newSync.uploadState = "waiting";
             this.recentSyncs.push(newSync);
             if (Config.syncMode != "manual") {
                 // automatically download data
@@ -374,8 +416,9 @@ export default {
                             //     recent.uploadProgressLabel =
                             //         "Unable to upload. Are you connected to the internet?";
                             // }
-                            recent.uploadProgressLabel =
-                                _L("failedCheckConnection");
+                            recent.uploadProgressLabel = _L(
+                                "failedCheckConnection"
+                            );
                             recent.uploadStatus =
                                 recent.uploadSize + " " + _L("toUpload");
                             recent.uploadState = "waiting";
@@ -394,9 +437,9 @@ export default {
             this.recentSyncs.forEach(s => {
                 if (data[s.deviceId]) {
                     let recent = s;
-                    let uploadData = data[s.deviceId];
+                    let uploadInfo = data[s.deviceId];
                     recent.canUpload = true;
-                    if (uploadData.progress == 100) {
+                    if (uploadInfo.progress == 100) {
                         delete this.uploading[recent.deviceId];
                         recent.uploadStatus = _L("uploadSuccessful");
                         recent.uploadProgressLabel =
@@ -461,9 +504,9 @@ export default {
                     //     recent.uploadProgressLabel =
                     //         "Unable to upload. Are you connected to the internet?";
                     // }
-                    recent.uploadProgressLabel =
-                        _L("failedCheckConnection");
-                    recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
+                    recent.uploadProgressLabel = _L("failedCheckConnection");
+                    recent.uploadStatus =
+                        recent.uploadSize + " " + _L("toUpload");
                     recent.uploadState = "waiting";
                     const inProgress = Object.keys(this.uploading);
                     if (inProgress.length == 0) {
@@ -502,6 +545,33 @@ export default {
                     }
                     throw new Error(error);
                 });
+        },
+
+        getFormattedDateTime(date) {
+            if (date && typeof date == "string") {
+                date = new Date(date);
+            }
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const year = date.getFullYear();
+            const origHour = date.getHours();
+            const suffix = origHour < 12 ? " AM" : " PM";
+            let hour = origHour % 12 == 0 ? 12 : origHour % 12;
+            hour = hour < 10 ? "0" + hour : hour;
+            let origMinutes = date.getMinutes();
+            const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
+            return (
+                month +
+                "/" +
+                day +
+                "/" +
+                year +
+                " " +
+                hour +
+                ":" +
+                minutes +
+                suffix
+            );
         },
 
         rotateDownloadingIcon() {
@@ -547,5 +617,9 @@ export default {
 .status {
     font-size: 18;
     color: $fk-gray-dark;
+}
+.history-label {
+    font-weight: bold;
+    margin-top: 10;
 }
 </style>
