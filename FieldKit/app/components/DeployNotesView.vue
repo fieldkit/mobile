@@ -245,16 +245,6 @@
                 ></Button>
             </StackLayout>
 
-            <!-- alternate sticky button -->
-            <StackLayout row="2" v-if="linkedFromStation">
-                <Button
-                    class="btn btn-primary m-b-10"
-                    :text="_L('save')"
-                    @tap="onEditDone"
-                    v-if="!isEditing"
-                ></Button>
-            </StackLayout>
-
             <!-- field note form -->
             <template v-if="isEditing">
                 <StackLayout rowSpan="3">
