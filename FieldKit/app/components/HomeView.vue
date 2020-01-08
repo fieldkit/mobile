@@ -19,6 +19,11 @@
             />
             <Button
                 class="btn btn-primary"
+                text="Upload Diagnostics"
+                @tap="uploadDiagnostics"
+            ></Button>
+            <Button
+                class="btn btn-primary"
                 text="Copy Logs"
                 @tap="copyLogs"
             ></Button>
@@ -50,8 +55,6 @@ import Services from "../services/services";
 import { knownFolders } from "tns-core-modules/file-system";
 import { BarcodeScanner } from "nativescript-barcodescanner";
 
-const createDB = Services.CreateDb();
-
 export default {
     data() {
         return {
@@ -69,11 +72,25 @@ export default {
         },
         copyLogs() {
             sendLogs();
-        },
+		},
+		uploadDiagnostics() {
+			Services.Diagnostics().upload().then(res => {
+				alert({
+					title: "Diagnostics",
+					message: "Uploaded! Thanks! Reference:\n" + res.reference,
+					okButtonText: "OK"
+				});
+			});
+		},
         deleteDB() {
-            const userInvokedDelete = true;
-            createDB.initialize(userInvokedDelete).then(result => {
-                this.$stationMonitor.clearStations();
+            Services.CreateDb().initialize(true).then(result => {
+				this.$stationMonitor.clearStations();
+
+				alert({
+					title: "Developer",
+					message: "Database Deleted",
+					okButtonText: "OK"
+				});
             });
         },
         deleteFiles() {

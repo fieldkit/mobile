@@ -31,6 +31,14 @@ class Services {
         return this.discoverStation;
     }
 
+    Diagnostics() {
+        if (!this.diagnostics) {
+            const Diagnostics = require("./diagnostics-service").default;
+            this.diagnostics = new Diagnostics();
+        }
+        return this.diagnostics;
+    }
+
     Database() {
         if (!this.database) {
             const DatabaseInterface = require("./db-interface").default;

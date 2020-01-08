@@ -219,6 +219,7 @@ var Conservify = (function (_super) {
         var transfer = new org.conservify.networking.WebTransfer();
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
+        transfer.setBody(info.body);
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.header(key, value);

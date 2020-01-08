@@ -2,6 +2,8 @@ import { Observable } from "tns-core-modules/data/observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import Config from "../config";
 
+import StationLogs from "./station-logs";
+
 const pastDate = new Date(2000, 0, 1);
 const oneHour = 3600000;
 
@@ -28,6 +30,7 @@ export default class StationMonitor extends Observable {
         this.StationsUpdatedProperty = "stationsUpdated";
         this.StationRefreshedProperty = "stationRefreshed";
         this.ReadingsChangedProperty = "readingsChanged";
+		this.logs = new StationLogs(discoverStation, queryStation);
     }
 
     clearStations() {

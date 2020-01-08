@@ -56,9 +56,11 @@ export default class DiscoverStation extends Observable {
         super();
         this.stations_ = {};
 		this.wifiMonitor = null;
-		Services.DiscoveryEvents().add(this);
 
-		console.log("DiscoverStation::ctor");
+		this.StationFoundProperty = "stationFound";
+		this.StationLostProperty = "stationLost";
+
+		Services.DiscoveryEvents().add(this);
     }
 
     _watchFakePreconfiguredDiscoveries() {
@@ -119,12 +121,13 @@ export default class DiscoverStation extends Observable {
     }
 
     onFoundService(info) {
-        console.log("found service:", info);
         console.log("found service:", info.type, info.name, info.host, info.port);
+
         const key = this.makeKey(info);
         const station = new Station(info);
         this.stations_[key] = station;
-        this.notifyPropertyChange("stationFound", station);
+
+        this.notifyPropertyChange(this.StationFoundProperty, station);
     }
 
     onLostService(info) {
@@ -132,12 +135,18 @@ export default class DiscoverStation extends Observable {
         if (!isIOS && info.type == "_fk._tcp.") {
             info.type = "._fk._tcp";
         }
+
         const key = this.makeKey(info);
-        this.notifyPropertyChange("stationLost", this.stations_[key]);
         delete this.stations_[key];
+
+        this.notifyPropertyChange(this.StationLostProperty, this.stations_[key]);
     }
 
     makeKey(station) {
         return station.name + station.type;
     }
+
+	getConnectedStations() {
+		return Promise.resolve(this.stations_);
+	}
 }

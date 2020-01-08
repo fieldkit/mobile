@@ -143,6 +143,17 @@ export default class QueryStation {
 		});
 	}
 
+	queryLogs(url) {
+		return Services.Conservify().text({
+			url: url + "/download/logs",
+		}).then(response => {
+			return response.body;
+		}, err => {
+			log.error(url, "query error", err);
+			return Promise.reject(err);
+		});
+	}
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for
