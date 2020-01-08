@@ -34,21 +34,25 @@
                                 <Label
                                     row="0"
                                     class="history-label"
+                                    v-if="s.totalDownloads"
                                     :text="s.totalDownloads"
                                 />
                                 <Label
                                     row="1"
                                     class="m-l-20"
+                                    v-if="s.lastDownloadTime"
                                     :text="s.lastDownloadTime"
                                 />
                                 <Label
                                     row="2"
                                     class="history-label"
+                                    v-if="s.totalUploads"
                                     :text="s.totalUploads"
                                 />
                                 <Label
                                     row="3"
                                     class="m-l-20"
+                                    v-if="s.lastUploadTime"
                                     :text="s.lastUploadTime"
                                 />
                             </GridLayout>
@@ -257,6 +261,8 @@ export default {
                     recent.lastDownloadTime =
                         "Last down/upload: " +
                         this.getFormattedDateTime(downloadRecord.uploaded);
+                    recent.totalUploads = "";
+                    recent.lastUploadTime = "";
                 } else {
                     recent.totalDownloads =
                         downloadRecord.lastBlock + " total readings downloaded";
@@ -400,9 +406,12 @@ export default {
 
         handleDeviceUpload(recent, deviceUpload) {
             if (deviceUpload) {
+                recent.canUpload = true;
                 recent.uploadSize = convertBytesToLabel(deviceUpload.size);
                 recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
-                recent.canUpload = true;
+                if (recent.uploadSize == "0 KB") {
+                    recent.canUpload = false;
+                }
 
                 if (Config.syncMode != "manual") {
                     // automatically start uploading if none in progress
@@ -439,6 +448,9 @@ export default {
                     let recent = s;
                     let uploadInfo = data[s.deviceId];
                     recent.canUpload = true;
+                    if (recent.uploadSize == "0 KB") {
+                        recent.canUpload = false;
+                    }
                     if (uploadInfo.progress == 100) {
                         delete this.uploading[recent.deviceId];
                         recent.uploadStatus = _L("uploadSuccessful");
