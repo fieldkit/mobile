@@ -406,9 +406,12 @@ export default {
 
         handleDeviceUpload(recent, deviceUpload) {
             if (deviceUpload) {
+                recent.canUpload = true;
                 recent.uploadSize = convertBytesToLabel(deviceUpload.size);
                 recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
-                recent.canUpload = true;
+                if (recent.uploadSize == "0 KB") {
+                    recent.canUpload = false;
+                }
 
                 if (Config.syncMode != "manual") {
                     // automatically start uploading if none in progress
