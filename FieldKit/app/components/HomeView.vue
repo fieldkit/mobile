@@ -19,6 +19,11 @@
             />
             <Button
                 class="btn btn-primary"
+                text="Save Diagnostics"
+                @tap="saveDiagnostics"
+            ></Button>
+            <Button
+                class="btn btn-primary"
                 text="Upload Diagnostics"
                 @tap="uploadDiagnostics"
             ></Button>
@@ -73,6 +78,17 @@ export default {
         copyLogs() {
             sendLogs();
 		},
+		saveDiagnostics() {
+			Services.Diagnostics().save().then(res => {
+				alert({
+					title: "Diagnostics",
+					message: "Saved!",
+					okButtonText: "OK"
+				});
+			}, e => {
+				console.log("error", e);
+			});
+		},
 		uploadDiagnostics() {
 			Services.Diagnostics().upload().then(res => {
 				alert({
@@ -80,6 +96,8 @@ export default {
 					message: "Uploaded! Thanks! Reference:\n" + res.reference,
 					okButtonText: "OK"
 				});
+			}, e => {
+				console.log("error", e);
 			});
 		},
         deleteDB() {

@@ -2,6 +2,7 @@ import * as utils from "tns-core-modules/utils/utils";
 import * as platform from "tns-core-modules/platform";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { getLogsAsString } from '../lib/logging';
+import { serializePromiseChain, getPathTimestamp } from '../utilities';
 import Services from "./services";
 
 function uuidv4() {
@@ -31,11 +32,53 @@ export default class Diagnostics {
 			console.log("diagnostics: uploading database");
 			return this._uploadDatabase(id);
 		}).then(reference => {
-			console.log("diagnostics: done", id)
-			return {
-				reference: reference,
-				id: id,
-			};
+			return this._uploadArchived().then(() => {
+				console.log("diagnostics: done", id)
+				return {
+					reference: reference,
+					id: id,
+				};
+			});
+		});
+	}
+
+	_backupDatabase(folder) {
+		return Promise.resolve();
+	}
+
+	_uploadArchived() {
+		const folder = this._getDiagnosticsFolder();
+
+		return this._getAllFiles(folder).then(files => {
+			return serializePromiseChain(files, (path, index) => {
+				const relative = path.replace(folder.path, "");
+				return Services.Conservify().upload({
+					method: "POST",
+					url: this.baseUrl + relative,
+					path: path,
+				}).then(() => {
+					return File.fromPath(path).remove();
+				});
+			});
+		});
+	}
+
+	save() {
+		return Promise.resolve().then(() => {
+			const folder = this._getNewFolder();
+
+			return Promise.all([
+				folder.getFile("app.txt").writeText(getLogsAsString()),
+				this._backupDatabase(folder),
+				this._queryLogs().then(allLogs => {
+					return Promise.all(allLogs.map(row => {
+						return Promise.all([
+							folder.getFile(row.name + ".json").writeText(JSON.stringify(row.status)),
+							folder.getFile(row.name + ".txt").writeText(row.logs),
+						])
+					}));
+				})
+			]);
 		});
 	}
 
@@ -46,7 +89,9 @@ export default class Diagnostics {
 			return Promise.all(Object.values(stations).map(station => {
 				return Services.QueryStation().getStatus(station.url).then(status => {
 					return Services.QueryStation().queryLogs(station.url).then(logs => {
+						const name = status.status.identity.deviceId;
 						return {
+							name: name,
 							status: status,
 							station: station,
 							logs: logs
@@ -74,31 +119,29 @@ export default class Diagnostics {
 	_uploadLogs(id, logs) {
 		return Services.Conservify().text({
 			method: "POST",
-			url: this.baseUrl + "/" + id + "/station.json",
+			url: this.baseUrl + "/" + id + "/" + logs.name + ".json",
 			body: JSON.stringify(logs.status),
 		}).then(() => {
 			return Services.Conservify().text({
 				method: "POST",
-				url: this.baseUrl + "/" + id + "/logs.txt",
+				url: this.baseUrl + "/" + id + "/" + logs.name + ".txt",
 				body: logs.logs,
 			});
 		});
 	}
 
 	_uploadDatabase(id) {
-		return this._recurse(knownFolders.documents()).then(() => {
-			const name = "fieldkit.sqlite3";
-			const path = this._getDatabasePath(name);
+		const name = "fieldkit.sqlite3";
+		const path = this._getDatabasePath(name);
 
-			console.log("diagnostics", path);
+		console.log("diagnostics", path);
 
-			return Services.Conservify().upload({
-				method: "POST",
-				url: this.baseUrl + "/" + id + "/" + name,
-				path: path,
-			}).then(response => {
-				return response.body;
-			});
+		return Services.Conservify().upload({
+			method: "POST",
+			url: this.baseUrl + "/" + id + "/" + name,
+			path: path,
+		}).then(response => {
+			return response.body;
 		});
 	}
 
@@ -112,17 +155,35 @@ export default class Diagnostics {
 		return folder + "/" + name;
 	}
 
-	_recurse(f) {
+	_recurse(f, callback) {
 		return f.getEntities().then(entities => {
 			return Promise.all(entities.map(e => {
 				if (Folder.exists(e.path)) {
-					// console.log("dir", e.path);
-					return this._recurse(Folder.fromPath(e.path))
+					return this._recurse(Folder.fromPath(e.path), callback);
 				}
 				else {
-					// console.log("file", e.path);
+					callback(e.path);
 				}
 			}));
 		});
 	}
+
+	_getAllFiles(f) {
+		const files = [];
+
+		return this._recurse(f, path => {
+			files.push(path);
+		}).then(() => {
+			return files;
+		});
+	}
+
+    _getDiagnosticsFolder() {
+        return knownFolders.documents().getFolder("diagnostics");
+    }
+
+    _getNewFolder() {
+		const id = uuidv4();
+        return this._getDiagnosticsFolder().getFolder(id);
+    }
 }
