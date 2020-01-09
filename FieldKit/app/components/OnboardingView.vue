@@ -33,6 +33,7 @@
             <StackLayout row="1">
                 <!-- progress bar at top -->
                 <GridLayout
+                    order="1"
                     rows="auto"
                     columns="*"
                     class="top-line-bkgd"
@@ -47,13 +48,14 @@
                 <!-- end progress bar -->
 
                 <Label
+                    order="2"
                     v-if="step > 0"
                     class="instruction"
                     :text="instruction"
                     textWrap="true"
                 ></Label>
 
-                <StackLayout>
+                <StackLayout order="3">
                     <!-- conditional list needs to be wrapped in StackLayout or else
                         error occurs about reference node has a different parent -->
                     <Gridlayout
@@ -78,7 +80,12 @@
                     </Gridlayout>
                 </StackLayout>
 
-                <Image v-if="displayFrame" :src="displayFrame"></Image>
+                <Image
+                    order="4"
+                    v-if="displayFrame"
+                    :src="displayFrame"
+                    :class="step == lastStep ? 'small' : ''"
+                ></Image>
             </StackLayout>
             <!-- end assembly steps section -->
 
@@ -135,6 +142,7 @@ export default {
     data() {
         return {
             step: 0,
+            lastStep: steps.length - 1,
             title: "",
             instruction: "",
             buttonText: "",
@@ -153,6 +161,7 @@ export default {
         },
 
         goBack(event) {
+            this.stopAnimation();
             // Change background color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -167,9 +176,19 @@ export default {
                 this.buttonText = steps[this.step].button;
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
             }
+            if (this.step > 0) {
+                this.animateFrames();
+                if (!this.animateFrameTimer) {
+                    this.animateFrameTimer = setInterval(
+                        this.animateFrames,
+                        1000
+                    );
+                }
+            }
         },
 
         goNext() {
+            this.stopAnimation();
             if (this.step < steps.length - 1) {
                 this.step += 1;
                 this.title = steps[this.step].title;
@@ -182,6 +201,7 @@ export default {
             }
 
             if (this.step > 0) {
+                this.animateFrames();
                 if (!this.animateFrameTimer) {
                     this.animateFrameTimer = setInterval(
                         this.animateFrames,
@@ -197,6 +217,7 @@ export default {
         },
 
         stopAnimation() {
+            this.displayFrame = null;
             clearInterval(this.animateFrameTimer);
             this.animateFrameTimer = null;
         },
@@ -275,6 +296,12 @@ const steps = [
             'Insert the button cord to the radio board into the port labeled "BTN."',
         button: "Next",
         images: ["TI_7-A.jpg", "TI_7-B.jpg"]
+    },
+    {
+        title: "Complete",
+        instruction: "Station Assembled!",
+        button: "Continue",
+        images: ["Icon_Success.png", "Icon_Success.png"]
     }
 ];
 
@@ -369,7 +396,7 @@ const checklist = [
 }
 .top-line {
     border-bottom-width: 3;
-    border-bottom-color: $fk-gray-dark;
+    border-bottom-color: $fk-primary-blue;
 }
 .instruction {
     text-align: center;
@@ -380,5 +407,9 @@ const checklist = [
 .checklist {
     width: 275;
     margin-top: 40;
+}
+.small {
+    width: 50;
+    margin: 20;
 }
 </style>
