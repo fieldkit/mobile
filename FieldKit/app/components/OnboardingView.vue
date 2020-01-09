@@ -7,57 +7,27 @@
                 rows="auto"
                 columns="15*,70*,15*"
                 class="m-y-20"
-                v-if="step > 0"
             >
-                <StackLayout
-                    col="0"
-                    class="round-bkgd"
-                    verticalAlignment="top"
-                    @tap="goBack"
-                >
-                    <Image width="21" src="~/images/Icon_Backarrow.png" />
-                </StackLayout>
-                <StackLayout col="1" verticalAlignment="middle">
-                    <Label
-                        class="title text-center"
-                        :text="title"
-                        textWrap="true"
-                    ></Label>
-                </StackLayout>
-                <StackLayout col="2" />
+                <template v-if="step > 0">
+                    <StackLayout
+                        col="0"
+                        class="round-bkgd"
+                        verticalAlignment="top"
+                        @tap="goBack"
+                    >
+                        <Image width="21" src="~/images/Icon_Backarrow.png" />
+                    </StackLayout>
+                    <StackLayout col="1" verticalAlignment="middle">
+                        <Label
+                            class="title text-center"
+                            :text="title"
+                            textWrap="true"
+                        ></Label>
+                    </StackLayout>
+                    <StackLayout col="2" />
+                </template>
             </GridLayout>
             <!-- end header section -->
-
-            <!-- intro screen -->
-            <StackLayout rowSpan="3" v-if="step == 0">
-                <Image
-                    class="logo"
-                    src="~/images/fieldkit-logo-blue.png"
-                ></Image>
-                <Image
-                    class="illo"
-                    src="~/images/FieldKit_welcome_image.jpg"
-                ></Image>
-                <StackLayout class="welcome-text-container">
-                    <Label text="Welcome!" class="welcome text-center" />
-                    <Label
-                        text="Our mobile app makes it easy to set up and deploy your FieldKit station."
-                        textWrap="true"
-                    />
-                </StackLayout>
-                <Button
-                    class="btn btn-primary"
-                    text="Get Started"
-                    @tap="goNext"
-                ></Button>
-                <Label
-                    text="Skip instructions"
-                    class="skip"
-                    @tap="skip"
-                    textWrap="true"
-                />
-            </StackLayout>
-            <!-- end intro screen -->
 
             <!-- assembly steps -->
             <StackLayout row="1">
@@ -110,10 +80,44 @@
 
                 <Image v-if="displayFrame" :src="displayFrame"></Image>
             </StackLayout>
+            <!-- end assembly steps section -->
+
+            <!-- intro screen -->
+            <!-- needs to be "on top of" assembly steps section -->
+            <StackLayout rowSpan="3" v-if="step == 0">
+                <Image
+                    class="logo"
+                    src="~/images/fieldkit-logo-blue.png"
+                ></Image>
+                <Image
+                    class="illo"
+                    src="~/images/FieldKit_welcome_image.jpg"
+                ></Image>
+                <StackLayout class="welcome-text-container">
+                    <Label text="Welcome!" class="welcome text-center" />
+                    <Label
+                        text="Our mobile app makes it easy to set up and deploy your FieldKit station."
+                        textWrap="true"
+                    />
+                </StackLayout>
+                <Button
+                    class="btn btn-primary"
+                    text="Get Started"
+                    @tap="goNext"
+                ></Button>
+                <Label
+                    text="Skip instructions"
+                    class="skip"
+                    @tap="skip"
+                    textWrap="true"
+                />
+            </StackLayout>
+            <!-- end intro screen -->
 
             <!-- sticky next button -->
-            <StackLayout row="2" v-if="step > 0">
+            <StackLayout row="2">
                 <Button
+                    v-if="step > 0"
                     class="btn btn-primary"
                     :text="buttonText"
                     @tap="goNext"
