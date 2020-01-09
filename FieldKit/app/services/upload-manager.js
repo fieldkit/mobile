@@ -16,7 +16,6 @@ export default class UploadManager {
     getStatus() {
         return this.databaseInterface
             .getPendingDownloads()
-            .then(keysToCamel)
             .then(pending => {
                 log.verbose("pending (status)", pending);
                 return _(pending)
@@ -54,7 +53,6 @@ export default class UploadManager {
 
         return this.databaseInterface
             .getPendingDownloads()
-            .then(keysToCamel)
             .then(downloads => {
                 log.info("pending (sync)", downloads);
 

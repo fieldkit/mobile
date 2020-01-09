@@ -95,7 +95,7 @@ new Vue({
         h("frame", [
             h(
                 Services.PortalInterface().isLoggedIn()
-                    ? routes.stations
+                    ? routes.onboarding
                     : routes.login
             )
         ])

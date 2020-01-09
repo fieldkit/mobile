@@ -7,6 +7,7 @@ import Home from "../components/HomeView";
 import Login from "../components/LoginView";
 import Module from "../components/ModuleDetailView";
 import Notifications from "../components/NotificationView";
+import Onboarding from "../components/OnboardingView";
 import StationDetail from "../components/StationDetailView";
 import Stations from "../components/StationListView";
 import StationSettings from "../components/StationSettingsView";
@@ -21,6 +22,7 @@ const routes = {
     login: Login,
     module: Module,
     notifications: Notifications,
+    onboarding: Onboarding,
     stationDetail: StationDetail,
     stations: Stations,
     stationSettings: StationSettings
