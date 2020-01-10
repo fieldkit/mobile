@@ -465,9 +465,13 @@ export default {
             let fieldNote = this.fieldNotes.find(n => {
                 return n.field == note.field;
             });
-            if (!fieldNote) {
+            if (!fieldNote && !note.image) {
                 // save as additional note
                 this.saveAdditional(note);
+                return;
+            } else if (note.image) {
+                // save image and description
+                this.savePicture(note);
                 return;
             }
 
@@ -675,7 +679,7 @@ export default {
                     }).then(
                         imageAsset => {
                             this.imageSrc = imageAsset;
-                            this.savePicture();
+                            this.showPicture();
                         },
                         err => {
                             // console.log("Error -> " + err.message);
@@ -700,21 +704,33 @@ export default {
                 })
                 .then(selection => {
                     this.imageSrc = selection[0];
-                    this.savePicture();
+                    this.showPicture();
                 })
                 .catch(e => {
                     // console.log(e);
                 });
         },
 
-        savePicture() {
+        showPicture() {
+            let note = {
+                image: this.imageSrc,
+                field: "image_label",
+                value: "",
+                title: "Photo Description",
+                instruction: "Describe what is in the photo"
+            }
+            this.currentNote = note;
+            this.isEditing = true;
+        },
+
+        savePicture(note) {
             this.havePhoto = true;
             const name = this.station.id + "_img_" + Date.now() + ".jpg";
             const dest = path.join(folder.path, name);
             let media = {
                 stationId: this.station.id,
                 imageName: name,
-                imageLabel: "",
+                imageLabel: note.value,
                 category: "default",
                 author: this.userName
             };
@@ -723,6 +739,7 @@ export default {
                 src: this.imageSrc
             });
             dbInterface.insertFieldMedia(media);
+            this.isEditing = false;
             this.updatePercentComplete();
 
             source.fromAsset(this.imageSrc).then(

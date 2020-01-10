@@ -10,7 +10,9 @@
             row="0"
             rows="auto"
             columns="15*,70*,15*"
-            class="bottom-border"
+            :class="fieldNote.image
+                ? 'bottom-border-no-margin'
+                : 'bottom-border'"
         >
             <StackLayout
                 col="0"
@@ -30,6 +32,22 @@
             <StackLayout col="2" class="round-bkgd" @tap="onSave">
                 <Image width="25" src="~/images/Icon_Save.png"></Image>
             </StackLayout>
+        </GridLayout>
+
+        <!-- display photo section -->
+        <GridLayout row="1" v-if="fieldNote.image" rows="auto,auto" columns="*">
+            <TextView
+                row="0"
+                textWrap="true"
+                class="size-14 p-x-20 m-y-10 large-text-field"
+                :hint="fieldNote.instruction"
+                v-model="fieldNote.value"
+            ></TextView>
+            <Image
+                row="1"
+                :src="fieldNote.image"
+                stretch="aspectFit"
+            />
         </GridLayout>
 
         <!-- Recording in progress -->
@@ -139,6 +157,7 @@
             class="size-14 p-x-20 large-text-field"
             :hint="fieldNote.instruction"
             v-model="fieldNote.value"
+            v-if="!fieldNote.image"
         ></TextView>
 
         <!-- mic icon -->
@@ -149,6 +168,7 @@
             horizontalAlignment="right"
             class="m-10"
             automationText="addAudioNote"
+            v-if="!fieldNote.image"
             @tap="onAudioTap"
         ></Image>
     </GridLayout>
@@ -362,9 +382,12 @@ export default {
 // Custom styles
 
 .bottom-border {
+    margin-bottom: 40;
+}
+.bottom-border,
+.bottom-border-no-margin {
     padding-bottom: 10;
     margin-top: 5;
-    margin-bottom: 40;
     border-bottom-width: 1;
     border-color: $fk-gray-lighter;
 }

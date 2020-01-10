@@ -196,7 +196,6 @@ export default {
                 this.buttonText = steps[this.step].button;
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
             } else {
-                // TODO: add success notification
                 this.$navigateTo(routes.stations);
             }
 
