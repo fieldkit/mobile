@@ -116,7 +116,12 @@
                                         ? ''
                                         : note.instruction
                                 "
-                                class="size-12 m-b-10"
+                                :class="
+                                    'size-14 m-b-10 '
+                                        + (note.value
+                                        ? 'darker'
+                                        : 'lighter')
+                                "
                             ></Label>
                             <Image
                                 rowSpan="2"
@@ -805,5 +810,11 @@ export default {
 }
 .photo-btn-img {
     margin-top: 40;
+}
+.darker {
+    color: $fk-primary-black;
+}
+.lighter {
+    color: $fk-gray-hint;
 }
 </style>
