@@ -718,14 +718,12 @@ export default {
                 category: "default",
                 author: this.userName
             };
+            this.photos.push({
+                id: this.photos.length + 1,
+                src: this.imageSrc
+            });
             dbInterface.insertFieldMedia(media);
             this.updatePercentComplete();
-            if (isIOS) {
-                this.photos.push({
-                    id: this.photos.length + 1,
-                    src: this.imageSrc
-                });
-            }
 
             source.fromAsset(this.imageSrc).then(
                 imageSource => {
