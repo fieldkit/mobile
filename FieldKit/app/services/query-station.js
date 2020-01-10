@@ -1,7 +1,7 @@
 import _ from "lodash";
 import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
-import { promiseAfter } from "../utilities";
+import { unixNow, promiseAfter } from "../utilities";
 import Config from "../config";
 import Services from "./services";
 
@@ -37,7 +37,8 @@ const MandatoryStatus = {
 export default class QueryStation {
     getStatus(address) {
         const message = HttpQuery.create({
-            type: QueryType.values.QUERY_STATUS
+            type: QueryType.values.QUERY_STATUS,
+			time: unixNow()
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -47,7 +48,8 @@ export default class QueryStation {
 
     takeReadings(address) {
         const message = HttpQuery.create({
-            type: QueryType.values.QUERY_TAKE_READINGS
+            type: QueryType.values.QUERY_TAKE_READINGS,
+			time: unixNow()
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -58,7 +60,8 @@ export default class QueryStation {
     startDataRecording(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
-            recording: { modifying: true, enabled: true }
+            recording: { modifying: true, enabled: true },
+			time: unixNow()
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -84,7 +87,8 @@ export default class QueryStation {
     setInterval(station) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
-            schedules: { modifying: true, readings: { interval: station.interval } }
+            schedules: { modifying: true, readings: { interval: station.interval } },
+			time: unixNow()
         });
 
         return this.stationQuery(station.url, message).then(reply => {
