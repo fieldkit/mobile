@@ -27,8 +27,9 @@
                 </FlexboxLayout>
             </StackLayout>
             <!-- recording time -->
-            <StackLayout row="1" col="0" id="outer-circle">
-                <StackLayout id="inner-circle">
+            <GridLayout row="1" col="0" rows="auto" columns="*">
+                <StackLayout row="0" id="outer-circle" />
+                <StackLayout row="0" id="inner-circle">
                     <Label
                         class="size-16 bold m-b-3 rec-time rec-time-top"
                         :text="elapsedRecTime"
@@ -38,7 +39,7 @@
                         :text="elapsedTimeLabel"
                     ></Label>
                 </StackLayout>
-            </StackLayout>
+            </GridLayout>
             <!-- connected status and available memory -->
             <StackLayout row="1" col="1">
                 <GridLayout rows="auto" columns="15*,85*" class="m-t-20">
@@ -140,6 +141,7 @@
 <script>
 import Services from "../services/services";
 import { convertBytesToLabel } from "../utilities";
+import { AnimationCurve } from "tns-core-modules/ui/enums";
 
 export default {
     name: "StationStatusBox",
@@ -270,24 +272,14 @@ export default {
                 this.outer
                     .animate({
                         scale: { x: 1, y: 1 },
-                        duration: 500
+                        duration: 750,
+                        curve: AnimationCurve.easeOut
                     })
                     .then(() => {
                         return this.outer.animate({
-                            scale: { x: 0.98, y: 0.98 },
-                            duration: 750
-                        });
-                    });
-
-                this.inner
-                    .animate({
-                        opacity: 0.75,
-                        duration: 500
-                    })
-                    .then(() => {
-                        return this.inner.animate({
-                            opacity: 1,
-                            duration: 750
+                            scale: { x: 0.96, y: 0.96 },
+                            duration: 500,
+                            curve: AnimationCurve.easeIn
                         });
                     });
             }
@@ -337,7 +329,6 @@ export default {
 #inner-circle {
     width: 110;
     height: 110;
-    margin-top: 3;
     background: $fk-primary-black;
 }
 // was blue
