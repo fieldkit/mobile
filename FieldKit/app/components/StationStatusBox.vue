@@ -20,7 +20,7 @@
             <StackLayout row="0" col="1">
                 <FlexboxLayout class="m-10" justifyContent="flex-end">
                     <Label
-                        class="m-r-5 size-12"
+                        class="m-r-5 size-12 lighter"
                         :text="station.batteryLevel + '%'"
                     ></Label>
                     <Image width="25" :src="station.batteryImage"></Image>
@@ -360,6 +360,10 @@ export default {
     height: 8;
     background: $fk-gray-lightest;
     border-radius: 4;
+}
+
+.lighter {
+    color: $fk-gray-hint;
 }
 
 .btn-primary {

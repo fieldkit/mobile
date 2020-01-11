@@ -1,12 +1,12 @@
 <template>
-    <StackLayout id="module-list-container" class="m-10">
+    <StackLayout class="m-t-5 m-b-10 m-l-10 m-r-10">
         <GridLayout
             rows="auto"
             columns="*"
             v-for="(m, moduleIndex) in modules"
             :key="m.id"
         >
-            <StackLayout class="bordered-container p-10 m-y-10">
+            <StackLayout class="bordered-container p-10 m-b-10">
                 <!-- top row of module list -->
                 <GridLayout rows="auto" columns="15*,70*,15*">
                     <!-- module icon -->
