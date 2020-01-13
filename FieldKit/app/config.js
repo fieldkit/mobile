@@ -33,7 +33,7 @@ const configs = {
         ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
         dropTables: true,
-        stationTimeoutMs: 30000,
+        stationTimeoutMs: 90000,
         includeInternalModules: false,
         includeInternalSensors: false,
         syncMode: "auto"
@@ -46,7 +46,7 @@ const configs = {
         ingestionUri: "https://api.fkdev.org/ingestion",
         seedDB: true,
         dropTables: true,
-        stationTimeoutMs: 30000,
+        stationTimeoutMs: 90000,
         includeInternalModules: false,
         includeInternalSensors: false,
         syncMode: "auto"
