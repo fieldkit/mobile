@@ -360,19 +360,19 @@ const checklist = [
 // Custom styles
 
 .logo {
-    margin-top: 80;
-    width: 225;
+    margin-top: 8%;
+    width: 50%;
 }
 .illo {
-    margin-top: 30;
-    width: 285;
+    margin-top: 8%;
+    width: 75%;
 }
 .welcome-text-container {
     width: 280;
     text-align: center;
     font-size: 15;
-    margin-top: 20;
-    margin-bottom: 20;
+    margin-top: 4%;
+    margin-bottom: 4%;
 }
 .welcome {
     font-weight: bold;
