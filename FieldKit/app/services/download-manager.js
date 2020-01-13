@@ -335,10 +335,13 @@ export default class DownloadManager {
 					totalSize: total,
 				});
 			}
-		}).then(completed => {
-			log.info("headers", completed.headers);
-			log.info("status", completed.statusCode);
-			return this._createDownloadRow(station, url, type, destination, completed.headers);
+		}).then(response => {
+			log.info("headers", response.headers);
+			log.info("status", response.statusCode);
+			if (response.statusCode != 200) {
+				return Promise.reject(response);
+			}
+			return this._createDownloadRow(station, url, type, destination, response.headers);
 		});
     }
 

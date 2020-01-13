@@ -142,6 +142,9 @@ export default class UploadManager {
                 });
 			}
 		}).then(response => {
+			if (response.statusCode != 200) {
+				return Promise.reject(response);
+			}
 			return response;
 		}, err => {
 			return Promise.reject(err);
