@@ -21,8 +21,6 @@ class WiFiMonitor {
     constructor(callback) {
         this.previous = null;
         this.timer = setInterval(() => {
-			console.log("WiFiManager: status");
-
 			return Services.Conservify().findConnectedNetwork().then((status) => {
 				if (status.connectedWifi) {
 					console.log("WiFiMonitor: ", status.connectedWifi.ssid);
