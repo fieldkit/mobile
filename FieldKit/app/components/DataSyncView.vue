@@ -195,7 +195,7 @@ import { convertBytesToLabel } from "../utilities";
 
 const dbInterface = Services.Database();
 
-const log = Config.logger("SynchronizePanel");
+const log = Config.logger("DataSyncView");
 
 export default {
     data() {
@@ -227,7 +227,6 @@ export default {
             });
 
             stateManager.subscribe(status => {
-                log.info("status", status, "portal", status.portal);
                 this.manageRecentSyncs(status);
             });
 
