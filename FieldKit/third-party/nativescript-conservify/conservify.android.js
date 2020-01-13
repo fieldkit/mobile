@@ -59,7 +59,6 @@ var Conservify = (function (_super) {
                 });
             },
             onNetworkStatus: function (status) {
-                debug("onNetworkStatus");
                 if (owner.networkStatus) {
                     function getConnectedWifi() {
                         if (status.getConnectedWifi() == null || status.getConnectedWifi().getSsid() == null) {

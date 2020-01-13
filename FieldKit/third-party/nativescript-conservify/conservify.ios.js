@@ -50,7 +50,6 @@ var MyNetworkingListener = (function (_super) {
         });
     };
     MyNetworkingListener.prototype.onNetworkStatusWithStatus = function (status) {
-        debug("onNetworkStatusWithStatus", status);
         this.promises.getNetworkStatusPromise().resolve(status);
     };
     MyNetworkingListener.ObjCProtocols = [NetworkingListener];
