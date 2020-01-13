@@ -226,7 +226,7 @@
 
 <script>
 import Home from "./HomeView";
-import Stations from "./StationListView";
+import Onboarding from "./OnboardingView";
 import Config from "../config";
 import { USERNAME, PASSWORD } from "../secrets";
 
@@ -316,7 +316,7 @@ export default {
 
         continueOffline() {
             if (!this.navigatedAway) {
-                this.$navigateTo(Stations, { clearHistory: true });
+                this.$navigateTo(Onboarding, { clearHistory: true });
                 this.navigatedAway = true;
             }
         },
@@ -340,7 +340,7 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    this.$navigateTo(Config.seedDB ? Home : Stations, {
+                    this.$navigateTo(Config.seedDB ? Home : Onboarding, {
                         clearHistory: true
                     });
                 })
