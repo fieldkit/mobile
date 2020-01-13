@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="75,*,65" automationText="deployNotesLayout">
+        <GridLayout :rows="station.connected ? '75,*,65' : '105,*,65'" automationText="deployNotesLayout">
             <!-- sticky header section and progress bar -->
             <StackLayout row="0" v-if="!linkedFromStation">
                 <ScreenHeader
@@ -18,6 +18,12 @@
                 >
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
+                <StackLayout
+                    class="text-center disconnect-warning"
+                    v-if="!station.connected"
+                >
+                    <Label text="Station Disconncted" />
+                </StackLayout>
             </StackLayout>
 
             <!-- alternate header section -->
@@ -788,6 +794,11 @@ export default {
 .top-line {
     border-bottom-width: 3;
     border-bottom-color: $fk-primary-blue;
+}
+.disconnect-warning {
+    background-color: rgb(255, 255, 175);
+    padding-top: 5;
+    padding-bottom: 5;
 }
 
 .small-round {

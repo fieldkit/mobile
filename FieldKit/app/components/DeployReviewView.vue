@@ -11,6 +11,12 @@
                 <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
+                <StackLayout
+                    class="text-center disconnect-warning"
+                    v-if="!station.connected"
+                >
+                    <Label text="Station Disconncted" />
+                </StackLayout>
 
                 <!-- station coordinates -->
                 <StackLayout class="review-section">
@@ -328,6 +334,11 @@ export default {
 .top-line {
     border-bottom-width: 3;
     border-bottom-color: $fk-primary-blue;
+}
+.disconnect-warning {
+    background-color: rgb(255, 255, 175);
+    padding-top: 5;
+    padding-bottom: 5;
 }
 .review-section,
 .review-section-no-border {
