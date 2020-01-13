@@ -137,7 +137,7 @@ export default class QueryStation {
 			method: "HEAD",
 			url: url,
 		}).then(response => {
-			if (response.statusCode != 200) {
+			if (response.statusCode != 204) {
 				return Promise.reject(response);
 			}
 			const size = Number(response.headers["content-length"]);
