@@ -58,7 +58,7 @@
             </GridLayout>
 
             <!-- main notes view section -->
-            <ScrollView row="1">
+            <ScrollView row="1" :rowSpan="linkedFromStation ? 2 : 1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout class="m-x-20" v-if="!isEditing">
                         <!-- top label section -->
