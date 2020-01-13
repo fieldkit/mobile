@@ -52,6 +52,7 @@
                     v-if="step > 0"
                     class="instruction"
                     :text="instruction"
+                    lineHeight="4"
                     textWrap="true"
                 ></Label>
 
@@ -105,6 +106,8 @@
                     <Label
                         text="Our mobile app makes it easy to set up and deploy your FieldKit station."
                         textWrap="true"
+                        lineHeight="4"
+                        class="m-t-5"
                     />
                 </StackLayout>
                 <Button
@@ -308,47 +311,47 @@ const checklist = [
     {
         row: 1,
         col: 0,
-        text: "\u{2022}\u{0009} Enclosure"
+        text: "\u{2022} Enclosure"
     },
     {
         row: 2,
         col: 0,
-        text: "\u{2022}\u{0009} Radio board"
+        text: "\u{2022} Radio board"
     },
     {
         row: 3,
         col: 0,
-        text: "\u{2022}\u{0009} Core board"
+        text: "\u{2022} Core board"
     },
     {
         row: 4,
         col: 0,
-        text: "\u{2022}\u{0009} Back plane"
+        text: "\u{2022} Back plane"
     },
     {
         row: 5,
         col: 0,
-        text: "\u{2022}\u{0009} Module(s)"
+        text: "\u{2022} Module(s)"
     },
     {
         row: 1,
         col: 1,
-        text: "\u{2022}\u{0009} 1 battery"
+        text: "\u{2022} 1 battery"
     },
     {
         row: 2,
         col: 1,
-        text: "\u{2022}\u{0009} Screws"
+        text: "\u{2022} Screws"
     },
     {
         row: 3,
         col: 1,
-        text: "\u{2022}\u{0009} Screw driver*"
+        text: "\u{2022} Screw driver*"
     },
     {
         row: 4,
         col: 1,
-        text: "\u{2022}\u{0009} Micro USB cable*"
+        text: "\u{2022} Micro USB cable*"
     }
 ];
 </script>
@@ -358,7 +361,9 @@ const checklist = [
 @import "../app-variables";
 // End custom common variables
 // Custom styles
-
+.page {
+    color: $fk-primary-black;
+}
 .logo {
     margin-top: 8%;
     width: 50%;
@@ -384,9 +389,6 @@ const checklist = [
     font-size: 14;
     font-weight: bold;
     text-align: center;
-    padding-bottom: 3;
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 2;
 }
 
 .top-line-bkgd {
@@ -404,7 +406,7 @@ const checklist = [
     margin-left: 20;
 }
 .checklist {
-    width: 275;
+    width: 300;
     margin-top: 40;
 }
 .small {
