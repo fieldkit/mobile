@@ -31,11 +31,12 @@
                 row="0"
                 rows="auto,auto"
                 columns="85*,15*"
-                class="alternate-header"
+                :class="isEditing ? '' : 'alternate-header'"
                 v-if="linkedFromStation"
             >
                 <StackLayout
                     row="0"
+                    col="0"
                     colSpan="2"
                     verticalAlignment="middle"
                     v-if="!isEditing"
@@ -47,7 +48,7 @@
                 </StackLayout>
                 <StackLayout
                     row="0"
-                    col="2"
+                    col="1"
                     class="round-bkgd m-r-10"
                     verticalAlignment="top"
                     @tap="onEditDone"
@@ -55,12 +56,6 @@
                 >
                     <Image width="21" src="~/images/Icon_Close.png"></Image>
                 </StackLayout>
-                <StackLayout
-                    row="1"
-                    colSpan="2"
-                    class="alternate-header-border"
-                    v-if="!isEditing"
-                />
             </GridLayout>
 
             <!-- main notes view section -->
@@ -377,16 +372,24 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            let savingStation = this.station;
-            savingStation.percentComplete = this.percentComplete;
-            dbInterface.setStationPercentComplete(savingStation)
-                .then(() => {
-                    this.$navigateTo(routes.stationDetail, {
-                        props: {
-                            station: this.station
-                        }
+            if (this.station.percentComplete != this.percentComplete) {
+                let savingStation = this.station;
+                savingStation.percentComplete = this.percentComplete;
+                dbInterface.setStationPercentComplete(savingStation)
+                    .then(() => {
+                        this.$navigateTo(routes.stationDetail, {
+                            props: {
+                                station: this.station
+                            }
+                        });
                     });
+            } else {
+                this.$navigateTo(routes.stationDetail, {
+                    props: {
+                        station: this.station
+                    }
                 });
+            }
         },
 
         onPageLoaded(args) {
@@ -782,9 +785,6 @@ export default {
 .alternate-header {
     padding-bottom: 10;
     margin-top: 10;
-}
-.alternate-header-border {
-    padding-top: 10;
     border-bottom-width: 1;
     border-color: $fk-gray-lighter;
 }
