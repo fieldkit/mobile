@@ -60,6 +60,10 @@ export function sendLogs() {
     });
 }
 
+function getPrettyTime() {
+	return moment().format();
+}
+
 export function initializeLogging() {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
     if (TNS_ENV === "test") {
@@ -79,7 +83,8 @@ export function initializeLogging() {
         console[method] = function() {
             try {
                 const args = Array.prototype.slice.apply(arguments);
-                const parts = [];
+				const time = getPrettyTime();
+                const parts = [ time ];
                 for (let i = 0; i < args.length; i++) {
                     const arg = args[i];
                     if (typeof arg === "string") {
@@ -89,10 +94,11 @@ export function initializeLogging() {
                     }
                 }
                 logs.push(parts);
+				args.unshift(time);
                 if (original.apply) {
-                    original.apply(console, arguments);
+                    original.apply(console, args);
                 } else {
-                    original(Array.prototype.slice.apply(arguments).join(" ")); // IE
+                    original(args.join(" ")); // IE
                 }
             } catch (e) {
                 originalConsole.log(e);
