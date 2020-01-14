@@ -103,7 +103,7 @@
                             textWrap="true"
                         />
                         <Button
-                            class="btn btn-primary full-width"
+                            class="btn btn-primary btn-padded full-width"
                             :text="_L('stopRecording')"
                             @tap="stopRecording"
                         ></Button>

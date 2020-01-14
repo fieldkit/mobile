@@ -111,7 +111,7 @@
                     />
                 </StackLayout>
                 <Button
-                    class="btn btn-primary"
+                    class="btn btn-primary btn-padded"
                     text="Get Started"
                     @tap="goNext"
                 ></Button>
@@ -128,7 +128,7 @@
             <StackLayout row="2">
                 <Button
                     v-if="step > 0"
-                    class="btn btn-primary"
+                    class="btn btn-primary btn-padded"
                     :text="buttonText"
                     @tap="goNext"
                 ></Button>

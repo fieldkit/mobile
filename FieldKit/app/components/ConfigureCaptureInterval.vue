@@ -154,7 +154,7 @@
                                     />
                                     <!-- @timeChange="onTimeChange" -->
                                     <Button
-                                        class="btn btn-primary m-y-20"
+                                        class="btn btn-primary btn-padded m-y-20"
                                         :text="currentlyPicking.label"
                                         @tap="submitTime"
                                     ></Button>

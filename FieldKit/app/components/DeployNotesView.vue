@@ -242,7 +242,7 @@
             <!-- sticky continue button -->
             <StackLayout row="2" v-if="!linkedFromStation">
                 <Button
-                    class="btn btn-primary m-b-10"
+                    class="btn btn-primary btn-padded m-b-10"
                     :text="_L('continue')"
                     automationText="nextButton"
                     :isEnabled="havePhoto"

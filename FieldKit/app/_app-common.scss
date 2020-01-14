@@ -77,6 +77,9 @@ h1 {
     font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     font-weight: bold;
 }
+.btn-padded {
+    height: 45;
+}
 .btn-primary:active {
     background-color: $fk-primary-blue;
 }

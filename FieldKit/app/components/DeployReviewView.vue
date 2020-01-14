@@ -164,7 +164,7 @@
 
                 <!-- record button -->
                 <Button
-                    class="btn btn-primary m-20"
+                    class="btn btn-primary btn-padded m-20"
                     :text="(
                         station.connected
                         ? _L('record')

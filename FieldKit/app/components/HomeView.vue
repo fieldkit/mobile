@@ -8,7 +8,7 @@
                 textWrap="true"
             ></Label>
             <Button
-                class="btn btn-primary"
+                class="btn btn-primary btn-padded"
                 :text="_L('viewStations')"
                 @tap="viewStations"
             ></Button>
@@ -18,33 +18,33 @@
                 class="size-14 text-center m-t-20 m-b-20"
             />
             <Button
-                class="btn btn-primary"
+                class="btn btn-primary btn-padded"
                 text="Save Diagnostics"
                 @tap="saveDiagnostics"
             ></Button>
             <Button
-                class="btn btn-primary"
+                class="btn btn-primary btn-padded"
                 text="Upload Diagnostics"
                 @tap="uploadDiagnostics"
             ></Button>
             <Button
-                class="btn btn-primary"
+                class="btn btn-primary btn-padded"
                 text="Copy Logs"
                 @tap="copyLogs"
             ></Button>
             <Button
-                class="btn btn-primary"
+                class="btn btn-primary btn-padded"
                 text="Delete DB"
                 @tap="deleteDB"
             ></Button>
             <Button
-                class="btn btn-primary"
+                class="btn btn-primary btn-padded"
                 text="Delete app copies of station data"
                 @tap="deleteFiles"
             ></Button>
             <StackLayout class="m-t-20">
                 <Button
-                    class="btn btn-primary"
+                    class="btn btn-primary btn-padded"
                     text="Start QR code scanning"
                     @tap="doScanWithBackCamera">
                 </Button>

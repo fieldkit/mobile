@@ -101,7 +101,7 @@
                 <!-- end: Data capture interval -->
 
                 <Button
-                    class="btn btn-primary m-y-20"
+                    class="btn btn-primary btn-padded m-y-20"
                     :text="_L('continue')"
                     automationText="nextButton"
                     @tap="goToNext"

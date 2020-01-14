@@ -195,14 +195,14 @@
                     </GridLayout>
 
                     <Button
-                        class="btn btn-primary m-t-20"
+                        class="btn btn-primary btn-padded m-t-20"
                         :text="isLoggingIn ? _L('logIn') : _L('signUp')"
                         :isEnabled="!processing"
                         @tap="submit"
                     ></Button>
 
                     <Button
-                        class="btn btn-primary m-t-20"
+                        class="btn btn-primary btn-padded m-t-20"
                         :text="_L('continueOffline')"
                         @tap="continueOffline"
                     ></Button>
