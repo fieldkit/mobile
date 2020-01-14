@@ -385,7 +385,9 @@ const checklist = [
 }
 .skip {
     width: 115;
-    margin-top: 10;
+    padding-top: 10;
+    padding-bottom: 10;
+    background-color: white;
     font-size: 14;
     font-weight: bold;
     text-align: center;
