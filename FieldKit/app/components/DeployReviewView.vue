@@ -15,7 +15,7 @@
                     class="text-center disconnect-warning"
                     v-if="!station.connected"
                 >
-                    <Label text="Station Disconncted" />
+                    <Label text="Station Disconnected" />
                 </StackLayout>
 
                 <!-- station coordinates -->
