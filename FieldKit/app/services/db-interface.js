@@ -271,6 +271,15 @@ export default class DatabaseInterface {
         );
     }
 
+    setGenerationId(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET generation_id = ? WHERE id = ?", [
+                station.generationId,
+                station.id
+            ])
+        );
+    }
+
     setModuleName(module) {
         return this.getDatabase().then(db =>
             db.query("UPDATE modules SET name = ? WHERE id = ?", [
@@ -303,6 +312,15 @@ export default class DatabaseInterface {
             db.query("UPDATE sensors SET current_reading = ? WHERE id = ?", [
                 sensor.currentReading,
                 sensor.id
+            ])
+        );
+    }
+
+    clearDeployNotes(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET location_name = '', study_objective = '', location_purpose = '', site_criteria = '', site_description = '', deploy_start_time = '', percent_complete = ? WHERE id = ?", [
+                0,
+                station.id
             ])
         );
     }
@@ -367,9 +385,10 @@ export default class DatabaseInterface {
     insertStation(station, statusJson) {
         const newStation = new Station(station);
         return this.database.execute(
-            `INSERT INTO stations (device_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
+                newStation.generationId,
                 newStation.name,
                 newStation.url,
                 newStation.status,
@@ -388,9 +407,10 @@ export default class DatabaseInterface {
 
     insertFieldNote(note) {
         return this.database.execute(
-            "INSERT INTO fieldnotes (station_id, note, audio_file, category, author) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO fieldnotes (station_id, generation_id, note, audio_file, category, author) VALUES (?, ?, ?, ?, ?, ?)",
             [
                 note.stationId,
+                note.generationId,
                 note.note,
                 note.audioFile,
                 note.category,
@@ -401,9 +421,10 @@ export default class DatabaseInterface {
 
     insertFieldMedia(media) {
         return this.database.execute(
-            "INSERT INTO fieldmedia (station_id, image_name, image_label, category, author) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO fieldmedia (station_id, generation_id, image_name, image_label, category, author) VALUES (?, ?, ?, ?, ?, ?)",
             [
                 media.stationId,
+                media.generationId,
                 media.imageName,
                 media.imageLabel,
                 media.category,
@@ -722,6 +743,7 @@ class Station {
     constructor(_station) {
         // created_at, and updated_at will be generated
         this.deviceId = _station.deviceId;
+        this.generationId = _station.generationId;
         this.name = _station.name;
         this.url = _station.url ? _station.url : "no_url";
         this.status = _station.status;

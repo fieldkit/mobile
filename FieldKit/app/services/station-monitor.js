@@ -122,30 +122,7 @@ export default class StationMonitor extends Observable {
 
         station.connected = true;
         station.lastSeen = new Date();
-        const newStatus = result.status.recording.enabled ? "recording" : "";
-        // db needs to be kept in sync
-        if (newStatus != station.status) {
-            station.status = newStatus;
-            this.dbInterface.setStationDeployStatus(station);
-        }
-        const deployStartTime = result.status.recording.startedTime
-            ? new Date(result.status.recording.startedTime * 1000)
-            : "";
-        if (deployStartTime != station.deployStartTime) {
-            station.deployStartTime = deployStartTime;
-            this.dbInterface.setStationDeployStartTime(station);
-        }
-        station.name = result.status.identity.device;
-        if (
-            (result.status.gps.longitude != 1000 &&
-                station.longitude != result.status.gps.longitude) ||
-            (result.status.gps.latitude != 1000 &&
-                station.latitude != result.status.gps.latitude)
-        ) {
-            station.longitude = result.status.gps.longitude;
-            station.latitude = result.status.gps.latitude;
-            this.dbInterface.setStationLocationCoordinates(station);
-        }
+        this.keepDatabaseFieldsInSync(station, result);
         return this._updateStationStatus(station, result);
     }
 
@@ -164,29 +141,8 @@ export default class StationMonitor extends Observable {
 
         station.connected = true;
         station.lastSeen = new Date();
-        const newStatus = result.status.recording.enabled ? "recording" : "";
-        // db needs to be kept in sync
-        if (newStatus != station.status) {
-            station.status = newStatus;
-            this.dbInterface.setStationDeployStatus(station);
-        }
-        const deployStartTime = result.status.recording.startedTime
-            ? new Date(result.status.recording.startedTime * 1000)
-            : "";
-        if (deployStartTime != station.deployStartTime) {
-            station.deployStartTime = deployStartTime;
-            this.dbInterface.setStationDeployStartTime(station);
-        }
-        if (
-            (result.status.gps.longitude != 1000 &&
-                station.longitude != result.status.gps.longitude) ||
-            (result.status.gps.latitude != 1000 &&
-                station.latitude != result.status.gps.latitude)
-        ) {
-            station.longitude = result.status.gps.longitude;
-            station.latitude = result.status.gps.latitude;
-            this.dbInterface.setStationLocationCoordinates(station);
-        }
+        this.keepDatabaseFieldsInSync(station, result);
+
         const readings = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
@@ -213,6 +169,42 @@ export default class StationMonitor extends Observable {
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
 
         return this._updateStationStatus(station, result);
+    }
+
+    keepDatabaseFieldsInSync(station, result) {
+        const newStatus = result.status.recording.enabled ? "recording" : "";
+        // db needs to be kept in sync
+        if (newStatus != station.status) {
+            station.status = newStatus;
+            this.dbInterface.setStationDeployStatus(station);
+        }
+        if (result.status.identity.generationId != station.generationId) {
+            station.generationId = result.status.identity.generationId;
+            this.dbInterface.setGenerationId(station);
+            if (newStatus != "recording") {
+                // new generation and not recording, so
+                // possible factory reset. reset deploy notes
+                this.dbInterface.clearDeployNotes(station);
+            }
+        }
+        const deployStartTime = result.status.recording.startedTime
+            ? new Date(result.status.recording.startedTime * 1000)
+            : "";
+        if (deployStartTime != station.deployStartTime) {
+            station.deployStartTime = deployStartTime;
+            this.dbInterface.setStationDeployStartTime(station);
+        }
+        station.name = result.status.identity.device;
+        if (
+            (result.status.gps.longitude != 1000 &&
+                station.longitude != result.status.gps.longitude) ||
+            (result.status.gps.latitude != 1000 &&
+                station.latitude != result.status.gps.latitude)
+        ) {
+            station.longitude = result.status.gps.longitude;
+            station.latitude = result.status.gps.latitude;
+            this.dbInterface.setStationLocationCoordinates(station);
+        }
     }
 
     recordingStatusChange(address, recording) {
@@ -305,6 +297,7 @@ export default class StationMonitor extends Observable {
 
         const station = {
             deviceId: data.deviceId,
+            generationId: deviceStatus.identity.generationId,
             name: deviceStatus.identity.device,
             url: data.address,
             status: recordingStatus,

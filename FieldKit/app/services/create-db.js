@@ -170,6 +170,7 @@ export default class CreateDB {
             `CREATE TABLE IF NOT EXISTS stations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 device_id TEXT NOT NULL,
+                generation_id TEXT NOT NULL,
                 name TEXT NOT NULL,
                 url TEXT NOT NULL,
                 status TEXT,
@@ -202,6 +203,7 @@ export default class CreateDB {
             `CREATE TABLE IF NOT EXISTS fieldnotes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 station_id INTEGER,
+                generation_id TEXT,
                 note TEXT,
                 audio_file TEXT,
                 category TEXT,
@@ -217,6 +219,7 @@ export default class CreateDB {
             `CREATE TABLE IF NOT EXISTS fieldmedia (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 station_id INTEGER,
+                generation_id TEXT,
                 image_name TEXT,
                 image_label TEXT,
                 category TEXT,
@@ -372,6 +375,7 @@ export default class CreateDB {
 const stations = [
     {
         deviceId: "seeded-device-0",
+        generationId: "seeded-device-0-generation-0",
         name: "Drammen Station",
         status: "idle",
         modules: [
@@ -430,6 +434,7 @@ const stations = [
     },
     {
         deviceId: "seeded-device-1",
+        generationId: "seeded-device-1-generation-0",
         name: "Eggjareid Station",
         status: "idle",
         modules: [
@@ -449,6 +454,7 @@ const stations = [
     },
     {
         deviceId: "seeded-device-2",
+        generationId: "seeded-device-2-generation-0",
         name: "Evanger Station",
         status: "idle",
         modules: [
@@ -468,6 +474,7 @@ const stations = [
     },
     {
         deviceId: "seeded-device-3",
+        generationId: "seeded-device-3-generation-0",
         name: "Finse Station",
         status: "idle",
         modules: [
@@ -487,6 +494,7 @@ const stations = [
     },
     {
         deviceId: "seeded-device-4",
+        generationId: "seeded-device-4-generation-0",
         name: "Seeded Station #4",
         status: "idle",
         modules: [

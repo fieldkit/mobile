@@ -214,6 +214,9 @@ export default class QueryStation {
             reply.status.identity.deviceId = new Buffer.from(
                 reply.status.identity.deviceId
             ).toString("hex");
+            reply.status.identity.generationId = new Buffer.from(
+                reply.status.identity.generation
+            ).toString("hex");
         }
         if (reply.streams && reply.streams.length > 0) {
             reply.streams.forEach(s => {

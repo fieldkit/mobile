@@ -449,13 +449,15 @@ export default {
             this.photos = [];
             // load previously saved images
             this.fieldMedia.forEach((img, i) => {
-                const dest = path.join(folder.path, img.imageName);
-                const imageFromLocalFile = fromFile(dest);
-                this.photos.push({
-                    id: i,
-                    src: imageFromLocalFile
-                });
-                this.havePhoto = true;
+                if (img.generationId == this.station.generationId) {
+                    const dest = path.join(folder.path, img.imageName);
+                    const imageFromLocalFile = fromFile(dest);
+                    this.photos.push({
+                        id: i,
+                        src: imageFromLocalFile
+                    });
+                    this.havePhoto = true;
+                }
             });
             this.updatePercentComplete();
         },
@@ -535,6 +537,7 @@ export default {
             this.isEditing = false;
             const newNote = {
                 stationId: this.station.id,
+                generationId: this.station.generationId,
                 note: note.value,
                 category: note.field,
                 audioFile: note.audioFile,
@@ -608,6 +611,7 @@ export default {
             }
             const audioNote = {
                 stationId: this.station.id,
+                generationId: this.station.generationId,
                 note: note.value,
                 category: note.field,
                 audioFile: recording,
@@ -738,6 +742,7 @@ export default {
             const dest = path.join(folder.path, name);
             let media = {
                 stationId: this.station.id,
+                generationId: this.station.generationId,
                 imageName: name,
                 imageLabel: note.value,
                 category: "default",
