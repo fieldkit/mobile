@@ -75,6 +75,7 @@
                                 <Image
                                     row="0"
                                     width="25"
+                                    class="bottom-pad"
                                     horizontalAlignment="right"
                                     v-show="isLoggingIn"
                                     src="~/images/Icon_Email_login.png"
@@ -123,6 +124,7 @@
                                 <Image
                                     row="0"
                                     width="25"
+                                    class="bottom-pad"
                                     horizontalAlignment="right"
                                     v-show="isLoggingIn"
                                     src="~/images/Icon_Password_login.png"
@@ -464,6 +466,10 @@ export default {
 
 .btn-primary {
     margin: 20 5 15 5;
+}
+
+.bottom-pad {
+    margin-bottom: 8;
 }
 
 .sign-up-label {
