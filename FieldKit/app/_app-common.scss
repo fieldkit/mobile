@@ -42,11 +42,13 @@ h1 {
 
 .title {
     color: $fk-primary-black;
-    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
-    font-weight: bold;
+    font-family: "Avenir LT Pro", "AvenirLTPro-Medium";
     font-size: 16;
 }
-
+.subtitle {
+    color: $fk-gray-hint;
+    font-size: 14;
+}
 .size-10 {
     font-size: 10;
 }

@@ -19,7 +19,7 @@
             ></Label>
             <Label
                 row="1"
-                class="text-center size-12"
+                class="text-center subtitle"
                 :text="subtitle"
                 textWrap="true"
                 :visible="subtitle"
