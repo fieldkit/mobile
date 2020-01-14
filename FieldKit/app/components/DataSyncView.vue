@@ -220,6 +220,7 @@ export default {
 
             log.info("subscribed");
 
+            this.recentSyncs = [];
             this.stations = this.$stationMonitor.getStations();
             this.stations.forEach(s => {
                 let recent = this.createRecent(s);
@@ -330,7 +331,7 @@ export default {
 
             // the constant jumping around and switching places is
             // problematic here, so sort alphabetically
-            this.recentSyncs = this.recentSyncs.sort((a, b) => {
+            this.recentSyncs.sort((a, b) => {
                 return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
             });
         },
