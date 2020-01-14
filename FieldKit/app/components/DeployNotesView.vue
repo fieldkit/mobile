@@ -274,7 +274,6 @@ import { ImageSource, fromFile } from "tns-core-modules/image-source";
 import { takePicture, requestPermissions } from "nativescript-camera";
 import * as imagepicker from "nativescript-imagepicker";
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import { isIOS } from "tns-core-modules/platform";
 import ScreenHeader from "./ScreenHeader";
 import FieldNoteForm from "./FieldNoteForm";
 import Services from "../services/services";

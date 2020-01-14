@@ -7,6 +7,7 @@
                         title="FieldKit Stations"
                         :canNavigateBack="false"
                         :canNavigateSettings="false"
+                        :bottomMargin="false"
                     />
                     <Label
                         v-if="stations.length == 0"
@@ -120,7 +121,7 @@ export default {
     data() {
         return {
             stations: [],
-            mapHeight: 150,
+            mapHeight: 170,
             showToggle: false,
             mapboxToken: MAPBOX_ACCESS_TOKEN
         };
@@ -320,7 +321,7 @@ export default {
             } else {
                 event.object.dataState = "collapsed";
                 event.object.src = "~/images/Icon_Expand_Map.png";
-                this.mapHeight = 150;
+                this.mapHeight = 170;
             }
         },
 

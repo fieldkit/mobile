@@ -1,6 +1,6 @@
 <template>
     <!-- Fix Invalid handler when these aren't provided? -->
-    <GridLayout rows="auto" columns="15*,70*,15*" class="m-b-20">
+    <GridLayout rows="auto" columns="15*,70*,15*" :class="(bottomMargin || ios ? 'm-b-20' : '')">
         <StackLayout
             col="0"
             class="round-bkgd"
@@ -37,7 +37,14 @@
 </template>
 
 <script>
+import { isIOS } from "tns-core-modules/platform";
+
 export default {
+    data: () => {
+        return {
+            ios: isIOS
+        }
+    },
     props: {
         title: String,
         subtitle: {
@@ -57,6 +64,10 @@ export default {
             default: true
         },
         canNavigateSettings: {
+            type: Boolean,
+            default: true
+        },
+        bottomMargin: {
             type: Boolean,
             default: true
         }
