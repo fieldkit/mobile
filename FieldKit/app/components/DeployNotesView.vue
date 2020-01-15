@@ -22,7 +22,7 @@
                     class="text-center disconnect-warning"
                     v-if="!station.connected"
                 >
-                    <Label text="Station Disconnected" />
+                    <Label text="Station disconnected." />
                 </StackLayout>
             </StackLayout>
 
@@ -798,11 +798,6 @@ export default {
 .top-line {
     border-bottom-width: 3;
     border-bottom-color: $fk-primary-blue;
-}
-.disconnect-warning {
-    background-color: rgb(255, 255, 175);
-    padding-top: 5;
-    padding-bottom: 5;
 }
 
 .small-round {
