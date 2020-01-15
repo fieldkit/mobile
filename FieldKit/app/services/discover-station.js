@@ -135,9 +135,10 @@ export default class DiscoverStation extends Observable {
         }
 
         const key = this.makeKey(info);
-        delete this.stations_[key];
-
         this.notifyPropertyChange(this.StationLostProperty, this.stations_[key]);
+
+        // don't delete until after it has gone out with notification
+        delete this.stations_[key];
     }
 
     makeKey(station) {

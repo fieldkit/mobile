@@ -225,11 +225,11 @@ export default class StationMonitor extends Observable {
             Observable.propertyChangeEvent,
             data => {
                 switch (data.propertyName.toString()) {
-                    case "stationFound": {
+                    case this.discoverStation.StationFoundProperty: {
                         this.checkDatabase(data.value.name, data.value.url);
                         break;
                     }
-                    case "stationLost": {
+                    case this.discoverStation.StationLostProperty: {
                         if (data.value) {
                             console.log("station lost");
                             this.deactivateStation(data.value.name);
