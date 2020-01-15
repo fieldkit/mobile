@@ -15,7 +15,7 @@
                         class="m-10 p-10 text-center size-20"
                     />
 
-                    <GridLayout row="auto" columns="*" id="mapbox-wrapper">
+                    <GridLayout rows="auto" columns="*" id="mapbox-wrapper">
                         <Mapbox
                             row="0"
                             :accessToken="mapboxToken"
@@ -43,8 +43,7 @@
                             <Image
                                 width="35"
                                 src="~/images/Icon_Expand_Map.png"
-                                dataState="collapsed"
-                                @tap="toggleMap"
+                                @tap="openModal"
                             ></Image>
                         </StackLayout>
                     </GridLayout>
@@ -113,16 +112,21 @@ import {
 } from "tns-core-modules/data/observable";
 import { request } from "tns-core-modules/http";
 
+import modalMap from "./ModalMapView";
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 
+
 export default {
     data() {
         return {
+            bounds: {},
             stations: [],
             mapHeight: 170,
             showToggle: false,
+            stationMarkers: [],
+            fullScreenMap: false,
             mapboxToken: MAPBOX_ACCESS_TOKEN
         };
     },
@@ -151,6 +155,18 @@ export default {
             if (this.stations && this.stations.length > 0) {
                 this.showStations();
             }
+        },
+
+        openModal(event) {
+            const options = {
+                props: {
+                    bounds: this.bounds,
+                    stationMarkers: this.stationMarkers,
+                    mapHeight: screen.mainScreen.heightDIPs - 20
+                },
+                fullscreen: true
+            };
+            this.$showModal(modalMap, options);
         },
 
         goBack(event) {
@@ -215,11 +231,11 @@ export default {
                 this.$set(s, "deployStatus", deployStatus);
             });
 
-            let longMax = -180;
-            let longMin = 180;
-            let latMin = 90;
-            let latMax = -90;
-            let stationMarkers = [];
+            this.bounds.longMax = -180;
+            this.bounds.longMin = 180;
+            this.bounds.latMin = 90;
+            this.bounds.latMax = -90;
+            this.stationMarkers = [];
             let mappable = this.stations.filter(s => {
                 return (
                     s.latitude &&
@@ -232,28 +248,30 @@ export default {
                 s.latitude = Number(s.latitude);
                 s.longitude = Number(s.longitude);
                 if (mappable.length == 1 && this.map) {
+                    this.map.setZoomLevel({
+                        level: 14,
+                        animated: false
+                    });
                     this.map.setCenter({
                         lat: s.latitude,
-                        lng: s.longitude
-                    });
-                    this.map.setZoomLevel({
-                        level: 14
+                        lng: s.longitude,
+                        animated: false
                     });
                 } else {
-                    if (s.latitude > latMax) {
-                        latMax = s.latitude;
+                    if (s.latitude > this.bounds.latMax) {
+                        this.bounds.latMax = s.latitude;
                     }
-                    if (s.latitude < latMin) {
-                        latMin = s.latitude;
+                    if (s.latitude < this.bounds.latMin) {
+                        this.bounds.latMin = s.latitude;
                     }
-                    if (s.longitude > longMax) {
-                        longMax = s.longitude;
+                    if (s.longitude > this.bounds.longMax) {
+                        this.bounds.longMax = s.longitude;
                     }
-                    if (s.longitude < longMin) {
-                        longMin = s.longitude;
+                    if (s.longitude < this.bounds.longMin) {
+                        this.bounds.longMin = s.longitude;
                     }
                 }
-                stationMarkers.push({
+                this.stationMarkers.push({
                     id: "marker-" + s.id,
                     lat: s.latitude,
                     lng: s.longitude,
@@ -268,28 +286,35 @@ export default {
             if (this.map) {
                 // remove first to keep them from stacking up
                 this.map.removeMarkers();
-                this.map.addMarkers(stationMarkers);
+                this.map.addMarkers(this.stationMarkers);
             }
 
-            // prevent error caused by setting viewport with identical min max
-            if (latMax == latMin && longMax == longMin && this.map) {
-                this.map.setCenter({
-                    lat: latMax,
-                    lng: longMax
-                });
+            // prevent error when setting viewport with identical min max
+            if (
+                this.bounds.latMax == this.bounds.latMin
+                && this.bounds.longMax == this.bounds.longMin
+                && this.map
+            ) {
                 this.map.setZoomLevel({
-                    level: 14
+                    level: 14,
+                    animated: false
+                });
+                this.map.setCenter({
+                    lat: this.bounds.latMax,
+                    lng: this.bounds.longMax,
+                    animated: false
                 });
             } else if (mappable.length > 1 && this.map) {
-                const smallLatMargin = (latMax - latMin) / 10;
+                const smallLatMargin =
+                    (this.bounds.latMax - this.bounds.latMin) / 10;
                 // const smallLongMargin = (longMax - longMin) / 10;
                 this.map.setViewport({
                     bounds: {
                         // zoom north out a little to fit marker
-                        north: latMax + smallLatMargin,
-                        east: longMax,
-                        south: latMin,
-                        west: longMin
+                        north: this.bounds.latMax + smallLatMargin,
+                        east: this.bounds.longMax,
+                        south: this.bounds.latMin,
+                        west: this.bounds.longMin
                     }
                 });
             }
@@ -309,20 +334,6 @@ export default {
                     station: stationObj
                 }
             });
-        },
-
-        toggleMap(event) {
-            const state = event.object.dataState;
-            if (state == "collapsed") {
-                event.object.dataState = "expanded";
-                event.object.src = "~/images/Icon_Collapse_Map.png";
-                // Footer is 55
-                this.mapHeight = screen.mainScreen.heightDIPs - 55;
-            } else {
-                event.object.dataState = "collapsed";
-                event.object.src = "~/images/Icon_Expand_Map.png";
-                this.mapHeight = 170;
-            }
         },
 
         goToDetail(event) {
