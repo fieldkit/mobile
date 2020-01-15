@@ -41,7 +41,7 @@ export default class StationMonitor extends Observable {
     initializeStations(result) {
         const thisMonitor = this;
         result.map(r => {
-            r.lastSeen = pastDate;
+            r.lastSeen = new Date(r.updated);
             // not getting connected from db anymore
             // all are disconnected until discovered
             r.connected = false;
@@ -336,15 +336,15 @@ export default class StationMonitor extends Observable {
 
     sortStations() {
         let stations = Object.values(this.stations);
-        // sort by recency first, rounded to hour
+        // sort by alpha first
+        stations.sort((a, b) => {
+            return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
+        });
+        // then sort by recency, rounded to hour
         stations.sort((a, b) => {
             const aTime = (a.lastSeen / oneHour) * oneHour;
             const bTime = (b.lastSeen / oneHour) * oneHour;
             return bTime > aTime ? 1 : bTime < aTime ? -1 : 0;
-        });
-        // then sort by alpha
-        stations.sort((a, b) => {
-            return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
         });
         stations.forEach((s, i) => {
             s.sortedIndex = i + "-" + s.deviceId;
