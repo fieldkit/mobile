@@ -85,10 +85,45 @@
                     order="4"
                     v-if="displayFrame"
                     :src="displayFrame"
-                    :class="step == lastStep ? 'small' : ''"
                 ></Image>
             </StackLayout>
             <!-- end assembly steps section -->
+
+            <!-- sticky next button -->
+            <StackLayout row="2">
+                <Button
+                    v-if="step > 0"
+                    class="btn btn-primary btn-padded"
+                    :text="buttonText"
+                    @tap="goNext"
+                ></Button>
+            </StackLayout>
+            <!-- end sticky next button -->
+
+            <!-- final screen -->
+            <StackLayout
+                rowSpan="3"
+                v-if="step == lastStep"
+                height="100%"
+                backgroundColor="white"
+                verticalAlignment="middle"
+            >
+                <GridLayout rows="auto, auto" columns="*">
+                    <Image
+                        row="0"
+                        src="~/images/Icon_Success.png"
+                        class="small"
+                    ></Image>
+                    <Label
+                        row="1"
+                        class="instruction"
+                        :text="instruction"
+                        lineHeight="4"
+                        textWrap="true"
+                    ></Label>
+                </GridLayout>
+            </StackLayout>
+            <!-- end final screen -->
 
             <!-- intro screen -->
             <!-- needs to be "on top of" assembly steps section -->
@@ -123,16 +158,6 @@
                 />
             </StackLayout>
             <!-- end intro screen -->
-
-            <!-- sticky next button -->
-            <StackLayout row="2">
-                <Button
-                    v-if="step > 0"
-                    class="btn btn-primary btn-padded"
-                    :text="buttonText"
-                    @tap="goNext"
-                ></Button>
-            </StackLayout>
         </GridLayout>
     </Page>
 </template>
@@ -198,8 +223,11 @@ export default {
                 this.instruction = steps[this.step].instruction;
                 this.buttonText = steps[this.step].button;
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
-            } else {
-                this.$navigateTo(routes.stations);
+                if (this.step == steps.length - 1) {
+                    setTimeout(() => {
+                        this.$navigateTo(routes.stations);
+                    }, 4000);
+                }
             }
 
             if (this.step > 0) {
@@ -301,9 +329,9 @@ const steps = [
     },
     {
         title: "Complete",
-        instruction: "Station Assembled!",
+        instruction: "Station Assembled",
         button: "Continue",
-        images: ["Icon_Success.png", "Icon_Success.png"]
+        images: []
     }
 ];
 
@@ -402,6 +430,7 @@ const checklist = [
     border-bottom-color: $fk-primary-blue;
 }
 .instruction {
+    color: $fk-primary-black;
     text-align: center;
     font-size: 16;
     margin-right: 20;
