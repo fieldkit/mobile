@@ -375,8 +375,10 @@ export default class StationMonitor extends Observable {
         }
         this.stations[deviceId].connected = true;
         this.stations[deviceId].lastSeen = new Date();
-        // prefer statusResult name over database name
-        this.stations[deviceId].name = statusResult.status.identity.device;
+        // prefer statusResult name over database name, unless undefined
+        if (statusResult.status.identity.device) {
+            this.stations[deviceId].name = statusResult.status.identity.device;
+        }
         // prefer discovered url over database url
         this.stations[deviceId].url = address;
         // and update the database url!
