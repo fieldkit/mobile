@@ -132,33 +132,6 @@
                                             : 'collapsed'
                                     "
                                 ></Label>
-
-                                <!-- time picker window -->
-                                <StackLayout
-                                    rowSpan="3"
-                                    colSpan="2"
-                                    class="time-picker-container"
-                                    v-if="interval.editingTime"
-                                >
-                                    <Image
-                                        width="20"
-                                        horizontalAlignment="right"
-                                        src="~/images/Icon_Close.png"
-                                        :dataIntervalId="interval.id"
-                                        @tap="closeTimePicker"
-                                    />
-                                    <TimePicker
-                                        height="100"
-                                        scaleY="0.85"
-                                        v-model="selectedTime"
-                                    />
-                                    <!-- @timeChange="onTimeChange" -->
-                                    <Button
-                                        class="btn btn-primary btn-padded m-y-20"
-                                        :text="currentlyPicking.label"
-                                        @tap="submitTime"
-                                    ></Button>
-                                </StackLayout>
                             </GridLayout>
                         </StackLayout>
                         <StackLayout v-if="basic">
@@ -269,6 +242,7 @@
 <script>
 import * as TimePicker from "tns-core-modules/ui/time-picker";
 import Services from "../services/services";
+import modalTimePicker from "./ModalTimePicker";
 
 const queryStation = Services.QueryStation();
 const dbInterface = Services.Database();
@@ -308,7 +282,6 @@ export default {
                 unit: converted.unit,
                 noInterval: false,
                 intervalNotNumber: false,
-                editingTime: false,
                 start: {hour: 6, minute: 1, display: "06:00 AM"},
                 end: {hour: 8, minute: 1, display: "08:00 AM"},
                 startError: false,
@@ -328,7 +301,6 @@ export default {
                 unit: converted.unit,
                 noInterval: false,
                 intervalNotNumber: false,
-                editingTime: false,
                 start: {hour: 6, minute: 1, display: "06:00 AM"},
                 end: {hour: 8, minute: 1, display: "08:00 AM"},
                 startError: false,
@@ -442,10 +414,6 @@ export default {
             const interval = this.intervals.find(i => {
                 return i.id == id;
             });
-            // touch events pass through
-            if (interval.editingTime) {
-                return;
-            }
             interval.startError = false;
             interval.endError = false;
             if (current == "start") {
@@ -459,18 +427,21 @@ export default {
                 this.selectedTime.setHours(interval.end.hour, minute, 0);
                 this.currentlyPicking = {time: "end", id: id, label: _L("saveEndTime")};
             }
-            interval.editingTime = true;
+
+            const options = {
+                props: {
+                    selectedTime: this.selectedTime
+                },
+                fullscreen: true
+            };
+            this.$showModal(modalTimePicker, options).then(this.submitTime);
         },
 
-        closeTimePicker(event) {
-            const id = event.object.dataIntervalId;
-            const interval = this.intervals.find(i => {
-                return i.id == id;
-            });
-            interval.editingTime = false;
-        },
-
-        submitTime() {
+        submitTime(modalTime) {
+            if (!modalTime) {
+                return
+            }
+            this.selectedTime = modalTime;
             const time = new Date(this.selectedTime);
             const origHour = time.getHours();
             const suffix = origHour < 12 ? " AM" : " PM";
@@ -508,7 +479,6 @@ export default {
                     interval.endError = true;
                 }
             }
-            interval.editingTime = false;
         },
 
         openDropDown(event) {
@@ -612,12 +582,5 @@ export default {
     border-width: 0;
     border-bottom-width: 1;
     border-bottom-color: $fk-primary-black;
-}
-.time-picker-container {
-    padding: 10;
-    border-radius: 4;
-    background-color: $fk-gray-lightest;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
 }
 </style>
