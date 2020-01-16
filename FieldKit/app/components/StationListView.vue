@@ -276,8 +276,10 @@ export default {
                     lat: s.latitude,
                     lng: s.longitude,
                     title: s.name,
-                    subtitle: s.locationName,
-                    iconPath: "images/Icon_Map_Dot.png",
+                    subtitle: s.deployStatus,
+                    iconPath: s.connected
+                        ? "images/Icon_Map_Dot.png"
+                        : "images/Icon_Map_Dot_unconnected.png",
                     selected: i == 0, // select top (only one can be selected)
                     onCalloutTap: this.onMapMarkerTap
                 });
