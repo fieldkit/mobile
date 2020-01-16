@@ -20,7 +20,7 @@
                 </GridLayout>
                 <StackLayout
                     class="text-center disconnect-warning"
-                    v-if="!station.connected"
+                    v-if="!station.connected && !isEditing"
                 >
                     <Label text="Station disconnected." />
                 </StackLayout>
