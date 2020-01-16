@@ -548,10 +548,9 @@ export default {
                             okButtonText: _L("yes"),
                             cancelButtonText: _L("notNow")
                         }).then(res => {
+                            this.askedOnce = true;
                             if (res) {
                                 this.$navigateTo(routes.login, {});
-                            } else {
-                                this.askedOnce = true;
                             }
                         });
                     }
