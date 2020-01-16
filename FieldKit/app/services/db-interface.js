@@ -156,8 +156,9 @@ export default class DatabaseInterface {
 
     setStationName(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET name = ? WHERE id = ?", [
+            db.query("UPDATE stations SET name = ?, updated = ? WHERE id = ?", [
                 station.name,
+                new Date(),
                 station.id
             ])
         );
@@ -165,8 +166,9 @@ export default class DatabaseInterface {
 
     setStationUrl(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET url = ? WHERE id = ?", [
+            db.query("UPDATE stations SET url = ?, updated = ? WHERE id = ?", [
                 station.url,
+                new Date(),
                 station.id
             ])
         );
@@ -174,8 +176,9 @@ export default class DatabaseInterface {
 
     setStationPortalID(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET portal_id = ? WHERE id = ?", [
+            db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [
                 station.portalId,
+                new Date(),
                 station.id
             ])
         );
@@ -184,16 +187,17 @@ export default class DatabaseInterface {
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET latitude = ?, longitude = ? WHERE id = ?",
-                [station.latitude, station.longitude, station.id]
+                "UPDATE stations SET latitude = ?, longitude = ?, updated = ? WHERE id = ?",
+                [station.latitude, station.longitude, new Date(), station.id]
             )
         );
     }
 
     setStationLocationName(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET location_name = ? WHERE id = ?", [
+            db.query("UPDATE stations SET location_name = ?, updated = ? WHERE id = ?", [
                 station.locationName,
+                new Date(),
                 station.id
             ])
         );
@@ -201,8 +205,9 @@ export default class DatabaseInterface {
 
     setStationInterval(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET interval = ? WHERE id = ?", [
+            db.query("UPDATE stations SET interval = ?, updated = ? WHERE id = ?", [
                 station.interval,
+                new Date(),
                 station.id
             ])
         );
@@ -210,8 +215,9 @@ export default class DatabaseInterface {
 
     setStationStudyObjective(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET study_objective = ? WHERE id = ?", [
+            db.query("UPDATE stations SET study_objective = ?, updated = ? WHERE id = ?", [
                 station.studyObjective,
+                new Date(),
                 station.id
             ])
         );
@@ -220,16 +226,17 @@ export default class DatabaseInterface {
     setStationLocationPurpose(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET location_purpose = ? WHERE id = ?",
-                [station.locationPurpose, station.id]
+                "UPDATE stations SET location_purpose = ?, updated = ? WHERE id = ?",
+                [station.locationPurpose, new Date(), station.id]
             )
         );
     }
 
     setStationSiteCriteria(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET site_criteria = ? WHERE id = ?", [
+            db.query("UPDATE stations SET site_criteria = ?, updated = ? WHERE id = ?", [
                 station.siteCriteria,
+                new Date(),
                 station.id
             ])
         );
@@ -238,8 +245,8 @@ export default class DatabaseInterface {
     setStationSiteDescription(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET site_description = ? WHERE id = ?",
-                [station.siteDescription, station.id]
+                "UPDATE stations SET site_description = ?, updated = ? WHERE id = ?",
+                [station.siteDescription, new Date(), station.id]
             )
         );
     }
@@ -247,16 +254,17 @@ export default class DatabaseInterface {
     setStationPercentComplete(station) {
         return this.getDatabase().then(db =>
             db.query(
-                "UPDATE stations SET percent_complete = ? WHERE id = ?",
-                [station.percentComplete, station.id]
+                "UPDATE stations SET percent_complete = ?, updated = ? WHERE id = ?",
+                [station.percentComplete, new Date(), station.id]
             )
         );
     }
 
     setStationDeployStatus(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET status = ? WHERE id = ?", [
+            db.query("UPDATE stations SET status = ?, updated = ? WHERE id = ?", [
                 station.status,
+                new Date(),
                 station.id
             ])
         );
@@ -264,8 +272,9 @@ export default class DatabaseInterface {
 
     setStationDeployStartTime(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET deploy_start_time = ? WHERE id = ?", [
+            db.query("UPDATE stations SET deploy_start_time = ?, updated = ? WHERE id = ?", [
                 station.deployStartTime,
+                new Date(),
                 station.id
             ])
         );
@@ -273,8 +282,9 @@ export default class DatabaseInterface {
 
     setGenerationId(station) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET generation_id = ? WHERE id = ?", [
+            db.query("UPDATE stations SET generation_id = ?, updated = ? WHERE id = ?", [
                 station.generationId,
+                new Date(),
                 station.id
             ])
         );
@@ -385,7 +395,7 @@ export default class DatabaseInterface {
     insertStation(station, statusJson) {
         const newStation = new Station(station);
         return this.database.execute(
-            `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.generationId,
@@ -400,7 +410,8 @@ export default class DatabaseInterface {
                 newStation.interval,
                 JSON.stringify(statusJson),
                 newStation.longitude,
-                newStation.latitude
+                newStation.latitude,
+                new Date()
             ]
         );
     }
@@ -693,8 +704,9 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db =>
                 db.query(
-                    "UPDATE stations SET status_json = ? WHERE id = ?",
+                    "UPDATE stations SET status_json = ?, updated = ? WHERE id = ?",
                     JSON.stringify(status),
+                    new Date(),
                     station.id
                 )
             )

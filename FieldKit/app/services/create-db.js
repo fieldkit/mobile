@@ -191,7 +191,7 @@ export default class CreateDB {
                 percent_complete INTEGER,
                 portal_id INTEGER,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated DATETIME,
                 status_json TEXT
             )`,
             `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`
