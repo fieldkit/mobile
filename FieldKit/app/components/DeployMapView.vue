@@ -114,8 +114,6 @@
 </template>
 
 <script>
-import * as geolocation from "nativescript-geolocation";
-import { Accuracy } from "tns-core-modules/ui/enums";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 import ScreenHeader from "./ScreenHeader";
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
@@ -155,7 +153,7 @@ export default {
 
         onMapReady(args) {
             this.map = args.map;
-            this.enableAndGetLocation();
+            this.displayStation();
         },
 
         goBack(event) {
@@ -191,62 +189,29 @@ export default {
             this.origLongitude = this.station.longitude;
         },
 
-        enableAndGetLocation() {
-            geolocation.isEnabled().then(isEnabled => {
-                if (isEnabled) {
-                    this.getLocation();
-                } else {
-                    geolocation.enableLocationRequest().then(
-                        () => {
-                            this.getLocation();
-                        },
-                        e => {
-                            // console.log("enableLocationRequest() error: " + (e.message || e));
-                        }
-                    );
-                }
-            });
-        },
-
-        getLocation() {
-            geolocation
-                .getCurrentLocation({
-                    desiredAccuracy: Accuracy.high,
-                    updateDistance: 10,
-                    maximumAge: 20000,
-                    timeout: 20000
-                })
-                .then(
-                    loc => {
-                        if (loc) {
-                            this.station.latitude = loc.latitude;
-                            this.station.longitude = loc.longitude;
-
-                            this.map.setCenter({
-                                lat: this.station.latitude,
-                                lng: this.station.longitude,
-                                animated: false
-                            });
-                            this.map.setZoomLevel({
-                                level: 18
-                                // animated: true
-                            });
-                            this.mapMarker = {
-                                lat: this.station.latitude,
-                                lng: this.station.longitude,
-                                title: this.station.locationName,
-                                iconPath: 'images/Icon_Map_Dot.png'
-                            };
-                            this.map.addMarkers([this.mapMarker]);
-                            this.saveLocationCoordinates();
-                        } else {
-                            // handle no location?
-                        }
-                    },
-                    e => {
-                        console.log("getlocation error: " + e.message);
-                    }
-                );
+        displayStation() {
+            if (
+                this.station.latitude && this.station.longitude
+                && this.station.latitude != 1000
+                && this.station.longitude != 1000
+            ) {
+                this.map.setCenter({
+                    lat: this.station.latitude,
+                    lng: this.station.longitude,
+                    animated: false
+                });
+                this.map.setZoomLevel({
+                    level: 18
+                    // animated: true
+                });
+                this.mapMarker = {
+                    lat: this.station.latitude,
+                    lng: this.station.longitude,
+                    title: this.station.locationName,
+                    iconPath: 'images/Icon_Map_Dot.png'
+                };
+                this.map.addMarkers([this.mapMarker]);
+            }
         },
 
         toggleLocationEdit() {
@@ -289,32 +254,6 @@ export default {
                 };
                 dbInterface.recordStationConfigChange(configChange);
                 this.origLocationName = this.station.locationName;
-            }
-        },
-
-        saveLocationCoordinates() {
-            if (this.origLatitude != this.station.latitude) {
-                dbInterface.setStationLocationCoordinates(this.station);
-                // store latitude config change
-                let configChange = {
-                    stationId: this.station.id,
-                    before: this.origLatitude,
-                    after: this.station.latitude,
-                    affectedField: "latitude",
-                    author: this.userName
-                };
-                dbInterface.recordStationConfigChange(configChange);
-                this.origLatitude = this.station.latitude;
-                // store longitude config change
-                configChange = {
-                    stationId: this.station.id,
-                    before: this.origLongitude,
-                    after: this.station.longitude,
-                    affectedField: "longitude",
-                    author: this.userName
-                };
-                dbInterface.recordStationConfigChange(configChange);
-                this.origLongitude = this.station.longitude;
             }
         },
 

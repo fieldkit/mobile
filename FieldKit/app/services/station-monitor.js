@@ -17,26 +17,39 @@ function is_internal_sensor(sensor) {
 }
 
 export default class StationMonitor extends Observable {
-    constructor(discoverStation, dbInterface, queryStation) {
+    constructor(discoverStation, dbInterface, queryStation, phoneLocation) {
         super();
         this.dbInterface = dbInterface;
         this.queryStation = queryStation;
+        this.phoneLocation = phoneLocation;
         this.stations = {};
         // stations whose details are being viewed in app are "active"
         this.activeAddresses = [];
         this.queriesInProgress = {};
         this.discoverStation = discoverStation;
-        this.subscribeToStationDiscovery();
         this.dbInterface.getAll().then(this.initializeStations.bind(this));
         this.StationsUpdatedProperty = "stationsUpdated";
         this.StationRefreshedProperty = "stationRefreshed";
         this.ReadingsChangedProperty = "readingsChanged";
 		this.logs = new StationLogs(discoverStation, queryStation);
+
+        // TODO: hook in to lifecycle event instead?
+        setTimeout(() => {
+            this.phoneLocation
+                .enableAndGetLocation()
+                .then(this.savePhoneLocation.bind(this));
+            this.subscribeToStationDiscovery();
+        }, 3000);
     }
 
     clearStations() {
         this.stations = {};
         this.activeAddresses = [];
+    }
+
+    savePhoneLocation(loc) {
+        this.phoneLat = loc.latitude;
+        this.phoneLong = loc.longitude;
     }
 
     initializeStations(result) {
@@ -206,6 +219,14 @@ export default class StationMonitor extends Observable {
             station.latitude = result.status.gps.latitude;
             this.dbInterface.setStationLocationCoordinates(station);
         }
+        // some existing stations may have 1000, 1000 saved
+        // we can probably remove this in the near future
+        if (station.latitude == 1000 || station.longitude == 1000) {
+            // use phone location
+            station.longitude = this.phoneLong;
+            station.latitude = this.phoneLat;
+            this.dbInterface.setStationLocationCoordinates(station);
+        }
     }
 
     recordingStatusChange(address, recording) {
@@ -295,6 +316,15 @@ export default class StationMonitor extends Observable {
         let deployStartTime = data.result.status.recording.startedTime
             ? new Date(data.result.status.recording.startedTime * 1000)
             : "";
+        // use phone location if station doesn't report coordinates
+        let latitude = this.phoneLat;
+        if (deviceStatus.gps.latitude && deviceStatus.gps.latitude != 1000) {
+            latitude = deviceStatus.gps.latitude.toFixed(6);
+        }
+        let longitude = this.phoneLong;
+        if (deviceStatus.gps.longitude && deviceStatus.gps.longitude != 1000) {
+            longitude = deviceStatus.gps.longitude.toFixed(6);
+        }
 
         const station = {
             deviceId: data.deviceId,
@@ -306,8 +336,8 @@ export default class StationMonitor extends Observable {
             connected: true,
             interval: data.result.schedules.readings.interval,
             batteryLevel: deviceStatus.power.battery.percentage,
-            longitude: deviceStatus.gps.longitude.toFixed(6),
-            latitude: deviceStatus.gps.latitude.toFixed(6),
+            longitude: longitude,
+            latitude: latitude,
             consumedMemory: deviceStatus.memory.dataMemoryUsed,
             totalMemory: deviceStatus.memory.dataMemoryInstalled,
             consumedMemoryPercent: deviceStatus.memory.dataMemoryConsumption

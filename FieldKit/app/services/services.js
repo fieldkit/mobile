@@ -75,7 +75,8 @@ class Services {
             this.stationMonitor = new StationMonitor(
                 this.DiscoverStation(),
                 this.Database(),
-                this.QueryStation()
+                this.QueryStation(),
+                this.PhoneLocation()
             );
         }
         return this.stationMonitor;
@@ -119,6 +120,14 @@ class Services {
         }
         return this.discoveryEvents;
 	}
+
+    PhoneLocation() {
+        if (!this.phoneLocation) {
+            const PhoneLocation = require("./phone-location").default;
+            this.phoneLocation = new PhoneLocation();
+        }
+        return this.phoneLocation;
+    }
 }
 
 const services = new Services();
