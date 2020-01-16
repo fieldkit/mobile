@@ -104,7 +104,15 @@ export default {
             this.$navigateTo(routes.dataSync);
         },
 
-        goToSettings() {}
+        goToSettings(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            this.$navigateTo(routes.appSettings);
+        }
     }
 };
 </script>

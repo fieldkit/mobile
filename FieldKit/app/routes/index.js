@@ -1,3 +1,4 @@
+import AppSettings from "../components/AppSettingsView";
 import ConfigureModule from "../components/unused/ConfigureModuleView";
 import DataSync from "../components/DataSyncView";
 import DeployMap from "../components/DeployMapView";
@@ -13,6 +14,7 @@ import Stations from "../components/StationListView";
 import StationSettings from "../components/StationSettingsView";
 
 const routes = {
+    appSettings: AppSettings,
     configureModule: ConfigureModule,
     dataSync: DataSync,
     deployMap: DeployMap,
