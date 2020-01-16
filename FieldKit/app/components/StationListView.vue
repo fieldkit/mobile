@@ -244,7 +244,7 @@ export default {
                     Number(s.longitude) != 1000
                 );
             });
-            mappable.forEach(s => {
+            mappable.forEach((s, i) => {
                 s.latitude = Number(s.latitude);
                 s.longitude = Number(s.longitude);
                 if (mappable.length == 1 && this.map) {
@@ -278,7 +278,7 @@ export default {
                     title: s.name,
                     subtitle: s.locationName,
                     iconPath: "images/Icon_Map_Dot.png",
-                    selected: true,  // only one can be selected, tho
+                    selected: i == 0, // select top (only one can be selected)
                     onCalloutTap: this.onMapMarkerTap
                 });
             });

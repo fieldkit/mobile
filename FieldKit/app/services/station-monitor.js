@@ -6,6 +6,7 @@ import StationLogs from "./station-logs";
 
 const pastDate = new Date(2000, 0, 1);
 const oneHour = 3600000;
+const oneMinute = 60000;
 
 function is_internal_module(module) {
     return !Config.includeInternalModules && module.flags & 1; // TODO Pull this enum in from the protobuf file.
@@ -340,10 +341,10 @@ export default class StationMonitor extends Observable {
         stations.sort((a, b) => {
             return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
         });
-        // then sort by recency, rounded to hour
+        // then sort by recency, rounded to minute
         stations.sort((a, b) => {
-            const aTime = (a.lastSeen / oneHour) * oneHour;
-            const bTime = (b.lastSeen / oneHour) * oneHour;
+            const aTime = (a.lastSeen / oneMinute) * oneMinute;
+            const bTime = (b.lastSeen / oneMinute) * oneMinute;
             return bTime > aTime ? 1 : bTime < aTime ? -1 : 0;
         });
         stations.forEach((s, i) => {
