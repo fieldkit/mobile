@@ -23,7 +23,7 @@
                 ></Button>
             </StackLayout>
             <!-- footer -->
-            <ScreenFooter row="2" :station="station" active="stations" />
+            <ScreenFooter row="2" active="settings" />
         </GridLayout>
     </Page>
 </template>
