@@ -56,7 +56,7 @@
                                     <Label
                                         col="1"
                                         text="Field Notes"
-                                        class="size-18 m-l-10"
+                                        class="size-16 m-l-10"
                                         verticalAlignment="middle"
                                     />
                                     <Label

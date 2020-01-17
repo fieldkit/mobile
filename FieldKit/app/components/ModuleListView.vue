@@ -42,6 +42,7 @@
                 <!-- sensor container -->
                 <WrapLayout
                     orientation="horizontal"
+                    class="m-t-5"
                     v-if="open.indexOf(m.id) > -1"
                 >
                     <WrapLayout
@@ -218,7 +219,7 @@ export default {
 
 .module-name {
     font-size: 18;
-    margin-top: 8;
+    margin-top: 6;
 }
 
 .sensor-block {

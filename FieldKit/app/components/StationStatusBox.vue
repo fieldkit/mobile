@@ -6,9 +6,9 @@
     >
         <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">
             <!-- recording status -->
-            <StackLayout row="0" col="0">
+            <StackLayout row="0" col="0" class="m-t-10">
                 <Label
-                    class="text-center nudge-top size-16"
+                    class="text-center size-16"
                     :text="
                         station.status == 'recording'
                             ? _L('recordingData')
@@ -17,8 +17,8 @@
                 ></Label>
             </StackLayout>
             <!-- battery level -->
-            <StackLayout row="0" col="1">
-                <FlexboxLayout class="m-10" justifyContent="flex-end">
+            <StackLayout row="0" col="1" class="m-t-10">
+                <FlexboxLayout class="m-r-10" justifyContent="flex-end">
                     <Label
                         class="m-r-5 size-12 lighter"
                         :text="station.batteryLevel + '%'"
@@ -27,7 +27,7 @@
                 </FlexboxLayout>
             </StackLayout>
             <!-- recording time -->
-            <GridLayout row="1" col="0" rows="auto" columns="*">
+            <GridLayout row="1" col="0" rows="auto" columns="*" class="m-t-10">
                 <StackLayout row="0" id="outer-circle" />
                 <StackLayout row="0" id="inner-circle">
                     <Label
@@ -97,7 +97,7 @@
                     <Label
                         row="1"
                         col="1"
-                        class="m-l-10 m-t-5 m-b-10 size-12"
+                        class="m-l-10 m-t-5 m-b-5 size-12"
                         horizontalAlignment="left"
                         :text="
                             displayConsumedMemory
@@ -133,6 +133,8 @@
                     automationText="deployButton"
                     @tap="emitDeployTap"
                 ></Button>
+                <!-- placeholder if no deploy button -->
+                <StackLayout height="20" v-if="station.status == 'recording'" />
             </StackLayout>
         </GridLayout>
     </StackLayout>
@@ -306,9 +308,6 @@ export default {
 // End custom common variables
 
 // Custom styles
-.nudge-top {
-    margin-top: 7;
-}
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
@@ -350,14 +349,14 @@ export default {
 }
 
 .memory-bar-container {
-    margin-right: 10;
+    margin-right: 40;
     margin-left: 10;
 }
 #station-memory-bar {
     background: $fk-tertiary-green;
 }
 .memory-bar {
-    height: 8;
+    height: 5;
     background: $fk-gray-lightest;
     border-radius: 4;
 }
