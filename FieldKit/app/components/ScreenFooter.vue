@@ -137,9 +137,13 @@ export default {
     border-radius: 20;
 }
 .active {
+    font-weight: bold;
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     color: $fk-primary-black;
 }
 .inactive {
+    font-weight: 100;
+    font-family: "Avenir LT Pro", "AvenirLTPro-Book";
     color: $fk-inactive;
 }
 </style>
