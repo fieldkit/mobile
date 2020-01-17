@@ -1,8 +1,9 @@
 <template>
     <StackLayout backgroundColor="white">
-        <GridLayout rows="auto" columns="*">
+        <GridLayout rows="auto" columns="*,45">
             <Mapbox
                 row="0"
+                colSpan="2"
                 :accessToken="mapboxToken"
                 automationText="currentLocationMap"
                 mapStyle="mapbox://styles/mapbox/outdoors-v11"
@@ -17,32 +18,32 @@
                 class="m-b-10"
                 @mapReady="onMapReady"
             ></Mapbox>
-            <StackLayout
+            <GridLayout
                 row="0"
+                col="1"
                 height="35"
                 verticalAlignment="bottom"
-                horizontalAlignment="right"
-                class="toggle-container"
-                v-if="showToggle"
+                :class="ios ? 'ios-container' : 'toggle-container'"
             >
                 <Image
                     width="35"
                     src="~/images/Icon_Collapse_Map.png"
                     @tap="$modal.close()"
                 ></Image>
-            </StackLayout>
+            </GridLayout>
         </GridLayout>
     </StackLayout>
 </template>
 
 <script>
+import { isIOS } from "tns-core-modules/platform";
 import routes from "../routes";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 
 export default {
     data() {
         return {
-            showToggle: true,
+            ios: isIOS,
             mapboxToken: MAPBOX_ACCESS_TOKEN
         };
     },
@@ -126,8 +127,12 @@ export default {
 // End custom common variables
 
 // Custom styles
+.ios-container {
+    margin-bottom: 60;
+    margin-right: 10;
+}
 .toggle-container {
-    margin-bottom: 20;
+    margin-bottom: 25;
     margin-right: 10;
 }
 
