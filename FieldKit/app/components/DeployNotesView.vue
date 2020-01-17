@@ -1,6 +1,9 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout :rows="station.connected ? '75,*,65' : '105,*,65'" automationText="deployNotesLayout">
+        <GridLayout
+            :rows="(station.connected || linkedFromStation) ? '75,*,65' : '105,*,65'"
+            automationText="deployNotesLayout"
+        >
             <!-- sticky header section and progress bar -->
             <StackLayout row="0" v-if="!linkedFromStation">
                 <ScreenHeader
@@ -29,7 +32,7 @@
             <!-- alternate header section -->
             <GridLayout
                 row="0"
-                rows="auto,auto"
+                rows="auto"
                 columns="85*,15*"
                 :class="isEditing ? '' : 'alternate-header'"
                 v-if="linkedFromStation"
@@ -86,6 +89,7 @@
                                 colSpan="2"
                                 :text="_L('provideDetails')"
                                 textWrap="true"
+                                lineHeight="3"
                                 class="size-12 m-t-5"
                             ></Label>
                         </GridLayout>
@@ -137,7 +141,11 @@
                         <StackLayout class="m-t-20">
                             <Label
                                 :text="_L('photosRequired')"
-                                class="size-16"
+                                class="size-16 m-b-5"
+                            ></Label>
+                            <Label
+                                :text="_L('photosInstruction')"
+                                class="size-12"
                             ></Label>
                             <WrapLayout orientation="horizontal">
                                 <StackLayout
@@ -840,6 +848,7 @@ export default {
     color: $fk-primary-black;
 }
 .lighter {
-    color: $fk-gray-hint;
+//    color: $fk-gray-hint;
+    color: #818388;
 }
 </style>
