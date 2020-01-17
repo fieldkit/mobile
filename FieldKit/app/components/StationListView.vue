@@ -201,9 +201,12 @@ export default {
             }
             // try using db's start time
             try {
-                let month = station.deployStartTime.getMonth() + 1;
-                let day = station.deployStartTime.getDate();
-                let year = station.deployStartTime.getFullYear();
+                const dbDate = new Date(
+                    station.deployStartTime
+                );
+                let month = dbDate.getMonth() + 1;
+                let day = dbDate.getDate();
+                let year = dbDate.getFullYear();
                 return _L("deployed") + ": " + month + "/" + day + "/" + year;
             } catch (error) {
                 return _L("deployed");
