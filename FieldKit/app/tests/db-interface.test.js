@@ -165,7 +165,7 @@ describe("DatabaseInterface", () => {
 
     test("removeFieldNote should remove a field note", async () => {
         const data = await dbInterface.getFieldNotes(1);
-        dbInterface.removeFieldNote(data[0].id)
+        const removed = await dbInterface.removeFieldNote(data[0].id);
         const newData = await dbInterface.getFieldNotes(1);
         expect(newData.length).toBe(data.length - 1);
     });
@@ -193,7 +193,7 @@ describe("DatabaseInterface", () => {
 
     test("removeFieldMedia should remove a field media", async () => {
         const data = await dbInterface.getFieldMedia(1);
-        dbInterface.removeFieldMedia(data[0].id)
+        const removed = await dbInterface.removeFieldMedia(data[0].id);
         const newData = await dbInterface.getFieldMedia(1);
         expect(newData.length).toBe(data.length - 1);
     });
