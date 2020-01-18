@@ -207,6 +207,9 @@ export default {
                 let month = dbDate.getMonth() + 1;
                 let day = dbDate.getDate();
                 let year = dbDate.getFullYear();
+                if (isNaN(month)) {
+                    throw new Error("no deployStartTime")
+                }
                 return _L("deployed") + ": " + month + "/" + day + "/" + year;
             } catch (error) {
                 return _L("deployed");
