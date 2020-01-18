@@ -218,6 +218,13 @@ export default class QueryStation {
                 reply.status.identity.generation
             ).toString("hex");
         }
+        if (reply.modules && Array.isArray(reply.modules)) {
+            reply.modules.map(m => {
+                m.deviceId = new Buffer.from(
+                    m.id
+                ).toString("hex");
+            });
+        }
         if (reply.streams && reply.streams.length > 0) {
             reply.streams.forEach(s => {
                 s.block = s.block ? s.block : 0;

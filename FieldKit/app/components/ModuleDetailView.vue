@@ -224,7 +224,7 @@ export default {
         getSensors(module) {
             this.module = module[0];
             this.module.origGraphs = this.module.graphs;
-            dbInterface.getSensors(this.moduleId).then(this.completeSetup);
+            dbInterface.getSensors(this.module.deviceId).then(this.completeSetup);
         },
 
         completeSetup(sensors) {

@@ -24,7 +24,8 @@ describe("DatabaseInterface", () => {
     });
 
     test("getSensors should get sensors", async () => {
-        const data = await dbInterface.getSensors(1);
+        const m = await dbInterface.getModules(1);
+        const data = await dbInterface.getSensors(m[0].deviceId);
         expect(data.length).toBeGreaterThan(0);
     });
 
@@ -48,11 +49,11 @@ describe("DatabaseInterface", () => {
         expect(newData[0].name).toEqual(newName);
     });
 
-    test("setStationPortalID should set a station's portal id", async () => {
+    test("setStationPortalId should set a station's portal id", async () => {
         const data = await dbInterface.getStation(1);
         const portalId = 28;
         data[0].portalId = portalId;
-        const change = await dbInterface.setStationPortalID(data[0]);
+        const change = await dbInterface.setStationPortalId(data[0]);
         const newData = await dbInterface.getStation(1);
         expect(newData[0].portalId).toEqual(portalId);
     });

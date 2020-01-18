@@ -84,7 +84,6 @@ export default class DatabaseInterface {
     }
 
     getStationByDeviceId(deviceId) {
-        // newly discovered stations don't have ids yet, so check by deviceId
         return this.getDatabase()
             .then(db =>
                 db.query("SELECT * FROM stations WHERE device_id = ?", [
@@ -106,6 +105,16 @@ export default class DatabaseInterface {
             });
     }
 
+    getModuleByDeviceId(deviceId) {
+        return this.getDatabase()
+            .then(db =>
+                db.query("SELECT * FROM modules WHERE device_id = ?", [deviceId])
+            )
+            .then(rows => {
+                return sqliteToJs(rows);
+            });
+    }
+
     getModules(stationId) {
         return this.getDatabase()
             .then(db =>
@@ -118,16 +127,46 @@ export default class DatabaseInterface {
             });
     }
 
-    getSensors(moduleId) {
+    removeModule(moduleId) {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM modules WHERE device_id = ?", [
+                moduleId
+            ])
+        );
+    }
+
+    removeNullIdModules() {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM modules WHERE device_id IS NULL")
+        );
+    }
+
+    getSensors(moduleDeviceId) {
         return this.getDatabase()
             .then(db =>
                 db.query("SELECT * FROM sensors WHERE module_id = ?", [
-                    moduleId
+                    moduleDeviceId
                 ])
             )
             .then(rows => {
                 return sqliteToJs(rows);
             });
+    }
+
+    removeSensor(sensorId) {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM sensors WHERE id = ?", [
+                sensorId
+            ])
+        );
+    }
+
+    removeSensors(moduleId) {
+        return this.getDatabase().then(db =>
+            db.query("DELETE FROM sensors WHERE module_id = ?", [
+                moduleId
+            ])
+        );
     }
 
     getFieldNotes(stationId) {
@@ -174,7 +213,7 @@ export default class DatabaseInterface {
         );
     }
 
-    setStationPortalID(station) {
+    setStationPortalId(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [
                 station.portalId,
@@ -292,9 +331,9 @@ export default class DatabaseInterface {
 
     setModuleName(module) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE modules SET name = ? WHERE id = ?", [
+            db.query("UPDATE modules SET name = ? WHERE device_id = ?", [
                 module.name,
-                module.id
+                module.deviceId
             ])
         );
     }
@@ -379,7 +418,8 @@ export default class DatabaseInterface {
     }
 
     insertModule(module) {
-        // Note: module_id and device_id are currently not stored
+        // Note: module_id currently is not used and
+        // device_id is the module's unique hardware id (not the station's)
         return this.database.execute(
             "INSERT INTO modules (module_id, device_id, name, interval, station_id) VALUES (?, ?, ?, ?, ?)",
             [

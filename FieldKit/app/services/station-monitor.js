@@ -1,6 +1,7 @@
 import { Observable } from "tns-core-modules/data/observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import Config from "../config";
+import _ from "lodash";
 
 import StationLogs from "./station-logs";
 
@@ -32,6 +33,9 @@ export default class StationMonitor extends Observable {
         this.StationRefreshedProperty = "stationRefreshed";
         this.ReadingsChangedProperty = "readingsChanged";
 		this.logs = new StationLogs(discoverStation, queryStation);
+
+        // temporary method to clear out modules with no device ids
+        this.dbInterface.removeNullIdModules();
 
         // TODO: hook in to lifecycle event instead?
         setTimeout(() => {
@@ -161,7 +165,7 @@ export default class StationMonitor extends Observable {
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
                 m.readings.forEach(r => {
-                    readings[m.module.name + r.sensor.name] = r.value;
+                    readings[m.module.name + r.sensor.name] = r.value || 0;
                 });
             });
         });
@@ -227,6 +231,86 @@ export default class StationMonitor extends Observable {
             station.latitude = this.phoneLat;
             this.dbInterface.setStationLocationCoordinates(station);
         }
+
+        this.keepModulesAndSensorsInSync(station, result);
+    }
+
+    keepModulesAndSensorsInSync(station, result) {
+        const hwModules = result.modules.filter(m => {
+                return !is_internal_module(m);
+            });
+
+        this.dbInterface.getModules(station.id).then(dbModules => {
+            // compare hwModules with dbModules
+            const notFromHW = _.differenceBy(dbModules, hwModules, (m) => {
+                return m.deviceId;
+            });
+            // remove modules not in the station's response
+            Promise.all(
+                notFromHW.map(m => {
+                    return this.dbInterface
+                        .removeModule(m.deviceId)
+                })
+            ).then(() => {
+                // also remove associated sensors
+                Promise.all(
+                    notFromHW.map(m => {
+                        return this.dbInterface
+                            .removeSensors(m.deviceId)
+                    })
+                )
+            });
+            // update modules in station's response
+            hwModules.forEach(hwModule => {
+                const dbModule = dbModules.find(d => {
+                    return d.deviceId == hwModule.deviceId;
+                });
+                if (dbModule) {
+                    // update name if needed
+                    if (dbModule.name != hwModule.name) {
+                        this.dbInterface.setModuleName(hwModule);
+                    }
+                } else {
+                    // add those not in the database
+                    hwModule.stationId = station.id;
+                    this.dbInterface.insertModule(hwModule)
+                }
+                // and update its sensors
+                this.updateSensors(hwModule);
+            });
+        });
+    }
+
+    updateSensors(hwModule) {
+        const hwSensors = hwModule.sensors.filter(s => {
+                return !is_internal_sensor(s);
+            });
+
+        this.dbInterface.getSensors(hwModule.deviceId)
+            .then(dbSensors => {
+                // compare hwSensors with dbSensors
+                // TODO: what if more than one sensor with the same name?
+                const notFromHW = _.differenceBy(dbSensors, hwSensors, (s) => {
+                    return s.name;
+                });
+                const notInDB = _.differenceBy(hwSensors, dbSensors, (s) => {
+                    return s.name;
+                });
+                // remove those that are not on this module anymore
+                Promise.all(
+                    notFromHW.map(s => {
+                        return this.dbInterface.removeSensor(s.id)
+                    })
+                ).then(() => {
+                    // and add those that are newly present
+                    Promise.all(
+                        notInDB.map(s => {
+                            s.moduleId = hwModule.deviceId;
+                            return this.dbInterface.insertSensor(s)
+                        })
+                    )
+                });
+        });
     }
 
     recordingStatusChange(address, recording) {
@@ -357,7 +441,7 @@ export default class StationMonitor extends Observable {
                                 return !is_internal_sensor(s);
                             })
                             .map(s => {
-                                s.moduleId = mid;
+                                s.moduleId = m.deviceId;
                                 this.dbInterface.insertSensor(s);
                             });
                     });

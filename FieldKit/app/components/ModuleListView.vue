@@ -128,7 +128,12 @@ export default {
             this.modules.forEach(m => {
                 let sensors = [];
                 m.sensorObjects.forEach(s => {
-                    if (liveReadings && liveReadings[m.name + s.name]) {
+                    let trendIcon = "Icon_Neutral.png";
+                    if (
+                        liveReadings &&
+                        (liveReadings[m.name + s.name] ||
+                            liveReadings[m.name + s.name] === 0)
+                    ) {
                         let prevReading = s.currentReading
                             ? +s.currentReading.toFixed(1)
                             : 0;
@@ -139,15 +144,14 @@ export default {
                         s.displayReading = newReading;
                         dbInterface.setCurrentReading(s);
 
-                        let trendIcon = "Icon_Neutral.png";
                         if (newReading < prevReading) {
                             trendIcon = "Icon_Decrease.png";
                         } else if (newReading > prevReading) {
                             trendIcon = "Icon_Increase.png";
                         }
-                        s.icon = "~/images/" + trendIcon;
-                        sensors.push(s);
                     }
+                    s.icon = "~/images/" + trendIcon;
+                    sensors.push(s);
                 });
                 // vue isn't rendering these dynamically, so set them
                 this.$set(m, "sensorObjects", sensors);

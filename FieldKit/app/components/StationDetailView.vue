@@ -352,7 +352,7 @@ export default {
         },
 
         getSensors(moduleObject) {
-            return dbInterface.getSensors(moduleObject.id).then(sensors => {
+            return dbInterface.getSensors(moduleObject.deviceId).then(sensors => {
                 moduleObject.sensorObjects = sensors;
             });
         },
@@ -411,7 +411,7 @@ export default {
                     .addStation(params)
                     .then(stationPortalId => {
                         this.currentStation.portalId = stationPortalId;
-                        dbInterface.setStationPortalID(this.currentStation);
+                        dbInterface.setStationPortalId(this.currentStation);
                     });
             } else if (
                 this.currentStation.portalId &&

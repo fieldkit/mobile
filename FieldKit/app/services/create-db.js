@@ -147,6 +147,8 @@ export default class CreateDB {
     }
 
     createModulesTable() {
+        // Note: module_id currently is not used and
+        // device_id is the module's unique hardware id (not the station's)
         return this.execute([
             `CREATE TABLE IF NOT EXISTS modules (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -298,9 +300,9 @@ export default class CreateDB {
 
     insertModule(module) {
         return this.dbInterface.insertModule(module).then(id => {
-            module.id = id;
+            // module.id = id;
             module.sensors.map(s => {
-                s.moduleId = module.id;
+                s.moduleId = module.deviceId;
             });
             return;
         });
@@ -380,8 +382,8 @@ const stations = [
         status: "idle",
         modules: [
             {
-                moduleId: "seeded-device-0-module-0",
-                deviceId: "seeded-device-0",
+                moduleId: null,
+                deviceId: "seeded-module-0",
                 name: "Water Module 1",
                 sensors: [
                     {
@@ -392,8 +394,8 @@ const stations = [
                 ]
             },
             {
-                moduleId: "seeded-device-0-module-1",
-                deviceId: "seeded-device-0",
+                moduleId: null,
+                deviceId: "seeded-module-1",
                 name: "Water Module 2",
                 sensors: [
                     {
@@ -409,8 +411,8 @@ const stations = [
                 ]
             },
             {
-                moduleId: "seeded-device-0-module-2",
-                deviceId: "seeded-device-0",
+                moduleId: null,
+                deviceId: "seeded-module-2",
                 name: "Weather Module",
                 sensors: [
                     {
@@ -439,8 +441,8 @@ const stations = [
         status: "idle",
         modules: [
             {
-                moduleId: "seeded-device-1-module-0",
-                deviceId: "seeded-device-1",
+                moduleId: null,
+                deviceId: "seeded-module-3",
                 name: "Generic Module",
                 sensors: [
                     {
@@ -459,8 +461,8 @@ const stations = [
         status: "idle",
         modules: [
             {
-                moduleId: "seeded-device-2-module-0",
-                deviceId: "seeded-device-2",
+                moduleId: null,
+                deviceId: "seeded-module-4",
                 name: "Generic Module",
                 sensors: [
                     {
@@ -479,8 +481,8 @@ const stations = [
         status: "idle",
         modules: [
             {
-                moduleId: "seeded-device-3-module-0",
-                deviceId: "seeded-device-3",
+                moduleId: null,
+                deviceId: "seeded-module-5",
                 name: "Generic Module",
                 sensors: [
                     {
@@ -499,8 +501,8 @@ const stations = [
         status: "idle",
         modules: [
             {
-                moduleId: "seeded-device-4-module-0",
-                deviceId: "seeded-device-4",
+                moduleId: null,
+                deviceId: "seeded-module-6",
                 name: "Generic Module",
                 sensors: [
                     {
