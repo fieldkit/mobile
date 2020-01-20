@@ -67,6 +67,7 @@
                     >
                         <Label
                             v-for="item in checklist"
+                            :key="item.id"
                             :row="item.row"
                             :col="item.col"
                             :text="item.text"
@@ -337,46 +338,55 @@ const steps = [
 
 const checklist = [
     {
+        id: 1,
         row: 1,
         col: 0,
         text: "\u{2022} Enclosure"
     },
     {
+        id: 2,
         row: 2,
         col: 0,
         text: "\u{2022} Radio board"
     },
     {
+        id: 3,
         row: 3,
         col: 0,
         text: "\u{2022} Core board"
     },
     {
+        id: 4,
         row: 4,
         col: 0,
         text: "\u{2022} Back plane"
     },
     {
+        id: 5,
         row: 5,
         col: 0,
         text: "\u{2022} Module(s)"
     },
     {
+        id: 6,
         row: 1,
         col: 1,
         text: "\u{2022} 1 battery"
     },
     {
+        id: 7,
         row: 2,
         col: 1,
         text: "\u{2022} Screws"
     },
     {
+        id: 8,
         row: 3,
         col: 1,
         text: "\u{2022} Screw driver*"
     },
     {
+        id: 9,
         row: 4,
         col: 1,
         text: "\u{2022} Micro USB cable*"
