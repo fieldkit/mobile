@@ -234,7 +234,7 @@ export default {
             if (valid && this.origLocationName != this.station.locationName) {
                 // send location name as field note to portal
                 let portalParams = {
-                    stationId: this.station.id,
+                    stationId: this.station.portalId,
                     created: new Date(),
                     category_id: 1,
                     note: this.station.locationName

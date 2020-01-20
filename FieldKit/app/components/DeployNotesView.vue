@@ -518,7 +518,7 @@ export default {
             }
             // send note as field note to portal
             let portalParams = {
-                stationId: this.station.id,
+                stationId: this.station.portalId,
                 created: new Date(),
                 category_id: 1,
                 note: note.value
@@ -563,7 +563,7 @@ export default {
             // send note as field note to portal
             // NOTE: portal category IDs are not set up yet
             let portalParams = {
-                stationId: this.station.id,
+                stationId: this.station.portalId,
                 created: new Date(),
                 category_id: 1,
                 note: note.value
@@ -769,7 +769,7 @@ export default {
                     if (saved) {
                         // send image to portal as field note media
                         let params = {
-                            stationId: this.station.id,
+                            stationId: this.station.portalId,
                             pathDest: dest
                         };
                         this.$portalInterface
