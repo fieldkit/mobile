@@ -280,24 +280,16 @@ export default {
             dbInterface.setStationPercentComplete(savingStation);
 
             queryStation.startDataRecording(this.station.url).then(result => {
-                this.updatePortal(savingStation)
-                    .then(() => {
-                        this.$navigateTo(routes.stationDetail, {
-                            props: {
-                                station: this.station,
-                                redirectedFromDeploy: "true"
-                            }
-                        });
-                    })
-                    .catch(e => {
+                this.updatePortal(savingStation).catch(e => {
+                        // TODO: put failure in notifications
                         console.log("error updating portal", e)
-                        this.$navigateTo(routes.stationDetail, {
-                            props: {
-                                station: this.station,
-                                redirectedFromDeploy: "true"
-                            }
-                        });
                     });
+                this.$navigateTo(routes.stationDetail, {
+                    props: {
+                        station: this.station,
+                        redirectedFromDeploy: "true"
+                    }
+                });
             });
         },
 
