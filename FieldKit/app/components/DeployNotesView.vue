@@ -90,7 +90,7 @@
                                 :text="_L('provideDetails')"
                                 textWrap="true"
                                 lineHeight="3"
-                                class="size-12 m-t-5"
+                                class="lighter size-14 m-t-5"
                             ></Label>
                         </GridLayout>
 
@@ -145,7 +145,7 @@
                             ></Label>
                             <Label
                                 :text="_L('photosInstruction')"
-                                class="size-12"
+                                class="lighter size-14"
                             ></Label>
                             <WrapLayout orientation="horizontal">
                                 <StackLayout
@@ -182,7 +182,7 @@
                             ></Label>
                             <Label
                                 :text="_L('addDetails')"
-                                class="size-12 m-b-10"
+                                class="lighter size-14 m-b-10"
                             ></Label>
                         </StackLayout>
 
@@ -848,7 +848,6 @@ export default {
     color: $fk-primary-black;
 }
 .lighter {
-//    color: $fk-gray-hint;
-    color: #818388;
+    color: $fk-gray-text;
 }
 </style>

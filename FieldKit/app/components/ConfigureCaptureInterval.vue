@@ -3,7 +3,7 @@
     <StackLayout class="m-x-10 m-y-20" @loaded="onLoaded">
         <Label class="size-18" :text="_L('dataCaptureSchedule')"></Label>
         <Label
-            class="size-12 m-y-5"
+            class="gray-text size-14 m-y-5"
             textWrap="true"
             :text="_L('dataCaptureNotice')"
         ></Label>
@@ -520,6 +520,9 @@ export default {
 @import "../app-variables";
 // End custom common variables
 // Custom styles
+.gray-text {
+    color: $fk-gray-text;
+}
 .interval-container {
     padding-bottom: 30;
     padding-left: 20;
