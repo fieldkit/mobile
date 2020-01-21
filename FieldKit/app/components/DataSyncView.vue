@@ -425,6 +425,7 @@ export default {
                             //     recent.uploadProgressLabel =
                             //         "Unable to upload. Are you connected to the internet?";
                             // }
+                            console.log("This is why app reports 'Unable to upload':", e)
                             recent.uploadProgressLabel = _L(
                                 "failedCheckConnection"
                             );
