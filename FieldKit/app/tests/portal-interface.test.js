@@ -62,14 +62,15 @@ describe("UserAuth", () => {
         });
     });
 
-    it("should log user out", () => {
-        const headers = { headers: { Authorization: "Bearer 34234324234" } };
-        const mockResponse = { status: "204" };
-        axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return portalInterface
-            .logout()
-            .then(resp => expect(portalInterface.isLoggedIn()).toBeFalsy());
-    });
+    // we currently aren't touching the portal for log out
+    // it("should log user out", () => {
+    //     const headers = { headers: { Authorization: "Bearer 34234324234" } };
+    //     const mockResponse = { status: "204" };
+    //     axios.mockImplementation(() => Promise.resolve(mockResponse));
+    //     return portalInterface
+    //         .logout()
+    //         .then(resp => expect(portalInterface.isLoggedIn()).toBeFalsy());
+    // });
 
     it("should register new user", () => {
         const user = {
