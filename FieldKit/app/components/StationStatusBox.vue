@@ -153,7 +153,7 @@ export default {
             elapsedRecTime: "--:--:--",
             elapsedTimeLabel: _L("hrsMinSec"),
             syncing: false,
-            dataSyncingIcon: "~/images/Icon_Syncing.png",
+            dataSyncingIcon: "~/images/Icon_Syncing_blue.png",
             dataSyncMessage: "",
             displayConsumedMemory: 0,
             displayTotalMemory: 0,
@@ -289,9 +289,9 @@ export default {
 
         rotateSyncingIcon() {
             this.dataSyncingIcon =
-                this.dataSyncingIcon == "~/images/Icon_Syncing.png"
-                    ? "~/images/Icon_Syncing2.png"
-                    : "~/images/Icon_Syncing.png";
+                this.dataSyncingIcon == "~/images/Icon_Syncing_blue.png"
+                    ? "~/images/Icon_Syncing2_blue.png"
+                    : "~/images/Icon_Syncing_blue.png";
         },
 
         stopProcesses() {

@@ -80,6 +80,7 @@
                                         row="1"
                                         col="1"
                                         :text="_L('downloading')"
+                                        class="lighter"
                                         textWrap="true"
                                     ></Label>
                                     <Image
@@ -142,6 +143,7 @@
                                         row="1"
                                         col="1"
                                         :text="s.uploadProgressLabel"
+                                        class="lighter"
                                         textWrap="true"
                                     ></Label>
                                     <Image
@@ -201,8 +203,8 @@ export default {
     data() {
         return {
             recentSyncs: [],
-            downloadingIcon: "~/images/Icon_Syncing.png",
-            uploadingIcon: "~/images/Icon_Syncing.png",
+            downloadingIcon: "~/images/Icon_Syncing_blue.png",
+            uploadingIcon: "~/images/Icon_Syncing_blue.png",
             downloading: {},
             uploading: {},
             uploadInProgress: false
@@ -588,16 +590,16 @@ export default {
 
         rotateDownloadingIcon() {
             this.downloadingIcon =
-                this.downloadingIcon == "~/images/Icon_Syncing.png"
-                    ? "~/images/Icon_Syncing2.png"
-                    : "~/images/Icon_Syncing.png";
+                this.downloadingIcon == "~/images/Icon_Syncing_blue.png"
+                    ? "~/images/Icon_Syncing2_blue.png"
+                    : "~/images/Icon_Syncing_blue.png";
         },
 
         rotateUploadingIcon() {
             this.uploadingIcon =
-                this.uploadingIcon == "~/images/Icon_Syncing.png"
-                    ? "~/images/Icon_Syncing2.png"
-                    : "~/images/Icon_Syncing.png";
+                this.uploadingIcon == "~/images/Icon_Syncing_blue.png"
+                    ? "~/images/Icon_Syncing2_blue.png"
+                    : "~/images/Icon_Syncing_blue.png";
         }
     }
 };
@@ -615,6 +617,7 @@ export default {
 .station-name {
     background-color: $fk-primary-blue;
     clip-path: polygon(0 0, 92% 0%, 98% 100%, 0% 100%);
+    border-radius: 2;
     color: white;
     padding: 10 20;
     font-size: 18;
@@ -628,7 +631,11 @@ export default {
 }
 .status {
     font-size: 18;
-    color: $fk-gray-dark;
+    color: $fk-primary-black;
+}
+.lighter {
+    font-size: 14;
+    color: $fk-gray-text;
 }
 .history-label {
     font-weight: bold;
