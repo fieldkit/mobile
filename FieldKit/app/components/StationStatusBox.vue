@@ -1,7 +1,7 @@
 <template>
     <StackLayout
         id="station-status-box-container"
-        class="m-10 bordered-container"
+        :class="'m-10 ' + (loading ? '' : 'bordered-container')"
         @loaded="onPageLoaded"
     >
         <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">

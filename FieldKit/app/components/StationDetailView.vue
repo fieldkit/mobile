@@ -141,7 +141,7 @@ export default {
         return {
             loading: true,
             isDeployed: false,
-            deployedStatus: _L("readyToDeploy"),
+            deployedStatus: "",
             percentComplete: 0,
             modules: [],
             currentStation: { name: "", id: 0 },
@@ -389,6 +389,8 @@ export default {
                 if (this.currentStation.percentComplete) {
                     this.percentComplete = this.currentStation.percentComplete;
                 }
+            } else {
+                this.deployedStatus = _L("readyToDeploy");
             }
             this.$refs.statusBox.updateStation(this.currentStation);
             this.$refs.moduleList.updateModules(
