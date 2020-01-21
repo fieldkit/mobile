@@ -87,7 +87,7 @@ export default class PortalInterface {
             }
         })
             .then(handleResponse)
-            .catch(this._handleError);
+            .catch(handleLogoutError);
 
         function handleResponse(response) {
             if (response.status == "204") {
@@ -96,6 +96,10 @@ export default class PortalInterface {
             } else {
                 throw new Error(response);
             }
+        }
+
+        function handleLogoutError(error) {
+            appSettings.remove("accessToken");
         }
     }
 
