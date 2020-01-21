@@ -54,7 +54,7 @@ export default class StationMonitor extends Observable {
     savePhoneLocation(loc) {
         this.phoneLat = loc.latitude;
         this.phoneLong = loc.longitude;
-        console.log("--> Phone coordinates reported as", this.phoneLat, this.phoneLong)
+        console.log("|--> Phone coordinates reported as", this.phoneLat, this.phoneLong)
     }
 
     initializeStations(result) {
@@ -214,6 +214,9 @@ export default class StationMonitor extends Observable {
             this.dbInterface.setStationDeployStartTime(station);
         }
         station.name = result.status.identity.device;
+
+        console.log("|--> Before updating station has", station.latitude, station.longitude);
+        console.log("|--> First trying the station coords", result.status.gps.latitude, result.status.gps.longitude);
         if (
             (result.status.gps.longitude != 1000 &&
                 station.longitude != result.status.gps.longitude) ||
@@ -222,10 +225,12 @@ export default class StationMonitor extends Observable {
         ) {
             station.longitude = result.status.gps.longitude;
             station.latitude = result.status.gps.latitude;
+        console.log("|--> They look good so we are updating station", station.latitude, station.longitude);
             this.dbInterface.setStationLocationCoordinates(station);
         }
         // some existing stations may have 1000, 1000 saved
         // we can probably remove this in the near future
+        console.log("|--> Final check in case they are 1000 or 0", station.latitude, station.longitude);
         if (
             station.latitude == 1000 || station.longitude == 1000 ||
             station.latitude === 0 || station.longitude === 0
@@ -233,8 +238,10 @@ export default class StationMonitor extends Observable {
             // use phone location
             station.longitude = this.phoneLong;
             station.latitude = this.phoneLat;
+        console.log("|--> They were no good so using the phones location", station.latitude, station.longitude);
             this.dbInterface.setStationLocationCoordinates(station);
         }
+        console.log("|--> The app is done updating and station has", station.latitude, station.longitude);
 
         this.keepModulesAndSensorsInSync(station, result);
     }

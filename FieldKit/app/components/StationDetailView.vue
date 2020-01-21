@@ -409,6 +409,7 @@ export default {
                 !this.currentStation.portalId &&
                 this.currentStation.url != "no_url"
             ) {
+        console.log("|--> Adding station to portal", params);
                 this.$portalInterface
                     .addStation(params)
                     .then(stationPortalId => {
@@ -419,6 +420,7 @@ export default {
                 this.currentStation.portalId &&
                 this.currentStation.url != "no_url"
             ) {
+        console.log("|--> Updating station in portal", params);
                 this.$portalInterface
                     .updateStation(params, this.currentStation.portalId)
                     .then(stationPortalId => {
