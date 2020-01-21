@@ -78,29 +78,31 @@ export default class PortalInterface {
     }
 
     logout() {
-        return axios({
-            method: "POST",
-            url: Config.baseUri + "/logout",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            }
-        })
-            .then(handleResponse)
-            .catch(handleLogoutError);
+        return appSettings.remove("accessToken");
 
-        function handleResponse(response) {
-            if (response.status == "204") {
-                appSettings.remove("accessToken")
-                return;
-            } else {
-                throw new Error(response);
-            }
-        }
+        // return axios({
+        //     method: "POST",
+        //     url: Config.baseUri + "/logout",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         Authorization: appSettings.getString("accessToken")
+        //     }
+        // })
+        //     .then(handleResponse)
+        //     .catch(handleLogoutError);
 
-        function handleLogoutError(error) {
-            appSettings.remove("accessToken");
-        }
+        // function handleResponse(response) {
+        //     if (response.status == "204") {
+        //         appSettings.remove("accessToken")
+        //         return;
+        //     } else {
+        //         throw new Error(response);
+        //     }
+        // }
+
+        // function handleLogoutError(error) {
+        //     appSettings.remove("accessToken");
+        // }
     }
 
     register(user) {
