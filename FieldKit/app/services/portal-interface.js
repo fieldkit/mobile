@@ -1,91 +1,70 @@
+import _ from "lodash";
 import axios from "axios";
 import Config from "../config";
 import AppSettings from "../wrappers/app-settings";
 import Services from "./services";
 
-let currentUser = {};
-const appSettings = new AppSettings();
-
 export default class PortalInterface {
 	constructor() {
+		this._handleTokenResponse = this._handleTokenResponse.bind(this);
+		this._handleStandardResponse = this._handleStandardResponse.bind(this);
+		this._handleError = this._handleError.bind(this);
+		this._currentUser = {};
+		this._appSettings = new AppSettings();
 	}
 
     storeCurrentUser() {
-        let portalInterface = this;
-
-        return axios({
+        return this._query({
             method: "GET",
             url: Config.baseUri + "/user",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            }
-        })
-            .then(handleResponse)
-            .catch(this._handleError);
-
-        function handleResponse(response) {
-            if (response.status === 200) {
-                currentUser.name = response.data.name;
-                currentUser.portalId = response.data.id;
-                return response.data;
-            } else {
-                throw new Error(response);
-            }
-        }
+        }).then(data => {
+			this._currentUser.name = data.name;
+			this._currentUser.portalId = data.id;
+			return data;
+		});
     }
 
+	isAvailable() {
+		return axios({
+			url: Config.baseUri + "/status",
+		}).then(r => {
+			return true;
+		}, e => {
+			return false;
+		});
+	}
+
     getCurrentUser() {
-        return currentUser;
+        return this._currentUser;
     }
 
     isLoggedIn() {
-        return appSettings.getString("accessToken") ? true : false;
+        return this._appSettings.getString("accessToken") ? true : false;
     }
 
     getCurrentToken() {
-        return appSettings.getString("accessToken");
+        return this._appSettings.getString("accessToken");
     }
 
-    login(user) {
-        let portalInterface = this;
+	login(user) {
+		return axios({
+			method: "POST",
+			url: Config.baseUri + "/login",
+			headers: { "Content-Type": "application/json" },
+			data: user
+		}).then(this._handleTokenResponse).catch(this._handleError);
+	}
 
-        return axios({
-            method: "POST",
-            url: Config.baseUri + "/login",
-            headers: { "Content-Type": "application/json" },
-            data: {
-                email: user.email,
-                password: user.password
-            }
-        })
-            .then(handleResponse)
-            .catch(this._handleError);
-
-        function handleResponse(response) {
-            if (response.status === 204) {
-                // success
-                const accessToken = response.headers.authorization
-                    ? response.headers.authorization
-                    : response.headers.Authorization;
-                appSettings.setString("accessToken", accessToken);
-                portalInterface.storeCurrentUser();
-                return;
-            } else {
-                throw new Error("Log in failed");
-            }
-        }
-    }
-
-    logout() {
-        return appSettings.remove("accessToken");
+	logout() {
+		this._appSettings.remove("accessToken");
+		return Promise.resolve(true);
 
         // return axios({
         //     method: "POST",
         //     url: Config.baseUri + "/logout",
         //     headers: {
         //         "Content-Type": "application/json",
-        //         Authorization: appSettings.getString("accessToken")
+        //         Authorization: this._appSettings.getString("accessToken")
         //     }
         // })
         //     .then(handleResponse)
@@ -93,7 +72,7 @@ export default class PortalInterface {
 
         // function handleResponse(response) {
         //     if (response.status == "204") {
-        //         appSettings.remove("accessToken")
+        //         this._appSettings.remove("accessToken")
         //         return;
         //     } else {
         //         throw new Error(response);
@@ -101,130 +80,77 @@ export default class PortalInterface {
         // }
 
         // function handleLogoutError(error) {
-        //     appSettings.remove("accessToken");
+        //     this._appSettings.remove("accessToken");
         // }
     }
 
     register(user) {
-        return axios({
+        return this._query({
             method: "POST",
             url: Config.baseUri + "/users",
-            headers: { "Content-Type": "application/json" },
-            data: {
-                name: user.name,
-                email: user.email,
-                password: user.password
-            }
-        })
-            .then(handleResponse)
-            .catch(this._handleError);
-
-        function handleResponse(response) {
-            if (response.status === 200) {
-                return "Account created";
-            } else {
-                throw new Error("Account not created");
-            }
-        }
+            data: user,
+        }).then(() => {
+			// TODO This should return the user object.
+			return "Account created";
+		});
     }
 
-    resetPassword(email) {}
+    resetPassword(email) {
+	}
 
     addStation(data) {
-        return axios({
+        return this._query({
             method: "POST",
             url: Config.baseUri + "/stations",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            },
             data: data
-        })
-            .then(handleResponse)
-            .catch(this._handleError);
-
-        function handleResponse(response) {
-            if (response.status === 200) {
-                return response.data.id;
-            } else {
-                throw new Error("Station not added");
-            }
-        }
+        }).then(data => {
+			// TODO This should just return the entire payload just in
+			// case other users of this class need more information.
+			return data.id;
+		});
     }
 
     updateStation(data, portalId) {
-        return axios({
+        return this._query({
             method: "PATCH",
             url: Config.baseUri + "/stations/" + portalId,
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            },
             data: data
-        })
-            .then(handleResponse)
-            .catch(this._handleError);
-
-        function handleResponse(response) {
-            if (response.status === 200) {
-                return response.data.id;
-            } else {
-                throw new Error("Station not updated");
-            }
-        }
+        }).then(data => {
+			// TODO This should just return the entire payload just in
+			// case other users of this class need more information.
+			return data.id;
+		});
     }
 
     getStationSyncState(deviceId) {
-        return axios({
+        return this._query({
             url: Config.baseUri + "/data/devices/" + deviceId + "/summary",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            }
-        })
-            .then(this._handleResponse.bind(this))
-            .catch(this._handleError.bind(this));
+        });
     }
 
-    getStations() {
-        return axios({
-            url: Config.baseUri + "/stations",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            }
-		}).then(this._handleResponse.bind(this)).catch(this._handleError.bind(this));
+	getStations() {
+        return this._query({
+            url: Config.baseUri + "/stations"
+		});
 	}
 
     getStationById(id) {
-        return axios({
+        return this._query({
             url: Config.baseUri + "/stations/@/" + id,
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            }
-        })
-            .then(this._handleResponse.bind(this))
-            .catch(this._handleError.bind(this));
+        });
     }
 
     addFieldNote(data) {
-        return axios({
+        return this._query({
             method: "POST",
             url: Config.baseUri + "/stations/" + data.stationId + "/field-notes",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: appSettings.getString("accessToken")
-            },
             data: data
-        })
-            .then(this._handleResponse.bind(this))
-            .catch(this._handleError.bind(this));
+        });
     }
 
     addFieldNoteMedia(data) {
 		const headers = {
-			Authorization: appSettings.getString("accessToken")
+			Authorization: this._appSettings.getString("accessToken")
 		};
 		return Services.Conservify().upload({
 			url: Config.baseUri + "/stations/" + data.stationId + "/field-note-media",
@@ -244,33 +170,93 @@ export default class PortalInterface {
 		});
     }
 
-    _handleResponse(response) {
-		if (response.status === 401) {
-		}
+    _handleStandardResponse(response) {
         if (response.status === 200) {
             return response.data;
         }
-		else {
-            throw new Error("Query failed");
+
+        if (response.status === 204) {
+            return { };
         }
+
+		throw new Error("Query failed");
     }
 
-    _handleError(error) {
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            // console.log("error.response", error.response);
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser
-            // and an instance of http.ClientRequest in node.js
-            // console.log("error.request", error.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            // console.log("error.message", error.message);
-        }
-        // console.log(error.config);
+	_handleTokenResponse(response) {
+		if (response.status !== 204) {
+			throw new Error("authentication failed");
+		}
 
-        throw error;
-    }
+		// Headers should always be lower case, bug otherwise.
+		const accessToken = response.headers.authorization;
+		this._appSettings.setString("accessToken", accessToken);
+		return this.storeCurrentUser().then(() => {
+			return {
+				token: accessToken
+			};
+		});
+	}
+
+	_query(req) {
+		req.headers = _.merge(req.headers || {}, {
+			"Content-Type": "application/json",
+			Authorization: this._appSettings.getString("accessToken")
+		});
+
+		return axios(req).then(response => {
+			return response.data;
+		}, error => {
+			if (error.response.status === 401) {
+				return this._tryRefreshToken(req);
+			}
+
+			console.log("portal error", error);
+
+			throw error;
+		});
+	}
+
+	_tryRefreshToken(original) {
+		const token = this._parseToken(this._appSettings.getString("accessToken"));
+		if (token == null) {
+			return Promise.reject("no token");
+		}
+
+		const requestBody = {
+			refresh_token: token.refresh_token,
+		};
+
+		console.log("refreshing token", requestBody);
+
+		return axios({
+			method: "POST",
+			url: Config.baseUri + "/refresh",
+			data: requestBody,
+		}).then(response => {
+			return this._handleTokenResponse(response).then(() => {
+				return this._query(original);
+			});
+		}, error => {
+			console.log("refresh failed", error);
+			return this.logout().then(_ => {
+				return Promise.reject(error);
+			});
+		});
+	}
+
+	_parseToken(token) {
+		try {
+			const encoded = token.split('.')[1];
+			const decoded = Buffer.from(encoded, "base64").toString();
+			return JSON.parse(decoded);
+		}
+		catch (e) {
+			console.log("error parsing token", e, 'token', token);
+			return null;
+		}
+	}
+
+	_handleError(error) {
+		throw error;
+	}
 }
