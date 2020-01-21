@@ -25,7 +25,7 @@ export default class PortalInterface {
             .catch(this._handleError);
 
         function handleResponse(response) {
-            if (response.status == "200") {
+            if (response.status === 200) {
                 currentUser.name = response.data.name;
                 currentUser.portalId = response.data.id;
                 return response.data;
@@ -63,7 +63,7 @@ export default class PortalInterface {
             .catch(this._handleError);
 
         function handleResponse(response) {
-            if (response.status == "204") {
+            if (response.status === 204) {
                 // success
                 const accessToken = response.headers.authorization
                     ? response.headers.authorization
@@ -120,7 +120,7 @@ export default class PortalInterface {
             .catch(this._handleError);
 
         function handleResponse(response) {
-            if (response.status == "200") {
+            if (response.status === 200) {
                 return "Account created";
             } else {
                 throw new Error("Account not created");
@@ -144,7 +144,7 @@ export default class PortalInterface {
             .catch(this._handleError);
 
         function handleResponse(response) {
-            if (response.status == "200") {
+            if (response.status === 200) {
                 return response.data.id;
             } else {
                 throw new Error("Station not added");
@@ -166,7 +166,7 @@ export default class PortalInterface {
             .catch(this._handleError);
 
         function handleResponse(response) {
-            if (response.status == "200") {
+            if (response.status === 200) {
                 return response.data.id;
             } else {
                 throw new Error("Station not updated");
@@ -185,6 +185,16 @@ export default class PortalInterface {
             .then(this._handleResponse.bind(this))
             .catch(this._handleError.bind(this));
     }
+
+    getStations() {
+        return axios({
+            url: Config.baseUri + "/stations",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: appSettings.getString("accessToken")
+            }
+		}).then(this._handleResponse.bind(this)).catch(this._handleError.bind(this));
+	}
 
     getStationById(id) {
         return axios({
@@ -235,9 +245,12 @@ export default class PortalInterface {
     }
 
     _handleResponse(response) {
+		if (response.status === 401) {
+		}
         if (response.status === 200) {
             return response.data;
-        } else {
+        }
+		else {
             throw new Error("Query failed");
         }
     }
