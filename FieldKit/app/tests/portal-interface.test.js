@@ -25,11 +25,11 @@ describe("UserAuth", () => {
             password: "realuserspassword"
         };
         const mockResponseLogin = {
-            status: "204",
+            status: 204,
             headers: { authorization: accessToken }
         };
         const mockResponseCurrentUser = {
-            status: "200",
+            status: 200,
             headers: { authorization: accessToken },
             data: {
                 name: "Somebody Real"
@@ -52,11 +52,11 @@ describe("UserAuth", () => {
             password: "fakeuserspassword"
         };
         const mockResponse = {
-            status: "400",
+            status: 400,
             headers: { null: "HTTP/1.1 400 Bad Request" }
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        const expectedError = new Error("Log in failed");
+        const expectedError = new Error("authentication failed");
         return portalInterface.login(user).catch(error => {
             expect(error).toEqual(expectedError);
         });
@@ -78,7 +78,7 @@ describe("UserAuth", () => {
             email: "newuser@user.com",
             password: "newuserspassword"
         };
-        const mockResponse = { status: "200" };
+        const mockResponse = { status: 200 };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
         return portalInterface
             .register(user)
