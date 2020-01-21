@@ -543,13 +543,13 @@ export default {
                 .catch(error => {
                     console.error("ERROR SYNC PORTAL", error);
                     if (error.offline && !this.askedOnce) {
+                        this.askedOnce = true;
                         return confirm({
                             title: "FieldKit",
                             message: _L("loginPrompt"),
                             okButtonText: _L("yes"),
                             cancelButtonText: _L("notNow")
                         }).then(res => {
-                            this.askedOnce = true;
                             if (res) {
                                 this.$navigateTo(routes.login, {});
                             }
