@@ -11,6 +11,7 @@ export default class UploadManager {
         this.databaseInterface = databaseInterface;
         this.portalInterface = portalInterface;
         this.progressService = progressService;
+		this._busy = false;
     }
 
     getStatus() {
@@ -40,10 +41,7 @@ export default class UploadManager {
             });
     }
 
-    synchronizePortal() {
-        log.info("synchronizePortal");
-
-        // TODO Replace with connectivity check.
+	_onlyIfOnline() {
         if (!this.portalInterface.isLoggedIn()) {
             log.info("offline!");
             return Promise.reject({
@@ -51,27 +49,52 @@ export default class UploadManager {
             });
         }
 
-        return this.databaseInterface
-            .getPendingDownloads()
-            .then(downloads => {
-                log.info("pending (sync)", downloads);
+		// TODO Make this isAvailable eventually, this is to force a token refresh.
+		return this.portalInterface.storeCurrentUser().then(_ => {
+			return this.portalInterface.isAvailable().then(yes => {
+				if (!yes) {
+					return Promise.reject({
+						offline: true
+					});
+				}
+				return true;
+			});
+		});
+	}
 
-				return this._summarize(downloads).then(progressSummary => {
-					const operation = this.progressService.startUpload(progressSummary);
+	synchronizePortal() {
+        log.info("synchronizePortal");
 
-					return serializePromiseChain(
-						downloads,
-						this._uploadDownload.bind(this, operation)
-					)
-					.then(() => {
-						return operation.complete();
-					})
-					.catch(error => {
-						return operation.cancel(error);
+        return this._onlyIfOnline().then(() => {
+			if (this._busy) {
+				return Promise.reject({
+					busy: true
+				});
+			}
+
+			this._busy = true;
+			return this.databaseInterface
+				.getPendingDownloads()
+				.then(downloads => {
+					log.info("pending (sync)", downloads);
+
+					return this._summarize(downloads).then(progressSummary => {
+						const operation = this.progressService.startUpload(progressSummary);
+
+						return serializePromiseChain(
+							downloads,
+							this._uploadDownload.bind(this, operation)
+						).then(() => {
+							this._busy = false;
+							return operation.complete();
+						}).catch(error => {
+							this._busy = false;
+							return operation.cancel(error);
+						});
 					});
 				});
-            });
-    }
+		})
+	}
 
 	_summarize(downloads) {
 		const byDevice = _(downloads).
