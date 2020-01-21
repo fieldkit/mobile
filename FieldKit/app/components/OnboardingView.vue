@@ -1,6 +1,6 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="75,*,65">
+        <GridLayout rows="75,*,80">
             <!-- header section -->
             <GridLayout
                 row="0"

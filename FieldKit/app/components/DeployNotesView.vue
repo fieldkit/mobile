@@ -1,7 +1,7 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout
-            :rows="(station.connected || linkedFromStation) ? '75,*,65' : '105,*,65'"
+            :rows="(station.connected || linkedFromStation) ? '75,*,80' : '105,*,80'"
             automationText="deployNotesLayout"
         >
             <!-- sticky header section and progress bar -->
