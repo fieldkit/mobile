@@ -54,6 +54,7 @@ export default class StationMonitor extends Observable {
     savePhoneLocation(loc) {
         this.phoneLat = loc.latitude;
         this.phoneLong = loc.longitude;
+        console.log("--> Phone coordinates reported as", this.phoneLat, this.phoneLong)
     }
 
     initializeStations(result) {
@@ -225,7 +226,10 @@ export default class StationMonitor extends Observable {
         }
         // some existing stations may have 1000, 1000 saved
         // we can probably remove this in the near future
-        if (station.latitude == 1000 || station.longitude == 1000) {
+        if (
+            station.latitude == 1000 || station.longitude == 1000 ||
+            station.latitude === 0 || station.longitude === 0
+        ) {
             // use phone location
             station.longitude = this.phoneLong;
             station.latitude = this.phoneLat;
