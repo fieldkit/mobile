@@ -11,7 +11,7 @@
             <StackLayout row="1" verticalAlignment="middle">
                 <Button
                     v-if="loggedIn"
-                    class="btn btn-primary"
+                    class="btn btn-secondary"
                     :text="_L('logOut')"
                     @tap="logout"
                 ></Button>
