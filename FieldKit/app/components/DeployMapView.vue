@@ -1,115 +1,120 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <ScrollView>
-            <FlexboxLayout
-                flexDirection="column"
-                justifyContent="space-between"
-                class="p-t-10"
-            >
+
+        <GridLayout rows="105,*,80">
+            <StackLayout row="0">
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="station.name"
                     :onBack="goBack"
                     :canNavigateSettings="false"
                 />
-
-                <StackLayout>
-                    <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
-                        <StackLayout col="0" class="top-line"></StackLayout>
-                    </GridLayout>
-                    <StackLayout
-                        class="text-center disconnect-warning"
-                        v-if="!station.connected"
-                    >
-                        <Label text="Station disconnected." />
-                    </StackLayout>
-
-                    <Mapbox
-                        :accessToken="mapboxToken"
-                        automationText="currentLocationMap"
-                        mapStyle="mapbox://styles/mapbox/outdoors-v11"
-                        height="150"
-                        hideCompass="false"
-                        zoomLevel="0"
-                        showUserLocation="false"
-                        disableZoom="false"
-                        disableRotation="false"
-                        disableScroll="false"
-                        disableTilt="false"
-                        @mapReady="onMapReady"
-                    ></Mapbox>
-                </StackLayout>
-
-                <!-- Name your location -->
-                <GridLayout rows="*" columns="*" class="m-t-30 m-b-20 m-x-10">
-                    <StackLayout row="0">
-                        <GridLayout rows="auto,auto" columns="*">
-                            <Label
-                                row="0"
-                                :text="_L('nameYourLocation')"
-                                class="size-12"
-                                v-if="station.locationName"
-                            />
-                            <TextField
-                                row="1"
-                                class="input"
-                                id="location-name-field"
-                                :hint="_L('nameYourLocation')"
-                                :isEnabled="true"
-                                keyboardType="name"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                v-model="station.locationName"
-                                @focus="toggleLocationEdit"
-                                @blur="checkLocationName"
-                            ></TextField>
-                        </GridLayout>
-                        <Label
-                            class="validation-error"
-                            id="no-location"
-                            horizontalAlignment="left"
-                            :text="_L('locationRequired')"
-                            textWrap="true"
-                            :visibility="noLocation ? 'visible' : 'collapsed'"
-                        ></Label>
-                        <Label
-                            class="validation-error"
-                            id="location-too-long"
-                            horizontalAlignment="left"
-                            :text="_L('locationOver255')"
-                            textWrap="true"
-                            :visibility="
-                                locationTooLong ? 'visible' : 'collapsed'
-                            "
-                        ></Label>
-                        <Label
-                            class="validation-error"
-                            id="location-not-printable"
-                            horizontalAlignment="left"
-                            :text="_L('locationNotPrintable')"
-                            textWrap="true"
-                            :visibility="
-                                locationNotPrintable ? 'visible' : 'collapsed'
-                            "
-                        ></Label>
-                    </StackLayout>
+                <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
+                    <StackLayout col="0" class="top-line"></StackLayout>
                 </GridLayout>
-                <!-- end: Name your location -->
+                <StackLayout
+                    class="text-center disconnect-warning"
+                    v-if="!station.connected"
+                >
+                    <Label text="Station disconnected." />
+                </StackLayout>
+            </StackLayout>
 
-                <!-- Data capture interval -->
-                <ConfigureCaptureInterval :station="station" />
-                <!-- end: Data capture interval -->
+            <ScrollView row="1">
+                <FlexboxLayout
+                    flexDirection="column"
+                    justifyContent="space-between"
+                >
+                    <StackLayout>
+                        <Mapbox
+                            :accessToken="mapboxToken"
+                            automationText="currentLocationMap"
+                            mapStyle="mapbox://styles/mapbox/outdoors-v11"
+                            height="150"
+                            hideCompass="false"
+                            zoomLevel="0"
+                            showUserLocation="false"
+                            disableZoom="false"
+                            disableRotation="false"
+                            disableScroll="false"
+                            disableTilt="false"
+                            @mapReady="onMapReady"
+                        ></Mapbox>
+                    </StackLayout>
 
+                    <!-- Name your location -->
+                    <GridLayout rows="*" columns="*" class="m-t-30 m-b-20 m-x-10">
+                        <StackLayout row="0">
+                            <GridLayout rows="auto,auto" columns="*">
+                                <Label
+                                    row="0"
+                                    :text="_L('nameYourLocation')"
+                                    class="size-12"
+                                    v-if="station.locationName"
+                                />
+                                <TextField
+                                    row="1"
+                                    class="input"
+                                    id="location-name-field"
+                                    :hint="_L('nameYourLocation')"
+                                    :isEnabled="true"
+                                    keyboardType="name"
+                                    autocorrect="false"
+                                    autocapitalizationType="none"
+                                    v-model="station.locationName"
+                                    @focus="toggleLocationEdit"
+                                    @blur="checkLocationName"
+                                ></TextField>
+                            </GridLayout>
+                            <Label
+                                class="validation-error"
+                                id="no-location"
+                                horizontalAlignment="left"
+                                :text="_L('locationRequired')"
+                                textWrap="true"
+                                :visibility="noLocation ? 'visible' : 'collapsed'"
+                            ></Label>
+                            <Label
+                                class="validation-error"
+                                id="location-too-long"
+                                horizontalAlignment="left"
+                                :text="_L('locationOver255')"
+                                textWrap="true"
+                                :visibility="
+                                    locationTooLong ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
+                            <Label
+                                class="validation-error"
+                                id="location-not-printable"
+                                horizontalAlignment="left"
+                                :text="_L('locationNotPrintable')"
+                                textWrap="true"
+                                :visibility="
+                                    locationNotPrintable ? 'visible' : 'collapsed'
+                                "
+                            ></Label>
+                        </StackLayout>
+                    </GridLayout>
+                    <!-- end: Name your location -->
+
+                    <!-- Data capture interval -->
+                    <ConfigureCaptureInterval :station="station" />
+                    <!-- end: Data capture interval -->
+                    <TextView id="hidden-field" />
+                </FlexboxLayout>
+            </ScrollView>
+
+            <!-- sticky continue button -->
+            <StackLayout row="2">
                 <Button
-                    class="btn btn-primary btn-padded m-y-20"
+                    class="btn btn-primary btn-padded m-b-10"
                     :text="_L('continue')"
                     automationText="nextButton"
                     @tap="goToNext"
                 ></Button>
-
-                <TextView id="hidden-field" />
-            </FlexboxLayout>
-        </ScrollView>
+            </StackLayout>
+        </GridLayout>
     </Page>
 </template>
 
