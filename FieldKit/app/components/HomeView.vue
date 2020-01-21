@@ -87,6 +87,11 @@ export default {
 				});
 			}, e => {
 				console.log("error", e);
+				alert({
+					title: "Diagnostics",
+					message: "Save Failed:\n" + e,
+					okButtonText: "OK"
+				});
 			});
 		},
 		uploadDiagnostics() {
@@ -98,6 +103,11 @@ export default {
 				});
 			}, e => {
 				console.log("error", e);
+				alert({
+					title: "Diagnostics",
+					message: "Upload Failed:\n" + e,
+					okButtonText: "OK"
+				});
 			});
 		},
         deleteDB() {
@@ -115,13 +125,26 @@ export default {
             const dataFolder = knownFolders
                 .currentApp()
                 .getFolder("FieldKitData");
+
             dataFolder
                 .remove()
                 .then(() => {
                     console.log("Data folder successfully deleted");
+
+					alert({
+						title: "Developer",
+						message: "Files removed!",
+						okButtonText: "OK"
+					});
                 })
                 .catch(err => {
                     console.log("Error removing data folder", err.stack);
+
+					alert({
+						title: "Developer",
+						message: "Error removing files!",
+						okButtonText: "OK"
+					});
                 });
         },
         scan(front) {

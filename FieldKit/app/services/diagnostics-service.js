@@ -131,8 +131,14 @@ export default class Diagnostics {
 	}
 
 	_uploadDatabase(id) {
+		console.log("getting database path");
+
 		const name = "fieldkit.sqlite3";
 		const path = this._getDatabasePath(name);
+
+		if (path) {
+			return Promise.reject();
+		}
 
 		console.log("diagnostics", path);
 
@@ -146,13 +152,19 @@ export default class Diagnostics {
 	}
 
 	_getDatabasePath(name) {
-		if (platform.isAndroid) {
-			const context = utils.ad.getApplicationContext();
-			return context.getDatabasePath(name).getAbsolutePath();
-		}
+		try {
+			if (platform.isAndroid) {
+				const context = utils.ad.getApplicationContext();
+				return context.getDatabasePath(name).getAbsolutePath();
+			}
 
-		const folder = fs.knownFolders.documents().path;
-		return folder + "/" + name;
+			const folder = fs.knownFolders.documents().path;
+			return folder + "/" + name;
+		}
+		catch (e) {
+			console.log("error getting path", er)
+			return null;
+		}
 	}
 
 	_recurse(f, callback) {
