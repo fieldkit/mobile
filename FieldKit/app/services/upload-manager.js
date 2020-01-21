@@ -3,6 +3,7 @@ import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { keysToCamel, serializePromiseChain } from "../utilities";
 import Services from "./services";
 import Config from "../config";
+import { Mutex } from "./mutexes";
 
 const log = Config.logger("UploadManager");
 
@@ -11,7 +12,7 @@ export default class UploadManager {
         this.databaseInterface = databaseInterface;
         this.portalInterface = portalInterface;
         this.progressService = progressService;
-		this._busy = false;
+		this._mutex = new Mutex();
     }
 
     getStatus() {
@@ -63,36 +64,29 @@ export default class UploadManager {
 	}
 
 	synchronizePortal() {
-        log.info("synchronizePortal");
+		log.info("synchronizePortal");
 
-        return this._onlyIfOnline().then(() => {
-			if (this._busy) {
-				return Promise.reject({
-					busy: true
-				});
-			}
+		return this._onlyIfOnline().then(() => {
+			return this._mutex.tryStart(() => {
+				return this.databaseInterface
+					.getPendingDownloads()
+					.then(downloads => {
+						log.info("pending (sync)", downloads);
 
-			this._busy = true;
-			return this.databaseInterface
-				.getPendingDownloads()
-				.then(downloads => {
-					log.info("pending (sync)", downloads);
+						return this._summarize(downloads).then(progressSummary => {
+							const operation = this.progressService.startUpload(progressSummary);
 
-					return this._summarize(downloads).then(progressSummary => {
-						const operation = this.progressService.startUpload(progressSummary);
-
-						return serializePromiseChain(
-							downloads,
-							this._uploadDownload.bind(this, operation)
-						).then(() => {
-							this._busy = false;
-							return operation.complete();
-						}).catch(error => {
-							this._busy = false;
-							return operation.cancel(error);
+							return serializePromiseChain(
+								downloads,
+								this._uploadDownload.bind(this, operation)
+							).then(() => {
+								return operation.complete();
+							}).catch(error => {
+								return operation.cancel(error);
+							});
 						});
 					});
-				});
+			});
 		})
 	}
 

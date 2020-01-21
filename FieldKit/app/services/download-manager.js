@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 
 import Services from "./services";
+import { Mutex } from "./mutexes";
 
 import { keysToCamel, getPathTimestamp } from "../utilities";
 import Constants from "../constants";
@@ -27,6 +28,7 @@ export default class DownloadManager {
         this.queryStation = queryStation;
         this.stationMonitor = stationMonitor;
         this.progressService = progressService;
+		this._mutex = new Mutex();
     }
 
     getStatus() {
@@ -151,7 +153,9 @@ export default class DownloadManager {
     startSynchronizeStation(deviceId) {
         log.info("startSynchronizeStation", deviceId);
 
-        return this._synchronizeConnectedStations(s => s.deviceId == deviceId);
+		return this._mutex.tryStart(() => {
+			return this._synchronizeConnectedStations(s => s.deviceId == deviceId);
+		});
     }
 
     _synchronizeConnectedStations(stationFilter) {
