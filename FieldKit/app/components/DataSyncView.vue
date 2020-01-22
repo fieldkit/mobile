@@ -419,6 +419,14 @@ export default {
                     // automatically start uploading if none in progress
                     if (!this.uploadInProgress) {
                         this.uploadData().catch(e => {
+							// If we're busy we're already uploading, so skip.
+							if (e.busy === true) {
+								return;
+							}
+							// JACOB: I can get us connectivity
+							// information another way, not a fan of
+							// parsing error messages like this.
+
                             // not parsing error message for now,
                             // unsure about iOS side, seems to be breaking
                             // if (
@@ -494,9 +502,14 @@ export default {
             return Services.StateManager()
                 .synchronizeStation(deviceId)
                 .catch(error => {
-                    console.log("ERROR SYNC STATION", JSON.stringify(error));
-                    console.log("ERROR SYNC STATION", error.message, error);
-                    console.error("ERROR SYNC STATION", error.message, error);
+					if (error.busy === true) {
+						console.log("busy, ignored");
+					}
+					else {
+						console.log("ERROR SYNC STATION", JSON.stringify(error));
+						console.log("ERROR SYNC STATION", error.message, error);
+						console.error("ERROR SYNC STATION", error.message, error);
+					}
                 });
         },
 
@@ -543,21 +556,26 @@ export default {
             return Services.StateManager()
                 .synchronizePortal()
                 .catch(error => {
-                    console.error("ERROR SYNC PORTAL", error);
-                    if (error.offline && !this.askedOnce) {
-                        this.askedOnce = true;
-                        return confirm({
-                            title: "FieldKit",
-                            message: _L("loginPrompt"),
-                            okButtonText: _L("yes"),
-                            cancelButtonText: _L("notNow")
-                        }).then(res => {
-                            if (res) {
-                                this.$navigateTo(routes.login, {});
-                            }
-                        });
-                    }
-                    throw new Error(error);
+					if (error.busy === true) {
+						console.log("busy, ignored");
+					}
+					else {
+						console.error("ERROR SYNC PORTAL", error);
+						if (error.offline && !this.askedOnce) {
+							this.askedOnce = true;
+							return confirm({
+								title: "FieldKit",
+								message: _L("loginPrompt"),
+								okButtonText: _L("yes"),
+								cancelButtonText: _L("notNow")
+							}).then(res => {
+								if (res) {
+									this.$navigateTo(routes.login, {});
+								}
+							});
+						}
+						throw new Error(error);
+					}
                 });
         },
 
