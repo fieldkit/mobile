@@ -45,6 +45,10 @@ export default class PhoneLocation {
 						return this.getLocation();
 					});
 				}
+
+				// TODO Remove this eventually.
+				this.testAccuries();
+
 				return this.getLocation();
 			} else {
 				return geolocation.enableLocationRequest().then(() => {
@@ -53,6 +57,60 @@ export default class PhoneLocation {
 					return new Coordinates(defaultLocation);
 				});
 			}
+		});
+	}
+
+	test(name, params) {
+		const started = new Date();
+		return geolocation
+			.getCurrentLocation(params)
+			.then(loc => {
+				const done = new Date();
+				const elapsed = done - started;
+				console.log("location done", name, elapsed, loc.latitude, loc.longitude, loc.horizontalAccuracy);
+			}, err => {
+				const done = new Date();
+				const elapsed = done - started;
+				console.log("location failed", name, elapsed, err);
+			});
+	}
+
+	testAccuries() {
+		const high20k = {
+			desiredAccuracy: Accuracy.high,
+			updateDistance: 10,
+			maximumAge: 20000,
+			timeout: 20000
+		};
+
+		const any20k = {
+			desiredAccuracy: Accuracy.any,
+			updateDistance: 10,
+			maximumAge: 20000,
+			timeout: 20000
+		};
+
+		const high2k = {
+			desiredAccuracy: Accuracy.high,
+			updateDistance: 10,
+			maximumAge: 2000,
+			timeout: 20000
+		};
+
+		const any2k = {
+			desiredAccuracy: Accuracy.any,
+			updateDistance: 10,
+			maximumAge: 2000,
+			timeout: 20000
+		};
+
+		return this.test('high20k', high20k).then(() => {
+			return this.test('any20k', any20k).then(() => {
+				return this.test('high2k', high2k).then(() => {
+					return this.test('any2k', any2k).then(() => {
+					});
+				});
+			});
 		});
 	}
 
