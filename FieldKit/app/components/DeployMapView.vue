@@ -241,7 +241,7 @@ export default {
                 let portalParams = {
                     stationId: this.station.portalId,
                     created: new Date(),
-                    category_id: 1,
+                    category_id: 2,
                     note: this.station.locationName
                 }
                 this.$portalInterface.addFieldNote(portalParams);
