@@ -218,7 +218,7 @@ export default class StationMonitor extends Observable {
         console.log("|--> Before updating station has", station.latitude, station.longitude);
         console.log("|--> First trying the station coords", result.status.gps.latitude, result.status.gps.longitude);
 		// JACOB: Before this would skip the update if they were the same, this just always does that.
-        if (areCoordinatesValid(result.status.gps.latitude, result.status.gps.longitude)) {
+        if (this.areCoordinatesValid(result.status.gps.latitude, result.status.gps.longitude)) {
             station.longitude = result.status.gps.longitude;
             station.latitude = result.status.gps.latitude;
 			console.log("|--> They look good so we are updating station", station.latitude, station.longitude);
@@ -227,7 +227,7 @@ export default class StationMonitor extends Observable {
         // some existing stations may have 1000, 1000 saved
         // we can probably remove this in the near future
         console.log("|--> Final check in case they are 1000 or 0", station.latitude, station.longitude);
-        if (!areCoordinatesValid(station.latitude, station.longitude) && areCoordinatesValid(this.phoneLat, this.phoneLong)) {
+        if (!this.areCoordinatesValid(station.latitude, station.longitude) && this.areCoordinatesValid(this.phoneLat, this.phoneLong)) {
             // use phone location
             station.longitude = this.phoneLong;
             station.latitude = this.phoneLat;
