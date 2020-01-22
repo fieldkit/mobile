@@ -13,10 +13,6 @@
                 @tap="viewStations"
             ></Button>
             <StackLayout class="spacer m-t-30"></StackLayout>
-            <Label
-                text="temporary buttons"
-                class="size-14 text-center m-t-20 m-b-20"
-            />
             <Button
                 class="btn btn-primary btn-padded"
                 text="Save Diagnostics"
