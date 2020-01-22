@@ -104,6 +104,18 @@ export default class DiscoverStation extends Observable {
         });
     }
 
+	subscribeAll(receiver) {
+		this.on(Observable.propertyChangeEvent, data => {
+			return receiver(data);
+		});
+
+		Object.keys(this.stations_).forEach(key => {
+			const station = this.stations_[key];
+			console.log("publishing known service", station);
+			this.onFoundService(station);
+		});
+	}
+
     _watchZeroconfAndMdns() {
 		return Services.Conservify().start("_fk._tcp");
     }

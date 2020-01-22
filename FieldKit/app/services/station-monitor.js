@@ -338,42 +338,40 @@ export default class StationMonitor extends Observable {
     }
 
     subscribeToStationDiscovery() {
-        this.discoverStation.on(
-            Observable.propertyChangeEvent,
-            data => {
-                switch (data.propertyName.toString()) {
-                    case this.discoverStation.StationFoundProperty: {
-                        this.checkDatabase(data.value.name, data.value.url);
-                        break;
-                    }
-                    case this.discoverStation.StationLostProperty: {
-                        if (data.value) {
-                            console.log("station lost");
-                            this.deactivateStation(data.value.name);
-                        }
-                        break;
-                    }
-                    default: {
-                        console.log(
-                            data.propertyName.toString() +
-                                " " +
-                                data.value.toString()
-                        );
-                        break;
-                    }
-                }
-            },
-            error => {
-                // console.log("propertyChangeEvent error", error);
-            }
-        );
-    }
+		console.log('subscribing to station discovery');
+		this.discoverStation.subscribeAll(data => {
+			switch (data.propertyName.toString()) {
+			case this.discoverStation.StationFoundProperty: {
+				this.checkDatabase(data.value.name, data.value.url);
+				break;
+			}
+			case this.discoverStation.StationLostProperty: {
+				if (data.value) {
+					console.log("station lost");
+					this.deactivateStation(data.value.name);
+				}
+				break;
+			}
+			default: {
+				console.log(
+					data.propertyName.toString() +
+						" " +
+						data.value.toString()
+				);
+				break;
+			}
+			}
+		}, error => {
+			// console.log("propertyChangeEvent error", error);
+		}
+							   );
+	}
 
-    checkDatabase(deviceId, address) {
-        return this.queryStation
-            .getStatus(address)
-            .then(statusResult => {
-                return this.dbInterface
+	checkDatabase(deviceId, address) {
+		return this.queryStation
+			.getStatus(address)
+			.then(statusResult => {
+				return this.dbInterface
                     .getStationByDeviceId(deviceId)
                     .then(result => {
                         if (result.length == 0) {
