@@ -500,19 +500,24 @@ export default {
                 fieldNote.complete = fieldNote.audioFile ? true : false;
             }
 
+            let category = 1; // default is 1, locationName is 2
             let savingStation = this.station;
             savingStation[note.field] = note.value;
             switch (note.field) {
                 case "studyObjective":
+                    category = 3;
                     dbInterface.setStationStudyObjective(savingStation);
                     break;
                 case "locationPurpose":
+                    category = 4;
                     dbInterface.setStationLocationPurpose(savingStation);
                     break;
                 case "siteCriteria":
+                    category = 5;
                     dbInterface.setStationSiteCriteria(savingStation);
                     break;
                 case "siteDescription":
+                    category = 6;
                     dbInterface.setStationSiteDescription(savingStation);
                     break;
             }
@@ -520,7 +525,7 @@ export default {
             let portalParams = {
                 stationId: this.station.portalId,
                 created: new Date(),
-                category_id: 2,
+                category_id: category,
                 note: note.value
             };
             this.$portalInterface.addFieldNote(portalParams);
