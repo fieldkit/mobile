@@ -775,7 +775,20 @@ export default {
                         this.$portalInterface
                             .addFieldNoteMedia(params)
                             .then(result => {
-                                // console.log("result? ---->", result);
+                                const data = JSON.parse(result.data);
+                                // TODO: this ^ upload can take awhile -
+                                // indicate progress?
+                                if (data && data.id) {
+                                    // Link image to station via field note
+                                    let portalParams = {
+                                        stationId: this.station.portalId,
+                                        created: new Date(),
+                                        category_id: 1,
+                                        note: note.value,
+                                        media_id: data.id
+                                    };
+                                    this.$portalInterface.addFieldNote(portalParams);
+                                }
                             });
                     }
                 },
