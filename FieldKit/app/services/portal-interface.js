@@ -203,6 +203,7 @@ export default class PortalInterface {
 			Authorization: this._appSettings.getString("accessToken")
 		});
 
+		console.log("portal query", (req.method || 'GET'), req.url);
 		return axios(req).then(response => {
 			return response.data;
 		}, error => {
@@ -210,7 +211,7 @@ export default class PortalInterface {
 				return this._tryRefreshToken(req);
 			}
 
-			console.log("portal error", error);
+			console.log("portal error", error.response.status, error.response.data);
 
 			throw error;
 		});

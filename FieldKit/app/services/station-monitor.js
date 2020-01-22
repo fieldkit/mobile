@@ -1,9 +1,11 @@
+import _ from "lodash";
 import { Observable } from "tns-core-modules/data/observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
-import Config from "../config";
-import _ from "lodash";
-
+import { Coordinates } from './phone-location';
+import Services from './services';
 import StationLogs from "./station-logs";
+
+import Config from "../config";
 
 const pastDate = new Date(2000, 0, 1);
 const oneHour = 3600000;
@@ -15,6 +17,55 @@ function is_internal_module(module) {
 
 function is_internal_sensor(sensor) {
     return !Config.includeInternalSensors && sensor.flags & 1; // TODO Pull this enum in from the protobuf file.
+}
+
+class Station {
+	constructor(station) {
+		this.connected = station.connected;
+		this.location = new Coordinates(station);
+		this.station = station;
+	}
+
+	haveNewPhoneLocation(phoneLocation) {
+		if (!this.connected) {
+			return Promise.resolve();
+		}
+
+		if (!phoneLocation.valid()) {
+			return Promise.resolve();
+		}
+
+		this.station.latitude = phoneLocation.latitude;
+		this.station.longitude = phoneLocation.longitude;
+
+		console.log("updating database");
+		return Services.Database().setStationLocationCoordinates(this.station).then(() => {
+			const portalId = this.station.portalId;
+			if (!portalId) {
+				return {};
+			}
+
+			console.log("station in portal, updating");
+			return Services.PortalInterface().isAvailable().then(yes => {
+				if (!yes) {
+					return {};
+				}
+
+				const params = {
+					name: this.station.name,
+					device_id: this.station.deviceId,
+					status_json: this.station
+				};
+
+				return Services.PortalInterface().updateStation(params, portalId).then(() => {
+					console.log("update done");
+					return { };
+				});
+			});
+		}).catch(error => {
+			console.log("error", error);
+		});
+	}
 }
 
 export default class StationMonitor extends Observable {
@@ -33,15 +84,15 @@ export default class StationMonitor extends Observable {
         this.StationRefreshedProperty = "stationRefreshed";
         this.ReadingsChangedProperty = "readingsChanged";
 		this.logs = new StationLogs(discoverStation, queryStation);
+		this.phoneLat = null;
+		this.phoneLon = null;
 
         // temporary method to clear out modules with no device ids
         this.dbInterface.removeNullIdModules();
 
         // TODO: hook in to lifecycle event instead?
         setTimeout(() => {
-            this.phoneLocation
-                .enableAndGetLocation()
-                .then(this.savePhoneLocation.bind(this));
+            this.phoneLocation.enableAndGetLocation().then(this.savePhoneLocation.bind(this));
             this.subscribeToStationDiscovery();
         }, 3000);
     }
@@ -51,10 +102,15 @@ export default class StationMonitor extends Observable {
         this.activeAddresses = [];
     }
 
-    savePhoneLocation(loc) {
-        this.phoneLat = loc.latitude;
-        this.phoneLong = loc.longitude;
-        console.log("|--> Phone coordinates reported as", this.phoneLat, this.phoneLong)
+    savePhoneLocation(location) {
+        console.log("|--> Phone coordinates reported as", location)
+
+		this.phoneLat = location.latitude;
+		this.phoneLon = location.longitude;
+
+		return Promise.all(Object.values(this.stations).map(station => {
+			return new Station(station).haveNewPhoneLocation(location);
+		}));
     }
 
     initializeStations(result) {
@@ -218,40 +274,33 @@ export default class StationMonitor extends Observable {
         console.log("|--> Before updating station has", station.latitude, station.longitude);
         console.log("|--> First trying the station coords", result.status.gps.latitude, result.status.gps.longitude);
 		// JACOB: Before this would skip the update if they were the same, this just always does that.
-        if (this.areCoordinatesValid(result.status.gps.latitude, result.status.gps.longitude)) {
-            station.longitude = result.status.gps.longitude;
-            station.latitude = result.status.gps.latitude;
-			console.log("|--> They look good so we are updating station", station.latitude, station.longitude);
+		const statusLocation = new Coordinates(result.status.gps);
+        if (statusLocation.valid()) {
+            station.longitude = statusLocation.longitude;
+            station.latitude = statusLocation.latitude;
+			console.log("|--> They look good so we are updating station", statusLocation);
             this.dbInterface.setStationLocationCoordinates(station);
         }
         // some existing stations may have 1000, 1000 saved
         // we can probably remove this in the near future
         console.log("|--> Final check in case they are 1000 or 0", station.latitude, station.longitude);
-        if (!this.areCoordinatesValid(station.latitude, station.longitude) && this.areCoordinatesValid(this.phoneLat, this.phoneLong)) {
-            // use phone location
-            station.longitude = this.phoneLong;
-            station.latitude = this.phoneLat;
-			console.log("|--> They were no good so using the phones location", station.latitude, station.longitude);
-            this.dbInterface.setStationLocationCoordinates(station);
+		const stationLocation = new Coordinates(station.latitude, station.longitude);
+        if (!stationLocation.valid()) {
+			const pl = new Coordinates(this.phoneLat, this.phoneLon);
+			if (pl.valid()) {
+				station.longitude = pl.latitude;
+				station.latitude = pl.longitude;
+				console.log("|--> They were no good so using the phones location", station.latitude, station.longitude);
+				this.dbInterface.setStationLocationCoordinates(station);
+			}
+			else {
+				console.log("|--> Phone's location is bad");
+			}
         }
         console.log("|--> The app is done updating and station has", station.latitude, station.longitude);
 
         this.keepModulesAndSensorsInSync(station, result);
     }
-
-	areCoordinatesValid(lat, lon) {
-		if (lat === null || lon === null) {
-			return false;
-		}
-		if (lat > 90 || lat < -90 || lon > 180 || lon < -180) {
-			return false;
-		}
-		// TODO We need to find why this happens and fix it.
-		if (lat === 0 && lon === 0) {
-			return false;
-		}
-		return true;
-	}
 
     keepModulesAndSensorsInSync(station, result) {
         const hwModules = result.modules.filter(m => {
