@@ -363,8 +363,7 @@ export default class StationMonitor extends Observable {
 			}
 		}, error => {
 			// console.log("propertyChangeEvent error", error);
-		}
-							   );
+		});
 	}
 
 	checkDatabase(deviceId, address) {
@@ -543,6 +542,12 @@ export default class StationMonitor extends Observable {
             this.activeAddresses.splice(index, 1);
         }
     }
+
+	subscribeAll(receiver) {
+		this.on(Observable.propertyChangeEvent, receiver);
+
+		this._publishStationsUpdated();
+	}
 
     _publishStationRefreshed(station) {
         this.notifyPropertyChange(this.StationRefreshedProperty, station);

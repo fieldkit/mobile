@@ -141,12 +141,8 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            this.stations = this.$stationMonitor.getStations();
 
-            this.$stationMonitor.on(
-                Observable.propertyChangeEvent,
-                this.updateStations
-            );
+            this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
         },
 
         onMapReady(args) {
