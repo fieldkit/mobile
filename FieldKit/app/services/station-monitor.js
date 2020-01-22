@@ -217,34 +217,41 @@ export default class StationMonitor extends Observable {
 
         console.log("|--> Before updating station has", station.latitude, station.longitude);
         console.log("|--> First trying the station coords", result.status.gps.latitude, result.status.gps.longitude);
-        if (
-            (result.status.gps.longitude != 1000 &&
-                station.longitude != result.status.gps.longitude) ||
-            (result.status.gps.latitude != 1000 &&
-                station.latitude != result.status.gps.latitude)
-        ) {
+		// JACOB: Before this would skip the update if they were the same, this just always does that.
+        if (areCoordinatesValid(result.status.gps.latitude, result.status.gps.longitude)) {
             station.longitude = result.status.gps.longitude;
             station.latitude = result.status.gps.latitude;
-        console.log("|--> They look good so we are updating station", station.latitude, station.longitude);
+			console.log("|--> They look good so we are updating station", station.latitude, station.longitude);
             this.dbInterface.setStationLocationCoordinates(station);
         }
         // some existing stations may have 1000, 1000 saved
         // we can probably remove this in the near future
         console.log("|--> Final check in case they are 1000 or 0", station.latitude, station.longitude);
-        if (
-            station.latitude == 1000 || station.longitude == 1000 ||
-            station.latitude === 0 || station.longitude === 0
-        ) {
+        if (!areCoordinatesValid(station.latitude, station.longitude) && areCoordinatesValid(this.phoneLat, this.phoneLong)) {
             // use phone location
             station.longitude = this.phoneLong;
             station.latitude = this.phoneLat;
-        console.log("|--> They were no good so using the phones location", station.latitude, station.longitude);
+			console.log("|--> They were no good so using the phones location", station.latitude, station.longitude);
             this.dbInterface.setStationLocationCoordinates(station);
         }
         console.log("|--> The app is done updating and station has", station.latitude, station.longitude);
 
         this.keepModulesAndSensorsInSync(station, result);
     }
+
+	areCoordinatesValid(lat, lon) {
+		if (lat === null || lon === null) {
+			return false;
+		}
+		if (lat > 90 || lat < -90 || lon > 180 || lon < -180) {
+			return false;
+		}
+		// TODO We need to find why this happens and fix it.
+		if (lat === 0 && lon === 0) {
+			return false;
+		}
+		return true;
+	}
 
     keepModulesAndSensorsInSync(station, result) {
         const hwModules = result.modules.filter(m => {
