@@ -136,10 +136,6 @@ export default class Diagnostics {
 		const name = "fieldkit.sqlite3";
 		const path = this._getDatabasePath(name);
 
-		if (path) {
-			return Promise.reject();
-		}
-
 		console.log("diagnostics", path);
 
 		return Services.Conservify().upload({
@@ -158,11 +154,11 @@ export default class Diagnostics {
 				return context.getDatabasePath(name).getAbsolutePath();
 			}
 
-			const folder = fs.knownFolders.documents().path;
+			const folder = knownFolders.documents().path;
 			return folder + "/" + name;
 		}
 		catch (e) {
-			console.log("error getting path", er)
+			console.log("error getting path", e)
 			return null;
 		}
 	}
