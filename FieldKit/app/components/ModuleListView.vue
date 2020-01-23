@@ -223,7 +223,7 @@ export default {
 
 .module-name {
     font-size: 18;
-    margin-top: 2;
+    margin-bottom: 2;
 }
 
 .sensor-block {
