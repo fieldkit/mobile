@@ -185,6 +185,7 @@
                             <Label
                                 :text="_L('addDetails')"
                                 class="lighter size-14 m-b-10"
+                                textWrap="true"
                             ></Label>
                         </StackLayout>
 
