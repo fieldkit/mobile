@@ -322,36 +322,22 @@
                         <Label
                             :text="'Firmware: ' + versions.firmware"
                             class="size-16 full-width m-t-10"
+                            textWrap="true"
                         />
                         <Label
                             :text="'Firmware build: ' + versions.firmwareBuild"
                             class="size-16 full-width"
+                            textWrap="true"
+                        />
+                        <Label
+                            :text="'Firmware number: ' + versions.firmwareNumber"
+                            class="size-16 full-width"
+                            textWrap="true"
                         />
                         <Label
                             :text="'Device ID: ' + versions.device"
                             class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'App build time: ' + versions.appBuildTime"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="
-                                'App build number: ' + versions.appBuildNumber
-                            "
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'Build Tag: ' + versions.appBuildTag"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'Commit: ' + versions.appCommit"
-                            class="size-16 full-width"
-                        />
-                        <Label
-                            :text="'Branch: ' + versions.appBranch"
-                            class="size-16 full-width"
+                            textWrap="true"
                         />
                     </WrapLayout>
 
@@ -371,7 +357,6 @@ import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
 import Services from "../services/services";
 import { hexStringToByteWiseString } from "../utilities";
-import { Build } from "../config";
 
 const stateManager = Services.StateManager();
 const dbInterface = Services.Database();
@@ -396,12 +381,8 @@ export default {
             versions: {
                 firmware: "1.0",
                 firmwareBuild: "1.0",
-                device: "1.0",
-                appBuildTime: Build.buildTime,
-                appBuildNumber: Build.buildTime,
-                appBuildTag: Build.buildTime,
-                appCommit: hexStringToByteWiseString(Build.commit),
-                appBranch: Build.branch
+                firmwareNumber: "--",
+                device: "1.0"
             }
         };
     },
@@ -418,15 +399,27 @@ export default {
             this.userName = user.name;
             let deviceStatus = JSON.parse(this.station.statusJson);
             if (deviceStatus && deviceStatus.status.identity) {
-                let chunks = deviceStatus.status.identity.build.split("_");
-                this.versions.firmwareBuild =
-                    chunks[chunks.length - 2] + "_" + chunks[chunks.length - 1];
-                this.versions.device = hexStringToByteWiseString(
-                    deviceStatus.status.identity.deviceId
-                );
-                this.versions.firmware = hexStringToByteWiseString(
-                    deviceStatus.status.identity.firmware
-                );
+                if (deviceStatus.status.identity.deviceId) {
+                    this.versions.device = hexStringToByteWiseString(
+                        deviceStatus.status.identity.deviceId
+                    );
+                }
+                if (deviceStatus.status.firmware) {
+                    // newer firmware
+                    this.versions.firmware = hexStringToByteWiseString(
+                        deviceStatus.status.firmware.hash
+                    );
+                    this.versions.firmwareBuild = deviceStatus.status.firmware.build;
+                    this.versions.firmwareNumber = deviceStatus.status.firmware.number;
+                } else if (deviceStatus.status.identity.firmware) {
+
+                    this.versions.firmware = hexStringToByteWiseString(
+                        deviceStatus.status.identity.firmware
+                    );
+                    let chunks = deviceStatus.status.identity.build.split("_");
+                    this.versions.firmwareBuild =
+                        chunks[chunks.length - 2] + "_" + chunks[chunks.length - 1];
+                }
             }
             if (deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks;
@@ -745,5 +738,6 @@ export default {
 
 .full-width {
     width: 100%;
+    margin-bottom: 10;
 }
 </style>
