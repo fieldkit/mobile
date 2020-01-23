@@ -2,9 +2,9 @@ import _ from "lodash";
 import { Observable } from "tns-core-modules/data/observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import { Coordinates } from './phone-location';
+import { Station } from './station';
 import Services from './services';
 import StationLogs from "./station-logs";
-
 import Config from "../config";
 
 const pastDate = new Date(2000, 0, 1);
@@ -17,55 +17,6 @@ function is_internal_module(module) {
 
 function is_internal_sensor(sensor) {
     return !Config.includeInternalSensors && sensor.flags & 1; // TODO Pull this enum in from the protobuf file.
-}
-
-class Station {
-	constructor(station) {
-		this.connected = station.connected;
-		this.location = new Coordinates(station);
-		this.station = station;
-	}
-
-	haveNewPhoneLocation(phoneLocation) {
-		if (!this.connected) {
-			return Promise.resolve();
-		}
-
-		if (!phoneLocation.valid()) {
-			return Promise.resolve();
-		}
-
-		this.station.latitude = phoneLocation.latitude;
-		this.station.longitude = phoneLocation.longitude;
-
-		console.log("updating database");
-		return Services.Database().setStationLocationCoordinates(this.station).then(() => {
-			const portalId = this.station.portalId;
-			if (!portalId) {
-				return {};
-			}
-
-			console.log("station in portal, updating");
-			return Services.PortalInterface().isAvailable().then(yes => {
-				if (!yes) {
-					return {};
-				}
-
-				const params = {
-					name: this.station.name,
-					device_id: this.station.deviceId,
-					status_json: this.station
-				};
-
-				return Services.PortalInterface().updateStation(params, portalId).then(() => {
-					console.log("update done");
-					return { };
-				});
-			});
-		}).catch(error => {
-			console.log("error", error);
-		});
-	}
 }
 
 export default class StationMonitor extends Observable {
