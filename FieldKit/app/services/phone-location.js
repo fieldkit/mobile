@@ -1,33 +1,7 @@
 import * as geolocation from "nativescript-geolocation";
 import { Accuracy } from "tns-core-modules/ui/enums";
 import { promiseAfter } from '../utilities';
-
-export class Coordinates {
-	constructor(lat, lon) {
-		if (lat && lat.latitude) {
-			this.latitude = lat.latitude;
-			this.longitude = lat.longitude;
-		}
-		else {
-			this.latitude = lat || null;
-			this.longitude = lon || null;
-		}
-	}
-
-	valid() {
-		if (this.latitude === null || this.longitude === null) {
-			return false;
-		}
-		if (this.latitude > 90 || this.latitude < -90 || this.longitude > 180 || this.longitude < -180) {
-			return false;
-		}
-		// TODO We need to find why this happens and fix it.
-		if (this.latitude === 0 && this.longitude === 0) {
-			return false;
-		}
-		return true;
-	}
-};
+import { Coordinates } from './my-stations';
 
 // Conservify's office in LA:
 const defaultLocation = {

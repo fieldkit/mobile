@@ -1,8 +1,7 @@
 import _ from "lodash";
 import { Observable } from "tns-core-modules/data/observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
-import { Coordinates } from './phone-location';
-import { Phone, MyStations } from './my-stations';
+import { Coordinates, Phone, MyStations } from './my-stations';
 import Services from './services';
 import StationLogs from "./station-logs";
 import Config from "../config";
