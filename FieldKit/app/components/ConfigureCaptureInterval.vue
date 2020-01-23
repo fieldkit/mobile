@@ -1,7 +1,7 @@
 <template>
     <!-- Data capture interval -->
     <StackLayout class="m-x-10 m-y-20" @loaded="onLoaded">
-        <Label class="size-18" :text="_L('dataCaptureSchedule')"></Label>
+        <Label class="size-18 bold" :text="_L('dataCaptureSchedule')"></Label>
         <Label
             class="gray-text size-14 m-y-5"
             textWrap="true"

@@ -75,13 +75,13 @@
                                 row="0"
                                 col="0"
                                 text="Field Notes"
-                                class="size-18"
+                                class="size-18 bold"
                             ></Label>
                             <Label
                                 row="0"
                                 col="1"
                                 :text="percentComplete + '% ' + _L('complete')"
-                                class="size-14 blue"
+                                class="size-14 bold blue"
                                 verticalAlignment="bottom"
                             ></Label>
                             <Label
@@ -109,7 +109,7 @@
                                 row="0"
                                 col="0"
                                 :text="note.title"
-                                class="size-16 m-b-5"
+                                class="size-16 bold m-b-5"
                             ></Label>
                             <Label
                                 row="1"
@@ -141,7 +141,7 @@
                         <StackLayout class="m-t-20">
                             <Label
                                 :text="_L('photosRequired')"
-                                class="size-16 m-b-5"
+                                class="size-16 bold m-b-5"
                             ></Label>
                             <Label
                                 :text="_L('photosInstruction')"
@@ -178,7 +178,7 @@
                         <StackLayout class="m-t-30">
                             <Label
                                 :text="_L('additionalNotes')"
-                                class="size-16 m-b-5"
+                                class="size-16 bold m-b-5"
                             ></Label>
                             <Label
                                 :text="_L('addDetails')"
@@ -239,7 +239,7 @@
                             />
                             <Label
                                 :text="_L('addNote')"
-                                class="p-l-5"
+                                class="bold m-t-5 p-l-5"
                                 @tap="createAdditionalNote"
                             ></Label>
                         </FlexboxLayout>

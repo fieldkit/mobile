@@ -42,7 +42,8 @@ h1 {
 
 .title {
     color: $fk-primary-black;
-    font-family: "Avenir LT Pro", "AvenirLTPro-Medium";
+    font-weight: bold;
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
     font-size: 16;
 }
 .subtitle {
@@ -106,8 +107,7 @@ h1 {
     color: $fk-primary-black;
     font-size: 16;
     background-color: #FDDB7A;
-    padding-top: 5;
-    padding-bottom: 5;
+    height: 37;
 }
 
 //Font icon
