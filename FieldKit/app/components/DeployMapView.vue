@@ -1,7 +1,7 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
 
-        <GridLayout rows="105,*,80">
+        <GridLayout :rows="station.connected ? (ios ? '68,*,80' : '75,*,80') : '105,*,80'">
             <StackLayout row="0">
                 <ScreenHeader
                     :title="viewTitle"
@@ -119,6 +119,7 @@
 </template>
 
 <script>
+import { isIOS } from "tns-core-modules/platform";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 import ScreenHeader from "./ScreenHeader";
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
@@ -130,6 +131,7 @@ const dbInterface = Services.Database();
 export default {
     data() {
         return {
+            ios: isIOS,
             viewTitle: _L("deployment"),
             mapboxToken: MAPBOX_ACCESS_TOKEN,
             origLocationName: "",

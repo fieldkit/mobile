@@ -1,7 +1,8 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <ScrollView>
-            <FlexboxLayout flexDirection="column" class="p-t-10">
+        <GridLayout :rows="station.connected ? '75,*,80' : '105,*,80'">
+            <!-- sticky header section and progress bar -->
+            <StackLayout row="0">
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="stationName"
@@ -17,152 +18,160 @@
                 >
                     <Label text="Station disconnected." />
                 </StackLayout>
+            </StackLayout>
 
-                <!-- station coordinates -->
-                <StackLayout class="review-section">
-                    <Label
-                        :text="_L('stationCoordinates')"
-                        class="size-16 bold m-b-10"
-                    ></Label>
-                    <GridLayout rows="auto,auto" columns="35*,65*">
+            <ScrollView row="1">
+                <FlexboxLayout flexDirection="column" class="p-t-10">
+
+
+                    <!-- station coordinates -->
+                    <StackLayout class="review-section">
+                        <Label
+                            :text="_L('stationCoordinates')"
+                            class="size-16 bold m-b-10"
+                        ></Label>
+                        <GridLayout rows="auto,auto" columns="35*,65*">
+                            <Label
+                                row="0"
+                                col="0"
+                                :text="_L('latitude')"
+                                class="m-b-5"
+                            ></Label>
+                            <Label row="1" col="0" :text="station.latitude"></Label>
+                            <Label row="0" col="1" :text="_L('longitude')"></Label>
+                            <Label
+                                row="1"
+                                col="1"
+                                :text="station.longitude"
+                            ></Label>
+                        </GridLayout>
+                    </StackLayout>
+
+                    <!-- location name and data capture interval -->
+                    <StackLayout class="review-section">
+                        <GridLayout rows="auto" columns="90*,10*">
+                            <Label col="0" :text="_L('nameYourLocation')" />
+                            <Image
+                                col="1"
+                                src="~/images/Icon_Edit.png"
+                                width="18"
+                                @tap="editLocation"
+                            />
+                        </GridLayout>
+                        <Label
+                            :text="
+                                station.locationName
+                                    ? station.locationName
+                                    : _L('noNameGiven')
+                            "
+                        />
+                        <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
+                        <Label :text="_L('basic')" />
+                        <Label :text="_L('every')" class="m-t-20 m-b-5" />
+                        <Label :text="getInterval()" />
+                    </StackLayout>
+
+                    <!-- field notes -->
+                    <StackLayout class="review-section-no-border">
+                        <GridLayout
+                            rows="auto"
+                            columns="30*,60*,10*"
+                            class="m-b-10"
+                        >
+                            <Label
+                                row="0"
+                                col="0"
+                                text="Field Notes"
+                                class="size-16 bold"
+                            ></Label>
+                            <Label
+                                row="0"
+                                col="1"
+                                :text="percentComplete + '% ' + _L('complete')"
+                                class="size-12 blue"
+                                verticalAlignment="bottom"
+                            ></Label>
+                            <Image
+                                row="0"
+                                col="2"
+                                src="~/images/Icon_Edit.png"
+                                width="18"
+                                @tap="editNotes"
+                            />
+                        </GridLayout>
+                        <StackLayout
+                            v-for="note in completeNotes"
+                            :key="note.field"
+                        >
+                            <Label
+                                :text="note.title"
+                                class="size-14 m-t-10 m-b-5"
+                            ></Label>
+                            <Label
+                                v-if="note.value"
+                                :text="note.value"
+                                class="size-12"
+                                textWrap="true"
+                            ></Label>
+                            <Image
+                                v-if="note.audioFile"
+                                src="~/images/Icon_Mic.png"
+                                width="17"
+                                horizontalAlignment="left"
+                            />
+                        </StackLayout>
+                    </StackLayout>
+
+                    <!-- photos -->
+                    <StackLayout class="review-section-no-border">
+                        <Label :text="_L('photosRequired')" class="size-12"></Label>
+                        <WrapLayout orientation="horizontal">
+                            <StackLayout
+                                v-for="photo in photos"
+                                :key="photo.id"
+                                class="photo-display"
+                            >
+                                <Image :src="photo.src" stretch="aspectFit" />
+                            </StackLayout>
+                        </WrapLayout>
+                    </StackLayout>
+
+                    <!-- additional notes -->
+                    <GridLayout
+                        row="0"
+                        rows="auto,auto"
+                        columns="90*,10*"
+                        class="additional-note-section"
+                        v-for="note in additionalNotes"
+                        :key="note.fieldNoteId"
+                    >
                         <Label
                             row="0"
                             col="0"
-                            :text="_L('latitude')"
-                            class="m-b-5"
+                            :text="note.title"
+                            class="size-14 m-b-5"
                         ></Label>
-                        <Label row="1" col="0" :text="station.latitude"></Label>
-                        <Label row="0" col="1" :text="_L('longitude')"></Label>
                         <Label
                             row="1"
-                            col="1"
-                            :text="station.longitude"
-                        ></Label>
-                    </GridLayout>
-                </StackLayout>
-
-                <!-- location name and data capture interval -->
-                <StackLayout class="review-section">
-                    <GridLayout rows="auto" columns="90*,10*">
-                        <Label col="0" :text="_L('nameYourLocation')" />
-                        <Image
-                            col="1"
-                            src="~/images/Icon_Edit.png"
-                            width="18"
-                            @tap="editLocation"
-                        />
-                    </GridLayout>
-                    <Label
-                        :text="
-                            station.locationName
-                                ? station.locationName
-                                : _L('noNameGiven')
-                        "
-                    />
-                    <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
-                    <Label :text="_L('basic')" />
-                    <Label :text="_L('every')" class="m-t-20 m-b-5" />
-                    <Label :text="getInterval()" />
-                </StackLayout>
-
-                <!-- field notes -->
-                <StackLayout class="review-section-no-border">
-                    <GridLayout
-                        rows="auto"
-                        columns="30*,60*,10*"
-                        class="m-b-10"
-                    >
-                        <Label
-                            row="0"
                             col="0"
-                            text="Field Notes"
-                            class="size-16 bold"
-                        ></Label>
-                        <Label
-                            row="0"
-                            col="1"
-                            :text="percentComplete + '% ' + _L('complete')"
-                            class="size-12 blue"
-                            verticalAlignment="bottom"
-                        ></Label>
-                        <Image
-                            row="0"
-                            col="2"
-                            src="~/images/Icon_Edit.png"
-                            width="18"
-                            @tap="editNotes"
-                        />
-                    </GridLayout>
-                    <StackLayout
-                        v-for="note in completeNotes"
-                        :key="note.field"
-                    >
-                        <Label
-                            :text="note.title"
-                            class="size-14 m-t-10 m-b-5"
-                        ></Label>
-                        <Label
-                            v-if="note.value"
                             :text="note.value"
-                            class="size-12"
+                            v-if="note.value"
+                            class="size-12 m-b-10"
                             textWrap="true"
                         ></Label>
                         <Image
+                            rowSpan="2"
+                            col="1"
                             v-if="note.audioFile"
                             src="~/images/Icon_Mic.png"
                             width="17"
-                            horizontalAlignment="left"
                         />
-                    </StackLayout>
-                </StackLayout>
+                    </GridLayout>
+                </FlexboxLayout>
+            </ScrollView>
 
-                <!-- photos -->
-                <StackLayout class="review-section-no-border">
-                    <Label :text="_L('photosRequired')" class="size-12"></Label>
-                    <WrapLayout orientation="horizontal">
-                        <StackLayout
-                            v-for="photo in photos"
-                            :key="photo.id"
-                            class="photo-display"
-                        >
-                            <Image :src="photo.src" stretch="aspectFit" />
-                        </StackLayout>
-                    </WrapLayout>
-                </StackLayout>
-
-                <!-- additional notes -->
-                <GridLayout
-                    row="0"
-                    rows="auto,auto"
-                    columns="90*,10*"
-                    class="additional-note-section"
-                    v-for="note in additionalNotes"
-                    :key="note.fieldNoteId"
-                >
-                    <Label
-                        row="0"
-                        col="0"
-                        :text="note.title"
-                        class="size-14 m-b-5"
-                    ></Label>
-                    <Label
-                        row="1"
-                        col="0"
-                        :text="note.value"
-                        v-if="note.value"
-                        class="size-12 m-b-10"
-                        textWrap="true"
-                    ></Label>
-                    <Image
-                        rowSpan="2"
-                        col="1"
-                        v-if="note.audioFile"
-                        src="~/images/Icon_Mic.png"
-                        width="17"
-                    />
-                </GridLayout>
-
-                <!-- record button -->
+            <!-- sticky record button -->
+            <StackLayout row="2">
                 <Button
                     class="btn btn-primary btn-padded m-20"
                     :text="(
@@ -174,8 +183,8 @@
                     textWrap="true"
                     @tap="deployStation"
                 ></Button>
-            </FlexboxLayout>
-        </ScrollView>
+            </StackLayout>
+        </GridLayout>
     </Page>
 </template>
 
