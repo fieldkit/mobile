@@ -10,6 +10,8 @@
                     :title="viewTitle"
                     :subtitle="stationName"
                     :onBack="goBack"
+                    :canCancel="true"
+                    :onCancel="onNavCancel"
                     :canNavigateSettings="false"
                     v-if="!isEditing"
                 />
@@ -355,6 +357,21 @@ export default {
 
             this.$navigateTo(routes.deployMap, {
                 props: {
+                    station: this.station
+                }
+            });
+        },
+
+        onNavCancel(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    stationId: this.station.id,
                     station: this.station
                 }
             });

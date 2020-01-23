@@ -28,6 +28,14 @@
         <StackLayout
             col="2"
             class="round-bkgd"
+            @tap="onCancel"
+            v-if="canCancel"
+        >
+            <Image width="21" src="~/images/Icon_Close.png"></Image>
+        </StackLayout>
+        <StackLayout
+            col="2"
+            class="round-bkgd"
             @tap="onSettings"
             v-if="canNavigateSettings"
         >
@@ -55,9 +63,17 @@ export default {
             type: Function,
             default: () => {}
         },
+        onCancel: {
+            type: Function,
+            default: () => {}
+        },
         onSettings: {
             type: Function,
             default: () => {}
+        },
+        canCancel: {
+            type: Boolean,
+            default: false
         },
         canNavigateBack: {
             type: Boolean,

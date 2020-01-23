@@ -7,6 +7,8 @@
                     :title="viewTitle"
                     :subtitle="station.name"
                     :onBack="goBack"
+                    :canCancel="true"
+                    :onCancel="onNavCancel"
                     :canNavigateSettings="false"
                 />
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
@@ -182,6 +184,21 @@ export default {
 
             this.$navigateTo(routes.deployNotes, {
                 props: {
+                    station: this.station
+                }
+            });
+        },
+
+        onNavCancel(event) {
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            this.$navigateTo(routes.stationDetail, {
+                props: {
+                    stationId: this.station.id,
                     station: this.station
                 }
             });
