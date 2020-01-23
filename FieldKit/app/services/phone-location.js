@@ -47,7 +47,7 @@ export default class PhoneLocation {
 				}
 
 				// TODO Remove this eventually.
-				this.testAccuries();
+				this.testAccuracies();
 
 				return this.getLocation();
 			} else {
@@ -75,7 +75,7 @@ export default class PhoneLocation {
 			});
 	}
 
-	testAccuries() {
+	testAccuracies() {
 		const high20k = {
 			desiredAccuracy: Accuracy.high,
 			updateDistance: 10,
