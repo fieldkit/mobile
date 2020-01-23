@@ -82,11 +82,15 @@
                     </Gridlayout>
                 </StackLayout>
 
-                <Image
-                    order="4"
-                    v-if="displayFrame"
-                    :src="displayFrame"
-                ></Image>
+                <GridLayout rows="*" columns="*">
+                    <Image
+                        verticalAlignment="middle"
+                        order="4"
+                        v-if="displayFrame"
+                        :src="displayFrame"
+                    ></Image>
+                </GridLayout>
+
             </StackLayout>
             <!-- end assembly steps section -->
 
