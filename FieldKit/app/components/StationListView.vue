@@ -282,8 +282,8 @@ export default {
                     iconPath: s.connected
                         ? "images/Icon_Map_Dot.png"
                         : "images/Icon_Map_Dot_unconnected.png",
-                    selected: i == 0, // select top (only one can be selected)
-                    onCalloutTap: this.onMapMarkerTap
+                    onTap: this.onMarkerTap,
+                    onCalloutTap: this.onCalloutTap
                 });
             });
 
@@ -324,7 +324,19 @@ export default {
             }
         },
 
-        onMapMarkerTap(marker) {
+        onMarkerTap(marker) {
+            this.map.setZoomLevel({
+                level: 14,
+                animated: false
+            });
+            this.map.setCenter({
+                lat: marker.lat,
+                lng: marker.lng,
+                animated: false
+            });
+        },
+
+        onCalloutTap(marker) {
             // remove the "marker-" prefix
             let id = marker.id.split("marker-")[1];
             let stationObj = null;

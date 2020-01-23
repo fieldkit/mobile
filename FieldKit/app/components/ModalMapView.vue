@@ -51,9 +51,10 @@ export default {
     methods: {
         onMapReady(args) {
             this.map = args.map;
-            // re-define event listener
+            // re-define event listeners
             this.stationMarkers.forEach(s => {
-                s.onCalloutTap = this.onMapMarkerTap
+                s.onTap = this.onMarkerTap;
+                s.onCalloutTap = this.onCalloutTap
             });
 
             if (this.stationMarkers.length == 1 && this.map) {
@@ -103,7 +104,19 @@ export default {
             }
         },
 
-        onMapMarkerTap(marker) {
+        onMarkerTap(marker) {
+            this.map.setZoomLevel({
+                level: 14,
+                animated: false
+            });
+            this.map.setCenter({
+                lat: marker.lat,
+                lng: marker.lng,
+                animated: false
+            });
+        },
+
+        onCalloutTap(marker) {
             // TODO: show spinner?
 
             // remove the "marker-" prefix
