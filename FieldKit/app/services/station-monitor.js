@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Observable } from "tns-core-modules/data/observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import { Coordinates } from './phone-location';
-import { Station } from './station';
+import { Phone, MyStations } from './my-stations';
 import Services from './services';
 import StationLogs from "./station-logs";
 import Config from "../config";
@@ -35,8 +35,8 @@ export default class StationMonitor extends Observable {
         this.StationRefreshedProperty = "stationRefreshed";
         this.ReadingsChangedProperty = "readingsChanged";
 		this.logs = new StationLogs(discoverStation, queryStation);
-		this.phoneLat = null;
-		this.phoneLon = null;
+		this.phone = new Phone();
+		this.myStations = new MyStations();
 
         // temporary method to clear out modules with no device ids
         this.dbInterface.removeNullIdModules();
@@ -56,11 +56,10 @@ export default class StationMonitor extends Observable {
     savePhoneLocation(location) {
         console.log("|--> Phone coordinates reported as", location)
 
-		this.phoneLat = location.latitude;
-		this.phoneLon = location.longitude;
+		this.phone.location = new Coordinates(location);
 
 		return Promise.all(Object.values(this.stations).map(station => {
-			return new Station(station).haveNewPhoneLocation(location);
+			return this.myStations.get(station).haveNewPhoneLocation(this.phone);
 		}));
     }
 
@@ -222,33 +221,18 @@ export default class StationMonitor extends Observable {
         }
         station.name = result.status.identity.device;
 
-        console.log("|--> Before updating station has", station.latitude, station.longitude);
-        console.log("|--> First trying the station coords", result.status.gps.latitude, result.status.gps.longitude);
-		// JACOB: Before this would skip the update if they were the same, this just always does that.
-		const statusLocation = new Coordinates(result.status.gps);
-        if (statusLocation.valid()) {
-            station.longitude = statusLocation.longitude;
-            station.latitude = statusLocation.latitude;
-			console.log("|--> They look good so we are updating station", statusLocation);
-            this.dbInterface.setStationLocationCoordinates(station);
-        }
-        // some existing stations may have 1000, 1000 saved
-        // we can probably remove this in the near future
-        console.log("|--> Final check in case they are 1000 or 0", station.latitude, station.longitude);
-		const stationLocation = new Coordinates(station.latitude, station.longitude);
-        if (!stationLocation.valid()) {
-			const pl = new Coordinates(this.phoneLat, this.phoneLon);
-			if (pl.valid()) {
-				station.longitude = pl.latitude;
-				station.latitude = pl.longitude;
-				console.log("|--> They were no good so using the phones location", station.latitude, station.longitude);
-				this.dbInterface.setStationLocationCoordinates(station);
-			}
-			else {
-				console.log("|--> Phone's location is bad");
-			}
-        }
-        console.log("|--> The app is done updating and station has", station.latitude, station.longitude);
+		// I'd like to move this state manipulation code into objects
+		// that have a narrower set of dependencies so that we can do
+		// more automated testing. Eventually most of the above code
+		// can migrate into these objects.
+		try {
+			const updatePromise = this.myStations.get(station).haveNewStatus(result, this.phone).catch((err) => {
+				console.log("error", err);
+			});
+		}
+		catch (err) {
+			console.log("error", err, err.stack);
+		}
 
         this.keepModulesAndSensorsInSync(station, result);
     }

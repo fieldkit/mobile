@@ -41,7 +41,7 @@ var Conservify = (function (_super) {
                 owner.started.reject();
             },
             onFoundService: function (service) {
-                debug("onFoundService", service);
+                debug("onFoundService", service.getName(), service.getType(), service.getAddress(), service.getPort());
                 owner.discoveryEvents.onFoundService({
                     name: service.getName(),
                     type: service.getType(),
@@ -50,7 +50,7 @@ var Conservify = (function (_super) {
                 });
             },
             onLostService: function (service) {
-                debug("onLostService", service);
+                debug("onLostService", service.getName(), service.getType());
                 owner.discoveryEvents.onLostService({
                     name: service.getName(),
                     type: service.getType(),
