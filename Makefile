@@ -93,7 +93,7 @@ images:
   done; \
 
 test:
-	cd $(APP) && jest
+	cd $(APP) && jest -w 1
 
 update-third-party:
 	cd $(APP) && third-party/update.sh

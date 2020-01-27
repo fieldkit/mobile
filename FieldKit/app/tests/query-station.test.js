@@ -3,11 +3,8 @@ import protobuf from "protobufjs";
 import Services from "../services/services";
 
 const queryStation = Services.QueryStation();
-
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpReply = appRoot.lookupType("fk_app.HttpReply");
-
-jest.mock("axios");
 
 afterEach(() => {
     axios.mockReset();

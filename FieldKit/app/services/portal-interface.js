@@ -58,30 +58,6 @@ export default class PortalInterface {
 	logout() {
 		this._appSettings.remove("accessToken");
 		return Promise.resolve(true);
-
-        // return axios({
-        //     method: "POST",
-        //     url: Config.baseUri + "/logout",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         Authorization: this._appSettings.getString("accessToken")
-        //     }
-        // })
-        //     .then(handleResponse)
-        //     .catch(handleLogoutError);
-
-        // function handleResponse(response) {
-        //     if (response.status == "204") {
-        //         this._appSettings.remove("accessToken")
-        //         return;
-        //     } else {
-        //         throw new Error(response);
-        //     }
-        // }
-
-        // function handleLogoutError(error) {
-        //     this._appSettings.remove("accessToken");
-        // }
     }
 
     register(user) {
