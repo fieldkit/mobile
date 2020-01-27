@@ -17,6 +17,7 @@ export default class CreateDB {
                     return Promise.resolve(this.database);
                 }
             })
+            .then(this.createFirmwareTable.bind(this))
             .then(this.createStationsTable.bind(this))
             .then(this.createModulesTable.bind(this))
             .then(this.createSensorsTable.bind(this))
@@ -84,6 +85,20 @@ export default class CreateDB {
             `DROP TABLE IF EXISTS stations`
         ]);
     }
+
+	createFirmwareTable() {
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS firmware (
+                id INTEGER PRIMARY KEY,
+				time TIMESTAMP NOT NULL,
+				url TEXT NOT NULL,
+				module TEXT NOT NULL,
+				profile TEXT NOT NULL,
+				etag TEXT NOT NULL,
+				path TEXT NOT NULL
+			)`
+        ]);
+	}
 
     createStreamsTable() {
         return this.execute([

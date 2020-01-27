@@ -161,6 +161,18 @@ export default class QueryStation {
 		});
 	}
 
+	uploadFirmware(url, path) {
+		return Services.Conservify().upload({
+			method: "POST",
+			url: url + "/upload/firmware",
+			path: path
+		}).then(response => {
+			console.log(response);
+			return {
+			};
+		});
+	}
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for

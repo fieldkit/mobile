@@ -148,6 +148,33 @@ export default class PortalInterface {
         });
     }
 
+	listFirmware(module) {
+        return this._query({
+            url: Config.baseUri + "/firmware" + (module ? "?module=" + module : "")
+        });
+	}
+
+	downloadFirmware(url, local) {
+		const headers = {
+			Authorization: this._appSettings.getString("accessToken")
+		};
+		return Services.Conservify().download({
+			url: Config.baseUri + url,
+			path: local,
+			headers: { ...headers },
+			progress: (total, copied, info) => {
+				// Do nothing.
+			}
+		}).then(e => {
+			return {
+				data: e.body,
+				status: e.responseCode
+			};
+		}, e => {
+			return Promise.reject(e);
+		});
+	}
+
     addFieldNoteMedia(data) {
 		const headers = {
 			Authorization: this._appSettings.getString("accessToken")

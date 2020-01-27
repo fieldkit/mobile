@@ -512,6 +512,26 @@ export default class DatabaseInterface {
         return this.insertDownloads([download]);
     }
 
+	addOrUpdateFirmware(firmware) {
+        return this.getDatabase().then(db => db.query("SELECT id FROM firmware WHERE id = ?", [ firmware.id ]))
+            .then(id => {
+                if (id.length === 1) {
+					console.log("existing", id);
+                    return Promise.resolve(id[0]);
+                }
+                const values = [
+					firmware.id,
+					firmware.time,
+					firmware.url,
+					firmware.module,
+					firmware.profile,
+					firmware.etag,
+					firmware.path
+                ];
+                return this.getDatabase().then(db => db.query(`INSERT INTO firmware (id, time, url, module, profile, etag, path) VALUES (?, ?, ?, ?, ?, ?, ?)`, values));
+            });
+	}
+
     insertDownloads(downloads) {
         return Promise.all(
             downloads.map(download => {

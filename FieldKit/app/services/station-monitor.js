@@ -47,6 +47,14 @@ export default class StationMonitor extends Observable {
         }, 3000);
     }
 
+	getPhone() {
+		return Promise.resolve(this.phone);
+	}
+
+	getMyStations() {
+		return Promise.resolve(this.myStations);
+	}
+
     clearStations() {
         this.stations = {};
         this.activeAddresses = [];

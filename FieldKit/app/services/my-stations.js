@@ -8,8 +8,24 @@ export class Station {
 		this.previousStatus = null;
 	}
 
+	id() {
+		return this.deviceId;
+	}
+
+	name() {
+		return this.data.name;
+	}
+
+	url() {
+		return this.data.url;
+	}
+
 	location() {
 		return new Coordinates(this.data);
+	}
+
+	connected() {
+		return this.data.connected;
 	}
 
 	haveNewPhoneLocation(phone) {
@@ -84,6 +100,10 @@ export class MyStations {
 			return this.stations[deviceId];
 		}
 		return this.stations[deviceId] = new Station(deviceId);
+	}
+
+	connected() {
+		return Object.values(this.stations).filter(s => s.connected());
 	}
 }
 

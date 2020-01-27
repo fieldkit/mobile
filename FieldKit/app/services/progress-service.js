@@ -92,7 +92,8 @@ class ProgressTracker {
 
 const Kinds = {
     DOWNLOAD: "DOWNLOAD",
-    UPLOAD: "UPLOAD"
+    UPLOAD: "UPLOAD",
+    UPGRADE: "UPGRADE",
 };
 
 export default class ProgressService extends BetterObservable {
@@ -115,6 +116,10 @@ export default class ProgressService extends BetterObservable {
     startUpload(info) {
         return this.startOperation(Kinds.UPLOAD, info);
     }
+
+	startUpgrade(info) {
+        return this.startOperation(Kinds.UPGRADE, info);
+	}
 
     _remove(operation) {
         const index = this.active.indexOf(operation);
