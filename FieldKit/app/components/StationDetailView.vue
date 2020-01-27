@@ -182,6 +182,11 @@ export default {
             this.$navigateTo(routes.stations, {
                 props: {
                     station: this.currentStation
+                },
+                transition: {
+                    name: "slideRight",
+                    duration: 250,
+                    curve: "linear"
                 }
             });
         },

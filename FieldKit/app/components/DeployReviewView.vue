@@ -231,6 +231,11 @@ export default {
             this.$navigateTo(routes.deployNotes, {
                 props: {
                     station: this.station
+                },
+                transition: {
+                    name: "slideRight",
+                    duration: 250,
+                    curve: "linear"
                 }
             });
         },
