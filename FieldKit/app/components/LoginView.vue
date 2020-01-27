@@ -259,11 +259,11 @@ export default {
         onPageLoaded(args) {
             // logging out sends resetUser = true
             this.page = args.object;
-            // if (USERNAME && PASSWORD && !this.resetUser) {
-            //     this.user.email = USERNAME;
-            //     this.user.password = PASSWORD;
-            //     this.login();
-            // }
+            if (USERNAME && PASSWORD && !this.resetUser) {
+                this.user.email = USERNAME;
+                this.user.password = PASSWORD;
+                this.login();
+            }
         },
 
         toggleForm() {
