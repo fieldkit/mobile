@@ -351,6 +351,7 @@
 </template>
 
 <script>
+import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../routes";
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
 import ScreenHeader from "./ScreenHeader";
@@ -523,13 +524,24 @@ export default {
         },
 
         stopRecording(event) {
-            let savingStation = this.station;
-            savingStation.status = "";
-            dbInterface.setStationDeployStatus(savingStation);
+            // confirm stop recording
+            dialogs
+                .confirm({
+                    title: "Are you sure you want to stop recording?",
+                    okButtonText: _L("yes"),
+                    cancelButtonText: _L("cancel")
+                })
+                .then(result => {
+                    if (result) {
+                        let savingStation = this.station;
+                        savingStation.status = "";
+                        dbInterface.setStationDeployStatus(savingStation);
 
-            queryStation.stopDataRecording(this.station.url).then(result => {
-                this.updatePortal(savingStation);
-            });
+                        queryStation.stopDataRecording(this.station.url).then(result => {
+                            this.updatePortal(savingStation);
+                        });
+                    }
+                });
         },
 
         updatePortal(savingStation) {
