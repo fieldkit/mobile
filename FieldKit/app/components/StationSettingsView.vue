@@ -341,7 +341,7 @@
                         />
                     </WrapLayout>
 
-
+					<Button :text="_L('upgradeFirmware')" @tap="upgradeFirmware"></Button>
                 </FlexboxLayout>
             </ScrollView>
 
@@ -435,7 +435,26 @@ export default {
                 }
             }
             this.deviceStatus = deviceStatus;
-        },
+		},
+
+		upgradeFirmware() {
+			const stationFirmware = Services.StationFirmware();
+			return stationFirmware.upgradeStation(this.station.url).then(() => {
+				alert({
+					title: "Station",
+					message: "Upgrade Done",
+					okButtonText: "OK"
+				});
+			}).catch(err => {
+				console.log("Upgrade error", err, err.stack);
+
+				alert({
+					title: "Station",
+					message: "Upgrade Failed",
+					okButtonText: "OK"
+				});
+			});
+		},
 
         goBack(event) {
             // Change background color when pressed

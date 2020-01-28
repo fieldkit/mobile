@@ -231,6 +231,7 @@ import Home from "./HomeView";
 import Onboarding from "./OnboardingView";
 import Config from "../config";
 import { USERNAME, PASSWORD } from "../secrets";
+import Services from "../services/services";
 
 export default {
     data() {
@@ -338,7 +339,7 @@ export default {
         },
 
         login() {
-            return this.$portalInterface
+            return Services.PortalSession()
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
@@ -361,7 +362,7 @@ export default {
                 return;
             }
 
-            return this.$portalInterface
+            return Services.PortalSession()
                 .register(this.user)
                 .then(() => {
                     this.processing = false;
@@ -384,7 +385,7 @@ export default {
                 cancelButtonText: _L("cancel")
             }).then(data => {
                 if (data.result) {
-                    this.$portalInterface
+					return Services.PortalSession()
                         .resetPassword(data.text.trim())
                         .then(() => {
                             this.alert(_L("passwordResetSucceeded"));

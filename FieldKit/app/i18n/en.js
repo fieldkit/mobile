@@ -181,5 +181,6 @@ module.exports = {
     of: "of",
     deploy: "Deploy",
     daysHrsMin: "days hrs min",
-    hrsMinSec: "hrs min sec"
+    hrsMinSec: "hrs min sec",
+	upgradeFirmware: "Upgrade Firmware"
 };

@@ -90,6 +90,14 @@ class Services {
         return this.createDb;
     }
 
+    PortalSession() {
+        if (!this.portalSession) {
+            const PortalSession = require("./portal-session").default;
+            this.portalSession = new PortalSession(this);
+        }
+        return this.portalSession;
+    }
+
     PortalInterface() {
         if (!this.portalInterface) {
             const PortalInterface = require("./portal-interface").default;
@@ -128,6 +136,22 @@ class Services {
         }
         return this.phoneLocation;
     }
+
+    StationFirmware() {
+        if (!this.stationFirmware) {
+            const StationFirmware = require("./station-firmware").default;
+            this.stationFirmware = new StationFirmware(this);
+        }
+        return this.stationFirmware;
+    }
+
+	FileSystem() {
+        if (!this.fileSystem) {
+            const FileSystem = require("../wrappers/file-system").default;
+            this.fileSystem = new FileSystem();
+        }
+        return this.fileSystem;
+	}
 }
 
 const services = new Services();

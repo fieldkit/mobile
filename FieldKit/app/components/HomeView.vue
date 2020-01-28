@@ -2,22 +2,14 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <StackLayout>
             <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
-            <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"
-            ></Button>
+            <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
             <StackLayout class="spacer m-t-30"></StackLayout>
             <Button class="btn btn-primary btn-padded" text="Save Diagnostics" @tap="saveDiagnostics"></Button>
             <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
             <Button class="btn btn-primary btn-padded" text="Copy Logs" @tap="copyLogs"></Button>
             <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
             <Button class="btn btn-primary btn-padded" text="Delete Station Data" @tap="deleteFiles"></Button>
-            <Button class="btn btn-primary btn-padded" text="Upgrade Firmware" @tap="upgradeFirmware"></Button>
-            <StackLayout class="m-t-20">
-                <Button
-                    class="btn btn-primary btn-padded"
-                    text="Start QR Code Scanning"
-                    @tap="doScanWithBackCamera">
-                </Button>
-            </StackLayout>
+			<Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button>
         </StackLayout>
     </Page>
 </template>
@@ -28,7 +20,6 @@ import { BarcodeScanner } from "nativescript-barcodescanner";
 import { sendLogs } from "../lib/logging";
 import routes from "../routes";
 import Services from "../services/services";
-import StationUpgrade from "../services/station-upgrade";
 
 export default {
     data() {
@@ -117,26 +108,6 @@ export default {
 					});
                 });
         },
-		upgradeFirmware() {
-			const upgrader = new StationUpgrade();
-			upgrader.compareVersions().then(_ => {
-				return upgrader.upgradeStation(null);
-			}).then(() => {
-				alert({
-					title: "Developer",
-					message: "Upgrade Done",
-					okButtonText: "OK"
-				});
-			}).catch(err => {
-				console.log("Upgrade error", err, err.stack);
-
-				alert({
-					title: "Developer",
-					message: "Upgrade Failed\n" + err,
-					okButtonText: "OK"
-				});
-			});
-		},
         scan(front) {
             new BarcodeScanner().scan({
                 cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
