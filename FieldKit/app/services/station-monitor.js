@@ -61,8 +61,6 @@ export default class StationMonitor extends Observable {
     }
 
     savePhoneLocation(location) {
-        console.log("|--> Phone coordinates reported as", location)
-
 		this.phone.location = new Coordinates(location);
 
 		return Promise.all(Object.values(this.stations).map(station => {
