@@ -2,6 +2,7 @@ class File {
 	constructor(fs, path) {
 		this.fs = fs;
 		this.path = path;
+		this.size = 100;
 	}
 
 	exists() {

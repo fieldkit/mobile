@@ -22,7 +22,7 @@ export default class StationUpgrade {
 					return this.services.Database().addOrUpdateFirmware(firmware);
 				}).then(_ => {
 					const local = this.services.FileSystem().getFile(firmwares[0].path);
-					if (!local.exists()) {
+					if (!local.exists() || local.size == 0) {
 						console.log("downloading", firmwares[0]);
 						return this.services.PortalInterface().downloadFirmware(firmwares[0].url, firmwares[0].path).then(() => {
 							return firmwares[0];

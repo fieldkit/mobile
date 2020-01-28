@@ -4,6 +4,7 @@ class FileWrapper {
 	constructor(f) {
 		this.f = f;
 		this.path = f.path;
+		this.size = f.size;
 	}
 
 	exists() {
