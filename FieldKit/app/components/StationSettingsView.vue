@@ -341,7 +341,7 @@
                         />
                     </WrapLayout>
 
-					<Button :text="_L('upgradeFirmware')" @tap="upgradeFirmware"></Button>
+					<Button :text="_L('upgradeFirmware')" @tap="upgradeFirmware" class="btn btn-secondary"></Button>
                 </FlexboxLayout>
             </ScrollView>
 
