@@ -72,7 +72,7 @@
   "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
   "readme": "NativeScript Application",
   "scripts": {
-    "test": "jest",
+    "test": "jest -w 1",
     "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  tsc -p e2e  &&  mocha --opts ./e2e/config/mocha.opts ",
     "e2e-watch": "tsc -p e2e --watch"
   },
