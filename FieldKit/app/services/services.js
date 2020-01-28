@@ -26,7 +26,7 @@ export class Services {
     DiscoverStation() {
         if (!this.discoverStation) {
             const DiscoverStation = require("./discover-station").default;
-            this.discoverStation = new DiscoverStation();
+            this.discoverStation = new DiscoverStation(this);
         }
         return this.discoverStation;
     }
@@ -34,7 +34,7 @@ export class Services {
     Diagnostics() {
         if (!this.diagnostics) {
             const Diagnostics = require("./diagnostics-service").default;
-            this.diagnostics = new Diagnostics();
+            this.diagnostics = new Diagnostics(this);
         }
         return this.diagnostics;
     }
@@ -42,7 +42,7 @@ export class Services {
     Database() {
         if (!this.database) {
             const DatabaseInterface = require("./db-interface").default;
-            this.database = new DatabaseInterface();
+            this.database = new DatabaseInterface(this);
         }
         return this.database;
     }
@@ -50,7 +50,7 @@ export class Services {
     QueryStation() {
         if (!this.queryStation) {
             const QueryStation = require("./query-station").default;
-            this.queryStation = new QueryStation();
+            this.queryStation = new QueryStation(this);
         }
         return this.queryStation;
     }
@@ -124,7 +124,7 @@ export class Services {
 
 	DiscoveryEvents() {
         if (!this.discoveryEvents) {
-            this.discoveryEvents = new DiscoveryEvents();
+            this.discoveryEvents = new DiscoveryEvents(this);
         }
         return this.discoveryEvents;
 	}
@@ -132,7 +132,7 @@ export class Services {
     PhoneLocation() {
         if (!this.phoneLocation) {
             const PhoneLocation = require("./phone-location").default;
-            this.phoneLocation = new PhoneLocation();
+            this.phoneLocation = new PhoneLocation(this);
         }
         return this.phoneLocation;
     }

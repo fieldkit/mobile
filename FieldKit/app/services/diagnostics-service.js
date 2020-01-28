@@ -3,7 +3,6 @@ import * as platform from "tns-core-modules/platform";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { getLogsAsString } from '../lib/logging';
 import { serializePromiseChain, getPathTimestamp } from '../utilities';
-import Services from "./services";
 
 function uuidv4() {
 	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -13,7 +12,8 @@ function uuidv4() {
 }
 
 export default class Diagnostics {
-	constructor() {
+	constructor(services) {
+		this.services = services;
 		this.baseUrl = "https://code.conservify.org/diagnostics"
 	}
 
@@ -52,7 +52,7 @@ export default class Diagnostics {
 		return this._getAllFiles(folder).then(files => {
 			return serializePromiseChain(files, (path, index) => {
 				const relative = path.replace(folder.path, "");
-				return Services.Conservify().upload({
+				return this.services.Conservify().upload({
 					method: "POST",
 					url: this.baseUrl + relative,
 					path: path,
@@ -83,12 +83,12 @@ export default class Diagnostics {
 	}
 
 	_queryLogs() {
-		return Services.DiscoverStation().getConnectedStations().then(stations => {
+		return this.services.DiscoverStation().getConnectedStations().then(stations => {
 			console.log("connected", stations);
 
 			return Promise.all(Object.values(stations).map(station => {
-				return Services.QueryStation().getStatus(station.url).then(status => {
-					return Services.QueryStation().queryLogs(station.url).then(logs => {
+				return this.services.QueryStation().getStatus(station.url).then(status => {
+					return this.services.QueryStation().queryLogs(station.url).then(logs => {
 						const name = status.status.identity.deviceId;
 						return {
 							name: name,
@@ -109,7 +109,7 @@ export default class Diagnostics {
 	}
 
 	_uploadAppLogs(id) {
-		return Services.Conservify().text({
+		return this.services.Conservify().text({
 			method: "POST",
 			url: this.baseUrl + "/" + id + "/app.txt",
 			body: getLogsAsString(),
@@ -117,12 +117,12 @@ export default class Diagnostics {
 	}
 
 	_uploadLogs(id, logs) {
-		return Services.Conservify().text({
+		return this.services.Conservify().text({
 			method: "POST",
 			url: this.baseUrl + "/" + id + "/" + logs.name + ".json",
 			body: JSON.stringify(logs.status),
 		}).then(() => {
-			return Services.Conservify().text({
+			return this.services.Conservify().text({
 				method: "POST",
 				url: this.baseUrl + "/" + id + "/" + logs.name + ".txt",
 				body: logs.logs,
@@ -138,7 +138,7 @@ export default class Diagnostics {
 
 		console.log("diagnostics", path);
 
-		return Services.Conservify().upload({
+		return this.services.Conservify().upload({
 			method: "POST",
 			url: this.baseUrl + "/" + id + "/" + name,
 			path: path,

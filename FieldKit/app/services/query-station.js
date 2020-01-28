@@ -3,7 +3,6 @@ import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
 import { unixNow, promiseAfter } from "../utilities";
 import Config from "../config";
-import Services from "./services";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpQuery = appRoot.lookupType("fk_app.HttpQuery");
@@ -35,6 +34,10 @@ const MandatoryStatus = {
 };
 
 export default class QueryStation {
+	constructor(services) {
+		this.services = services;
+	}
+
     getStatus(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_STATUS,
@@ -66,7 +69,7 @@ export default class QueryStation {
 
         return this.stationQuery(address, message).then(reply => {
             // notify StationMonitor
-            Services.StationMonitor().recordingStatusChange(address, "started");
+            this.services.StationMonitor().recordingStatusChange(address, "started");
             return this._fixupStatus(reply);
         });
     }
@@ -79,7 +82,7 @@ export default class QueryStation {
 
         return this.stationQuery(address, message).then(reply => {
             // notify StationMonitor
-            Services.StationMonitor().recordingStatusChange(address, "stopped");
+            this.services.StationMonitor().recordingStatusChange(address, "stopped");
             return this._fixupStatus(reply);
         });
     }
@@ -133,7 +136,7 @@ export default class QueryStation {
             return Promise.reject("ignored");
         }
 
-		return Services.Conservify().json({
+		return this.services.Conservify().json({
 			method: "HEAD",
 			url: url,
 		}).then(response => {
@@ -151,7 +154,7 @@ export default class QueryStation {
 	}
 
 	queryLogs(url) {
-		return Services.Conservify().text({
+		return this.services.Conservify().text({
 			url: url + "/download/logs",
 		}).then(response => {
 			return response.body;
@@ -162,7 +165,7 @@ export default class QueryStation {
 	}
 
 	uploadFirmware(url, path) {
-		return Services.Conservify().upload({
+		return this.services.Conservify().upload({
 			method: "POST",
 			url: url + "/upload/firmware",
 			path: path
@@ -185,7 +188,7 @@ export default class QueryStation {
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         log.info(url, "querying", message);
 
-		return Services.Conservify().protobuf({
+		return this.services.Conservify().protobuf({
 			method: "POST",
 			url: url,
 			body: binaryQuery

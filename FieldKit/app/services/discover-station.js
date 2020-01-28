@@ -2,8 +2,6 @@ import { Observable, PropertyChangeData } from "tns-core-modules/data/observable
 import { isIOS } from "tns-core-modules/platform";
 import { every } from "./rx";
 
-import Services from "./services";
-
 import Config from "../config";
 
 class Station {
@@ -18,10 +16,10 @@ class Station {
 }
 
 class WiFiMonitor {
-    constructor(callback) {
+    constructor(services, callback) {
         this.previous = null;
         this.timer = setInterval(() => {
-			return Services.Conservify().findConnectedNetwork().then((status) => {
+			return services.Conservify().findConnectedNetwork().then((status) => {
 				if (status.connectedWifi) {
 					console.log("WiFiMonitor: ", status.connectedWifi.ssid);
 				}
@@ -50,15 +48,16 @@ class WiFiMonitor {
 }
 
 export default class DiscoverStation extends Observable {
-    constructor() {
+    constructor(services) {
         super();
+		this.services = services;
         this.stations_ = {};
 		this.wifiMonitor = null;
 
 		this.StationFoundProperty = "stationFound";
 		this.StationLostProperty = "stationLost";
 
-		Services.DiscoveryEvents().add(this);
+		services.DiscoveryEvents().add(this);
     }
 
     _watchFakePreconfiguredDiscoveries() {
@@ -81,7 +80,7 @@ export default class DiscoverStation extends Observable {
 			return;
 		}
 
-        this.wifiMonitor = new WiFiMonitor((ssid, couldBeStation) => {
+        this.wifiMonitor = new WiFiMonitor(this.services, (ssid, couldBeStation) => {
             console.log("new ssid", ssid, couldBeStation);
             if (couldBeStation) {
                 this.stationFound({
@@ -117,7 +116,7 @@ export default class DiscoverStation extends Observable {
 	}
 
     _watchZeroconfAndMdns() {
-		return Services.Conservify().start("_fk._tcp");
+		return this.services.Conservify().start("_fk._tcp");
     }
 
     startServiceDiscovery() {
