@@ -16,14 +16,22 @@ export class BetterObservable extends Observable {
             receiver(this.value);
         }
 
-        this.on(Observable.propertyChangeEvent, data => {
+        const listener = data => {
             switch (data.propertyName.toString()) {
                 case HiddenProperty: {
                     receiver(data.value);
                     break;
                 }
             }
-        });
+        };
+
+		this.addEventListener(Observable.propertyChangeEvent, listener);
+
+		return {
+			remove: () => {
+				this.removeEventListener(Observable.propertyChangeEvent, listener);
+			}
+		};
     }
 
     publish(value) {
