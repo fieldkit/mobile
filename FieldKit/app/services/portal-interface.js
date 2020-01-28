@@ -2,10 +2,10 @@ import _ from "lodash";
 import axios from "axios";
 import Config from "../config";
 import AppSettings from "../wrappers/app-settings";
-import Services from "./services";
 
 export default class PortalInterface {
-	constructor() {
+	constructor(services) {
+		this.services = services;
 		this._handleTokenResponse = this._handleTokenResponse.bind(this);
 		this._handleStandardResponse = this._handleStandardResponse.bind(this);
 		this._handleError = this._handleError.bind(this);
@@ -134,7 +134,7 @@ export default class PortalInterface {
 		const headers = {
 			Authorization: this._appSettings.getString("accessToken")
 		};
-		return Services.Conservify().download({
+		return this.services.Conservify().download({
 			url: Config.baseUri + url,
 			path: local,
 			headers: { ...headers },
@@ -155,7 +155,7 @@ export default class PortalInterface {
 		const headers = {
 			Authorization: this._appSettings.getString("accessToken")
 		};
-		return Services.Conservify().upload({
+		return this.services.Conservify().upload({
 			url: Config.baseUri + "/stations/" + data.stationId + "/field-note-media",
 			method: "POST",
 			path: data.pathDest,

@@ -9,6 +9,7 @@ export default class StationUpgrade {
 	downloadFirmware() {
 		return this.services.PortalInterface().listFirmware("fk-core")
 			.then(firmware => {
+				console.log(firmware)
 				return firmware.firmwares.map(f => {
 					const local = this.services.FileSystem().getFolder("firmware").getFile("fk-bundled-fkb-" + f.id + ".bin");
 					return _.extend(f, {
@@ -34,6 +35,15 @@ export default class StationUpgrade {
 	}
 
 	upgradeStation(url) {
-		return this.services.QueryStation().uploadFirmware(station, firmware.path);
+		console.log("upgrade", url);
+
+		return this.downloadFirmware().then(_ => {
+			return this.services.StationMonitor().getMyStations().then(myStations => {
+				return this.services.Database().getLatestFirmware().then(firmware => {
+					console.log("firmware", firmware);
+					return this.services.QueryStation().uploadFirmware(url, firmware.path);
+				});
+			});
+		})
 	}
 }

@@ -512,6 +512,15 @@ export default class DatabaseInterface {
         return this.insertDownloads([download]);
     }
 
+	getLatestFirmware() {
+        return this.getDatabase().then(db => db.query("SELECT * FROM firmware ORDER BY time DESC LIMIT 1")).then(rows => sqliteToJs(rows)).then(all => {
+			if (all.length == 0) {
+				return null;
+			}
+			return all[0];
+		});
+	}
+
 	addOrUpdateFirmware(firmware) {
         return this.getDatabase().then(db => db.query("SELECT id FROM firmware WHERE id = ?", [ firmware.id ]))
             .then(id => {

@@ -22,7 +22,7 @@ class DiscoveryEvents {
 	}
 }
 
-class Services {
+export class Services {
     DiscoverStation() {
         if (!this.discoverStation) {
             const DiscoverStation = require("./discover-station").default;
@@ -101,7 +101,7 @@ class Services {
     PortalInterface() {
         if (!this.portalInterface) {
             const PortalInterface = require("./portal-interface").default;
-            this.portalInterface = new PortalInterface();
+            this.portalInterface = new PortalInterface(this);
         }
         return this.portalInterface;
     }

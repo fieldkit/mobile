@@ -1,16 +1,18 @@
-import StationUpgrade from "../services/station-upgrade";
-import Services from "../services/services";
+import StationUpgrade from "../services/station-firmware";
+import { Services } from "../services/services";
 import FileSystem from "../wrappers/file-system";
 
 describe("Firmware", () => {
+	let services;
+
 	beforeEach(() => {
-        return Services.CreateDb().initialize();
+		services = new Services();
+
+        return services.CreateDb().initialize();
 	});
 
 	it("should get and store new firmware from portal", () => {
-		const fs = new FileSystem();
-
-		Services.PortalInterface().listFirmware = jest.fn(_ => {
+		services.PortalInterface().listFirmware = jest.fn(_ => {
 			return Promise.resolve({
 				firmwares: [
 					{
@@ -33,12 +35,12 @@ describe("Firmware", () => {
 			});
 		});
 
-		Services.PortalInterface().downloadFirmware = jest.fn(_ => {
+		services.PortalInterface().downloadFirmware = jest.fn(_ => {
 			return Promise.resolve({
 				status: 200
 			});
 		});
 
-		return new StationUpgrade(fs).downloadFirmware();
+		return services.StationFirmware().downloadFirmware();
 	});
 });

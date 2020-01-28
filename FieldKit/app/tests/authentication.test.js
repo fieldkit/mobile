@@ -1,11 +1,11 @@
 import axios from "axios";
-import PortalInterface from "../services/portal-interface";
+import { Services } from "../services/services";
 
 describe("Authentication", () => {
-	let portal;
+	let services;
 
 	beforeEach(() => {
-		portal = new PortalInterface();
+		services = new Services();
 	});
 
 	afterEach(() => {
@@ -14,19 +14,45 @@ describe("Authentication", () => {
 
 	describe("login", () => {
 		it("should download firmware after login", () => {
-			console.log("HI");
-
-			const mockResponse = {
-				status: 200,
+			const auth = {
+				status: 204,
+				headers: {
+					Authoriation: 'TOKEN',
+				},
 				data: {
 				}
 			};
 
-			axios.mockImplementation(() => Promise.resolve(mockResponse));
+			const user = {
+				data: {
+					name: 'Jacob'
+				}
+			};
 
-			return portal.login({
+			const firmware = {
+				data: {
+					firmwares: [{
+						id: 1000
+					}]
+				}
+			};
+
+			axios
+				.mockReturnValueOnce(Promise.resolve(auth))
+				.mockReturnValueOnce(Promise.resolve(user))
+				.mockReturnValueOnce(Promise.resolve(firmware));
+
+			services.Conservify().download = jest.fn(() => Promise.resolve({
+				status: 200
+			}));
+
+			expect.assertions(1);
+
+			return services.PortalSession().login({
 				email: 'jacob@conservify.org',
 				password: 'password'
+			}).then(() => {
+				expect(services.Conservify().download.mock.calls.length).toBe(1);
 			});
 		});
 	});
