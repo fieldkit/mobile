@@ -407,11 +407,11 @@ export default class StationMonitor extends Observable {
             ? new Date(data.result.status.recording.startedTime * 1000)
             : "";
         // use phone location if station doesn't report coordinates
-        let latitude = this.phoneLat;
+        let latitude = this.phone.location.latitude;
         if (deviceStatus.gps.latitude && deviceStatus.gps.latitude != 1000) {
             latitude = deviceStatus.gps.latitude.toFixed(6);
         }
-        let longitude = this.phoneLong;
+        let longitude = this.phone.location.longitude;
         if (deviceStatus.gps.longitude && deviceStatus.gps.longitude != 1000) {
             longitude = deviceStatus.gps.longitude.toFixed(6);
         }
