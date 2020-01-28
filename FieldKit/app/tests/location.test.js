@@ -1,9 +1,9 @@
-import { Coordinates, Phone, MyStations } from "../services/my-stations";
+import { Coordinates, Phone, KnownStations } from "../services/known-stations";
 import DomainServices from "../services/domain-services";
 
-describe("My Stations (Locations)", () => {
+describe("Known Stations (Locations)", () => {
 	let phone;
-	let myStations;
+	let knownStations;
 	let data = {
 		deviceId: "my-fake-device-id",
 		connected: true,
@@ -17,7 +17,7 @@ describe("My Stations (Locations)", () => {
 
 	beforeEach(() => {
 		phone = new Phone();
-		myStations = new MyStations();
+		knownStations = new KnownStations();
 	})
 
 	describe("haveNewStatus with connected station", () => {
@@ -30,7 +30,7 @@ describe("My Stations (Locations)", () => {
 					longitude: -118
 				}
 			};
-			return myStations.get(data).haveNewStatus(status, phone).then(_ => {
+			return knownStations.get(data).haveNewStatus(status, phone).then(_ => {
 				expect(DomainServices().updateStation.mock.calls.length).toBe(1);
 				const actual = DomainServices().updateStation.mock.calls[0][0];
 				expect(actual.data.latitude).toBe(38);
@@ -50,7 +50,7 @@ describe("My Stations (Locations)", () => {
 				}
 			};
 
-			return myStations.get(data).haveNewStatus(status, phone).then(_ => {
+			return knownStations.get(data).haveNewStatus(status, phone).then(_ => {
 				expect(DomainServices().updateStation.mock.calls.length).toBe(1);
 				const actual = DomainServices().updateStation.mock.calls[0][0];
 				expect(actual.data.latitude).toBe(38);
@@ -67,7 +67,7 @@ describe("My Stations (Locations)", () => {
 					longitude: 1000
 				}
 			};
-			return myStations.get(data).haveNewStatus(status, phone).then(_ => {
+			return knownStations.get(data).haveNewStatus(status, phone).then(_ => {
 				expect(DomainServices().updateStation.mock.calls.length).toBe(0);
 			})
 		})
@@ -83,7 +83,7 @@ describe("My Stations (Locations)", () => {
 					longitude: 1000
 				}
 			};
-			return myStations.get(data).haveNewStatus(status, phone).then(_ => {
+			return knownStations.get(data).haveNewStatus(status, phone).then(_ => {
 				expect(DomainServices().updateStation.mock.calls.length).toBe(1);
 				const actual = DomainServices().updateStation.mock.calls[0][0];
 				expect(actual.data.latitude).toBe(-10);
@@ -96,7 +96,7 @@ describe("My Stations (Locations)", () => {
 		it("with invalid phone location, should do nothing", () => {
 			expect.assertions(1);
 
-			return myStations.get(data).haveNewPhoneLocation(phone).then(_ => {
+			return knownStations.get(data).haveNewPhoneLocation(phone).then(_ => {
 				expect(DomainServices().updateStation.mock.calls.length).toBe(0);
 			})
 		})
@@ -106,7 +106,7 @@ describe("My Stations (Locations)", () => {
 
 			phone.location = new Coordinates(-10, 10);
 
-			return myStations.get(data).haveNewPhoneLocation(phone).then(_ => {
+			return knownStations.get(data).haveNewPhoneLocation(phone).then(_ => {
 				expect(DomainServices().updateStation.mock.calls.length).toBe(1);
 				const actual = DomainServices().updateStation.mock.calls[0][0];
 				expect(actual.data.latitude).toBe(-10);
@@ -129,9 +129,9 @@ describe("My Stations (Locations)", () => {
 				}
 			};
 
-			return myStations.get(data).haveNewStatus(status, phone).then(_ => {
+			return knownStations.get(data).haveNewStatus(status, phone).then(_ => {
 				expect(DomainServices().updateStation.mock.calls.length).toBe(1);
-				return myStations.get(data).haveNewPhoneLocation(phone).then(_ => {
+				return knownStations.get(data).haveNewPhoneLocation(phone).then(_ => {
 					expect(DomainServices().updateStation.mock.calls.length).toBe(1);
 				})
 			})
