@@ -83,33 +83,39 @@ export default {
             });
         },
         deleteFiles() {
-            const dataFolder = knownFolders
+            const firmwareFolder = knownFolders
                   .currentApp()
-                  .getFolder("FieldKitData");
+                  .getFolder("firmware");
 
-            dataFolder
-                .remove()
-                .then(() => {
-                    console.log("Data folder successfully deleted");
+			return firmwareFolder.remove().then(() => {
+				const dataFolder = knownFolders
+					  .currentApp()
+					  .getFolder("FieldKitData");
 
-					alert({
-						title: "Developer",
-						message: "Files removed!",
-						okButtonText: "OK"
+				return dataFolder
+					.remove()
+					.then(() => {
+						console.log("Data folder successfully deleted");
+
+						alert({
+							title: "Developer",
+							message: "Files removed!",
+							okButtonText: "OK"
+						});
+					})
+					.catch(err => {
+						console.log("Error removing data folder", err.stack);
+
+						alert({
+							title: "Developer",
+							message: "Error removing files!",
+							okButtonText: "OK"
+						});
 					});
-                })
-                .catch(err => {
-                    console.log("Error removing data folder", err.stack);
-
-					alert({
-						title: "Developer",
-						message: "Error removing files!",
-						okButtonText: "OK"
-					});
-                });
-        },
-        scan(front) {
-            new BarcodeScanner().scan({
+			});
+		},
+		scan(front) {
+			new BarcodeScanner().scan({
                 cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
                 cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
                 showFlipCameraButton: true,   // default false
