@@ -9,7 +9,6 @@ import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Config from "./config";
 import * as traceModule from "tns-core-modules/trace";
-// import { RangeSeekBar } from "nativescript-range-seek-bar/range-seek-bar";
 
 import Services from "./services/services";
 

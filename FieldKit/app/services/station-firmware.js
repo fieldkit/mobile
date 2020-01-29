@@ -21,7 +21,6 @@ export default class StationUpgrade {
 	downloadFirmware(progressCallback, force) {
 		return this.services.PortalInterface().listFirmware("fk-core")
 			.then(firmware => {
-				console.log(firmware)
 				return firmware.firmwares.map(f => {
 					const local = this.services.FileSystem().getFolder("firmware").getFile("fk-bundled-fkb-" + f.id + ".bin");
 					return _.extend(f, {

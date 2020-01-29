@@ -130,6 +130,18 @@ export default class PortalInterface {
         });
 	}
 
+	onlyIfAuthenticated() {
+		if (!this.isLoggedIn()) {
+			return Promise.reject(false);
+		}
+		return this.isAvailable().then(yes => {
+			if (!yes) {
+				return Promise.reject(false);
+			}
+			return true;
+		});
+	}
+
 	downloadFirmware(url, local, progress) {
 		const headers = {
 			Authorization: this._appSettings.getString("accessToken")

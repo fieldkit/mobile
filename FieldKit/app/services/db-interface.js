@@ -525,7 +525,6 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("SELECT id FROM firmware WHERE id = ?", [ firmware.id ]))
             .then(id => {
                 if (id.length === 1) {
-					console.log("existing", id);
                     return Promise.resolve(id[0]);
                 }
                 const values = [
