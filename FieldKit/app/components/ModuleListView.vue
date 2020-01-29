@@ -45,11 +45,18 @@
                     class="m-t-5"
                     v-if="open.indexOf(m.id) > -1"
                 >
+                    <Label
+                        :text="lastSeen()"
+                        width="100%"
+                        class="m-t-5 size-14"
+                        v-if="!connected"
+                    />
                     <WrapLayout
                         orientation="horizontal"
                         v-for="(s, sensorIndex) in m.sensorObjects"
                         :key="s.id"
                         class="sensor-block"
+                        :opacity="connected ? 1 : 0.5"
                     >
                         <!-- keep arrows, reading, and unit on same line -->
                         <FlexboxLayout>
@@ -98,6 +105,7 @@
 </template>
 
 <script>
+import { getLastSeen } from "../utilities";
 import Services from "../services/services";
 const dbInterface = Services.Database();
 
@@ -109,7 +117,7 @@ export default {
             modules: []
         };
     },
-    props: [],
+    props: ["connected", "date"],
     methods: {
         updateModules(modules) {
             this.modules = modules;
@@ -156,6 +164,13 @@ export default {
                 // vue isn't rendering these dynamically, so set them
                 this.$set(m, "sensorObjects", sensors);
             });
+        },
+
+        lastSeen() {
+            if (!this.date) {
+                return "";
+            }
+            return "Last reading " + getLastSeen(this.date);
         },
 
         getModuleImage(module) {
@@ -223,7 +238,7 @@ export default {
 
 .module-name {
     font-size: 18;
-    margin-bottom: 2;
+    // margins set in OS-specific CSS
 }
 
 .sensor-block {

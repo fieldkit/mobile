@@ -42,34 +42,46 @@
             </GridLayout>
             <!-- connected status and available memory -->
             <StackLayout row="1" col="1">
-                <GridLayout rows="auto" columns="15*,85*" class="m-t-20">
+                <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
                     <Image
+                        rowSpan="2"
                         col="0"
                         width="20"
                         v-if="station.connected && !syncing"
                         src="~/images/Icon_Connected.png"
                     ></Image>
                     <Image
+                        rowSpan="2"
                         col="0"
                         width="20"
                         v-if="!station.connected && !syncing"
                         src="~/images/Icon_not_Connected.png"
                     ></Image>
                     <Image
+                        rowSpan="2"
                         col="0"
                         width="20"
                         :src="dataSyncingIcon"
                         v-if="syncing"
                     ></Image>
                     <Label
+                        row="0"
                         col="1"
-                        class="m-10 size-14"
+                        class="m-t-10 m-l-10 size-14"
                         :text="this.station.connected
                             ? _L('connected')
                             : _L('notConnected')"
                         v-if="!syncing"
                     ></Label>
                     <Label
+                        row="1"
+                        col="1"
+                        class="m-l-10 m-t-2 m-b-5 size-12"
+                        :text="lastSeen() "
+                        v-if="!syncing && !station.connected"
+                    ></Label>
+                    <Label
+                        row="0"
                         col="1"
                         class="m-10 size-14"
                         :text="dataSyncMessage"
@@ -97,7 +109,7 @@
                     <Label
                         row="1"
                         col="1"
-                        class="m-l-10 m-t-5 m-b-5 size-12"
+                        class="m-l-10 m-t-2 m-b-5 size-12"
                         horizontalAlignment="left"
                         :text="
                             displayConsumedMemory
@@ -128,6 +140,7 @@
             <StackLayout row="2" colSpan="2" class="m-l-10 m-r-10">
                 <Button
                     v-if="station.status != 'recording'"
+                    :isEnabled="station.connected"
                     class="btn btn-primary"
                     :text="_L('deploy')"
                     automationText="deployButton"
@@ -142,7 +155,7 @@
 
 <script>
 import Services from "../services/services";
-import { convertBytesToLabel } from "../utilities";
+import { getLastSeen, convertBytesToLabel } from "../utilities";
 import { AnimationCurve } from "tns-core-modules/ui/enums";
 
 export default {
@@ -245,6 +258,13 @@ export default {
                 image += "_100.png";
             }
             this.station.batteryImage = image;
+        },
+
+        lastSeen() {
+            if (!this.station.updated) {
+                return "";
+            }
+            return "Since " + getLastSeen(this.station.updated);
         },
 
         displayElapsedTime() {

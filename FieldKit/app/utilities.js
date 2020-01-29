@@ -82,3 +82,31 @@ export function convertBytesToLabel(bytes) {
 export function unixNow() {
     return Math.round(new Date().getTime() / 1000);
 }
+
+export function getLastSeen(date) {
+    if (!date) {
+        return "";
+    }
+    if (date && typeof date == "string") {
+        date = new Date(date);
+    }
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let year = date.getFullYear();
+    let today = new Date();
+    // if same day, return time instead
+    if (
+        today.getMonth() + 1 == month &&
+        today.getDate() == day &&
+        today.getFullYear() == year
+    ) {
+        const origHour = date.getHours();
+        const suffix = origHour < 12 ? " AM" : " PM";
+        let hour = origHour % 12 == 0 ? 12 : origHour % 12;
+        let origMinutes = date.getMinutes();
+        const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
+        return hour + ":" + minutes + suffix;
+    }
+    return month + "/" + day + "/" + year;
+}
+

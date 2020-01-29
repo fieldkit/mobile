@@ -71,6 +71,8 @@
                                 <ModuleListView
                                     order="3"
                                     ref="moduleList"
+                                    :connected="currentStation.connected"
+                                    :date="currentStation.updated"
                                     @moduleTapped="goToModule"
                                 />
                             </FlexboxLayout>
