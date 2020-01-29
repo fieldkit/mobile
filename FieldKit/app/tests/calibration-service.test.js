@@ -1,0 +1,125 @@
+import Services from "../services/services";
+import { MockStationReplies } from './utilities'
+import protobuf from "protobufjs";
+
+const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
+const ReplyType = atlasRoot.lookup("fk_atlas.ReplyType");
+const SensorType = atlasRoot.lookup("fk_atlas.SensorType");
+const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
+
+describe('Calibration', () => {
+    let calibrationService
+    let mockStation
+
+    beforeEach(() => {
+        calibrationService = Services.CalibrationService()
+        mockStation = new MockStationReplies(Services)
+    })
+
+    it('Should get calibration status from Atlas pH sensor', () => {
+        expect.assertions(2)
+
+        mockStation.queueAtlasBody({
+            type: ReplyType.values.REPLY_ATLAS_COMMAND,
+            errors: [],
+            calibration: {
+                "type": SensorType.values.SENSOR_PH,
+                "time": Date.now(),
+                "ph": PhCalibrations.values.PH_LOW
+            },
+        })
+
+        return calibrationService.getCalibrationStatus().then(body => {
+            expect(body.calibration.ph).toBeDefined()
+            expect(mockStation.mock.calls.length).toBe(1)
+        });
+    })
+
+    it('Should clear calibration status for Atlas pH sensor', () => {
+        expect.assertions(2)
+
+        mockStation.queueAtlasBody({
+            type: ReplyType.values.REPLY_ATLAS_COMMAND,
+            errors: [],
+            calibration: {
+                "type": SensorType.values.SENSOR_PH,
+                "time": Date.now(),
+                "ph": PhCalibrations.values.PH_NONE
+            },
+        });
+
+        return calibrationService.clearCalibration().then(body => {
+            expect(body.calibration.ph).toBe(PhCalibrations.values.PH_NONE)
+            expect(mockStation.mock.calls.length).toBe(1)
+        });
+    })
+
+    it('Should perform low point calibration for Atlas pH sensor', () => {
+        expect.assertions(2)
+
+        mockStation.queueAtlasBody({
+            type: ReplyType.values.REPLY_ATLAS_COMMAND,
+            errors: [],
+            calibration: {
+                "type": SensorType.values.SENSOR_PH,
+                "time": Date.now(),
+                "ph": PhCalibrations.values.PH_LOW
+            },
+        });
+
+        const data = {
+            address: "http://192.168.1.8:80/fk/v1/module/1",
+            refValue: 0
+        };
+        return calibrationService.calibrateLowPh(data).then(body => {
+            expect(body.calibration.ph).toBeGreaterThan(PhCalibrations.values.PH_NONE)
+            expect(mockStation.mock.calls.length).toBe(1)
+        });
+    })
+
+    it('Should perform middle point calibration for Atlas pH sensor', () => {
+        expect.assertions(2)
+
+        mockStation.queueAtlasBody({
+            type: ReplyType.values.REPLY_ATLAS_COMMAND,
+            errors: [],
+            calibration: {
+                "type": SensorType.values.SENSOR_PH,
+                "time": Date.now(),
+                "ph": PhCalibrations.values.PH_MIDDLE
+            },
+        });
+
+        const data = {
+            address: "http://192.168.1.8:80/fk/v1/module/1",
+            refValue: 7
+        };
+        return calibrationService.calibrateMidPh(data).then(body => {
+            expect(body.calibration.ph).toBeGreaterThan(PhCalibrations.values.PH_NONE)
+            expect(mockStation.mock.calls.length).toBe(1)
+        });
+    })
+
+    it('Should perform high point calibration for Atlas pH sensor', () => {
+        expect.assertions(2)
+
+        mockStation.queueAtlasBody({
+            type: ReplyType.values.REPLY_ATLAS_COMMAND,
+            errors: [],
+            calibration: {
+                "type": SensorType.values.SENSOR_PH,
+                "time": Date.now(),
+                "ph": PhCalibrations.values.PH_HIGH
+            },
+        });
+
+        const data = {
+            address: "http://192.168.1.8:80/fk/v1/module/1",
+            refValue: 14
+        };
+        return calibrationService.calibrateMidPh(data).then(body => {
+            expect(body.calibration.ph).toBeGreaterThan(PhCalibrations.values.PH_NONE)
+            expect(mockStation.mock.calls.length).toBe(1)
+        });
+    })
+})

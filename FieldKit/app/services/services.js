@@ -152,6 +152,14 @@ export class Services {
         }
         return this.fileSystem;
 	}
+
+    CalibrationService() {
+        if (!this.calibrationService) {
+            const CalibrationService = require("./calibration-service").default;
+            this.calibrationService = new CalibrationService(this);
+        }
+        return this.calibrationService;
+    }
 }
 
 const services = new Services();
