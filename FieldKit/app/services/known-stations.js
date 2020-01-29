@@ -64,7 +64,7 @@ export class Station {
 	}
 
 	setLocation(location) {
-		console.log(this.data.name, 'updating location', location);
+		// console.log(this.data.name, 'updating location', location);
 		this.data.latitude = location.latitude;
 		this.data.longitude = location.longitude;
 

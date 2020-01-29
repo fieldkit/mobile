@@ -14,7 +14,7 @@ class DomainServices {
 		const previous = this.previous[data.deviceId];
 
 		if (JSON.stringify(previous) == JSON.stringify(data)) {
-			console.log(data.name, "skip noop update");
+			// console.log(data.name, "skip noop update");
 			return Promise.resolve();
 		}
 
