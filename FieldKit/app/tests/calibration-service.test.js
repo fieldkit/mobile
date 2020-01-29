@@ -67,11 +67,11 @@ describe('Calibration', () => {
             },
         });
 
+        const address = "http://192.168.1.8:80/fk/v1/module/1";
         const data = {
-            address: "http://192.168.1.8:80/fk/v1/module/1",
             refValue: 0
         };
-        return calibrationService.calibrateLowPh(data).then(body => {
+        return calibrationService.calibrateLowPh(address, data).then(body => {
             expect(body.calibration.ph).toBeGreaterThan(PhCalibrations.values.PH_NONE)
             expect(mockStation.mock.calls.length).toBe(1)
         });
@@ -90,11 +90,11 @@ describe('Calibration', () => {
             },
         });
 
+        const address = "http://192.168.1.8:80/fk/v1/module/1";
         const data = {
-            address: "http://192.168.1.8:80/fk/v1/module/1",
             refValue: 7
         };
-        return calibrationService.calibrateMidPh(data).then(body => {
+        return calibrationService.calibrateMidPh(address, data).then(body => {
             expect(body.calibration.ph).toBeGreaterThan(PhCalibrations.values.PH_NONE)
             expect(mockStation.mock.calls.length).toBe(1)
         });
@@ -113,11 +113,11 @@ describe('Calibration', () => {
             },
         });
 
+        const address = "http://192.168.1.8:80/fk/v1/module/1";
         const data = {
-            address: "http://192.168.1.8:80/fk/v1/module/1",
             refValue: 14
         };
-        return calibrationService.calibrateMidPh(data).then(body => {
+        return calibrationService.calibrateMidPh(address, data).then(body => {
             expect(body.calibration.ph).toBeGreaterThan(PhCalibrations.values.PH_NONE)
             expect(mockStation.mock.calls.length).toBe(1)
         });

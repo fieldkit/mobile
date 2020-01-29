@@ -44,22 +44,22 @@ export default class CalibrationService {
         });
     }
 
-    calibrateLowPh(data) {
+    calibrateLowPh(address, data) {
         data.which = PhCalibrations.values.PH_LOW;
-        return this.performCalibration(data);
+        return this.performCalibration(address, data);
     }
 
-    calibrateMidPh(data) {
+    calibrateMidPh(address, data) {
         data.which = PhCalibrations.values.PH_MIDDLE;
-        return this.performCalibration(data);
+        return this.performCalibration(address, data);
     }
 
-    calibrateHighPh(data) {
+    calibrateHighPh(address, data) {
         data.which = PhCalibrations.values.PH_HIGH;
-        return this.performCalibration(data);
+        return this.performCalibration(address, data);
     }
 
-    performCalibration(data) {
+    performCalibration(address, data) {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
             calibration: {
@@ -68,7 +68,7 @@ export default class CalibrationService {
                 value: data.refValue
             }
         });
-        return this.stationQuery(data.address, message).then(reply => {
+        return this.stationQuery(address, message).then(reply => {
             return reply;
         });
     }
