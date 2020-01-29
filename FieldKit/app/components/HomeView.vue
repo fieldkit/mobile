@@ -8,7 +8,7 @@
             <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
             <Button class="btn btn-primary btn-padded" text="Copy Logs" @tap="copyLogs"></Button>
             <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
-            <Button class="btn btn-primary btn-padded" text="Delete Station Data" @tap="deleteFiles"></Button>
+            <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
 			<Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button>
         </StackLayout>
     </Page>
@@ -84,7 +84,7 @@ export default {
         },
         deleteFiles() {
             const firmwareFolder = knownFolders
-                  .currentApp()
+                  .documents()
                   .getFolder("firmware");
 
 			return firmwareFolder.remove().then(() => {

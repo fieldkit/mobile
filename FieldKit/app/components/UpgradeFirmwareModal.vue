@@ -2,9 +2,10 @@
 <Page @loaded="onLoaded" @unloaded="onUnloaded" >
 	<GridLayout rows="auto, *" class="container">
 		<StackLayout verticalAlign="center" class="bar-container" v-if="!done">
-			<Label text="Upgrading station firmware. Thank you for your patience." textWrap="true" v-if="!downloadOnly" />
+			<Label text="Upgrading station firmware. Thank you for your patience." textWrap="true" v-if="!downloadOnly && !error" />
+			<Label text="No local firmware and you're offline so none can be downloaded." textWrap="true" v-if="error" />
 			<Label text="Downloading firmware." textWrap="true" v-if="downloadOnly" />
-			<Progress :value="progress" scaleY="4" />
+			<Progress :value="progress" scaleY="4" v-if="!error" />
 		</Stacklayout>
 
 		<StackLayout verticalAlign="center" class="bar-container" v-if="done">
@@ -23,6 +24,7 @@ export default {
 	data() {
 		return {
 			progress: 0,
+			error: false,
 			done: false,
 		};
 	},
@@ -51,11 +53,17 @@ export default {
 				});
 			}
 
-			return Services.StationFirmware().upgradeStation(this.station.url, updateProgress).then(() => {
-				this.done = true;
-			}).catch(err => {
-				this.done = true;
-				console.log("error", err, err.stack);
+			return Services.StationFirmware().haveFirmware().then(yes => {
+				if (!yes) {
+					this.error = true;
+					return { error: true };
+				}
+				return Services.StationFirmware().upgradeStation(this.station.url, updateProgress).then(() => {
+					this.done = true;
+				}).catch(err => {
+					this.done = true;
+					console.log("error", err, err.stack);
+				});
 			});
 		},
 		onUnloaded() {

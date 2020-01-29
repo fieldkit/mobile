@@ -52,14 +52,29 @@ export default class StationUpgrade {
 	upgradeStation(url, progressCallback) {
 		console.log("upgrade", url);
 
-		return this.services.StationMonitor().getKnownStations().then(knownStations => {
-			return this.services.Database().getLatestFirmware().then(firmware => {
-				console.log("firmware", firmware);
+		return this.haveFirmware().then(yes => {
+			if (!yes) {
+				return Promise.reject("missingFirmware");
+			}
+			return this.services.StationMonitor().getKnownStations().then(knownStations => {
+				return this.services.Database().getLatestFirmware().then(firmware => {
+					console.log("firmware", firmware);
 
-				const uploadProgress = transformProgress(progressCallback, p => p);
+					const uploadProgress = transformProgress(progressCallback, p => p);
 
-				return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
+					return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
+				});
 			});
+		});
+	}
+
+	haveFirmware() {
+		return this.services.Database().getLatestFirmware().then(firmware => {
+			const local = this.services.FileSystem().getFile(firmware.path);
+			if (!local.exists() || local.size == 0) {
+				return false;
+			}
+			return true;
 		});
 	}
 }
