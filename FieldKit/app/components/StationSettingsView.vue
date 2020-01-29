@@ -353,11 +353,13 @@
 <script>
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../routes";
+import { hexStringToByteWiseString } from "../utilities";
+import Services from "../services/services";
+
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
-import Services from "../services/services";
-import { hexStringToByteWiseString } from "../utilities";
+import UpgradeFirmwareModal from "./UpgradeFirmwareModal";
 
 const stateManager = Services.StateManager();
 const dbInterface = Services.Database();
@@ -437,22 +439,11 @@ export default {
             this.deviceStatus = deviceStatus;
 		},
 
-		upgradeFirmware() {
-			const stationFirmware = Services.StationFirmware();
-			return stationFirmware.upgradeStation(this.station.url).then(() => {
-				alert({
-					title: "Station",
-					message: "Upgrade Done",
-					okButtonText: "OK"
-				});
-			}).catch(err => {
-				console.log("Upgrade error", err, err.stack);
-
-				alert({
-					title: "Station",
-					message: "Upgrade Failed",
-					okButtonText: "OK"
-				});
+		upgradeFirmware(args) {
+			this.$showModal(UpgradeFirmwareModal, {
+				props: {
+					station: this.station
+				}
 			});
 		},
 

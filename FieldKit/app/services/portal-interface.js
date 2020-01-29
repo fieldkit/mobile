@@ -130,7 +130,7 @@ export default class PortalInterface {
         });
 	}
 
-	downloadFirmware(url, local) {
+	downloadFirmware(url, local, progress) {
 		const headers = {
 			Authorization: this._appSettings.getString("accessToken")
 		};
@@ -138,9 +138,7 @@ export default class PortalInterface {
 			url: Config.baseUri + url,
 			path: local,
 			headers: { ...headers },
-			progress: (total, copied, info) => {
-				// Do nothing.
-			}
+			progress: progress,
 		}).then(e => {
 			return {
 				data: e.body,

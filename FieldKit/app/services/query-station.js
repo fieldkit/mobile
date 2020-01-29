@@ -164,11 +164,12 @@ export default class QueryStation {
 		});
 	}
 
-	uploadFirmware(url, path) {
+	uploadFirmware(url, path, progress) {
 		return this.services.Conservify().upload({
 			method: "POST",
 			url: url + "/upload/firmware?swap=1",
-			path: path
+			path: path,
+			progress: progress
 		}).then(response => {
 			console.log(response);
 			return {
