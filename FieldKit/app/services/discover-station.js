@@ -1,4 +1,5 @@
 import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
+import * as ConnectivityModule from "tns-core-modules/connectivity";
 import { isIOS } from "tns-core-modules/platform";
 import { every } from "./rx";
 
@@ -36,6 +37,28 @@ class WiFiMonitor {
 				*/
 			});
         }, 10000);
+
+		ConnectivityModule.startMonitoring((newType) => {
+			switch (newType) {
+			case ConnectivityModule.connectionType.none:
+				console.log("connectivity: None");
+				break;
+			case ConnectivityModule.connectionType.wifi:
+				console.log("connectivity: WiFi");
+				break;
+			case ConnectivityModule.connectionType.mobile:
+				console.log("connectivity: Mobile");
+				break;
+			case ConnectivityModule.connectionType.ethernet:
+				console.log("connectivity: Ethernet");
+				break;
+			case ConnectivityModule.connectionType.bluetooth:
+				console.log("connectivity: Bluetooth");
+				break;
+			default:
+				break;
+			}
+		});
     }
 
     couldBeStation(ssid) {
