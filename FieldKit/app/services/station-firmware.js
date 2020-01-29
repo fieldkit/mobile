@@ -52,22 +52,14 @@ export default class StationUpgrade {
 	upgradeStation(url, progressCallback) {
 		console.log("upgrade", url);
 
-		const downloadProgress = p => {
-			return {
-				progress: p.progress / 2.0
-			}
-		};
+		return this.services.StationMonitor().getKnownStations().then(knownStations => {
+			return this.services.Database().getLatestFirmware().then(firmware => {
+				console.log("firmware", firmware);
 
-		return this.downloadFirmware(downloadProgress, true).then(() => {
-			return this.services.StationMonitor().getKnownStations().then(knownStations => {
-				return this.services.Database().getLatestFirmware().then(firmware => {
-					console.log("firmware", firmware);
+				const uploadProgress = transformProgress(progressCallback, p => p);
 
-					const uploadProgress = transformProgress(progressCallback, p => p / 2.0 + 50.0);
-
-					return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
-				});
+				return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
 			});
-		})
+		});
 	}
 }
