@@ -341,6 +341,7 @@
                         />
                     </WrapLayout>
 
+					<Button :text="_L('downloadFirmware')" @tap="downloadFirmware" class="btn btn-secondary"></Button>
 					<Button :text="_L('upgradeFirmware')" @tap="upgradeFirmware" class="btn btn-secondary"></Button>
                 </FlexboxLayout>
             </ScrollView>
@@ -439,10 +440,20 @@ export default {
             this.deviceStatus = deviceStatus;
 		},
 
+		downloadFirmware(args) {
+			this.$showModal(UpgradeFirmwareModal, {
+				props: {
+					station: this.station,
+					downloadOnly: true,
+				}
+			});
+		},
+
 		upgradeFirmware(args) {
 			this.$showModal(UpgradeFirmwareModal, {
 				props: {
-					station: this.station
+					station: this.station,
+					downloadOnly: false,
 				}
 			});
 		},

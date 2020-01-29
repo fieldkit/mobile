@@ -182,5 +182,6 @@ module.exports = {
     deploy: "Deploy",
     daysHrsMin: "days hrs min",
     hrsMinSec: "hrs min sec",
+	downloadFirmware: "Download Firmware",
 	upgradeFirmware: "Upgrade Firmware"
 };
