@@ -6,7 +6,7 @@ import Services from "./services";
 class DomainServices {
 	constructor() {
 		this.previous = {};
-		console.log("DomainServices", "ctor");
+		console.log("DomainServices", "constructor");
 	}
 
 	updateStation(station) {

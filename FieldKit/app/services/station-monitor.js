@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Observable } from "tns-core-modules/data/observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
-import { Coordinates, Phone, MyStations } from './my-stations';
+import { Coordinates, Phone, KnownStations } from './known-stations';
 import Services from './services';
 import StationLogs from "./station-logs";
 import Config from "../config";
@@ -35,7 +35,7 @@ export default class StationMonitor extends Observable {
         this.ReadingsChangedProperty = "readingsChanged";
 		this.logs = new StationLogs(discoverStation, queryStation);
 		this.phone = new Phone();
-		this.myStations = new MyStations();
+		this.knownStations = new KnownStations();
 
         // temporary method to clear out modules with no device ids
         this.dbInterface.removeNullIdModules();
@@ -51,8 +51,8 @@ export default class StationMonitor extends Observable {
 		return Promise.resolve(this.phone);
 	}
 
-	getMyStations() {
-		return Promise.resolve(this.myStations);
+	getKnownStations() {
+		return Promise.resolve(this.knownStations);
 	}
 
     clearStations() {
@@ -61,12 +61,10 @@ export default class StationMonitor extends Observable {
     }
 
     savePhoneLocation(location) {
-        console.log("|--> Phone coordinates reported as", location)
-
 		this.phone.location = new Coordinates(location);
 
 		return Promise.all(Object.values(this.stations).map(station => {
-			return this.myStations.get(station).haveNewPhoneLocation(this.phone);
+			return this.knownStations.get(station).haveNewPhoneLocation(this.phone);
 		}));
     }
 
@@ -233,7 +231,7 @@ export default class StationMonitor extends Observable {
 		// more automated testing. Eventually most of the above code
 		// can migrate into these objects.
 		try {
-			const updatePromise = this.myStations.get(station).haveNewStatus(result, this.phone).catch((err) => {
+			const updatePromise = this.knownStations.get(station).haveNewStatus(result, this.phone).catch((err) => {
 				console.log("error", err);
 			});
 		}
@@ -407,11 +405,11 @@ export default class StationMonitor extends Observable {
             ? new Date(data.result.status.recording.startedTime * 1000)
             : "";
         // use phone location if station doesn't report coordinates
-        let latitude = this.phoneLat;
+        let latitude = this.phone.location.latitude;
         if (deviceStatus.gps.latitude && deviceStatus.gps.latitude != 1000) {
             latitude = deviceStatus.gps.latitude.toFixed(6);
         }
-        let longitude = this.phoneLong;
+        let longitude = this.phone.location.longitude;
         if (deviceStatus.gps.longitude && deviceStatus.gps.longitude != 1000) {
             longitude = deviceStatus.gps.longitude.toFixed(6);
         }

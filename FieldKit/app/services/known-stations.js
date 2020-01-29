@@ -78,7 +78,7 @@ export class Phone {
 	}
 }
 
-export class MyStations {
+export class KnownStations {
 	constructor() {
 		this.stations = {};
 	}

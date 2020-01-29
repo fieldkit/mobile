@@ -59,7 +59,7 @@ export default class StationUpgrade {
 		};
 
 		return this.downloadFirmware(downloadProgress, true).then(() => {
-			return this.services.StationMonitor().getMyStations().then(myStations => {
+			return this.services.StationMonitor().getKnownStations().then(knownStations => {
 				return this.services.Database().getLatestFirmware().then(firmware => {
 					console.log("firmware", firmware);
 

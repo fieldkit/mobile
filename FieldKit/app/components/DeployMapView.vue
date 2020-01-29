@@ -6,7 +6,7 @@
                 <ScreenHeader
                     :title="viewTitle"
                     :subtitle="station.name"
-                    :onBack="goBack"
+                    :canNavigateBack="false"
                     :canCancel="true"
                     :onCancel="onNavCancel"
                     :canNavigateSettings="false"
