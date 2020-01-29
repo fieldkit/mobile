@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var conservify_common_1 = require("./conservify.common");
 var application_1 = require("tns-core-modules/application");
 var Config = require("../../app/config");
-var isLogging = Config.default.logging["NativescriptConservify"];
+var isLogging = Config.default.logging["NativeScriptConservify"];
 var debug = (function () {
     if (isLogging) {
         return console.log;
