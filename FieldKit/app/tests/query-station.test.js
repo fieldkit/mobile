@@ -1,53 +1,75 @@
-import axios from "axios";
-import protobuf from "protobufjs";
-import Services from "../services/services";
+import Services from '../services/services'
+import { MockStationReplies } from './utilities'
 
-const queryStation = Services.QueryStation();
-const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
-const HttpReply = appRoot.lookupType("fk_app.HttpReply");
+describe('QueryStation', () => {
+    let queryStation
+    let mockStation
 
-afterEach(() => {
-    axios.mockReset();
-});
+    beforeEach(() => {
+        queryStation = Services.QueryStation()
+        mockStation = new MockStationReplies(Services)
+    })
 
-describe("QueryStation", () => {
-    it("should retrieve a station status", () => {
-        // const queryStation = new QueryStation();
-        const binaryResponse = HttpReply.encodeDelimited({
+    it('should retrieve a station status', () => {
+        expect.assertions(2)
+
+        mockStation.queueBody({
             errors: [],
             type: 15,
             status: {},
             modules: [
                 {
                     sensors: [[{}], [{}], [{}], [{}]],
-                    name: "Water Quality Module"
-                }
-            ]
-        }).finish();
-        const mockResponse = {
-            data: new Buffer.from(binaryResponse).toString("hex")
-        };
-        axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryStation
-            .getStatus()
-            .then(resp => expect(resp.modules).toBeDefined());
-    });
+                    name: 'Water Quality Module',
+                },
+            ],
+        })
 
-    it("should retrieve station readings", () => {
-        // const queryStation = new QueryStation();
-        const binaryResponse = HttpReply.encodeDelimited({
+        return queryStation.getStatus().then(body => {
+            expect(body.liveReadings).toBeDefined()
+            expect(mockStation.mock.calls.length).toBe(1)
+        })
+    })
+
+    it('should retrieve station readings (body)', () => {
+        // Must match expect calls below, ensures that we don't get
+        // false positives when the promise never resolve and the
+        // expect calls are never reached.
+        expect.assertions(2)
+
+        mockStation.queueBody({
             errors: [],
             type: 18,
             modules: [],
             streams: [],
-            liveReadings: [{ modules: [{}], time: 1565734980 }]
-        }).finish();
-        const mockResponse = {
-            data: new Buffer.from(binaryResponse).toString("hex")
-        };
-        axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return queryStation
-            .takeReadings()
-            .then(resp => expect(resp.liveReadings).toBeDefined());
-    });
-});
+            liveReadings: [{ modules: [{}], time: 1565734980 }],
+        })
+
+        return queryStation.takeReadings().then(body => {
+            expect(body.liveReadings).toBeDefined()
+            expect(mockStation.mock.calls.length).toBe(1)
+        })
+    })
+
+    it('should retrieve station readings (response)', () => {
+        // Must match expect calls below, ensures that we don't get
+        // false positives when the promise never resolve and the
+        // expect calls are never reached.
+        expect.assertions(2)
+
+        mockStation.queueResponse({
+            body: {
+                errors: [],
+                type: 18,
+                modules: [],
+                streams: [],
+                liveReadings: [{ modules: [{}], time: 1565734980 }],
+            },
+        })
+
+        return queryStation.takeReadings().then(body => {
+            expect(body.liveReadings).toBeDefined()
+            expect(mockStation.mock.calls.length).toBe(1)
+        })
+    })
+})
