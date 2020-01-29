@@ -19,28 +19,22 @@ try {
     initializeLogging();
 }
 catch (e) {
-    console.log("logging error", e);
+    console.log("startup error", e, e.stack);
 }
 
 try {
     traceModule.setErrorHandler({
         handleError(err) {
+			console.log("ERROR:");
             console.log(err);
+            console.log(err.stack);
         }
     });
-    /*
-    traceModule.setCategories(traceModule.categories.concat(
-        traceModule.categories.Binding,
-        traceModule.categories.Layout,
-        traceModule.categories.Style,
-        traceModule.categories.ViewHierarchy,
-        traceModule.categories.VisualTreeEvents
-    ));
-    */
+
     traceModule.enable();
 }
 catch (e) {
-    console.log("logging error", e);
+    console.log("startup error", e, e.stack);
 }
 
 registerLifecycleEvents();
@@ -49,31 +43,20 @@ Services.CreateDb()
     .initialize()
     .then(() => {
         Vue.prototype.$stationMonitor = Services.StationMonitor();
-
-        Services.DiscoverStation().startServiceDiscovery();
+		Vue.prototype.$portalInterface = Services.PortalInterface();
     })
     .catch(err => {
-        console.log(err);
+        console.log("startup error", err, err.stack);
     });
 
 // Pass i18n's global variable to Vue
 Vue.prototype._L = _L;
 
-Vue.prototype.$portalInterface = Services.PortalInterface();
-
-// Vue.registerElement('RangeSeekBar', () => RangeSeekBar);
-
-Vue.registerElement(
-    "DropDown",
-    () => require("nativescript-drop-down/drop-down").DropDown
-);
+Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
 
 Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
-Vue.registerElement(
-    "BarcodeScanner",
-    () => require("nativescript-barcodescanner").BarcodeScannerView
-);
+Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
 
 if (Config.developer.machine) {
     Vue.use(VueDevtools, { host: Config.developer.machine });
@@ -83,7 +66,6 @@ Vue.use(RadChart);
 
 // Uncommment the following to see NativeScript-Vue output logs
 if (Config.vue.verbose) {
-    console.log("VERBOSE");
     Vue.config.silent = false;
 }
 
