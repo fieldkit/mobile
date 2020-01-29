@@ -4,6 +4,7 @@ import { isIOS } from "tns-core-modules/platform";
 import { every } from "./rx";
 
 import Config from "../config";
+const log = Config.logger("DiscoverStation");
 
 class Station {
     constructor(info) {
@@ -22,10 +23,10 @@ class WiFiMonitor {
         this.timer = setInterval(() => {
 			return services.Conservify().findConnectedNetwork().then((status) => {
 				if (status.connectedWifi) {
-					console.log("WiFiMonitor: ", status.connectedWifi.ssid);
+					log.info("WiFiMonitor: ", status.connectedWifi.ssid);
 				}
 				else {
-					console.log("WiFiMonitor: nothing");
+					log.info("WiFiMonitor: nothing");
 					this.previous = null;
 				}
 				/*
@@ -41,19 +42,19 @@ class WiFiMonitor {
 		ConnectivityModule.startMonitoring((newType) => {
 			switch (newType) {
 			case ConnectivityModule.connectionType.none:
-				console.log("connectivity: None");
+				log.info("connectivity: None");
 				break;
 			case ConnectivityModule.connectionType.wifi:
-				console.log("connectivity: WiFi");
+				log.info("connectivity: WiFi");
 				break;
 			case ConnectivityModule.connectionType.mobile:
-				console.log("connectivity: Mobile");
+				log.info("connectivity: Mobile");
 				break;
 			case ConnectivityModule.connectionType.ethernet:
-				console.log("connectivity: Ethernet");
+				log.info("connectivity: Ethernet");
 				break;
 			case ConnectivityModule.connectionType.bluetooth:
-				console.log("connectivity: Bluetooth");
+				log.info("connectivity: Bluetooth");
 				break;
 			default:
 				break;
@@ -104,7 +105,7 @@ export default class DiscoverStation extends Observable {
 		}
 
         this.wifiMonitor = new WiFiMonitor(this.services, (ssid, couldBeStation) => {
-            console.log("new ssid", ssid, couldBeStation);
+            log.info("new ssid", ssid, couldBeStation);
             if (couldBeStation) {
                 this.stationFound({
                     type: "._fk._tcp",
@@ -115,7 +116,7 @@ export default class DiscoverStation extends Observable {
             } else {
                 // HACK Fake onLostService for any connection stations.
                 const connected = Object.values(this.stations_);
-                console.log(connected);
+                log.info(connected);
                 connected.forEach(station => {
                     this.onLostService({
                         type: station.type,
@@ -133,7 +134,7 @@ export default class DiscoverStation extends Observable {
 
 		Object.keys(this.stations_).forEach(key => {
 			const station = this.stations_[key];
-			console.log("publishing known service", station);
+			log.info("publishing known service", station);
 			this.onFoundService(station);
 		});
 	}
@@ -153,7 +154,7 @@ export default class DiscoverStation extends Observable {
     }
 
     onFoundService(info) {
-        console.log("found service:", info.type, info.name, info.host, info.port);
+        log.info("found service:", info.type, info.name, info.host, info.port);
 
         const key = this.makeKey(info);
         const station = new Station(info);
@@ -163,7 +164,7 @@ export default class DiscoverStation extends Observable {
     }
 
     onLostService(info) {
-        console.log("lost service:", info.type, info.name);
+        log.info("lost service:", info.type, info.name);
         if (!isIOS && info.type == "_fk._tcp.") {
             info.type = "._fk._tcp";
         }

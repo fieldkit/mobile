@@ -6,7 +6,9 @@ function get_blank_developer_config() {
             SaveLogs: true,
             QueryStation: false,
             DownloadManager: false,
-            UploadManager: false
+            UploadManager: false,
+            CalibrationService: true,
+            DiscoverStation: true
         },
         developer: {
             machine: null,
