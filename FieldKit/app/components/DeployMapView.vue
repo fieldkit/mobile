@@ -230,7 +230,7 @@ export default {
                     animated: false
                 });
                 this.map.setZoomLevel({
-                    level: 18
+                    level: 14
                     // animated: true
                 });
                 this.mapMarker = {
