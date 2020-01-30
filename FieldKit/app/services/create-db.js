@@ -162,7 +162,7 @@ export default class CreateDB {
     }
 
     createModulesTable() {
-        // Note: module_id currently is not used and
+        // Note: module_id is bay number (position) and
         // device_id is the module's unique hardware id (not the station's)
         return this.execute([
             `CREATE TABLE IF NOT EXISTS modules (

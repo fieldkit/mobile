@@ -338,6 +338,16 @@ export default class DatabaseInterface {
         );
     }
 
+    setModuleId(module) {
+        // Note: module_id is currently bay number
+        return this.getDatabase().then(db =>
+            db.query("UPDATE modules SET module_id = ? WHERE device_id = ?", [
+                module.position,
+                module.deviceId
+            ])
+        );
+    }
+
     setModuleInterval(module) {
         return this.getDatabase().then(db =>
             db.query("UPDATE modules SET interval = ? WHERE id = ?", [
@@ -418,12 +428,12 @@ export default class DatabaseInterface {
     }
 
     insertModule(module) {
-        // Note: module_id currently is not used and
+        // Note: module_id is bay number (position) and
         // device_id is the module's unique hardware id (not the station's)
         return this.database.execute(
             "INSERT INTO modules (module_id, device_id, name, interval, station_id) VALUES (?, ?, ?, ?, ?)",
             [
-                module.moduleId,
+                module.position,
                 module.deviceId,
                 module.name,
                 module.interval || 0,

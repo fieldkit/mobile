@@ -120,7 +120,10 @@ export default {
     props: ["connected", "date"],
     methods: {
         updateModules(modules) {
-            this.modules = modules;
+            // bay order is stored as moduleId
+            this.modules = modules.sort((a, b) => {
+                return b.moduleId > a.moduleId ? 1 : b.moduleId < a.moduleId ? -1 : 0;
+            });
             this.modules.forEach(m => {
                 this.open.push(m.id);
                 m.sensorObjects.forEach(s => {

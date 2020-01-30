@@ -277,6 +277,10 @@ export default class StationMonitor extends Observable {
                     if (dbModule.name != hwModule.name) {
                         this.dbInterface.setModuleName(hwModule);
                     }
+                    // update bay number if needed
+                    if (dbModule.moduleId != hwModule.position) {
+                        this.dbInterface.setModuleId(hwModule);
+                    }
                 } else {
                     // add those not in the database
                     hwModule.stationId = station.id;
