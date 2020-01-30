@@ -236,7 +236,8 @@ export default {
                 this.mapMarker = {
                     lat: this.station.latitude,
                     lng: this.station.longitude,
-                    title: this.station.locationName,
+                    title: this.station.name,
+                    subtitle: _L("readyToDeploy"),
                     iconPath: 'images/Icon_Map_Dot.png'
                 };
                 this.map.addMarkers([this.mapMarker]);
