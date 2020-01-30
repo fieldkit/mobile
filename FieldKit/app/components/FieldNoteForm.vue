@@ -1,6 +1,6 @@
 <template>
     <GridLayout
-        rows="auto,auto,auto,*,auto"
+        rows="auto,*,auto"
         height="100%"
         @loaded="onPageLoaded"
         @unloaded="onUnloaded"
@@ -51,119 +51,121 @@
             />
         </GridLayout>
 
-        <!-- Recording in progress -->
-        <GridLayout
+        <WrapLayout
             row="1"
-            rows="auto"
-            columns="10*,10*,70*,10*"
-            class="recording-box"
-            v-if="preRecord || recordingInProgress"
-        >
-            <Image
-                col="0"
-                width="20"
-                class="small-round"
-                src="~/images/Icon_Pause.png"
-                v-if="recordingInProgress"
-                @tap="pauseRecording"
-            ></Image>
-            <Image
-                col="0"
-                width="20"
-                class="small-round"
-                src="~/images/Icon_Record.png"
-                v-if="preRecord"
-                automationText="startRecording"
-                @tap="
-                    recordingInProgress
-                        ? resumeRecording()
-                        : startAudioRecording()
-                "
-            ></Image>
-            <Image
-                col="1"
-                width="20"
-                class="small-round"
-                src="~/images/Icon_Stop.png"
-                v-if="recordingInProgress"
-                automationText="stopRecording"
-                @tap="stopRecording"
-            ></Image>
-            <Label
-                col="2"
-                :colSpan="recordingInProgress ? 1 : 2"
-                :text="recordingTime"
-                textWrap="true"
-            />
-            <Image
-                col="3"
-                width="20"
-                class="small-round"
-                src="~/images/Icon_Close_Circle.png"
-                @tap="cancelRecording"
-            ></Image>
-        </GridLayout>
-        <!-- end recording in progress -->
-
-        <!-- List audio recordings -->
-        <GridLayout
-            row="2"
-            rows="auto"
-            columns="10*,80*,10*"
-            v-for="(recording, index) in displayRecordings"
-            :key="recording"
-            class="link-style recording-box"
-        >
-            <Image
-                col="0"
-                width="20"
-                class="small-round"
-                :data="recording"
-                src="~/images/Icon_Play.png"
-                v-if="isPlaying != recording"
-                @tap="playAudio"
-            ></Image>
-            <Image
-                col="0"
-                width="20"
-                class="small-round"
-                :data="recording"
-                src="~/images/Icon_Stop.png"
-                v-if="isPlaying == recording"
-                @tap="stopPlaying"
-            ></Image>
-            <Label
-                col="1"
-                :text="recording"
-                :data="recording"
-                textWrap="true"
-                :automationText="'audioRecording' + index"
-                @tap="playAudio"
-            />
-            <Image
-                col="2"
-                width="20"
-                class="small-round"
-                :data="recording"
-                src="~/images/Icon_Delete.png"
-                @tap="removeRecording"
-            ></Image>
-        </GridLayout>
-        <!-- end: List audio recordings -->
-
-        <!-- main text input section -->
-        <TextView
-            row="3"
-            textWrap="true"
-            class="size-14 p-x-20 large-text-field"
-            :hint="fieldNote.instruction"
-            v-model="fieldNote.value"
+            orientation="horizontal"
             v-if="!fieldNote.image"
-        ></TextView>
+        >
+            <!-- main text input section -->
+            <TextView
+                textWrap="true"
+                class="size-14 p-x-20 large-text-field"
+                :hint="fieldNote.instruction"
+                v-model="fieldNote.value"
+            ></TextView>
+
+            <!-- Recording in progress -->
+            <GridLayout
+                rows="auto"
+                columns="10*,10*,70*,10*"
+                class="recording-box"
+                v-if="preRecord || recordingInProgress"
+            >
+                <Image
+                    col="0"
+                    width="20"
+                    class="small-round"
+                    src="~/images/Icon_Pause.png"
+                    v-if="recordingInProgress"
+                    @tap="pauseRecording"
+                ></Image>
+                <Image
+                    col="0"
+                    width="20"
+                    class="small-round"
+                    src="~/images/Icon_Record.png"
+                    v-if="preRecord"
+                    automationText="startRecording"
+                    @tap="
+                        recordingInProgress
+                            ? resumeRecording()
+                            : startAudioRecording()
+                    "
+                ></Image>
+                <Image
+                    col="1"
+                    width="20"
+                    class="small-round"
+                    src="~/images/Icon_Stop.png"
+                    v-if="recordingInProgress"
+                    automationText="stopRecording"
+                    @tap="stopRecording"
+                ></Image>
+                <Label
+                    col="2"
+                    :colSpan="recordingInProgress ? 1 : 2"
+                    :text="recordingTime"
+                    textWrap="true"
+                />
+                <Image
+                    col="3"
+                    width="20"
+                    class="small-round"
+                    src="~/images/Icon_Close_Circle.png"
+                    @tap="cancelRecording"
+                ></Image>
+            </GridLayout>
+            <!-- end recording in progress -->
+
+            <!-- List audio recordings -->
+            <GridLayout
+                rows="auto"
+                columns="10*,80*,10*"
+                v-for="(recording, index) in displayRecordings"
+                :key="recording"
+                class="link-style recording-box"
+            >
+                <Image
+                    col="0"
+                    width="20"
+                    class="small-round"
+                    :data="recording"
+                    src="~/images/Icon_Play.png"
+                    v-if="isPlaying != recording"
+                    @tap="playAudio"
+                ></Image>
+                <Image
+                    col="0"
+                    width="20"
+                    class="small-round"
+                    :data="recording"
+                    src="~/images/Icon_Stop.png"
+                    v-if="isPlaying == recording"
+                    @tap="stopPlaying"
+                ></Image>
+                <Label
+                    col="1"
+                    :text="recording"
+                    :data="recording"
+                    textWrap="true"
+                    :automationText="'audioRecording' + index"
+                    @tap="playAudio"
+                />
+                <Image
+                    col="2"
+                    width="20"
+                    class="small-round"
+                    :data="recording"
+                    src="~/images/Icon_Delete.png"
+                    @tap="removeRecording"
+                ></Image>
+            </GridLayout>
+            <!-- end: List audio recordings -->
+        </WrapLayout>
 
         <!-- date and time -->
         <Label
-            row="4"
+            row="2"
             :text="currentTime"
             horizontalAlignment="left"
             class="m-t-15 m-l-10 m-b-10 size-14 lighter"
@@ -171,7 +173,7 @@
 
         <!-- mic icon -->
         <Image
-            row="4"
+            row="2"
             width="40"
             src="~/images/Icon_Mic_Button.png"
             horizontalAlignment="right"
