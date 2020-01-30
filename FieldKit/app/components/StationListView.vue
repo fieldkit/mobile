@@ -294,9 +294,10 @@ export default {
             }
 
             // prevent error when setting viewport with identical min max
+            // and prevent zooming in too close when stations are in same place
             if (
-                this.bounds.latMax == this.bounds.latMin
-                && this.bounds.longMax == this.bounds.longMin
+                this.bounds.latMax - this.bounds.latMin < 0.0001
+                && this.bounds.longMax - this.bounds.longMin < 0.0001
                 && this.map
             ) {
                 this.map.setZoomLevel({
@@ -311,7 +312,8 @@ export default {
             } else if (mappable.length > 1 && this.map) {
                 const smallLatMargin =
                     (this.bounds.latMax - this.bounds.latMin) / 10;
-                // const smallLongMargin = (longMax - longMin) / 10;
+                // const smallLongMargin =
+                //     (this.bounds.longMax - this.bounds.longMin) / 10;
                 this.map.setViewport({
                     bounds: {
                         // zoom north out a little to fit marker
@@ -320,6 +322,7 @@ export default {
                         south: this.bounds.latMin,
                         west: this.bounds.longMin
                     }
+                    // animated: false // causes map crash
                 });
             }
         },
