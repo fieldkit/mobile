@@ -100,13 +100,22 @@ export function getLastSeen(date) {
         today.getDate() == day &&
         today.getFullYear() == year
     ) {
-        const origHour = date.getHours();
-        const suffix = origHour < 12 ? " AM" : " PM";
-        let hour = origHour % 12 == 0 ? 12 : origHour % 12;
-        let origMinutes = date.getMinutes();
-        const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
-        return hour + ":" + minutes + suffix;
+        return getFormattedTime(date);
     }
     return month + "/" + day + "/" + year;
 }
 
+export function getFormattedTime(date) {
+    if (!date) {
+        return "";
+    }
+    if (date && typeof date == "string") {
+        date = new Date(date);
+    }
+    const origHour = date.getHours();
+    const suffix = origHour < 12 ? " AM" : " PM";
+    const hour = origHour % 12 == 0 ? 12 : origHour % 12;
+    let origMinutes = date.getMinutes();
+    const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
+    return hour + ":" + minutes + suffix;
+}

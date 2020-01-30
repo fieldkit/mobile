@@ -45,6 +45,7 @@
             ></TextView>
             <Image
                 row="1"
+                height="300"
                 :src="fieldNote.image"
                 stretch="aspectFit"
             />
@@ -160,6 +161,14 @@
             v-if="!fieldNote.image"
         ></TextView>
 
+        <!-- date and time -->
+        <Label
+            row="4"
+            :text="currentTime"
+            horizontalAlignment="left"
+            class="m-t-15 m-l-10 m-b-10 size-14 lighter"
+        ></Label>
+
         <!-- mic icon -->
         <Image
             row="4"
@@ -177,6 +186,7 @@
 <script>
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import AudioInterface from "../services/audio-interface";
+import { getFormattedTime } from "../utilities";
 
 const audioInterface = new AudioInterface();
 
@@ -192,7 +202,8 @@ export default {
             preRecord: false,
             timer: 0,
             recordingTime: "00:00:00",
-            recordingInProgress: false
+            recordingInProgress: false,
+            currentTime: ""
         };
     },
     props: ["fieldNote"],
@@ -213,6 +224,7 @@ export default {
                 _L("nov"),
                 _L("dec")
             ];
+            this.currentTime = this.getTimestamp();
 
             if (this.fieldNote.audioFile) {
                 this.displayRecordings = this.fieldNote.audioFile.split(",");
@@ -233,6 +245,15 @@ export default {
 
         onSave() {
             this.$emit("saveEdit", this.fieldNote);
+        },
+
+        getTimestamp() {
+            let now = new Date();
+            let month = monthNames[now.getMonth()];
+            let day = now.getDate();
+            let year = now.getFullYear();
+            let time = getFormattedTime(now);
+            return month + " " + day + ", " + year + " | " + time;
         },
 
         onAudioTap(event) {
@@ -406,5 +427,8 @@ export default {
 }
 .link-style {
     color: $fk-primary-blue;
+}
+.lighter {
+    color: $fk-gray-text;
 }
 </style>
