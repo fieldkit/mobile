@@ -7,9 +7,16 @@ const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
 const AtlasQuery = atlasRoot.lookupType("fk_atlas.WireAtlasQuery");
 const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
 const ReplyType = atlasRoot.lookup("fk_atlas.ReplyType");
+const replyTypeLookup = _.invert(ReplyType.values);
+const SensorType = atlasRoot.lookup("fk_atlas.SensorType");
+const sensorTypeLookup = _.invert(SensorType.values);
 const AtlasQueryType = atlasRoot.lookup("fk_atlas.QueryType");
 const AtlasCalibrationOperation = atlasRoot.lookup("fk_atlas.CalibrationOperation");
+// const TempCalibrations = atlasRoot.lookup("fk_atlas.TempCalibrations");
+const DoCalibrations = atlasRoot.lookup("fk_atlas.DoCalibrations");
 const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
+const EcCalibrations = atlasRoot.lookup("fk_atlas.EcCalibrations");
+// const OrpCalibrations = atlasRoot.lookup("fk_atlas.OrpCalibrations");
 
 const log = Config.logger("CalibrationService");
 
@@ -27,7 +34,7 @@ export default class CalibrationService {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            return reply;
+            return this._fixupReply(reply);
         });
     }
 
@@ -40,7 +47,7 @@ export default class CalibrationService {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            return reply;
+            return this._fixupReply(reply);
         });
     }
 
@@ -59,6 +66,36 @@ export default class CalibrationService {
         return this.performCalibration(address, data);
     }
 
+    calibrateDryConductivity(address, data) {
+        data.which = EcCalibrations.values.EC_DRY;
+        return this.performCalibration(address, data);
+    }
+
+    calibrateSingleConductivity(address, data) {
+        data.which = EcCalibrations.values.EC_SINGLE;
+        return this.performCalibration(address, data);
+    }
+
+    calibrateDualLowConductivity(address, data) {
+        data.which = EcCalibrations.values.EC_DUAL_LOW;
+        return this.performCalibration(address, data);
+    }
+
+    calibrateDualHighConductivity(address, data) {
+        data.which = EcCalibrations.values.EC_DUAL_HIGH;
+        return this.performCalibration(address, data);
+    }
+
+    calibrateAtmosphereDissolvedOxygen(address, data) {
+        data.which = DoCalibrations.values.DO_ATMOSPHERE;
+        return this.performCalibration(address, data);
+    }
+
+    calibrateZeroDissolvedOxygen(address, data) {
+        data.which = DoCalibrations.values.DO_ZERO;
+        return this.performCalibration(address, data);
+    }
+
     performCalibration(address, data) {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
@@ -69,7 +106,7 @@ export default class CalibrationService {
             }
         });
         return this.stationQuery(address, message).then(reply => {
-            return reply;
+            return this._fixupReply(reply);
         });
     }
 
@@ -115,6 +152,40 @@ export default class CalibrationService {
             return AtlasReply.decodeDelimited(response.body);
         }
         return response.body;
+    }
+
+    _fixupReply(reply) {
+        if (reply.errors && reply.errors.length > 0) {
+            return reply;
+        }
+
+        reply.typeName = replyTypeLookup[reply.type];
+
+        if (reply.calibration) {
+            reply.calibration.typeName = sensorTypeLookup[reply.calibration.type];
+            switch (reply.calibration.type) {
+                case SensorType.values.SENSOR_NONE:
+                    break;
+                case SensorType.values.SENSOR_PH:
+                    reply.calibration.phStatus = {
+                        low: reply.calibration["ph"] & PhCalibrations.values.PH_LOW,
+                        middle: reply.calibration["ph"] & PhCalibrations.values.PH_MIDDLE,
+                        high: reply.calibration["ph"] & PhCalibrations.values.PH_HIGH
+                    }
+                    break;
+                case SensorType.values.SENSOR_TEMP:
+                    break;
+                case SensorType.values.SENSOR_ORP:
+                    break;
+                case SensorType.values.SENSOR_DO:
+                    break;
+                case SensorType.values.SENSOR_EC:
+                    break;
+                default:
+                    break;
+            }
+        }
+        return reply;
     }
 
     _handlePotentialRetryReply(reply, url, message) {
