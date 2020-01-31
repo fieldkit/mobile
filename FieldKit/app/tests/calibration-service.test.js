@@ -217,49 +217,49 @@ describe('Calibration', () => {
         });
     })
 
-    // it('Should perform atmosphere calibration for Atlas dissolved oxygen sensor', () => {
-    //     expect.assertions(2)
+    it('Should perform atmosphere calibration for Atlas dissolved oxygen sensor', () => {
+        expect.assertions(2)
 
-    //     mockStation.queueAtlasBody({
-    //         type: ReplyType.values.REPLY_ATLAS_COMMAND,
-    //         errors: [],
-    //         calibration: {
-    //             type: SensorType.values.SENSOR_DO,
-    //             time: Date.now(),
-    //             do: DoCalibrations.values.DO_ATMOSPHERE
-    //         },
-    //     });
+        mockStation.queueAtlasBody({
+            type: ReplyType.values.REPLY_ATLAS_COMMAND,
+            errors: [],
+            calibration: {
+                type: SensorType.values.SENSOR_DO,
+                time: Date.now(),
+                dissolvedOxygen: DoCalibrations.values.DO_ATMOSPHERE
+            },
+        });
 
-    //     const address = "http://192.168.1.8:80/fk/v1/module/1";
-    //     const data = {
-    //         refValue: 10
-    //     };
-    //     return calibrationService.calibrateAtmosphereDissolvedOxygen(address, data).then(body => {
-    //         expect(body.calibration.do).toBeGreaterThan(DoCalibrations.values.DO_NONE)
-    //         expect(mockStation.mock.calls.length).toBe(1)
-    //     });
-    // })
+        const address = "http://192.168.1.8:80/fk/v1/module/1";
+        const data = {
+            refValue: 10
+        };
+        return calibrationService.calibrateAtmosphereDissolvedOxygen(address, data).then(body => {
+            expect(body.calibration.dissolvedOxygen).toBeGreaterThan(DoCalibrations.values.DO_NONE)
+            expect(mockStation.mock.calls.length).toBe(1)
+        });
+    })
 
-    // it('Should perform zero calibration for Atlas dissolved oxygen sensor', () => {
-    //     expect.assertions(2)
+    it('Should perform zero calibration for Atlas dissolved oxygen sensor', () => {
+        expect.assertions(2)
 
-    //     mockStation.queueAtlasBody({
-    //         type: ReplyType.values.REPLY_ATLAS_COMMAND,
-    //         errors: [],
-    //         calibration: {
-    //             type: SensorType.values.SENSOR_DO,
-    //             time: Date.now(),
-    //             do: DoCalibrations.values.DO_ZERO
-    //         },
-    //     });
+        mockStation.queueAtlasBody({
+            type: ReplyType.values.REPLY_ATLAS_COMMAND,
+            errors: [],
+            calibration: {
+                type: SensorType.values.SENSOR_DO,
+                time: Date.now(),
+                dissolvedOxygen: DoCalibrations.values.DO_ZERO
+            },
+        });
 
-    //     const address = "http://192.168.1.8:80/fk/v1/module/1";
-    //     const data = {
-    //         refValue: 1
-    //     };
-    //     return calibrationService.calibrateZeroDissolvedOxygen(address, data).then(body => {
-    //         expect(body.calibration.do).toBeGreaterThan(DoCalibrations.values.DO_NONE)
-    //         expect(mockStation.mock.calls.length).toBe(1)
-    //     });
-    // })
+        const address = "http://192.168.1.8:80/fk/v1/module/1";
+        const data = {
+            refValue: 1
+        };
+        return calibrationService.calibrateZeroDissolvedOxygen(address, data).then(body => {
+            expect(body.calibration.dissolvedOxygen).toBeGreaterThan(DoCalibrations.values.DO_NONE)
+            expect(mockStation.mock.calls.length).toBe(1)
+        });
+    })
 })
