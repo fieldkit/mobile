@@ -1,4 +1,5 @@
 import AppSettings from "../components/AppSettingsView";
+import Calibration from "../components/CalibrationView";
 import ConfigureModule from "../components/unused/ConfigureModuleView";
 import DataSync from "../components/DataSyncView";
 import DeployMap from "../components/DeployMapView";
@@ -15,6 +16,7 @@ import StationSettings from "../components/StationSettingsView";
 
 const routes = {
     appSettings: AppSettings,
+    calibration: Calibration,
     configureModule: ConfigureModule,
     dataSync: DataSync,
     deployMap: DeployMap,
