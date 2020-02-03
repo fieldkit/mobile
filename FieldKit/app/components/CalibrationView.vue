@@ -186,11 +186,8 @@ export default {
             this.colorCircle = this.page.getViewById("color-circle");
 
             // TEMP temp not getting station or id in params just yet
-            dbInterface
-                .getStation(1)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
+            this.paramId = 1;
+            this.getFromDatabase();
 
             if (this.calibrationType) {
                 // select calibration type
@@ -247,6 +244,14 @@ export default {
                     this.startTimer();
                 }
             }
+        },
+
+        getFromDatabase() {
+            dbInterface
+                .getStation(this.paramId)
+                .then(this.getModules)
+                .then(this.setupModules)
+                .then(this.completeSetup);
         },
 
         getModules(stations) {
