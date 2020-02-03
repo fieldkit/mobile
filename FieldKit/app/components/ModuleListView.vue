@@ -48,8 +48,8 @@
                     <Label
                         :text="lastSeen()"
                         width="100%"
-                        class="m-t-5 size-14"
                         v-if="!connected"
+                        class="m-t-5 size-14 hint-color"
                     />
                     <WrapLayout
                         orientation="horizontal"
@@ -275,5 +275,8 @@ export default {
     padding: 5;
     margin: 5;
     text-decoration: underline;
+}
+.hint-color {
+    color: $fk-gray-hint;
 }
 </style>
