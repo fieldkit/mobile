@@ -168,9 +168,9 @@ export default class CalibrationService {
                     break;
                 case SensorType.values.SENSOR_PH:
                     reply.calibration.phStatus = {
-                        low: reply.calibration["ph"] & PhCalibrations.values.PH_LOW,
-                        middle: reply.calibration["ph"] & PhCalibrations.values.PH_MIDDLE,
-                        high: reply.calibration["ph"] & PhCalibrations.values.PH_HIGH
+                        low: reply.calibration.ph & PhCalibrations.values.PH_LOW,
+                        middle: reply.calibration.ph & PhCalibrations.values.PH_MIDDLE,
+                        high: reply.calibration.ph & PhCalibrations.values.PH_HIGH
                     }
                     break;
                 case SensorType.values.SENSOR_TEMP:

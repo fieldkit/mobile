@@ -71,8 +71,7 @@
                                 <ModuleListView
                                     order="3"
                                     ref="moduleList"
-                                    :connected="currentStation.connected"
-                                    :date="currentStation.updated"
+                                    :station="currentStation"
                                     @moduleTapped="goToModule"
                                 />
                             </FlexboxLayout>
@@ -272,7 +271,9 @@ export default {
                 this.$stationMonitor.stopLiveReadings(this.currentStation.url);
             }
             clearInterval(this.intervalTimer);
-            this.$refs.statusBox.stopProcesses();
+            if (this.$refs.statusBox) {
+                this.$refs.statusBox.stopProcesses();
+            }
         },
 
         onPageLoaded(args) {

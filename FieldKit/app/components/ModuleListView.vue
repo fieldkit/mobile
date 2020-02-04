@@ -1,92 +1,55 @@
 <template>
     <StackLayout class="m-t-5 m-b-10 m-l-10 m-r-10">
-        <GridLayout
-            rows="auto"
-            columns="*"
-            v-for="(m, moduleIndex) in modules"
-            :key="m.id"
-        >
+        <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in modules" :key="m.id">
             <StackLayout class="bordered-container p-10 m-b-10">
                 <!-- top row of module list -->
-                <GridLayout rows="auto" columns="15*,70*,15*">
+                <GridLayout rows="auto, auto" columns="15*,70*,15*">
                     <!-- module icon -->
-                    <Image
-                        row="0"
-                        col="0"
-                        width="40"
-                        horizontalAlignment="left"
-                        :src="getModuleImage(m)"
-                    ></Image>
+                    <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
                     <!-- module name -->
+                    <Label row="0" col="1" :text="m.name" class="module-name" textWrap="true" />
+                    <!-- calibration status -->
                     <Label
-                        row="0"
+                        row="1"
                         col="1"
-                        :text="m.name"
-                        class="module-name"
-                        textWrap="true"
+                        :text="m.calibrated == 'done' ? 'Calibrated' : 'Uncalibrated'"
+                        :class="'size-14 ' + (m.calibrated == 'done' ? 'calibrated' : 'uncalibrated')"
+                        @tap="goToCalibration(m)"
+                        v-if="m.calibrated != 'NA'"
                     />
                     <!-- toggle sensor container -->
                     <Image
-                        row="0"
+                        rowSpan="2"
                         col="2"
                         verticalAlignment="center"
                         horizontalAlignment="right"
-                        :src="open.indexOf(m.id) > -1
-                            ? '~/images/Icon_Cheveron_Up.png'
-                            : '~/images/Icon_Cheveron_Down.png'"
+                        :src="open.indexOf(m.id) > -1 ? '~/images/Icon_Cheveron_Up.png' : '~/images/Icon_Cheveron_Down.png'"
                         width="25"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
                     ></Image>
                 </GridLayout>
                 <!-- sensor container -->
-                <WrapLayout
-                    orientation="horizontal"
-                    class="m-t-5"
-                    v-if="open.indexOf(m.id) > -1"
-                >
-                    <Label
-                        :text="lastSeen()"
-                        width="100%"
-                        v-if="!connected"
-                        class="m-t-5 size-14 hint-color"
-                    />
+                <WrapLayout orientation="horizontal" class="m-t-5" v-if="open.indexOf(m.id) > -1">
+                    <Label :text="lastSeen()" width="100%" v-if="!station.connected" class="m-t-5 size-14 hint-color" />
                     <WrapLayout
                         orientation="horizontal"
                         v-for="(s, sensorIndex) in m.sensorObjects"
                         :key="s.id"
                         class="sensor-block"
-                        :opacity="connected ? 1 : 0.5"
+                        :opacity="station.connected ? 1 : 0.5"
                     >
                         <!-- keep arrows, reading, and unit on same line -->
                         <FlexboxLayout>
                             <!-- trend arrow -->
-                            <Image
-                                width="7"
-                                verticalAlignment="bottom"
-                                :src="s.icon"
-                                class="trend-icon"
-                            ></Image>
+                            <Image width="7" verticalAlignment="bottom" :src="s.icon" class="trend-icon"></Image>
                             <!-- reading -->
-                            <Label
-                                flexShrink="0.25"
-                                :text="s.displayReading"
-                                verticalAlignment="bottom"
-                                class="size-24 m-l-2"
-                            />
+                            <Label flexShrink="0.25" :text="s.displayReading" verticalAlignment="bottom" class="size-24 m-l-2" />
                             <!-- unit -->
-                            <Label
-                                :text="s.unit"
-                                verticalAlignment="bottom"
-                                class="unit size-12 m-t-10"
-                            />
+                            <Label :text="s.unit" verticalAlignment="bottom" class="unit size-12 m-t-10" />
                         </FlexboxLayout>
                         <!-- name -->
-                        <Label
-                            :text="s.name"
-                            textWrap="true"
-                            class="sensor-name size-14"
-                        />
+                        <Label :text="s.name" textWrap="true" class="sensor-name size-14" />
                     </WrapLayout>
                     <!-- view graph link -->
                     <!-- <StackLayout class="link-container text-center">
@@ -105,131 +68,151 @@
 </template>
 
 <script>
-import { getLastSeen } from "../utilities";
-import Services from "../services/services";
+import routes from "../routes";
+import { getLastSeen } from "../utilities"
+import Services from "../services/services"
 const dbInterface = Services.Database();
+const calibrationService = Services.CalibrationService();
 
 export default {
     name: "ModuleListView",
     data: () => {
         return {
             open: [],
-            modules: []
-        };
+            modules: [],
+        }
     },
-    props: ["connected", "date"],
+    props: ["station"],
     methods: {
+        goToCalibration(module) {
+            if (module.calibrated == "done" || module.calibrated == "NA") {
+                // return;
+            }
+            // navigate to calibration
+            this.$navigateTo(routes.calibration, {
+                props: {
+                    station: this.station
+                }
+            });
+        },
+
         updateModules(modules) {
             // bay order is stored as moduleId
             this.modules = modules.sort((a, b) => {
-                return b.moduleId > a.moduleId ? 1 : b.moduleId < a.moduleId ? -1 : 0;
-            });
+                return b.moduleId > a.moduleId ? 1 : b.moduleId < a.moduleId ? -1 : 0
+            })
             this.modules.forEach(m => {
-                this.open.push(m.id);
+                m.calibrated = "NA"
+                this.open.push(m.id)
                 m.sensorObjects.forEach(s => {
-                    s.displayReading = s.currentReading
-                        ? s.currentReading.toFixed(1)
-                        : "--";
-                    s.icon = "~/images/Icon_Neutral.png";
+                    // temp *** only handling ph so far
+                    if (s.name == "ph" && this.station.url) {
+                        calibrationService
+                            .getCalibrationStatus(this.station.url + "/module/" + m.moduleId)
+                            .then(result => {
+                                if (result.calibration && result.calibration.phStatus) {
+                                    const total = _.sum(_.values(result.calibration.phStatus));
+                                    if (total === 0) {
+                                        m.calibrated = "uncalibrated";
+                                    } else {
+                                        m.calibrated = "done";
+                                    }
+                                }
+                            });
+                    }
+                    s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--"
+                    s.icon = "~/images/Icon_Neutral.png"
                 });
             });
         },
 
         updateReadings(liveReadings) {
             this.modules.forEach(m => {
-                let sensors = [];
+                let sensors = []
                 m.sensorObjects.forEach(s => {
-                    let trendIcon = "Icon_Neutral.png";
-                    if (
-                        liveReadings &&
-                        (liveReadings[m.name + s.name] ||
-                            liveReadings[m.name + s.name] === 0)
-                    ) {
-                        let prevReading = s.currentReading
-                            ? +s.currentReading.toFixed(1)
-                            : 0;
-                        let newReading = +liveReadings[m.name + s.name].toFixed(
-                            1
-                        );
-                        s.currentReading = newReading;
-                        s.displayReading = newReading;
-                        dbInterface.setCurrentReading(s);
+                    let trendIcon = "Icon_Neutral.png"
+                    if (liveReadings && (liveReadings[m.name + s.name] || liveReadings[m.name + s.name] === 0)) {
+                        let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0
+                        let newReading = +liveReadings[m.name + s.name].toFixed(1)
+                        s.currentReading = newReading
+                        s.displayReading = newReading
+                        dbInterface.setCurrentReading(s)
 
                         if (newReading < prevReading) {
-                            trendIcon = "Icon_Decrease.png";
+                            trendIcon = "Icon_Decrease.png"
                         } else if (newReading > prevReading) {
-                            trendIcon = "Icon_Increase.png";
+                            trendIcon = "Icon_Increase.png"
                         }
                     }
-                    s.icon = "~/images/" + trendIcon;
-                    sensors.push(s);
+                    s.icon = "~/images/" + trendIcon
+                    sensors.push(s)
                 });
                 // vue isn't rendering these dynamically, so set them
-                this.$set(m, "sensorObjects", sensors);
+                this.$set(m, "sensorObjects", sensors)
             });
         },
 
         lastSeen() {
-            if (!this.date) {
-                return "";
+            if (!this.station || !this.station.updated) {
+                return ""
             }
-            return "Last reading " + getLastSeen(this.date);
+            return "Last reading " + getLastSeen(this.station.updated)
         },
 
         getModuleImage(module) {
-            switch(module.name) {
+            switch (module.name) {
                 case "distance":
                 case "ultrasonic":
-                    return "~/images/Icon_Distance_Module.png";
-                    break;
+                    return "~/images/Icon_Distance_Module.png"
+                    break
                 case "weather":
-                    return "~/images/Icon_Weather_Module.png ";
-                    break;
+                    return "~/images/Icon_Weather_Module.png "
+                    break
                 case "water":
-                    let icon = "~/images/Icon_Water_Module.png";
+                    let icon = "~/images/Icon_Water_Module.png"
                     module.sensorObjects.forEach(s => {
                         if (s.name == "ph") {
-                            icon = "~/images/Icon_WaterpH_Module.png ";
+                            icon = "~/images/Icon_WaterpH_Module.png"
                         }
                         if (s.name == "do") {
-                            icon = "~/images/Icon_DissolvedOxygen_Module.png ";
+                            icon = "~/images/Icon_DissolvedOxygen_Module.png"
                         }
                         if (s.name == "temp") {
-                            icon = "~/images/Icon_WaterTemp_Module.png ";
+                            icon = "~/images/Icon_WaterTemp_Module.png"
                         }
                         if (s.name == "ec" || s.name == "tds" || s.name == "salinity") {
-                            icon = "~/images/Icon_WaterConductivity_Module.png ";
+                            icon = "~/images/Icon_WaterConductivity_Module.png"
                         }
-                    });
-                    return icon;
-                    break;
+                    })
+                    return icon
+                    break
                 default:
-                    return "~/images/Icon_Generic_Module.png";
-                    break;
+                    return "~/images/Icon_Generic_Module.png"
+                    break
             }
         },
 
         emitModuleTapped(event) {
-            this.$emit("moduleTapped", event);
+            this.$emit("moduleTapped", event)
         },
 
         toggleContainer(event) {
-            let id = event.object.dataId.split("m_id-")[1];
-            id = parseInt(id);
-            let index = this.open.indexOf(id);
+            let id = event.object.dataId.split("m_id-")[1]
+            id = parseInt(id)
+            let index = this.open.indexOf(id)
             if (index == -1) {
-                this.open.push(id);
+                this.open.push(id)
             } else {
-                this.open.splice(index, 1);
+                this.open.splice(index, 1)
             }
-        }
-    }
-};
+        },
+    },
+}
 </script>
 
 <style scoped lang="scss">
 // Start custom common variables
-@import "../app-variables";
+@import '../app-variables';
 // End custom common variables
 
 // Custom styles
@@ -263,7 +246,7 @@ export default {
 .sensor-name {
     width: 100%;
     margin-top: 5;
-    font-family: "Avenir LT Pro", "AvenirLTPro-Book";
+    font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
 }
 
 .link-container {
@@ -278,5 +261,11 @@ export default {
 }
 .hint-color {
     color: $fk-gray-hint;
+}
+.calibrated {
+    color: $fk-gray-hint;
+}
+.uncalibrated {
+    color: $fk-primary-red;
 }
 </style>

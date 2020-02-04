@@ -5,6 +5,7 @@ i18n("en");
 
 import routes from "./routes";
 import RadChart from "nativescript-ui-chart/vue";
+import RadGauge from "nativescript-ui-gauge/vue";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Config from "./config";
@@ -63,6 +64,7 @@ if (Config.developer.machine) {
 }
 
 Vue.use(RadChart);
+Vue.use(RadGauge);
 
 // Uncommment the following to see NativeScript-Vue output logs
 if (Config.vue.verbose) {
