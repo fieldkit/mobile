@@ -351,10 +351,9 @@ export default class DatabaseInterface {
         );
     }
 
-    setModuleId(module) {
-        // Note: module_id is currently bay number
+    setModulePosition(module) {
         return this.getDatabase().then(db =>
-            db.query("UPDATE modules SET module_id = ? WHERE device_id = ?", [
+            db.query("UPDATE modules SET position = ? WHERE device_id = ?", [
                 module.position,
                 module.deviceId
             ])
@@ -444,12 +443,13 @@ export default class DatabaseInterface {
         // Note: module_id is bay number (position) and
         // device_id is the module's unique hardware id (not the station's)
         return this.database.execute(
-            "INSERT INTO modules (module_id, device_id, name, interval, station_id) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)",
             [
-                module.position,
+                module.moduleId,
                 module.deviceId,
                 module.name,
                 module.interval || 0,
+                module.position,
                 module.stationId
             ]
         );

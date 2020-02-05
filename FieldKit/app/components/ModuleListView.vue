@@ -97,9 +97,8 @@ export default {
         },
 
         updateModules(modules) {
-            // bay order is stored as moduleId
             this.modules = modules.sort((a, b) => {
-                return b.moduleId > a.moduleId ? 1 : b.moduleId < a.moduleId ? -1 : 0
+                return b.position > a.position ? 1 : b.position < a.position ? -1 : 0
             })
             this.modules.forEach(m => {
                 m.calibrated = "NA"
@@ -108,7 +107,7 @@ export default {
                     // temp *** only handling ph so far
                     if (s.name == "ph" && this.station.url) {
                         calibrationService
-                            .getCalibrationStatus(this.station.url + "/module/" + m.moduleId)
+                            .getCalibrationStatus(this.station.url + "/module/" + m.position)
                             .then(result => {
                                 if (result.calibration && result.calibration.phStatus) {
                                     const total = _.sum(_.values(result.calibration.phStatus));

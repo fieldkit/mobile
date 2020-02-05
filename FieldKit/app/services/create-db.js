@@ -172,6 +172,7 @@ export default class CreateDB {
                 name TEXT,
                 graphs TEXT,
                 interval NUMERIC,
+                position NUMERIC,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP,
                 station_id INTEGER,
@@ -399,6 +400,7 @@ const stations = [
         modules: [
             {
                 moduleId: null,
+                position: 1,
                 deviceId: "seeded-module-0",
                 name: "Water Module 1",
                 sensors: [
@@ -411,6 +413,7 @@ const stations = [
             },
             {
                 moduleId: null,
+                position: 2,
                 deviceId: "seeded-module-1",
                 name: "Water Module 2",
                 sensors: [
@@ -428,6 +431,7 @@ const stations = [
             },
             {
                 moduleId: null,
+                position: 3,
                 deviceId: "seeded-module-2",
                 name: "Weather Module",
                 sensors: [
@@ -458,6 +462,7 @@ const stations = [
         modules: [
             {
                 moduleId: null,
+                position: 1,
                 deviceId: "seeded-module-3",
                 name: "Generic Module",
                 sensors: [
@@ -478,6 +483,7 @@ const stations = [
         modules: [
             {
                 moduleId: null,
+                position: 1,
                 deviceId: "seeded-module-4",
                 name: "Generic Module",
                 sensors: [
@@ -498,6 +504,7 @@ const stations = [
         modules: [
             {
                 moduleId: null,
+                position: 1,
                 deviceId: "seeded-module-5",
                 name: "Generic Module",
                 sensors: [
@@ -518,6 +525,7 @@ const stations = [
         modules: [
             {
                 moduleId: null,
+                position: 1,
                 deviceId: "seeded-module-6",
                 name: "Generic Module",
                 sensors: [

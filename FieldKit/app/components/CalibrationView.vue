@@ -362,7 +362,7 @@ export default {
                 m.sensorObjects.forEach(s => {
                     if (s.name == this.currentCalibration.key) {
                         // store module position for calibration query
-                        this.bay = m.moduleId;
+                        this.bay = m.position;
                         const reading = readings[m.name + s.name]
                         if (reading || reading === 0) {
                             this.currentReading = +reading.toFixed(2)
