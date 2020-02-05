@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout :rows="station.connected ? '75,*,80' : '105,*,80'">
+        <GridLayout :rows="station.connected ? '78,*,80' : '105,*,80'">
             <!-- sticky header section and progress bar -->
             <StackLayout row="0">
                 <ScreenHeader

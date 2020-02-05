@@ -1,7 +1,7 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
 
-        <GridLayout :rows="station.connected ? (ios ? '68,*,80' : '75,*,80') : '105,*,80'">
+        <GridLayout :rows="station.connected ? (ios ? '68,*,80' : '78,*,80') : '105,*,80'">
             <StackLayout row="0">
                 <ScreenHeader
                     :title="viewTitle"
