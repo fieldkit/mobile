@@ -137,6 +137,12 @@
                     </StackLayout>
 
                     <!-- additional notes -->
+                    <StackLayout class="additional-notes-label">
+                        <Label
+                            :text="_L('additionalNotes')"
+                            class="size-12"
+                        ></Label>
+                    </StackLayout>
                     <GridLayout
                         row="0"
                         rows="auto,auto"
@@ -356,6 +362,10 @@ export default {
     border-bottom-width: 0;
     padding-bottom: 0;
 }
+.additional-notes-label {
+    margin-left: 20;
+    margin-right: 20;
+}
 .additional-note-section {
     border-width: 1;
     border-radius: 4;
@@ -372,6 +382,6 @@ export default {
 .photo-display {
     width: 100;
     height: 100;
-    margin: 20;
+    margin: 10;
 }
 </style>
