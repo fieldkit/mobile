@@ -181,6 +181,19 @@ export default class DatabaseInterface {
             });
     }
 
+    updateFieldNote(fieldnote) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE fieldnotes SET note = ?, audio_file = ?, author = ?, title = ?, updated = ? WHERE id = ?", [
+                fieldnote.value,
+                fieldnote.audioFile,
+                fieldnote.author,
+                fieldnote.title,
+                new Date(),
+                fieldnote.id
+            ])
+        );
+    }
+
     getFieldMedia(stationId) {
         return this.getDatabase()
             .then(db =>
@@ -468,11 +481,12 @@ export default class DatabaseInterface {
 
     insertFieldNote(note) {
         return this.database.execute(
-            "INSERT INTO fieldnotes (station_id, generation_id, note, audio_file, category, author) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO fieldnotes (station_id, generation_id, note, title, audio_file, category, author) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [
                 note.stationId,
                 note.generationId,
                 note.note,
+                note.title,
                 note.audioFile,
                 note.category,
                 note.author

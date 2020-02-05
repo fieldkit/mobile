@@ -222,6 +222,7 @@ export default class CreateDB {
                 station_id INTEGER,
                 generation_id TEXT,
                 note TEXT,
+                title TEXT,
                 audio_file TEXT,
                 category TEXT,
                 author TEXT,

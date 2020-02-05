@@ -196,36 +196,47 @@
                             :key="note.field"
                             class="m-b-10"
                         >
+                            <!-- outer layout for border -->
                             <GridLayout
                                 row="0"
                                 rows="auto,auto"
                                 columns="90*,10*"
                                 class="additional-note-section"
-                            >
-                                <Label
-                                    row="0"
+                            />
+                            <GridLayout row="0" rows="auto" columns="*,15">
+                                <GridLayout
                                     col="0"
-                                    :text="note.title"
-                                    class="size-16 m-b-5"
-                                ></Label>
-                                <Label
-                                    row="1"
-                                    col="0"
-                                    :text="note.value"
-                                    v-if="note.value"
-                                    class="size-12 m-b-10"
-                                ></Label>
+                                    rows="auto,auto"
+                                    columns="90*,10*"
+                                    class="p-t-20 p-b-10 p-l-10 p-r-10"
+                                    :dataNote="note"
+                                    @tap="onEditTap"
+                                >
+                                    <Label
+                                        row="0"
+                                        col="0"
+                                        :text="note.title"
+                                        class="size-16 m-b-5"
+                                    ></Label>
+                                    <Label
+                                        row="1"
+                                        col="0"
+                                        :text="note.value"
+                                        v-if="note.value"
+                                        class="size-12 m-b-10"
+                                    ></Label>
+                                    <Image
+                                        rowSpan="2"
+                                        col="1"
+                                        v-if="note.audioFile"
+                                        src="~/images/Icon_Mic.png"
+                                        width="17"
+                                    />
+                                </GridLayout>
                                 <Image
-                                    rowSpan="2"
                                     col="1"
-                                    v-if="note.audioFile"
-                                    src="~/images/Icon_Mic.png"
-                                    width="17"
-                                />
-                            </GridLayout>
-                            <GridLayout row="0" rows="auto" columns="*">
-                                <Image
                                     horizontalAlignment="right"
+                                    verticalAlignment="top"
                                     src="~/images/Icon_Close_Circle.png"
                                     width="15"
                                     class="m-t-5"
@@ -469,9 +480,9 @@ export default {
                         fieldNoteId: note.id,
                         field: note.category,
                         value: note.note,
-                        title: "Field Note",
+                        title: note.title,
                         audioFile: note.audioFile,
-                        instruction: note.note
+                        instruction: _L("additionalNoteInstruction")
                     });
                 }
             });
@@ -570,6 +581,11 @@ export default {
 
         saveAdditional(note) {
             this.isEditing = false;
+            if (note.fieldNoteId) {
+                this.updateAdditionalNote(note);
+                return
+            }
+
             const newNote = {
                 stationId: this.station.id,
                 generationId: this.station.generationId,
@@ -589,7 +605,7 @@ export default {
                 });
             });
             // send note as field note to portal
-            // NOTE: portal category IDs are not set up yet
+            // TODO: use new portal category IDs
             let portalParams = {
                 stationId: this.station.portalId,
                 created: new Date(),
@@ -627,6 +643,18 @@ export default {
                         // TODO: delete from portal
                     }
                 });
+        },
+
+        updateAdditionalNote(note) {
+            dbInterface.updateFieldNote(note);
+            // TODO: update in portal instead of adding
+            let portalParams = {
+                stationId: this.station.portalId,
+                created: new Date(),
+                category_id: 1,
+                note: note.value
+            };
+            this.$portalInterface.addFieldNote(portalParams);
         },
 
         saveAudio(note, recording) {
@@ -869,7 +897,6 @@ export default {
     border-width: 1;
     border-radius: 4;
     border-color: $fk-gray-lighter;
-    padding: 10;
     margin-top: 10;
     margin-bottom: 10;
     margin-right: 5;
