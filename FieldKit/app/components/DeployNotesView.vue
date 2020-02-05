@@ -193,7 +193,7 @@
                             rows="auto"
                             columns="*"
                             v-for="note in additionalNotes"
-                            :key="note.field"
+                            :key="note.fieldNoteId"
                             class="m-b-10"
                         >
                             <!-- outer layout for border -->
@@ -253,7 +253,7 @@
                             />
                             <Label
                                 :text="_L('addNote')"
-                                class="bold m-t-5 p-l-5"
+                                class="bold m-t-10 p-l-5"
                                 @tap="createAdditionalNote"
                             ></Label>
                         </FlexboxLayout>
@@ -590,6 +590,7 @@ export default {
                 stationId: this.station.id,
                 generationId: this.station.generationId,
                 note: note.value,
+                title: note.title,
                 category: note.field,
                 audioFile: note.audioFile,
                 author: this.userName
@@ -599,7 +600,7 @@ export default {
                     fieldNoteId: id,
                     field: note.field,
                     value: note.value,
-                    title: "Field Note",
+                    title: note.title,
                     instruction: _L("additionalNoteInstruction"),
                     audioFile: note.audioFile
                 });
@@ -898,7 +899,6 @@ export default {
     border-radius: 4;
     border-color: $fk-gray-lighter;
     margin-top: 10;
-    margin-bottom: 10;
     margin-right: 5;
 }
 
