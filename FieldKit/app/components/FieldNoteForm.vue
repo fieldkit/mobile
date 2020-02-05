@@ -35,16 +35,26 @@
         </GridLayout>
 
         <!-- display photo section -->
-        <GridLayout row="1" v-if="fieldNote.image" rows="auto,auto" columns="*">
-            <TextView
+        <GridLayout row="1" v-if="fieldNote.image" rows="auto,auto,auto" columns="*">
+            <Label
                 row="0"
+                id="photo-text-instruction"
+                :text="fieldNote.instruction"
+                class="m-x-20 m-t-10 size-12"
+                textWrap="true"
+                :visibility="typing ? 'visible' : 'collapsed'"
+            />
+            <TextView
+                row="1"
                 textWrap="true"
                 class="size-14 p-x-20 m-y-10 large-text-field"
                 :hint="fieldNote.instruction"
                 v-model="fieldNote.value"
+                @textChange="showAndroidPhotoInstruction"
+                @focus="showIosPhotoInstruction"
             ></TextView>
             <Image
-                row="1"
+                row="2"
                 height="300"
                 :src="fieldNote.image"
                 stretch="aspectFit"
@@ -57,11 +67,21 @@
             v-if="!fieldNote.image"
         >
             <!-- main text input section -->
+            <Label
+                id="main-text-instruction"
+                :text="fieldNote.instruction"
+                class="m-x-20 m-y-10 size-12"
+                textWrap="true"
+                width="100%"
+                :visibility="typing ? 'visible' : 'collapsed'"
+            />
             <TextView
                 textWrap="true"
                 class="size-14 p-x-20 large-text-field"
                 :hint="fieldNote.instruction"
                 v-model="fieldNote.value"
+                @textChange="showAndroidMainInstruction"
+                @focus="showIosMainInstruction"
             ></TextView>
 
             <!-- Recording in progress -->
@@ -187,6 +207,8 @@
 
 <script>
 import * as dialogs from "tns-core-modules/ui/dialogs";
+import { AnimationCurve } from "tns-core-modules/ui/enums";
+import { isIOS } from "tns-core-modules/platform";
 import AudioInterface from "../services/audio-interface";
 import { getFormattedTime } from "../utilities";
 
@@ -199,6 +221,7 @@ let monthNames = [];
 export default {
     data() {
         return {
+            typing: false,
             displayRecordings: [],
             isPlaying: false,
             preRecord: false,
@@ -228,6 +251,9 @@ export default {
             ];
             this.currentTime = this.getTimestamp();
 
+            this.photoInstruction = this.page.getViewById("photo-text-instruction");
+            this.mainInstruction = this.page.getViewById("main-text-instruction");
+
             if (this.fieldNote.audioFile) {
                 this.displayRecordings = this.fieldNote.audioFile.split(",");
             }
@@ -247,6 +273,48 @@ export default {
 
         onSave() {
             this.$emit("saveEdit", this.fieldNote);
+        },
+
+        showIosMainInstruction() {
+            if (isIOS) {
+                this.showInstruction(this.mainInstruction);
+            }
+        },
+
+        showAndroidMainInstruction() {
+            if (!isIOS && !this.typing) {
+                this.showInstruction(this.mainInstruction);
+            } else if (!isIOS && !this.fieldNote.value) {
+                this.typing = false;
+            }
+        },
+
+        showIosPhotoInstruction() {
+            if (isIOS) {
+                this.showInstruction(this.photoInstruction);
+            }
+        },
+
+        showAndroidPhotoInstruction() {
+            if (!isIOS && !this.typing) {
+                this.showInstruction(this.photoInstruction);
+            } else if (!isIOS && !this.fieldNote.value) {
+                this.typing = false;
+            }
+        },
+
+        showInstruction(element) {
+            element.opacity = 0;
+            element.translateX = 5;
+            element.translateY = 20;
+            this.typing = true;
+            element
+                .animate({
+                    opacity: 0.75,
+                    translate: { x: 0, y: 0},
+                    duration: 300,
+                    curve: AnimationCurve.easeIn
+                });
         },
 
         getTimestamp() {
