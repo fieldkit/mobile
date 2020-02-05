@@ -233,6 +233,15 @@ describe("DatabaseInterface", () => {
         expect(newData[0].interval).toEqual(newInterval);
     });
 
+    test("setModulePosition should set a module's position", async () => {
+        const data = await dbInterface.getModule(1);
+        const position = 1;
+        data[0].position = position;
+        const change = await dbInterface.setModulePosition(data[0]);
+        const newData = await dbInterface.getModule(1);
+        expect(newData[0].position).toEqual(position);
+    });
+
     test("setModuleGraphs should set a module's graphs", async () => {
         const data = await dbInterface.getModule(1);
         const graphs = "seeded-device-0-module-1-sensor-1";
