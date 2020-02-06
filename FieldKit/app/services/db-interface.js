@@ -189,7 +189,7 @@ export default class DatabaseInterface {
                 fieldnote.author,
                 fieldnote.title,
                 new Date(),
-                fieldnote.id
+                fieldnote.fieldNoteId
             ])
         );
     }
