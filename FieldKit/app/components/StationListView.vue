@@ -296,7 +296,8 @@ export default {
             // prevent error when setting viewport with identical min max
             // and prevent zooming in too close when stations are in same place
             if (
-                this.bounds.latMax - this.bounds.latMin < 0.0001
+                mappable.length > 1
+                && this.bounds.latMax - this.bounds.latMin < 0.0001
                 && this.bounds.longMax - this.bounds.longMin < 0.0001
                 && this.map
             ) {
