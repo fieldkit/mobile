@@ -77,11 +77,13 @@
             />
             <TextView
                 textWrap="true"
+                width="100%"
                 class="size-14 p-x-20 large-text-field"
                 :hint="fieldNote.instruction"
                 v-model="fieldNote.value"
                 @textChange="showAndroidMainInstruction"
                 @focus="showIosMainInstruction"
+                @blur="stopTyping"
             ></TextView>
 
             <!-- Recording in progress -->
@@ -273,6 +275,10 @@ export default {
 
         onSave() {
             this.$emit("saveEdit", this.fieldNote);
+        },
+
+        stopTyping() {
+            this.typing = false;
         },
 
         showIosMainInstruction() {
