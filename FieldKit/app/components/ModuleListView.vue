@@ -81,6 +81,7 @@ export default {
         return {
             open: [],
             modules: [],
+            pending: {}
         }
     },
     props: ["station"],
@@ -115,8 +116,15 @@ export default {
         },
 
         checkCalibrationStatus(m, s) {
-            if (m.position && this.station.url && sensorsThatCalibrate.indexOf(s.name) > -1) {
+            if (
+                m.position
+                && this.station.url
+                && !this.pending[m.position]
+                && sensorsThatCalibrate.indexOf(s.name) > -1
+            ) {
                 m.calibrateSensor = s.name;
+                // keep track so many requests aren't sent at once
+                this.pending[m.position] = true;
                 const listView = this;
                 calibrationService
                     .getCalibrationStatus(this.station.url + "/module/" + m.position)
@@ -144,6 +152,7 @@ export default {
                 }
             }
             module.calibrated = total > 0 ? "done" : "uncalibrated";
+            this.pending[module.position] = false;
         },
 
         updateReadings(liveReadings) {
