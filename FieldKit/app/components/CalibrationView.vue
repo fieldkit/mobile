@@ -200,13 +200,12 @@ export default {
                 this.currentStation = this.station;
                 this.completeSetup();
             }
-
-            if (this.calibrationType) {
-                // select calibration type
+            this.currentCalibration = calibrations[this.calibrationType];
+            if (this.currentCalibration) {
+                this.goNext()
             } else {
-                this.currentCalibration = calibrations.ph
+                // handle no calibration type and/or steps
             }
-            this.goNext()
         },
 
         goBack(event) {
@@ -269,29 +268,64 @@ export default {
                 // perform calibration
                 const address = this.currentStation.url + "/module/" + this.bay;
                 const data = {
-                    refValue: this.currentReading
+                    temp: this.currentTemp,
                 };
-                return calibrationService.calibrateMidPh(address, data).then(body => {
-                    if (body.errors && body.errors.length > 0) {
-                        this.failure = true;
-                        return;
-                    }
-                    if (body.calibration && body.calibration.phStatus) {
-                        if (body.calibration.phStatus.middle > 0) {
-                            // handle successful calibration
-                            this.success = true;
-                            setTimeout(() => {
-                                this.$navigateTo(routes.stationDetail, {
-                                    props: {
-                                        stationId: this.station.id
-                                    }
-                                });
-                            }, 4000);
-                        } else {
-                            this.failure = true;
+                switch (this.calibrationType) {
+                    case "ph":
+                        this.performPhCalibration(address, data);
+                        break;
+                    case "do":
+                        this.performDoCalibration(address, data);
+                        break;
+                    case "ec":
+                        this.performEcCalibration(address, data);
+                        break;
+                }
+            }
+        },
+
+        performPhCalibration(address, data) {
+            return calibrationService.calibrateMidPh(address, data).then(body => {
+                if (body.errors && body.errors.length > 0) {
+                    this.failure = true;
+                    return
+                }
+                this.endCalibration(body.calibration.phStatus.middle);
+            });
+        },
+
+        performDoCalibration(address, data) {
+            return calibrationService.calibrateAtmosphereDissolvedOxygen(address, data).then(body => {
+                if (body.errors && body.errors.length > 0) {
+                    this.failure = true;
+                    return
+                }
+                this.endCalibration(body.calibration.doStatus.atm);
+            });
+        },
+
+        performEcCalibration(address, data) {
+            return calibrationService.calibrateSingleConductivity(address, data).then(body => {
+                if (body.errors && body.errors.length > 0) {
+                    this.failure = true;
+                    return
+                }
+                this.endCalibration(body.calibration.ecStatus.single);
+            });
+        },
+
+        endCalibration(result) {
+            if (result && result > 0) {
+                this.success = true;
+                setTimeout(() => {
+                    this.$navigateTo(routes.stationDetail, {
+                        props: {
+                            stationId: this.station.id
                         }
-                    }
-                });
+                    });
+                }, 4000);
+            } else {
+                this.failure = true;
             }
         },
 
@@ -368,6 +402,12 @@ export default {
                             this.currentReading = +reading.toFixed(2)
                         }
                     }
+                    if (s.name == "temp") {
+                        const reading = readings[m.name + s.name]
+                        if (reading || reading === 0) {
+                            this.currentTemp = +reading.toFixed(2)
+                        }
+                    }
                 })
             })
         },
@@ -405,6 +445,7 @@ export default {
             this.percentDone = 0;
             this.nextEnabled = true;
             this.currentReading = "--";
+            this.currentTemp = null;
             this.timerRunning = false;
             this.timerProgress = 0;
             this.elapsedTime = "--:--";
@@ -454,21 +495,70 @@ const calibrations = {
                 image: null,
                 buttonText: "Calibrate",
             },
-        ],
+        ]
     },
     do: {
         key: "do",
         unit: "mg/L",
         title: "Water Dissolved Oxygen",
         icon: "~/images/Icon_DissolvedOxygen_Module.png",
-        steps: [1, 2],
+        steps: [
+            {
+                heading: "Dissolved Oxygen Calibration",
+                instruction: "Make sure you dry your probe before calibration.",
+                image: "~/images/Temporary_DO_1.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "Dissolved Oxygen Calibration",
+                instruction: "Hold probe out in the atmosphere.",
+                image: "~/images/Temporary_DO_2.jpg",
+                buttonText: "Start Timer",
+            },
+            {
+                isTimer: true,
+                time: 120000,
+                heading: "Dissolved Oxygen Calibration",
+                instruction: "",
+                image: null,
+                buttonText: "Calibrate",
+            },
+        ]
     },
     ec: {
         key: "ec",
         unit: "μS",
         title: "Water Electrical Conductivity",
         icon: "~/images/Icon_WaterConductivity_Module.png",
-        steps: [1, 2],
+        steps: [
+            {
+                heading: "Conductivity Calibration",
+                instruction: "Make sure you have your conductivity solution.",
+                image: "~/images/TI_11.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "Conductivity Calibration",
+                instruction: "Rinse probe off with de-ionized water.",
+                image: "~/images/TI_12-A.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "Conductivity Calibration",
+                instruction:
+                    "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
+                image: "~/images/TI_13-B.jpg",
+                buttonText: "Start Timer",
+            },
+            {
+                isTimer: true,
+                time: 120000,
+                heading: "Conductivity Calibration",
+                instruction: "",
+                image: null,
+                buttonText: "Calibrate",
+            },
+        ]
     },
 }
 </script>

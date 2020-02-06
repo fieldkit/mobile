@@ -16,6 +16,9 @@ const AtlasCalibrationOperation = atlasRoot.lookup("fk_atlas.CalibrationOperatio
 const DoCalibrations = atlasRoot.lookup("fk_atlas.DoCalibrations");
 const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
 const EcCalibrations = atlasRoot.lookup("fk_atlas.EcCalibrations");
+const DoCalibrationsCommand = atlasRoot.lookup("fk_atlas.DoCalibrateCommand");
+const PhCalibrationsCommand = atlasRoot.lookup("fk_atlas.PhCalibrateCommand");
+const EcCalibrationsCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
 // const OrpCalibrations = atlasRoot.lookup("fk_atlas.OrpCalibrations");
 
 const log = Config.logger("CalibrationService");
@@ -52,47 +55,56 @@ export default class CalibrationService {
     }
 
     calibrateLowPh(address, data) {
-        data.which = PhCalibrations.values.PH_LOW;
+        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_LOW;
+        data.refValue = this.getLowPhRef(data.temp);
         return this.performCalibration(address, data);
     }
 
     calibrateMidPh(address, data) {
-        data.which = PhCalibrations.values.PH_MIDDLE;
+        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE;
+        data.refValue = this.getMidPhRef(data.temp);
         return this.performCalibration(address, data);
     }
 
     calibrateHighPh(address, data) {
-        data.which = PhCalibrations.values.PH_HIGH;
+        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_HIGH;
+        data.refValue = this.getHighPhRef(data.temp);
         return this.performCalibration(address, data);
     }
 
     calibrateDryConductivity(address, data) {
-        data.which = EcCalibrations.values.EC_DRY;
+        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DRY;
+        data.refValue = this.getDryEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
     calibrateSingleConductivity(address, data) {
-        data.which = EcCalibrations.values.EC_SINGLE;
+        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_SINGLE;
+        data.refValue = this.getLowEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
     calibrateDualLowConductivity(address, data) {
-        data.which = EcCalibrations.values.EC_DUAL_LOW;
+        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_LOW;
+        data.refValue = this.getLowEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
     calibrateDualHighConductivity(address, data) {
-        data.which = EcCalibrations.values.EC_DUAL_HIGH;
+        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_HIGH;
+        data.refValue = this.getHighEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
     calibrateAtmosphereDissolvedOxygen(address, data) {
-        data.which = DoCalibrations.values.DO_ATMOSPHERE;
+        data.which = DoCalibrationsCommand.values.CALIBRATE_DO_ATMOSPHERE;
+        data.refValue = 0;
         return this.performCalibration(address, data);
     }
 
     calibrateZeroDissolvedOxygen(address, data) {
-        data.which = DoCalibrations.values.DO_ZERO;
+        data.which = DoCalibrationsCommand.values.CALIBRATE_DO_ZERO;
+        data.refValue = 0;
         return this.performCalibration(address, data);
     }
 
@@ -103,11 +115,149 @@ export default class CalibrationService {
                 operation: AtlasCalibrationOperation.values.CALIBRATION_SET,
                 which: data.which,
                 value: data.refValue
+            },
+            compensations: {
+                temperature: data.temp
             }
         });
         return this.stationQuery(address, message).then(reply => {
             return this._fixupReply(reply);
-        });
+        })
+    }
+
+    getDryEcRef(temp) {
+        // TODO: what should dry ref be?
+        return 12880;
+    }
+
+    getLowEcRef(temp) {
+        let ref = 12880;
+        if (temp <= 5) {
+            ref = 8220;
+        } else if (temp <= 10) {
+            ref = 9330;
+        } else if (temp <= 15) {
+            ref = 10480;
+        } else if (temp <= 20) {
+            ref = 11670;
+        } else if (temp <= 25) {
+            ref = 12880;
+        } else if (temp <= 30) {
+            ref = 14120;
+        } else if (temp <= 35) {
+            ref = 15550;
+        } else if (temp <= 40) {
+            ref = 16880;
+        } else if (temp <= 45) {
+            ref = 18210;
+        } else {
+            ref = 19550;
+        }
+        return ref;
+    }
+
+    getHighEcRef(temp) {
+        let ref = 80000;
+        if (temp <= 5) {
+            ref = 53500;
+        } else if (temp <= 10) {
+            ref = 59600;
+        } else if (temp <= 15) {
+            ref = 65400;
+        } else if (temp <= 20) {
+            ref = 72400;
+        } else if (temp <= 25) {
+            ref = 80000;
+        } else if (temp <= 30) {
+            ref = 88200;
+        } else if (temp <= 35) {
+            ref = 96400;
+        } else if (temp <= 40) {
+            ref = 104600;
+        } else if (temp <= 45) {
+            ref = 112800;
+        } else {
+            ref = 121000;
+        }
+        return ref;
+    }
+
+    getLowPhRef(temp) {
+        let ref = 4;
+        if (temp <= 5) {
+            ref = 4;
+        } else if (temp <= 10) {
+            ref = 4;
+        } else if (temp <= 15) {
+            ref = 4;
+        } else if (temp <= 20) {
+            ref = 4;
+        } else if (temp <= 25) {
+            ref = 4;
+        } else if (temp <= 30) {
+            ref = 4.01;
+        } else if (temp <= 35) {
+            ref = 4.02;
+        } else if (temp <= 40) {
+            ref = 4.03;
+        } else if (temp <= 45) {
+            ref = 4.04;
+        } else {
+            ref = 4.05;
+        }
+        return ref;
+    }
+
+    getMidPhRef(temp) {
+        let ref = 7;
+        if (temp <= 5) {
+            ref = 7.09;
+        } else if (temp <= 10) {
+            ref = 7.06;
+        } else if (temp <= 15) {
+            ref = 7.04;
+        } else if (temp <= 20) {
+            ref = 7.02;
+        } else if (temp <= 25) {
+            ref = 7.0;
+        } else if (temp <= 30) {
+            ref = 6.99;
+        } else if (temp <= 35) {
+            ref = 6.98;
+        } else if (temp <= 40) {
+            ref = 6.97;
+        } else if (temp <= 45) {
+            ref = 6.97;
+        } else {
+            ref = 6.96;
+        }
+        return ref;
+    }
+
+    getHighPhRef(temp) {
+        let ref = 10;
+        if (temp <= 5) {
+            ref = 10.25;
+        } else if (temp <= 10) {
+            ref = 10.18;
+        } else if (temp <= 15) {
+            ref = 10.12;
+        } else if (temp <= 20) {
+            ref = 10.06;
+        } else if (temp <= 25) {
+            ref = 10.0;
+        } else if (temp <= 30) {
+            ref = 9.96;
+        } else if (temp <= 35) {
+            ref = 9.92;
+        } else if (temp <= 40) {
+            ref = 9.88;
+        } else if (temp <= 45) {
+            ref = 9.85;
+        } else {
+            ref = 9.82;
+        }
+        return ref;
     }
 
     /**
@@ -160,7 +310,6 @@ export default class CalibrationService {
         }
 
         reply.typeName = replyTypeLookup[reply.type];
-
         if (reply.calibration) {
             reply.calibration.typeName = sensorTypeLookup[reply.calibration.type];
             switch (reply.calibration.type) {
@@ -178,8 +327,18 @@ export default class CalibrationService {
                 case SensorType.values.SENSOR_ORP:
                     break;
                 case SensorType.values.SENSOR_DO:
+                    reply.calibration.doStatus = {
+                        atm: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ATMOSPHERE,
+                        zero: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ZERO,
+                    }
                     break;
                 case SensorType.values.SENSOR_EC:
+                    reply.calibration.ecStatus = {
+                        dry: reply.calibration.ec & EcCalibrations.values.EC_DRY,
+                        single: reply.calibration.ec & EcCalibrations.values.EC_SINGLE,
+                        low: reply.calibration.ec & EcCalibrations.values.EC_DUAL_LOW,
+                        high: reply.calibration.ec & EcCalibrations.values.EC_DUAL_HIGH,
+                    }
                     break;
                 default:
                     break;

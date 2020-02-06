@@ -73,6 +73,7 @@ import { getLastSeen } from "../utilities"
 import Services from "../services/services"
 const dbInterface = Services.Database();
 const calibrationService = Services.CalibrationService();
+const sensorsThatCalibrate = ["ph", "do", "ec"];
 
 export default {
     name: "ModuleListView",
@@ -86,12 +87,14 @@ export default {
     methods: {
         goToCalibration(module) {
             if (module.calibrated == "done" || module.calibrated == "NA") {
-                // return;
+                return
             }
+
             // navigate to calibration
             this.$navigateTo(routes.calibration, {
                 props: {
-                    station: this.station
+                    station: this.station,
+                    calibrationType: module.calibrateSensor
                 }
             });
         },
@@ -104,25 +107,39 @@ export default {
                 m.calibrated = "NA"
                 this.open.push(m.id)
                 m.sensorObjects.forEach(s => {
-                    // temp *** only handling ph so far
-                    if (s.name == "ph" && this.station.url) {
+                    if (m.position && this.station.url && sensorsThatCalibrate.indexOf(s.name) > -1) {
+                        m.calibrateSensor = s.name;
+                        const listView = this;
                         calibrationService
                             .getCalibrationStatus(this.station.url + "/module/" + m.position)
                             .then(result => {
-                                if (result.calibration && result.calibration.phStatus) {
-                                    const total = _.sum(_.values(result.calibration.phStatus));
-                                    if (total === 0) {
-                                        m.calibrated = "uncalibrated";
-                                    } else {
-                                        m.calibrated = "done";
-                                    }
-                                }
+                                listView.handleCalibrationResult(result, m, s.name);
                             });
                     }
                     s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--"
                     s.icon = "~/images/Icon_Neutral.png"
                 });
             });
+        },
+
+        handleCalibrationResult(result, module, sensorName) {
+            let total = 0;
+            if (sensorName == "ph") {
+                if (result.calibration.phStatus) {
+                    total = _.sum(_.values(result.calibration.phStatus));
+                }
+            }
+            if (sensorName == "do") {
+                if (result.calibration.doStatus) {
+                    total = _.sum(_.values(result.calibration.doStatus));
+                }
+            }
+            if (sensorName == "ec") {
+                if (result.calibration.ecStatus) {
+                    total = _.sum(_.values(result.calibration.ecStatus));
+                }
+            }
+            module.calibrated = total > 0 ? "done" : "uncalibrated";
         },
 
         updateReadings(liveReadings) {
