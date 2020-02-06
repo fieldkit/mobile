@@ -107,19 +107,23 @@ export default {
                 m.calibrated = "NA"
                 this.open.push(m.id)
                 m.sensorObjects.forEach(s => {
-                    if (m.position && this.station.url && sensorsThatCalibrate.indexOf(s.name) > -1) {
-                        m.calibrateSensor = s.name;
-                        const listView = this;
-                        calibrationService
-                            .getCalibrationStatus(this.station.url + "/module/" + m.position)
-                            .then(result => {
-                                listView.handleCalibrationResult(result, m, s.name);
-                            });
-                    }
+                    this.checkCalibrationStatus(m, s);
                     s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--"
                     s.icon = "~/images/Icon_Neutral.png"
                 });
             });
+        },
+
+        checkCalibrationStatus(m, s) {
+            if (m.position && this.station.url && sensorsThatCalibrate.indexOf(s.name) > -1) {
+                m.calibrateSensor = s.name;
+                const listView = this;
+                calibrationService
+                    .getCalibrationStatus(this.station.url + "/module/" + m.position)
+                    .then(result => {
+                        listView.handleCalibrationResult(result, m, s.name);
+                    });
+            }
         },
 
         handleCalibrationResult(result, module, sensorName) {
@@ -146,6 +150,7 @@ export default {
             this.modules.forEach(m => {
                 let sensors = []
                 m.sensorObjects.forEach(s => {
+                    this.checkCalibrationStatus(m, s);
                     let trendIcon = "Icon_Neutral.png"
                     if (liveReadings && (liveReadings[m.name + s.name] || liveReadings[m.name + s.name] === 0)) {
                         let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0
