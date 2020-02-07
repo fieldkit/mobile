@@ -66,6 +66,30 @@
             orientation="horizontal"
             v-if="!fieldNote.image"
         >
+            <!-- title option for additional notes -->
+            <GridLayout
+                rows="auto,auto,auto"
+                columns="*"
+                class="m-b-2"
+                v-if="fieldNote.field == 'additional'"
+            >
+                <Label
+                    row="0"
+                    text="Title"
+                    class="m-x-20 m-b-2 size-14"
+                />
+                <TextView
+                    row="1"
+                    class="size-14 p-x-20 large-text-field"
+                    hint="Tap to add a title"
+                    v-model="fieldNote.title"
+                ></TextView>
+                <Label
+                    row="2"
+                    text="Note"
+                    class="m-x-20 m-t-10 size-14"
+                />
+            </GridLayout>
             <!-- main text input section -->
             <Label
                 id="main-text-instruction"
@@ -73,7 +97,7 @@
                 class="m-x-20 m-y-10 size-12"
                 textWrap="true"
                 width="100%"
-                :visibility="typing ? 'visible' : 'collapsed'"
+                :visibility="fieldNote.field != 'additional' && typing ? 'visible' : 'collapsed'"
             />
             <TextView
                 textWrap="true"
