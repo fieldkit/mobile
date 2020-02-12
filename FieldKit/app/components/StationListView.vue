@@ -141,7 +141,6 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-
             this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
         },
 
@@ -172,6 +171,7 @@ export default {
             setTimeout(() => {
                 event.object.className = cn;
             }, 500);
+            this.unsubscribe();
             this.$navigateTo(routes.home);
         },
 
@@ -348,6 +348,7 @@ export default {
                 stationObj = this.station;
             }
 
+            this.unsubscribe();
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: id,
@@ -371,6 +372,7 @@ export default {
                 stationObj = this.station;
             }
 
+            this.unsubscribe();
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: id,
@@ -388,9 +390,14 @@ export default {
                 })
                 .then(result => {
                     if (result) {
+                        this.unsubscribe();
                         this.$navigateTo(routes.home);
                     }
                 });
+        },
+
+        unsubscribe() {
+            this.$stationMonitor.unsubscribeAll();
         }
     }
 };
