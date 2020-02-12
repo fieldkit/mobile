@@ -228,7 +228,7 @@
 
 <script>
 import Home from "./HomeView";
-import Onboarding from "./OnboardingView";
+import AssembleStation from "./AssembleStationView";
 import Config from "../config";
 import { USERNAME, PASSWORD } from "../secrets";
 import Services from "../services/services";
@@ -319,7 +319,7 @@ export default {
 
         continueOffline() {
             if (!this.navigatedAway) {
-                this.$navigateTo(Onboarding, { clearHistory: true });
+                this.$navigateTo(AssembleStation, { clearHistory: true });
                 this.navigatedAway = true;
             }
         },
@@ -343,7 +343,7 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    this.$navigateTo(Config.seedDB ? Home : Onboarding, {
+                    this.$navigateTo(Config.seedDB ? Home : AssembleStation, {
                         clearHistory: true
                     });
                 })

@@ -57,6 +57,17 @@ Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down"
 
 Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
+Vue.registerElement(
+  'CheckBox',
+  () => require('@nstudio/nativescript-checkbox').CheckBox,
+  {
+    model: {
+      prop: 'checked',
+      event: 'checkedChange'
+    }
+  }
+);
+
 Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
 
 if (Config.developer.machine) {
@@ -78,7 +89,7 @@ new Vue({
         h("frame", [
             h(
                 Services.PortalInterface().isLoggedIn()
-                    ? routes.onboarding
+                    ? routes.assembleStation
                     : routes.login
             )
         ])

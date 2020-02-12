@@ -171,7 +171,7 @@
 import routes from "../routes";
 
 export default {
-    props: [],
+    props: ["stepParam"],
     data() {
         return {
             step: 0,
@@ -188,6 +188,10 @@ export default {
     components: {},
     methods: {
         onPageLoaded() {
+            if (this.stepParam) {
+                this.step = this.stepParam == "last" ? this.lastStep - 2 : 0;
+                this.goNext();
+            }
             if (!this.animateFrameTimer) {
                 this.animateFrameTimer = setInterval(this.animateFrames, 1000);
             }
@@ -208,8 +212,6 @@ export default {
                 this.instruction = steps[this.step].instruction;
                 this.buttonText = steps[this.step].button;
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
-            }
-            if (this.step > 0) {
                 this.animateFrames();
                 if (!this.animateFrameTimer) {
                     this.animateFrameTimer = setInterval(
@@ -230,7 +232,7 @@ export default {
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
                 if (this.step == steps.length - 1) {
                     setTimeout(() => {
-                        this.$navigateTo(routes.stations);
+                        this.$navigateTo(routes.connectStation);
                     }, 4000);
                 }
             }

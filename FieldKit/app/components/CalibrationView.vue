@@ -167,7 +167,7 @@ const calibrationService = Services.CalibrationService();
 const dbInterface = Services.Database()
 
 export default {
-    props: ["calibrationType", "station"],
+    props: ["calibrationType", "station", "onboarding"],
     data() {
         return {
             step: -1,
@@ -237,7 +237,14 @@ export default {
                 //     this.startTimer();
                 // }
             } else {
-                if (this.station && this.station.id) {
+                if (this.onboarding) {
+                    this.$navigateTo(routes.connectStation, {
+                        props: {
+                            calibratedStation: this.station,
+                            stepParam: "startCalibration"
+                        }
+                    });
+                } else if (this.station && this.station.id) {
                     this.$navigateTo(routes.stationDetail, {
                         props: {
                             stationId: this.station.id
@@ -317,12 +324,32 @@ export default {
         endCalibration(result) {
             if (result && result > 0) {
                 this.success = true;
-                setTimeout(() => {
-                    this.$navigateTo(routes.stationDetail, {
-                        props: {
-                            stationId: this.station.id
+                this.currentStation.moduleObjects.forEach(m => {
+                    m.sensorObjects.forEach(s => {
+                        if (s.name == this.currentCalibration.key) {
+                            // record these for onboarding views
+                            m.calibratedLabel = "Calibrated";
+                            m.calibratedClass = "gray-text";
+                            m.calibratedImage = "~/images/Icon_Success.png";
                         }
                     });
+                });
+
+                setTimeout(() => {
+                    if (this.onboarding) {
+                        this.$navigateTo(routes.connectStation, {
+                            props: {
+                                calibratedStation: this.currentStation,
+                                stepParam: "startCalibration"
+                            }
+                        });
+                    } else {
+                        this.$navigateTo(routes.stationDetail, {
+                            props: {
+                                stationId: this.station.id
+                            }
+                        });
+                    }
                 }, 4000);
             } else {
                 this.failure = true;
