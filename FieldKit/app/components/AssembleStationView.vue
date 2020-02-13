@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
         <GridLayout rows="75,*,80">
             <!-- header section -->
             <GridLayout
@@ -197,8 +197,11 @@ export default {
             }
         },
 
-        goBack(event) {
+        onUnloaded() {
             this.stopAnimation();
+        },
+
+        goBack(event) {
             // Change background color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -212,18 +215,10 @@ export default {
                 this.instruction = steps[this.step].instruction;
                 this.buttonText = steps[this.step].button;
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
-                this.animateFrames();
-                if (!this.animateFrameTimer) {
-                    this.animateFrameTimer = setInterval(
-                        this.animateFrames,
-                        1000
-                    );
-                }
             }
         },
 
         goNext() {
-            this.stopAnimation();
             if (this.step < steps.length - 1) {
                 this.step += 1;
                 this.title = steps[this.step].title;
@@ -236,20 +231,9 @@ export default {
                     }, 4000);
                 }
             }
-
-            if (this.step > 0) {
-                this.animateFrames();
-                if (!this.animateFrameTimer) {
-                    this.animateFrameTimer = setInterval(
-                        this.animateFrames,
-                        1000
-                    );
-                }
-            }
         },
 
         skip() {
-            this.stopAnimation();
             this.$navigateTo(routes.stations);
         },
 

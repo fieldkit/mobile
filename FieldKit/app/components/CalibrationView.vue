@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
         <GridLayout rows="82,*,80">
             <!-- header section -->
             <GridLayout row="0" rows="auto" columns="15*,70*,15*" class="m-t-20 m-b-10">
@@ -205,6 +205,12 @@ export default {
                 this.goNext()
             } else {
                 // handle no calibration type and/or steps
+            }
+        },
+
+        onUnloaded() {
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval)
             }
         },
 

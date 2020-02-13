@@ -243,6 +243,7 @@ export default {
 
         onUnloaded(args) {
             // TODO: unsubscribe from stateManager and ProgressService updates
+            this.clearIntervals();
         },
 
         updateHistory(recent) {
@@ -423,18 +424,6 @@ export default {
 							if (e.busy === true) {
 								return;
 							}
-							// JACOB: I can get us connectivity
-							// information another way, not a fan of
-							// parsing error messages like this.
-
-                            // not parsing error message for now,
-                            // unsure about iOS side, seems to be breaking
-                            // if (
-                            //     e.toString().indexOf("Unable to resolve host") > -1
-                            // ) {
-                            //     recent.uploadProgressLabel =
-                            //         "Unable to upload. Are you connected to the internet?";
-                            // }
                             console.log("This is why app reports 'Unable to upload':", e)
                             recent.uploadProgressLabel = _L(
                                 "failedCheckConnection"
@@ -604,6 +593,17 @@ export default {
                 minutes +
                 suffix
             );
+        },
+
+        clearIntervals() {
+            if (this.downloadIntervalTimer) {
+                clearInterval(this.downloadIntervalTimer);
+                this.downloadIntervalTimer = null;
+            }
+            if (this.uploadIntervalTimer) {
+                clearInterval(this.uploadIntervalTimer);
+                this.uploadIntervalTimer = null;
+            }
         },
 
         rotateDownloadingIcon() {

@@ -3,6 +3,7 @@
         id="station-status-box-container"
         :class="'m-10 ' + (loading ? '' : 'bordered-container')"
         @loaded="onPageLoaded"
+        @unloaded="onUnloaded"
     >
         <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">
             <!-- recording status -->
@@ -199,6 +200,10 @@ export default {
             });
         },
 
+        onUnloaded() {
+            this.stopProcesses();
+        },
+
         emitDeployTap() {
             this.$emit("deployTapped");
         },
@@ -315,8 +320,12 @@ export default {
         },
 
         stopProcesses() {
-            clearInterval(this.intervalTimer);
-            clearInterval(this.syncIconIntervalTimer);
+            if (this.intervalTimer) {
+                clearInterval(this.intervalTimer);
+            }
+            if (this.syncIconIntervalTimer) {
+                clearInterval(this.syncIconIntervalTimer);
+            }
         }
     }
 };

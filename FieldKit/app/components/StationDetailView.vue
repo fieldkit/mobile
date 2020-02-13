@@ -3,7 +3,7 @@
         class="page plain"
         actionBarHidden="true"
         @loaded="onPageLoaded"
-        @navigatingFrom="onNavigatingFrom"
+        @unloaded="onUnloaded"
     >
         <GridLayout :rows="hasNotifications ? '*,35,55' : '*,55'">
             <ScrollView row="0">
@@ -178,8 +178,6 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.stopProcesses();
-
             this.$navigateTo(routes.stations, {
                 props: {
                     station: this.currentStation
@@ -193,8 +191,6 @@ export default {
         },
 
         goToDeploy(event) {
-            this.stopProcesses();
-
             this.$navigateTo(routes.deployMap, {
                 props: {
                     station: this.currentStation
@@ -203,8 +199,6 @@ export default {
         },
 
         goToFieldNotes() {
-            this.stopProcesses();
-
             this.$navigateTo(routes.deployNotes, {
                 props: {
                     station: this.currentStation,
@@ -219,8 +213,6 @@ export default {
             setTimeout(() => {
                 event.object.className = cn;
             }, 500);
-
-            this.stopProcesses();
 
             this.$navigateTo(routes.module, {
                 props: {
@@ -242,8 +234,6 @@ export default {
             setTimeout(() => {
                 event.object.className = cn;
             }, 500);
-
-            this.stopProcesses();
 
             this.$navigateTo(routes.stationSettings, {
                 props: {
@@ -270,7 +260,9 @@ export default {
             if (this.currentStation && this.currentStation.url != "no_url") {
                 this.$stationMonitor.stopLiveReadings(this.currentStation.url);
             }
-            clearInterval(this.intervalTimer);
+            if (this.intervalTimer) {
+                clearInterval(this.intervalTimer);
+            }
             if (this.$refs.statusBox) {
                 this.$refs.statusBox.stopProcesses();
             }
@@ -295,6 +287,10 @@ export default {
                 this.paramId = this.stationId;
                 this.getFromDatabase();
             }
+        },
+
+        onUnloaded() {
+            this.stopProcesses();
         },
 
         getFromDatabase() {
@@ -460,10 +456,6 @@ export default {
             let year = this.currentStation.deployStartTime.getFullYear();
             this.deployedStatus =
                 _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
-        },
-
-        onNavigatingFrom() {
-            this.stopProcesses();
         },
 
         showLoadingAnimation() {

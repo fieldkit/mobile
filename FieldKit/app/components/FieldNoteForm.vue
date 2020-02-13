@@ -291,6 +291,9 @@ export default {
             // } else {
             //     this.$emit("saveEdit", this.fieldNote);
             // }
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+            }
         },
 
         onCancel() {

@@ -390,7 +390,7 @@ export default {
                         // because firmware doesn't support multiple intervals yet
                         // just send each one, the last one will be it for now
                         this.station.interval = interval.value;
-                        queryStation.setInterval(this.station).then(result => {
+                        queryStation.setStationInterval(this.station).then(result => {
                             // console.log("sent interval and received", result);
                         });
 

@@ -87,7 +87,7 @@ export default class QueryStation {
         });
     }
 
-    setInterval(station) {
+    setStationInterval(station) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             schedules: { modifying: true, readings: { interval: station.interval } },
