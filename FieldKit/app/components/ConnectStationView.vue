@@ -136,7 +136,7 @@
                                             :src="getModuleImage(m)"
                                         ></Image>
                                         <!-- module name -->
-                                        <Label row="0" col="1" :text="m.name" class="module-name" textWrap="true" />
+                                        <Label row="0" col="1" :text="getModuleName(m)" class="module-name" textWrap="true" />
                                         <!-- calibration status -->
                                         <Label
                                             row="1"
@@ -207,6 +207,7 @@
 
 <script>
 import routes from "../routes";
+import { _T } from "../utilities"
 import Services from "../services/services";
 import ConnectStationForm from "./ConnectStationForm";
 
@@ -587,35 +588,38 @@ export default {
 
         getModuleImage(module) {
             switch (module.name) {
-                case "distance":
-                case "ultrasonic":
+                case "modules.distance":
                     return "~/images/Icon_Distance_Module.png"
                     break
-                case "weather":
+                case "modules.weather":
                     return "~/images/Icon_Weather_Module.png "
                     break
-                case "water":
-                    let icon = "~/images/Icon_Water_Module.png"
-                    module.sensorObjects.forEach(s => {
-                        if (s.name == "ph") {
-                            icon = "~/images/Icon_WaterpH_Module.png"
-                        }
-                        if (s.name == "do") {
-                            icon = "~/images/Icon_DissolvedOxygen_Module.png"
-                        }
-                        if (s.name == "temp") {
-                            icon = "~/images/Icon_WaterTemp_Module.png"
-                        }
-                        if (s.name == "ec" || s.name == "tds" || s.name == "salinity") {
-                            icon = "~/images/Icon_WaterConductivity_Module.png"
-                        }
-                    })
-                    return icon
+                case "modules.water.ec":
+                    return "~/images/Icon_WaterConductivity_Module.png"
+                    break
+                case "modules.water.ph":
+                    return "~/images/Icon_WaterpH_Module.png"
+                    break
+                case "modules.water.do":
+                    return "~/images/Icon_DissolvedOxygen_Module.png"
+                    break
+                case "modules.water.temp":
+                    return "~/images/Icon_WaterTemp_Module.png"
+                    break
+                case "modules.water.orp":
+                    return "~/images/Icon_Water_Module.png"
+                    break
+                case "modules.water.unknown":
+                    return "~/images/Icon_Water_Module.png"
                     break
                 default:
                     return "~/images/Icon_Generic_Module.png"
                     break
             }
+        },
+
+        getModuleName(module) {
+            return _T(module.name + ".name");
         }
     }
 };

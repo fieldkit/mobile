@@ -7,7 +7,7 @@
                     <!-- module icon -->
                     <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
                     <!-- module name -->
-                    <Label row="0" col="1" :text="m.name" class="module-name" textWrap="true" />
+                    <Label row="0" col="1" :text="getModuleName(m)" class="module-name" textWrap="true" />
                     <!-- calibration status -->
                     <Label
                         row="1"
@@ -49,7 +49,7 @@
                             <Label :text="s.unit" verticalAlignment="bottom" class="unit size-12 m-t-10" />
                         </FlexboxLayout>
                         <!-- name -->
-                        <Label :text="s.name" textWrap="true" class="sensor-name size-14" />
+                        <Label :text="getSensorName(m, s)" textWrap="true" class="sensor-name size-14" />
                     </WrapLayout>
                     <!-- view graph link -->
                     <!-- <StackLayout class="link-container text-center">
@@ -69,7 +69,7 @@
 
 <script>
 import routes from "../routes";
-import { getLastSeen } from "../utilities"
+import { getLastSeen, _T } from "../utilities"
 import Services from "../services/services"
 const dbInterface = Services.Database();
 const calibrationService = Services.CalibrationService();
@@ -189,32 +189,39 @@ export default {
             return "Last reading " + getLastSeen(this.station.updated)
         },
 
+        getModuleName(module) {
+            return _T(module.name + ".name");
+        },
+
+        getSensorName(module, sensor) {
+            return _T(module.name + ".sensors." + sensor.name);
+        },
+
         getModuleImage(module) {
             switch (module.name) {
-                case "distance":
-                case "ultrasonic":
+                case "modules.distance":
                     return "~/images/Icon_Distance_Module.png"
                     break
-                case "weather":
+                case "modules.weather":
                     return "~/images/Icon_Weather_Module.png "
                     break
-                case "water":
-                    let icon = "~/images/Icon_Water_Module.png"
-                    module.sensorObjects.forEach(s => {
-                        if (s.name == "ph") {
-                            icon = "~/images/Icon_WaterpH_Module.png"
-                        }
-                        if (s.name == "do") {
-                            icon = "~/images/Icon_DissolvedOxygen_Module.png"
-                        }
-                        if (s.name == "temp") {
-                            icon = "~/images/Icon_WaterTemp_Module.png"
-                        }
-                        if (s.name == "ec" || s.name == "tds" || s.name == "salinity") {
-                            icon = "~/images/Icon_WaterConductivity_Module.png"
-                        }
-                    })
-                    return icon
+                case "modules.water.ec":
+                    return "~/images/Icon_WaterConductivity_Module.png"
+                    break
+                case "modules.water.ph":
+                    return "~/images/Icon_WaterpH_Module.png"
+                    break
+                case "modules.water.do":
+                    return "~/images/Icon_DissolvedOxygen_Module.png"
+                    break
+                case "modules.water.temp":
+                    return "~/images/Icon_WaterTemp_Module.png"
+                    break
+                case "modules.water.orp":
+                    return "~/images/Icon_Water_Module.png"
+                    break
+                case "modules.water.unknown":
+                    return "~/images/Icon_Water_Module.png"
                     break
                 default:
                     return "~/images/Icon_Generic_Module.png"

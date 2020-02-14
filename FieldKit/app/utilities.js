@@ -119,3 +119,16 @@ export function getFormattedTime(date) {
     const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
     return hour + ":" + minutes + suffix;
 }
+
+export function _T(key) {
+    const value = _L(key);
+    if (value) {
+        return value;
+    }
+    const parts = key.split(".");
+    let node = _T(parts.shift());
+    while (parts.length > 0) {
+        node = node[parts.shift()];
+    }
+    return node;
+}

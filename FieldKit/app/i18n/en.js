@@ -1,8 +1,9 @@
 module.exports = {
+    // Include module and sensor names
+    ...require('./modules.en'),
     // ConfigureCaptureInterval.vue
     dataCaptureSchedule: "Data capture schedule",
-    dataCaptureNotice:
-        "Frequent data capture drains the battery at a quicker rate",
+    dataCaptureNotice: "Frequent data capture drains the battery at a quicker rate",
     scheduled: "Scheduled",
     basic: "Basic",
     captureTime: "Capture Time",
@@ -33,13 +34,11 @@ module.exports = {
     readings: "Readings",
     waitingToUpload: "Waiting to upload",
     toUpload: "to upload",
-    failedCheckConnection:
-        "Unable to upload. Are you connected to the internet?",
+    failedCheckConnection: "Unable to upload. Are you connected to the internet?",
     uploadSuccessful: "Upload successful",
     uploaded: "Uploaded",
     uploading: "Uploading",
-    loginPrompt:
-        "You're not logged in. Would you like to login so that you can upload your data?",
+    loginPrompt: "You're not logged in. Would you like to login so that you can upload your data?",
     yes: "Yes",
     notNow: "Not Now",
     // DeployMapView.vue
@@ -51,8 +50,7 @@ module.exports = {
     deployment: "Deployment",
     // DeployNotesView.vue
     complete: "Complete",
-    provideDetails:
-        "Help your community better understand their environment. Field notes can improve communication, troubleshooting and data insights.",
+    provideDetails: "Help your community better understand their environment. Field notes can improve communication, troubleshooting and data insights.",
     photosRequired: "Photos (1 required)",
     photosInstruction: "A picture speaks a thousand words.",
     additionalNotes: "Additional Notes",
@@ -120,18 +118,14 @@ module.exports = {
     needAccount: "Create an account",
     backToLogin: "Back to Log In",
     provideBoth: "Please provide both an email address and password.",
-    loginFailed:
-        "Unfortunately we were unable to log you in. Please check your credentials and try again.",
+    loginFailed: "Unfortunately we were unable to log you in. Please check your credentials and try again.",
     accountCreated: "Your account was successfully created.",
     accountCreateFailed: "Unfortunately we were unable to create your account.",
     forgotTitle: "Reset password",
-    forgotInstruction:
-        "Enter the email address you used to register for FieldKit to reset your password.",
+    forgotInstruction: "Enter the email address you used to register for FieldKit to reset your password.",
     ok: "OK",
-    passwordResetSucceeded:
-        "Your password was successfully reset. Please check your email for instructions on choosing a new password.",
-    passwordResetFailed:
-        "Unfortunately, an error occurred resetting your password.",
+    passwordResetSucceeded: "Your password was successfully reset. Please check your email for instructions on choosing a new password.",
+    passwordResetFailed: "Unfortunately, an error occurred resetting your password.",
     // ModuleDetailView.vue
     locateYourModule: "Locate %s here on your FieldKit station.",
     select: "Select...",
@@ -156,8 +150,7 @@ module.exports = {
     nameOver40: "Name has a 40-character maximum.",
     nameNotPrintable: "Name must be printable.",
     endDeployment: "End Deployment",
-    mustBeConnectedToStop:
-        "To undeploy and stop recording data, you must be connected to your station.",
+    mustBeConnectedToStop: "To undeploy and stop recording data, you must be connected to your station.",
     stopRecording: "Stop Recording",
     wifiNetworks: "WiFi Networks",
     addNetwork: "Add a network to station",

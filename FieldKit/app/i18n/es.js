@@ -1,8 +1,9 @@
 module.exports = {
+    // Include module and sensor names
+    ...require('./modules.es'),
     // ConfigureCaptureInterval.vue
     dataCaptureSchedule: "Datos de programación de captura",
-    dataCaptureNotice:
-        "Captura de datos frecuente drena la batería a un ritmo más rápido",
+    dataCaptureNotice: "Captura de datos frecuente drena la batería a un ritmo más rápido",
     scheduled: "Programado",
     basic: "Básico",
     captureTime: "Capturar el Tiempo",
@@ -37,8 +38,7 @@ module.exports = {
     uploadSuccessful: "Subida con éxito",
     uploaded: "Subida",
     uploading: "Cargando",
-    LoginPrompt:
-        "Usted no está conectado. ¿Le gustaría iniciar sesión para que pueda cargar los datos?",
+    LoginPrompt: "Usted no está conectado. ¿Le gustaría iniciar sesión para que pueda cargar los datos?",
     yes: "Sí",
     notNow: "No ahora",
     // DeployMapView.vue
@@ -50,8 +50,7 @@ module.exports = {
     deployment: "Implementación",
     // DeployNotesView.vue
     complete: "Complete",
-    provideDetails:
-        "Ayude a su comunidad a comprender mejor su entorno. Las notas de campo pueden mejorar la comunicación, la resolución de problemas y el conocimiento de los datos.",
+    provideDetails: "Ayude a su comunidad a comprender mejor su entorno. Las notas de campo pueden mejorar la comunicación, la resolución de problemas y el conocimiento de los datos.",
     photosRequired: "Fotos (1 requiere)",
     photosInstruction: "Una imagen vale más que mil palabras.",
     additionalNotes: "Notas adicionales",
@@ -78,8 +77,7 @@ module.exports = {
     longitude: "Longitud",
     noNameGiven: "Sin nombre dado",
     record: "Grabar",
-    mustBeConnectedToRecord:
-        "Debe de estar conectada a la estación para iniciar la grabación",
+    mustBeConnectedToRecord: "Debe de estar conectada a la estación para iniciar la grabación",
     deploymentReview: "Revisión de la implementación",
     processing: "Transformando ...",
     // FieldNoteForm.vue
@@ -96,8 +94,7 @@ module.exports = {
     nov: "Nov",
     dec: "Dic",
     audioNote: "Nota de audio",
-    confirmDeleteRecording:
-        "¿Estás seguro de que quieres eliminar esta grabación?",
+    confirmDeleteRecording: "¿Estás seguro de que quieres eliminar esta grabación?",
     // HomeView.vue
     viewStations: "Ver estaciones",
     authenticated: "Usted ha autenticado correctamente",
@@ -120,20 +117,15 @@ module.exports = {
     continueOffline: "Continuar sin conexión",
     needAccount: "Crear una cuenta",
     backToLogin: "Atrás para iniciar sesión",
-    provideBoth:
-        "Por favor, proporcione una dirección de correo electrónico y una contraseña.",
-    loginFailed:
-        "Lamentablemente no hemos podido iniciar sesión. Compruebe sus credenciales e inténtelo de nuevo.",
+    provideBoth: "Por favor, proporcione una dirección de correo electrónico y una contraseña.",
+    loginFailed: "Lamentablemente no hemos podido iniciar sesión. Compruebe sus credenciales e inténtelo de nuevo.",
     accountCreated: "Su cuenta ha sido creada",
     accountCreateFailed: "Desafortunadamente no hemos podido crear su cuenta.",
     forgotTitle: "Restablecer contraseña",
-    forgotInstruction:
-        "Ingrese la dirección de correo electrónico que usó para registrarse en FieldKit para restablecer su contraseña.",
+    forgotInstruction: "Ingrese la dirección de correo electrónico que usó para registrarse en FieldKit para restablecer su contraseña.",
     ok: "OK",
-    passwordResetSucceeded:
-        "Su contraseña fue restablecido correctamente. Por favor, consultar su correo electrónico para obtener instrucciones sobre cómo elegir una nueva contraseña.",
-    passwordResetFailed:
-        "Desafortunadamente, se produjo un error al restablecer su contraseña.",
+    passwordResetSucceeded: "Su contraseña fue restablecido correctamente. Por favor, consultar su correo electrónico para obtener instrucciones sobre cómo elegir una nueva contraseña.",
+    passwordResetFailed: "Desafortunadamente, se produjo un error al restablecer su contraseña.",
     // ModuleDetailView.vue
     locateYourModule: "Localiza %s aquí en tu estación FieldKit.",
     select: "Seleccionar ...",
@@ -158,8 +150,7 @@ module.exports = {
     nameOver40: "Nombre tiene un máximo de 40 caracteres.",
     nameNotPrintable: "El nombre debe ser imprimible.",
     endDeployment: "Finalizar implementación",
-    mustBeConnectedToStop:
-        "Para cancelar la implementación y detener la grabación de datos, debe estar conectado a su estación.",
+    mustBeConnectedToStop: "Para cancelar la implementación y detener la grabación de datos, debe estar conectado a su estación.",
     stopRecording: "Detener grabación",
     wifiNetworks: "Redes Wi-Fi",
     addNetwork: "Agregar una red a la estación",
@@ -183,5 +174,7 @@ module.exports = {
     of: "de",
     deploy: "Implementar",
     daysHrsMin: "días hrs min",
-    hrsMinSec: "hrs min seg"
+    hrsMinSec: "hrs min seg",
+    downloadFirmware: "Descargar Firmware",
+    upgradeFirmware: "Actualización de Firmware"
 };
