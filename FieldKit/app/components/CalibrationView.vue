@@ -516,7 +516,7 @@ const calibrations = {
             {
                 heading: "Quick pH Calibration",
                 instruction:
-                    "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
+                    "Place probe inside cup with solution. Make sure water temperature is also inside solution.",
                 image: "~/images/TI_13-B.jpg",
                 buttonText: "Start Timer",
             },
