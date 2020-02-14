@@ -50,21 +50,22 @@
                             <GridLayout rows="auto,auto" columns="*">
                                 <Label
                                     row="0"
+                                    id="hidden-instruction"
                                     :text="_L('nameYourLocation')"
                                     class="size-12"
-                                    v-if="station.locationName"
+                                    :visibility="typing ? 'visible' : 'collapsed'"
                                 />
                                 <TextField
                                     row="1"
-                                    class="input"
+                                    :class="'input ' + lineStatus"
                                     id="location-name-field"
                                     :hint="_L('nameYourLocation')"
-                                    :isEnabled="true"
                                     keyboardType="name"
                                     autocorrect="false"
                                     autocapitalizationType="none"
                                     v-model="station.locationName"
-                                    @focus="toggleLocationEdit"
+                                    @focus="changeLineStatus"
+                                    @textChange="showInstruction"
                                     @blur="checkLocationName"
                                 ></TextField>
                             </GridLayout>
@@ -122,6 +123,7 @@
 
 <script>
 import { isIOS } from "tns-core-modules/platform";
+import { AnimationCurve } from "tns-core-modules/ui/enums";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 import ScreenHeader from "./ScreenHeader";
 import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
@@ -137,12 +139,13 @@ export default {
             viewTitle: _L("deployment"),
             mapboxToken: MAPBOX_ACCESS_TOKEN,
             origLocationName: "",
-            isEditingLocation: false,
             noLocation: false,
             locationNotPrintable: false,
             locationTooLong: false,
             origLatitude: "",
             origLongitude: "",
+            typing: false,
+            lineStatus: "inactive-line"
         };
     },
     props: ["station"],
@@ -156,6 +159,8 @@ export default {
 
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
+
+            this.hiddenInstruction = this.page.getViewById("hidden-instruction");
 
             this.saveOriginalValues();
         },
@@ -244,11 +249,35 @@ export default {
             }
         },
 
-        toggleLocationEdit() {
-            this.isEditingLocation = true;
+        changeLineStatus() {
+            this.lineStatus = "active-line";
+        },
+
+        showInstruction() {
+            if (!this.typing && this.station.locationName) {
+                this.animateText(this.hiddenInstruction);
+            } else if (!this.station.locationName) {
+                this.typing = false;
+            }
+        },
+
+        animateText(element) {
+            element.opacity = 0;
+            element.translateX = 5;
+            element.translateY = 20;
+            this.typing = true;
+            element
+                .animate({
+                    opacity: 0.75,
+                    translate: { x: 0, y: 0},
+                    duration: 300,
+                    curve: AnimationCurve.easeIn
+                });
         },
 
         checkLocationName() {
+            this.typing = false;
+            this.lineStatus = "inactive-line";
             // not sure yet what location name validation we'll do
             return true;
             // this.noLocation = false;
@@ -258,7 +287,6 @@ export default {
 
         saveLocationName() {
             this.removeFocus("location-name-field");
-            this.isEditingLocation = false;
 
             let valid = this.checkLocationName();
             if (valid && this.origLocationName != this.station.locationName) {
@@ -314,13 +342,23 @@ export default {
 }
 
 #location-name-field {
+    color: $fk-primary-black;
     padding-bottom: 5;
     width: 100%;
     font-size: 18;
-    border-bottom-color: $fk-primary-black;
-    border-bottom-width: 1;
+}
+#hidden-instruction {
+    color: $fk-gray-hint;
 }
 
+.inactive-line {
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
+}
+.active-line {
+    border-bottom-color: $fk-secondary-blue;
+    border-bottom-width: 2;
+}
 .validation-error {
     width: 100%;
     font-size: 12;
