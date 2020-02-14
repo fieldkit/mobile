@@ -7,17 +7,30 @@
             width="100%"
         />
         <!-- edit station name -->
-        <TextField
-            textWrap="true"
-            class="size-18 p-x-20 input"
-            :hint="step.hint"
-            v-model="stationName"
-            keyboardType="name"
-            autocorrect="false"
-            autocapitalizationType="none"
-            @blur="checkName"
-            v-if="editingName"
-        ></TextField>
+        <GridLayout
+            rows="auto"
+            columns="*,30"
+            class="bottom-bordered m-x-20"
+            v-show="editingName"
+        >
+            <TextField
+                col="0"
+                textWrap="true"
+                class="size-18 no-border-input"
+                :hint="step.hint"
+                v-model="stationName"
+                keyboardType="name"
+                autocorrect="false"
+                autocapitalizationType="none"
+                @blur="checkName"
+            ></TextField>
+            <Image
+                col="1"
+                width="17"
+                @tap="cancelRename"
+                src="~/images/Icon_Close.png"
+            ></Image>
+        </GridLayout>
         <!-- or edit ssid -->
         <TextField
             class="size-18 p-x-20 input"
@@ -152,6 +165,11 @@ export default {
             return !this.nameTooLong && !this.nameNotPrintable;
         },
 
+        cancelRename() {
+            this.editingName = true;
+            this.stationName = "";
+        },
+
         saveStationName() {
             let valid = this.checkName();
             if (valid && this.origName != this.stationName) {
@@ -221,6 +239,17 @@ export default {
     margin-left: 20;
     margin-right: 20;
 }
+
+.bottom-bordered {
+    border-bottom-width: 1px;
+    text-align: center;
+    // iOS-only padding in app.ios.scss
+}
+.no-border-input {
+    border-bottom-width: 1;
+    border-bottom-color: white;
+}
+
 .input {
     width: 90%;
     margin-left: 20;
