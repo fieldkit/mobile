@@ -28,35 +28,10 @@
             </GridLayout>
             <!-- end header section -->
 
-            <!-- connection steps -->
-            <StackLayout row="1" v-if="step.hasHeading">
-                <Label
-                    v-for="instruction in step.instructions"
-                    :key="instruction"
-                    class="instruction"
-                    :text="instruction"
-                    lineHeight="4"
-                    textWrap="true"
-                ></Label>
-                <GridLayout rows="*" columns="*">
-                    <Image
-                        verticalAlignment="middle"
-                        v-if="displayFrame"
-                        :src="displayFrame"
-                    ></Image>
-                </GridLayout>
-            </StackLayout>
-            <!-- end connection steps section -->
-
-            <!-- other screens -->
-            <StackLayout row="0" v-if="!step.hasHeading">
-                <GridLayout rows="*" columns="*">
-                    <StackLayout row="0" verticalAlignment="middle">
-                        <Label
-                            class="title m-b-10 text-center"
-                            :text="subtitle"
-                            textWrap="true"
-                        ></Label>
+            <ScrollView :row="step.hasHeading ? 1 : 0 ">
+                <GridLayout rows="auto" columns="*" verticalAlignment="middle">
+                    <!-- connection steps -->
+                    <StackLayout row="0" v-if="step.hasHeading">
                         <Label
                             v-for="instruction in step.instructions"
                             :key="instruction"
@@ -65,110 +40,166 @@
                             lineHeight="4"
                             textWrap="true"
                         ></Label>
-
-                        <!-- form for various input -->
-                        <StackLayout v-if="hasForm">
-                            <ConnectStationForm
-                                :station="station"
-                                :step="step"
-                                ref="connectStationForm"
-                            />
-                        </StackLayout>
-                        <!-- end form -->
-
-                        <!-- radio buttons and info -->
-                        <GridLayout
-                            rows="auto,auto"
-                            columns="30,*"
-                            v-for="option in step.options"
-                            class="option-container"
-                        >
-                            <check-box
-                                row="0"
-                                col="0"
-                                :checked="option.selected"
-                                :isEnabled="!option.selected"
-                                fillColor="#2C3E50"
-                                onCheckColor="#2C3E50"
-                                onTintColor="#2C3E50"
-                                fontSize="18"
-                                boxType="circle"
-                                @checkedChange="$event.value !== option.selected && toggleChoice(option)"
-                            />
-                            <Label
-                                row="0"
-                                col="1"
-                                class="m-t-5 m-l-5"
-                                :text="option.text"
-                            ></Label>
-                            <Label
-                                row="1"
-                                colSpan="2"
-                                class="radio-info"
-                                lineHeight="4"
-                                :text="option.info"
-                                textWrap="true"
-                            ></Label>
+                        <GridLayout rows="*" columns="*">
+                            <Image
+                                width="75%"
+                                verticalAlignment="middle"
+                                v-if="displayFrame"
+                                :src="displayFrame"
+                            ></Image>
                         </GridLayout>
-                        <!-- end radio buttons -->
-
-                        <!-- module list -->
-                        <template v-if="showingModules">
-                            <StackLayout class="m-t-20"></StackLayout>
-                            <GridLayout
-                                rows="auto"
-                                columns="*"
-                                class="m-t-10 m-x-20"
-                                v-for="(m, moduleIndex) in modules"
-                                :key="m.id"
-                            >
-                                <StackLayout
-                                    class="bordered-container p-10"
-                                    @tap="goToCalibration(m)"
-                                >
-                                    <GridLayout rows="auto, auto" columns="15*,70*,15*">
-                                        <!-- module icon -->
-                                        <Image
-                                            rowSpan="2"
-                                            col="0"
-                                            width="40"
-                                            horizontalAlignment="left"
-                                            :src="getModuleImage(m)"
-                                        ></Image>
-                                        <!-- module name -->
-                                        <Label row="0" col="1" :text="getModuleName(m)" class="module-name" textWrap="true" />
-                                        <!-- calibration status -->
-                                        <Label
-                                            row="1"
-                                            col="1"
-                                            :text="m.calibratedLabel"
-                                            :class="'size-14 ' + m.calibratedClass"
-                                        />
-                                        <!-- calibration check mark -->
-                                        <Image
-                                            rowSpan="2"
-                                            col="2"
-                                            width="20"
-                                            horizontalAlignment="right"
-                                            :src="m.calibratedImage"
-                                        ></Image>
-                                    </GridLayout>
-                                </StackLayout>
-                            </GridLayout>
-                        </template>
-                        <!-- end module list -->
                     </StackLayout>
+                    <!-- end connection steps section -->
+
+                    <!-- other screens -->
+                    <StackLayout row="0" v-if="!step.hasHeading" verticalAlignment="middle">
+                        <GridLayout rows="*" columns="*">
+                            <StackLayout row="0" verticalAlignment="middle">
+                                <Label
+                                    class="title m-t-20 m-b-10 text-center"
+                                    :text="subtitle"
+                                    textWrap="true"
+                                ></Label>
+                                <GridLayout
+                                    v-if="step.progressImage"
+                                    rows="auto, auto"
+                                    columns="*,*"
+                                    width="80%"
+                                    class="m-t-10 m-b-20"
+                                >
+                                    <Image
+                                        row="0"
+                                        colSpan="2"
+                                        class="m-b-10 m-l-15 m-r-15"
+                                        :src="step.progressImage"
+                                    />
+                                    <Label
+                                        row="1"
+                                        col="0"
+                                        horizontalAlignment="left"
+                                        text="Connect"
+                                    />
+                                    <Label
+                                        row="1"
+                                        col="1"
+                                        horizontalAlignment="right"
+                                        text="Set Up"
+                                    />
+                                </GridLayout>
+                                <Label
+                                    v-for="instruction in step.instructions"
+                                    :key="instruction"
+                                    class="instruction"
+                                    :text="instruction"
+                                    lineHeight="4"
+                                    textWrap="true"
+                                ></Label>
+
+                                <!-- form for various input -->
+                                <StackLayout v-if="hasForm">
+                                    <ConnectStationForm
+                                        :station="station"
+                                        :step="step"
+                                        ref="connectStationForm"
+                                    />
+                                </StackLayout>
+                                <!-- end form -->
+
+                                <!-- radio buttons and info -->
+                                <GridLayout
+                                    rows="auto,auto"
+                                    columns="30,*"
+                                    v-for="option in step.options"
+                                    class="option-container"
+                                >
+                                    <check-box
+                                        row="0"
+                                        col="0"
+                                        :checked="option.selected"
+                                        :isEnabled="!option.selected"
+                                        fillColor="#2C3E50"
+                                        onCheckColor="#2C3E50"
+                                        onTintColor="#2C3E50"
+                                        fontSize="18"
+                                        boxType="circle"
+                                        @checkedChange="$event.value !== option.selected && toggleChoice(option)"
+                                    />
+                                    <Label
+                                        row="0"
+                                        col="1"
+                                        class="m-t-5 m-l-5"
+                                        :text="option.text"
+                                    ></Label>
+                                    <Label
+                                        row="1"
+                                        colSpan="2"
+                                        class="radio-info"
+                                        lineHeight="4"
+                                        :text="option.info"
+                                        textWrap="true"
+                                    ></Label>
+                                </GridLayout>
+                                <!-- end radio buttons -->
+
+                                <!-- module list -->
+                                <template v-if="showingModules">
+                                    <StackLayout class="m-t-10"></StackLayout>
+                                    <GridLayout
+                                        rows="auto"
+                                        columns="*"
+                                        class="m-t-10 m-x-20"
+                                        v-for="(m, moduleIndex) in modules"
+                                        :key="m.id"
+                                    >
+                                        <StackLayout
+                                            class="bordered-container p-10"
+                                            @tap="goToCalibration(m)"
+                                        >
+                                            <GridLayout rows="auto, auto" columns="15*,70*,15*">
+                                                <!-- module icon -->
+                                                <Image
+                                                    rowSpan="2"
+                                                    col="0"
+                                                    width="40"
+                                                    horizontalAlignment="left"
+                                                    :src="getModuleImage(m)"
+                                                ></Image>
+                                                <!-- module name -->
+                                                <Label row="0" col="1" :text="getModuleName(m)" class="module-name" textWrap="true" />
+                                                <!-- calibration status -->
+                                                <Label
+                                                    row="1"
+                                                    col="1"
+                                                    :text="m.calibratedLabel"
+                                                    :class="'size-14 ' + m.calibratedClass"
+                                                />
+                                                <!-- calibration check mark -->
+                                                <Image
+                                                    rowSpan="2"
+                                                    col="2"
+                                                    width="20"
+                                                    horizontalAlignment="right"
+                                                    :src="m.calibratedImage"
+                                                ></Image>
+                                            </GridLayout>
+                                        </StackLayout>
+                                    </GridLayout>
+                                </template>
+                                <!-- end module list -->
+                            </StackLayout>
+                        </GridLayout>
+                    </StackLayout>
+                    <!-- end other screens -->
                 </GridLayout>
-            </StackLayout>
-            <!-- end other screens -->
+            </ScrollView>
 
             <!-- sticky next button -->
             <StackLayout :row="step.hasHeading ? 2 : 1" verticalAlignment="bottom">
                 <Button
                     class="btn btn-primary btn-padded m-y-10"
                     :text="step.button"
+                    :isEnabled="!step.buttonDisabled"
                     @tap="goNext"
-                    v-if="step.button"
                 ></Button>
                 <Label
                     :text="step.altOption"
@@ -784,8 +815,10 @@ const steps = {
             hasHeading: false,
             title: "",
             instructions: ["Let's set up your station before you deploy!", "To complete setup, calibrate each sensor module for accurate data readings.", "Tap an uncalibrated module below to get started."],
-            button: "",
+            button: "Done",
+            buttonDisabled: true,
             images: [],
+            progressImage: "~/images/Icon_incomplete.png",
             altOption: "Set up later"
         },
     "endCalibration":
@@ -797,7 +830,8 @@ const steps = {
             title: "",
             instructions: ["Your FieldKit station setup is complete."],
             button: "Done",
-            images: []
+            images: [],
+            progressImage: "~/images/Icon_complete.png"
         }
 };
 
@@ -826,14 +860,7 @@ const steps = {
 .page {
     color: $fk-primary-black;
 }
-.logo {
-    margin-top: 8%;
-    width: 50%;
-}
-.illo {
-    margin-top: 8%;
-    width: 75%;
-}
+
 .skip {
     width: 115;
     padding-top: 10;
@@ -848,7 +875,7 @@ const steps = {
     color: $fk-primary-black;
     text-align: center;
     font-size: 16;
-    margin-top: 10;
+    margin-top: 5;
     margin-bottom: 10;
     margin-right: 20;
     margin-left: 20;
