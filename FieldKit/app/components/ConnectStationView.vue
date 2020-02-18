@@ -141,6 +141,36 @@
                                 </GridLayout>
                                 <!-- end radio buttons -->
 
+                                <!-- stations list -->
+                                <template v-if="showingStations">
+                                    <StackLayout class="m-t-10"></StackLayout>
+                                    <GridLayout
+                                        rows="auto"
+                                        columns="30,*"
+                                        class="option-container"
+                                        v-for="s in stationOptions"
+                                        :key="s.id"
+                                    >
+                                    <check-box
+                                        col="0"
+                                        :checked="s.selected"
+                                        :isEnabled="!s.selected"
+                                        fillColor="#2C3E50"
+                                        onCheckColor="#2C3E50"
+                                        onTintColor="#2C3E50"
+                                        fontSize="18"
+                                        boxType="circle"
+                                        @checkedChange="$event.value !== s.selected && toggleStation(s)"
+                                    />
+                                    <Label
+                                        col="1"
+                                        class="m-t-5 m-l-5"
+                                        :text="s.name"
+                                    ></Label>
+                                    </GridLayout>
+                                </template>
+                                <!-- end stations list -->
+
                                 <!-- module list -->
                                 <template v-if="showingModules">
                                     <StackLayout class="m-t-10"></StackLayout>
@@ -252,12 +282,14 @@ export default {
         return {
             step: {},
             stations: [],
+            stationOptions: [],
             subtitle: "",
             hasForm: false,
             frameImage: "",
             displayFrame: null,
             testingConnection: false,
             showingModules: false,
+            showingStations: false,
             modules: [],
             pending: {}
         };
@@ -292,6 +324,7 @@ export default {
             this.hasForm = this.step.hasForm;
             this.testingConnection = this.step.testingConnection;
             this.showingModules = this.step.showingModules;
+            this.showingStations = this.step.showingStations;
             this.modules = this.station.moduleObjects;
             // the only stepParam currently is startCalibration
             if (this.showingModules) {
@@ -302,12 +335,7 @@ export default {
         updateStations(data) {
             switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationsUpdatedProperty: {
-                    this.stations = data.value;
-                    if (!this.station && this.stations.filter(s => { return s.connected; }).length > 0) {
-                        // TODO: handle more than one station being connected
-                        this.station = this.stations.filter(s => { return s.connected; })[0];
-                        this.fetchModules().then(this.setupModules).then(this.completeSetup);
-                    }
+                    this.stations = data.value.filter(s => { return s.connected; });
                     break;
                 }
             }
@@ -347,6 +375,10 @@ export default {
                 return
             }
 
+            if(this.station && this.modules.length == 0) {
+                this.fetchModules().then(this.setupModules).then(this.completeSetup);
+            }
+
             if (this.step.next && this.step.next == "goToStations") {
                 this.goToStations();
                 return
@@ -367,6 +399,7 @@ export default {
             this.hasForm = this.step.hasForm;
             this.testingConnection = this.step.testingConnection;
             this.showingModules = this.step.showingModules;
+            this.showingStations = this.step.showingStations;
             if (!this.step.hasHeading) {
                 this.subtitle = this.step.title;
             }
@@ -431,6 +464,18 @@ export default {
             });
         },
 
+        toggleStation(radioOption) {
+            this.stationOptions.forEach(option => {
+                option.selected = false;
+                if (option.name == radioOption.name) {
+                    option.selected = true;
+                    this.station = this.stations.find(s => {
+                        return s.name == option.name;
+                    });
+                }
+            });
+        },
+
         stopAnimation() {
             this.loadingWhite = null;
             this.displayFrame = null;
@@ -486,9 +531,18 @@ export default {
         },
 
         checkForConnections() {
-            if (this.station) {
+            if (this.stations && this.stations.length > 0) {
                 clearInterval(this.connectingTimer);
                 this.step.next = this.step.proceed;
+                this.stationOptions = this.stations.map((s, i) => {
+                    return {
+                        id: "id-" + i,
+                        name: s.name,
+                        selected: i == 0
+                    };
+                });
+                // still choose the first one by default
+                this.station = this.stations[0];
                 this.goNext();
             } else {
                 this.step.next = "trouble";
@@ -701,9 +755,21 @@ const steps = {
             images: [],
             altOption: "Get help"
         },
+    "selectStation":
+        {
+            showingStations: true,
+            prev: "connect",
+            next: "selectSettings",
+            hasHeading: false,
+            title: "Select Your Station",
+            instructions: ["Choose the FieldKit station you want to connect to from the list below:"],
+            button: "Next",
+            images: [],
+            options: []
+        },
     "selectSettings":
        {
-            prev: "connect",
+            prev: "selectStation",
             next: "rename",
             hasHeading: false,
             title: "Choose WiFi Settings",
@@ -788,7 +854,7 @@ const steps = {
             testingConnection: true,
             prev: "",
             next: "",
-            proceed: "selectSettings",
+            proceed: "selectStation",
             hasHeading: false,
             title: "",
             instructions: ["Connecting"],
