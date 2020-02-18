@@ -40,7 +40,7 @@ jenkins: setup
 android-release: setup
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
-	rm -rf $(APP)/node_modules/fk-app-protocol
+	rm -rf $(APP)/node_modules/fk-*-protocol
 	npm install
 	cd $(APP) && tns build android --release --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 	cd $(APP) && tns build android --release --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
@@ -52,7 +52,7 @@ ios-release: setup
 	security show-keychain-info login.keychain
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
-	rm -rf $(APP)/node_modules/fk-app-protocol
+	rm -rf $(APP)/node_modules/fk-*-protocol
 	npm install
 	cd $(APP) && tns platform clean ios || true
 	cd $(APP) && tns build ios --provision || true
