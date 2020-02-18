@@ -315,7 +315,7 @@ const steps = [
         title: "Assemble Station",
         instruction:
             'Insert the button cord to the radio board into the port labeled "BTN."',
-        button: "Next",
+        button: "Done",
         images: ["TI_7-A.jpg", "TI_7-B.jpg"]
     },
     {
