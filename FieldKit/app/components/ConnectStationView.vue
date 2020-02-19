@@ -151,23 +151,35 @@
                                         v-for="s in stationOptions"
                                         :key="s.id"
                                     >
-                                    <check-box
-                                        col="0"
-                                        :checked="s.selected"
-                                        :isEnabled="!s.selected"
-                                        fillColor="#2C3E50"
-                                        onCheckColor="#2C3E50"
-                                        onTintColor="#2C3E50"
-                                        fontSize="18"
-                                        boxType="circle"
-                                        @checkedChange="$event.value !== s.selected && toggleStation(s)"
-                                    />
-                                    <Label
-                                        col="1"
-                                        class="m-t-5 m-l-5"
-                                        :text="s.name"
-                                    ></Label>
+                                        <check-box
+                                            col="0"
+                                            :checked="s.selected"
+                                            :isEnabled="!s.selected"
+                                            fillColor="#2C3E50"
+                                            onCheckColor="#2C3E50"
+                                            onTintColor="#2C3E50"
+                                            fontSize="18"
+                                            boxType="circle"
+                                            @checkedChange="$event.value !== s.selected && toggleStation(s)"
+                                        />
+                                        <Label
+                                            col="1"
+                                            class="m-t-5 m-l-5"
+                                            :text="s.name"
+                                        ></Label>
                                     </GridLayout>
+                                    <StackLayout class="m-20 text-center">
+                                        <Label
+                                            text="If you don't see your station:"
+                                            class="m-t-20"
+                                            textWrap="true"
+                                        />
+                                        <Button
+                                            class="btn btn-tertiary"
+                                            text="Try connecting again"
+                                            @tap="tryAgain"
+                                        ></Button>
+                                    </StackLayout>
                                 </template>
                                 <!-- end stations list -->
 
@@ -474,6 +486,14 @@ export default {
                     });
                 }
             });
+        },
+
+        tryAgain() {
+            this.station = null;
+            this.modules = [];
+            this.stations = [];
+            this.step = steps["trouble"];
+            this.goNext();
         },
 
         stopAnimation() {
