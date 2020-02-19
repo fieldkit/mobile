@@ -168,18 +168,6 @@
                                             :text="s.name"
                                         ></Label>
                                     </GridLayout>
-                                    <StackLayout class="m-20 text-center">
-                                        <Label
-                                            text="If you don't see your station:"
-                                            class="m-t-20"
-                                            textWrap="true"
-                                        />
-                                        <Button
-                                            class="btn btn-tertiary"
-                                            text="Try connecting again"
-                                            @tap="tryAgain"
-                                        ></Button>
-                                    </StackLayout>
                                 </template>
                                 <!-- end stations list -->
 
@@ -455,6 +443,11 @@ export default {
 
         skip() {
             this.stopAnimation();
+
+            if (this.step.skip && this.step.skip == "tryAgain") {
+                this.tryAgain();
+                return
+            }
             if (this.step.skip) {
                 this.step.next = this.step.skip;
             }
@@ -780,12 +773,13 @@ const steps = {
             showingStations: true,
             prev: "connect",
             next: "selectSettings",
+            skip: "tryAgain",
             hasHeading: false,
             title: "Select Your Station",
-            instructions: ["Choose the FieldKit station you want to connect to from the list below:"],
+            instructions: ["We found FieldKit Stations. Choose the station you want to connect to."],
             button: "Next",
             images: [],
-            options: []
+            altOption: "Don't see your station? Try again."
         },
     "selectSettings":
        {
@@ -948,7 +942,6 @@ const steps = {
 }
 
 .skip {
-    width: 115;
     padding-top: 10;
     padding-bottom: 10;
     background-color: white;
