@@ -189,7 +189,7 @@ export default {
     methods: {
         onPageLoaded() {
             if (this.stepParam) {
-                this.step = this.stepParam == "last" ? this.lastStep - 2 : 0;
+                this.step = this.stepParam == "last" ? this.lastStep - 2 : this.stepParam;
                 this.goNext();
             }
             if (!this.animateFrameTimer) {

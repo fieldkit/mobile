@@ -55,6 +55,12 @@
                     <StackLayout row="0" v-if="!step.hasHeading" verticalAlignment="middle">
                         <GridLayout rows="*" columns="*">
                             <StackLayout row="0" verticalAlignment="middle">
+                                <Image
+                                    width="60"
+                                    class="m-b-20"
+                                    src="~/images/Icon_Soft_error.png"
+                                    v-show="hasError"
+                                />
                                 <Label
                                     class="title m-t-20 m-b-10 text-center"
                                     :text="subtitle"
@@ -285,6 +291,7 @@ export default {
             stationOptions: [],
             subtitle: "",
             hasForm: false,
+            hasError: false,
             frameImage: "",
             displayFrame: null,
             testingConnection: false,
@@ -322,6 +329,7 @@ export default {
             this.station = this.calibratedStation;
             this.step = steps[this.stepParam];
             this.hasForm = this.step.hasForm;
+            this.hasError = this.step.hasError;
             this.testingConnection = this.step.testingConnection;
             this.showingModules = this.step.showingModules;
             this.showingStations = this.step.showingStations;
@@ -384,6 +392,11 @@ export default {
                 return
             }
 
+            if (this.step.next && this.step.next == "goToModuleAssembly") {
+                this.goToModuleAssembly();
+                return
+            }
+
             if (this.step.next) {
                 this.step = steps[this.step.next];
                 this.setupStep();
@@ -397,6 +410,7 @@ export default {
         setupStep() {
             this.subtitle = "";
             this.hasForm = this.step.hasForm;
+            this.hasError = this.step.hasError;
             this.testingConnection = this.step.testingConnection;
             this.showingModules = this.step.showingModules;
             this.showingStations = this.step.showingStations;
@@ -571,6 +585,16 @@ export default {
             });
         },
 
+        goToModuleAssembly() {
+            this.stopAnimation();
+            this.unsubscribe();
+            this.$navigateTo(routes.assembleStation, {
+                props: {
+                    stepParam: 3
+                }
+            });
+        },
+
         fetchModules() {
             return dbInterface.getModules(this.station.id);
         },
@@ -594,6 +618,11 @@ export default {
 
         assessCalibration() {
             this.subtitle = this.station.name;
+            if (this.modules.length === 0) {
+                this.step = steps["noModules"];
+                this.setupStep();
+                return
+            }
             const toCalibrate = this.modules.filter(m => {
                 return !m.calibratedLabel || m.calibratedLabel == "Uncalibrated";
             });
@@ -754,6 +783,7 @@ const steps = {
         },
     "trouble":
         {
+            hasError: true,
             prev: "connect",
             next: "testConnection",
             hasHeading: false,
@@ -912,6 +942,19 @@ const steps = {
             button: "Done",
             images: [],
             progressImage: "~/images/Icon_complete.png"
+        },
+    "noModules":
+        {
+            hasError: true,
+            prev: "startCalibration",
+            next: "goToModuleAssembly",
+            skip: "goToStations",
+            hasHeading: false,
+            title: "No Modules Connected",
+            instructions: ["Complete your FieldKit Station by adding sensor modules."],
+            button: "Add Modules",
+            images: [],
+            altOption: "Continue without modules"
         }
 };
 
