@@ -298,7 +298,7 @@ export default {
         },
 
         performPhCalibration(address, data) {
-            return calibrationService.calibrateMidPh(address, data).then(body => {
+            return calibrationService.calibrateQuickPh(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
                     return

@@ -54,6 +54,12 @@ export default class CalibrationService {
         });
     }
 
+    calibrateQuickPh(address, data) {
+        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE;
+        data.refValue = this.getQuickPhRef(data.temp);
+        return this.performCalibration(address, data);
+    }
+
     calibrateLowPh(address, data) {
         data.which = PhCalibrationsCommand.values.CALIBRATE_PH_LOW;
         data.refValue = this.getLowPhRef(data.temp);
@@ -178,6 +184,22 @@ export default class CalibrationService {
             ref = 112800;
         } else {
             ref = 121000;
+        }
+        return ref;
+    }
+
+    getQuickPhRef(temp) {
+        let ref = 6.86;
+        if (temp <= 10) {
+            ref = 6.92;
+        } else if (temp <= 15) {
+            ref = 6.90;
+        } else if (temp <= 20) {
+            ref = 6.88;
+        } else if (temp <= 25) {
+            ref = 6.86;
+        } else {
+            ref = 6.85;
         }
         return ref;
     }
