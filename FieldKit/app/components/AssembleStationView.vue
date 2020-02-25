@@ -212,6 +212,7 @@ export default {
 
             if (this.step > 0) {
                 this.step -= 1;
+                this.animateFrames();
                 this.title = steps[this.step].title;
                 this.instruction = steps[this.step].instruction;
                 this.buttonText = steps[this.step].button;
@@ -222,6 +223,7 @@ export default {
         goNext() {
             if (this.step < steps.length - 1) {
                 this.step += 1;
+                this.animateFrames();
                 this.title = steps[this.step].title;
                 this.instruction = steps[this.step].instruction;
                 this.buttonText = steps[this.step].button;
