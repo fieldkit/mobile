@@ -67,6 +67,7 @@
                     >
                         <Label
                             v-for="item in checklist"
+                            class="checklist-item"
                             :key="item.id"
                             :row="item.row"
                             :col="item.col"
