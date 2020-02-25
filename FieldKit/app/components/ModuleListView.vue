@@ -103,7 +103,7 @@ export default {
         updateModules(modules) {
             this.modules = modules.sort((a, b) => {
                 return b.position < a.position ? 1 : b.position > a.position ? -1 : 0
-            })
+            });
             this.modules.forEach(m => {
                 m.calibrated = "NA"
                 this.open.push(m.id)
@@ -155,7 +155,17 @@ export default {
             this.pending[module.position] = false;
         },
 
-        updateReadings(liveReadings) {
+        updateReadings(data) {
+            const liveReadings = data.readings;
+            if (data.positions) {
+                this.modules.forEach(m => {
+                    m.position = data.positions[m.name];
+                });
+                this.modules = this.modules.sort((a, b) => {
+                    return b.position < a.position ? 1 : b.position > a.position ? -1 : 0
+                });
+            }
+
             this.modules.forEach(m => {
                 let sensors = []
                 m.sensorObjects.forEach(s => {

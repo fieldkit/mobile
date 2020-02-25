@@ -324,7 +324,7 @@ export default {
                             if (data.value.stationId == this.paramId) {
                                 this.$refs.statusBox.updateStatus(data.value);
                                 this.$refs.moduleList.updateReadings(
-                                    data.value.readings
+                                    data.value
                                 );
                             }
                             break;

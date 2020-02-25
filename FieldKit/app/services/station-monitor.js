@@ -174,8 +174,10 @@ export default class StationMonitor extends Observable {
         this.keepDatabaseFieldsInSync(station, result);
 
         const readings = {};
+        const positions = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
+                positions[m.module.name] = m.module.position;
                 m.readings.forEach(r => {
                     readings[m.module.name + r.sensor.name] = r.value || 0;
                 });
@@ -184,6 +186,7 @@ export default class StationMonitor extends Observable {
         let data = {
             stationId: station.id,
             readings: readings,
+            positions: positions,
             batteryLevel: result.status.power.battery.percentage,
             consumedMemory: result.status.memory.dataMemoryUsed
                 ? convertBytesToLabel(result.status.memory.dataMemoryUsed)
