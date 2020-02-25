@@ -31,6 +31,7 @@ export default class UploadManager {
             .then(uploads => {
                 return Promise.all(
                     uploads.map(upload => {
+						// NOTE Name is on pending downloads, now.
                         return this.databaseInterface
                             .getStationByDeviceId(upload.deviceId)
                             .then(data => {
@@ -125,12 +126,12 @@ export default class UploadManager {
 
         // This was failing miserably on Bradley's phone.
         // const file = File.fromPath(path);
-        return this._upload(download.deviceId, headers, download.path, operation).then(() => {
+        return this._upload(download.deviceId, download.name, headers, download.path, operation).then(() => {
             return this.databaseInterface.markDownloadAsUploaded(download);
         });
     }
 
-    _upload(deviceId, headers, filePath, operation) {
+    _upload(deviceId, deviceName, headers, filePath, operation) {
 		const url = Config.ingestionUri;
 		log.info("url", url);
 		log.info("uploading", filePath, headers);
@@ -138,7 +139,8 @@ export default class UploadManager {
 		const defaultHeaders = {
 			"Content-Type": "application/octet-stream",
 			Authorization: this.portalInterface.getCurrentToken(),
-			"Fk-DeviceId": deviceId
+			"Fk-DeviceId": deviceId,
+			"Fk-DeviceName": deviceName
 		};
 
 		delete headers["connection"];

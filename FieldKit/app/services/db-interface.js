@@ -611,7 +611,7 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db =>
                 db.query(
-                    "SELECT * FROM downloads WHERE size > 0 AND uploaded IS NULL"
+                    "SELECT d.*, s.name FROM downloads AS d JOIN stations AS s ON (s.device_id = d.device_id) WHERE d.size > 0 AND d.uploaded IS NULL"
                 )
             )
             .then(rows => sqliteToJs(rows));
