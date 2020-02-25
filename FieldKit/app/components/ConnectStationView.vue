@@ -656,7 +656,7 @@ export default {
 
         updateModules(modules) {
             this.modules = modules.sort((a, b) => {
-                return b.position > a.position ? 1 : b.position < a.position ? -1 : 0
+                return b.position < a.position ? 1 : b.position > a.position ? -1 : 0
             })
             this.modules.forEach(m => {
                 m.calibratedLabel = "";
