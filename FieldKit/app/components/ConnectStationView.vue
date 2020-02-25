@@ -66,6 +66,8 @@
                                     :text="subtitle"
                                     textWrap="true"
                                 ></Label>
+
+                                <!-- calibration progress image -->
                                 <GridLayout
                                     v-if="step.progressImage"
                                     rows="auto, auto"
@@ -92,6 +94,8 @@
                                         text="Set Up"
                                     />
                                 </GridLayout>
+                                <!-- end calibration progress image -->
+
                                 <Label
                                     v-for="instruction in step.instructions"
                                     :key="instruction"
@@ -230,7 +234,7 @@
             </ScrollView>
 
             <!-- sticky next button -->
-            <StackLayout :row="step.hasHeading ? 2 : 1" verticalAlignment="bottom">
+            <StackLayout :row="step.hasHeading ? 2 : 1" verticalAlignment="bottom" class="m-x-10">
                 <Button
                     class="btn btn-primary btn-padded m-y-10"
                     :text="step.button"
@@ -999,13 +1003,13 @@ const steps = {
     font-size: 16;
     margin-top: 5;
     margin-bottom: 10;
-    margin-right: 20;
-    margin-left: 20;
+    margin-right: 30;
+    margin-left: 30;
 }
 .option-container {
-    margin-top:30;
-    margin-left: 20;
-    margin-right: 20;
+    margin-top: 30;
+    margin-left: 30;
+    margin-right: 30;
 }
 .radio-info {
     margin-top: 10;

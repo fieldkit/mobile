@@ -56,7 +56,7 @@
                     textWrap="true"
                 ></Label>
 
-                <StackLayout order="3">
+                <StackLayout order="3" class="m-x-30">
                     <!-- conditional list needs to be wrapped in StackLayout or else
                         error occurs about reference node has a different parent -->
                     <Gridlayout
@@ -96,7 +96,7 @@
             <!-- end assembly steps section -->
 
             <!-- sticky next button -->
-            <StackLayout row="2">
+            <StackLayout row="2" class="m-x-10">
                 <Button
                     v-if="step > 0"
                     class="btn btn-primary btn-padded"
@@ -151,11 +151,13 @@
                         class="m-t-5"
                     />
                 </StackLayout>
-                <Button
-                    class="btn btn-primary btn-padded"
-                    text="Get Started"
-                    @tap="goNext"
-                ></Button>
+                <StackLayout class="m-x-10">
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        text="Get Started"
+                        @tap="goNext"
+                    ></Button>
+                </StackLayout>
                 <Label
                     text="Skip instructions"
                     class="skip"
@@ -436,8 +438,8 @@ const checklist = [
     color: $fk-primary-black;
     text-align: center;
     font-size: 16;
-    margin-right: 20;
-    margin-left: 20;
+    margin-right: 30;
+    margin-left: 30;
 }
 .checklist {
     width: 300;
