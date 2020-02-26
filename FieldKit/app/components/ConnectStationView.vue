@@ -143,7 +143,7 @@
                                     <Label
                                         row="1"
                                         colSpan="2"
-                                        class="radio-info"
+                                        class="radio-info size-15"
                                         lineHeight="4"
                                         :text="option.info"
                                         textWrap="true"
@@ -1012,6 +1012,7 @@ const steps = {
     margin-right: 30;
 }
 .radio-info {
+    color: $fk-gray-hint;
     margin-top: 10;
     margin-bottom: 20;
     margin-left: 35;
