@@ -83,19 +83,34 @@
                 class="size-16 m-t-10"
                 v-if="networks.length == 0"
             ></Label>
+            <!-- wifi radio buttons -->
             <GridLayout
                 rows="auto"
-                columns="75*,25*"
+                columns="30,*"
                 v-for="n in networks"
                 :key="n.ssid"
+                class="m-10"
             >
-                <Label
-                    :text="n.ssid"
+                <check-box
+                    row="0"
                     col="0"
-                    class="m-t-10"
-                    @tap="useNetwork"
+                    :checked="n.selected"
+                    :isEnabled="!n.selected"
+                    fillColor="#2C3E50"
+                    onCheckColor="#2C3E50"
+                    onTintColor="#2C3E50"
+                    fontSize="18"
+                    boxType="circle"
+                    @checkedChange="$event.value !== n.selected && toggleChoice(n)"
+                />
+                <Label
+                    row="0"
+                    col="1"
+                    class="m-t-5 m-l-5"
+                    :text="n.ssid"
                 ></Label>
             </GridLayout>
+            <!-- end radio buttons -->
         </WrapLayout>
     </StackLayout>
 </template>
@@ -143,7 +158,10 @@ export default {
                 this.editingSsid = true;
                 let deviceStatus = JSON.parse(this.station.statusJson);
                 if (deviceStatus && deviceStatus.networkSettings) {
-                    this.networks = deviceStatus.networkSettings.networks;
+                    this.networks = deviceStatus.networkSettings.networks.map(n => {
+                        n.selected = false;
+                        return n;
+                    });
                 }
             }
         },
@@ -213,7 +231,10 @@ export default {
             return queryStation
                 .sendNetworkSettings(this.station.url, this.networks)
                 .then(result => {
-                    this.networks = result.networkSettings.networks;
+                    this.networks = result.networkSettings.networks.map(n => {
+                        n.selected = n.ssid == this.network.ssid;
+                        return n;
+                    });
                 });
         },
 
@@ -223,6 +244,17 @@ export default {
             });
             this.newNetwork.ssid = network.ssid;
             this.newNetwork.password = network.password;
+        },
+
+        toggleChoice(radioOption) {
+            this.networks.forEach(n => {
+                n.selected = false;
+                if (n.ssid == radioOption.ssid) {
+                    n.selected = true;
+                    this.newNetwork.ssid = n.ssid;
+                    this.newNetwork.password = n.password;
+                }
+            });
         }
     }
 };
