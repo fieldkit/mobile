@@ -41,14 +41,25 @@
             v-if="editingSsid"
         ></TextField>
         <!-- or edit password -->
-        <TextField
-            class="size-18 p-x-20 input"
-            :hint="step.hint"
-            secure="true"
-            ref="password"
-            v-model="newNetwork.password"
-            v-if="editingPassword"
-        ></TextField>
+        <GridLayout rows="auto" columns="*,42" v-if="editingPassword" class="input">
+            <TextField
+                row="0"
+                col="0"
+                class="size-18 no-border-input"
+                :hint="step.hint"
+                :secure="hidePassword"
+                ref="password"
+                v-model="newNetwork.password"
+            ></TextField>
+            <Label
+                row="0"
+                col="1"
+                :text="passwordVisibility"
+                class="size-16"
+                verticalAlignment="middle"
+                @tap="togglePassword"
+            />
+        </GridLayout>
 
         <!-- station name validation errors -->
         <Label
@@ -133,6 +144,8 @@ export default {
             loggedIn: this.$portalInterface.isLoggedIn(),
             networks: [],
             showNetworks: false,
+            hidePassword: true,
+            passwordVisibility: "Show",
             newNetwork: { ssid: "", password: "" },
             editingName: false,
             editingSsid: false,
@@ -255,7 +268,12 @@ export default {
                     this.newNetwork.password = n.password;
                 }
             });
-        }
+        },
+
+        togglePassword() {
+            this.hidePassword = !this.hidePassword;
+            this.passwordVisibility = this.hidePassword ? "Show" : "Hide";
+        },
     }
 };
 </script>
