@@ -21,6 +21,7 @@ export APP_IOS_KEYCHAIN_PASSWORD=${APP_IOS_KEYCHAIN_PASSWORD}
 set -x
 env
 
+make clean-secrets
 make ios-release
 """
               }

@@ -28,6 +28,7 @@ export FK_APP_RELEASE_KEY_PASSWORD=${props.FK_APP_RELEASE_KEY_PASSWORD}
 set -x
 env
 
+make clean-secrets
 make android-release
 """
             }
