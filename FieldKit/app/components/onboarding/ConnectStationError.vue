@@ -130,6 +130,7 @@ const steps = {
             prev: "",
             next: "testConnection",
             title: "Having Problems Connecting?",
+            skip: "goToStations",
             instructions:
                 [
                     "1. Press the WiFi button again",
