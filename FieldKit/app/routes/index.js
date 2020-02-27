@@ -1,7 +1,8 @@
 import AppSettings from "../components/AppSettingsView";
+import AssembleStation from "../components/onboarding/AssembleStationView";
 import Calibration from "../components/CalibrationView";
 import ConfigureModule from "../components/unused/ConfigureModuleView";
-import ConnectStation from "../components/ConnectStationView";
+import ConnectStation from "../components/onboarding/ConnectStationView";
 import DataSync from "../components/DataSyncView";
 import DeployMap from "../components/DeployMapView";
 import DeployNotes from "../components/DeployNotesView";
@@ -10,7 +11,6 @@ import Home from "../components/HomeView";
 import Login from "../components/LoginView";
 import Module from "../components/ModuleDetailView";
 import Notifications from "../components/NotificationView";
-import AssembleStation from "../components/AssembleStationView";
 import StationDetail from "../components/StationDetailView";
 import Stations from "../components/StationListView";
 import StationSettings from "../components/StationSettingsView";

@@ -162,6 +162,7 @@ import { Observable, PropertyChangeData } from "tns-core-modules/data/observable
 import routes from "../routes"
 import Services from "../services/services"
 import CircularProgressBar from "./CircularProgressBar"
+import ConnectStationModules from "./onboarding/ConnectStationModules";
 
 const calibrationService = Services.CalibrationService();
 const dbInterface = Services.Database()
@@ -191,6 +192,7 @@ export default {
     },
     components: {
         CircularProgressBar,
+        ConnectStationModules
     },
     methods: {
         onPageLoaded(args) {
@@ -224,7 +226,7 @@ export default {
             const steps = this.currentCalibration.steps
             if (this.step > 0) {
                 this.step -= 1
-                this.percentDone = (this.step / steps.length) * 100
+                this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100
                 this.displayImage = steps[this.step].image
                 this.instructionHeading = steps[this.step].heading
                 this.instruction = steps[this.step].instruction
@@ -244,10 +246,10 @@ export default {
                 // }
             } else {
                 if (this.onboarding) {
-                    this.$navigateTo(routes.connectStation, {
+                    this.$navigateTo(ConnectStationModules, {
                         props: {
-                            calibratedStation: this.station,
-                            stepParam: "startCalibration"
+                            stepParam: "startCalibration",
+                            stationParam: this.station
                         }
                     });
                 } else if (this.station && this.station.id) {
@@ -266,7 +268,7 @@ export default {
             const steps = this.currentCalibration.steps
             if (this.step < steps.length - 1) {
                 this.step += 1
-                this.percentDone = (this.step / steps.length) * 100
+                this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100
                 this.displayImage = steps[this.step].image
                 this.instructionHeading = steps[this.step].heading
                 this.instruction = steps[this.step].instruction
@@ -343,10 +345,10 @@ export default {
 
                 setTimeout(() => {
                     if (this.onboarding) {
-                        this.$navigateTo(routes.connectStation, {
+                        this.$navigateTo(ConnectStationModules, {
                             props: {
-                                calibratedStation: this.currentStation,
-                                stepParam: "startCalibration"
+                                stepParam: "startCalibration",
+                                stationParam: this.station
                             }
                         });
                     } else {

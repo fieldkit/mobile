@@ -228,7 +228,7 @@
 
 <script>
 import Home from "./HomeView";
-import AssembleStation from "./AssembleStationView";
+import AssembleStation from "./onboarding/AssembleStationView";
 import Config from "../config";
 import { USERNAME, PASSWORD } from "../secrets";
 import Services from "../services/services";

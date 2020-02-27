@@ -171,7 +171,7 @@
 </template>
 
 <script>
-import routes from "../routes";
+import routes from "../../routes";
 
 export default {
     props: ["stepParam"],
@@ -391,7 +391,7 @@ const checklist = [
 
 <style scoped lang="scss">
 // Start custom common variables
-@import "../app-variables";
+@import "../../app-variables";
 // End custom common variables
 // Custom styles
 .page {
