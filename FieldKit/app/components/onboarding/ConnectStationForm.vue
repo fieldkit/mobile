@@ -160,7 +160,7 @@
                 <Label
                     :text="step.altOption"
                     class="skip"
-                    @tap="goToCalibration"
+                    @tap="goToModules"
                     textWrap="true"
                 />
             </StackLayout>
@@ -334,7 +334,6 @@ export default {
                 this.goToPassword();
                 return
             } else if (this.step.field == "password") {
-                // will go to calibration after adding network
                 this.addNetwork();
             }
 
@@ -358,7 +357,7 @@ export default {
             }
         },
 
-        goToCalibration() {
+        goToModules() {
             this.$navigateTo(ConnectStationModules, {
                 props: {
                     stepParam: "startCalibration",

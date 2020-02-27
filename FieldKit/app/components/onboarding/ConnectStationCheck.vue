@@ -78,7 +78,7 @@ export default {
                 return
             }
             if (this.proceed == "startCalibration") {
-                this.goToCalibration();
+                this.goToModules();
                 return
             }
         },
@@ -103,7 +103,7 @@ export default {
             });
         },
 
-        goToCalibration() {
+        goToModules() {
             this.stopAnimation();
             this.unsubscribe();
             this.$navigateTo(ConnectStationModules, {
