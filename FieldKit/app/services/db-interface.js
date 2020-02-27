@@ -20,6 +20,14 @@ export default class DatabaseInterface {
         this.databasePromise = databasePromise;
     }
 
+    checkConfig() {
+        return this.getConfig().then(result => {
+            if (result.length == 0) {
+                return this.insertConfig(Config);
+            }
+        });
+    }
+
     getDatabaseName() {
         if (TNS_ENV === "test") {
             return "test_fieldkit.sqlite3";
@@ -204,6 +212,44 @@ export default class DatabaseInterface {
             .then(rows => {
                 return sqliteToJs(rows);
             });
+    }
+
+    getConfig() {
+        return this.getDatabase()
+            .then(db =>
+                db.query("SELECT * FROM config")
+            )
+            .then(rows => {
+                return sqliteToJs(rows);
+            });
+    }
+
+    updateConfigUris(config) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE config SET base_uri = ?, ingestion_uri = ? WHERE id = ?", [
+                config.baseUri,
+                config.ingestionUri,
+                config.id
+            ])
+        );
+    }
+
+    updateBaseUri(config) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE config SET base_uri = ? WHERE id = ?", [
+                config.baseUri,
+                config.id
+            ])
+        );
+    }
+
+    updateIngestionUri(config) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE config SET ingestion_uri = ? WHERE id = ?", [
+                config.ingestionUri,
+                config.id
+            ])
+        );
     }
 
     setStationName(station) {
@@ -440,8 +486,7 @@ export default class DatabaseInterface {
     }
 
     insertModule(module) {
-        // Note: module_id is bay number (position) and
-        // device_id is the module's unique hardware id (not the station's)
+        // Note: device_id is the module's unique hardware id (not the station's)
         return this.database.execute(
             "INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)",
             [
@@ -475,6 +520,16 @@ export default class DatabaseInterface {
                 newStation.longitude,
                 newStation.latitude,
                 new Date()
+            ]
+        );
+    }
+
+    insertConfig(config) {
+        return this.database.execute(
+            "INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)",
+            [
+                config.baseUri,
+                config.ingestionUri
             ]
         );
     }

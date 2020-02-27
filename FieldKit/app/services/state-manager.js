@@ -101,4 +101,8 @@ export default class StateManager extends BetterObservable {
         }
         return Promise.reject();
     }
+
+    refreshIngestionUri() {
+        this.uploadManager.refreshUri();
+    }
 }

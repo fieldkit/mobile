@@ -10,9 +10,24 @@ const log = Config.logger("UploadManager");
 export default class UploadManager {
     constructor(databaseInterface, portalInterface, progressService) {
         this.databaseInterface = databaseInterface;
+        this.getUri().then(result => {
+            this.ingestionUri = result;
+        });
         this.portalInterface = portalInterface;
         this.progressService = progressService;
 		this._mutex = new Mutex();
+    }
+
+    getUri(){
+        return this.databaseInterface.getConfig().then(result => {
+            return result[0].ingestionUri;
+        });
+    }
+
+    refreshUri() {
+        this.getUri().then(result => {
+            this.ingestionUri = result;
+        });
     }
 
     getStatus() {
@@ -132,7 +147,7 @@ export default class UploadManager {
     }
 
     _upload(deviceId, deviceName, headers, filePath, operation) {
-		const url = Config.ingestionUri;
+		const url = this.ingestionUri;
 		log.info("url", url);
 		log.info("uploading", filePath, headers);
 

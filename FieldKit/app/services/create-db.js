@@ -17,6 +17,7 @@ export default class CreateDB {
                     return Promise.resolve(this.database);
                 }
             })
+            .then(this.createConfigTable.bind(this))
             .then(this.createFirmwareTable.bind(this))
             .then(this.createStationsTable.bind(this))
             .then(this.createModulesTable.bind(this))
@@ -78,27 +79,40 @@ export default class CreateDB {
             `DROP TABLE IF EXISTS downloads`,
             `DROP TABLE IF EXISTS streams`,
             `DROP TABLE IF EXISTS stations_config`,
+            `DROP TABLE IF EXISTS modules_config`,
             `DROP TABLE IF EXISTS sensors`,
             `DROP TABLE IF EXISTS modules`,
             `DROP TABLE IF EXISTS fieldnotes`,
             `DROP TABLE IF EXISTS fieldmedia`,
-            `DROP TABLE IF EXISTS stations`
+            `DROP TABLE IF EXISTS stations`,
+            `DROP TABLE IF EXISTS firmware`,
+            `DROP TABLE IF EXISTS config`
         ]);
     }
 
-	createFirmwareTable() {
+    createConfigTable() {
+        return this.execute([
+            `CREATE TABLE IF NOT EXISTS config (
+                id INTEGER PRIMARY KEY,
+                base_uri TEXT,
+                ingestion_uri TEXT
+            )`
+        ]);
+    }
+
+    createFirmwareTable() {
         return this.execute([
             `CREATE TABLE IF NOT EXISTS firmware (
                 id INTEGER PRIMARY KEY,
-				time TIMESTAMP NOT NULL,
-				url TEXT NOT NULL,
-				module TEXT NOT NULL,
-				profile TEXT NOT NULL,
-				etag TEXT NOT NULL,
-				path TEXT NOT NULL
-			)`
+                time TIMESTAMP NOT NULL,
+                url TEXT NOT NULL,
+                module TEXT NOT NULL,
+                profile TEXT NOT NULL,
+                etag TEXT NOT NULL,
+                path TEXT NOT NULL
+            )`
         ]);
-	}
+    }
 
     createStreamsTable() {
         return this.execute([
@@ -162,8 +176,7 @@ export default class CreateDB {
     }
 
     createModulesTable() {
-        // Note: module_id is bay number (position) and
-        // device_id is the module's unique hardware id (not the station's)
+        // Note: device_id is the module's unique hardware id (not the station's)
         return this.execute([
             `CREATE TABLE IF NOT EXISTS modules (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

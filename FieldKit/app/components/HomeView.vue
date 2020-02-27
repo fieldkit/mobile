@@ -4,12 +4,41 @@
             <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
             <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
             <StackLayout class="spacer m-t-30"></StackLayout>
+            <StackLayout class="m-x-20 m-b-20">
+                <Label
+                    class="m-y-10"
+                    textWrap="true"
+                    :text="'The current environment is: ' + environmentLabels[currentEnv]"
+                />
+                <GridLayout rows="auto" columns="200" horizontalAlignment="center">
+                    <DropDown
+                        row="0"
+                        col="0"
+                        class="p-l-5 p-b-2 size-18 drop-down"
+                        :items="environmentLabels"
+                        :selectedIndex="currentEnv"
+                        id="env-drop-down"
+                        @opened="onOpened"
+                        @selectedIndexChanged="onDropDownSelection"
+                    ></DropDown>
+                    <Image
+                        row="0"
+                        col="0"
+                        width="15"
+                        class="m-r-5"
+                        horizontalAlignment="right"
+                        verticalAlignment="middle"
+                        src="~/images/Icon_Cheveron_Down.png"
+                        @tap="openDropDown"
+                    />
+                </GridLayout>
+            </StackLayout>
             <Button class="btn btn-primary btn-padded" text="Save Diagnostics" @tap="saveDiagnostics"></Button>
             <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
             <Button class="btn btn-primary btn-padded" text="Copy Logs" @tap="copyLogs"></Button>
             <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
             <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
-			<Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button>
+			<!-- <Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button> -->
         </StackLayout>
     </Page>
 </template>
@@ -21,20 +50,79 @@ import { sendLogs } from "../lib/logging";
 import routes from "../routes";
 import Services from "../services/services";
 
+const dbInterface = Services.Database();
+const stateManager = Services.StateManager();
+
 export default {
     data() {
         return {
             message: _L("authenticated"),
-            loggedIn: this.$portalInterface.isLoggedIn()
+            loggedIn: this.$portalInterface.isLoggedIn(),
+            currentEnv: 0,
+            environments: [
+                {
+                    uri: "https://api.fkdev.org",
+                    label: "Development"
+                },
+                {
+                    uri: "https://api.fieldkit.org",
+                    label: "Production"
+                }
+            ],
+            environmentLabels: [],
         };
     },
     components: {
         BarcodeScanner
     },
     methods: {
-        onPageLoaded() {},
+        onPageLoaded(args) {
+            this.page = args.object;
+
+            dbInterface.getConfig().then(result => {
+                this.config = result[0];
+                const baseUri = this.config.baseUri;
+                this.currentEnv = this.environments.findIndex(env => {
+                    return env.uri == baseUri;
+                });
+                if (this.currentEnv == -1) {
+                    this.environments.push({
+                        uri: baseUri,
+                        label: "Local"
+                    });
+                    this.currentEnv = this.environments.length - 1;
+                }
+                this.environmentLabels = this.environments.map(env => {
+                    return env.label;
+                });
+            });
+        },
         viewStations() {
             this.$navigateTo(routes.stations);
+        },
+        openDropDown(event) {
+            const dropDown = this.page.getViewById("env-drop-down");
+            dropDown.open();
+        },
+        onOpened(event) {
+            // provide feedback by changing background color
+            event.object.backgroundColor = "#F4F5F7";
+            setTimeout(() => {
+                event.object.backgroundColor = "white";
+            }, 500);
+        },
+        onDropDownSelection(event) {
+            this.currentEnv = event.newIndex;
+            const baseUri = this.environments[this.currentEnv].uri;
+            const params = {
+                baseUri: baseUri,
+                ingestionUri: baseUri + "/ingestion",
+                id: this.config.id
+            };
+            dbInterface.updateConfigUris(params).then(() => {
+                this.$portalInterface.refreshUri();
+                stateManager.refreshIngestionUri();
+            });
         },
         copyLogs() {
             sendLogs();
@@ -158,5 +246,12 @@ export default {
 .spacer {
     border-top-color: $fk-gray-border;
     border-top-width: 2;
+}
+.drop-down {
+    padding: 8;
+    background-color: white;
+    border-width: 1;
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
 }
 </style>

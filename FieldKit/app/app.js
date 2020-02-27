@@ -43,6 +43,10 @@ registerLifecycleEvents();
 Services.CreateDb()
     .initialize()
     .then(() => {
+        const dbInterface = Services.Database();
+        return dbInterface.checkConfig();
+    })
+    .then(() => {
         Vue.prototype.$stationMonitor = Services.StationMonitor();
 		Vue.prototype.$portalInterface = Services.PortalInterface();
     })

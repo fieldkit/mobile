@@ -6,6 +6,10 @@ import AppSettings from "../wrappers/app-settings";
 export default class PortalInterface {
 	constructor(services) {
 		this.services = services;
+        this.dbInterface = services.Database();
+        this.getUri().then(result => {
+            this.baseUri = result;
+        });
 		this._handleTokenResponse = this._handleTokenResponse.bind(this);
 		this._handleStandardResponse = this._handleStandardResponse.bind(this);
 		this._handleError = this._handleError.bind(this);
@@ -13,10 +17,22 @@ export default class PortalInterface {
 		this._appSettings = new AppSettings();
 	}
 
+    getUri(){
+        return this.dbInterface.getConfig().then(result => {
+            return result[0].baseUri;
+        });
+    }
+
+    refreshUri() {
+        this.getUri().then(result => {
+            this.baseUri = result;
+        });
+    }
+
     storeCurrentUser() {
         return this._query({
             method: "GET",
-            url: Config.baseUri + "/user",
+            url: this.baseUri + "/user",
         }).then(data => {
 			this._currentUser.name = data.name;
 			this._currentUser.portalId = data.id;
@@ -26,7 +42,7 @@ export default class PortalInterface {
 
 	isAvailable() {
 		return axios({
-			url: Config.baseUri + "/status",
+			url: this.baseUri + "/status",
 		}).then(r => {
 			return true;
 		}, e => {
@@ -49,7 +65,7 @@ export default class PortalInterface {
 	login(user) {
 		return axios({
 			method: "POST",
-			url: Config.baseUri + "/login",
+			url: this.baseUri + "/login",
 			headers: { "Content-Type": "application/json" },
 			data: user
 		}).then(this._handleTokenResponse).catch(this._handleError);
@@ -63,7 +79,7 @@ export default class PortalInterface {
     register(user) {
         return this._query({
             method: "POST",
-            url: Config.baseUri + "/users",
+            url: this.baseUri + "/users",
             data: user,
         }).then(() => {
 			// TODO This should return the user object.
@@ -77,7 +93,7 @@ export default class PortalInterface {
     addStation(data) {
         return this._query({
             method: "POST",
-            url: Config.baseUri + "/stations",
+            url: this.baseUri + "/stations",
             data: data
         }).then(data => {
 			// TODO This should just return the entire payload just in
@@ -89,7 +105,7 @@ export default class PortalInterface {
     updateStation(data, portalId) {
         return this._query({
             method: "PATCH",
-            url: Config.baseUri + "/stations/" + portalId,
+            url: this.baseUri + "/stations/" + portalId,
             data: data
         }).then(data => {
 			// TODO This should just return the entire payload just in
@@ -100,33 +116,33 @@ export default class PortalInterface {
 
     getStationSyncState(deviceId) {
         return this._query({
-            url: Config.baseUri + "/data/devices/" + deviceId + "/summary",
+            url: this.baseUri + "/data/devices/" + deviceId + "/summary",
         });
     }
 
 	getStations() {
         return this._query({
-            url: Config.baseUri + "/stations"
+            url: this.baseUri + "/stations"
 		});
 	}
 
     getStationById(id) {
         return this._query({
-            url: Config.baseUri + "/stations/@/" + id,
+            url: this.baseUri + "/stations/@/" + id,
         });
     }
 
     addFieldNote(data) {
         return this._query({
             method: "POST",
-            url: Config.baseUri + "/stations/" + data.stationId + "/field-notes",
+            url: this.baseUri + "/stations/" + data.stationId + "/field-notes",
             data: data
         });
     }
 
 	listFirmware(module) {
         return this._query({
-            url: Config.baseUri + "/firmware" + (module ? "?module=" + module : "")
+            url: this.baseUri + "/firmware" + (module ? "?module=" + module : "")
         });
 	}
 
@@ -147,7 +163,7 @@ export default class PortalInterface {
 			Authorization: this._appSettings.getString("accessToken")
 		};
 		return this.services.Conservify().download({
-			url: Config.baseUri + url,
+			url: this.baseUri + url,
 			path: local,
 			headers: { ...headers },
 			progress: progress,
@@ -166,7 +182,7 @@ export default class PortalInterface {
 			Authorization: this._appSettings.getString("accessToken")
 		};
 		return this.services.Conservify().upload({
-			url: Config.baseUri + "/stations/" + data.stationId + "/field-note-media",
+			url: this.baseUri + "/stations/" + data.stationId + "/field-note-media",
 			method: "POST",
 			path: data.pathDest,
 			headers: { ...headers },
@@ -244,7 +260,7 @@ export default class PortalInterface {
 
 		return axios({
 			method: "POST",
-			url: Config.baseUri + "/refresh",
+			url: this.baseUri + "/refresh",
 			data: requestBody,
 		}).then(response => {
 			return this._handleTokenResponse(response).then(() => {
