@@ -296,6 +296,7 @@ export default class CreateDB {
 
     seedDB() {
         return Promise.all(stations.map(this.addStation.bind(this)))
+                .then(this.handleConfig.bind(this))
                 .then(this.handleModules.bind(this))
                 .then(this.handleSensors.bind(this))
                 .then(this.handleFieldNotes.bind(this))
@@ -318,6 +319,10 @@ export default class CreateDB {
             });
             return;
         });
+    }
+
+    handleConfig() {
+        return this.dbInterface.insertConfig(Config);
     }
 
     handleModules() {

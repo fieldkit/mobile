@@ -6,6 +6,8 @@ describe("Authentication", () => {
 
 	beforeEach(() => {
 		services = new Services();
+        const dbInterface = services.Database();
+        return dbInterface.checkConfig();
 	});
 
 	afterEach(() => {
