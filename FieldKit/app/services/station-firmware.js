@@ -29,6 +29,10 @@ export default class StationUpgrade {
 				})
 			})
 			.then(firmwares => {
+				if (firmwares.length == 0) {
+					return;
+				}
+
 				return serializePromiseChain(firmwares, firmware => {
 					return this.services.Database().addOrUpdateFirmware(firmware);
 				}).then(() => {
