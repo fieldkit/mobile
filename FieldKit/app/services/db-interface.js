@@ -24,6 +24,8 @@ export default class DatabaseInterface {
         return this.getConfig().then(result => {
             if (result.length == 0) {
                 return this.insertConfig(Config);
+            } else {
+                console.log("config: * actual baseUri and ingestionUri *", result[0]);
             }
         });
     }
