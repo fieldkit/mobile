@@ -318,7 +318,7 @@ const steps = {
                     "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to your mobile device.",
                     "Confirm that your station WiFi is on by pressing the external WiFi button."
                 ],
-            button: "Connect Station",
+            button: "Continue",
             images: ["TI_9-A.jpg", "TI_9-B.jpg"],
             altOption: "Skip this step"
         },
