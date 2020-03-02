@@ -617,6 +617,7 @@ export default class DatabaseInterface {
 					firmware.etag,
 					firmware.path
                 ];
+				console.log("inserting", firmware);
                 return this.getDatabase().then(db => db.query(`INSERT INTO firmware (id, time, url, module, profile, etag, path) VALUES (?, ?, ?, ?, ?, ?, ?)`, values));
             });
 	}

@@ -34,7 +34,8 @@ describe("Authentication", () => {
 			const firmware = {
 				data: {
 					firmwares: [{
-						id: 1000
+						id: 1000,
+						time: new Date()
 					}]
 				}
 			};
