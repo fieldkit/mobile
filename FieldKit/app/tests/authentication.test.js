@@ -35,7 +35,12 @@ describe("Authentication", () => {
 				data: {
 					firmwares: [{
 						id: 1000,
-						time: new Date()
+						time: new Date(),
+						url: 'url',
+						module: 'module',
+						profile: 'profile',
+						etag: 'etag',
+						path: 'atph'
 					}]
 				}
 			};
@@ -56,6 +61,7 @@ describe("Authentication", () => {
 				password: 'password'
 			}).then(() => {
 				expect(services.Conservify().download.mock.calls.length).toBe(1);
+				console.log('ok')
 			});
 		});
 	});

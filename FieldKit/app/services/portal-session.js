@@ -9,7 +9,9 @@ export default class PortalSession {
 
 	login(user) {
 		return this.portal().login(user).then(user => {
+			console.log("logged in")
 			return this.services.StationFirmware().downloadFirmware().then(_ => {
+				console.log("done")
 				return user;
 			})
 		});

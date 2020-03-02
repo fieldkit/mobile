@@ -21,15 +21,19 @@ export default class StationUpgrade {
 	downloadFirmware(progressCallback, force) {
 		return this.services.PortalInterface().listFirmware("fk-core")
 			.then(firmware => {
+				console.log("firmware", firmware)
 				return firmware.firmwares.map(f => {
 					const local = this.services.FileSystem().getFolder("firmware").getFile("fk-bundled-fkb-" + f.id + ".bin");
+					console.log("local", local)
 					return _.extend(f, {
 						path: local.path
 					});
 				})
 			})
 			.then(firmwares => {
+				console.log("firmwares", firmwares);
 				if (firmwares.length == 0) {
+					console.log("no firmware")
 					return;
 				}
 
