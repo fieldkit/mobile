@@ -139,7 +139,7 @@ const steps = {
                 ],
             button: "Try Again",
             images: [],
-            altOption: "Get help"
+            altOption: "Skip this step"
         },
     "testConnection":
        {
