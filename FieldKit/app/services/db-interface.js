@@ -23,6 +23,7 @@ export default class DatabaseInterface {
     checkConfig() {
         return this.getConfig().then(result => {
             if (result.length == 0) {
+                console.log("config: intializing", Config);
                 return this.insertConfig(Config);
             } else {
                 console.log("config: * actual baseUri and ingestionUri *", result[0]);

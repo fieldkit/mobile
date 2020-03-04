@@ -43,8 +43,11 @@ registerLifecycleEvents();
 Services.CreateDb()
     .initialize()
     .then(() => {
+		console.log("checking config");
         const dbInterface = Services.Database();
-        return dbInterface.checkConfig();
+        return dbInterface.checkConfig().then(c => {
+			console.log('config', c);
+		});
     })
     .then(() => {
         Vue.prototype.$stationMonitor = Services.StationMonitor();
