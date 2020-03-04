@@ -83,13 +83,18 @@
                     </Gridlayout>
                 </StackLayout>
 
-                <GridLayout rows="*" columns="*">
+                <GridLayout order="4" rows="*" columns="*">
                     <Image
                         verticalAlignment="middle"
-                        order="4"
                         v-if="displayFrame"
                         :src="displayFrame"
                     ></Image>
+                    <Label
+                        verticalAlignment="middle"
+                        v-if="!displayFrame && noImageText"
+                        class="m-y-30 m-x-20 text-center size-20"
+                        :text="noImageText"
+                    />
                 </GridLayout>
 
             </StackLayout>
@@ -184,6 +189,7 @@ export default {
             buttonText: "",
             frameImage: "",
             displayFrame: null,
+            noImageText: null,
             percentDone: (1 / (steps.length - 1)) * 100,
             checklist: checklist
         };
@@ -219,6 +225,7 @@ export default {
                 this.instruction = steps[this.step].instruction;
                 this.buttonText = steps[this.step].button;
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
+                this.noImageText = steps[this.step].noImage;
             }
         },
 
@@ -230,6 +237,7 @@ export default {
                 this.instruction = steps[this.step].instruction;
                 this.buttonText = steps[this.step].button;
                 this.percentDone = (this.step / (steps.length - 1)) * 100;
+                this.noImageText = steps[this.step].noImage;
                 if (this.step == steps.length - 1) {
                     setTimeout(() => {
                         this.$navigateTo(routes.connectStation);
@@ -298,13 +306,6 @@ const steps = [
     {
         title: "Assemble Station",
         instruction:
-            "Plug in your micro USB cable to charge the station battery. Once you plug it in, the station will turn on automatically.",
-        button: "Next",
-        images: ["TI_8-A.jpg", "TI_8-B.jpg"]
-    },
-    {
-        title: "Assemble Station",
-        instruction:
             "Now it's time to take all of your attached components and place them inside the station enclosure. Secure the system down with screws.",
         button: "Next",
         images: ["TI_5-A.jpg", "TI_5-B.jpg"]
@@ -322,6 +323,22 @@ const steps = [
             'Insert the button cord to the radio board into the port labeled "BTN."',
         button: "Done",
         images: ["TI_7-A.jpg", "TI_7-B.jpg"]
+    },
+    {
+        title: "Assemble Station",
+        instruction:
+            "Plug in your micro USB cable to charge the station battery.",
+        button: "Next",
+        noImage: "Image coming soon",
+        images: []
+    },
+    {
+        title: "Assemble Station",
+        instruction:
+            "Make sure that the switch is in the \"On\" position. Leave plugged in to charge for an hour.",
+        button: "Next",
+        noImage: "Image coming soon",
+        images: []
     },
     {
         title: "Complete",
