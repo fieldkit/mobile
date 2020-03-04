@@ -133,9 +133,10 @@
 </template>
 
 <script>
+import { on, off, suspendEvent, resumeEvent } from "tns-core-modules/application";
+
 import routes from "../../routes";
 import { _T } from "../../utilities"
-import Services from "../../services/services";
 import ConnectStationCheck from "./ConnectStationCheck";
 import ConnectStationError from "./ConnectStationError";
 import ConnectStationForm from "./ConnectStationForm";
@@ -160,17 +161,28 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
+            on(suspendEvent, (args) => {
+                this.leftOffOn = this.step.name;
+            });
+
+            //on(resumeEvent, (args) => {
+            //});
+
             if (this.stationParam) {
                 this.station = this.stationParam;
             }
 
-            if (this.stepParam) {
+            if (this.leftOffOn) {
+                this.step = steps[this.leftOffOn];
+                this.setupStep();
+            } else if (this.stepParam) {
                 this.step = steps[this.stepParam];
                 this.setupStep();
                 return;
+            } else {
+                this.step = steps.intro;
             }
 
-            this.step = steps.intro;
             this.frameImage = this.step.images[0];
             this.displayFrame = this.frameImage
                 ? "~/images/" + this.frameImage
@@ -178,6 +190,11 @@ export default {
             if (this.displayFrame && !this.animateFrameTimer) {
                 this.animateFrameTimer = setInterval(this.animateFrames, 1000);
             }
+        },
+
+        unsubscribe() {
+            off(suspendEvent);
+            // off(resumeEvent);
         },
 
         goBack(event) {
@@ -193,6 +210,7 @@ export default {
                 this.step = steps[this.step.prev];
                 this.setupStep();
             } else {
+                this.unsubscribe();
                 this.$navigateTo(routes.assembleStation, {
                     props: {
                         stepParam: "last"
@@ -217,6 +235,7 @@ export default {
 
         setupStep() {
             if (this.step.hasError) {
+                this.unsubscribe();
                 this.$navigateTo(ConnectStationError, {
                     props: {
                         stepParam: this.step.name
@@ -226,6 +245,7 @@ export default {
             }
 
             if (this.step.hasForm) {
+                this.unsubscribe();
                 this.$navigateTo(ConnectStationForm, {
                     props: {
                         stepParam: this.step.field,
@@ -236,6 +256,7 @@ export default {
             }
 
             if (this.step.testingConnection) {
+                this.unsubscribe();
                 this.$navigateTo(ConnectStationCheck, {
                     props: {
                         stepParam: "testConnection",
@@ -266,6 +287,7 @@ export default {
             if (this.step.next) {
                 this.goNext();
             } else {
+                this.unsubscribe();
                 this.$navigateTo(routes.stations);
             }
         },
@@ -298,6 +320,7 @@ export default {
 
         goToStations() {
             this.stopAnimation();
+            this.unsubscribe();
             this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false
@@ -309,6 +332,7 @@ export default {
 const steps = {
     "intro":
         {
+            name: "intro",
             prev: null,
             next: "connect",
             hasHeading: true,
@@ -324,6 +348,7 @@ const steps = {
         },
     "connect":
         {
+            name: "connect",
             prev: "intro",
             next: "testConnection",
             hasHeading: true,
@@ -338,6 +363,7 @@ const steps = {
         },
     "selectSettings":
        {
+            name: "selectSettings",
             prev: "selectStation",
             next: "rename",
             hasHeading: false,
@@ -362,6 +388,7 @@ const steps = {
         },
     "rename":
        {
+            name: "rename",
             hasForm: true,
             prev: "selectSettings",
             next: "reconnect",
@@ -369,6 +396,7 @@ const steps = {
         },
     "reconnect":
         {
+            name: "reconnect",
             prev: "rename",
             next: "testNewConnection",
             hasHeading: true,
@@ -383,6 +411,7 @@ const steps = {
         },
     "ssid":
        {
+            name: "ssid",
             hasForm: true,
             prev: "selectSettings",
             next: "password",
@@ -390,6 +419,7 @@ const steps = {
         },
     "password":
        {
+            name: "password",
             hasForm: true,
             prev: "ssid",
             next: "testNewConnection",
@@ -397,6 +427,7 @@ const steps = {
         },
     "testConnection":
        {
+            name: "testConnection",
             testingConnection: true,
             prev: "",
             next: "",
@@ -404,6 +435,7 @@ const steps = {
         },
     "testNewConnection":
        {
+            name: "testNewConnection",
             testingConnection: true,
             prev: "",
             next: "",
