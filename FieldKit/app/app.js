@@ -47,6 +47,7 @@ Services.CreateDb()
 		console.log("checking config");
         const dbInterface = Services.Database();
         return dbInterface.checkConfig().then(c => {
+            Services.PortalInterface().refreshUri();
 			console.log('config', c);
 		});
     })
