@@ -21,8 +21,21 @@
             <!-- calibration steps -->
             <StackLayout row="1">
                 <!-- progress bar at top -->
-                <GridLayout order="1" rows="auto" columns="*" class="top-line-bkgd m-t-10" v-if="currentCalibration">
-                    <StackLayout horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
+                <GridLayout order="1" rows="auto, auto" columns="*" class="top-line-bkgd m-t-10" v-if="currentCalibration">
+                    <StackLayout row="0" horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
+                    <!-- station disconnected warning -->
+                    <StackLayout
+                        row="1"
+                        class="text-center disconnect-warning"
+                        v-if="!currentStation.connected"
+                    >
+                        <Label
+                            text="Station disconnected. Tap here to reconnect."
+                            class="size-15"
+                            textWrap="true"
+                            @tap="goToReconnect"
+                        />
+                    </StackLayout>
                 </GridLayout>
                 <!-- end progress bar -->
 
@@ -214,6 +227,14 @@ export default {
             if (this.timerInterval) {
                 clearInterval(this.timerInterval)
             }
+        },
+
+        goToReconnect() {
+            this.$navigateTo(routes.connectStation, {
+                props: {
+                    stepParam: "testConnection"
+                }
+            });
         },
 
         goBack(event) {
