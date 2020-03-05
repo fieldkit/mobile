@@ -9,11 +9,6 @@
                         :canNavigateSettings="false"
                         :bottomMargin="false"
                     />
-                    <Label
-                        v-if="stations.length == 0"
-                        :text="_L('lookingForStations')"
-                        class="m-10 p-10 text-center size-20"
-                    />
 
                     <GridLayout rows="auto" columns="*" id="mapbox-wrapper">
                         <Mapbox
@@ -46,6 +41,26 @@
                                 @tap="openModal"
                             ></Image>
                         </StackLayout>
+                    </GridLayout>
+
+                    <GridLayout rows="*,*,*" v-if="stations.length == 0" class="m-t-20">
+                        <Label
+                            row="0"
+                            text="Connect a Station"
+                            class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20"
+                        />
+                        <Label
+                            row="1"
+                            text="You have no stations. Add a station to start collecting data."
+                            class="text-center size-18 instruction"
+                            textWrap="true"
+                        />
+                        <Button
+                            row="2"
+                            class="btn btn-primary btn-padded m-y-20"
+                            text="Add a Station"
+                            @tap="goToAddStation"
+                        ></Button>
                     </GridLayout>
 
                     <GridLayout
@@ -173,6 +188,11 @@ export default {
             }, 500);
             this.unsubscribe();
             this.$navigateTo(routes.home);
+        },
+
+        goToAddStation() {
+            this.unsubscribe();
+            this.$navigateTo(routes.assembleStation);
         },
 
         getDeployStatus(station) {
@@ -427,6 +447,16 @@ export default {
 }
 .stations-list {
     font-size: 16;
+}
+.dark {
+    color: $fk-primary-black;
+}
+.instruction {
+    color: $fk-primary-black;
+    margin-left: 25;
+    margin-right: 25;
+    margin-bottom: 20;
+    line-height: 4;
 }
 
 .dev-link {
