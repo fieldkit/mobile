@@ -227,7 +227,11 @@ export default class StationMonitor extends Observable {
             station.deployStartTime = deployStartTime;
             this.dbInterface.setStationDeployStartTime(station);
         }
-        station.name = result.status.identity.device;
+        const newName = result.status.identity.device;
+        if (newName != station.name) {
+            station.name = result.status.identity.device;
+            this.dbInterface.setStationName(station);
+        }
 
 		// I'd like to move this state manipulation code into objects
 		// that have a narrower set of dependencies so that we can do
@@ -500,9 +504,11 @@ export default class StationMonitor extends Observable {
         }
         this.stations[deviceId].connected = true;
         this.stations[deviceId].lastSeen = new Date();
-        // prefer statusResult name over database name, unless undefined
-        if (statusResult.status.identity.device) {
+        // prefer hardware name over database name, unless undefined or same
+        if (statusResult.status.identity.device &&
+            statusResult.status.identity.device != this.stations[deviceId].name) {
             this.stations[deviceId].name = statusResult.status.identity.device;
+            this.dbInterface.setStationName(this.stations[deviceId]);
         }
         // prefer discovered url over database url
         this.stations[deviceId].url = address;
