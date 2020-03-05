@@ -138,7 +138,13 @@
 
             <!-- intro screen -->
             <!-- needs to be "on top of" assembly steps section -->
-            <StackLayout rowSpan="3" v-if="step == 0">
+            <FlexboxLayout
+                rowSpan="3"
+                v-if="step == 0"
+                flexDirection="column"
+                justifyContent="center"
+                class=" m-b-10"
+            >
                 <Image
                     class="logo"
                     src="~/images/fieldkit-logo-blue.png"
@@ -169,7 +175,7 @@
                     @tap="skip"
                     textWrap="true"
                 />
-            </StackLayout>
+            </FlexboxLayout>
             <!-- end intro screen -->
         </GridLayout>
     </Page>
