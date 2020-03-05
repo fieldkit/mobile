@@ -198,7 +198,12 @@ export default {
     methods: {
         onPageLoaded() {
             if (this.stepParam) {
-                this.step = this.stepParam == "last" ? this.lastStep - 2 : this.stepParam;
+                this.step =
+                    this.stepParam == "last"
+                        ? this.lastStep - 2
+                        : this.stepParam == "first"
+                        ? 0
+                        : this.stepParam;
                 this.goNext();
             }
             if (!this.animateFrameTimer) {
