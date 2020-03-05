@@ -152,6 +152,7 @@
 import routes from "../../routes";
 import { _T } from "../../utilities"
 import Services from "../../services/services";
+import AppSettings from "../../wrappers/app-settings";
 import ConnectStationError from "./ConnectStationError";
 
 const dbInterface = Services.Database()
@@ -185,6 +186,8 @@ export default {
                     });
             }
             this.loadingTimer = setInterval(this.showSpinner, 1000);
+
+            this._appSettings = new AppSettings();
 
             if (this.stationParam) {
                 this.station = this.stationParam;
@@ -243,6 +246,7 @@ export default {
                 return !m.calibratedLabel || m.calibratedLabel == "Uncalibrated";
             });
             if (toCalibrate.length == 0) {
+                this.recordCompletion();
                 this.step = steps.endCalibration;
             } else {
                 this.step = steps[this.stepParam];
@@ -267,6 +271,10 @@ export default {
                     onboarding: true
                 }
             });
+        },
+
+        recordCompletion() {
+            this._appSettings.setString("completedSetup", "true");
         },
 
         updateModules(modules) {

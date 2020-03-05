@@ -12,6 +12,7 @@ import Config from "./config";
 import * as traceModule from "tns-core-modules/trace";
 
 import Services from "./services/services";
+import AppSettings from "./wrappers/app-settings";
 
 import { initializeLogging } from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
@@ -91,12 +92,13 @@ if (Config.vue.verbose) {
 
 console.log('config', Config);
 
+const appSettings = new AppSettings();
 new Vue({
     render: h =>
         h("frame", [
             h(
                 Services.PortalInterface().isLoggedIn()
-                    ? routes.assembleStation
+                    ? (appSettings.getString("completedSetup") ? routes.stations : routes.assembleStation)
                     : routes.login
             )
         ])
