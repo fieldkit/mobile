@@ -1,37 +1,35 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout :rows="step.hasHeading ? '75,*,140' : '*,140'">
+        <GridLayout :rows="step.hasBackButton ? '75,*,140' : '*,140'">
             <!-- header section -->
             <GridLayout
                 row="0"
                 rows="auto"
-                columns="15*,70*,15*"
+                columns="*"
                 class="m-y-20"
-                v-if="step.hasHeading"
+                v-if="step.hasBackButton"
             >
                 <StackLayout
                     col="0"
-                    class="round-bkgd"
+                    class="round-bkgd m-l-10"
                     verticalAlignment="top"
+                    horizontalAlignment="left"
                     @tap="goBack"
                 >
                     <Image width="21" src="~/images/Icon_Backarrow.png" />
                 </StackLayout>
-                <StackLayout col="1" verticalAlignment="middle">
-                    <Label
-                        class="title text-center"
-                        :text="step.title"
-                        textWrap="true"
-                    ></Label>
-                </StackLayout>
-                <StackLayout col="2" />
             </GridLayout>
             <!-- end header section -->
 
-            <ScrollView :row="step.hasHeading ? 1 : 0 ">
+            <ScrollView :row="step.hasBackButton ? 1 : 0 ">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <!-- connection steps -->
-                    <StackLayout row="0" v-if="step.hasHeading">
+                    <StackLayout row="0" v-if="step.regularFormat">
+                        <Label
+                            class="title text-center m-b-20"
+                            :text="step.title"
+                            textWrap="true"
+                        ></Label>
                         <Label
                             v-for="instruction in step.instructions"
                             :key="instruction"
@@ -52,7 +50,7 @@
                     <!-- end connection steps section -->
 
                     <!-- select wifi settings -->
-                    <StackLayout row="0" v-if="!step.hasHeading" verticalAlignment="middle">
+                    <StackLayout row="0" v-if="!step.regularFormat" verticalAlignment="middle">
                         <GridLayout rows="*" columns="*">
                             <StackLayout row="0" verticalAlignment="middle">
                                 <Label
@@ -113,7 +111,7 @@
             </ScrollView>
 
             <!-- sticky next button -->
-            <StackLayout :row="step.hasHeading ? 2 : 1" verticalAlignment="bottom" class="m-x-10">
+            <StackLayout :row="step.hasBackButton ? 2 : 1" verticalAlignment="bottom" class="m-x-10">
                 <Button
                     class="btn btn-primary btn-padded m-y-10"
                     :text="step.button"
@@ -335,7 +333,8 @@ const steps = {
             name: "intro",
             prev: null,
             next: "connect",
-            hasHeading: true,
+            hasBackButton: true,
+            regularFormat: true,
             title: "FieldKit Station WiFi",
             instructions:
                 [
@@ -351,7 +350,8 @@ const steps = {
             name: "connect",
             prev: "intro",
             next: "testConnection",
-            hasHeading: true,
+            hasBackButton: true,
+            regularFormat: true,
             title: "Connect your FieldKit Station",
             instructions:
                 [
@@ -366,7 +366,8 @@ const steps = {
             name: "selectSettings",
             prev: "selectStation",
             next: "rename",
-            hasHeading: false,
+            hasBackButton: false,
+            regularFormat: false,
             title: "Choose WiFi Settings",
             instructions: ["Choose how you would like to sync your data"],
             button: "Next",
@@ -399,7 +400,8 @@ const steps = {
             name: "reconnect",
             prev: "rename",
             next: "testNewConnection",
-            hasHeading: true,
+            hasBackButton: true,
+            regularFormat: true,
             title: "Reconnect to your FieldKit Station",
             instructions:
                 [
