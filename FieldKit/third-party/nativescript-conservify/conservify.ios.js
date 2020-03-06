@@ -133,6 +133,7 @@ var DownloadListener = (function (_super) {
     };
     DownloadListener.prototype.initWithTasks = function (tasks, logger) {
         this.tasks = tasks;
+        this.logger = logger;
         return this;
     };
     DownloadListener.prototype.onProgressWithTaskIdHeadersBytesTotal = function (taskId, headers, bytes, total) {
