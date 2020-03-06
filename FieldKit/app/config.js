@@ -9,7 +9,8 @@ function get_blank_developer_config() {
             UploadManager: false,
             CalibrationService: true,
             DiscoverStation: true,
-            NativeScriptConservify: true
+            NativeScriptConservify: true,
+            StationFirmware: true
         },
         developer: {
             machine: null,

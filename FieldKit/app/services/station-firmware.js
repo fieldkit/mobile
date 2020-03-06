@@ -1,5 +1,8 @@
 import _ from 'lodash';
+import Config from "../config";
 import { serializePromiseChain } from '../utilities';
+
+const log = Config.logger("StationFirmware");
 
 function transformProgress(callback, fn) {
 	if (_.isFunction(callback)) {
@@ -21,19 +24,19 @@ export default class StationUpgrade {
 	downloadFirmware(progressCallback, force) {
 		return this.services.PortalInterface().listFirmware("fk-core")
 			.then(firmware => {
-				console.log("firmware", firmware)
+				log.info("firmware", firmware)
 				return firmware.firmwares.map(f => {
 					const local = this.services.FileSystem().getFolder("firmware").getFile("fk-bundled-fkb-" + f.id + ".bin");
-					console.log("local", local)
+					log.info("local", local)
 					return _.extend(f, {
 						path: local.path
 					});
 				})
 			})
 			.then(firmwares => {
-				console.log("firmwares", firmwares);
+				log.info("firmwares", firmwares);
 				if (firmwares.length == 0) {
-					console.log("no firmware")
+					log.info("no firmware")
 					return;
 				}
 
@@ -42,7 +45,7 @@ export default class StationUpgrade {
 				}).then(() => {
 					const local = this.services.FileSystem().getFile(firmwares[0].path);
 					if (!local.exists() || local.size == 0 || force === true) {
-						console.log("downloading", firmwares[0]);
+						log.info("downloading", firmwares[0]);
 
 						const downloadProgress = transformProgress(progressCallback, p => p);
 
@@ -50,14 +53,14 @@ export default class StationUpgrade {
 							return firmwares[0];
 						});
 					}
-					console.log("already have", firmwares[0]);
+					log.info("already have", firmwares[0]);
 					return firmwares[0];
 				});
 			});
 	}
 
 	upgradeStation(url, progressCallback) {
-		console.log("upgrade", url);
+		log.info("upgrade", url);
 
 		return this.haveFirmware().then(yes => {
 			if (!yes) {
@@ -65,7 +68,7 @@ export default class StationUpgrade {
 			}
 			return this.services.StationMonitor().getKnownStations().then(knownStations => {
 				return this.services.Database().getLatestFirmware().then(firmware => {
-					console.log("firmware", firmware);
+					log.info("firmware", firmware);
 
 					const uploadProgress = transformProgress(progressCallback, p => p);
 
