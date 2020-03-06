@@ -1,3 +1,5 @@
+import Config from "../config";
+
 class DiscoveryEvents {
 	constructor() {
 		this.listeners = [];
@@ -116,8 +118,9 @@ export class Services {
 
 	Conservify() {
         if (!this.conservify) {
+			const logger = Config.logger("NativeScriptConservify").info;
             const Conservify = require("../wrappers/networking").default;
-            this.conservify = new Conservify(this.DiscoveryEvents());
+            this.conservify = new Conservify(this.DiscoveryEvents(), logger);
         }
         return this.conservify;
 	}

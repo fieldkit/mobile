@@ -2,14 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var conservify_common_1 = require("./conservify.common");
 var application_1 = require("tns-core-modules/application");
-var Config = require("../../app/config");
-var isLogging = Config.default.logging["NativeScriptConservify"];
-var debug = (function () {
-    if (isLogging) {
-        return console.log;
-    }
-    return function () { };
-})();
 function toJsHeaders(headers) {
     var jsHeaders = {};
     var iter = headers.entrySet().iterator();
@@ -22,8 +14,9 @@ function toJsHeaders(headers) {
 }
 var Conservify = (function (_super) {
     __extends(Conservify, _super);
-    function Conservify(discoveryEvents) {
+    function Conservify(discoveryEvents, logger) {
         var _this = _super.call(this) || this;
+        _this.logger = logger || console.log;
         _this.active = {};
         _this.networkStatus = null;
         _this.started = null;
@@ -32,7 +25,7 @@ var Conservify = (function (_super) {
     }
     Conservify.prototype.start = function (serviceType) {
         var _this = this;
-        debug("initialize");
+        this.logger("initialize");
         var owner = this;
         var active = this.active;
         this.networkingListener = new org.conservify.networking.NetworkingListener({
@@ -43,7 +36,7 @@ var Conservify = (function (_super) {
                 owner.started.reject();
             },
             onFoundService: function (service) {
-                debug("onFoundService", service.getName(), service.getType(), service.getAddress(), service.getPort());
+                owner.logger("onFoundService", service.getName(), service.getType(), service.getAddress(), service.getPort());
                 owner.discoveryEvents.onFoundService({
                     name: service.getName(),
                     type: service.getType(),
@@ -52,7 +45,7 @@ var Conservify = (function (_super) {
                 });
             },
             onLostService: function (service) {
-                debug("onLostService", service.getName(), service.getType());
+                owner.logger("onLostService", service.getName(), service.getType());
                 owner.discoveryEvents.onLostService({
                     name: service.getName(),
                     type: service.getType(),
@@ -95,13 +88,13 @@ var Conservify = (function (_super) {
                     owner.networkStatus = null;
                 }
                 else {
-                    debug("onNetworkStatus: no promise!");
+                    owner.logger("onNetworkStatus: no promise!");
                 }
             },
         });
         this.uploadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
-                debug("upload:onProgress", taskId, bytes, total);
+                owner.logger("upload:onProgress", taskId, bytes, total);
                 var info = active[taskId].info;
                 var progress = info.progress;
                 if (progress) {
@@ -110,7 +103,7 @@ var Conservify = (function (_super) {
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
                 var jsHeaders = toJsHeaders(headers);
-                debug("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
+                owner.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
                 var info = task.info, transfer = task.transfer;
                 function getBody() {
@@ -136,7 +129,7 @@ var Conservify = (function (_super) {
                 });
             },
             onError: function (taskId, message) {
-                debug("upload:onError", taskId, message);
+                owner.logger("upload:onError", taskId, message);
                 var task = active[taskId];
                 var info = task.info;
                 delete active[taskId];
@@ -148,7 +141,7 @@ var Conservify = (function (_super) {
         });
         this.downloadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
-                debug("download:onProgress", taskId, bytes, total);
+                owner.logger("download:onProgress", taskId, bytes, total);
                 var info = active[taskId].info;
                 var progress = info.progress;
                 if (progress) {
@@ -157,7 +150,7 @@ var Conservify = (function (_super) {
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
                 var jsHeaders = toJsHeaders(headers);
-                debug("download:onComplete", taskId, jsHeaders, contentType, statusCode);
+                owner.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
                 var info = task.info, transfer = task.transfer;
                 function getBody() {
@@ -183,7 +176,7 @@ var Conservify = (function (_super) {
                 });
             },
             onError: function (taskId, message) {
-                debug("download:onError", taskId, message);
+                owner.logger("download:onError", taskId, message);
                 var task = active[taskId];
                 var info = task.info;
                 delete active[taskId];
@@ -195,13 +188,13 @@ var Conservify = (function (_super) {
         });
         this.dataListener = new org.conservify.data.DataListener({
             onFileInfo: function (path, info) {
-                debug("fs:onFileInfo", path, info);
+                owner.logger("fs:onFileInfo", path, info);
             },
             onFileRecords: function (path, records) {
-                debug("fs:onFileRecords", path, records);
+                owner.logger("fs:onFileRecords", path, records);
             },
             onFileAnalysis: function (path, analysis) {
-                debug("fs:onFileAnalysis", path, analysis);
+                owner.logger("fs:onFileAnalysis", path, analysis);
             },
         });
         this.fileSystem = new org.conservify.data.FileSystem(application_1.android.context, this.dataListener);
@@ -212,7 +205,7 @@ var Conservify = (function (_super) {
                 reject: reject
             };
             _this.networking.getServiceDiscovery().start(serviceType);
-            debug("starting...");
+            owner.logger("starting...");
         });
     };
     Conservify.prototype.text = function (info) {

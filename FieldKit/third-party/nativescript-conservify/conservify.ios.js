@@ -10,16 +10,6 @@ var ServiceInfoProto = global.ServiceInfo;
 var WebTransferProto = global.WebTransfer;
 var WifiNetworkProto = global.WifiNetwork;
 var WifiManagerProto = global.WifiManager;
-// var debug = console.log;
-var Config = require("../../app/config");
-var isLogging = Config.default.logging["NativeScriptConservify"];
-var debug = (function () {
-    if (isLogging) {
-        return console.log;
-    }
-    return function () { };
-})();
-
 var MyNetworkingListener = (function (_super) {
     __extends(MyNetworkingListener, _super);
     function MyNetworkingListener() {
@@ -28,20 +18,20 @@ var MyNetworkingListener = (function (_super) {
     MyNetworkingListener.alloc = function () {
         return _super.new.call(this);
     };
-    MyNetworkingListener.prototype.initWithPromises = function (promises) {
+    MyNetworkingListener.prototype.initWithPromises = function (promises, logger) {
         this.promises = promises;
+        this.logger = logger;
         return this;
     };
     MyNetworkingListener.prototype.onStarted = function () {
-        debug("onStarted");
+        this.logger("onStarted");
         this.promises.getStartedPromise().resolve();
     };
     MyNetworkingListener.prototype.onDiscoveryFailed = function () {
-        debug("onDiscoveryFailed");
         this.promises.getStartedPromise().reject();
     };
     MyNetworkingListener.prototype.onFoundServiceWithService = function (service) {
-        debug("onFoundServiceWithService", service.type, service.name, service.host, service.port);
+        this.logger("onFoundServiceWithService", service.type, service.name, service.host, service.port);
         this.promises.getDiscoveryEvents().onFoundService({
             name: service.name,
             type: service.type,
@@ -50,7 +40,7 @@ var MyNetworkingListener = (function (_super) {
         });
     };
     MyNetworkingListener.prototype.onLostServiceWithService = function (service) {
-        debug("onLostServiceWithService", service.type, service.name);
+        this.logger("onLostServiceWithService", service.type, service.name);
         this.promises.getDiscoveryEvents().onLostService({
             name: service.name,
             type: service.type,
@@ -80,12 +70,13 @@ var UploadListener = (function (_super) {
     UploadListener.alloc = function () {
         return _super.new.call(this);
     };
-    UploadListener.prototype.initWithTasks = function (tasks) {
+    UploadListener.prototype.initWithTasks = function (tasks, logger) {
         this.tasks = tasks;
+        this.logger = logger;
         return this;
     };
     UploadListener.prototype.onProgressWithTaskIdHeadersBytesTotal = function (taskId, headers, bytes, total) {
-        debug("upload:onProgress", taskId, bytes, total);
+        this.logger("upload:onProgress", taskId, bytes, total);
         var info = this.tasks.getTask(taskId).info;
         var progress = info.progress;
         if (progress) {
@@ -94,9 +85,9 @@ var UploadListener = (function (_super) {
     };
     UploadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
         var jsHeaders = toJsHeaders(headers);
-        debug("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
+        this.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
-        var info = task.info;
+        var info = task.info, transfer = task.transfer;
         this.tasks.removeTask(taskId);
         function getBody() {
             if (body) {
@@ -120,7 +111,7 @@ var UploadListener = (function (_super) {
         });
     };
     UploadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
-        debug("upload:onError", taskId);
+        this.logger("upload:onError", taskId);
         var task = this.tasks.getTask(taskId);
         var info = task.info;
         this.tasks.removeTask(taskId, message);
@@ -140,12 +131,12 @@ var DownloadListener = (function (_super) {
     DownloadListener.alloc = function () {
         return _super.new.call(this);
     };
-    DownloadListener.prototype.initWithTasks = function (tasks) {
+    DownloadListener.prototype.initWithTasks = function (tasks, logger) {
         this.tasks = tasks;
         return this;
     };
     DownloadListener.prototype.onProgressWithTaskIdHeadersBytesTotal = function (taskId, headers, bytes, total) {
-        debug("download:onProgress", taskId, bytes, total);
+        this.logger("download:onProgress", taskId, bytes, total);
         var info = this.tasks.getTask(taskId).info;
         var progress = info.progress;
         if (progress) {
@@ -154,7 +145,7 @@ var DownloadListener = (function (_super) {
     };
     DownloadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
         var jsHeaders = toJsHeaders(headers);
-        debug("download:onComplete", taskId, jsHeaders, contentType, statusCode);
+        this.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
         var info = task.info, transfer = task.transfer;
         this.tasks.removeTask(taskId);
@@ -180,7 +171,7 @@ var DownloadListener = (function (_super) {
         });
     };
     DownloadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
-        debug("download:onError", taskId, message);
+        this.logger("download:onError", taskId, message);
         var task = this.tasks.getTask(taskId);
         var info = task.info;
         this.tasks.removeTask(taskId);
@@ -194,8 +185,9 @@ var DownloadListener = (function (_super) {
 }(NSObject));
 var Conservify = (function (_super) {
     __extends(Conservify, _super);
-    function Conservify(discoveryEvents) {
+    function Conservify(discoveryEvents, logger) {
         var _this = _super.call(this) || this;
+        _this.logger = logger || console.log;
         _this.active = {};
         _this.scan = null;
         _this.started = null;
@@ -210,18 +202,18 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.start = function (serviceType) {
         var _this = this;
-        this.networkingListener = MyNetworkingListener.alloc().initWithPromises(this);
-        this.uploadListener = UploadListener.alloc().initWithTasks(this);
-        this.downloadListener = DownloadListener.alloc().initWithTasks(this);
+        this.networkingListener = MyNetworkingListener.alloc().initWithPromises(this, this.logger);
+        this.uploadListener = UploadListener.alloc().initWithTasks(this, this.logger);
+        this.downloadListener = DownloadListener.alloc().initWithTasks(this, this.logger);
         this.networking = Networking.alloc().initWithNetworkingListenerUploadListenerDownloadListener(this.networkingListener, this.uploadListener, this.downloadListener);
         return new Promise(function (resolve, reject) {
-            debug("initialize, ok");
+            _this.logger("initialize, ok");
             _this.started = {
                 resolve: resolve,
                 reject: reject
             };
             _this.networking.serviceDiscovery.startWithServiceType(serviceType);
-            debug("starting...");
+            _this.logger("starting...");
         });
     };
     Conservify.prototype.json = function (info) {
