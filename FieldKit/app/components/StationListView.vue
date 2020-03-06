@@ -408,7 +408,7 @@ export default {
         showDev() {
             dialogs
                 .confirm({
-                    title: "Do you want to view developer options?",
+                    title: "Do you want to view development options?",
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel")
                 })

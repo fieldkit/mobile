@@ -1,62 +1,71 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <StackLayout>
-            <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
-            <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
-            <StackLayout class="spacer m-t-30"></StackLayout>
-            <StackLayout class="m-x-20 m-b-20">
-                <Label
-                    class="m-y-10"
-                    textWrap="true"
-                    :text="'The current environment is: ' + environmentLabels[currentEnv]"
-                />
-                <GridLayout rows="auto" columns="200" horizontalAlignment="center">
-                    <DropDown
-                        row="0"
-                        col="0"
-                        class="p-l-5 p-b-2 size-18 drop-down"
-                        :items="environmentLabels"
-                        :selectedIndex="currentEnv"
-                        id="env-drop-down"
-                        @opened="onOpened"
-                        @selectedIndexChanged="onDropDownSelection"
-                    ></DropDown>
-                    <Image
-                        row="0"
-                        col="0"
-                        width="15"
-                        class="m-r-5"
-                        horizontalAlignment="right"
-                        verticalAlignment="middle"
-                        src="~/images/Icon_Cheveron_Down.png"
-                        @tap="openDropDown"
+        <Scrollview>
+            <FlexboxLayout flexDirection="column" class="p-t-10">
+                <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
+                <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
+                <StackLayout class="spacer m-t-30"></StackLayout>
+                <StackLayout class="m-x-20 m-b-20">
+                    <Label
+                        class="m-y-10"
+                        textWrap="true"
+                        :text="'The current environment is: ' + environmentLabels[currentEnv]"
                     />
-                </GridLayout>
-            </StackLayout>
-            <Button class="btn btn-primary btn-padded" text="Save Diagnostics" @tap="saveDiagnostics"></Button>
-            <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
-            <Button class="btn btn-primary btn-padded" text="Copy Logs" @tap="copyLogs"></Button>
-            <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
-            <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
-			<!-- <Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button> -->
-        </StackLayout>
+                    <GridLayout rows="auto" columns="200" horizontalAlignment="center">
+                        <DropDown
+                            row="0"
+                            col="0"
+                            class="p-l-5 p-b-2 size-18 drop-down"
+                            :items="environmentLabels"
+                            :selectedIndex="currentEnv"
+                            id="env-drop-down"
+                            @opened="onOpened"
+                            @selectedIndexChanged="onDropDownSelection"
+                        ></DropDown>
+                        <Image
+                            row="0"
+                            col="0"
+                            width="15"
+                            class="m-r-5"
+                            horizontalAlignment="right"
+                            verticalAlignment="middle"
+                            src="~/images/Icon_Cheveron_Down.png"
+                            @tap="openDropDown"
+                        />
+                    </GridLayout>
+                </StackLayout>
+                <Button class="btn btn-primary btn-padded" text="Reset Calibration" @tap="resetCalibration"></Button>
+                <Button class="btn btn-primary btn-padded" text="Reset Onboarding" @tap="resetOnboarding"></Button>
+                <Button class="btn btn-primary btn-padded" text="Save Diagnostics" @tap="saveDiagnostics"></Button>
+                <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
+                <Button class="btn btn-primary btn-padded" text="Copy Logs" @tap="copyLogs"></Button>
+                <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
+                <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
+                <!-- <Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button> -->
+            </FlexboxLayout>
+        </Scrollview>
     </Page>
 </template>
 
 <script>
+import * as dialogs from "tns-core-modules/ui/dialogs";
 import { knownFolders } from "tns-core-modules/file-system";
 import { BarcodeScanner } from "nativescript-barcodescanner";
 import { sendLogs } from "../lib/logging";
 import routes from "../routes";
 import Services from "../services/services";
+import Recalibrate from "./onboarding/Recalibrate";
+import modalStationPicker from "./ModalStationPicker";
+import AppSettings from "../wrappers/app-settings";
 
+const appSettings = new AppSettings();
 const dbInterface = Services.Database();
 const stateManager = Services.StateManager();
 
 export default {
     data() {
         return {
-            message: _L("authenticated"),
+            message: "Development Options",
             loggedIn: this.$portalInterface.isLoggedIn(),
             currentEnv: 0,
             environments: [
@@ -70,14 +79,18 @@ export default {
                 }
             ],
             environmentLabels: [],
+            stations: []
         };
     },
     components: {
-        BarcodeScanner
+        BarcodeScanner,
+        Recalibrate
     },
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
+
+            this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
 
             dbInterface.getConfig().then(result => {
                 this.config = result[0];
@@ -96,6 +109,17 @@ export default {
                     return env.label;
                 });
             });
+        },
+        updateStations(data) {
+            switch (data.propertyName.toString()) {
+                case this.$stationMonitor.StationsUpdatedProperty: {
+                    this.stations = data.value;
+                    break;
+                }
+                case this.$stationMonitor.StationRefreshedProperty: {
+                    break;
+                }
+            }
         },
         viewStations() {
             this.$navigateTo(routes.stations);
@@ -124,50 +148,89 @@ export default {
                 stateManager.refreshIngestionUri();
             });
         },
+        resetCalibration() {
+            if (this.stations.length == 0) {
+                alert({
+                    title: "Reset Calibration",
+                    message: "No stations found",
+                    okButtonText: "OK"
+                });
+            } else {
+                const options = {
+                    props: {
+                        stations: this.stations
+                    },
+                    fullscreen: true
+                };
+                this.$showModal(modalStationPicker, options).then(station => {
+                    this.$navigateTo(Recalibrate, {
+                        props: {
+                            stepParam: "startCalibration",
+                            stationParam: station
+                        }
+                    });
+                });
+            }
+        },
+        resetOnboarding() {
+            appSettings.remove("completedSetup");
+            dialogs
+                .confirm({
+                    title: "Reset complete! Would you like to go to Onboarding?",
+                    okButtonText: _L("yes"),
+                    cancelButtonText: "No"
+                })
+                .then(result => {
+                    if (result) {
+                        // navigate to onboarding
+                        this.$navigateTo(routes.assembleStation);
+                    }
+                });
+        },
         copyLogs() {
             sendLogs();
-		},
-		saveDiagnostics() {
-			Services.Diagnostics().save().then(res => {
-				alert({
-					title: "Diagnostics",
-					message: "Saved!",
-					okButtonText: "OK"
-				});
-			}, e => {
-				console.log("error", e);
-				alert({
-					title: "Diagnostics",
-					message: "Save Failed:\n" + e,
-					okButtonText: "OK"
-				});
-			});
-		},
-		uploadDiagnostics() {
-			Services.Diagnostics().upload().then(res => {
-				alert({
-					title: "Diagnostics",
-					message: "Uploaded! Thanks! Reference:\n" + res.reference,
-					okButtonText: "OK"
-				});
-			}, e => {
-				console.log("error", e);
-				alert({
-					title: "Diagnostics",
-					message: "Upload Failed:\n" + e,
-					okButtonText: "OK"
-				});
-			});
-		},
+        },
+        saveDiagnostics() {
+            Services.Diagnostics().save().then(res => {
+                alert({
+                    title: "Diagnostics",
+                    message: "Saved!",
+                    okButtonText: "OK"
+                });
+            }, e => {
+                console.log("error", e);
+                alert({
+                    title: "Diagnostics",
+                    message: "Save Failed:\n" + e,
+                    okButtonText: "OK"
+                });
+            });
+        },
+        uploadDiagnostics() {
+            Services.Diagnostics().upload().then(res => {
+                alert({
+                    title: "Diagnostics",
+                    message: "Uploaded! Thanks! Reference:\n" + res.reference,
+                    okButtonText: "OK"
+                });
+            }, e => {
+                console.log("error", e);
+                alert({
+                    title: "Diagnostics",
+                    message: "Upload Failed:\n" + e,
+                    okButtonText: "OK"
+                });
+            });
+        },
         deleteDB() {
             Services.CreateDb().initialize(true).then(result => {
-				this.$stationMonitor.clearStations();
+                this.$stationMonitor.clearStations();
 
-				alert({
-					title: "Developer",
-					message: "Database Deleted",
-					okButtonText: "OK"
-				});
+                alert({
+                    title: "Developer",
+                    message: "Database Deleted",
+                    okButtonText: "OK"
+                });
             });
         },
         deleteFiles() {
@@ -175,35 +238,35 @@ export default {
                   .documents()
                   .getFolder("firmware");
 
-			return firmwareFolder.remove().then(() => {
-				const dataFolder = knownFolders
-					  .currentApp()
-					  .getFolder("FieldKitData");
+            return firmwareFolder.remove().then(() => {
+                const dataFolder = knownFolders
+                      .currentApp()
+                      .getFolder("FieldKitData");
 
-				return dataFolder
-					.remove()
-					.then(() => {
-						console.log("Data folder successfully deleted");
+                return dataFolder
+                    .remove()
+                    .then(() => {
+                        console.log("Data folder successfully deleted");
 
-						alert({
-							title: "Developer",
-							message: "Files removed!",
-							okButtonText: "OK"
-						});
-					})
-					.catch(err => {
-						console.log("Error removing data folder", err.stack);
+                        alert({
+                            title: "Developer",
+                            message: "Files removed!",
+                            okButtonText: "OK"
+                        });
+                    })
+                    .catch(err => {
+                        console.log("Error removing data folder", err.stack);
 
-						alert({
-							title: "Developer",
-							message: "Error removing files!",
-							okButtonText: "OK"
-						});
-					});
-			});
-		},
-		scan(front) {
-			new BarcodeScanner().scan({
+                        alert({
+                            title: "Developer",
+                            message: "Error removing files!",
+                            okButtonText: "OK"
+                        });
+                    });
+            });
+        },
+        scan(front) {
+            new BarcodeScanner().scan({
                 cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
                 cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
                 showFlipCameraButton: true,   // default false
