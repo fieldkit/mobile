@@ -68,6 +68,7 @@
 </template>
 
 <script>
+import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../routes";
 import { getLastSeen, _T } from "../utilities"
 import Services from "../services/services"
@@ -87,7 +88,28 @@ export default {
     props: ["station"],
     methods: {
         goToCalibration(module) {
-            if (module.calibrated == "done" || module.calibrated == "NA") {
+            if (module.calibrated == "done") {
+                dialogs
+                    .confirm({
+                        title: "Would you like to recalibrate " + this.getModuleName(module) + "?",
+                        okButtonText: _L("yes"),
+                        cancelButtonText: _L("cancel")
+                    })
+                    .then(result => {
+                        if (result) {
+                            // navigate to recalibration
+                            this.$navigateTo(routes.calibration, {
+                                props: {
+                                    station: this.station,
+                                    calibrationType: module.calibrateSensor,
+                                    recalibrate: module.position
+                                }
+                            });
+                        }
+                    });
+                return
+            }
+            if (module.calibrated == "NA") {
                 return
             }
 

@@ -101,6 +101,19 @@
             </StackLayout>
             <!-- end sticky next button -->
 
+            <!-- loading animation -->
+            <GridLayout
+                row="1"
+                rowSpan="2"
+                rows="auto"
+                columns="*"
+                v-if="loading"
+                class="text-center loading-container"
+            >
+                <StackLayout id="loading-circle-blue"></StackLayout>
+                <StackLayout id="loading-circle-white"></StackLayout>
+            </GridLayout>
+
             <!-- success screen -->
             <StackLayout
                 rowSpan="3"
@@ -181,7 +194,7 @@ const calibrationService = Services.CalibrationService();
 const dbInterface = Services.Database()
 
 export default {
-    props: ["calibrationType", "station", "onboarding"],
+    props: ["calibrationType", "station", "recalibrate", "onboarding"],
     data() {
         return {
             step: -1,
@@ -200,7 +213,8 @@ export default {
             elapsedTime: "--:--",
             elapsedTimeLabel: "min sec",
             success: false,
-            failure: false
+            failure: false,
+            loading: true
         }
     },
     components: {
@@ -210,13 +224,19 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object
+            this.loadingWhite = this.page.getViewById("loading-circle-white");
+            this.loading = false; // after loadingWhite defined
 
+            this.currentCalibration = calibrations[this.calibrationType];
             if (this.station) {
                 this.currentStation = this.station;
                 this.completeSetup();
             }
-            this.currentCalibration = calibrations[this.calibrationType];
-            if (this.currentCalibration) {
+            if (this.recalibrate && this.currentStation) {
+                this.loading = true;
+                this.loadingTimer = setInterval(this.showLoadingAnimation, 1000);
+                this.clearCalibration().then(this.goNext);
+            } else if (this.currentCalibration) {
                 this.goNext()
             } else {
                 // handle no calibration type and/or steps
@@ -225,7 +245,10 @@ export default {
 
         onUnloaded() {
             if (this.timerInterval) {
-                clearInterval(this.timerInterval)
+                clearInterval(this.timerInterval);
+            }
+            if (this.loadingTimer) {
+                clearInterval(this.loadingTimer);
             }
         },
 
@@ -318,6 +341,15 @@ export default {
                         break;
                 }
             }
+            this.loading = false;
+            if (this.loadingTimer) {
+                clearInterval(this.loadingTimer);
+            }
+        },
+
+        clearCalibration() {
+            return calibrationService
+                .clearCalibration(this.currentStation.url + "/module/" + this.recalibrate);
         },
 
         performPhCalibration(address, data) {
@@ -514,6 +546,17 @@ export default {
         skip() {
             this.$navigateTo(routes.stations)
         },
+
+        showLoadingAnimation() {
+            this.loadingWhite
+                .animate({
+                    rotate: 360,
+                    duration: 975
+                })
+                .then(() => {
+                    this.loadingWhite.rotate = 0;
+                });
+        }
     },
 }
 
@@ -624,6 +667,36 @@ const calibrations = {
 @import '../app-variables';
 // End custom common variables
 // Custom styles
+.loading-container {
+    width: 100%;
+    height: 100%;
+    margin-top: 100;
+    background-color: white;
+}
+#loading-circle-blue,
+#loading-circle-white {
+    width: 90;
+    height: 90;
+    background: $fk-gray-white;
+    border-width: 2;
+    border-radius: 60%;
+}
+#loading-circle-white {
+    border-color: $fk-gray-white;
+    clip-path: circle(100% at 50% 0);
+}
+#loading-circle-blue {
+    border-color: $fk-secondary-blue;
+}
+.bordered-container {
+    border-radius: 4;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+}
+.blue {
+    color: $fk-primary-blue;
+}
+
 .page {
     color: $fk-primary-black;
 }
