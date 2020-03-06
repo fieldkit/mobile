@@ -10,7 +10,16 @@ var ServiceInfoProto = global.ServiceInfo;
 var WebTransferProto = global.WebTransfer;
 var WifiNetworkProto = global.WifiNetwork;
 var WifiManagerProto = global.WifiManager;
-var debug = console.log;
+// var debug = console.log;
+var Config = require("../../app/config");
+var isLogging = Config.default.logging["NativeScriptConservify"];
+var debug = (function () {
+    if (isLogging) {
+        return console.log;
+    }
+    return function () { };
+})();
+
 var MyNetworkingListener = (function (_super) {
     __extends(MyNetworkingListener, _super);
     function MyNetworkingListener() {
