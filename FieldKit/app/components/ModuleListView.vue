@@ -82,7 +82,8 @@ export default {
         return {
             open: [],
             modules: [],
-            pending: {}
+            pending: {},
+            statusChecked: {}
         }
     },
     props: ["station"],
@@ -142,6 +143,7 @@ export default {
                 m.position
                 && this.station.url
                 && !this.pending[m.position]
+                && !this.statusChecked[m.position]
                 && sensorsThatCalibrate.indexOf(s.name) > -1
             ) {
                 m.calibrateSensor = s.name;
@@ -175,6 +177,7 @@ export default {
             }
             module.calibrated = total > 0 ? "done" : "uncalibrated";
             this.pending[module.position] = false;
+            this.statusChecked[module.position] = true;
         },
 
         updateReadings(data) {
