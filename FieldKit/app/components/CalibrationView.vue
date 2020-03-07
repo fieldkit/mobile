@@ -235,7 +235,7 @@ export default {
             if (this.recalibrate && this.currentStation) {
                 this.loading = true;
                 this.loadingTimer = setInterval(this.showLoadingAnimation, 1000);
-                this.clearCalibration().then(this.goNext);
+                this.clearCalibration(this.recalibrate).then(this.goNext);
             } else if (this.currentCalibration) {
                 this.goNext()
             } else {
@@ -347,9 +347,9 @@ export default {
             }
         },
 
-        clearCalibration() {
+        clearCalibration(bay) {
             return calibrationService
-                .clearCalibration(this.currentStation.url + "/module/" + this.recalibrate);
+                .clearCalibration(this.currentStation.url + "/module/" + bay);
         },
 
         performPhCalibration(address, data) {
@@ -501,6 +501,7 @@ export default {
         },
 
         startTimer() {
+            this.clearCalibration(this.bay);
             this.started = Date.now()
             this.elapsedTime = "00:00"
             this.timerProgress = 0
