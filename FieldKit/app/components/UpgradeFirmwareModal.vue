@@ -45,6 +45,7 @@ export default {
             }
 
             if (this.downloadOnly) {
+				console.log("downloading only");
                 return Services.StationFirmware()
                     .downloadFirmware(updateProgress, true)
                     .then(() => {
@@ -56,13 +57,19 @@ export default {
                     })
             }
 
+			console.log("checking for firmware");
             return Services.StationFirmware()
                 .haveFirmware()
                 .then(yes => {
+					console.log("firmware check", yes);
+
                     if (!yes) {
+						console.log("no firmware");
                         this.error = true
                         return { error: true }
                     }
+
+					console.log("upgrading firmware");
                     return Services.StationFirmware()
                         .upgradeStation(this.station.url, updateProgress)
                         .then(() => {
