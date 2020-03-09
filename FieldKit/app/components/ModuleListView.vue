@@ -102,7 +102,7 @@ export default {
                             this.$navigateTo(routes.calibration, {
                                 props: {
                                     station: this.station,
-                                    calibrationType: module.calibrateSensor,
+                                    type: module.calibrateSensor,
                                     recalibrate: module.position
                                 }
                             });
@@ -118,7 +118,7 @@ export default {
             this.$navigateTo(routes.calibration, {
                 props: {
                     station: this.station,
-                    calibrationType: module.calibrateSensor
+                    type: module.calibrateSensor
                 }
             });
         },

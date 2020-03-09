@@ -235,7 +235,7 @@ export default {
                 backstackVisible: false,
                 props: {
                     station: this.station,
-                    calibrationType: m.calibrateSensor,
+                    type: m.calibrateSensor,
                     onboarding: true
                 }
             });

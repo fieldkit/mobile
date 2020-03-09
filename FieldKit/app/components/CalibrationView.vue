@@ -209,7 +209,7 @@ const calibrationService = Services.CalibrationService();
 const dbInterface = Services.Database()
 
 export default {
-    props: ["calibrationType", "station", "recalibrate", "onboarding"],
+    props: ["type", "station", "recalibrate", "onboarding"],
     data() {
         return {
             step: -1,
@@ -222,6 +222,7 @@ export default {
             percentDone: 0,
             nextEnabled: true,
             currentStation: {},
+            calibrationType : "",
             currentCalibration: {},
             currentReading: "--",
             timerRunning: false,
@@ -243,6 +244,7 @@ export default {
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.loading = false; // after loadingWhite defined
 
+            this.calibrationType = this.type;
             this.currentCalibration = calibrations[this.calibrationType];
             if (this.station) {
                 this.currentStation = this.station;
