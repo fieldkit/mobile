@@ -4,6 +4,7 @@ function get_blank_developer_config() {
     return {
         logging: {
             SaveLogs: true,
+			EnableAll: true,
             QueryStation: false,
             DownloadManager: false,
             UploadManager: false,
@@ -68,7 +69,7 @@ function get_config() {
 const final = get_config();
 
 final.logger = name => {
-    if (final.logging[name]) {
+    if (final.logging.EnableAll || final.logging[name]) {
         return {
             info: function() {
                 const args = Array.from(arguments);
