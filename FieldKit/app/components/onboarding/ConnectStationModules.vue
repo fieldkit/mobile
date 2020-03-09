@@ -64,7 +64,7 @@
                             rows="auto"
                             columns="*"
                             class="m-t-10 m-x-20"
-                            v-for="(m, moduleIndex) in displayModules"
+                            v-for="(m, moduleIndex) in modules"
                             :key="m.id"
                         >
                             <StackLayout
@@ -166,7 +166,6 @@ export default {
             step: {},
             loading: true,
             modules: [],
-            displayModules: [],
             pending: {},
             progressImage: null,
         };
@@ -324,12 +323,6 @@ export default {
             } else if (!this.pending[m.position]) {
                 m.calibratedLabel = "No calibration needed";
                 m.calibratedImage = "~/images/Icon_Success.png";
-                const display = this.displayModules.find(dm => {
-                    return dm.id == m.id;
-                });
-                if (!display) {
-                    this.displayModules.push(m);
-                }
                 this.sensorsChecked += 1;
             }
             if (this.sensorsChecked >= this.totalSensors) {
@@ -358,12 +351,6 @@ export default {
             m.calibratedClass = total > 0 ? "gray-text" : "red-text";
             m.calibratedImage = total > 0 ? "~/images/Icon_Success.png" : "";
             this.pending[m.position] = false;
-            const display = this.displayModules.find(dm => {
-                return dm.id == m.id;
-            });
-            if (!display) {
-                this.displayModules.push(m);
-            }
             if (this.sensorsChecked >= this.totalSensors) {
                 this.endModuleCheck();
             }
