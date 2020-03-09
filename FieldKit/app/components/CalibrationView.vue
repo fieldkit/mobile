@@ -42,15 +42,30 @@
                 <Label
                     order="2"
                     v-if="currentCalibration"
-                    class="instruction-heading"
+                    :class="'instruction-heading ' + (expectedValue ? '' : 'm-b-20')"
                     :text="instructionHeading"
                     lineHeight="4"
                     textWrap="true"
                 ></Label>
-                <Label order="3" v-if="currentCalibration" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
+                <Label
+                    order="3"
+                    v-if="expectedValue"
+                    class="size-14 text-center"
+                    :text="'Expected value: ' + expectedValue"
+                    lineHeight="4"
+                    textWrap="true"
+                ></Label>
+                <Label
+                    order="4"
+                    v-if="currentCalibration"
+                    class="instruction"
+                    :text="instruction"
+                    lineHeight="4"
+                    textWrap="true"
+                ></Label>
 
-                <GridLayout order="4" rows="*" columns="*">
-                    <Image verticalAlignment="middle" order="3" class="illo" v-if="displayImage" :src="displayImage"></Image>
+                <GridLayout order="5" rows="*" columns="*">
+                    <Image verticalAlignment="middle" class="illo" v-if="displayImage" :src="displayImage"></Image>
                 </GridLayout>
             </StackLayout>
             <!-- end calibration steps section -->
@@ -201,6 +216,7 @@ export default {
             title: "Set Up",
             instruction: "",
             instructionHeading: "",
+            expectedValue: "",
             buttonText: "Next",
             displayImage: null,
             percentDone: 0,
@@ -273,6 +289,7 @@ export default {
                 this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100
                 this.displayImage = steps[this.step].image
                 this.instructionHeading = steps[this.step].heading
+                this.expectedValue = steps[this.step].expectedValue
                 this.instruction = steps[this.step].instruction
                 this.buttonText = steps[this.step].buttonText
                 // reset timer things
@@ -315,6 +332,7 @@ export default {
                 this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100
                 this.displayImage = steps[this.step].image
                 this.instructionHeading = steps[this.step].heading
+                this.expectedValue = steps[this.step].expectedValue
                 this.instruction = steps[this.step].instruction
                 this.buttonText = steps[this.step].buttonText
                 if (steps[this.step].isTimer) {
@@ -529,6 +547,7 @@ export default {
             this.title = "Set Up";
             this.instruction = "";
             this.instructionHeading = "";
+            this.expectedValue = "";
             this.buttonText = "Next";
             this.displayImage = null;
             this.percentDone = 0;
@@ -591,6 +610,7 @@ const calibrations = {
                 isTimer: true,
                 time: 120000,
                 heading: "Quick pH Calibration",
+                expectedValue: "6.86",
                 instruction: "",
                 image: null,
                 buttonText: "Calibrate",
@@ -619,6 +639,7 @@ const calibrations = {
                 isTimer: true,
                 time: 120000,
                 heading: "Dissolved Oxygen Calibration",
+                expectedValue: "0",
                 instruction: "",
                 image: null,
                 buttonText: "Calibrate",
@@ -654,6 +675,7 @@ const calibrations = {
                 isTimer: true,
                 time: 120000,
                 heading: "Conductivity Calibration",
+                expectedValue: "12,880",
                 instruction: "",
                 image: null,
                 buttonText: "Calibrate",
@@ -718,7 +740,6 @@ const calibrations = {
 }
 .instruction-heading {
     font-size: 18;
-    margin-bottom: 20;
 }
 .instruction {
     font-size: 16;
