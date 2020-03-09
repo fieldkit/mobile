@@ -159,7 +159,7 @@
                         text="Our mobile app makes it easy to set up and deploy your FieldKit station."
                         textWrap="true"
                         lineHeight="4"
-                        class="m-t-5"
+                        class="m-t-5 m-x-20"
                     />
                 </StackLayout>
                 <StackLayout class="m-x-10">
