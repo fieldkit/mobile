@@ -12,10 +12,10 @@
                     <Label
                         row="1"
                         col="1"
-                        :text="m.calibrated == 'done' ? 'Calibrated' : 'Uncalibrated'"
-                        :class="'size-14 ' + (m.calibrated == 'done' ? 'calibrated' : 'uncalibrated')"
+                        :text="m.calibratedLabel"
+                        :class="'size-14 ' + (m.calibrated == 'uncalibrated' ? 'uncalibrated' : 'calibrated')"
                         @tap="goToCalibration(m)"
-                        v-if="m.calibrated != 'NA'"
+                        v-if="m.calibratedLabel"
                     />
                     <!-- toggle sensor container -->
                     <Image
@@ -129,6 +129,7 @@ export default {
             });
             this.modules.forEach(m => {
                 m.calibrated = "NA"
+                m.calibratedLabel = "";
                 this.open.push(m.id)
                 m.sensorObjects.forEach(s => {
                     this.checkCalibrationStatus(m, s);
@@ -146,6 +147,7 @@ export default {
                 && !this.statusChecked[m.position]
                 && sensorsThatCalibrate.indexOf(s.name) > -1
             ) {
+                m.calibratedLabel = "Getting calibration status";
                 m.calibrateSensor = s.name;
                 // keep track so many requests aren't sent at once
                 this.pending[m.position] = true;
@@ -176,6 +178,7 @@ export default {
                 }
             }
             module.calibrated = total > 0 ? "done" : "uncalibrated";
+            module.calibratedLabel = total > 0 ? "Calibrated" : "Uncalibrated";
             this.pending[module.position] = false;
             this.statusChecked[module.position] = true;
         },
