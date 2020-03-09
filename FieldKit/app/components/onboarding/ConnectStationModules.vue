@@ -306,7 +306,7 @@ export default {
 
         checkCalibrationStatus(m, s) {
             if (
-                m.position
+                (m.position || m.position == 0)
                 && this.station.url
                 && !this.pending[m.position]
                 && sensorsThatCalibrate.indexOf(s.name) > -1

@@ -177,6 +177,9 @@ export default class StationMonitor extends Observable {
         const positions = {};
         result.liveReadings.forEach(lr => {
             lr.modules.forEach(m => {
+                if (!m.module.position) {
+                    m.module.position = 0;
+                }
                 positions[m.module.name] = m.module.position;
                 m.readings.forEach(r => {
                     readings[m.module.name + r.sensor.name] = r.value || 0;
@@ -285,6 +288,9 @@ export default class StationMonitor extends Observable {
                         this.dbInterface.setModuleName(hwModule);
                     }
                     // update bay number if needed
+                    if (!hwModule.position) {
+                        hwModule.position = 0;
+                    }
                     if (dbModule.position != hwModule.position) {
                         this.dbInterface.setModulePosition(hwModule);
                     }
