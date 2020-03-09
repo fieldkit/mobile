@@ -64,7 +64,36 @@
                     textWrap="true"
                 ></Label>
 
-                <GridLayout order="5" rows="*" columns="*">
+                <!-- pH calibration type choice -->
+                <StackLayout order="5" class="radio-container">
+                    <GridLayout
+                        rows="auto"
+                        columns="30,*"
+                        v-for="option in options"
+                        :key="option.value"
+                        class="option-container"
+                    >
+                        <check-box
+                            col="0"
+                            :checked="option.selected"
+                            :isEnabled="!option.selected"
+                            fillColor="#2C3E50"
+                            onCheckColor="#2C3E50"
+                            onTintColor="#2C3E50"
+                            fontSize="18"
+                            boxType="circle"
+                            @checkedChange="$event.value !== option.selected && toggleChoice(option)"
+                        />
+                        <Label
+                            col="1"
+                            class="m-t-5 m-l-5"
+                            :text="option.text"
+                        ></Label>
+                    </GridLayout>
+                </StackLayout>
+                <!-- end pH calibration type choice -->
+
+                <GridLayout order="6" rows="*" columns="*">
                     <Image verticalAlignment="middle" class="illo" v-if="displayImage" :src="displayImage"></Image>
                 </GridLayout>
             </StackLayout>
@@ -217,6 +246,7 @@ export default {
             instruction: "",
             instructionHeading: "",
             expectedValue: "",
+            options: [],
             buttonText: "Next",
             displayImage: null,
             percentDone: 0,
@@ -285,18 +315,19 @@ export default {
                 event.object.className = cn
             }, 500)
 
-            const steps = this.currentCalibration.steps
+            if (this.calibrationType == "quickCal" || this.calibrationType == "threePoint") {
+                if (this.step == 0) {
+                    this.calibrationType = "ph";
+                    this.currentCalibration = calibrations[this.calibrationType];
+                    this.step = 1;
+                }
+            }
+
+            const steps = this.currentCalibration.steps;
             if (this.step > 0) {
-                this.step -= 1
-                this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100
-                this.displayImage = steps[this.step].image
-                this.instructionHeading = steps[this.step].heading
-                this.expectedValue = steps[this.step].expectedValue
-                this.instruction = steps[this.step].instruction
-                this.buttonText = steps[this.step].buttonText
-                // reset timer things
-                this.nextEnabled = true
-                this.timerRunning = false
+                this.step -= 1;
+                this.setupStep(steps);
+                this.setupOptions();
                 if (this.timerInterval) {
                     clearInterval(this.timerInterval)
                 }
@@ -312,13 +343,13 @@ export default {
                     this.$navigateTo(ConnectStationModules, {
                         props: {
                             stepParam: "startCalibration",
-                            stationParam: this.station
+                            stationParam: this.currentStation
                         }
                     });
-                } else if (this.station && this.station.id) {
+                } else if (this.currentStation && this.currentStation.id) {
                     this.$navigateTo(routes.stationDetail, {
                         props: {
-                            stationId: this.station.id
+                            stationId: this.currentStation.id
                         }
                     });
                 } else {
@@ -328,30 +359,45 @@ export default {
         },
 
         goNext() {
-            const steps = this.currentCalibration.steps
-            if (this.step < steps.length - 1) {
-                this.step += 1
-                this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100
-                this.displayImage = steps[this.step].image
-                this.instructionHeading = steps[this.step].heading
-                this.expectedValue = steps[this.step].expectedValue
-                this.instruction = steps[this.step].instruction
-                this.buttonText = steps[this.step].buttonText
-                if (steps[this.step].isTimer) {
-                    this.nextEnabled = false
-                    this.timerRunning = true
-                    this.stopTime = steps[this.step].time
-                    this.startTimer()
+            const address = this.currentStation.url + "/module/" + this.bay;
+            const data = {
+                temp: this.currentTemp,
+            };
+
+            const steps = this.currentCalibration.steps;
+            // check to see if pH needs calibration performed,
+            // as it's not just always the last step, with three-point
+            if (this.performCal) {
+                switch (steps[this.step].performCal) {
+                    case "mid":
+                        this.performMidPhCalibration(address, data);
+                        break;
+                    case "low":
+                        this.performLowPhCalibration(address, data);
+                        break;
                 }
+                return
+            }
+
+            if (this.step < steps.length - 1) {
+                this.step += 1;
+                this.setupStep(steps);
+                if (steps[this.step].isTimer) {
+                    this.nextEnabled = false;
+                    this.timerRunning = true;
+                    this.stopTime = steps[this.step].time;
+                    this.startTimer(steps[this.step].clearCal);
+                }
+               this.setupOptions();
             } else {
                 // perform calibration
-                const address = this.currentStation.url + "/module/" + this.bay;
-                const data = {
-                    temp: this.currentTemp,
-                };
                 switch (this.calibrationType) {
-                    case "ph":
-                        this.performPhCalibration(address, data);
+                    case "quickCal":
+                        this.performQuickPhCalibration(address, data);
+                        break;
+                    case "threePoint":
+                        // the last calibration for three-point
+                        this.performHighPhCalibration(address, data);
                         break;
                     case "do":
                         this.performDoCalibration(address, data);
@@ -367,18 +413,85 @@ export default {
             }
         },
 
+        setupStep(steps) {
+            // reset timer things
+            this.nextEnabled = true;
+            this.timerRunning = false;
+            this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100;
+            this.displayImage = steps[this.step].image;
+            this.instructionHeading = steps[this.step].heading;
+            this.expectedValue = steps[this.step].expectedValue;
+            this.options = steps[this.step].options;
+            this.instruction = steps[this.step].instruction;
+            this.buttonText = steps[this.step].buttonText;
+            this.performCal = steps[this.step].performCal;
+        },
+
+        setupOptions() {
+            if (this.options) {
+                // select one by default, in case they never toggle
+                this.options.forEach(option => {
+                    if (option.selected) {
+                        this.calibrationType = option.value;
+                        this.currentCalibration = calibrations[option.value];
+                    }
+                });
+                this.step = -1;
+            }
+        },
+
         clearCalibration(bay) {
             return calibrationService
                 .clearCalibration(this.currentStation.url + "/module/" + bay);
         },
 
-        performPhCalibration(address, data) {
+        performQuickPhCalibration(address, data) {
             return calibrationService.calibrateQuickPh(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
                     return
                 }
                 this.endCalibration(body.calibration.phStatus.middle);
+            });
+        },
+
+        performMidPhCalibration(address, data) {
+            return calibrationService.calibrateMidPh(address, data).then(body => {
+                if (body.errors && body.errors.length > 0) {
+                    this.failure = true;
+                    return
+                }
+                this.performCal = false;
+                if (body.calibration.phStatus.middle > 0) {
+                    this.goNext();
+                } else {
+                    this.failure = true;
+                }
+            });
+        },
+
+        performLowPhCalibration(address, data) {
+            return calibrationService.calibrateLowPh(address, data).then(body => {
+                if (body.errors && body.errors.length > 0) {
+                    this.failure = true;
+                    return
+                }
+                this.performCal = false;
+                if (body.calibration.phStatus.low > 0) {
+                    this.goNext();
+                } else {
+                    this.failure = true;
+                }
+            });
+        },
+
+        performHighPhCalibration(address, data) {
+            return calibrationService.calibrateHighPh(address, data).then(body => {
+                if (body.errors && body.errors.length > 0) {
+                    this.failure = true;
+                    return
+                }
+                this.endCalibration(body.calibration.phStatus.high);
             });
         },
 
@@ -421,13 +534,13 @@ export default {
                         this.$navigateTo(ConnectStationModules, {
                             props: {
                                 stepParam: "startCalibration",
-                                stationParam: this.station
+                                stationParam: this.currentStation
                             }
                         });
                     } else {
                         this.$navigateTo(routes.stationDetail, {
                             props: {
-                                stationId: this.station.id
+                                stationId: this.currentStation.id
                             }
                         });
                     }
@@ -435,6 +548,18 @@ export default {
             } else {
                 this.failure = true;
             }
+        },
+
+        toggleChoice(radioOption) {
+            this.options.forEach(option => {
+                option.selected = false;
+                if (option.text == radioOption.text) {
+                    option.selected = true;
+                    this.calibrationType = radioOption.value;
+                    this.currentCalibration = calibrations[radioOption.value];
+                    this.step = -1;
+                }
+            });
         },
 
         getFromDatabase() {
@@ -520,8 +645,10 @@ export default {
             })
         },
 
-        startTimer() {
-            this.clearCalibration(this.bay);
+        startTimer(clearCal) {
+            if (clearCal) {
+                this.clearCalibration(this.bay);
+            }
             this.started = Date.now()
             this.elapsedTime = "00:00"
             this.timerProgress = 0
@@ -550,6 +677,7 @@ export default {
             this.instruction = "";
             this.instructionHeading = "";
             this.expectedValue = "";
+            this.options = [];
             this.buttonText = "Next";
             this.displayImage = null;
             this.percentDone = 0;
@@ -590,6 +718,32 @@ const calibrations = {
         icon: "~/images/Icon_WaterpH_Module.png",
         steps: [
             {
+                heading: "Choose calibration type",
+                instruction: "Would you like to perform quick calibration or three-point calibration?",
+                options: [
+                    {
+                        text: "Quick calibration",
+                        value: "quickCal",
+                        selected: true
+                    },
+                    {
+                        text: "Three-point calibration",
+                        value: "threePoint",
+                        selected: false
+                    }
+                ],
+                image: "",
+                buttonText: "Next",
+            }
+        ]
+    },
+    quickCal: {
+        key: "ph",
+        unit: "pH",
+        title: "Water pH",
+        icon: "~/images/Icon_WaterpH_Module.png",
+        steps: [
+            {
                 heading: "Quick pH Calibration",
                 instruction: "Make sure you have your quick calibration pH solution.",
                 image: "~/images/TI_11.jpg",
@@ -610,9 +764,98 @@ const calibrations = {
             },
             {
                 isTimer: true,
+                clearCal: true,
                 time: 120000,
                 heading: "Quick pH Calibration",
                 expectedValue: "6.86",
+                instruction: "",
+                image: null,
+                buttonText: "Calibrate",
+            },
+        ]
+    },
+    threePoint: {
+        key: "ph",
+        unit: "pH",
+        title: "Water pH",
+        icon: "~/images/Icon_WaterpH_Module.png",
+        steps: [
+            {
+                heading: "Three-point Calibration",
+                instruction: "Make sure you have your pH calibration fluids for pH levels 7, 4, and 10.",
+                image: "~/images/TI_11_three_bottles.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "Mid-point Calibration",
+                instruction: "Rinse probe off with de-ionized water.",
+                image: "~/images/TI_12-A.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "Mid-point Calibration",
+                instruction:
+                    "Place probe inside cup with 7.0 solution. Make sure water temperature is also inside solution.",
+                image: "~/images/TI_13-B.jpg",
+                buttonText: "Start Timer",
+            },
+            {
+                isTimer: true,
+                clearCal: true,
+                performCal: "mid",
+                time: 120000
+                ,
+                heading: "Mid-point Calibration",
+                expectedValue: "7.0",
+                instruction: "",
+                image: null,
+                buttonText: "Calibrate",
+            },
+            {
+                heading: "Low-point Calibration",
+                instruction: "Rinse probe off with de-ionized water.",
+                image: "~/images/TI_12-A.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "Low-point Calibration",
+                instruction:
+                    "Place probe inside cup with 4.0 solution. Make sure water temperature is also inside solution.",
+                image: "~/images/TI_13-B.jpg",
+                buttonText: "Start Timer",
+            },
+            {
+                isTimer: true,
+                clearCal: false,
+                performCal: "low",
+                time: 120000
+                ,
+                heading: "Low-point Calibration",
+                expectedValue: "4.0",
+                instruction: "",
+                image: null,
+                buttonText: "Calibrate",
+            },
+            {
+                heading: "High-point Calibration",
+                instruction: "Rinse probe off with de-ionized water.",
+                image: "~/images/TI_12-A.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "High-point Calibration",
+                instruction:
+                    "Place probe inside cup with 14.0 solution. Make sure water temperature is also inside solution.",
+                image: "~/images/TI_13-B.jpg",
+                buttonText: "Start Timer",
+            },
+            {
+                isTimer: true,
+                clearCal: false,
+                time: 120000
+                ,
+                heading: "High-point Calibration",
+                expectedValue: "14.0",
                 instruction: "",
                 image: null,
                 buttonText: "Calibrate",
@@ -639,6 +882,7 @@ const calibrations = {
             },
             {
                 isTimer: true,
+                clearCal: true,
                 time: 120000,
                 heading: "Dissolved Oxygen Calibration",
                 expectedValue: "0",
@@ -675,6 +919,7 @@ const calibrations = {
             },
             {
                 isTimer: true,
+                clearCal: true,
                 time: 120000,
                 heading: "Conductivity Calibration",
                 expectedValue: "12,880",
@@ -749,8 +994,16 @@ const calibrations = {
 .illo {
     margin: 20;
 }
+.radio-container {
+    font-size: 18;
+    margin-top: 20;
+    margin-left: 40;
+}
+.option-container {
+    margin-bottom: 10;
+}
 .timer-container {
-    margin-top: 120;
+    margin-top: 140;
     text-align: center;
 }
 
