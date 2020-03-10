@@ -124,7 +124,7 @@
                 </GridLayout>
                 <!-- progress circle -->
                 <StackLayout row="0">
-                    <CircularProgressBar size="200" :progress="timerProgress" />
+                    <CircularProgressBar size="200" :progress="timerProgress" class="flip" />
                 </StackLayout>
                 <!-- timer -->
                 <StackLayout row="1">
@@ -649,10 +649,10 @@ export default {
             if (clearCal) {
                 this.clearCalibration(this.bay);
             }
-            this.started = Date.now()
-            this.elapsedTime = "00:00"
-            this.timerProgress = 0
-            this.timerInterval = setInterval(this.updateTimer, 500)
+            this.started = Date.now();
+            this.elapsedTime = "01:30";
+            this.timerProgress = 0;
+            this.timerInterval = setInterval(this.updateTimer, 500);
         },
 
         updateTimer() {
@@ -662,13 +662,16 @@ export default {
                 this.nextEnabled = true;
             }
 
-            this.timerProgress = (elapsed / this.stopTime) * 100
+            this.timerProgress = (elapsed / this.stopTime) * 100;
 
-            let seconds = Math.floor((elapsed / 1000) % 60)
-            seconds = seconds < 10 ? "0" + seconds : seconds
-            let minutes = Math.floor((elapsed / (1000 * 60)) % 60)
-            minutes = minutes < 10 ? "0" + minutes : minutes
-            this.elapsedTime = minutes + ":" + seconds
+            const countdown = this.stopTime - elapsed;
+            if (countdown >= 0) {
+                let seconds = Math.floor((countdown / 1000) % 60);
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                let minutes = Math.floor((countdown / (1000 * 60)) % 60);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                this.elapsedTime = minutes + ":" + seconds;
+            }
         },
 
         startOver() {
@@ -1029,5 +1032,8 @@ const calibrations = {
     padding-bottom: 10;
     font-size: 16;
     text-align: center;
+}
+.flip {
+    transform: scale(-1, 1);
 }
 </style>
