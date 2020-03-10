@@ -248,10 +248,6 @@ const steps = {
     border-color: $fk-gray-lighter;
     border-width: 1;
 }
-.module-name {
-    font-size: 18;
-    // margins set in OS-specific CSS
-}
 .gray-text {
     color: $fk-gray-hint;
 }

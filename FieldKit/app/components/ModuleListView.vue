@@ -7,7 +7,15 @@
                     <!-- module icon -->
                     <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
                     <!-- module name -->
-                    <Label row="0" col="1" :text="getModuleName(m)" class="module-name" textWrap="true" />
+                    <Label
+                        row="0"
+                        col="1"
+                        :rowSpan="m.calibratedLabel ? '1' : '2'"
+                        :text="getModuleName(m)"
+                        verticalAlignment="middle"
+                        class="size-18"
+                        textWrap="true"
+                    />
                     <!-- calibration status -->
                     <Label
                         row="1"
@@ -129,7 +137,7 @@ export default {
             });
             this.modules.forEach(m => {
                 m.calibrated = "NA"
-                m.calibratedLabel = "";
+                m.calibratedLabel = null;
                 this.open.push(m.id)
                 m.sensorObjects.forEach(s => {
                     this.checkCalibrationStatus(m, s);
@@ -295,11 +303,6 @@ export default {
     border-radius: 4;
     border-color: $fk-gray-lighter;
     border-width: 1;
-}
-
-.module-name {
-    font-size: 18;
-    // margins set in OS-specific CSS
 }
 
 .sensor-block {

@@ -81,7 +81,15 @@
                                         :src="getModuleImage(m)"
                                     ></Image>
                                     <!-- module name -->
-                                    <Label row="0" col="1" :text="getModuleName(m)" class="module-name" textWrap="true" />
+                                    <Label
+                                        row="0"
+                                        col="1"
+                                        :rowSpan="m.calibratedLabel ? '1' : '2'"
+                                        :text="getModuleName(m)"
+                                        verticalAlignment="middle"
+                                        class="size-18"
+                                        textWrap="true"
+                                    />
                                     <!-- calibration status -->
                                     <Label
                                         row="1"
@@ -294,7 +302,7 @@ export default {
                 return m.sensorObjects.length;
             });
             this.modules.forEach(m => {
-                m.calibratedLabel = "";
+                m.calibratedLabel = null;
                 m.calibratedClass = "gray-text";
                 m.calibratedImage = "";
                 m.sensorObjects.forEach(s => {
@@ -479,10 +487,7 @@ const steps = {
     border-color: $fk-gray-lighter;
     border-width: 1;
 }
-.module-name {
-    font-size: 18;
-    // margins set in OS-specific CSS
-}
+
 .gray-text {
     color: $fk-gray-hint;
 }
