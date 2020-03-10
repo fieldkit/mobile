@@ -845,7 +845,7 @@ const calibrations = {
             {
                 heading: "High-point Calibration",
                 instruction:
-                    "Place probe inside cup with 14.0 solution. Make sure water temperature is also inside solution.",
+                    "Place probe inside cup with 10.0 solution. Make sure water temperature is also inside solution.",
                 image: "~/images/TI_13-B.jpg",
                 buttonText: "Start Timer",
             },
@@ -855,7 +855,7 @@ const calibrations = {
                 time: 120000
                 ,
                 heading: "High-point Calibration",
-                expectedValue: "14.0",
+                expectedValue: "10.0",
                 instruction: "",
                 image: null,
                 buttonText: "Calibrate",
