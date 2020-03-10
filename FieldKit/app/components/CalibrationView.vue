@@ -544,7 +544,7 @@ export default {
                             }
                         });
                     }
-                }, 4000);
+                }, 3000);
             } else {
                 this.failure = true;
             }

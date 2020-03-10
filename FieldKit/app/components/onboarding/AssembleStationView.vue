@@ -252,7 +252,7 @@ export default {
                 if (this.step == steps.length - 1) {
                     setTimeout(() => {
                         this.$navigateTo(routes.connectStation);
-                    }, 4000);
+                    }, 3000);
                 }
             }
         },
