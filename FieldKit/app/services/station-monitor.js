@@ -105,8 +105,14 @@ export default class StationMonitor extends Observable {
                 .takeReadings(station.url)
                 .then(this.updateStationReadings.bind(this, station));
         }
+        const updated = station.updated ? new Date(station.updated).getTime() : Date.now();
+        const locate = {
+            lat: station.latitude,
+            long: station.longitude,
+            time: Math.round(updated / 1000)
+        };
         return this.queryStation
-            .getStatus(station.url)
+            .getStatus(station.url, locate)
             .then(this.updateStatus.bind(this, station));
     }
 

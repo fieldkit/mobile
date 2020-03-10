@@ -38,11 +38,25 @@ export default class QueryStation {
 		this.services = services;
 	}
 
-    getStatus(address) {
-        const message = HttpQuery.create({
-            type: QueryType.values.QUERY_STATUS,
-			time: unixNow()
-        });
+    getStatus(address, locate) {
+        let message;
+        if (locate) {
+            message = HttpQuery.create({
+                type: QueryType.values.QUERY_STATUS,
+                time: unixNow(),
+                locate: {
+                    modifying: true,
+                    longitude: locate.long,
+                    latitude: locate.lat,
+                    time: locate.time
+                }
+            });
+        } else {
+            message = HttpQuery.create({
+                type: QueryType.values.QUERY_STATUS,
+                time: unixNow()
+            });
+        }
 
         return this.stationQuery(address, message).then(reply => {
             return this._fixupStatus(reply);
