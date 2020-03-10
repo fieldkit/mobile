@@ -768,7 +768,7 @@ const calibrations = {
             {
                 isTimer: true,
                 clearCal: true,
-                time: 120000,
+                time: 90000,
                 heading: "Quick pH Calibration",
                 expectedValue: "6.86",
                 instruction: "",
@@ -806,7 +806,7 @@ const calibrations = {
                 isTimer: true,
                 clearCal: true,
                 performCal: "mid",
-                time: 120000
+                time: 90000
                 ,
                 heading: "Mid-point Calibration",
                 expectedValue: "7.0",
@@ -831,7 +831,7 @@ const calibrations = {
                 isTimer: true,
                 clearCal: false,
                 performCal: "low",
-                time: 120000
+                time: 90000
                 ,
                 heading: "Low-point Calibration",
                 expectedValue: "4.0",
@@ -855,7 +855,7 @@ const calibrations = {
             {
                 isTimer: true,
                 clearCal: false,
-                time: 120000
+                time: 90000
                 ,
                 heading: "High-point Calibration",
                 expectedValue: "10.0",
@@ -886,7 +886,7 @@ const calibrations = {
             {
                 isTimer: true,
                 clearCal: true,
-                time: 120000,
+                time: 90000,
                 heading: "Dissolved Oxygen Calibration",
                 expectedValue: "0",
                 instruction: "",
@@ -923,7 +923,7 @@ const calibrations = {
             {
                 isTimer: true,
                 clearCal: true,
-                time: 120000,
+                time: 90000,
                 heading: "Conductivity Calibration",
                 expectedValue: "12,880",
                 instruction: "",
