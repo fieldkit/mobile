@@ -381,7 +381,7 @@ const steps = {
                 },
                 {
                     text: "Your WiFi Network",
-                    info: "Connect your FieldKit station directly to your own WiFi network to sync data with the FieldKit portal directly",
+                    info: "Connect your FieldKit station directly to your own WiFi network to sync data with the FieldKit portal directly. Unfortunately, only 2.4GHz WiFi is currently supported.",
                     next: "ssid",
                     selected: false
                 },

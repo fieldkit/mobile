@@ -394,7 +394,7 @@ const steps = {
             prev: "selectSettings",
             next: "password",
             title: "Your WiFi Network",
-            instructions: ["Enter the name of the WiFi network you would like to connect your FieldKit station to"],
+            instructions: ["Enter the name of the WiFi network you would like to connect your FieldKit station to.", "Unfortunately, only 2.4GHz WiFi is currently supported."],
             button: "Next",
             images: [],
             label: "",
