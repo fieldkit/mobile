@@ -1,7 +1,7 @@
 import * as utils from "tns-core-modules/utils/utils";
 import * as platform from "tns-core-modules/platform";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
-import { getLogsAsString } from '../lib/logging';
+import { copyLogs } from '../lib/logging';
 import { serializePromiseChain, getPathTimestamp } from '../utilities';
 
 function uuidv4() {
@@ -68,7 +68,7 @@ export default class Diagnostics {
 			const folder = this._getNewFolder();
 
 			return Promise.all([
-				folder.getFile("app.txt").writeText(getLogsAsString()),
+				copyLogs(folder.getFile("app.txt")),
 				this._backupDatabase(folder),
 				this._queryLogs().then(allLogs => {
 					return Promise.all(allLogs.map(row => {
@@ -84,6 +84,10 @@ export default class Diagnostics {
 
 	_queryLogs() {
 		return this.services.DiscoverStation().getConnectedStations().then(stations => {
+			if (true) {
+				return Promise.all([]);
+			}
+
 			console.log("connected", stations);
 
 			return Promise.all(Object.values(stations).map(station => {
@@ -109,10 +113,11 @@ export default class Diagnostics {
 	}
 
 	_uploadAppLogs(id) {
-		return this.services.Conservify().text({
+		const path = this._getDiagnosticsFolder().getFile("logs.txt").path;
+		return this.services.Conservify().upload({
 			method: "POST",
 			url: this.baseUrl + "/" + id + "/app.txt",
-			body: getLogsAsString(),
+			path: path,
 		});
 	}
 

@@ -1,70 +1,58 @@
 import _ from "lodash";
 import moment from "moment";
 import Promise from "bluebird";
-import protobuf from "protobufjs";
-import { setText } from "nativescript-clipboard";
+import { knownFolders } from "tns-core-modules/file-system";
 import Config from "../config";
 
 const logs = [];
-
-function flush() {
-    // console.log('flush', logs.length);
-}
-
-// NOTE This won't work yet.
-export function getLogsAsProtobufs() {
-    const encoded = _(logs)
-        .map(log => {
-            return {
-                log: {
-                    time: 0,
-                    uptime: 0,
-                    level: 0,
-                    facility: "App",
-                    message: JSON.stringify(log)
-                }
-            };
-        })
-        .map(log => {
-            return DataRecord.encodeDelimited(row, buffer).finish();
-        })
-        .value();
-
-    logs.length = 0; // Empty logs.
-
-    return encoded;
-}
-
-export function getLogsAsString() {
-    const encoded = _(logs)
-        .map(log => {
-            return _(log).join(" ");
-        })
-        .join("\n");
-
-    logs.length = 0; // Empty logs.
-
-    return encoded;
-}
-
-let originalConsole;
-
-export function sendLogs() {
-    if (Config.logging.SaveLogs === false) {
-        return;
-    }
-
-    const text = getLogsAsString();
-    setText(text).then(() => {
-        console.log("copied");
-    });
-}
+const originalConsole = console;
 
 function getPrettyTime() {
 	return moment().format();
 }
 
-export function initializeLogging() {
+function flush() {
+	const appending = _(logs).
+		  map(log => {
+			  return _(log).join(" ");
+		  }).
+		  join("\n");
+
+	logs.length = 0; // Empty logs.
+
+	return new Promise((resolve, reject) => {
+		const file = knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
+		const existing = file.readTextSync();
+		const replacing = existing ? (existing + "\n" + appending) : appending;
+
+		file.writeTextSync(replacing, (err) => {
+			if (err) {
+				reject(err)
+			}
+		});
+
+		resolve()
+	});
+}
+
+export function copyLogs(where) {
+	return new Promise((resolve, reject) => {
+		const file = knownFolders.documents().getFile("logs.txt");
+		const existing = file.readTextSync();
+
+		where.writeTextSync(existing, (err) => {
+			if (err) {
+				reject(err)
+			}
+		});
+
+		originalConsole.info("copied", existing.length, where.path)
+
+		resolve()
+	});
+}
+
+export function initializeLogging(info) {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
     if (TNS_ENV === "test") {
         return;
@@ -75,8 +63,6 @@ export function initializeLogging() {
     }
 
     console.log("saving logs");
-
-    originalConsole = console;
 
     function wrap(method) {
         const original = console[method];
@@ -111,7 +97,7 @@ export function initializeLogging() {
         wrap(methods[i]);
     }
 
-    setInterval(() => {
-        flush();
-    }, 1000);
+    setInterval(flush, 1000);
+
+	return Promise.resolve();
 }
