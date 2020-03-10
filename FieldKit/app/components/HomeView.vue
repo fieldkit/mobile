@@ -234,36 +234,30 @@ export default {
             });
         },
         deleteFiles() {
-            const firmwareFolder = knownFolders
-                  .documents()
-                  .getFolder("firmware");
+            const rootFolder = knownFolders.documents()
+            const diagnosticsFolder = rootFolder.getFolder('diagnostics')
+            const firmwareFolder = rootFolder.getFolder('firmware')
+            const dataFolder = rootFolder.getFolder('FieldKitData')
 
-            return firmwareFolder.remove().then(() => {
-                const dataFolder = knownFolders
-                      .currentApp()
-                      .getFolder("FieldKitData");
+            return Promise.all([firmwareFolder.remove(), diagnosticsFolder.remove(), dataFolder.remove()])
+                .catch(_ => {
+                    console.log('Error removing data folder', err.stack)
 
-                return dataFolder
-                    .remove()
-                    .then(() => {
-                        console.log("Data folder successfully deleted");
-
-                        alert({
-                            title: "Developer",
-                            message: "Files removed!",
-                            okButtonText: "OK"
-                        });
+                    alert({
+                        title: 'Developer',
+                        message: 'Error removing files!',
+                        okButtonText: 'OK',
                     })
-                    .catch(err => {
-                        console.log("Error removing data folder", err.stack);
+                })
+                .then(_ => {
+                    console.log('Data folder successfully deleted')
 
-                        alert({
-                            title: "Developer",
-                            message: "Error removing files!",
-                            okButtonText: "OK"
-                        });
-                    });
-            });
+                    alert({
+                        title: 'Developer',
+                        message: 'Files removed!',
+                        okButtonText: 'OK',
+                    })
+                })
         },
         scan(front) {
             new BarcodeScanner().scan({
