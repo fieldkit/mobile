@@ -19,16 +19,16 @@ function getLogsFile() {
 function flush() {
 	const appending = _(logs).
 		  map(log => {
-			  return _(log).join(" ");
+			  return _(log).join(" ") + "\n";
 		  }).
-		  join("\n");
+		  join("");
 
 	logs.length = 0; // Empty logs.
 
 	return new Promise((resolve, reject) => {
 		const file = getLogsFile();
-		const existing = file.readTextSync();
-		const replacing = existing ? (existing + "\n" + appending) : appending + "\n";
+		const existing = file.readTextSync() || "";
+		const replacing = existing + appending + "\n";
 
 		file.writeTextSync(replacing, (err) => {
 			if (err) {
