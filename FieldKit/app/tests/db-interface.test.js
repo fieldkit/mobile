@@ -149,11 +149,9 @@ describe("DatabaseInterface", () => {
             note: "One new note",
             category: "default",
             audioFile: "",
-            author: "Test User"
+            author: "Test User",
         };
-        const change = await dbInterface.insertFieldNote(
-            fieldNote
-        );
+        const change = await dbInterface.insertFieldNote(fieldNote);
         const newData = await dbInterface.getFieldNotes(1);
         const lastIndex = newData.length - 1;
         expect(newData[lastIndex].note).toEqual(fieldNote.note);
@@ -177,11 +175,9 @@ describe("DatabaseInterface", () => {
             imageName: "",
             imageLabel: "Toadstools and waterfall",
             category: "image",
-            author: "Test User"
+            author: "Test User",
         };
-        const change = await dbInterface.insertFieldMedia(
-            fieldMedia
-        );
+        const change = await dbInterface.insertFieldMedia(fieldMedia);
         const newData = await dbInterface.getFieldMedia(1);
         const lastIndex = newData.length - 1;
         expect(newData[lastIndex].imageLabel).toEqual(fieldMedia.imageLabel);
@@ -205,11 +201,9 @@ describe("DatabaseInterface", () => {
             before: "Ye Olde Name",
             after: "Shiny New Name",
             affectedField: "name",
-            author: "tester"
+            author: "tester",
         };
-        const change = await dbInterface.recordStationConfigChange(
-            configChange
-        );
+        const change = await dbInterface.recordStationConfigChange(configChange);
         const newData = await dbInterface.getStationConfigs(1);
         const lastIndex = newData.length - 1;
         expect(newData[lastIndex].before).toEqual(configChange.before);
@@ -257,7 +251,7 @@ describe("DatabaseInterface", () => {
             before: "Water Module 2",
             after: "Indian Ocean Module",
             affectedField: "name",
-            author: "tester"
+            author: "tester",
         };
         const change = await dbInterface.recordModuleConfigChange(configChange);
         const newData = await dbInterface.getModuleConfigs(1);

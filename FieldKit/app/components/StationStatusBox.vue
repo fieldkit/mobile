@@ -8,22 +8,12 @@
         <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">
             <!-- recording status -->
             <StackLayout row="0" col="0" class="m-t-10">
-                <Label
-                    class="text-center size-16"
-                    :text="
-                        station.status == 'recording'
-                            ? _L('recordingData')
-                            : _L('notRecording')
-                    "
-                ></Label>
+                <Label class="text-center size-16" :text="station.status == 'recording' ? _L('recordingData') : _L('notRecording')"></Label>
             </StackLayout>
             <!-- battery level -->
             <StackLayout row="0" col="1" class="m-t-10">
                 <FlexboxLayout class="m-r-10" justifyContent="flex-end">
-                    <Label
-                        class="m-r-5 size-12 lighter"
-                        :text="station.batteryLevel + '%'"
-                    ></Label>
+                    <Label class="m-r-5 size-12 lighter" :text="station.batteryLevel + '%'"></Label>
                     <Image width="25" :src="station.batteryImage"></Image>
                 </FlexboxLayout>
             </StackLayout>
@@ -31,26 +21,14 @@
             <GridLayout row="1" col="0" rows="auto" columns="*" class="m-t-10">
                 <StackLayout row="0" id="outer-circle" />
                 <StackLayout row="0" id="inner-circle">
-                    <Label
-                        class="size-16 bold m-b-3 rec-time rec-time-top"
-                        :text="elapsedRecTime"
-                    ></Label>
-                    <Label
-                        class="size-12 rec-time"
-                        :text="elapsedTimeLabel"
-                    ></Label>
+                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="elapsedRecTime"></Label>
+                    <Label class="size-12 rec-time" :text="elapsedTimeLabel"></Label>
                 </StackLayout>
             </GridLayout>
             <!-- connected status and available memory -->
             <StackLayout row="1" col="1">
                 <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
-                    <Image
-                        rowSpan="2"
-                        col="0"
-                        width="20"
-                        v-if="station.connected && !syncing"
-                        src="~/images/Icon_Connected.png"
-                    ></Image>
+                    <Image rowSpan="2" col="0" width="20" v-if="station.connected && !syncing" src="~/images/Icon_Connected.png"></Image>
                     <Image
                         rowSpan="2"
                         col="0"
@@ -58,82 +36,36 @@
                         v-if="!station.connected && !syncing"
                         src="~/images/Icon_not_Connected.png"
                     ></Image>
-                    <Image
-                        rowSpan="2"
-                        col="0"
-                        width="20"
-                        :src="dataSyncingIcon"
-                        v-if="syncing"
-                    ></Image>
+                    <Image rowSpan="2" col="0" width="20" :src="dataSyncingIcon" v-if="syncing"></Image>
                     <Label
                         row="0"
                         col="1"
                         class="m-t-10 m-l-10 size-14"
-                        :text="this.station.connected
-                            ? _L('connected')
-                            : _L('notConnected')"
+                        :text="this.station.connected ? _L('connected') : _L('notConnected')"
                         v-if="!syncing"
                     ></Label>
                     <Label
                         row="1"
                         col="1"
                         class="m-l-10 m-t-2 m-b-5 size-12"
-                        :text="lastSeen() "
+                        :text="lastSeen()"
                         v-if="!syncing && !station.connected"
                     ></Label>
-                    <Label
-                        row="0"
-                        col="1"
-                        class="m-10 size-14"
-                        :text="dataSyncMessage"
-                        v-if="syncing"
-                    ></Label>
+                    <Label row="0" col="1" class="m-10 size-14" :text="dataSyncMessage" v-if="syncing"></Label>
                 </GridLayout>
-                <GridLayout
-                    rows="auto, auto, auto"
-                    columns="15*,85*"
-                    class="m-t-5"
-                >
-                    <Image
-                        col="0"
-                        rowSpan="3"
-                        width="20"
-                        src="~/images/Icon_memory.png"
-                    ></Image>
-                    <Label
-                        row="0"
-                        col="1"
-                        class="m-t-15 m-l-10 size-14"
-                        horizontalAlignment="left"
-                        :text="_L('memoryUsed')"
-                    ></Label>
+                <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
+                    <Image col="0" rowSpan="3" width="20" src="~/images/Icon_memory.png"></Image>
+                    <Label row="0" col="1" class="m-t-15 m-l-10 size-14" horizontalAlignment="left" :text="_L('memoryUsed')"></Label>
                     <Label
                         row="1"
                         col="1"
                         class="m-l-10 m-t-2 m-b-5 size-12"
                         horizontalAlignment="left"
-                        :text="
-                            displayConsumedMemory
-                            + ' '
-                            + _L('of')
-                            + ' '
-                            + displayTotalMemory
-                        "
+                        :text="displayConsumedMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
                     ></Label>
-                    <GridLayout
-                        row="2"
-                        col="1"
-                        rows="auto"
-                        columns="*"
-                        class="memory-bar-container"
-                    >
+                    <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
                         <StackLayout row="0" class="memory-bar"></StackLayout>
-                        <StackLayout
-                            row="0"
-                            class="memory-bar"
-                            horizontalAlignment="left"
-                            id="station-memory-bar"
-                        ></StackLayout>
+                        <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
                     </GridLayout>
                 </GridLayout>
             </StackLayout>
@@ -175,8 +107,8 @@ export default {
                 batteryLevel: 0,
                 batteryImage: "~/images/Icon_Battery_0.png",
                 connected: false,
-                status: ""
-            }
+                status: "",
+            },
         };
     },
     props: [],
@@ -189,10 +121,7 @@ export default {
                     this.syncing = true;
                     this.dataSyncMessage = data.message;
                     if (!this.syncIconIntervalTimer) {
-                        this.syncIconIntervalTimer = setInterval(
-                            this.rotateSyncingIcon,
-                            500
-                        );
+                        this.syncIconIntervalTimer = setInterval(this.rotateSyncingIcon, 500);
                     }
                 } else {
                     this.syncing = false;
@@ -224,11 +153,7 @@ export default {
             this.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
             this.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
             if (this.station.consumedMemoryPercent) {
-                this.page.addCss(
-                    "#station-memory-bar {width: " +
-                        this.station.consumedMemoryPercent +
-                        "%;}"
-                );
+                this.page.addCss("#station-memory-bar {width: " + this.station.consumedMemoryPercent + "%;}");
             }
         },
 
@@ -238,11 +163,7 @@ export default {
             this.displayConsumedMemory = data.consumedMemory;
             this.displayTotalMemory = data.totalMemory;
             if (data.consumedMemoryPercent) {
-                this.page.addCss(
-                    "#station-memory-bar {width: " +
-                        data.consumedMemoryPercent +
-                        "%;}"
-                );
+                this.page.addCss("#station-memory-bar {width: " + data.consumedMemoryPercent + "%;}");
             }
         },
 
@@ -300,13 +221,13 @@ export default {
                     .animate({
                         scale: { x: 1, y: 1 },
                         duration: 750,
-                        curve: AnimationCurve.easeOut
+                        curve: AnimationCurve.easeOut,
                     })
                     .then(() => {
                         return this.outer.animate({
                             scale: { x: 0.96, y: 0.96 },
                             duration: 500,
-                            curve: AnimationCurve.easeIn
+                            curve: AnimationCurve.easeIn,
                         });
                     });
             }
@@ -326,8 +247,8 @@ export default {
             if (this.syncIconIntervalTimer) {
                 clearInterval(this.syncIconIntervalTimer);
             }
-        }
-    }
+        },
+    },
 };
 </script>
 

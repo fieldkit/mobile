@@ -22,38 +22,34 @@ describe("UserAuth", () => {
         const user = {
             name: "realuser",
             email: "realuser@user.com",
-            password: "realuserspassword"
+            password: "realuserspassword",
         };
         const mockResponseLogin = {
             status: 204,
-            headers: { authorization: accessToken }
+            headers: { authorization: accessToken },
         };
         const mockResponseCurrentUser = {
             status: 200,
             headers: { authorization: accessToken },
             data: {
-                name: "Somebody Real"
-            }
+                name: "Somebody Real",
+            },
         };
         axios
             .mockImplementationOnce(() => Promise.resolve(mockResponseLogin))
-            .mockImplementationOnce(() =>
-                Promise.resolve(mockResponseCurrentUser)
-            );
-        return portalInterface
-            .login(user)
-            .then(resp => expect(portalInterface.isLoggedIn()).toBeTruthy());
+            .mockImplementationOnce(() => Promise.resolve(mockResponseCurrentUser));
+        return portalInterface.login(user).then(resp => expect(portalInterface.isLoggedIn()).toBeTruthy());
     });
 
     it("should not log non-existing user in", () => {
         const user = {
             name: "fakeuser",
             email: "fakeuser@user.com",
-            password: "fakeuserspassword"
+            password: "fakeuserspassword",
         };
         const mockResponse = {
             status: 400,
-            headers: { null: "HTTP/1.1 400 Bad Request" }
+            headers: { null: "HTTP/1.1 400 Bad Request" },
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
         const expectedError = new Error("authentication failed");
@@ -76,12 +72,10 @@ describe("UserAuth", () => {
         const user = {
             name: "newuser",
             email: "newuser@user.com",
-            password: "newuserspassword"
+            password: "newuserspassword",
         };
         const mockResponse = { status: 200 };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return portalInterface
-            .register(user)
-            .then(resp => expect(resp).toEqual("Account created"));
+        return portalInterface.register(user).then(resp => expect(resp).toEqual("Account created"));
     });
 });

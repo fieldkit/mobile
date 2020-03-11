@@ -1,40 +1,39 @@
 // Import the theme’s variables. If you’re using a color scheme
 // other than “light”, switch the path to the alternative scheme,
 // for example '~nativescript-theme-core/scss/dark'.
-@import '~nativescript-theme-core/scss/light';
-
+@import "~nativescript-theme-core/scss/light";
 
 // ** FieldKit colors **
 // Primary
-$fk-primary-blue: #0A67AA; // sky blue
-$fk-primary-black: #2C3E50; // almost black
-$fk-primary-red: #CE596B; // mauve/red
+$fk-primary-blue: #0a67aa; // sky blue
+$fk-primary-black: #2c3e50; // almost black
+$fk-primary-red: #ce596b; // mauve/red
 // Secondary
-$fk-secondary-blue: #52B5E4; // turquoise
-$fk-secondary-light-blue: #A0DBE1; // light turquoise
-$fk-secondary-salmon: #F48E84; // salmon
-$fk-secondary-peach: #FCDFCA; // light peach
+$fk-secondary-blue: #52b5e4; // turquoise
+$fk-secondary-light-blue: #a0dbe1; // light turquoise
+$fk-secondary-salmon: #f48e84; // salmon
+$fk-secondary-peach: #fcdfca; // light peach
 // Tertiary
-$fk-tertiary-red: #C42C44; // red
-$fk-tertiary-green: #3F8530; // green
-$fk-tertiary-blue: #3F0B9B; // blue
-$fk-tertiary-yellow: #3F0B9B; // yellow
-$fk-tertiary-gray: #EDE9E6; // light gray
-$fk-tertiary-black: #464C51; // almost black
+$fk-tertiary-red: #c42c44; // red
+$fk-tertiary-green: #3f8530; // green
+$fk-tertiary-blue: #3f0b9b; // blue
+$fk-tertiary-yellow: #3f0b9b; // yellow
+$fk-tertiary-gray: #ede9e6; // light gray
+$fk-tertiary-black: #464c51; // almost black
 // Gray colors
-$fk-gray-dark: #6B6D6F; // dark gray
-$fk-gray-light: #CCCDCF; // light gray
-$fk-gray-lighter: #D8DCE0; // lighter gray
-$fk-gray-lightest: #F4F5F7; // lightest gray
-$fk-gray-white: #FCFCFC; // almost white
-$fk-gray-hint: #6A6D71; // for hint text
-$fk-gray-border: #D8DEC0; // under input fields
+$fk-gray-dark: #6b6d6f; // dark gray
+$fk-gray-light: #cccdcf; // light gray
+$fk-gray-lighter: #d8dce0; // lighter gray
+$fk-gray-lightest: #f4f5f7; // lightest gray
+$fk-gray-white: #fcfcfc; // almost white
+$fk-gray-hint: #6a6d71; // for hint text
+$fk-gray-border: #d8dec0; // under input fields
 $fk-gray-text: #818388; // light gray text
 // Logo Blue
-$fk-logo-blue: #1B80C9; // logo blue
+$fk-logo-blue: #1b80c9; // logo blue
 
 // Inactive tab label
-$fk-inactive: #9A9FA6;
+$fk-inactive: #9a9fa6;
 
 // Sizes
 $base-font-size: 16;
@@ -51,8 +50,8 @@ $background: $white;
 $accent: $fk-primary-red;
 
 // SideDrawer
-$item-color-android : #737373;
-$item-active-background: #F8F8F8;
+$item-color-android: #737373;
+$item-active-background: #f8f8f8;
 $item-active-color: $accent;
 $item-active-icon-color: $item-active-color;
 $item-color-ios: $fk-primary-black;

@@ -31,6 +31,6 @@ const routes = {
     assembleStation: AssembleStation,
     stationDetail: StationDetail,
     stations: Stations,
-    stationSettings: StationSettings
+    stationSettings: StationSettings,
 };
 export default routes;

@@ -1,27 +1,27 @@
 import Config from "../config";
 
 class DiscoveryEvents {
-	constructor() {
-		this.listeners = [];
-	}
+    constructor() {
+        this.listeners = [];
+    }
 
     onFoundService(info) {
-        console.log('onServiceFound', info);
-		for (let i = 0; i < this.listeners.length; ++i) {
-			this.listeners[i].onFoundService(info);
-		}
+        console.log("onServiceFound", info);
+        for (let i = 0; i < this.listeners.length; ++i) {
+            this.listeners[i].onFoundService(info);
+        }
     }
 
     onLostService(info) {
-        console.log('onServiceLost', info);
-		for (let i = 0; i < this.listeners.length; ++i) {
-			this.listeners[i].onLostService(info);
-		}
+        console.log("onServiceLost", info);
+        for (let i = 0; i < this.listeners.length; ++i) {
+            this.listeners[i].onLostService(info);
+        }
     }
 
-	add(listener) {
-		this.listeners.push(listener);
-	}
+    add(listener) {
+        this.listeners.push(listener);
+    }
 }
 
 export class Services {
@@ -74,12 +74,7 @@ export class Services {
     StationMonitor() {
         if (!this.stationMonitor) {
             const StationMonitor = require("./station-monitor").default;
-            this.stationMonitor = new StationMonitor(
-                this.DiscoverStation(),
-                this.Database(),
-                this.QueryStation(),
-                this.PhoneLocation()
-            );
+            this.stationMonitor = new StationMonitor(this.DiscoverStation(), this.Database(), this.QueryStation(), this.PhoneLocation());
         }
         return this.stationMonitor;
     }
@@ -116,21 +111,21 @@ export class Services {
         return this.progressService;
     }
 
-	Conservify() {
+    Conservify() {
         if (!this.conservify) {
-			const logger = Config.logger("NativeScriptConservify").info;
+            const logger = Config.logger("NativeScriptConservify").info;
             const Conservify = require("../wrappers/networking").default;
             this.conservify = new Conservify(this.DiscoveryEvents(), logger);
         }
         return this.conservify;
-	}
+    }
 
-	DiscoveryEvents() {
+    DiscoveryEvents() {
         if (!this.discoveryEvents) {
             this.discoveryEvents = new DiscoveryEvents(this);
         }
         return this.discoveryEvents;
-	}
+    }
 
     PhoneLocation() {
         if (!this.phoneLocation) {
@@ -148,13 +143,13 @@ export class Services {
         return this.stationFirmware;
     }
 
-	FileSystem() {
+    FileSystem() {
         if (!this.fileSystem) {
             const FileSystem = require("../wrappers/file-system").default;
             this.fileSystem = new FileSystem();
         }
         return this.fileSystem;
-	}
+    }
 
     CalibrationService() {
         if (!this.calibrationService) {

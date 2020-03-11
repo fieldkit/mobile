@@ -2,34 +2,18 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout :rows="step.hasBackButton ? '75,*,140' : '*,140'">
             <!-- header section -->
-            <GridLayout
-                row="0"
-                rows="auto"
-                columns="*"
-                class="m-y-20"
-                v-if="step.hasBackButton"
-            >
-                <StackLayout
-                    col="0"
-                    class="round-bkgd m-l-10"
-                    verticalAlignment="top"
-                    horizontalAlignment="left"
-                    @tap="goBack"
-                >
+            <GridLayout row="0" rows="auto" columns="*" class="m-y-20" v-if="step.hasBackButton">
+                <StackLayout col="0" class="round-bkgd m-l-10" verticalAlignment="top" horizontalAlignment="left" @tap="goBack">
                     <Image width="21" src="~/images/Icon_Backarrow.png" />
                 </StackLayout>
             </GridLayout>
             <!-- end header section -->
 
-            <ScrollView :row="step.hasBackButton ? 1 : 0 ">
+            <ScrollView :row="step.hasBackButton ? 1 : 0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <!-- connection steps -->
                     <StackLayout row="0" v-if="step.regularFormat">
-                        <Label
-                            class="title text-center m-b-20"
-                            :text="step.title"
-                            textWrap="true"
-                        ></Label>
+                        <Label class="title text-center m-b-20" :text="step.title" textWrap="true"></Label>
                         <Label
                             v-for="instruction in step.instructions"
                             :key="instruction"
@@ -39,12 +23,7 @@
                             textWrap="true"
                         ></Label>
                         <GridLayout rows="*" columns="*">
-                            <Image
-                                width="75%"
-                                verticalAlignment="middle"
-                                v-if="displayFrame"
-                                :src="displayFrame"
-                            ></Image>
+                            <Image width="75%" verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
                         </GridLayout>
                     </StackLayout>
                     <!-- end connection steps section -->
@@ -53,11 +32,7 @@
                     <StackLayout row="0" v-if="!step.regularFormat" verticalAlignment="middle">
                         <GridLayout rows="*" columns="*">
                             <StackLayout row="0" verticalAlignment="middle">
-                                <Label
-                                    class="title m-t-20 m-b-10 text-center"
-                                    :text="step.title"
-                                    textWrap="true"
-                                ></Label>
+                                <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
                                 <Label
                                     v-for="instruction in step.instructions"
@@ -69,12 +44,7 @@
                                 ></Label>
 
                                 <!-- radio buttons and info -->
-                                <GridLayout
-                                    rows="auto,auto"
-                                    columns="30,*"
-                                    v-for="option in step.options"
-                                    class="option-container"
-                                >
+                                <GridLayout rows="auto,auto" columns="30,*" v-for="option in step.options" class="option-container">
                                     <check-box
                                         row="0"
                                         col="0"
@@ -87,12 +57,7 @@
                                         boxType="circle"
                                         @checkedChange="$event.value !== option.selected && toggleChoice(option)"
                                     />
-                                    <Label
-                                        row="0"
-                                        col="1"
-                                        class="m-t-5 m-l-5"
-                                        :text="option.text"
-                                    ></Label>
+                                    <Label row="0" col="1" class="m-t-5 m-l-5" :text="option.text"></Label>
                                     <Label
                                         row="1"
                                         colSpan="2"
@@ -118,12 +83,7 @@
                     :isEnabled="!step.buttonDisabled"
                     @tap="goNext"
                 ></Button>
-                <Label
-                    :text="step.altOption"
-                    class="skip"
-                    @tap="skip"
-                    textWrap="true"
-                />
+                <Label :text="step.altOption" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
         </GridLayout>
@@ -134,7 +94,7 @@
 import { on, off, suspendEvent, resumeEvent } from "tns-core-modules/application";
 
 import routes from "../../routes";
-import { _T } from "../../utilities"
+import { _T } from "../../utilities";
 import ConnectStationCheck from "./ConnectStationCheck";
 import ConnectStationError from "./ConnectStationError";
 import ConnectStationForm from "./ConnectStationForm";
@@ -147,19 +107,19 @@ export default {
             stations: [],
             stationOptions: [],
             frameImage: "",
-            displayFrame: null
+            displayFrame: null,
         };
     },
     components: {
         ConnectStationCheck,
         ConnectStationError,
-        ConnectStationForm
+        ConnectStationForm,
     },
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
 
-            on(suspendEvent, (args) => {
+            on(suspendEvent, args => {
                 this.leftOffOn = this.step.name;
             });
 
@@ -182,9 +142,7 @@ export default {
             }
 
             this.frameImage = this.step.images[0];
-            this.displayFrame = this.frameImage
-                ? "~/images/" + this.frameImage
-                : null;
+            this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : null;
             if (this.displayFrame && !this.animateFrameTimer) {
                 this.animateFrameTimer = setInterval(this.animateFrames, 1000);
             }
@@ -211,8 +169,8 @@ export default {
                 this.unsubscribe();
                 this.$navigateTo(routes.assembleStation, {
                     props: {
-                        stepParam: "last"
-                    }
+                        stepParam: "last",
+                    },
                 });
             }
         },
@@ -222,7 +180,7 @@ export default {
 
             if (this.step.next && this.step.next == "goToStations") {
                 this.goToStations();
-                return
+                return;
             }
 
             if (this.step.next) {
@@ -236,10 +194,10 @@ export default {
                 this.unsubscribe();
                 this.$navigateTo(ConnectStationError, {
                     props: {
-                        stepParam: this.step.name
-                    }
+                        stepParam: this.step.name,
+                    },
                 });
-                return
+                return;
             }
 
             if (this.step.hasForm) {
@@ -247,10 +205,10 @@ export default {
                 this.$navigateTo(ConnectStationForm, {
                     props: {
                         stepParam: this.step.field,
-                        station: this.station
-                    }
+                        station: this.station,
+                    },
                 });
-                return
+                return;
             }
 
             if (this.step.testingConnection) {
@@ -259,19 +217,16 @@ export default {
                     props: {
                         stepParam: "testConnection",
                         proceed: this.step.proceed,
-                        stationParam: this.station
-                    }
+                        stationParam: this.station,
+                    },
                 });
-                return
+                return;
             }
 
             if (this.step.images && this.step.images.length > 0) {
                 this.animateFrames();
                 if (!this.animateFrameTimer) {
-                    this.animateFrameTimer = setInterval(
-                        this.animateFrames,
-                        1000
-                    );
+                    this.animateFrameTimer = setInterval(this.animateFrames, 1000);
                 }
             }
         },
@@ -307,13 +262,8 @@ export default {
         },
 
         animateFrames() {
-            this.frameImage =
-                this.frameImage == this.step.images[0]
-                    ? this.step.images[1]
-                    : this.step.images[0];
-            this.displayFrame = this.frameImage
-                ? "~/images/" + this.frameImage
-                : null;
+            this.frameImage = this.frameImage == this.step.images[0] ? this.step.images[1] : this.step.images[0];
+            this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : null;
         },
 
         goToStations() {
@@ -321,130 +271,118 @@ export default {
             this.unsubscribe();
             this.$navigateTo(routes.stations, {
                 clearHistory: true,
-                backstackVisible: false
+                backstackVisible: false,
             });
-        }
-    }
+        },
+    },
 };
 
 const steps = {
-    "intro":
-        {
-            name: "intro",
-            prev: null,
-            next: "connect",
-            hasBackButton: true,
-            regularFormat: true,
-            title: "FieldKit Station WiFi",
-            instructions:
-                [
-                    "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to your mobile device.",
-                    "Confirm that your station WiFi is on by pressing the external WiFi button."
-                ],
-            button: "Continue",
-            images: ["TI_9-A.jpg", "TI_9-B.jpg"],
-            altOption: "Skip this step"
-        },
-    "connect":
-        {
-            name: "connect",
-            prev: "intro",
-            next: "testConnection",
-            hasBackButton: true,
-            regularFormat: true,
-            title: "Connect your FieldKit Station",
-            instructions:
-                [
-                    "To connect to your station, go to your mobile phone WiFi settings and select the station's WiFi name as displayed on the station screen."
-                ],
-            button: "Done",
-            images: ["TI_10-A.jpg", "TI_10-A.jpg"],
-            altOption: "Skip this step"
-        },
-    "selectSettings":
-       {
-            name: "selectSettings",
-            prev: "selectStation",
-            next: "rename",
-            hasBackButton: false,
-            regularFormat: false,
-            title: "Choose WiFi Settings",
-            instructions: ["Choose how you would like to sync your data"],
-            button: "Next",
-            images: [],
-            options: [
-                {
-                    text: "Station WiFi (default)",
-                    info: "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to a mobile device",
-                    next: "rename",
-                    selected: true
-                },
-                {
-                    text: "Your WiFi Network",
-                    info: "Connect your FieldKit station to your own WiFi network to sync data with the FieldKit portal directly. Unfortunately, only 2.4GHz WiFi is currently supported.",
-                    next: "ssid",
-                    selected: false
-                },
-            ]
-        },
-    "rename":
-       {
-            name: "rename",
-            hasForm: true,
-            prev: "selectSettings",
-            next: "reconnect",
-            field: "stationName"
-        },
-    "reconnect":
-        {
-            name: "reconnect",
-            prev: "rename",
-            next: "testNewConnection",
-            hasBackButton: true,
-            regularFormat: true,
-            title: "Reconnect to your FieldKit Station",
-            instructions:
-                [
-                    "To reconnect to your station, go to your mobile phone WiFi settings and select the station's new WiFi name as displayed on the station screen."
-                ],
-            button: "Done",
-            images: ["TI_10-A.jpg", "TI_10-A.jpg"],
-            altOption: "Skip this step"
-        },
-    "ssid":
-       {
-            name: "ssid",
-            hasForm: true,
-            prev: "selectSettings",
-            next: "password",
-            field: "ssid"
-        },
-    "password":
-       {
-            name: "password",
-            hasForm: true,
-            prev: "ssid",
-            next: "testNewConnection",
-            field: "password"
-        },
-    "testConnection":
-       {
-            name: "testConnection",
-            testingConnection: true,
-            prev: "",
-            next: "",
-            proceed: "selectStation"
-        },
-    "testNewConnection":
-       {
-            name: "testNewConnection",
-            testingConnection: true,
-            prev: "",
-            next: "",
-            proceed: "startCalibration"
-        }
+    intro: {
+        name: "intro",
+        prev: null,
+        next: "connect",
+        hasBackButton: true,
+        regularFormat: true,
+        title: "FieldKit Station WiFi",
+        instructions: [
+            "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to your mobile device.",
+            "Confirm that your station WiFi is on by pressing the external WiFi button.",
+        ],
+        button: "Continue",
+        images: ["TI_9-A.jpg", "TI_9-B.jpg"],
+        altOption: "Skip this step",
+    },
+    connect: {
+        name: "connect",
+        prev: "intro",
+        next: "testConnection",
+        hasBackButton: true,
+        regularFormat: true,
+        title: "Connect your FieldKit Station",
+        instructions: [
+            "To connect to your station, go to your mobile phone WiFi settings and select the station's WiFi name as displayed on the station screen.",
+        ],
+        button: "Done",
+        images: ["TI_10-A.jpg", "TI_10-A.jpg"],
+        altOption: "Skip this step",
+    },
+    selectSettings: {
+        name: "selectSettings",
+        prev: "selectStation",
+        next: "rename",
+        hasBackButton: false,
+        regularFormat: false,
+        title: "Choose WiFi Settings",
+        instructions: ["Choose how you would like to sync your data"],
+        button: "Next",
+        images: [],
+        options: [
+            {
+                text: "Station WiFi (default)",
+                info: "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to a mobile device",
+                next: "rename",
+                selected: true,
+            },
+            {
+                text: "Your WiFi Network",
+                info:
+                    "Connect your FieldKit station to your own WiFi network to sync data with the FieldKit portal directly. Unfortunately, only 2.4GHz WiFi is currently supported.",
+                next: "ssid",
+                selected: false,
+            },
+        ],
+    },
+    rename: {
+        name: "rename",
+        hasForm: true,
+        prev: "selectSettings",
+        next: "reconnect",
+        field: "stationName",
+    },
+    reconnect: {
+        name: "reconnect",
+        prev: "rename",
+        next: "testNewConnection",
+        hasBackButton: true,
+        regularFormat: true,
+        title: "Reconnect to your FieldKit Station",
+        instructions: [
+            "To reconnect to your station, go to your mobile phone WiFi settings and select the station's new WiFi name as displayed on the station screen.",
+        ],
+        button: "Done",
+        images: ["TI_10-A.jpg", "TI_10-A.jpg"],
+        altOption: "Skip this step",
+    },
+    ssid: {
+        name: "ssid",
+        hasForm: true,
+        prev: "selectSettings",
+        next: "password",
+        field: "ssid",
+    },
+    password: {
+        name: "password",
+        hasForm: true,
+        prev: "ssid",
+        next: "testNewConnection",
+        field: "password",
+    },
+    testConnection: {
+        name: "testConnection",
+        testingConnection: true,
+        prev: "",
+        next: "",
+        proceed: "selectStation",
+    },
+    testNewConnection: {
+        name: "testNewConnection",
+        testingConnection: true,
+        prev: "",
+        next: "",
+        proceed: "startCalibration",
+    },
 };
-
 </script>
 
 <style scoped lang="scss">

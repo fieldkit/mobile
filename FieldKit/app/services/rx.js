@@ -25,13 +25,13 @@ export class BetterObservable extends Observable {
             }
         };
 
-		this.addEventListener(Observable.propertyChangeEvent, listener);
+        this.addEventListener(Observable.propertyChangeEvent, listener);
 
-		return {
-			remove: () => {
-				this.removeEventListener(Observable.propertyChangeEvent, listener);
-			}
-		};
+        return {
+            remove: () => {
+                this.removeEventListener(Observable.propertyChangeEvent, listener);
+            },
+        };
     }
 
     publish(value) {
@@ -59,7 +59,7 @@ export class BetterObservable extends Observable {
 }
 
 export function every(time, value) {
-    const observable = new Observable()
+    const observable = new Observable();
     observable.notifyPropertyChange(HiddenProperty, value);
     setInterval(() => {
         observable.notifyPropertyChange(HiddenProperty, value);

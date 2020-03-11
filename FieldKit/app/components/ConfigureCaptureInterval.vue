@@ -2,36 +2,19 @@
     <!-- Data capture interval -->
     <StackLayout class="m-x-10 m-y-20" @loaded="onLoaded">
         <Label class="size-18 bold" :text="_L('dataCaptureSchedule')"></Label>
-        <Label
-            class="gray-text size-14 m-y-5"
-            textWrap="true"
-            :text="_L('dataCaptureNotice')"
-        ></Label>
+        <Label class="gray-text size-14 m-y-5" textWrap="true" :text="_L('dataCaptureNotice')"></Label>
 
         <GridLayout rows="*" columns="*" class="m-t-10">
             <!-- nested grid layouts to achieve borders -->
             <GridLayout row="0" col="0" class="inner-border" />
-            <GridLayout
-                row="0"
-                col="0"
-                rows="auto,auto"
-                columns="*"
-                class="m-y-10 interval-container"
-            >
+            <GridLayout row="0" col="0" rows="auto,auto" columns="*" class="m-y-10 interval-container">
                 <!-- grid for schedule type buttons -->
-                <GridLayout
-                    row="0"
-                    rows="*"
-                    columns="*"
-                    id="schedule-btn-container"
-                >
+                <GridLayout row="0" rows="*" columns="*" id="schedule-btn-container">
                     <Label
                         col="0"
                         :text="_L('scheduled')"
                         horizontalAlignment="right"
-                        :class="
-                            'schedule-type-btn ' + (basic ? '' : 'selected')
-                        "
+                        :class="'schedule-type-btn ' + (basic ? '' : 'selected')"
                         dataType="scheduled"
                         @tap="switchType"
                     ></Label>
@@ -39,9 +22,7 @@
                         col="0"
                         :text="_L('basic')"
                         horizontalAlignment="left"
-                        :class="
-                            'schedule-type-btn ' + (basic ? 'selected' : '')
-                        "
+                        :class="'schedule-type-btn ' + (basic ? 'selected' : '')"
                         dataType="basic"
                         @tap="switchType"
                     ></Label>
@@ -50,12 +31,7 @@
 
                 <!-- interval definitions, as many as needed -->
                 <StackLayout row="1">
-                    <FlexboxLayout
-                        flexDirection="column"
-                        class="m-t-20"
-                        v-for="(interval, index) in intervals"
-                        :key="interval.id"
-                    >
+                    <FlexboxLayout flexDirection="column" class="m-t-20" v-for="(interval, index) in intervals" :key="interval.id">
                         <!-- start and end only show if not basic -->
                         <StackLayout order="1" v-if="!basic" class="m-b-20">
                             <GridLayout rows="auto,auto,auto,auto" columns="50*,50*">
@@ -66,21 +42,11 @@
                                     :text="_L('captureTime') + ' ' + (index + 1)"
                                 ></Label>
                                 <!-- start time -->
-                                <Label
-                                    row="1"
-                                    col="0"
-                                    :text="_L('start')"
-                                    class="size-12 m-b-5"
-                                />
+                                <Label row="1" col="0" :text="_L('start')" class="size-12 m-b-5" />
                                 <Label
                                     row="2"
                                     col="0"
-                                    :class="
-                                        'time-field '
-                                        + (interval.startError
-                                        ? 'red no-border'
-                                        : '')
-                                    "
+                                    :class="'time-field ' + (interval.startError ? 'red no-border' : '')"
                                     verticalAligment="bottom"
                                     :text="interval.start.display"
                                     :dataTime="'start-' + interval.id"
@@ -92,29 +58,15 @@
                                     class="validation-error"
                                     :text="_L('startBeforeEnd')"
                                     textWrap="true"
-                                    :visibility="
-                                        interval.startError
-                                            ? 'visible'
-                                            : 'collapsed'
-                                    "
+                                    :visibility="interval.startError ? 'visible' : 'collapsed'"
                                 ></Label>
 
                                 <!-- end time -->
-                                <Label
-                                    row="1"
-                                    col="1"
-                                    :text="_L('end')"
-                                    class="size-12 m-b-5"
-                                />
+                                <Label row="1" col="1" :text="_L('end')" class="size-12 m-b-5" />
                                 <Label
                                     row="2"
                                     col="1"
-                                    :class="
-                                        'time-field '
-                                        + (interval.endError
-                                        ? 'red no-border'
-                                        : '')
-                                    "
+                                    :class="'time-field ' + (interval.endError ? 'red no-border' : '')"
                                     verticalAligment="bottom"
                                     :text="interval.end.display"
                                     :dataTime="'end-' + interval.id"
@@ -126,11 +78,7 @@
                                     class="validation-error"
                                     :text="_L('endAfterStart')"
                                     textWrap="true"
-                                    :visibility="
-                                        interval.endError
-                                            ? 'visible'
-                                            : 'collapsed'
-                                    "
+                                    :visibility="interval.endError ? 'visible' : 'collapsed'"
                                 ></Label>
                             </GridLayout>
                         </StackLayout>
@@ -140,27 +88,14 @@
                         </StackLayout>
                         <!-- end scheduled section -->
 
-                        <GridLayout
-                            order="2"
-                            rows="auto,auto,auto"
-                            columns="*,*"
-                            v-if="!basic || index == 0"
-                        >
-                            <Label
-                                row="0"
-                                col="0"
-                                class="size-12 m-t-5"
-                                :text="_L('every')"
-                            ></Label>
+                        <GridLayout order="2" rows="auto,auto,auto" columns="*,*" v-if="!basic || index == 0">
+                            <Label row="0" col="0" class="size-12 m-t-5" :text="_L('every')"></Label>
                             <TextField
                                 row="1"
                                 col="0"
                                 :class="
                                     'interval-field ' +
-                                        (!interval.noInterval &&
-                                        !interval.intervalNotNumber
-                                            ? 'interval-input'
-                                            : 'no-border')
+                                        (!interval.noInterval && !interval.intervalNotNumber ? 'interval-input' : 'no-border')
                                 "
                                 verticalAligment="bottom"
                                 keyboardType="name"
@@ -200,22 +135,14 @@
                                     horizontalAlignment="left"
                                     :text="_L('intervalRequired')"
                                     textWrap="true"
-                                    :visibility="
-                                        interval.noInterval
-                                            ? 'visible'
-                                            : 'collapsed'
-                                    "
+                                    :visibility="interval.noInterval ? 'visible' : 'collapsed'"
                                 ></Label>
                                 <Label
                                     class="validation-error"
                                     horizontalAlignment="left"
                                     :text="_L('intervalNotNumber')"
                                     textWrap="true"
-                                    :visibility="
-                                        interval.intervalNotNumber
-                                            ? 'visible'
-                                            : 'collapsed'
-                                    "
+                                    :visibility="interval.intervalNotNumber ? 'visible' : 'collapsed'"
                                 ></Label>
                             </StackLayout>
                         </GridLayout>
@@ -223,12 +150,7 @@
                     <!-- end interval definitions -->
 
                     <!-- allow addition of more intervals if not basic -->
-                    <FlexboxLayout
-                        justifyContent="center"
-                        class="m-t-30"
-                        @tap="addTime"
-                        v-if="!basic"
-                    >
+                    <FlexboxLayout justifyContent="center" class="m-t-30" @tap="addTime" v-if="!basic">
                         <Image src="~/images/Icon_Add_Button.png" width="20" />
                         <Label :text="_L('addTime')" class="p-l-5"></Label>
                     </FlexboxLayout>
@@ -254,13 +176,7 @@ export default {
             intervals: [],
             selectedTime: new Date(),
             currentlyPicking: {},
-            timeUnits: [
-                _L("seconds"),
-                _L("minutes"),
-                _L("hours"),
-                _L("days"),
-                _L("weeks")
-            ]
+            timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")],
         };
     },
     props: ["station"],
@@ -282,10 +198,10 @@ export default {
                 unit: converted.unit,
                 noInterval: false,
                 intervalNotNumber: false,
-                start: {hour: 6, minute: 1, display: "06:00 AM"},
-                end: {hour: 8, minute: 1, display: "08:00 AM"},
+                start: { hour: 6, minute: 1, display: "06:00 AM" },
+                end: { hour: 8, minute: 1, display: "08:00 AM" },
                 startError: false,
-                endError: false
+                endError: false,
             };
             this.intervals.push(interval);
         },
@@ -301,10 +217,10 @@ export default {
                 unit: converted.unit,
                 noInterval: false,
                 intervalNotNumber: false,
-                start: {hour: 6, minute: 1, display: "06:00 AM"},
-                end: {hour: 8, minute: 1, display: "08:00 AM"},
+                start: { hour: 6, minute: 1, display: "06:00 AM" },
+                end: { hour: 8, minute: 1, display: "08:00 AM" },
                 startError: false,
-                endError: false
+                endError: false,
             };
             this.intervals.push(interval);
         },
@@ -367,10 +283,7 @@ export default {
             interval.noInterval = false;
             interval.intervalNotNumber = false;
             // then check
-            interval.noInterval =
-                !interval.display ||
-                interval.display == 0 ||
-                interval.display.length == 0;
+            interval.noInterval = !interval.display || interval.display == 0 || interval.display.length == 0;
             if (interval.noInterval) {
                 return false;
             }
@@ -421,25 +334,25 @@ export default {
                 // but note: midnight will still get set to current hour
                 let minute = interval.start.minute == 0 ? 1 : interval.start.minute;
                 this.selectedTime.setHours(interval.start.hour, minute, 0);
-                this.currentlyPicking = {time: "start", id: id, label: _L("saveStartTime")};
+                this.currentlyPicking = { time: "start", id: id, label: _L("saveStartTime") };
             } else if (current == "end") {
                 let minute = interval.end.minute == 0 ? 1 : interval.end.minute;
                 this.selectedTime.setHours(interval.end.hour, minute, 0);
-                this.currentlyPicking = {time: "end", id: id, label: _L("saveEndTime")};
+                this.currentlyPicking = { time: "end", id: id, label: _L("saveEndTime") };
             }
 
             const options = {
                 props: {
-                    selectedTime: this.selectedTime
+                    selectedTime: this.selectedTime,
                 },
-                fullscreen: true
+                fullscreen: true,
             };
             this.$showModal(modalTimePicker, options).then(this.submitTime);
         },
 
         submitTime(modalTime) {
             if (!modalTime) {
-                return
+                return;
             }
             this.selectedTime = modalTime;
             const time = new Date(this.selectedTime);
@@ -460,7 +373,7 @@ export default {
             if (this.currentlyPicking.time == "start") {
                 attemptingStart.setHours(origHour, origMinutes, 0);
                 attemptingEnd.setHours(interval.end.hour, interval.end.minute, 0);
-                if (attemptingStart < attemptingEnd){
+                if (attemptingStart < attemptingEnd) {
                     // *** TEMP: not sure yet what hardware will want
                     interval.start.hour = origHour;
                     interval.start.minute = origMinutes;
@@ -471,7 +384,7 @@ export default {
             } else if (this.currentlyPicking.time == "end") {
                 attemptingStart.setHours(interval.start.hour, interval.start.minute, 0);
                 attemptingEnd.setHours(origHour, origMinutes, 0);
-                if (attemptingStart < attemptingEnd){
+                if (attemptingStart < attemptingEnd) {
                     interval.end.hour = origHour;
                     interval.end.minute = origMinutes;
                     interval.end.display = hour + ":" + minutes + suffix;
@@ -483,7 +396,7 @@ export default {
 
         openDropDown(event) {
             let id = event.object.dataIntervalId;
-            const dropDown = this.page.getViewById("drop-down-"+id);
+            const dropDown = this.page.getViewById("drop-down-" + id);
             dropDown.open();
         },
 
@@ -510,8 +423,8 @@ export default {
             let container = this.page.getViewById("schedule-btn-container");
             container.removeChild(event.object);
             container.addChild(event.object);
-        }
-    }
+        },
+    },
 };
 </script>
 

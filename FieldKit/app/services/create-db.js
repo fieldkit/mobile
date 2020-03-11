@@ -86,7 +86,7 @@ export default class CreateDB {
             `DROP TABLE IF EXISTS fieldmedia`,
             `DROP TABLE IF EXISTS stations`,
             `DROP TABLE IF EXISTS firmware`,
-            `DROP TABLE IF EXISTS config`
+            `DROP TABLE IF EXISTS config`,
         ]);
     }
 
@@ -96,7 +96,7 @@ export default class CreateDB {
                 id INTEGER PRIMARY KEY,
                 base_uri TEXT,
                 ingestion_uri TEXT
-            )`
+            )`,
         ]);
     }
 
@@ -110,7 +110,7 @@ export default class CreateDB {
                 profile TEXT NOT NULL,
                 etag TEXT NOT NULL,
                 path TEXT NOT NULL
-            )`
+            )`,
         ]);
     }
 
@@ -133,7 +133,7 @@ export default class CreateDB {
                 updated TIMESTAMP NOT NULL,
                 FOREIGN KEY(station_id) REFERENCES stations(id)
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS streams_idx ON streams (station_id, type)`
+            `CREATE UNIQUE INDEX IF NOT EXISTS streams_idx ON streams (station_id, type)`,
         ]);
     }
 
@@ -154,7 +154,7 @@ export default class CreateDB {
                 last_block INTEGER NOT NULL,
                 uploaded TIMESTAMP,
                 FOREIGN KEY(station_id) REFERENCES stations(id)
-            )`
+            )`,
         ]);
     }
 
@@ -171,7 +171,7 @@ export default class CreateDB {
                 module_id INTEGER,
                 FOREIGN KEY(module_id) REFERENCES modules(id)
             )`,
-            `CREATE INDEX IF NOT EXISTS sensor_module_idx ON sensors (module_id)`
+            `CREATE INDEX IF NOT EXISTS sensor_module_idx ON sensors (module_id)`,
         ]);
     }
 
@@ -192,7 +192,7 @@ export default class CreateDB {
                 FOREIGN KEY(station_id) REFERENCES stations(id)
             )`,
             `CREATE UNIQUE INDEX IF NOT EXISTS modules_idx ON modules (device_id, module_id)`,
-            `CREATE INDEX IF NOT EXISTS module_station_idx ON modules (station_id)`
+            `CREATE INDEX IF NOT EXISTS module_station_idx ON modules (station_id)`,
         ]);
     }
 
@@ -225,7 +225,7 @@ export default class CreateDB {
                 updated DATETIME,
                 status_json TEXT
             )`,
-            `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`
+            `CREATE UNIQUE INDEX IF NOT EXISTS stations_device_id_idx ON stations (device_id)`,
         ]);
     }
 
@@ -242,7 +242,7 @@ export default class CreateDB {
                 author TEXT,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
-            )`
+            )`,
         ]);
     }
 
@@ -258,7 +258,7 @@ export default class CreateDB {
                 author TEXT,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
-            )`
+            )`,
         ]);
     }
 
@@ -275,7 +275,7 @@ export default class CreateDB {
                 author TEXT,
                 created DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated DATETIME DEFAULT CURRENT_TIMESTAMP
-            )`
+            )`,
         ]);
     }
 
@@ -296,11 +296,11 @@ export default class CreateDB {
 
     seedDB() {
         return Promise.all(stations.map(this.addStation.bind(this)))
-                .then(this.handleConfig.bind(this))
-                .then(this.handleModules.bind(this))
-                .then(this.handleSensors.bind(this))
-                .then(this.handleFieldNotes.bind(this))
-                .then(this.handleFieldMedia.bind(this))
+            .then(this.handleConfig.bind(this))
+            .then(this.handleModules.bind(this))
+            .then(this.handleSensors.bind(this))
+            .then(this.handleFieldNotes.bind(this))
+            .then(this.handleFieldMedia.bind(this));
     }
 
     addStation(station) {
@@ -308,7 +308,7 @@ export default class CreateDB {
         station.batteryLevel = Math.floor(Math.random() * Math.floor(100));
         station.totalMemory = 536870914; // 512 MB
         station.consumedMemory = Math.floor(Math.random() * 536870914);
-        station.consumedMemoryPercent = Math.round((station.consumedMemory / station.totalMemory ) * 100);
+        station.consumedMemoryPercent = Math.round((station.consumedMemory / station.totalMemory) * 100);
         station.longitude = -122.65397644042969;
         station.latitude = 45.500099182128906;
         station.deployStartTime = "";
@@ -425,9 +425,9 @@ const stations = [
                     {
                         name: "pH Sensor",
                         unitOfMeasure: "",
-                        frequency: "60"
-                    }
-                ]
+                        frequency: "60",
+                    },
+                ],
             },
             {
                 moduleId: null,
@@ -438,14 +438,14 @@ const stations = [
                     {
                         name: "DO Sensor",
                         unitOfMeasure: "mg/L",
-                        frequency: "60"
+                        frequency: "60",
                     },
                     {
                         name: "Conductivity Sensor",
                         unitOfMeasure: "S/m",
-                        frequency: "60"
-                    }
-                ]
+                        frequency: "60",
+                    },
+                ],
             },
             {
                 moduleId: null,
@@ -456,21 +456,21 @@ const stations = [
                     {
                         name: "Temperature Sensor",
                         unitOfMeasure: "°C",
-                        frequency: "60"
+                        frequency: "60",
                     },
                     {
                         name: "Wind Sensor",
                         unitOfMeasure: "m/s",
-                        frequency: "60"
+                        frequency: "60",
                     },
                     {
                         name: "Rain Sensor",
                         unitOfMeasure: "mm/h",
-                        frequency: "60"
-                    }
-                ]
-            }
-        ]
+                        frequency: "60",
+                    },
+                ],
+            },
+        ],
     },
     {
         deviceId: "seeded-device-1",
@@ -487,11 +487,11 @@ const stations = [
                     {
                         name: "Configure Sensor",
                         unitOfMeasure: "",
-                        frequency: "60"
-                    }
-                ]
-            }
-        ]
+                        frequency: "60",
+                    },
+                ],
+            },
+        ],
     },
     {
         deviceId: "seeded-device-2",
@@ -508,11 +508,11 @@ const stations = [
                     {
                         name: "Configure Sensor",
                         unitOfMeasure: "",
-                        frequency: "60"
-                    }
-                ]
-            }
-        ]
+                        frequency: "60",
+                    },
+                ],
+            },
+        ],
     },
     {
         deviceId: "seeded-device-3",
@@ -529,11 +529,11 @@ const stations = [
                     {
                         name: "Configure Sensor",
                         unitOfMeasure: "",
-                        frequency: "60"
-                    }
-                ]
-            }
-        ]
+                        frequency: "60",
+                    },
+                ],
+            },
+        ],
     },
     {
         deviceId: "seeded-device-4",
@@ -550,12 +550,12 @@ const stations = [
                     {
                         name: "Configure Sensor",
                         unitOfMeasure: "",
-                        frequency: "60"
-                    }
-                ]
-            }
-        ]
-    }
+                        frequency: "60",
+                    },
+                ],
+            },
+        ],
+    },
 ];
 
 const fieldnotes = [
@@ -564,8 +564,8 @@ const fieldnotes = [
         note: "This study will help us understand weather patterns in our neighborhood.",
         audioFile: "",
         category: "default",
-        author: "Test User"
-    }
+        author: "Test User",
+    },
 ];
 
 const fieldmedia = [
@@ -574,6 +574,6 @@ const fieldmedia = [
         imageName: "waterfall.jpg",
         imageLabel: "To the left of the waterfall",
         category: "default",
-        author: "Test User"
-    }
+        author: "Test User",
+    },
 ];

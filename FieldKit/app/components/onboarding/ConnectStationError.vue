@@ -6,16 +6,8 @@
                     <StackLayout row="0" verticalAlignment="middle">
                         <GridLayout rows="*" columns="*">
                             <StackLayout row="0" verticalAlignment="middle">
-                                <Image
-                                    width="60"
-                                    class="m-b-20"
-                                    src="~/images/Icon_Soft_error.png"
-                                />
-                                <Label
-                                    class="title m-t-20 m-b-10 text-center"
-                                    :text="step.title"
-                                    textWrap="true"
-                                ></Label>
+                                <Image width="60" class="m-b-20" src="~/images/Icon_Soft_error.png" />
+                                <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
                                 <Label
                                     v-for="instruction in step.instructions"
@@ -39,12 +31,7 @@
                     :isEnabled="!step.buttonDisabled"
                     @tap="goNext"
                 ></Button>
-                <Label
-                    :text="step.altOption"
-                    class="skip"
-                    @tap="skip"
-                    textWrap="true"
-                />
+                <Label :text="step.altOption" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
         </GridLayout>
@@ -53,7 +40,7 @@
 
 <script>
 import routes from "../../routes";
-import { _T } from "../../utilities"
+import { _T } from "../../utilities";
 
 export default {
     props: ["stepParam"],
@@ -71,12 +58,12 @@ export default {
         goNext() {
             if (this.step.next && this.step.next == "goToStations") {
                 this.goToStations();
-                return
+                return;
             }
 
             if (this.step.next && this.step.next == "goToModuleAssembly") {
                 this.goToModuleAssembly();
-                return
+                return;
             }
 
             if (this.step.next && this.step.next == "testConnection") {
@@ -87,7 +74,7 @@ export default {
         skip() {
             if (this.step.skip && this.step.skip == "tryAgain") {
                 this.goToTestConnection();
-                return
+                return;
             }
             if (this.step.skip) {
                 this.step.next = this.step.skip;
@@ -102,68 +89,63 @@ export default {
         goToStations() {
             this.$navigateTo(routes.stations, {
                 clearHistory: true,
-                backstackVisible: false
+                backstackVisible: false,
             });
         },
 
         goToModuleAssembly() {
             this.$navigateTo(routes.assembleStation, {
                 props: {
-                    stepParam: 3
-                }
+                    stepParam: 3,
+                },
             });
         },
 
         goToTestConnection() {
             this.$navigateTo(routes.connectStation, {
                 props: {
-                    stepParam: "testConnection"
-                }
+                    stepParam: "testConnection",
+                },
             });
-        }
-    }
+        },
+    },
 };
 
 const steps = {
-    "trouble":
-        {
-            prev: "",
-            next: "testConnection",
-            title: "Having Problems Connecting?",
-            skip: "goToStations",
-            instructions:
-                [
-                    "1. Press the WiFi button again",
-                    "2. Turn on station's WiFi access point directly from the station settings menu",
-                    "3. If you are still having trouble get help at our support and troubleshooting center"
-                ],
-            button: "Try Again",
-            images: [],
-            altOption: "Skip this step"
-        },
-    "testConnection":
-       {
-            prev: "",
-            next: "",
-            proceed: "selectStation",
-            title: "",
-            instructions: ["Connecting"],
-            button: "",
-            images: []
-        },
-    "noModules":
-        {
-            prev: "startCalibration",
-            next: "goToModuleAssembly",
-            skip: "goToStations",
-            title: "No Modules Connected",
-            instructions: ["Complete your FieldKit Station by adding sensor modules."],
-            button: "Add Modules",
-            images: [],
-            altOption: "Continue without modules"
-        }
+    trouble: {
+        prev: "",
+        next: "testConnection",
+        title: "Having Problems Connecting?",
+        skip: "goToStations",
+        instructions: [
+            "1. Press the WiFi button again",
+            "2. Turn on station's WiFi access point directly from the station settings menu",
+            "3. If you are still having trouble get help at our support and troubleshooting center",
+        ],
+        button: "Try Again",
+        images: [],
+        altOption: "Skip this step",
+    },
+    testConnection: {
+        prev: "",
+        next: "",
+        proceed: "selectStation",
+        title: "",
+        instructions: ["Connecting"],
+        button: "",
+        images: [],
+    },
+    noModules: {
+        prev: "startCalibration",
+        next: "goToModuleAssembly",
+        skip: "goToStations",
+        title: "No Modules Connected",
+        instructions: ["Complete your FieldKit Station by adding sensor modules."],
+        button: "Add Modules",
+        images: [],
+        altOption: "Continue without modules",
+    },
 };
-
 </script>
 
 <style scoped lang="scss">

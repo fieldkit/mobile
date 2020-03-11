@@ -4,21 +4,21 @@ function get_blank_developer_config() {
     return {
         logging: {
             SaveLogs: true,
-			EnableAll: true,
+            EnableAll: true,
             QueryStation: false,
             DownloadManager: false,
             UploadManager: false,
             CalibrationService: true,
             DiscoverStation: true,
             NativeScriptConservify: true,
-            StationFirmware: true
+            StationFirmware: true,
         },
         developer: {
             machine: null,
             stationFilter: url => {
                 return true;
-            }
-        }
+            },
+        },
     };
 }
 
@@ -32,7 +32,7 @@ function get_developer_config() {
 const configs = {
     default: {
         vue: {
-            verbose: false
+            verbose: false,
         },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
@@ -41,11 +41,11 @@ const configs = {
         stationTimeoutMs: 90000,
         includeInternalModules: false,
         includeInternalSensors: false,
-        syncMode: "auto"
+        syncMode: "auto",
     },
     test: {
         vue: {
-            verbose: false
+            verbose: false,
         },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
@@ -54,8 +54,8 @@ const configs = {
         stationTimeoutMs: 90000,
         includeInternalModules: false,
         includeInternalSensors: false,
-        syncMode: "auto"
-    }
+        syncMode: "auto",
+    },
 };
 
 function get_config() {
@@ -85,13 +85,13 @@ final.logger = name => {
                 const args = Array.from(arguments);
                 args.unshift(name);
                 console.error.apply(console, args);
-            }
+            },
         };
     }
     return {
         info: () => {},
         verbose: () => {},
-        error: () => {}
+        error: () => {},
     };
 };
 
@@ -102,5 +102,5 @@ export const Build = {
     buildNumber: FK_BUILD_NUMBER || "",
     buildTag: FK_BUILD_TAG || "",
     commit: FK_GIT_COMMIT || "",
-    branch: FK_GIT_BRANCH || ""
+    branch: FK_GIT_BRANCH || "",
 };

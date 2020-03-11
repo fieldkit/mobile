@@ -3,12 +3,7 @@
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <StackLayout id="stations-list" class="m-y-10">
-                    <ScreenHeader
-                        title="FieldKit Stations"
-                        :canNavigateBack="false"
-                        :canNavigateSettings="false"
-                        :bottomMargin="false"
-                    />
+                    <ScreenHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" :bottomMargin="false" />
 
                     <GridLayout rows="auto" columns="*" id="mapbox-wrapper">
                         <Mapbox
@@ -35,32 +30,19 @@
                             class="toggle-container"
                             v-if="showToggle"
                         >
-                            <Image
-                                width="35"
-                                src="~/images/Icon_Expand_Map.png"
-                                @tap="openModal"
-                            ></Image>
+                            <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="openModal"></Image>
                         </StackLayout>
                     </GridLayout>
 
                     <GridLayout rows="*,*,*" v-if="stations.length == 0" class="m-t-20">
-                        <Label
-                            row="0"
-                            text="Connect a Station"
-                            class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20"
-                        />
+                        <Label row="0" text="Connect a Station" class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20" />
                         <Label
                             row="1"
                             text="You have no stations. Add a station to start collecting data."
                             class="text-center size-18 instruction"
                             textWrap="true"
                         />
-                        <Button
-                            row="2"
-                            class="btn btn-primary btn-padded m-y-20"
-                            text="Add a Station"
-                            @tap="goToAddStation"
-                        ></Button>
+                        <Button row="2" class="btn btn-primary btn-padded m-y-20" text="Add a Station" @tap="goToAddStation"></Button>
                     </GridLayout>
 
                     <GridLayout
@@ -74,37 +56,10 @@
                         :automationText="'linkToStation' + index"
                         @tap="goToDetail"
                     >
-                        <Label
-                            row="0"
-                            col="0"
-                            :text="s.name"
-                            :class="
-                                'station-name ' +
-                                    (s.connected ? '' : 'disconnected')
-                            "
-                        />
-                        <Label
-                            row="1"
-                            col="0"
-                            :text="s.deployStatus"
-                            :class="
-                                'm-t-5 ' + (s.connected ? '' : 'disconnected')
-                            "
-                        />
-                        <Image
-                            col="1"
-                            rowSpan="2"
-                            width="20"
-                            v-if="s.connected"
-                            src="~/images/Icon_Connected.png"
-                        ></Image>
-                        <Image
-                            col="1"
-                            rowSpan="2"
-                            width="20"
-                            v-if="!s.connected"
-                            src="~/images/Icon_not_Connected.png"
-                        ></Image>
+                        <Label row="0" col="0" :text="s.name" :class="'station-name ' + (s.connected ? '' : 'disconnected')" />
+                        <Label row="1" col="0" :text="s.deployStatus" :class="'m-t-5 ' + (s.connected ? '' : 'disconnected')" />
+                        <Image col="1" rowSpan="2" width="20" v-if="s.connected" src="~/images/Icon_Connected.png"></Image>
+                        <Image col="1" rowSpan="2" width="20" v-if="!s.connected" src="~/images/Icon_not_Connected.png"></Image>
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
@@ -121,17 +76,13 @@
 import routes from "../routes";
 import { screen } from "tns-core-modules/platform/platform";
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import {
-    Observable,
-    PropertyChangeData
-} from "tns-core-modules/data/observable";
+import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import { request } from "tns-core-modules/http";
 
 import modalMap from "./ModalMapView";
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
-
 
 export default {
     data() {
@@ -142,15 +93,15 @@ export default {
             showToggle: false,
             stationMarkers: [],
             fullScreenMap: false,
-            mapboxToken: MAPBOX_ACCESS_TOKEN
+            mapboxToken: MAPBOX_ACCESS_TOKEN,
         };
     },
     components: {
         ScreenHeader,
-        ScreenFooter
+        ScreenFooter,
     },
     props: {
-        station: Object
+        station: Object,
     },
     methods: {
         onPageLoaded(args) {
@@ -172,9 +123,9 @@ export default {
                 props: {
                     bounds: this.bounds,
                     stationMarkers: this.stationMarkers,
-                    mapHeight: screen.mainScreen.heightDIPs - 20
+                    mapHeight: screen.mainScreen.heightDIPs - 20,
                 },
-                fullscreen: true
+                fullscreen: true,
             };
             this.$showModal(modalMap, options);
         },
@@ -194,8 +145,8 @@ export default {
             this.unsubscribe();
             this.$navigateTo(routes.assembleStation, {
                 props: {
-                    stepParam: "first"
-                }
+                    stepParam: "first",
+                },
             });
         },
 
@@ -206,12 +157,10 @@ export default {
             // try using hardware's startedTime first
             try {
                 if (!station.statusReply.status.recording.startedTime) {
-                    throw new Error("no startedTime")
+                    throw new Error("no startedTime");
                 }
                 // multiply by 1000 so the arg is in ms, not s
-                const start = new Date(
-                    station.statusReply.status.recording.startedTime * 1000
-                );
+                const start = new Date(station.statusReply.status.recording.startedTime * 1000);
                 let month = start.getMonth() + 1;
                 let day = start.getDate();
                 let year = start.getFullYear();
@@ -221,14 +170,12 @@ export default {
             }
             // try using db's start time
             try {
-                const dbDate = new Date(
-                    station.deployStartTime
-                );
+                const dbDate = new Date(station.deployStartTime);
                 let month = dbDate.getMonth() + 1;
                 let day = dbDate.getDate();
                 let year = dbDate.getFullYear();
                 if (isNaN(month)) {
-                    throw new Error("no deployStartTime")
+                    throw new Error("no deployStartTime");
                 }
                 return _L("deployed") + ": " + month + "/" + day + "/" + year;
             } catch (error) {
@@ -263,12 +210,7 @@ export default {
             this.bounds.latMax = -90;
             this.stationMarkers = [];
             let mappable = this.stations.filter(s => {
-                return (
-                    s.latitude &&
-                    Number(s.latitude) != 1000 &&
-                    s.longitude &&
-                    Number(s.longitude) != 1000
-                );
+                return s.latitude && Number(s.latitude) != 1000 && s.longitude && Number(s.longitude) != 1000;
             });
             mappable.forEach((s, i) => {
                 s.latitude = Number(s.latitude);
@@ -276,12 +218,12 @@ export default {
                 if (mappable.length == 1 && this.map) {
                     this.map.setZoomLevel({
                         level: 14,
-                        animated: false
+                        animated: false,
                     });
                     this.map.setCenter({
                         lat: s.latitude,
                         lng: s.longitude,
-                        animated: false
+                        animated: false,
                     });
                 } else {
                     if (s.latitude > this.bounds.latMax) {
@@ -303,11 +245,9 @@ export default {
                     lng: s.longitude,
                     title: s.name,
                     subtitle: s.deployStatus,
-                    iconPath: s.connected
-                        ? "images/Icon_Map_Dot.png"
-                        : "images/Icon_Map_Dot_unconnected.png",
+                    iconPath: s.connected ? "images/Icon_Map_Dot.png" : "images/Icon_Map_Dot_unconnected.png",
                     onTap: this.onMarkerTap,
-                    onCalloutTap: this.onCalloutTap
+                    onCalloutTap: this.onCalloutTap,
                 });
             });
 
@@ -320,23 +260,22 @@ export default {
             // prevent error when setting viewport with identical min max
             // and prevent zooming in too close when stations are in same place
             if (
-                mappable.length > 1
-                && this.bounds.latMax - this.bounds.latMin < 0.0001
-                && this.bounds.longMax - this.bounds.longMin < 0.0001
-                && this.map
+                mappable.length > 1 &&
+                this.bounds.latMax - this.bounds.latMin < 0.0001 &&
+                this.bounds.longMax - this.bounds.longMin < 0.0001 &&
+                this.map
             ) {
                 this.map.setZoomLevel({
                     level: 14,
-                    animated: false
+                    animated: false,
                 });
                 this.map.setCenter({
                     lat: this.bounds.latMax,
                     lng: this.bounds.longMax,
-                    animated: false
+                    animated: false,
                 });
             } else if (mappable.length > 1 && this.map) {
-                const smallLatMargin =
-                    (this.bounds.latMax - this.bounds.latMin) / 10;
+                const smallLatMargin = (this.bounds.latMax - this.bounds.latMin) / 10;
                 // const smallLongMargin =
                 //     (this.bounds.longMax - this.bounds.longMin) / 10;
                 this.map.setViewport({
@@ -345,8 +284,8 @@ export default {
                         north: this.bounds.latMax + smallLatMargin,
                         east: this.bounds.longMax,
                         south: this.bounds.latMin,
-                        west: this.bounds.longMin
-                    }
+                        west: this.bounds.longMin,
+                    },
                     // animated: false // causes map crash
                 });
             }
@@ -355,12 +294,12 @@ export default {
         onMarkerTap(marker) {
             this.map.setZoomLevel({
                 level: 14,
-                animated: false
+                animated: false,
             });
             this.map.setCenter({
                 lat: marker.lat,
                 lng: marker.lng,
-                animated: false
+                animated: false,
             });
         },
 
@@ -376,8 +315,8 @@ export default {
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: id,
-                    station: stationObj
-                }
+                    station: stationObj,
+                },
             });
         },
 
@@ -400,8 +339,8 @@ export default {
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: id,
-                    station: stationObj
-                }
+                    station: stationObj,
+                },
             });
         },
 
@@ -410,7 +349,7 @@ export default {
                 .confirm({
                     title: "Do you want to view development options?",
                     okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel")
+                    cancelButtonText: _L("cancel"),
                 })
                 .then(result => {
                     if (result) {
@@ -422,8 +361,8 @@ export default {
 
         unsubscribe() {
             this.$stationMonitor.unsubscribeAll();
-        }
-    }
+        },
+    },
 };
 </script>
 

@@ -1,33 +1,12 @@
 <template>
-    <GridLayout
-        rows="auto,*,auto"
-        height="100%"
-        @loaded="onPageLoaded"
-        @unloaded="onUnloaded"
-    >
+    <GridLayout rows="auto,*,auto" height="100%" @loaded="onPageLoaded" @unloaded="onUnloaded">
         <!-- header section -->
-        <GridLayout
-            row="0"
-            rows="auto"
-            columns="15*,70*,15*"
-            :class="fieldNote.image
-                ? 'bottom-border-no-margin'
-                : 'bottom-border'"
-        >
-            <StackLayout
-                col="0"
-                class="round-bkgd"
-                verticalAlignment="top"
-                @tap="onCancel"
-            >
+        <GridLayout row="0" rows="auto" columns="15*,70*,15*" :class="fieldNote.image ? 'bottom-border-no-margin' : 'bottom-border'">
+            <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="onCancel">
                 <Image width="21" src="~/images/Icon_Close.png"></Image>
             </StackLayout>
             <StackLayout col="1" verticalAlignment="middle">
-                <Label
-                    class="title text-center"
-                    :text="fieldNote.title"
-                    textWrap="true"
-                ></Label>
+                <Label class="title text-center" :text="fieldNote.title" textWrap="true"></Label>
             </StackLayout>
             <StackLayout col="2" class="round-bkgd" @tap="onSave">
                 <Image width="25" src="~/images/Icon_Save.png"></Image>
@@ -53,42 +32,15 @@
                 @textChange="showAndroidPhotoInstruction"
                 @focus="showIosPhotoInstruction"
             ></TextView>
-            <Image
-                row="2"
-                height="300"
-                :src="fieldNote.image"
-                stretch="aspectFit"
-            />
+            <Image row="2" height="300" :src="fieldNote.image" stretch="aspectFit" />
         </GridLayout>
 
-        <WrapLayout
-            row="1"
-            orientation="horizontal"
-            v-if="!fieldNote.image"
-        >
+        <WrapLayout row="1" orientation="horizontal" v-if="!fieldNote.image">
             <!-- title option for additional notes -->
-            <GridLayout
-                rows="auto,auto,auto"
-                columns="*"
-                class="m-b-2"
-                v-if="fieldNote.field == 'additional'"
-            >
-                <Label
-                    row="0"
-                    text="Title"
-                    class="m-x-20 m-b-2 size-14"
-                />
-                <TextView
-                    row="1"
-                    class="size-14 p-x-20 large-text-field"
-                    hint="Tap to add a title"
-                    v-model="fieldNote.title"
-                ></TextView>
-                <Label
-                    row="2"
-                    text="Note"
-                    class="m-x-20 m-t-10 size-14"
-                />
+            <GridLayout rows="auto,auto,auto" columns="*" class="m-b-2" v-if="fieldNote.field == 'additional'">
+                <Label row="0" text="Title" class="m-x-20 m-b-2 size-14" />
+                <TextView row="1" class="size-14 p-x-20 large-text-field" hint="Tap to add a title" v-model="fieldNote.title"></TextView>
+                <Label row="2" text="Note" class="m-x-20 m-t-10 size-14" />
             </GridLayout>
             <!-- main text input section -->
             <Label
@@ -111,12 +63,7 @@
             ></TextView>
 
             <!-- Recording in progress -->
-            <GridLayout
-                rows="auto"
-                columns="10*,10*,70*,10*"
-                class="recording-box"
-                v-if="preRecord || recordingInProgress"
-            >
+            <GridLayout rows="auto" columns="10*,10*,70*,10*" class="recording-box" v-if="preRecord || recordingInProgress">
                 <Image
                     col="0"
                     width="20"
@@ -132,11 +79,7 @@
                     src="~/images/Icon_Record.png"
                     v-if="preRecord"
                     automationText="startRecording"
-                    @tap="
-                        recordingInProgress
-                            ? resumeRecording()
-                            : startAudioRecording()
-                    "
+                    @tap="recordingInProgress ? resumeRecording() : startAudioRecording()"
                 ></Image>
                 <Image
                     col="1"
@@ -147,19 +90,8 @@
                     automationText="stopRecording"
                     @tap="stopRecording"
                 ></Image>
-                <Label
-                    col="2"
-                    :colSpan="recordingInProgress ? 1 : 2"
-                    :text="recordingTime"
-                    textWrap="true"
-                />
-                <Image
-                    col="3"
-                    width="20"
-                    class="small-round"
-                    src="~/images/Icon_Close_Circle.png"
-                    @tap="cancelRecording"
-                ></Image>
+                <Label col="2" :colSpan="recordingInProgress ? 1 : 2" :text="recordingTime" textWrap="true" />
+                <Image col="3" width="20" class="small-round" src="~/images/Icon_Close_Circle.png" @tap="cancelRecording"></Image>
             </GridLayout>
             <!-- end recording in progress -->
 
@@ -210,12 +142,7 @@
         </WrapLayout>
 
         <!-- date and time -->
-        <Label
-            row="2"
-            :text="currentTime"
-            horizontalAlignment="left"
-            class="m-t-15 m-l-10 m-b-10 size-14 lighter"
-        ></Label>
+        <Label row="2" :text="currentTime" horizontalAlignment="left" class="m-t-15 m-l-10 m-b-10 size-14 lighter"></Label>
 
         <!-- mic icon -->
         <Image
@@ -254,7 +181,7 @@ export default {
             timer: 0,
             recordingTime: "00:00:00",
             recordingInProgress: false,
-            currentTime: ""
+            currentTime: "",
         };
     },
     props: ["fieldNote"],
@@ -273,7 +200,7 @@ export default {
                 _L("sep"),
                 _L("oct"),
                 _L("nov"),
-                _L("dec")
+                _L("dec"),
             ];
             this.currentTime = this.getTimestamp();
 
@@ -341,13 +268,12 @@ export default {
             element.translateX = 5;
             element.translateY = 20;
             this.typing = true;
-            element
-                .animate({
-                    opacity: 0.75,
-                    translate: { x: 0, y: 0},
-                    duration: 300,
-                    curve: AnimationCurve.easeIn
-                });
+            element.animate({
+                opacity: 0.75,
+                translate: { x: 0, y: 0 },
+                duration: 300,
+                curve: AnimationCurve.easeIn,
+            });
         },
 
         getTimestamp() {
@@ -375,14 +301,7 @@ export default {
             let month = monthNames[now.getMonth()];
             let day = now.getDate();
             let year = now.getFullYear();
-            let filename =
-                this.fieldNote.title +
-                " " + _L("audioNote") + " " +
-                month +
-                " " +
-                day +
-                " " +
-                year;
+            let filename = this.fieldNote.title + " " + _L("audioNote") + " " + month + " " + day + " " + year;
             let index = 2;
             while (this.displayRecordings.indexOf(filename) > -1) {
                 filename = filename + " " + index;
@@ -454,7 +373,7 @@ export default {
                 .confirm({
                     title: _L("confirmDeleteRecording"),
                     okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel")
+                    cancelButtonText: _L("cancel"),
                 })
                 .then(result => {
                     if (result) {
@@ -493,8 +412,8 @@ export default {
         stopPlaying(event) {
             this.isPlaying = false;
             audioInterface.pausePlayer();
-        }
-    }
+        },
+    },
 };
 </script>
 

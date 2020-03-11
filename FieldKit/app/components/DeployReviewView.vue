@@ -3,47 +3,25 @@
         <GridLayout :rows="station.connected ? '78,*,80' : '105,*,80'">
             <!-- sticky header section and progress bar -->
             <StackLayout row="0">
-                <ScreenHeader
-                    :title="viewTitle"
-                    :subtitle="stationName"
-                    :onBack="goBack"
-                    :canNavigateSettings="false"
-                />
+                <ScreenHeader :title="viewTitle" :subtitle="stationName" :onBack="goBack" :canNavigateSettings="false" />
                 <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
-                <StackLayout
-                    class="text-center disconnect-warning"
-                    v-if="!station.connected"
-                >
+                <StackLayout class="text-center disconnect-warning" v-if="!station.connected">
                     <Label text="Station disconnected." />
                 </StackLayout>
             </StackLayout>
 
             <ScrollView row="1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-
-
                     <!-- station coordinates -->
                     <StackLayout class="review-section">
-                        <Label
-                            :text="_L('stationCoordinates')"
-                            class="size-16 bold m-b-10"
-                        ></Label>
+                        <Label :text="_L('stationCoordinates')" class="size-16 bold m-b-10"></Label>
                         <GridLayout rows="auto,auto" columns="35*,65*">
-                            <Label
-                                row="0"
-                                col="0"
-                                :text="_L('latitude')"
-                                class="m-b-5"
-                            ></Label>
+                            <Label row="0" col="0" :text="_L('latitude')" class="m-b-5"></Label>
                             <Label row="1" col="0" :text="station.latitude"></Label>
                             <Label row="0" col="1" :text="_L('longitude')"></Label>
-                            <Label
-                                row="1"
-                                col="1"
-                                :text="station.longitude"
-                            ></Label>
+                            <Label row="1" col="1" :text="station.longitude"></Label>
                         </GridLayout>
                     </StackLayout>
 
@@ -51,20 +29,9 @@
                     <StackLayout class="review-section">
                         <GridLayout rows="auto" columns="90*,10*">
                             <Label col="0" :text="_L('nameYourLocation')" />
-                            <Image
-                                col="1"
-                                src="~/images/Icon_Edit.png"
-                                width="18"
-                                @tap="editLocation"
-                            />
+                            <Image col="1" src="~/images/Icon_Edit.png" width="18" @tap="editLocation" />
                         </GridLayout>
-                        <Label
-                            :text="
-                                station.locationName
-                                    ? station.locationName
-                                    : _L('noNameGiven')
-                            "
-                        />
+                        <Label :text="station.locationName ? station.locationName : _L('noNameGiven')" />
                         <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
                         <Label :text="_L('basic')" />
                         <Label :text="_L('every')" class="m-t-20 m-b-5" />
@@ -73,17 +40,8 @@
 
                     <!-- field notes -->
                     <StackLayout class="review-section-no-border">
-                        <GridLayout
-                            rows="auto"
-                            columns="30*,60*,10*"
-                            class="m-b-10"
-                        >
-                            <Label
-                                row="0"
-                                col="0"
-                                text="Field Notes"
-                                class="size-16 bold"
-                            ></Label>
+                        <GridLayout rows="auto" columns="30*,60*,10*" class="m-b-10">
+                            <Label row="0" col="0" text="Field Notes" class="size-16 bold"></Label>
                             <Label
                                 row="0"
                                 col="1"
@@ -91,34 +49,12 @@
                                 class="size-12 blue"
                                 verticalAlignment="bottom"
                             ></Label>
-                            <Image
-                                row="0"
-                                col="2"
-                                src="~/images/Icon_Edit.png"
-                                width="18"
-                                @tap="editNotes"
-                            />
+                            <Image row="0" col="2" src="~/images/Icon_Edit.png" width="18" @tap="editNotes" />
                         </GridLayout>
-                        <StackLayout
-                            v-for="note in completeNotes"
-                            :key="note.field"
-                        >
-                            <Label
-                                :text="note.title"
-                                class="size-14 m-t-10 m-b-5"
-                            ></Label>
-                            <Label
-                                v-if="note.value"
-                                :text="note.value"
-                                class="size-12"
-                                textWrap="true"
-                            ></Label>
-                            <Image
-                                v-if="note.audioFile"
-                                src="~/images/Icon_Mic.png"
-                                width="17"
-                                horizontalAlignment="left"
-                            />
+                        <StackLayout v-for="note in completeNotes" :key="note.field">
+                            <Label :text="note.title" class="size-14 m-t-10 m-b-5"></Label>
+                            <Label v-if="note.value" :text="note.value" class="size-12" textWrap="true"></Label>
+                            <Image v-if="note.audioFile" src="~/images/Icon_Mic.png" width="17" horizontalAlignment="left" />
                         </StackLayout>
                     </StackLayout>
 
@@ -126,11 +62,7 @@
                     <StackLayout class="review-section-no-border">
                         <Label :text="_L('photosRequired')" class="size-12"></Label>
                         <WrapLayout orientation="horizontal">
-                            <StackLayout
-                                v-for="photo in photos"
-                                :key="photo.id"
-                                class="photo-display"
-                            >
+                            <StackLayout v-for="photo in photos" :key="photo.id" class="photo-display">
                                 <Image :src="photo.src" stretch="aspectFit" />
                             </StackLayout>
                         </WrapLayout>
@@ -138,10 +70,7 @@
 
                     <!-- additional notes -->
                     <StackLayout class="additional-notes-label">
-                        <Label
-                            :text="_L('additionalNotes')"
-                            class="size-12"
-                        ></Label>
+                        <Label :text="_L('additionalNotes')" class="size-12"></Label>
                     </StackLayout>
                     <GridLayout
                         row="0"
@@ -151,27 +80,9 @@
                         v-for="note in additionalNotes"
                         :key="note.fieldNoteId"
                     >
-                        <Label
-                            row="0"
-                            col="0"
-                            :text="note.title"
-                            class="size-14 m-b-5"
-                        ></Label>
-                        <Label
-                            row="1"
-                            col="0"
-                            :text="note.value"
-                            v-if="note.value"
-                            class="size-12 m-b-10"
-                            textWrap="true"
-                        ></Label>
-                        <Image
-                            rowSpan="2"
-                            col="1"
-                            v-if="note.audioFile"
-                            src="~/images/Icon_Mic.png"
-                            width="17"
-                        />
+                        <Label row="0" col="0" :text="note.title" class="size-14 m-b-5"></Label>
+                        <Label row="1" col="0" :text="note.value" v-if="note.value" class="size-12 m-b-10" textWrap="true"></Label>
+                        <Image rowSpan="2" col="1" v-if="note.audioFile" src="~/images/Icon_Mic.png" width="17" />
                     </GridLayout>
                 </FlexboxLayout>
             </ScrollView>
@@ -180,11 +91,7 @@
             <StackLayout row="2">
                 <Button
                     class="btn btn-primary btn-padded m-20"
-                    :text="(
-                        station.connected
-                        ? _L('record')
-                        : _L('mustBeConnectedToRecord')
-                    )"
+                    :text="station.connected ? _L('record') : _L('mustBeConnectedToRecord')"
                     :isEnabled="station.connected"
                     textWrap="true"
                     @tap="deployStation"
@@ -207,12 +114,12 @@ export default {
         return {
             viewTitle: _L("deploymentReview"),
             stationName: "",
-            completeNotes: []
+            completeNotes: [],
         };
     },
     props: ["station", "fieldNotes", "photos", "additionalNotes", "percentComplete"],
     components: {
-        ScreenHeader
+        ScreenHeader,
     },
     methods: {
         onPageLoaded(args) {
@@ -236,29 +143,29 @@ export default {
 
             this.$navigateTo(routes.deployNotes, {
                 props: {
-                    station: this.station
+                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",
                     duration: 250,
-                    curve: "linear"
-                }
+                    curve: "linear",
+                },
             });
         },
 
         editLocation(event) {
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    station: this.station
-                }
+                    station: this.station,
+                },
             });
         },
 
         editNotes(event) {
             this.$navigateTo(routes.deployNotes, {
                 props: {
-                    station: this.station
-                }
+                    station: this.station,
+                },
             });
         },
 
@@ -301,14 +208,14 @@ export default {
 
             queryStation.startDataRecording(this.station.url).then(result => {
                 this.updatePortal(savingStation).catch(e => {
-                        // TODO: put failure in notifications
-                        console.log("error updating portal", e)
-                    });
+                    // TODO: put failure in notifications
+                    console.log("error updating portal", e);
+                });
                 this.$navigateTo(routes.stationDetail, {
                     props: {
                         station: this.station,
-                        redirectedFromDeploy: "true"
-                    }
+                        redirectedFromDeploy: "true",
+                    },
                 });
             });
         },
@@ -318,19 +225,17 @@ export default {
                 let params = {
                     name: this.station.name,
                     device_id: this.station.deviceId,
-                    status_json: savingStation
+                    status_json: savingStation,
                 };
-                return this.$portalInterface
-                    .updateStation(params, this.station.portalId)
-                    .then(stationPortalId => {
-                        // console.log("successfully updated", stationPortalId)
-                        return Promise.resolve();
-                    });
+                return this.$portalInterface.updateStation(params, this.station.portalId).then(stationPortalId => {
+                    // console.log("successfully updated", stationPortalId)
+                    return Promise.resolve();
+                });
             } else {
                 return Promise.resolve();
             }
-        }
-    }
+        },
+    },
 };
 </script>
 

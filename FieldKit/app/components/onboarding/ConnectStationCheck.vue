@@ -1,22 +1,11 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="auto'">
-            <StackLayout
-                row="0"
-                height="100%"
-                backgroundColor="white"
-                verticalAlignment="middle"
-            >
+            <StackLayout row="0" height="100%" backgroundColor="white" verticalAlignment="middle">
                 <GridLayout rows="auto, auto" columns="*">
                     <StackLayout row="0" id="loading-circle-blue"></StackLayout>
                     <StackLayout row="0" id="loading-circle-white"></StackLayout>
-                    <Label
-                        row="1"
-                        class="instruction m-t-20"
-                        text="Connecting"
-                        lineHeight="4"
-                        textWrap="true"
-                    ></Label>
+                    <Label row="1" class="instruction m-t-20" text="Connecting" lineHeight="4" textWrap="true"></Label>
                 </GridLayout>
             </StackLayout>
         </GridLayout>
@@ -36,13 +25,13 @@ export default {
         return {
             step: {},
             stations: [],
-            stationOptions: []
+            stationOptions: [],
         };
     },
     components: {
         ConnectStationError,
         ConnectStationList,
-        ConnectStationModules
+        ConnectStationModules,
     },
     methods: {
         onPageLoaded(args) {
@@ -57,7 +46,9 @@ export default {
         updateStations(data) {
             switch (data.propertyName.toString()) {
                 case this.$stationMonitor.StationsUpdatedProperty: {
-                    this.stations = data.value.filter(s => { return s.connected; });
+                    this.stations = data.value.filter(s => {
+                        return s.connected;
+                    });
                     break;
                 }
             }
@@ -71,15 +62,15 @@ export default {
         takeStep() {
             if (this.step && this.step.hasError) {
                 this.goToError();
-                return
+                return;
             }
             if (this.proceed == "selectStation") {
                 this.goToSelectStation();
-                return
+                return;
             }
             if (this.proceed == "startCalibration") {
                 this.goToModules();
-                return
+                return;
             }
         },
 
@@ -88,8 +79,8 @@ export default {
             this.unsubscribe();
             this.$navigateTo(ConnectStationError, {
                 props: {
-                    stepParam: this.step.name
-                }
+                    stepParam: this.step.name,
+                },
             });
         },
 
@@ -98,8 +89,8 @@ export default {
             this.unsubscribe();
             this.$navigateTo(ConnectStationList, {
                 props: {
-                    stationOptionsParam: this.stationOptions
-                }
+                    stationOptionsParam: this.stationOptions,
+                },
             });
         },
 
@@ -109,8 +100,8 @@ export default {
             this.$navigateTo(ConnectStationModules, {
                 props: {
                     stepParam: this.proceed,
-                    stationParam: this.stationParam
-                }
+                    stationParam: this.stationParam,
+                },
             });
         },
 
@@ -128,11 +119,10 @@ export default {
                 setTimeout(() => {
                     this.loadingWhite = this.page.getViewById("loading-circle-white");
                     if (this.loadingWhite) {
-                        this.loadingWhite
-                            .animate({
-                                rotate: 360,
-                                duration: 1000
-                            });
+                        this.loadingWhite.animate({
+                            rotate: 360,
+                            duration: 1000,
+                        });
                     }
                 }, 250);
             }
@@ -147,11 +137,10 @@ export default {
             }
             if (this.loadingWhite) {
                 this.loadingWhite.rotate = 0;
-                this.loadingWhite
-                    .animate({
-                        rotate: 360,
-                        duration: 1000
-                    });
+                this.loadingWhite.animate({
+                    rotate: 360,
+                    duration: 1000,
+                });
             }
         },
 
@@ -171,27 +160,24 @@ export default {
 
         unsubscribe() {
             this.$stationMonitor.unsubscribeAll();
-        }
-    }
+        },
+    },
 };
 
 const steps = {
-    "trouble":
-        {
-            hasError: true,
-            name: "trouble",
-        },
-    "testConnection":
-       {
-            prev: "",
-            next: "",
-            title: "",
-            instructions: ["Connecting"],
-            button: "",
-            images: []
-        }
+    trouble: {
+        hasError: true,
+        name: "trouble",
+    },
+    testConnection: {
+        prev: "",
+        next: "",
+        title: "",
+        instructions: ["Connecting"],
+        button: "",
+        images: [],
+    },
 };
-
 </script>
 
 <style scoped lang="scss">

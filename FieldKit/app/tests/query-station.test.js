@@ -1,17 +1,17 @@
-import Services from '../services/services'
-import { MockStationReplies } from './utilities'
+import Services from "../services/services";
+import { MockStationReplies } from "./utilities";
 
-describe('QueryStation', () => {
-    let queryStation
-    let mockStation
+describe("QueryStation", () => {
+    let queryStation;
+    let mockStation;
 
     beforeEach(() => {
-        queryStation = Services.QueryStation()
-        mockStation = new MockStationReplies(Services)
-    })
+        queryStation = Services.QueryStation();
+        mockStation = new MockStationReplies(Services);
+    });
 
-    it('should retrieve a station status', () => {
-        expect.assertions(2)
+    it("should retrieve a station status", () => {
+        expect.assertions(2);
 
         mockStation.queueBody({
             errors: [],
@@ -20,22 +20,22 @@ describe('QueryStation', () => {
             modules: [
                 {
                     sensors: [[{}], [{}], [{}], [{}]],
-                    name: 'Water Quality Module',
+                    name: "Water Quality Module",
                 },
             ],
-        })
+        });
 
         return queryStation.getStatus().then(body => {
-            expect(body.liveReadings).toBeDefined()
-            expect(mockStation.mock.calls.length).toBe(1)
-        })
-    })
+            expect(body.liveReadings).toBeDefined();
+            expect(mockStation.mock.calls.length).toBe(1);
+        });
+    });
 
-    it('should retrieve station readings (body)', () => {
+    it("should retrieve station readings (body)", () => {
         // Must match expect calls below, ensures that we don't get
         // false positives when the promise never resolve and the
         // expect calls are never reached.
-        expect.assertions(2)
+        expect.assertions(2);
 
         mockStation.queueBody({
             errors: [],
@@ -43,19 +43,19 @@ describe('QueryStation', () => {
             modules: [],
             streams: [],
             liveReadings: [{ modules: [{}], time: 1565734980 }],
-        })
+        });
 
         return queryStation.takeReadings().then(body => {
-            expect(body.liveReadings).toBeDefined()
-            expect(mockStation.mock.calls.length).toBe(1)
-        })
-    })
+            expect(body.liveReadings).toBeDefined();
+            expect(mockStation.mock.calls.length).toBe(1);
+        });
+    });
 
-    it('should retrieve station readings (response)', () => {
+    it("should retrieve station readings (response)", () => {
         // Must match expect calls below, ensures that we don't get
         // false positives when the promise never resolve and the
         // expect calls are never reached.
-        expect.assertions(2)
+        expect.assertions(2);
 
         mockStation.queueResponse({
             body: {
@@ -65,11 +65,11 @@ describe('QueryStation', () => {
                 streams: [],
                 liveReadings: [{ modules: [{}], time: 1565734980 }],
             },
-        })
+        });
 
         return queryStation.takeReadings().then(body => {
-            expect(body.liveReadings).toBeDefined()
-            expect(mockStation.mock.calls.length).toBe(1)
-        })
-    })
-})
+            expect(body.liveReadings).toBeDefined();
+            expect(mockStation.mock.calls.length).toBe(1);
+        });
+    });
+});

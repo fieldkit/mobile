@@ -1,9 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout
-            :rows="(station.connected || linkedFromStation) ? '78,*,80' : '105,*,80'"
-            automationText="deployNotesLayout"
-        >
+        <GridLayout :rows="station.connected || linkedFromStation ? '78,*,80' : '105,*,80'" automationText="deployNotesLayout">
             <!-- sticky header section and progress bar -->
             <StackLayout row="0" v-if="!linkedFromStation">
                 <ScreenHeader
@@ -15,50 +12,20 @@
                     :canNavigateSettings="false"
                     v-if="!isEditing"
                 />
-                <GridLayout
-                    rows="auto"
-                    columns="33*,33*,34*"
-                    class="top-line-bkgd"
-                    v-if="!isEditing"
-                >
+                <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd" v-if="!isEditing">
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
-                <StackLayout
-                    class="text-center disconnect-warning"
-                    v-if="!station.connected && !isEditing"
-                >
+                <StackLayout class="text-center disconnect-warning" v-if="!station.connected && !isEditing">
                     <Label text="Station disconnected." />
                 </StackLayout>
             </StackLayout>
 
             <!-- alternate header section -->
-            <GridLayout
-                row="0"
-                rows="auto"
-                columns="85*,15*"
-                :class="isEditing ? '' : 'alternate-header'"
-                v-if="linkedFromStation"
-            >
-                <StackLayout
-                    row="0"
-                    col="0"
-                    colSpan="2"
-                    verticalAlignment="middle"
-                    v-if="!isEditing"
-                >
-                    <Label
-                        class="title text-center"
-                        text="Field Notes"
-                    ></Label>
+            <GridLayout row="0" rows="auto" columns="85*,15*" :class="isEditing ? '' : 'alternate-header'" v-if="linkedFromStation">
+                <StackLayout row="0" col="0" colSpan="2" verticalAlignment="middle" v-if="!isEditing">
+                    <Label class="title text-center" text="Field Notes"></Label>
                 </StackLayout>
-                <StackLayout
-                    row="0"
-                    col="1"
-                    class="round-bkgd m-r-10"
-                    verticalAlignment="top"
-                    @tap="onEditDone"
-                    v-if="!isEditing"
-                >
+                <StackLayout row="0" col="1" class="round-bkgd m-r-10" verticalAlignment="top" @tap="onEditDone" v-if="!isEditing">
                     <Image width="21" src="~/images/Icon_Close.png"></Image>
                 </StackLayout>
             </GridLayout>
@@ -68,17 +35,8 @@
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout class="m-x-20" v-if="!isEditing">
                         <!-- top label section -->
-                        <GridLayout
-                            rows="auto,auto"
-                            columns="35*,65*"
-                            class="m-b-20"
-                        >
-                            <Label
-                                row="0"
-                                col="0"
-                                text="Field Notes"
-                                class="size-18 bold"
-                            ></Label>
+                        <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
+                            <Label row="0" col="0" text="Field Notes" class="size-18 bold"></Label>
                             <Label
                                 row="0"
                                 col="1"
@@ -107,102 +65,39 @@
                             :automationText="'noteField' + index"
                             @tap="onEditTap"
                         >
-                            <Label
-                                row="0"
-                                col="0"
-                                :text="note.title"
-                                class="size-16 bold m-b-5"
-                            ></Label>
+                            <Label row="0" col="0" :text="note.title" class="size-16 bold m-b-5"></Label>
                             <Label
                                 row="1"
                                 col="0"
-                                :text="
-                                    note.value
-                                        ? note.value
-                                        : note.audioFile
-                                        ? ''
-                                        : note.instruction
-                                "
-                                :class="
-                                    'size-14 m-b-10 '
-                                        + (note.value
-                                        ? 'darker'
-                                        : 'lighter')
-                                "
+                                :text="note.value ? note.value : note.audioFile ? '' : note.instruction"
+                                :class="'size-14 m-b-10 ' + (note.value ? 'darker' : 'lighter')"
                             ></Label>
-                            <Image
-                                rowSpan="2"
-                                col="1"
-                                v-if="note.audioFile"
-                                src="~/images/Icon_Mic.png"
-                                width="17"
-                            />
+                            <Image rowSpan="2" col="1" v-if="note.audioFile" src="~/images/Icon_Mic.png" width="17" />
                         </GridLayout>
 
                         <!-- photos -->
                         <StackLayout class="m-t-20">
-                            <Label
-                                :text="_L('photosRequired')"
-                                class="size-16 bold m-b-5"
-                            ></Label>
-                            <Label
-                                :text="_L('photosInstruction')"
-                                class="lighter size-14"
-                            ></Label>
+                            <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
+                            <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
                             <WrapLayout orientation="horizontal">
-                                <StackLayout
-                                    v-for="(photo, index) in photos"
-                                    :key="photo.id"
-                                    class="photo-display"
-                                >
-                                    <Image
-                                        :src="photo.src"
-                                        stretch="aspectFit"
-                                        :automationText="'deployPhoto' + index"
-                                    />
+                                <StackLayout v-for="(photo, index) in photos" :key="photo.id" class="photo-display">
+                                    <Image :src="photo.src" stretch="aspectFit" :automationText="'deployPhoto' + index" />
                                 </StackLayout>
-                                <StackLayout
-                                    class="photo-btn"
-                                    automationText="addPhoto"
-                                    @tap="onPhotoTap"
-                                >
-                                    <Image
-                                        src="~/images/Icon_Add_Button.png"
-                                        width="20"
-                                        opacity="0.25"
-                                        class="photo-btn-img"
-                                    />
+                                <StackLayout class="photo-btn" automationText="addPhoto" @tap="onPhotoTap">
+                                    <Image src="~/images/Icon_Add_Button.png" width="20" opacity="0.25" class="photo-btn-img" />
                                 </StackLayout>
                             </WrapLayout>
                         </StackLayout>
 
                         <!-- additional notes -->
                         <StackLayout class="m-t-30">
-                            <Label
-                                :text="_L('additionalNotes')"
-                                class="size-16 bold m-b-5"
-                            ></Label>
-                            <Label
-                                :text="_L('addDetails')"
-                                class="lighter size-14 m-b-10"
-                                textWrap="true"
-                            ></Label>
+                            <Label :text="_L('additionalNotes')" class="size-16 bold m-b-5"></Label>
+                            <Label :text="_L('addDetails')" class="lighter size-14 m-b-10" textWrap="true"></Label>
                         </StackLayout>
 
-                        <GridLayout
-                            rows="auto"
-                            columns="*"
-                            v-for="note in additionalNotes"
-                            :key="note.fieldNoteId"
-                            class="m-b-10"
-                        >
+                        <GridLayout rows="auto" columns="*" v-for="note in additionalNotes" :key="note.fieldNoteId" class="m-b-10">
                             <!-- outer layout for border -->
-                            <GridLayout
-                                row="0"
-                                rows="auto,auto"
-                                columns="90*,10*"
-                                class="additional-note-section"
-                            />
+                            <GridLayout row="0" rows="auto,auto" columns="90*,10*" class="additional-note-section" />
                             <GridLayout row="0" rows="auto" columns="*,15">
                                 <GridLayout
                                     col="0"
@@ -212,26 +107,9 @@
                                     :dataNote="note"
                                     @tap="onEditTap"
                                 >
-                                    <Label
-                                        row="0"
-                                        col="0"
-                                        :text="note.title"
-                                        class="size-16 m-b-5"
-                                    ></Label>
-                                    <Label
-                                        row="1"
-                                        col="0"
-                                        :text="note.value"
-                                        v-if="note.value"
-                                        class="size-12 m-b-10"
-                                    ></Label>
-                                    <Image
-                                        rowSpan="2"
-                                        col="1"
-                                        v-if="note.audioFile"
-                                        src="~/images/Icon_Mic.png"
-                                        width="17"
-                                    />
+                                    <Label row="0" col="0" :text="note.title" class="size-16 m-b-5"></Label>
+                                    <Label row="1" col="0" :text="note.value" v-if="note.value" class="size-12 m-b-10"></Label>
+                                    <Image rowSpan="2" col="1" v-if="note.audioFile" src="~/images/Icon_Mic.png" width="17" />
                                 </GridLayout>
                                 <Image
                                     col="1"
@@ -247,15 +125,8 @@
                         </GridLayout>
 
                         <FlexboxLayout class="m-b-20">
-                            <Image
-                                src="~/images/Icon_Add_Button.png"
-                                width="20"
-                            />
-                            <Label
-                                :text="_L('addNote')"
-                                class="bold m-t-10 p-l-5"
-                                @tap="createAdditionalNote"
-                            ></Label>
+                            <Image src="~/images/Icon_Add_Button.png" width="20" />
+                            <Label :text="_L('addNote')" class="bold m-t-10 p-l-5" @tap="createAdditionalNote"></Label>
                         </FlexboxLayout>
                     </StackLayout>
                 </FlexboxLayout>
@@ -320,29 +191,29 @@ export default {
                     value: "",
                     title: _L("studyObjective"),
                     instruction: _L("studyObjectiveInstruction"),
-                    complete: false
+                    complete: false,
                 },
                 {
                     field: "locationPurpose",
                     value: "",
                     title: _L("siteLocation"),
                     instruction: _L("siteLocationInstruction"),
-                    complete: false
+                    complete: false,
                 },
                 {
                     field: "siteCriteria",
                     value: "",
                     title: _L("siteCriteria"),
                     instruction: _L("siteCriteriaInstruction"),
-                    complete: false
+                    complete: false,
                 },
                 {
                     field: "siteDescription",
                     value: "",
                     title: _L("siteDescription"),
                     instruction: _L("siteDescriptionInstruction"),
-                    complete: false
-                }
+                    complete: false,
+                },
             ],
             additionalNotes: [],
             photos: [],
@@ -351,13 +222,13 @@ export default {
             keepAspectRatio: true,
             imageSrc: null,
             havePhoto: false,
-            percentComplete: 0
+            percentComplete: 0,
         };
     },
     props: ["station", "linkedFromStation"],
     components: {
         ScreenHeader,
-        FieldNoteForm
+        FieldNoteForm,
     },
     methods: {
         goBack(event) {
@@ -369,13 +240,13 @@ export default {
 
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    station: this.station
+                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",
                     duration: 250,
-                    curve: "linear"
-                }
+                    curve: "linear",
+                },
             });
         },
 
@@ -389,8 +260,8 @@ export default {
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: this.station.id,
-                    station: this.station
-                }
+                    station: this.station,
+                },
             });
         },
 
@@ -401,8 +272,8 @@ export default {
                     fieldNotes: this.fieldNotes,
                     photos: this.photos,
                     percentComplete: this.percentComplete,
-                    additionalNotes: this.additionalNotes
-                }
+                    additionalNotes: this.additionalNotes,
+                },
             });
         },
 
@@ -416,19 +287,18 @@ export default {
             if (this.station.percentComplete != this.percentComplete) {
                 let savingStation = this.station;
                 savingStation.percentComplete = this.percentComplete;
-                dbInterface.setStationPercentComplete(savingStation)
-                    .then(() => {
-                        this.$navigateTo(routes.stationDetail, {
-                            props: {
-                                station: this.station
-                            }
-                        });
+                dbInterface.setStationPercentComplete(savingStation).then(() => {
+                    this.$navigateTo(routes.stationDetail, {
+                        props: {
+                            station: this.station,
+                        },
                     });
+                });
             } else {
                 this.$navigateTo(routes.stationDetail, {
                     props: {
-                        station: this.station
-                    }
+                        station: this.station,
+                    },
                 });
             }
         },
@@ -482,7 +352,7 @@ export default {
                         value: note.note,
                         title: note.title,
                         audioFile: note.audioFile,
-                        instruction: _L("additionalNoteInstruction")
+                        instruction: _L("additionalNoteInstruction"),
                     });
                 }
             });
@@ -495,7 +365,7 @@ export default {
                     const imageFromLocalFile = fromFile(dest);
                     this.photos.push({
                         id: i,
-                        src: imageFromLocalFile
+                        src: imageFromLocalFile,
                     });
                     this.havePhoto = true;
                 }
@@ -560,7 +430,7 @@ export default {
                 stationId: this.station.portalId,
                 created: new Date(),
                 category_id: category,
-                note: note.value
+                note: note.value,
             };
             this.$portalInterface.addFieldNote(portalParams);
             this.isEditing = false;
@@ -574,7 +444,7 @@ export default {
                 value: "",
                 title: "Field Note",
                 instruction: _L("additionalNoteInstruction"),
-                audioFile: ""
+                audioFile: "",
             };
             this.isEditing = true;
         },
@@ -583,7 +453,7 @@ export default {
             this.isEditing = false;
             if (note.fieldNoteId) {
                 this.updateAdditionalNote(note);
-                return
+                return;
             }
 
             const newNote = {
@@ -593,7 +463,7 @@ export default {
                 title: note.title,
                 category: note.field,
                 audioFile: note.audioFile,
-                author: this.userName
+                author: this.userName,
             };
             dbInterface.insertFieldNote(newNote).then(id => {
                 this.additionalNotes.push({
@@ -602,7 +472,7 @@ export default {
                     value: note.value,
                     title: note.title,
                     instruction: _L("additionalNoteInstruction"),
-                    audioFile: note.audioFile
+                    audioFile: note.audioFile,
                 });
             });
             // send note as field note to portal
@@ -611,7 +481,7 @@ export default {
                 stationId: this.station.portalId,
                 created: new Date(),
                 category_id: 1,
-                note: note.value
+                note: note.value,
             };
             this.$portalInterface.addFieldNote(portalParams);
         },
@@ -623,7 +493,7 @@ export default {
                 .confirm({
                     title: _L("confirmDeleteNote"),
                     okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel")
+                    cancelButtonText: _L("cancel"),
                 })
                 .then(result => {
                     if (result) {
@@ -635,9 +505,7 @@ export default {
                         }
                         dbInterface.removeFieldNote(note.fieldNoteId);
                         if (note.audioFile && note.audioFile != "") {
-                            dbInterface.removeFieldNoteByAudioFile(
-                                note.audioFile
-                            );
+                            dbInterface.removeFieldNoteByAudioFile(note.audioFile);
                         }
 
                         // *** NOTE: probably more places need this:
@@ -653,7 +521,7 @@ export default {
                 stationId: this.station.portalId,
                 created: new Date(),
                 category_id: 1,
-                note: note.value
+                note: note.value,
             };
             this.$portalInterface.addFieldNote(portalParams);
         },
@@ -679,7 +547,7 @@ export default {
                 note: note.value,
                 category: note.field,
                 audioFile: recording,
-                author: this.userName
+                author: this.userName,
             };
             dbInterface.insertFieldNote(audioNote);
             this.updatePercentComplete();
@@ -735,7 +603,7 @@ export default {
                 .action({
                     message: _L("addPhoto"),
                     cancelButtonText: _L("cancel"),
-                    actions: [_L("takePicture"), _L("selectFromGallery")]
+                    actions: [_L("takePicture"), _L("selectFromGallery")],
                 })
                 .then(result => {
                     if (result == _L("takePicture")) {
@@ -752,7 +620,7 @@ export default {
                     takePicture({
                         keepAspectRatio: this.keepAspectRatio,
                         saveToGallery: this.saveToGallery,
-                        allowsEditing: this.allowsEditing
+                        allowsEditing: this.allowsEditing,
                     }).then(
                         imageAsset => {
                             this.imageSrc = imageAsset;
@@ -771,7 +639,7 @@ export default {
 
         selectPicture() {
             let context = imagepicker.create({
-                mode: "single" // only one picture can be selected
+                mode: "single", // only one picture can be selected
             });
             context
                 .authorize()
@@ -794,8 +662,8 @@ export default {
                 field: "image_label",
                 value: "",
                 title: "Photo Description",
-                instruction: "Describe what is in the photo"
-            }
+                instruction: "Describe what is in the photo",
+            };
             this.currentNote = note;
             this.isEditing = true;
         },
@@ -810,11 +678,11 @@ export default {
                 imageName: name,
                 imageLabel: note.value,
                 category: "default",
-                author: this.userName
+                author: this.userName,
             };
             this.photos.push({
                 id: this.photos.length + 1,
-                src: this.imageSrc
+                src: this.imageSrc,
             });
             dbInterface.insertFieldMedia(media);
             this.isEditing = false;
@@ -827,34 +695,32 @@ export default {
                         // send image to portal as field note media
                         let params = {
                             stationId: this.station.portalId,
-                            pathDest: dest
+                            pathDest: dest,
                         };
-                        this.$portalInterface
-                            .addFieldNoteMedia(params)
-                            .then(result => {
-                                const data = JSON.parse(result.data);
-                                // TODO: this ^ upload can take awhile -
-                                // indicate progress?
-                                if (data && data.id) {
-                                    // Link image to station via field note
-                                    let portalParams = {
-                                        stationId: this.station.portalId,
-                                        created: new Date(),
-                                        category_id: 1,
-                                        note: note.value,
-                                        media_id: data.id
-                                    };
-                                    this.$portalInterface.addFieldNote(portalParams);
-                                }
-                            });
+                        this.$portalInterface.addFieldNoteMedia(params).then(result => {
+                            const data = JSON.parse(result.data);
+                            // TODO: this ^ upload can take awhile -
+                            // indicate progress?
+                            if (data && data.id) {
+                                // Link image to station via field note
+                                let portalParams = {
+                                    stationId: this.station.portalId,
+                                    created: new Date(),
+                                    category_id: 1,
+                                    note: note.value,
+                                    media_id: data.id,
+                                };
+                                this.$portalInterface.addFieldNote(portalParams);
+                            }
+                        });
                     }
                 },
                 error => {
                     // console.log("Error saving image", error);
                 }
             );
-        }
-    }
+        },
+    },
 };
 </script>
 

@@ -19,23 +19,21 @@ import registerLifecycleEvents from "./services/lifecycle";
 
 try {
     initializeLogging();
-}
-catch (e) {
+} catch (e) {
     console.log("startup error", e, e.stack);
 }
 
 try {
     traceModule.setErrorHandler({
         handleError(err) {
-			console.log("ERROR:");
+            console.log("ERROR:");
             console.log(err);
             console.log(err.stack);
-        }
+        },
     });
 
     traceModule.enable();
-}
-catch (e) {
+} catch (e) {
     console.log("startup error", e, e.stack);
 }
 
@@ -44,16 +42,16 @@ registerLifecycleEvents();
 Services.CreateDb()
     .initialize()
     .then(() => {
-		console.log("checking config");
+        console.log("checking config");
         const dbInterface = Services.Database();
         return dbInterface.checkConfig().then(c => {
             Services.PortalInterface().refreshUri();
-			console.log('config', c);
-		});
+            console.log("config", c);
+        });
     })
     .then(() => {
         Vue.prototype.$stationMonitor = Services.StationMonitor();
-		Vue.prototype.$portalInterface = Services.PortalInterface();
+        Vue.prototype.$portalInterface = Services.PortalInterface();
     })
     .catch(err => {
         console.log("startup error", err, err.stack);
@@ -66,16 +64,12 @@ Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down"
 
 Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
-Vue.registerElement(
-  'CheckBox',
-  () => require('@nstudio/nativescript-checkbox').CheckBox,
-  {
+Vue.registerElement("CheckBox", () => require("@nstudio/nativescript-checkbox").CheckBox, {
     model: {
-      prop: 'checked',
-      event: 'checkedChange'
-    }
-  }
-);
+        prop: "checked",
+        event: "checkedChange",
+    },
+});
 
 Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
 
@@ -91,7 +85,7 @@ if (Config.vue.verbose) {
     Vue.config.silent = false;
 }
 
-console.log('config', Config);
+console.log("config", Config);
 
 const appSettings = new AppSettings();
 new Vue({
@@ -99,8 +93,10 @@ new Vue({
         h("frame", [
             h(
                 Services.PortalInterface().isLoggedIn()
-                    ? (appSettings.getString("completedSetup") ? routes.stations : routes.assembleStation)
+                    ? appSettings.getString("completedSetup")
+                        ? routes.stations
+                        : routes.assembleStation
                     : routes.login
-            )
-        ])
+            ),
+        ]),
 }).$start();
