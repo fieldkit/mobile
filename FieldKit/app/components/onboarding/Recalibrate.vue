@@ -336,7 +336,6 @@ const steps = {
         instructions: [
             "Let's set up your station before you deploy!",
             "To complete setup, calibrate each sensor module for accurate data readings.",
-            "Tap an uncalibrated module below to get started.",
         ],
         button: "Done",
         buttonDisabled: true,
