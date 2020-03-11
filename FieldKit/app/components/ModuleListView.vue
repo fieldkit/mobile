@@ -135,19 +135,19 @@ export default {
             this.modules = modules.sort((a, b) => {
                 return b.position < a.position ? 1 : b.position > a.position ? -1 : 0;
             });
-            this.modules.forEach(m => {
+            this.modules.forEach((m, i) => {
                 m.calibrated = "NA";
                 m.calibratedLabel = null;
                 this.open.push(m.id);
                 m.sensorObjects.forEach(s => {
-                    this.checkCalibrationStatus(m, s);
+                    this.checkCalibrationStatus(m, i, s);
                     s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--";
                     s.icon = "~/images/Icon_Neutral.png";
                 });
             });
         },
 
-        checkCalibrationStatus(m, s) {
+        checkCalibrationStatus(m, i, s) {
             if (
                 (m.position || m.position == 0) &&
                 this.station.url &&
@@ -160,9 +160,11 @@ export default {
                 // keep track so many requests aren't sent at once
                 this.pending[m.position] = true;
                 const listView = this;
-                calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then(result => {
-                    listView.handleCalibrationResult(result, m, s.name);
-                });
+                setTimeout(() => {
+                    calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then(result => {
+                        listView.handleCalibrationResult(result, m, s.name);
+                    });
+                }, i * 1000);
             }
         },
 
@@ -200,10 +202,10 @@ export default {
                 });
             }
 
-            this.modules.forEach(m => {
+            this.modules.forEach((m, i) => {
                 let sensors = [];
                 m.sensorObjects.forEach(s => {
-                    this.checkCalibrationStatus(m, s);
+                    this.checkCalibrationStatus(m, i, s);
                     let trendIcon = "Icon_Neutral.png";
                     if (liveReadings && (liveReadings[m.name + s.name] || liveReadings[m.name + s.name] === 0)) {
                         let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0;

@@ -227,17 +227,17 @@ export default {
             this.totalSensors = _.sumBy(this.modules, m => {
                 return m.sensorObjects.length;
             });
-            this.modules.forEach(m => {
+            this.modules.forEach((m, i) => {
                 m.calibratedLabel = null;
                 m.calibratedClass = "gray-text";
                 m.calibratedImage = "";
                 m.sensorObjects.forEach(s => {
-                    this.checkCalibrationStatus(m, s);
+                    this.checkCalibrationStatus(m, i, s);
                 });
             });
         },
 
-        checkCalibrationStatus(m, s) {
+        checkCalibrationStatus(m, i, s) {
             if (
                 (m.position || m.position == 0) &&
                 this.station.url &&
@@ -248,10 +248,12 @@ export default {
                 // keep track so many requests aren't sent at once
                 this.pending[m.position] = true;
                 const connectView = this;
-                calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then(result => {
-                    connectView.sensorsChecked += 1;
-                    connectView.handleCalibrationResult(result, m, s.name);
-                });
+                setTimeout(() => {
+                    calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then(result => {
+                        connectView.sensorsChecked += 1;
+                        connectView.handleCalibrationResult(result, m, s.name);
+                    });
+                }, i * 1000);
             } else if (!this.pending[m.position]) {
                 m.calibratedLabel = "No calibration needed";
                 m.calibratedImage = "~/images/Icon_Success.png";

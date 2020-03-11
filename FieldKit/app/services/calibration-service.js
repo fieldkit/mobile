@@ -35,7 +35,7 @@ export default class CalibrationService {
                 operation: AtlasCalibrationOperation.values.CALIBRATION_STATUS,
             },
         });
-        console.log("~~~~~~ sending status query: ", address, message);
+
         return this.stationQuery(address, message).then(reply => {
             return this._fixupReply(reply);
         });
