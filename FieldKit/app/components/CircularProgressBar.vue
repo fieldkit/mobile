@@ -13,8 +13,13 @@
                     ></BarIndicatorStyle>
                 </RadialBarIndicator>
 
-                <RadialBarIndicator v-tkRadialScaleIndicators minimum="0" :maximum="value" isAnimated="true">
-                    <BarIndicatorStyle v-tkRadialBarIndicatorStyle :fillColor="activeColor" cap="Round" barWidth="0.09"></BarIndicatorStyle>
+                <RadialBarIndicator v-tkRadialScaleIndicators minimum="0" :maximum="value" :isAnimated="animated">
+                    <BarIndicatorStyle
+                        v-tkRadialBarIndicatorStyle
+                        :fillColor="activeColor"
+                        cap="Round"
+                        :barWidth="value > 0 ? 0.09 : 0"
+                    ></BarIndicatorStyle>
                 </RadialBarIndicator>
             </RadialScale>
         </RadRadialGauge>
@@ -25,6 +30,7 @@
 <script>
 export default {
     props: {
+        animated: { default: true },
         size: { default: 100 },
         progress: { default: 0 },
         offset: { default: 0 },

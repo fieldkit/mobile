@@ -98,7 +98,7 @@
                 </GridLayout>
                 <!-- progress circle -->
                 <StackLayout row="0">
-                    <CircularProgressBar size="200" :progress="timerProgress" class="flip" />
+                    <CircularProgressBar size="200" :progress="timerProgress" :animated="animatedTimer" class="flip" />
                 </StackLayout>
                 <!-- timer -->
                 <StackLayout row="1">
@@ -184,6 +184,7 @@ export default {
             calibrationType: "",
             currentCalibration: {},
             currentReading: "--",
+            animatedTimer: true,
             timerRunning: false,
             timerProgress: 0,
             elapsedTime: "--:--",
@@ -344,6 +345,8 @@ export default {
 
         setupStep(steps) {
             // reset timer things
+            this.animatedTimer = false;
+            this.timerProgress = 0;
             this.nextEnabled = true;
             this.timerRunning = false;
             this.percentDone = ((this.step + 1) / (steps.length + 1)) * 100;
@@ -584,6 +587,7 @@ export default {
         },
 
         updateTimer() {
+            this.animatedTimer = true;
             const elapsed = Date.now() - this.started;
             if (elapsed > this.stopTime) {
                 clearInterval(this.timerInterval);
@@ -615,6 +619,7 @@ export default {
             this.nextEnabled = true;
             this.currentReading = "--";
             this.currentTemp = null;
+            this.animatedTimer = true;
             this.timerRunning = false;
             this.timerProgress = 0;
             this.elapsedTime = "--:--";
