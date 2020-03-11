@@ -130,17 +130,6 @@ export default {
             this.$showModal(modalMap, options);
         },
 
-        goBack(event) {
-            // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-            this.unsubscribe();
-            this.$navigateTo(routes.developerMenu); // NOTE Still?
-        },
-
         goToAddStation() {
             this.unsubscribe();
             this.$navigateTo(routes.assembleStation, {
