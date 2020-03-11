@@ -20,31 +20,31 @@ export default class Diagnostics {
         this.baseUrl = "https://code.conservify.org/diagnostics";
     }
 
-    upload() {
+    upload(progress) {
         const id = uuidv4();
 
-        console.log("diagnostics: starting", id);
+        progress({ message: "Starting..." });
 
         return this._uploadDeviceInformation(id)
             .then(() => {
-                console.log("diagnostics: querying logs");
+                progress({ message: "Querying stations." });
                 return this._queryLogs();
             })
             .then(allLogs => {
-                console.log("diagnostics: uploading station logs", allLogs.length);
+                progress({ message: "Uploading station logs." });
                 return this._uploadAllLogs(id, allLogs);
             })
             .then(() => {
-                console.log("diagnostics: uploading app logs");
+                progress({ message: "Uploading app logs." });
                 return this._uploadAppLogs(id);
             })
             .then(() => {
-                console.log("diagnostics: uploading database");
+                progress({ message: "Uploading database." });
                 return this._uploadDatabase(id);
             })
             .then(reference => {
                 return this._uploadArchived().then(() => {
-                    console.log("diagnostics: done", id);
+                    progress({ message: "Done!", id });
                     return {
                         reference: JSON.parse(reference),
                         id: id,

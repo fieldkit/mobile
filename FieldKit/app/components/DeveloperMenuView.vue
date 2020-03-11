@@ -51,8 +51,9 @@ import { listAllFiles } from "../lib/fs";
 import routes from "../routes";
 import Services from "../services/services";
 import Recalibrate from "./onboarding/Recalibrate";
-import modalStationPicker from "./ModalStationPicker";
 import AppSettings from "../wrappers/app-settings";
+import DiagnosticsModal from "./DiagnosticsModal"
+import modalStationPicker from "./ModalStationPicker";
 
 const appSettings = new AppSettings();
 const dbInterface = Services.Database();
@@ -205,25 +206,10 @@ export default {
                 );
         },
         uploadDiagnostics() {
-            Services.Diagnostics()
-                .upload()
-                .then(
-                    res => {
-                        alert({
-                            title: "Diagnostics",
-                            message: "Uploaded! Thanks! Reference:\n" + res.reference.phrase,
-                            okButtonText: "OK",
-                        });
-                    },
-                    e => {
-                        console.log("error", e);
-                        alert({
-                            title: "Diagnostics",
-                            message: "Upload Failed:\n" + e,
-                            okButtonText: "OK",
-                        });
-                    }
-                );
+            this.$showModal(DiagnosticsModal, {
+                props: {
+                },
+            });
         },
         deleteDB() {
             Services.CreateDb()
