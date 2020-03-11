@@ -210,7 +210,7 @@ export default {
                     res => {
                         alert({
                             title: "Diagnostics",
-                            message: "Uploaded! Thanks! Reference:\n" + res.reference,
+                            message: "Uploaded! Thanks! Reference:\n" + res.reference.phrase,
                             okButtonText: "OK",
                         });
                     },
