@@ -125,33 +125,38 @@ export default class Diagnostics {
             .DiscoverStation()
             .getConnectedStations()
             .then(stations => {
-                if (true) {
-                    return Promise.all([])
-                }
-
                 console.log('connected', stations)
 
                 return Promise.all(
                     Object.values(stations).map(station => {
-                        return this.services
-                            .QueryStation()
-                            .getStatus(station.url)
-                            .then(status => {
-                                return this.services
-                                    .QueryStation()
-                                    .queryLogs(station.url)
-                                    .then(logs => {
-                                        const name = status.status.identity.deviceId
-                                        return {
-                                            name: name,
-                                            status: status,
-                                            station: station,
-                                            logs: logs,
-                                        }
-                                    })
-                            })
+                        return this._queryStationLogs(station)
                     })
-                )
+                ).then(all => {
+                    return all
+                })
+            })
+    }
+
+    _queryStationLogs(station) {
+        return this.services
+            .QueryStation()
+            .getStatus(station.url)
+            .catch(_ => {
+                return null
+            })
+            .then(status => {
+                return this.services
+                    .QueryStation()
+                    .queryLogs(station.url)
+                    .then(logs => {
+                        const name = status.status.identity.deviceId
+                        return {
+                            name: name,
+                            status: status,
+                            station: station,
+                            logs: logs,
+                        }
+                    })
             })
     }
 
@@ -202,7 +207,7 @@ export default class Diagnostics {
             .Conservify()
             .upload({
                 method: 'POST',
-                url: this.baseUrl + '/' + id + '/fk.sqlite3',
+                url: this.baseUrl + '/' + id + '/fk.db',
                 path: path,
             })
             .then(response => {
