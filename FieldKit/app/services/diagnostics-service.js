@@ -171,11 +171,16 @@ export default class Diagnostics {
     _uploadAppLogs(id) {
         const copy = this._getDiagnosticsFolder().getFile("uploading.txt");
         return copyLogs(copy).then(() => {
-            return this.services.Conservify().upload({
-                method: "POST",
-                url: this.baseUrl + "/" + id + "/app.txt",
-                path: copy.path,
-            });
+            return this.services
+                .Conservify()
+                .upload({
+                    method: "POST",
+                    url: this.baseUrl + "/" + id + "/app.txt",
+                    path: copy.path,
+                })
+                .then(() => {
+                    return File.fromPath(copy.path).remove();
+                });
         });
     }
 
