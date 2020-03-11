@@ -1,202 +1,264 @@
-import * as utils from "tns-core-modules/utils/utils";
-import * as platform from "tns-core-modules/platform";
-import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
-import { copyLogs } from '../lib/logging';
-import { serializePromiseChain, getPathTimestamp } from '../utilities';
+import * as utils from 'tns-core-modules/utils/utils'
+import * as platform from 'tns-core-modules/platform'
+import { Folder, path, File, knownFolders } from 'tns-core-modules/file-system'
+import { copyLogs } from '../lib/logging'
+import { serializePromiseChain, getPathTimestamp } from '../utilities'
 
 function uuidv4() {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-		return v.toString(16);
-	});
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (Math.random() * 16) | 0,
+            v = c == 'x' ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+    })
 }
 
 export default class Diagnostics {
-	constructor(services) {
-		this.services = services;
-		this.baseUrl = "https://code.conservify.org/diagnostics"
-	}
+    constructor(services) {
+        this.services = services
+        this.baseUrl = 'https://code.conservify.org/diagnostics'
+    }
 
-	upload() {
-		const id = uuidv4();
+    upload() {
+        const id = uuidv4()
 
-		console.log("diagnostics: starting", id)
+        console.log('diagnostics: starting', id)
 
-		return this._queryLogs().then((allLogs) => {
-			console.log("diagnostics: uploading station logs", allLogs.length);
-			return this._uploadAllLogs(id, allLogs);
-		}).then(() => {
-			console.log("diagnostics: uploading app logs");
-			return this._uploadAppLogs(id);
-		}).then(() => {
-			console.log("diagnostics: uploading database");
-			return this._uploadDatabase(id);
-		}).then(reference => {
-			return this._uploadArchived().then(() => {
-				console.log("diagnostics: done", id)
-				return {
-					reference: reference,
-					id: id,
-				};
-			});
-		});
-	}
+        return this._uploadDeviceInformation(id)
+            .then(() => {
+                console.log('diagnostics: querying logs')
+                return this._queryLogs()
+            })
+            .then(allLogs => {
+                console.log('diagnostics: uploading station logs', allLogs.length)
+                return this._uploadAllLogs(id, allLogs)
+            })
+            .then(() => {
+                console.log('diagnostics: uploading app logs')
+                return this._uploadAppLogs(id)
+            })
+            .then(() => {
+                console.log('diagnostics: uploading database')
+                return this._uploadDatabase(id)
+            })
+            .then(reference => {
+                return this._uploadArchived().then(() => {
+                    console.log('diagnostics: done', id)
+                    return {
+                        reference: reference,
+                        id: id,
+                    }
+                })
+            })
+    }
 
-	_backupDatabase(folder) {
-		return Promise.resolve();
-	}
+    _backupDatabase(folder) {
+        return Promise.resolve()
+    }
 
-	_uploadArchived() {
-		const folder = this._getDiagnosticsFolder();
+    _uploadDeviceInformation(id) {
+        const device = platform.device
 
-		return this._getAllFiles(folder).then(files => {
-			return serializePromiseChain(files, (path, index) => {
-				const relative = path.replace(folder.path, "");
-				return this.services.Conservify().upload({
-					method: "POST",
-					url: this.baseUrl + relative,
-					path: path,
-				}).then(() => {
-					return File.fromPath(path).remove();
-				});
-			});
-		});
-	}
+        const info = {
+            deviceType: device.deviceType,
+            language: device.language,
+            manufacturer: device.manufacturer,
+            model: device.model,
+            os: device.os,
+            osVersion: device.osVersion,
+            region: device.region,
+            sdkVersion: device.sdkVersion,
+            uuid: device.uuid,
+        }
 
-	save() {
-		return Promise.resolve().then(() => {
-			const folder = this._getNewFolder();
+        return this.services.Conservify().text({
+            method: 'POST',
+            url: this.baseUrl + '/' + id + '/device.json',
+            body: JSON.stringify(info),
+            path: path,
+        })
+    }
 
-			return Promise.all([
-				copyLogs(folder.getFile("app.txt")),
-				this._backupDatabase(folder),
-				this._queryLogs().then(allLogs => {
-					return Promise.all(allLogs.map(row => {
-						return Promise.all([
-							folder.getFile(row.name + ".json").writeText(JSON.stringify(row.status)),
-							folder.getFile(row.name + ".txt").writeText(row.logs),
-						])
-					}));
-				})
-			]);
-		});
-	}
+    _uploadArchived() {
+        const folder = this._getDiagnosticsFolder()
 
-	_queryLogs() {
-		return this.services.DiscoverStation().getConnectedStations().then(stations => {
-			if (true) {
-				return Promise.all([]);
-			}
+        return this._getAllFiles(folder).then(files => {
+            console.log('uploading', files)
+            return serializePromiseChain(files, (path, index) => {
+                const relative = path.replace(folder.path, '')
+                return this.services
+                    .Conservify()
+                    .upload({
+                        method: 'POST',
+                        url: this.baseUrl + relative,
+                        path: path,
+                    })
+                    .then(() => {
+                        return File.fromPath(path).remove()
+                    })
+            })
+        })
+    }
 
-			console.log("connected", stations);
+    save() {
+        return Promise.resolve().then(() => {
+            const folder = this._getNewFolder()
 
-			return Promise.all(Object.values(stations).map(station => {
-				return this.services.QueryStation().getStatus(station.url).then(status => {
-					return this.services.QueryStation().queryLogs(station.url).then(logs => {
-						const name = status.status.identity.deviceId;
-						return {
-							name: name,
-							status: status,
-							station: station,
-							logs: logs
-						};
-					});
-				});
-			}))
-		});
-	}
+            return Promise.all([
+                copyLogs(folder.getFile('app.txt')),
+                this._backupDatabase(folder),
+                this._queryLogs().then(allLogs => {
+                    return Promise.all(
+                        allLogs.map(row => {
+                            return Promise.all([
+                                folder.getFile(row.name + '.json').writeText(JSON.stringify(row.status)),
+                                folder.getFile(row.name + '.txt').writeText(row.logs),
+                            ])
+                        })
+                    )
+                }),
+            ])
+        })
+    }
 
-	_uploadAllLogs(id, allLogs) {
-		return Promise.all(allLogs.map(row => {
-			return this._uploadLogs(id, row);
-		}));
-	}
+    _queryLogs() {
+        return this.services
+            .DiscoverStation()
+            .getConnectedStations()
+            .then(stations => {
+                if (true) {
+                    return Promise.all([])
+                }
 
-	_uploadAppLogs(id) {
-		const path = this._getDiagnosticsFolder().getFile("logs.txt").path;
-		return this.services.Conservify().upload({
-			method: "POST",
-			url: this.baseUrl + "/" + id + "/app.txt",
-			path: path,
-		});
-	}
+                console.log('connected', stations)
 
-	_uploadLogs(id, logs) {
-		return this.services.Conservify().text({
-			method: "POST",
-			url: this.baseUrl + "/" + id + "/" + logs.name + ".json",
-			body: JSON.stringify(logs.status),
-		}).then(() => {
-			return this.services.Conservify().text({
-				method: "POST",
-				url: this.baseUrl + "/" + id + "/" + logs.name + ".txt",
-				body: logs.logs,
-			});
-		});
-	}
+                return Promise.all(
+                    Object.values(stations).map(station => {
+                        return this.services
+                            .QueryStation()
+                            .getStatus(station.url)
+                            .then(status => {
+                                return this.services
+                                    .QueryStation()
+                                    .queryLogs(station.url)
+                                    .then(logs => {
+                                        const name = status.status.identity.deviceId
+                                        return {
+                                            name: name,
+                                            status: status,
+                                            station: station,
+                                            logs: logs,
+                                        }
+                                    })
+                            })
+                    })
+                )
+            })
+    }
 
-	_uploadDatabase(id) {
-		console.log("getting database path");
+    _uploadAllLogs(id, allLogs) {
+        return Promise.all(
+            allLogs.map(row => {
+                return this._uploadLogs(id, row)
+            })
+        )
+    }
 
-		const name = "fieldkit.sqlite3";
-		const path = this._getDatabasePath(name);
+    _uploadAppLogs(id) {
+        const copy = this._getDiagnosticsFolder().getFile('uploading.txt')
+        return copyLogs(copy).then(() => {
+            return this.services.Conservify().upload({
+                method: 'POST',
+                url: this.baseUrl + '/' + id + '/app.txt',
+                path: copy.path,
+            })
+        })
+    }
 
-		console.log("diagnostics", path);
+    _uploadLogs(id, logs) {
+        return this.services
+            .Conservify()
+            .text({
+                method: 'POST',
+                url: this.baseUrl + '/' + id + '/' + logs.name + '.json',
+                body: JSON.stringify(logs.status),
+            })
+            .then(() => {
+                return this.services.Conservify().text({
+                    method: 'POST',
+                    url: this.baseUrl + '/' + id + '/' + logs.name + '.txt',
+                    body: logs.logs,
+                })
+            })
+    }
 
-		return this.services.Conservify().upload({
-			method: "POST",
-			url: this.baseUrl + "/" + id + "/" + name,
-			path: path,
-		}).then(response => {
-			return response.body;
-		});
-	}
+    _uploadDatabase(id) {
+        console.log('getting database path')
 
-	_getDatabasePath(name) {
-		try {
-			if (platform.isAndroid) {
-				const context = utils.ad.getApplicationContext();
-				return context.getDatabasePath(name).getAbsolutePath();
-			}
+        const path = this._getDatabasePath('fieldkit.sqlite3')
 
-			const folder = knownFolders.documents().path;
-			return folder + "/" + name;
-		}
-		catch (e) {
-			console.log("error getting path", e)
-			return null;
-		}
-	}
+        console.log('diagnostics', path)
 
-	_recurse(f, callback) {
-		return f.getEntities().then(entities => {
-			return Promise.all(entities.map(e => {
-				if (Folder.exists(e.path)) {
-					return this._recurse(Folder.fromPath(e.path), callback);
-				}
-				else {
-					callback(e.path);
-				}
-			}));
-		});
-	}
+        return this.services
+            .Conservify()
+            .upload({
+                method: 'POST',
+                url: this.baseUrl + '/' + id + '/fk.sqlite3',
+                path: path,
+            })
+            .then(response => {
+                return response.body
+            })
+    }
 
-	_getAllFiles(f) {
-		const files = [];
+    _getDatabasePath(name) {
+        try {
+            if (platform.isAndroid) {
+                const context = utils.ad.getApplicationContext()
+                return context.getDatabasePath(name).getAbsolutePath()
+            }
 
-		return this._recurse(f, path => {
-			files.push(path);
-		}).then(() => {
-			return files;
-		});
-	}
+            const folder = knownFolders.documents().path
+            return folder + '/' + name
+        } catch (e) {
+            console.log('error getting path', e)
+            return null
+        }
+    }
+
+    _recurse(f, depth, callback) {
+        return f.getEntities().then(entities => {
+            return Promise.all(
+                entities.map(e => {
+                    if (Folder.exists(e.path)) {
+                        return this._recurse(Folder.fromPath(e.path), depth + 1, callback)
+                    } else {
+                        callback(depth, e.path)
+                    }
+                })
+            )
+        })
+    }
+
+    _getAllFiles(f) {
+        const files = []
+
+        return this._recurse(f, 0, (depth, path) => {
+            if (depth > 0) {
+                files.push(path)
+            } else {
+                console.log('ignoring', depth, path)
+            }
+        }).then(() => {
+            return files
+        })
+    }
 
     _getDiagnosticsFolder() {
-        return knownFolders.documents().getFolder("diagnostics");
+        return knownFolders.documents().getFolder('diagnostics')
     }
 
     _getNewFolder() {
-		const id = uuidv4();
-        return this._getDiagnosticsFolder().getFolder(id);
+        const id = uuidv4()
+        return this._getDiagnosticsFolder().getFolder(id)
     }
 }

@@ -4,6 +4,7 @@ import Promise from "bluebird";
 import { knownFolders } from "tns-core-modules/file-system";
 import Config from "../config";
 
+const SaveInterval = 10000;
 const logs = [];
 const originalConsole = console;
 
@@ -97,7 +98,7 @@ export function initializeLogging(info) {
         wrap(methods[i]);
     }
 
-    setInterval(flush, 1000);
+    setInterval(flush, SaveInterval);
 
 	return Promise.resolve();
 }
