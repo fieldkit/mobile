@@ -244,8 +244,8 @@ export default {
             const dataFolder = rootFolder.getFolder("FieldKitData");
 
             return Promise.all([firmwareFolder.remove(), diagnosticsFolder.remove(), dataFolder.remove()])
-                .catch(_ => {
-                    console.log("Error removing files", err.stack);
+                .catch(res => {
+                    console.log("error removing files", err.stack, res);
 
                     alert({
                         title: "Developer",
@@ -253,8 +253,8 @@ export default {
                         okButtonText: "OK",
                     });
                 })
-                .then(_ => {
-                    console.log("Files deleted");
+                .then(res => {
+                    console.log("files deleted", res);
 
                     alert({
                         title: "Developer",

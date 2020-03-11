@@ -44,7 +44,7 @@ export default class Diagnostics {
                 return this._uploadArchived().then(() => {
                     console.log("diagnostics: done", id);
                     return {
-                        reference: reference,
+                        reference: JSON.parse(reference),
                         id: id,
                     };
                 });
