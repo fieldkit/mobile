@@ -7,7 +7,7 @@ import DataSync from "../components/DataSyncView";
 import DeployMap from "../components/DeployMapView";
 import DeployNotes from "../components/DeployNotesView";
 import DeployReview from "../components/DeployReviewView";
-import Home from "../components/HomeView";
+import DeveloperMenu from "../components/DeveloperMenuView";
 import Login from "../components/LoginView";
 import Module from "../components/ModuleDetailView";
 import Notifications from "../components/NotificationView";
@@ -24,7 +24,7 @@ const routes = {
     deployMap: DeployMap,
     deployNotes: DeployNotes,
     deployReview: DeployReview,
-    home: Home,
+    developerMenu: DeveloperMenu,
     login: Login,
     module: Module,
     notifications: Notifications,

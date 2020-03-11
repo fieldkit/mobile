@@ -96,7 +96,7 @@ module.exports = {
     dec: "Dic",
     audioNote: "Nota de audio",
     confirmDeleteRecording: "¿Estás seguro de que quieres eliminar esta grabación?",
-    // HomeView.vue
+    // DeveloperMenuView.vue
     viewStations: "Ver estaciones",
     authenticated: "Usted ha autenticado correctamente",
     // LoginView.vue

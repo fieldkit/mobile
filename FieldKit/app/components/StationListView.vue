@@ -138,7 +138,7 @@ export default {
                 event.object.className = cn;
             }, 500);
             this.unsubscribe();
-            this.$navigateTo(routes.home);
+            this.$navigateTo(routes.developerMenu); // NOTE Still?
         },
 
         goToAddStation() {
@@ -354,7 +354,7 @@ export default {
                 .then(result => {
                     if (result) {
                         this.unsubscribe();
-                        this.$navigateTo(routes.home);
+                        this.$navigateTo(routes.developerMenu);
                     }
                 });
         },
