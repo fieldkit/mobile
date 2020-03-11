@@ -1,3 +1,4 @@
+import _ from "lodash";
 import * as utils from "tns-core-modules/utils/utils";
 import * as platform from "tns-core-modules/platform";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
@@ -127,12 +128,16 @@ export default class Diagnostics {
             .then(stations => {
                 console.log("connected", stations);
 
+                if (true) {
+                    return [];
+                }
+
                 return Promise.all(
                     Object.values(stations).map(station => {
                         return this._queryStationLogs(station);
                     })
                 ).then(all => {
-                    return all;
+                    return _.compact(all);
                 });
             });
     }
