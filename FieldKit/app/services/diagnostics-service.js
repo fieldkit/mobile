@@ -246,7 +246,7 @@ export default class Diagnostics {
             return _(files)
                 .filter(f => f.depth > 0)
                 .map(f => f.path)
-                .values();
+                .value();
         });
     }
 

@@ -12,6 +12,10 @@ function getPrettyTime() {
 	return moment().format();
 }
 
+function getLogsFile() {
+	return knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
+}
+
 function flush() {
 	const appending = _(logs).
 		  map(log => {
@@ -22,9 +26,9 @@ function flush() {
 	logs.length = 0; // Empty logs.
 
 	return new Promise((resolve, reject) => {
-		const file = knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
+		const file = getLogsFile();
 		const existing = file.readTextSync();
-		const replacing = existing ? (existing + "\n" + appending) : appending;
+		const replacing = existing ? (existing + "\n" + appending) : appending + "\n";
 
 		file.writeTextSync(replacing, (err) => {
 			if (err) {
@@ -38,7 +42,7 @@ function flush() {
 
 export function copyLogs(where) {
 	return new Promise((resolve, reject) => {
-		const file = knownFolders.documents().getFile("logs.txt");
+		const file = getLogsFile();
 		const existing = file.readTextSync();
 
 		where.writeTextSync(existing, (err) => {
