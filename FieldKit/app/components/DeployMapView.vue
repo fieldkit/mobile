@@ -1,6 +1,5 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-
         <GridLayout :rows="station.connected ? (ios ? '68,*,80' : '78,*,80') : '105,*,80'">
             <StackLayout row="0">
                 <ScreenHeader
@@ -14,19 +13,13 @@
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
                     <StackLayout col="0" class="top-line"></StackLayout>
                 </GridLayout>
-                <StackLayout
-                    class="text-center disconnect-warning"
-                    v-if="!station.connected"
-                >
+                <StackLayout class="text-center disconnect-warning" v-if="!station.connected">
                     <Label text="Station disconnected." />
                 </StackLayout>
             </StackLayout>
 
             <ScrollView row="1">
-                <FlexboxLayout
-                    flexDirection="column"
-                    justifyContent="space-between"
-                >
+                <FlexboxLayout flexDirection="column" justifyContent="space-between">
                     <StackLayout>
                         <Mapbox
                             :accessToken="mapboxToken"
@@ -83,9 +76,7 @@
                                 horizontalAlignment="left"
                                 :text="_L('locationOver255')"
                                 textWrap="true"
-                                :visibility="
-                                    locationTooLong ? 'visible' : 'collapsed'
-                                "
+                                :visibility="locationTooLong ? 'visible' : 'collapsed'"
                             ></Label>
                             <Label
                                 class="validation-error"
@@ -93,9 +84,7 @@
                                 horizontalAlignment="left"
                                 :text="_L('locationNotPrintable')"
                                 textWrap="true"
-                                :visibility="
-                                    locationNotPrintable ? 'visible' : 'collapsed'
-                                "
+                                :visibility="locationNotPrintable ? 'visible' : 'collapsed'"
                             ></Label>
                         </StackLayout>
                     </GridLayout>
@@ -145,13 +134,13 @@ export default {
             origLatitude: "",
             origLongitude: "",
             typing: false,
-            lineStatus: "inactive-line"
+            lineStatus: "inactive-line",
         };
     },
     props: ["station"],
     components: {
         ScreenHeader,
-        ConfigureCaptureInterval
+        ConfigureCaptureInterval,
     },
     methods: {
         onPageLoaded(args) {
@@ -179,13 +168,13 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    station: this.station
+                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",
                     duration: 250,
-                    curve: "linear"
-                }
+                    curve: "linear",
+                },
             });
         },
 
@@ -194,8 +183,8 @@ export default {
 
             this.$navigateTo(routes.deployNotes, {
                 props: {
-                    station: this.station
-                }
+                    station: this.station,
+                },
             });
         },
 
@@ -209,8 +198,8 @@ export default {
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: this.station.id,
-                    station: this.station
-                }
+                    station: this.station,
+                },
             });
         },
 
@@ -224,18 +213,14 @@ export default {
         },
 
         displayStation() {
-            if (
-                this.station.latitude && this.station.longitude
-                && this.station.latitude != 1000
-                && this.station.longitude != 1000
-            ) {
+            if (this.station.latitude && this.station.longitude && this.station.latitude != 1000 && this.station.longitude != 1000) {
                 this.map.setCenter({
                     lat: this.station.latitude,
                     lng: this.station.longitude,
-                    animated: false
+                    animated: false,
                 });
                 this.map.setZoomLevel({
-                    level: 14
+                    level: 14,
                     // animated: true
                 });
                 this.mapMarker = {
@@ -243,7 +228,7 @@ export default {
                     lng: this.station.longitude,
                     title: this.station.name,
                     subtitle: _L("readyToDeploy"),
-                    iconPath: 'images/Icon_Map_Dot.png'
+                    iconPath: "images/Icon_Map_Dot.png",
                 };
                 this.map.addMarkers([this.mapMarker]);
             }
@@ -266,13 +251,12 @@ export default {
             element.translateX = 5;
             element.translateY = 20;
             this.typing = true;
-            element
-                .animate({
-                    opacity: 0.75,
-                    translate: { x: 0, y: 0},
-                    duration: 300,
-                    curve: AnimationCurve.easeIn
-                });
+            element.animate({
+                opacity: 0.75,
+                translate: { x: 0, y: 0 },
+                duration: 300,
+                curve: AnimationCurve.easeIn,
+            });
         },
 
         checkLocationName() {
@@ -295,8 +279,8 @@ export default {
                     stationId: this.station.portalId,
                     created: new Date(),
                     category_id: 2,
-                    note: this.station.locationName
-                }
+                    note: this.station.locationName,
+                };
                 this.$portalInterface.addFieldNote(portalParams);
 
                 if (this.mapMarker) {
@@ -308,7 +292,7 @@ export default {
                     before: this.origLocationName,
                     after: this.station.locationName,
                     affectedField: "location",
-                    author: this.userName
+                    author: this.userName,
                 };
                 dbInterface.recordStationConfigChange(configChange);
                 this.origLocationName = this.station.locationName;
@@ -322,8 +306,8 @@ export default {
             let hiddenField = this.page.getViewById("hidden-field");
             hiddenField.focus();
             hiddenField.dismissSoftInput();
-        }
-    }
+        },
+    },
 };
 </script>
 

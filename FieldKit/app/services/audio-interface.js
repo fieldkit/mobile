@@ -1,9 +1,4 @@
-import {
-    AudioPlayerOptions,
-    AudioRecorderOptions,
-    TNSPlayer,
-    TNSRecorder
-} from "nativescript-audio";
+import { AudioPlayerOptions, AudioRecorderOptions, TNSPlayer, TNSRecorder } from "nativescript-audio";
 import { Folder, File, path, knownFolders } from "tns-core-modules/file-system";
 import * as platform from "tns-core-modules/platform";
 import DatabaseInterface from "./db-interface";
@@ -44,7 +39,7 @@ export default class AudioInterface {
             },
             errorCallback: errorObject => {
                 // console.log(JSON.stringify(errorObject));
-            }
+            },
         };
 
         await recorder.start(recorderOptions);
@@ -83,7 +78,7 @@ export default class AudioInterface {
             },
             infoCallback: infoObject => {
                 // console.log(JSON.stringify(infoObject));
-            }
+            },
         };
 
         player

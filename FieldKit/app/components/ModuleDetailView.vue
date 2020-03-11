@@ -1,34 +1,15 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <FlexboxLayout
-                flexDirection="column"
-                justifyContent="space-between"
-                class="p-t-10"
-            >
-                <ScreenHeader
-                    :title="module.name"
-                    :onBack="goBack"
-                    :canNavigateSettings="false"
-                />
+            <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
+                <ScreenHeader :title="module.name" :onBack="goBack" :canNavigateSettings="false" />
 
-                <GridLayout
-                    rows="auto"
-                    columns="40*,60*"
-                    class="location-container m-x-10"
-                >
+                <GridLayout rows="auto" columns="40*,60*" class="location-container m-x-10">
                     <StackLayout row="0" col="0" class="m-y-8 m-x-5">
-                        <Image
-                            width="100"
-                            src="~/images/placeholder_module_location.png"
-                        ></Image>
+                        <Image width="100" src="~/images/placeholder_module_location.png"></Image>
                     </StackLayout>
                     <StackLayout row="0" col="1" class="m-y-8">
-                        <Label
-                            class="size-14"
-                            :text="_L('locateYourModule', module.name)"
-                            textWrap="true"
-                        ></Label>
+                        <Label class="size-14" :text="_L('locateYourModule', module.name)" textWrap="true"></Label>
                     </StackLayout>
                 </GridLayout>
 
@@ -58,23 +39,14 @@
                     </GridLayout>
                 </template>
 
-                <StackLayout
-                    v-for="(g, graphIndex) in graphedSensors"
-                    :key="g.id"
-                    class="m-b-15"
-                >
+                <StackLayout v-for="(g, graphIndex) in graphedSensors" :key="g.id" class="m-b-15">
                     <GridLayout
                         rows="auto,auto,auto,auto"
                         columns="10*,80*,10*"
                         :automationText="'graphedSensorChart' + graphIndex"
                         class="chart-section-container m-x-10"
                     >
-                        <Label
-                            row="0"
-                            colSpan="2"
-                            class="text-center center-title"
-                            :text="g.name"
-                        ></Label>
+                        <Label row="0" colSpan="2" class="text-center center-title" :text="g.name"></Label>
                         <StackLayout
                             v-if="sensors.length > 1"
                             row="0"
@@ -84,33 +56,12 @@
                             @tap="removeChart"
                             verticalAlignment="top"
                         >
-                            <Image
-                                width="17"
-                                src="~/images/Icon_Close.png"
-                            ></Image>
+                            <Image width="17" src="~/images/Icon_Close.png"></Image>
                         </StackLayout>
-                        <Label
-                            row="1"
-                            col="0"
-                            class="size-10 m-l-2"
-                            :text="g.unit"
-                        ></Label>
-                        <RadCartesianChart
-                            row="2"
-                            colSpan="3"
-                            class="chart-container"
-                        >
-                            <LinearAxis
-                                v-tkCartesianHorizontalAxis
-                                labelFormat="%.1f"
-                                :majorStep="timeStep"
-                            />
-                            <LinearAxis
-                                v-tkCartesianVerticalAxis
-                                labelLayoutMode="Outer"
-                                lineHidden="false"
-                                labelMargin="5"
-                            />
+                        <Label row="1" col="0" class="size-10 m-l-2" :text="g.unit"></Label>
+                        <RadCartesianChart row="2" colSpan="3" class="chart-container">
+                            <LinearAxis v-tkCartesianHorizontalAxis labelFormat="%.1f" :majorStep="timeStep" />
+                            <LinearAxis v-tkCartesianVerticalAxis labelLayoutMode="Outer" lineHidden="false" labelMargin="5" />
                             <ScatterSeries
                                 v-tkCartesianSeries
                                 :items="g.readings"
@@ -118,24 +69,11 @@
                                 xProperty="time"
                                 yProperty="reading"
                             />
-                            <Palette
-                                v-tkCartesianPalette
-                                seriesName="scatterplot"
-                            >
-                                <PaletteEntry
-                                    v-tkCartesianPaletteEntry
-                                    fillColor="#0A67AA"
-                                    strokeColor="#FFFFFF"
-                                    strokeWidth="2"
-                                />
+                            <Palette v-tkCartesianPalette seriesName="scatterplot">
+                                <PaletteEntry v-tkCartesianPaletteEntry fillColor="#0A67AA" strokeColor="#FFFFFF" strokeWidth="2" />
                             </Palette>
                         </RadCartesianChart>
-                        <Label
-                            row="3"
-                            colSpan="3"
-                            class="text-center size-10 m-b-5 capitalize"
-                            :text="g.intervalUnit"
-                        ></Label>
+                        <Label row="3" colSpan="3" class="text-center size-10 m-b-5 capitalize" :text="g.intervalUnit"></Label>
                     </GridLayout>
                 </StackLayout>
 
@@ -159,23 +97,23 @@ export default {
         return {
             timeStep: 5,
             module: {
-                name: ""
+                name: "",
             },
             sensors: [
                 {
                     name: "",
                     readings: [],
-                    intervalUnit: ""
-                }
+                    intervalUnit: "",
+                },
             ],
             sensorNames: [_L("select")],
-            graphedSensors: []
+            graphedSensors: [],
         };
     },
     props: ["moduleId", "station"],
     components: {
         ScreenHeader,
-        ScreenFooter
+        ScreenFooter,
     },
     methods: {
         onPageLoaded(args) {
@@ -196,8 +134,8 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    station: this.station
-                }
+                    station: this.station,
+                },
             });
         },
 
@@ -212,8 +150,8 @@ export default {
                 props: {
                     moduleId: this.moduleId,
                     station: this.station,
-                    origin: "detail"
-                }
+                    origin: "detail",
+                },
             });
         },
 
@@ -228,9 +166,7 @@ export default {
         },
 
         completeSetup(sensors) {
-            let graphs = this.module.graphs
-                ? this.module.graphs.split(",")
-                : [];
+            let graphs = this.module.graphs ? this.module.graphs.split(",") : [];
             // number of faux readings
             let numReadings = Math.round(Math.random() * 20 + 10);
             let names = [_L("select")];
@@ -260,8 +196,7 @@ export default {
             });
             this.sensors = sensors;
             this.sensorNames = names;
-            this.graphedSensors =
-                toDisplay.length == 0 ? [this.sensors[0]] : toDisplay;
+            this.graphedSensors = toDisplay.length == 0 ? [this.sensors[0]] : toDisplay;
         },
 
         calculateTimeUnit() {
@@ -357,13 +292,13 @@ export default {
                     before: this.module.origGraphs,
                     after: this.module.graphs,
                     affectedField: "graphs",
-                    author: this.userName
+                    author: this.userName,
                 };
                 dbInterface.recordModuleConfigChange(configChange);
                 this.module.origGraphs = this.module.graphs;
             }
-        }
-    }
+        },
+    },
 };
 </script>
 

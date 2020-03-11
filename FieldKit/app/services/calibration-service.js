@@ -32,10 +32,10 @@ export default class CalibrationService {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
             calibration: {
-                operation: AtlasCalibrationOperation.values.CALIBRATION_STATUS
-            }
+                operation: AtlasCalibrationOperation.values.CALIBRATION_STATUS,
+            },
         });
-
+        console.log("~~~~~~ sending status query: ", address, message);
         return this.stationQuery(address, message).then(reply => {
             return this._fixupReply(reply);
         });
@@ -45,8 +45,8 @@ export default class CalibrationService {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
             calibration: {
-                operation: AtlasCalibrationOperation.values.CALIBRATION_CLEAR
-            }
+                operation: AtlasCalibrationOperation.values.CALIBRATION_CLEAR,
+            },
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -120,15 +120,15 @@ export default class CalibrationService {
             calibration: {
                 operation: AtlasCalibrationOperation.values.CALIBRATION_SET,
                 which: data.which,
-                value: data.refValue
+                value: data.refValue,
             },
             compensations: {
-                temperature: data.temp
-            }
+                temperature: data.temp,
+            },
         });
         return this.stationQuery(address, message).then(reply => {
             return this._fixupReply(reply);
-        })
+        });
     }
 
     getDryEcRef(temp) {
@@ -193,7 +193,7 @@ export default class CalibrationService {
         if (temp <= 10) {
             ref = 6.92;
         } else if (temp <= 15) {
-            ref = 6.90;
+            ref = 6.9;
         } else if (temp <= 20) {
             ref = 6.88;
         } else if (temp <= 25) {
@@ -294,29 +294,31 @@ export default class CalibrationService {
         const binaryQuery = AtlasQuery.encodeDelimited(message).finish();
         log.info(url, "calibration querying", message);
 
-        return this.services.Conservify().protobuf({
-            method: "POST",
-            url: url,
-            body: binaryQuery
-        }).then(response => {
-            if (response.body.length == 0) {
-                log.info(url, "calibration query success", "<empty>");
-                return {};
-            }
+        return this.services
+            .Conservify()
+            .protobuf({
+                method: "POST",
+                url: url,
+                body: binaryQuery,
+            })
+            .then(
+                response => {
+                    if (response.body.length == 0) {
+                        log.info(url, "calibration query success", "<empty>");
+                        return {};
+                    }
 
-            const decoded = this._getResponseBody(response);
-            return this._handlePotentialRetryReply(
-                decoded,
-                url,
-                message
-            ).then(finalReply => {
-                log.verbose(url, "calibration query success", finalReply);
-                return finalReply;
-            });
-        }, err => {
-            log.error(url, "calibration query error", err);
-            return Promise.reject(err);
-        });
+                    const decoded = this._getResponseBody(response);
+                    return this._handlePotentialRetryReply(decoded, url, message).then(finalReply => {
+                        log.verbose(url, "calibration query success", finalReply);
+                        return finalReply;
+                    });
+                },
+                err => {
+                    log.error(url, "calibration query error", err);
+                    return Promise.reject(err);
+                }
+            );
     }
 
     _getResponseBody(response) {
@@ -341,8 +343,8 @@ export default class CalibrationService {
                     reply.calibration.phStatus = {
                         low: reply.calibration.ph & PhCalibrations.values.PH_LOW,
                         middle: reply.calibration.ph & PhCalibrations.values.PH_MIDDLE,
-                        high: reply.calibration.ph & PhCalibrations.values.PH_HIGH
-                    }
+                        high: reply.calibration.ph & PhCalibrations.values.PH_HIGH,
+                    };
                     break;
                 case SensorType.values.SENSOR_TEMP:
                     break;
@@ -352,7 +354,7 @@ export default class CalibrationService {
                     reply.calibration.doStatus = {
                         atm: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ATMOSPHERE,
                         zero: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ZERO,
-                    }
+                    };
                     break;
                 case SensorType.values.SENSOR_EC:
                     reply.calibration.ecStatus = {
@@ -360,7 +362,7 @@ export default class CalibrationService {
                         single: reply.calibration.ec & EcCalibrations.values.EC_SINGLE,
                         low: reply.calibration.ec & EcCalibrations.values.EC_DUAL_LOW,
                         high: reply.calibration.ec & EcCalibrations.values.EC_DUAL_HIGH,
-                    }
+                    };
                     break;
                 default:
                     break;

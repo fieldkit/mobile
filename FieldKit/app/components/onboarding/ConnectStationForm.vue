@@ -4,11 +4,7 @@
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*" verticalAlignment="middle">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <Label
-                            class="title m-t-20 m-b-10 text-center"
-                            :text="step.title"
-                            textWrap="true"
-                        ></Label>
+                        <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
                         <Label
                             v-for="instruction in step.instructions"
@@ -19,20 +15,10 @@
                             textWrap="true"
                         ></Label>
 
-                        <Label
-                            :text="label"
-                            class="m-y-20 size-16 text-center"
-                            textWrap="true"
-                            width="100%"
-                        />
+                        <Label :text="label" class="m-y-20 size-16 text-center" textWrap="true" width="100%" />
 
                         <!-- edit station name -->
-                        <GridLayout
-                            rows="auto"
-                            columns="*,30"
-                            class="bottom-bordered m-x-20"
-                            v-show="editingName"
-                        >
+                        <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20" v-show="editingName">
                             <TextField
                                 col="0"
                                 textWrap="true"
@@ -44,12 +30,7 @@
                                 autocapitalizationType="none"
                                 @blur="checkName"
                             ></TextField>
-                            <Image
-                                col="1"
-                                width="17"
-                                @tap="cancelRename"
-                                src="~/images/Icon_Close.png"
-                            ></Image>
+                            <Image col="1" width="17" @tap="cancelRename" src="~/images/Icon_Close.png"></Image>
                         </GridLayout>
 
                         <!-- or edit ssid -->
@@ -103,27 +84,15 @@
                             id="name-not-printable"
                             :text="_L('nameNotPrintable')"
                             textWrap="true"
-                            :visibility="
-                                nameNotPrintable ? 'visible' : 'collapsed'
-                            "
+                            :visibility="nameNotPrintable ? 'visible' : 'collapsed'"
                         ></Label>
 
                         <!-- known wifi networks -->
                         <WrapLayout orientation="horizontal" v-if="showNetworks" class="networks-container">
                             <Label text="Saved WiFi Networks" class="title" width="100%"></Label>
-                            <Label
-                                text="No saved networks"
-                                class="size-16 m-t-10"
-                                v-if="networks.length == 0"
-                            ></Label>
+                            <Label text="No saved networks" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
                             <!-- wifi radio buttons -->
-                            <GridLayout
-                                rows="auto"
-                                columns="30,*"
-                                v-for="n in networks"
-                                :key="n.ssid"
-                                class="m-10"
-                            >
+                            <GridLayout rows="auto" columns="30,*" v-for="n in networks" :key="n.ssid" class="m-10">
                                 <check-box
                                     row="0"
                                     col="0"
@@ -136,12 +105,7 @@
                                     boxType="circle"
                                     @checkedChange="$event.value !== n.selected && toggleChoice(n)"
                                 />
-                                <Label
-                                    row="0"
-                                    col="1"
-                                    class="m-t-5 m-l-5"
-                                    :text="n.ssid"
-                                ></Label>
+                                <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid"></Label>
                             </GridLayout>
                             <!-- end radio buttons -->
                         </WrapLayout>
@@ -157,12 +121,7 @@
                     :isEnabled="!step.buttonDisabled"
                     @tap="goNext"
                 ></Button>
-                <Label
-                    :text="step.altOption"
-                    class="skip"
-                    @tap="goToModules"
-                    textWrap="true"
-                />
+                <Label :text="step.altOption" class="skip" @tap="goToModules" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
         </GridLayout>
@@ -171,7 +130,7 @@
 
 <script>
 import routes from "../../routes";
-import { _T } from "../../utilities"
+import { _T } from "../../utilities";
 import Services from "../../services/services";
 import ConnectStationCheck from "./ConnectStationCheck";
 import ConnectStationModules from "./ConnectStationModules";
@@ -279,7 +238,7 @@ export default {
         addNetwork() {
             let network = {
                 ssid: this.newNetwork.ssid,
-                password: this.newNetwork.password
+                password: this.newNetwork.password,
             };
             let index = this.networks.findIndex(n => {
                 return n.ssid == network.ssid;
@@ -292,14 +251,12 @@ export default {
                 this.networks.push(network);
             }
 
-            return queryStation
-                .sendNetworkSettings(this.station.url, this.networks)
-                .then(result => {
-                    this.networks = result.networkSettings.networks.map(n => {
-                        n.selected = n.ssid == this.network.ssid;
-                        return n;
-                    });
+            return queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
+                this.networks = result.networkSettings.networks.map(n => {
+                    n.selected = n.ssid == this.network.ssid;
+                    return n;
                 });
+            });
         },
 
         useNetwork(event) {
@@ -332,7 +289,7 @@ export default {
             }
             if (this.step.field == "ssid") {
                 this.goToPassword();
-                return
+                return;
             } else if (this.step.field == "password") {
                 this.addNetwork();
             }
@@ -341,8 +298,8 @@ export default {
                 this.$navigateTo(routes.connectStation, {
                     props: {
                         stepParam: "reconnect",
-                        stationParam: this.station
-                    }
+                        stationParam: this.station,
+                    },
                 });
             }
 
@@ -351,8 +308,8 @@ export default {
                     props: {
                         stepParam: "testConnection",
                         proceed: steps[this.step.next].proceed,
-                        stationParam: this.station
-                    }
+                        stationParam: this.station,
+                    },
                 });
             }
         },
@@ -361,71 +318,68 @@ export default {
             this.$navigateTo(ConnectStationModules, {
                 props: {
                     stepParam: "startCalibration",
-                    stationParam: this.station
-                }
+                    stationParam: this.station,
+                },
             });
-        }
-    }
+        },
+    },
 };
 
 const steps = {
-    "stationName":
-       {
-            prev: "selectSettings",
-            next: "reconnect",
-            skip: "startCalibration",
-            title: "Change your FieldKit station name?",
-            instructions: ["You can change the name or leave it the same. You can always change it later."],
-            button: "Save New Name",
-            images: [],
-            label: "",
-            field: "stationName",
-            hint: "Enter a name for your station",
-            altOption: "Skip this step"
-        },
-    "reconnect":
-        {
-            prev: "stationName",
-            next: "testConnection",
-            title: "Reconnect to your FieldKit Station"
-        },
-    "ssid":
-       {
-            prev: "selectSettings",
-            next: "password",
-            title: "Your WiFi Network",
-            instructions: ["Enter the name of the WiFi network you would like to connect your FieldKit station to.", "Unfortunately, only 2.4GHz WiFi is currently supported."],
-            button: "Next",
-            images: [],
-            label: "",
-            field: "ssid",
-            hint: "Enter WiFi network name"
-        },
-    "password":
-       {
-            prev: "ssid",
-            next: "testConnection",
-            title: "Your WiFi Network",
-            instructions: ["Enter network password"],
-            button: "Next",
-            images: [],
-            label: "",
-            field: "password",
-            hint: "Enter network password"
-        },
-    "testConnection":
-       {
-            testingConnection: true,
-            prev: "",
-            next: "",
-            proceed: "startCalibration",
-            title: "",
-            instructions: ["Connecting"],
-            button: "",
-            images: []
-        }
+    stationName: {
+        prev: "selectSettings",
+        next: "reconnect",
+        skip: "startCalibration",
+        title: "Change your FieldKit station name?",
+        instructions: ["You can change the name or leave it the same. You can always change it later."],
+        button: "Save New Name",
+        images: [],
+        label: "",
+        field: "stationName",
+        hint: "Enter a name for your station",
+        altOption: "Skip this step",
+    },
+    reconnect: {
+        prev: "stationName",
+        next: "testConnection",
+        title: "Reconnect to your FieldKit Station",
+    },
+    ssid: {
+        prev: "selectSettings",
+        next: "password",
+        title: "Your WiFi Network",
+        instructions: [
+            "Enter the name of the WiFi network you would like to connect your FieldKit station to.",
+            "Unfortunately, only 2.4GHz WiFi is currently supported.",
+        ],
+        button: "Next",
+        images: [],
+        label: "",
+        field: "ssid",
+        hint: "Enter WiFi network name",
+    },
+    password: {
+        prev: "ssid",
+        next: "testConnection",
+        title: "Your WiFi Network",
+        instructions: ["Enter network password"],
+        button: "Next",
+        images: [],
+        label: "",
+        field: "password",
+        hint: "Enter network password",
+    },
+    testConnection: {
+        testingConnection: true,
+        prev: "",
+        next: "",
+        proceed: "startCalibration",
+        title: "",
+        instructions: ["Connecting"],
+        button: "",
+        images: [],
+    },
 };
-
 </script>
 
 <style scoped lang="scss">

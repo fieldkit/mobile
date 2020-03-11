@@ -7,5 +7,5 @@ android.app.Application.extend("org.fieldkit.NativeScriptMultiDexApp", {
     attachBaseContext: function(base) {
         superProto.attachBaseContext.call(this, base);
         androidx.multidex.MultiDex.install(this);
-    }
+    },
 });

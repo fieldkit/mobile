@@ -1,25 +1,11 @@
 <template>
     <StackLayout class="modal-bkgd" @shownModally="onShownModally">
-        <GridLayout
-            rows="55,*"
-            columns="*"
-            width="100%"
-            class="picker-container text-center"
-        >
-            <StackLayout
-                row="0"
-                horizontalAlignment="right"
-                class="m-r-20"
-                @tap="$modal.close()"
-            >
+        <GridLayout rows="55,*" columns="*" width="100%" class="picker-container text-center">
+            <StackLayout row="0" horizontalAlignment="right" class="m-r-20" @tap="$modal.close()">
                 <Image width="21" src="~/images/Icon_Close.png" />
             </StackLayout>
             <StackLayout row="1">
-                <Label
-                    text="Tap the station you want to recalibrate:"
-                    textWrap="true"
-                    class="m-20 size-20"
-                />
+                <Label text="Tap the station you want to recalibrate:" textWrap="true" class="m-20 size-20" />
                 <StackLayout
                     v-for="(s, index) in stations"
                     :key="s.sortedIndex"
@@ -28,10 +14,7 @@
                     orientation="vertical"
                     @tap="selectStation"
                 >
-                    <Label
-                        :text="s.name"
-                        class="station-name"
-                    />
+                    <Label :text="s.name" class="station-name" />
                 </StackLayout>
             </StackLayout>
         </GridLayout>
@@ -45,8 +28,7 @@ export default {
     },
     props: ["stations"],
     methods: {
-        onShownModally(args) {
-        },
+        onShownModally(args) {},
         selectStation(event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -60,8 +42,8 @@ export default {
                 return s.id == id;
             });
             this.$modal.close(station);
-        }
-    }
+        },
+    },
 };
 </script>
 
@@ -97,5 +79,4 @@ export default {
 .left-cell {
     border-right-width: 1;
 }
-
 </style>

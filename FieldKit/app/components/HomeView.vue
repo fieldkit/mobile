@@ -6,11 +6,7 @@
                 <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
                 <StackLayout class="spacer m-t-30"></StackLayout>
                 <StackLayout class="m-x-20 m-b-20">
-                    <Label
-                        class="m-y-10"
-                        textWrap="true"
-                        :text="'The current environment is: ' + environmentLabels[currentEnv]"
-                    />
+                    <Label class="m-y-10" textWrap="true" :text="'The current environment is: ' + environmentLabels[currentEnv]" />
                     <GridLayout rows="auto" columns="200" horizontalAlignment="center">
                         <DropDown
                             row="0"
@@ -71,20 +67,20 @@ export default {
             environments: [
                 {
                     uri: "https://api.fkdev.org",
-                    label: "Development"
+                    label: "Development",
                 },
                 {
                     uri: "https://api.fieldkit.org",
-                    label: "Production"
-                }
+                    label: "Production",
+                },
             ],
             environmentLabels: [],
-            stations: []
+            stations: [],
         };
     },
     components: {
         BarcodeScanner,
-        Recalibrate
+        Recalibrate,
     },
     methods: {
         onPageLoaded(args) {
@@ -101,7 +97,7 @@ export default {
                 if (this.currentEnv == -1) {
                     this.environments.push({
                         uri: baseUri,
-                        label: "Local"
+                        label: "Local",
                     });
                     this.currentEnv = this.environments.length - 1;
                 }
@@ -141,7 +137,7 @@ export default {
             const params = {
                 baseUri: baseUri,
                 ingestionUri: baseUri + "/ingestion",
-                id: this.config.id
+                id: this.config.id,
             };
             dbInterface.updateConfigUris(params).then(() => {
                 this.$portalInterface.refreshUri();
@@ -153,21 +149,21 @@ export default {
                 alert({
                     title: "Reset Calibration",
                     message: "No stations found",
-                    okButtonText: "OK"
+                    okButtonText: "OK",
                 });
             } else {
                 const options = {
                     props: {
-                        stations: this.stations
+                        stations: this.stations,
                     },
-                    fullscreen: true
+                    fullscreen: true,
                 };
                 this.$showModal(modalStationPicker, options).then(station => {
                     this.$navigateTo(Recalibrate, {
                         props: {
                             stepParam: "startCalibration",
-                            stationParam: station
-                        }
+                            stationParam: station,
+                        },
                     });
                 });
             }
@@ -178,7 +174,7 @@ export default {
                 .confirm({
                     title: "Reset complete! Would you like to go to Onboarding?",
                     okButtonText: _L("yes"),
-                    cancelButtonText: "No"
+                    cancelButtonText: "No",
                 })
                 .then(result => {
                     if (result) {
@@ -191,57 +187,65 @@ export default {
             sendLogs();
         },
         saveDiagnostics() {
-            Services.Diagnostics().save().then(res => {
-                alert({
-                    title: "Diagnostics",
-                    message: "Saved!",
-                    okButtonText: "OK"
-                });
-            }, e => {
-                console.log("error", e);
-                alert({
-                    title: "Diagnostics",
-                    message: "Save Failed:\n" + e,
-                    okButtonText: "OK"
-                });
-            });
+            Services.Diagnostics()
+                .save()
+                .then(
+                    res => {
+                        alert({
+                            title: "Diagnostics",
+                            message: "Saved!",
+                            okButtonText: "OK",
+                        });
+                    },
+                    e => {
+                        console.log("error", e);
+                        alert({
+                            title: "Diagnostics",
+                            message: "Save Failed:\n" + e,
+                            okButtonText: "OK",
+                        });
+                    }
+                );
         },
         uploadDiagnostics() {
-            Services.Diagnostics().upload().then(res => {
-                alert({
-                    title: "Diagnostics",
-                    message: "Uploaded! Thanks! Reference:\n" + res.reference,
-                    okButtonText: "OK"
-                });
-            }, e => {
-                console.log("error", e);
-                alert({
-                    title: "Diagnostics",
-                    message: "Upload Failed:\n" + e,
-                    okButtonText: "OK"
-                });
-            });
+            Services.Diagnostics()
+                .upload()
+                .then(
+                    res => {
+                        alert({
+                            title: "Diagnostics",
+                            message: "Uploaded! Thanks! Reference:\n" + res.reference,
+                            okButtonText: "OK",
+                        });
+                    },
+                    e => {
+                        console.log("error", e);
+                        alert({
+                            title: "Diagnostics",
+                            message: "Upload Failed:\n" + e,
+                            okButtonText: "OK",
+                        });
+                    }
+                );
         },
         deleteDB() {
-            Services.CreateDb().initialize(true).then(result => {
-                this.$stationMonitor.clearStations();
+            Services.CreateDb()
+                .initialize(true)
+                .then(result => {
+                    this.$stationMonitor.clearStations();
 
-                alert({
-                    title: "Developer",
-                    message: "Database Deleted",
-                    okButtonText: "OK"
+                    alert({
+                        title: "Developer",
+                        message: "Database Deleted",
+                        okButtonText: "OK",
+                    });
                 });
-            });
         },
         deleteFiles() {
-            const firmwareFolder = knownFolders
-                  .documents()
-                  .getFolder("firmware");
+            const firmwareFolder = knownFolders.documents().getFolder("firmware");
 
             return firmwareFolder.remove().then(() => {
-                const dataFolder = knownFolders
-                      .currentApp()
-                      .getFolder("FieldKitData");
+                const dataFolder = knownFolders.currentApp().getFolder("FieldKitData");
 
                 return dataFolder
                     .remove()
@@ -251,7 +255,7 @@ export default {
                         alert({
                             title: "Developer",
                             message: "Files removed!",
-                            okButtonText: "OK"
+                            okButtonText: "OK",
                         });
                     })
                     .catch(err => {
@@ -260,43 +264,48 @@ export default {
                         alert({
                             title: "Developer",
                             message: "Error removing files!",
-                            okButtonText: "OK"
+                            okButtonText: "OK",
                         });
                     });
             });
         },
         scan(front) {
-            new BarcodeScanner().scan({
-                cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
-                cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
-                showFlipCameraButton: true,   // default false
-                showTorchButton: true,        // iOS only, default false
-                torchOn: false,               // launch with the flashlight on (default false)
-                resultDisplayDuration: 500,   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
-                beepOnScan: true,             // Play or Suppress beep on scan (default true)
-                openSettingsIfPermissionWasPreviouslyDenied: true, // On iOS you can send the user to the settings app if access was previously denied
-                closeCallback: () => {
-                    // console.log("Scanner closed @ " + new Date().getTime());
-                }
-            }).then(result => {
-                // console.log("--- scanned: " + result.text);
-                // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
-                setTimeout(() => {
-                    alert({
-                        title: "Scan result",
-                        message: "Format: " + result.format + ",\nValue: " + result.text,
-                        okButtonText: "OK"
-                    });
-                }, 200);
-            }, errorMessage => {
-                // console.log("No scan. " + errorMessage);
-            });
+            new BarcodeScanner()
+                .scan({
+                    cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
+                    cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
+                    showFlipCameraButton: true, // default false
+                    showTorchButton: true, // iOS only, default false
+                    torchOn: false, // launch with the flashlight on (default false)
+                    resultDisplayDuration: 500, // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
+                    beepOnScan: true, // Play or Suppress beep on scan (default true)
+                    openSettingsIfPermissionWasPreviouslyDenied: true, // On iOS you can send the user to the settings app if access was previously denied
+                    closeCallback: () => {
+                        // console.log("Scanner closed @ " + new Date().getTime());
+                    },
+                })
+                .then(
+                    result => {
+                        // console.log("--- scanned: " + result.text);
+                        // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
+                        setTimeout(() => {
+                            alert({
+                                title: "Scan result",
+                                message: "Format: " + result.format + ",\nValue: " + result.text,
+                                okButtonText: "OK",
+                            });
+                        }, 200);
+                    },
+                    errorMessage => {
+                        // console.log("No scan. " + errorMessage);
+                    }
+                );
         },
 
         doScanWithBackCamera() {
             this.scan(false);
-        }
-    }
+        },
+    },
 };
 </script>
 

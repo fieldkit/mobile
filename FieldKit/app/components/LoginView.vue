@@ -5,11 +5,7 @@
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
                 <StackLayout class="form">
                     <GridLayout rows="auto, auto, auto, auto">
-                        <StackLayout
-                            row="0"
-                            v-show="!isLoggingIn"
-                            class="input-field"
-                        >
+                        <StackLayout row="0" v-show="!isLoggingIn" class="input-field">
                             <TextField
                                 id="name-field"
                                 class="input"
@@ -30,13 +26,7 @@
                                 id="name-field-spacer"
                                 v-show="!noName && !nameTooLong && !nameHasSpace"
                             ></StackLayout>
-                            <Label
-                                class="validation-error"
-                                id="no-name"
-                                :text="_L('nameRequired')"
-                                textWrap="true"
-                                v-show="noName"
-                            ></Label>
+                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName"></Label>
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
@@ -81,11 +71,7 @@
                                     src="~/images/Icon_Email_login.png"
                                 ></Image>
                             </GridLayout>
-                            <StackLayout
-                                class="spacer-top"
-                                id="email-field-spacer"
-                                v-show="!noEmail && !emailNotValid"
-                            ></StackLayout>
+                            <StackLayout class="spacer-top" id="email-field-spacer" v-show="!noEmail && !emailNotValid"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-email"
@@ -114,9 +100,7 @@
                                     :isEnabled="!processing"
                                     v-model="user.password"
                                     automationText="loginPasswordInput"
-                                    :returnKeyType="
-                                        isLoggingIn ? 'done' : 'next'
-                                    "
+                                    :returnKeyType="isLoggingIn ? 'done' : 'next'"
                                     @focus="showActive"
                                     @returnPress="focusConfirmPassword"
                                     @blur="checkPassword"
@@ -158,11 +142,7 @@
                             ></Label>
                         </StackLayout>
 
-                        <StackLayout
-                            row="3"
-                            v-show="!isLoggingIn"
-                            class="input-field"
-                        >
+                        <StackLayout row="3" v-show="!isLoggingIn" class="input-field">
                             <TextField
                                 id="confirm-password-field"
                                 class="input"
@@ -176,11 +156,7 @@
                                 @focus="showActive"
                                 @blur="checkConfirmPassword"
                             ></TextField>
-                            <StackLayout
-                                class="spacer-top"
-                                id="confirm-password-field-spacer"
-                                v-show="!passwordsNotMatch"
-                            ></StackLayout>
+                            <StackLayout class="spacer-top" id="confirm-password-field-spacer" v-show="!passwordsNotMatch"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="passwords-not-match"
@@ -190,10 +166,7 @@
                             ></Label>
                         </StackLayout>
 
-                        <ActivityIndicator
-                            rowSpan="4"
-                            :busy="processing"
-                        ></ActivityIndicator>
+                        <ActivityIndicator rowSpan="4" :busy="processing"></ActivityIndicator>
                     </GridLayout>
 
                     <Button
@@ -203,22 +176,12 @@
                         @tap="submit"
                     ></Button>
 
-                    <Button
-                        class="btn btn-primary btn-padded m-t-20"
-                        :text="_L('continueOffline')"
-                        @tap="continueOffline"
-                    ></Button>
+                    <Button class="btn btn-primary btn-padded m-t-20" :text="_L('continueOffline')" @tap="continueOffline"></Button>
                 </StackLayout>
 
                 <Label class="sign-up-label" @tap="toggleForm">
                     <FormattedString>
-                        <Span
-                            :text="
-                                isLoggingIn
-                                    ? _L('needAccount')
-                                    : _L('backToLogin')
-                            "
-                        ></Span>
+                        <Span :text="isLoggingIn ? _L('needAccount') : _L('backToLogin')"></Span>
                     </FormattedString>
                 </Label>
             </FlexboxLayout>
@@ -251,8 +214,8 @@ export default {
                 name: "",
                 email: "",
                 password: "",
-                confirmPassword: ""
-            }
+                confirmPassword: "",
+            },
         };
     },
     props: ["resetUser"],
@@ -302,8 +265,7 @@ export default {
         checkPassword(event) {
             let spacer = this.page.getViewById("password-field-spacer");
             spacer.className = "spacer-top";
-            this.noPassword =
-                !this.user.password || this.user.password.length == 0;
+            this.noPassword = !this.user.password || this.user.password.length == 0;
             if (this.noPassword) {
                 return;
             }
@@ -313,8 +275,7 @@ export default {
         checkConfirmPassword(event) {
             let spacer = this.page.getViewById("confirm-password-field-spacer");
             spacer.className = "spacer-top";
-            this.passwordsNotMatch =
-                this.user.password != this.user.confirmPassword;
+            this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
         },
 
         continueOffline() {
@@ -344,7 +305,7 @@ export default {
                 .then(() => {
                     this.processing = false;
                     this.$navigateTo(Config.seedDB ? Home : AssembleStation, {
-                        clearHistory: true
+                        clearHistory: true,
                     });
                 })
                 .catch(error => {
@@ -382,10 +343,10 @@ export default {
                 inputType: "email",
                 defaultText: "",
                 okButtonText: _L("ok"),
-                cancelButtonText: _L("cancel")
+                cancelButtonText: _L("cancel"),
             }).then(data => {
                 if (data.result) {
-					return Services.PortalSession()
+                    return Services.PortalSession()
                         .resetPassword(data.text.trim())
                         .then(() => {
                             this.alert(_L("passwordResetSucceeded"));
@@ -410,10 +371,10 @@ export default {
             return alert({
                 title: "FieldKit",
                 okButtonText: _L("ok"),
-                message: message
+                message: message,
             });
-        }
-    }
+        },
+    },
 };
 </script>
 

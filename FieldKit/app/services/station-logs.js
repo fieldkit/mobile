@@ -11,12 +11,12 @@ export default class StationLogs extends Observable {
 
 		this.discoverStation.on(Observable.propertyChangeEvent, data => {
 			switch (data.propertyName.toString()) {
-			case this.discoverStation.StationFoundProperty: {
-				break;
-			}
-			case this.discoverStation.StationLostProperty: {
-				break;
-			}
+				case this.discoverStation.StationFoundProperty: {
+					break;
+				}
+				case this.discoverStation.StationLostProperty: {
+					break;
+				}
 			}
 		});
 	}

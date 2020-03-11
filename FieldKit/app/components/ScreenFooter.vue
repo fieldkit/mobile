@@ -1,68 +1,32 @@
 <template>
-    <FlexboxLayout
-        justifyContent="space-between"
-        class="size-12 footer"
-        @loaded="onLoaded"
-    >
-        <StackLayout
-            @tap="goToStation"
-            class="footer-btn"
-            automationText="linkToStations"
-        >
+    <FlexboxLayout justifyContent="space-between" class="size-12 footer" @loaded="onLoaded">
+        <StackLayout @tap="goToStation" class="footer-btn" automationText="linkToStations">
             <template v-if="active == 'stations'">
-                <Image
-                    width="22"
-                    height="22"
-                    src="~/images/Icon_Station_active2.png"
-                ></Image>
+                <Image width="22" height="22" src="~/images/Icon_Station_active2.png"></Image>
                 <Label class="active m-t-5" :text="_L('stations')"></Label>
             </template>
             <template v-else>
-                <Image
-                    width="22"
-                    height="22"
-                    src="~/images/Icon_Station_inactive2.png"
-                ></Image>
+                <Image width="22" height="22" src="~/images/Icon_Station_inactive2.png"></Image>
                 <Label class="inactive m-t-5" :text="_L('stations')"></Label>
             </template>
         </StackLayout>
-        <StackLayout
-            @tap="goToData"
-            class="footer-btn"
-            automationText="linkToDataSync"
-        >
+        <StackLayout @tap="goToData" class="footer-btn" automationText="linkToDataSync">
             <template v-if="active == 'data'">
-                <Image
-                    width="22"
-                    height="22"
-                    src="~/images/Icon_DataSync_active2.png"
-                ></Image>
+                <Image width="22" height="22" src="~/images/Icon_DataSync_active2.png"></Image>
                 <Label class="active m-t-5" :text="_L('data')"></Label>
             </template>
             <template v-else>
-                <Image
-                    width="22"
-                    height="22"
-                    src="~/images/Icon_DataSync_inactive2.png"
-                ></Image>
+                <Image width="22" height="22" src="~/images/Icon_DataSync_inactive2.png"></Image>
                 <Label class="inactive m-t-5" :text="_L('data')"></Label>
             </template>
         </StackLayout>
         <StackLayout @tap="goToSettings" class="footer-btn">
             <template v-if="active == 'settings'">
-                <Image
-                    width="22"
-                    height="22"
-                    src="~/images/Icon_Settings_active2.png"
-                ></Image>
+                <Image width="22" height="22" src="~/images/Icon_Settings_active2.png"></Image>
                 <Label class="active m-t-5" :text="_L('settings')"></Label>
             </template>
             <template v-else>
-                <Image
-                    width="22"
-                    height="22"
-                    src="~/images/Icon_Settings_inactive2.png"
-                ></Image>
+                <Image width="22" height="22" src="~/images/Icon_Settings_inactive2.png"></Image>
                 <Label class="inactive m-t-5" :text="_L('settings')"></Label>
             </template>
         </StackLayout>
@@ -112,8 +76,8 @@ export default {
             }, 500);
 
             this.$navigateTo(routes.appSettings);
-        }
-    }
+        },
+    },
 };
 </script>
 

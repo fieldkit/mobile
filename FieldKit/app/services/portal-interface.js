@@ -4,20 +4,20 @@ import Config from "../config";
 import AppSettings from "../wrappers/app-settings";
 
 export default class PortalInterface {
-	constructor(services) {
-		this.services = services;
+    constructor(services) {
+        this.services = services;
         this.dbInterface = services.Database();
         this.getUri().then(result => {
             this.baseUri = result;
         });
-		this._handleTokenResponse = this._handleTokenResponse.bind(this);
-		this._handleStandardResponse = this._handleStandardResponse.bind(this);
-		this._handleError = this._handleError.bind(this);
-		this._currentUser = {};
-		this._appSettings = new AppSettings();
-	}
+        this._handleTokenResponse = this._handleTokenResponse.bind(this);
+        this._handleStandardResponse = this._handleStandardResponse.bind(this);
+        this._handleError = this._handleError.bind(this);
+        this._currentUser = {};
+        this._appSettings = new AppSettings();
+    }
 
-    getUri(){
+    getUri() {
         return this.dbInterface.getConfig().then(result => {
             return result[0].baseUri;
         });
@@ -34,21 +34,24 @@ export default class PortalInterface {
             method: "GET",
             url: this.baseUri + "/user",
         }).then(data => {
-			this._currentUser.name = data.name;
-			this._currentUser.portalId = data.id;
-			return data;
-		});
+            this._currentUser.name = data.name;
+            this._currentUser.portalId = data.id;
+            return data;
+        });
     }
 
-	isAvailable() {
-		return axios({
-			url: this.baseUri + "/status",
-		}).then(r => {
-			return true;
-		}, e => {
-			return false;
-		});
-	}
+    isAvailable() {
+        return axios({
+            url: this.baseUri + "/status",
+        }).then(
+            r => {
+                return true;
+            },
+            e => {
+                return false;
+            }
+        );
+    }
 
     getCurrentUser() {
         return this._currentUser;
@@ -62,18 +65,20 @@ export default class PortalInterface {
         return this._appSettings.getString("accessToken");
     }
 
-	login(user) {
-		return axios({
-			method: "POST",
-			url: this.baseUri + "/login",
-			headers: { "Content-Type": "application/json" },
-			data: user
-		}).then(this._handleTokenResponse).catch(this._handleError);
-	}
+    login(user) {
+        return axios({
+            method: "POST",
+            url: this.baseUri + "/login",
+            headers: { "Content-Type": "application/json" },
+            data: user,
+        })
+            .then(this._handleTokenResponse)
+            .catch(this._handleError);
+    }
 
-	logout() {
-		this._appSettings.remove("accessToken");
-		return Promise.resolve(true);
+    logout() {
+        this._appSettings.remove("accessToken");
+        return Promise.resolve(true);
     }
 
     register(user) {
@@ -82,36 +87,35 @@ export default class PortalInterface {
             url: this.baseUri + "/users",
             data: user,
         }).then(() => {
-			// TODO This should return the user object.
-			return "Account created";
-		});
+            // TODO This should return the user object.
+            return "Account created";
+        });
     }
 
-    resetPassword(email) {
-	}
+    resetPassword(email) {}
 
     addStation(data) {
         return this._query({
             method: "POST",
             url: this.baseUri + "/stations",
-            data: data
+            data: data,
         }).then(data => {
-			// TODO This should just return the entire payload just in
-			// case other users of this class need more information.
-			return data.id;
-		});
+            // TODO This should just return the entire payload just in
+            // case other users of this class need more information.
+            return data.id;
+        });
     }
 
     updateStation(data, portalId) {
         return this._query({
             method: "PATCH",
             url: this.baseUri + "/stations/" + portalId,
-            data: data
+            data: data,
         }).then(data => {
-			// TODO This should just return the entire payload just in
-			// case other users of this class need more information.
-			return data.id;
-		});
+            // TODO This should just return the entire payload just in
+            // case other users of this class need more information.
+            return data.id;
+        });
     }
 
     getStationSyncState(deviceId) {
@@ -120,11 +124,11 @@ export default class PortalInterface {
         });
     }
 
-	getStations() {
+    getStations() {
         return this._query({
-            url: this.baseUri + "/stations"
-		});
-	}
+            url: this.baseUri + "/stations",
+        });
+    }
 
     getStationById(id) {
         return this._query({
@@ -136,67 +140,79 @@ export default class PortalInterface {
         return this._query({
             method: "POST",
             url: this.baseUri + "/stations/" + data.stationId + "/field-notes",
-            data: data
+            data: data,
         });
     }
 
-	listFirmware(module) {
+    listFirmware(module) {
         return this._query({
-            url: this.baseUri + "/firmware" + (module ? "?module=" + module : "")
+            url: this.baseUri + "/firmware" + (module ? "?module=" + module : ""),
         });
-	}
+    }
 
-	onlyIfAuthenticated() {
-		if (!this.isLoggedIn()) {
-			return Promise.reject(false);
-		}
-		return this.isAvailable().then(yes => {
-			if (!yes) {
-				return Promise.reject(false);
-			}
-			return true;
-		});
-	}
+    onlyIfAuthenticated() {
+        if (!this.isLoggedIn()) {
+            return Promise.reject(false);
+        }
+        return this.isAvailable().then(yes => {
+            if (!yes) {
+                return Promise.reject(false);
+            }
+            return true;
+        });
+    }
 
-	downloadFirmware(url, local, progress) {
-		const headers = {
-			Authorization: this._appSettings.getString("accessToken")
-		};
-		return this.services.Conservify().download({
-			url: this.baseUri + url,
-			path: local,
-			headers: { ...headers },
-			progress: progress,
-		}).then(e => {
-			return {
-				data: e.body,
-				status: e.responseCode
-			};
-		}, e => {
-			return Promise.reject(e);
-		});
-	}
+    downloadFirmware(url, local, progress) {
+        const headers = {
+            Authorization: this._appSettings.getString("accessToken"),
+        };
+        return this.services
+            .Conservify()
+            .download({
+                url: this.baseUri + url,
+                path: local,
+                headers: { ...headers },
+                progress: progress,
+            })
+            .then(
+                e => {
+                    return {
+                        data: e.body,
+                        status: e.responseCode,
+                    };
+                },
+                e => {
+                    return Promise.reject(e);
+                }
+            );
+    }
 
     addFieldNoteMedia(data) {
-		const headers = {
-			Authorization: this._appSettings.getString("accessToken")
-		};
-		return this.services.Conservify().upload({
-			url: this.baseUri + "/stations/" + data.stationId + "/field-note-media",
-			method: "POST",
-			path: data.pathDest,
-			headers: { ...headers },
-			progress: (total, copied, info) => {
-				// Do nothing.
-			}
-		}).then(e => {
-			return {
-				data: e.body,
-				status: e.responseCode
-			};
-		}, e => {
-			return Promise.reject(e);
-		});
+        const headers = {
+            Authorization: this._appSettings.getString("accessToken"),
+        };
+        return this.services
+            .Conservify()
+            .upload({
+                url: this.baseUri + "/stations/" + data.stationId + "/field-note-media",
+                method: "POST",
+                path: data.pathDest,
+                headers: { ...headers },
+                progress: (total, copied, info) => {
+                    // Do nothing.
+                },
+            })
+            .then(
+                e => {
+                    return {
+                        data: e.body,
+                        status: e.responseCode,
+                    };
+                },
+                e => {
+                    return Promise.reject(e);
+                }
+            );
     }
 
     _handleStandardResponse(response) {
@@ -205,88 +221,93 @@ export default class PortalInterface {
         }
 
         if (response.status === 204) {
-            return { };
+            return {};
         }
 
-		throw new Error("Query failed");
+        throw new Error("Query failed");
     }
 
-	_handleTokenResponse(response) {
-		if (response.status !== 204) {
-			throw new Error("authentication failed");
-		}
+    _handleTokenResponse(response) {
+        if (response.status !== 204) {
+            throw new Error("authentication failed");
+        }
 
-		// Headers should always be lower case, bug otherwise.
-		const accessToken = response.headers.authorization;
-		this._appSettings.setString("accessToken", accessToken);
-		return this.storeCurrentUser().then(() => {
-			return {
-				token: accessToken
-			};
-		});
-	}
+        // Headers should always be lower case, bug otherwise.
+        const accessToken = response.headers.authorization;
+        this._appSettings.setString("accessToken", accessToken);
+        return this.storeCurrentUser().then(() => {
+            return {
+                token: accessToken,
+            };
+        });
+    }
 
-	_query(req) {
-		req.headers = _.merge(req.headers || {}, {
-			"Content-Type": "application/json",
-			Authorization: this._appSettings.getString("accessToken")
-		});
+    _query(req) {
+        req.headers = _.merge(req.headers || {}, {
+            "Content-Type": "application/json",
+            Authorization: this._appSettings.getString("accessToken"),
+        });
 
-		console.log("portal query", (req.method || 'GET'), req.url);
-		return axios(req).then(response => {
-			return response.data;
-		}, error => {
-			if (error.response.status === 401) {
-				return this._tryRefreshToken(req);
-			}
+        console.log("portal query", req.method || "GET", req.url);
+        return axios(req).then(
+            response => {
+                return response.data;
+            },
+            error => {
+                if (error.response.status === 401) {
+                    return this._tryRefreshToken(req);
+                }
 
-			console.log("portal error", error.response.status, error.response.data);
+                console.log("portal error", error.response.status, error.response.data);
 
-			throw error;
-		});
-	}
+                throw error;
+            }
+        );
+    }
 
-	_tryRefreshToken(original) {
-		const token = this._parseToken(this._appSettings.getString("accessToken"));
-		if (token == null) {
-			return Promise.reject("no token");
-		}
+    _tryRefreshToken(original) {
+        const token = this._parseToken(this._appSettings.getString("accessToken"));
+        if (token == null) {
+            return Promise.reject("no token");
+        }
 
-		const requestBody = {
-			refresh_token: token.refresh_token,
-		};
+        const requestBody = {
+            refresh_token: token.refresh_token,
+        };
 
-		console.log("refreshing token", requestBody);
+        console.log("refreshing token", requestBody);
 
-		return axios({
-			method: "POST",
-			url: this.baseUri + "/refresh",
-			data: requestBody,
-		}).then(response => {
-			return this._handleTokenResponse(response).then(() => {
-				return this._query(original);
-			});
-		}, error => {
-			console.log("refresh failed", error);
-			return this.logout().then(_ => {
-				return Promise.reject(error);
-			});
-		});
-	}
+        return axios({
+            method: "POST",
+            url: this.baseUri + "/refresh",
+            data: requestBody,
+        }).then(
+            response => {
+                return this._handleTokenResponse(response).then(() => {
+                    return this._query(original);
+                });
+            },
+            error => {
+                console.log("refresh failed", error);
+                return this.logout().then(_ => {
+                    return Promise.reject(error);
+                });
+            }
+        );
+    }
 
-	_parseToken(token) {
-		try {
-			const encoded = token.split('.')[1];
-			const decoded = Buffer.from(encoded, "base64").toString();
-			return JSON.parse(decoded);
-		}
-		catch (e) {
-			console.log("error parsing token", e, 'token', token);
-			return null;
-		}
-	}
+    _parseToken(token) {
+        try {
+            const encoded = token.split(".")[1];
+            const decoded = Buffer.from(encoded, "base64").toString();
+            return JSON.parse(decoded);
+        } catch (e) {
+            console.log("error parsing token", e, "token", token);
+            return null;
+        }
+    }
 
-	_handleError(error) {
-		throw error;
-	}
+    _handleError(error) {
+        throw error;
+    }
 }

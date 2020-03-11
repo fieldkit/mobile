@@ -24,9 +24,7 @@ describe("Sqlite Wrapper", () => {
 
             return expect(
                 sqlite.open(":memory:").then(db => {
-                    return db.execute(
-                        "CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)"
-                    );
+                    return db.execute("CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)");
                 })
             ).resolves.toBeDefined();
         });
@@ -36,9 +34,7 @@ describe("Sqlite Wrapper", () => {
 
             return expect(
                 sqlite.open(":memory:").then(db => {
-                    return db.execute(
-                        "CREATE NOTABLE people (id INTEGER PRIMARY KEY, name TEXT)"
-                    );
+                    return db.execute("CREATE NOTABLE people (id INTEGER PRIMARY KEY, name TEXT)");
                 })
             ).rejects.toBeDefined();
         });
@@ -52,29 +48,19 @@ describe("Sqlite Wrapper", () => {
                 .open(":memory:")
                 .then(db => {
                     testdb = db;
-                    return testdb.execute(
-                        "CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)"
-                    );
+                    return testdb.execute("CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)");
                 })
                 .then(db => {
-                    return testdb.execute(
-                        "INSERT INTO people (id, name) VALUES (NULL, 'Jacob')"
-                    );
+                    return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Jacob')");
                 })
                 .then(db => {
-                    return testdb.execute(
-                        "INSERT INTO people (id, name) VALUES (NULL, 'Libbey')"
-                    );
+                    return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Libbey')");
                 })
                 .then(db => {
-                    return testdb.execute(
-                        "INSERT INTO people (id, name) VALUES (NULL, 'Bradley')"
-                    );
+                    return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Bradley')");
                 })
                 .then(db => {
-                    return testdb.execute(
-                        "INSERT INTO people (id, name) VALUES (NULL, 'Shah')"
-                    );
+                    return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Shah')");
                 })
                 .then(db => {
                     return testdb;
@@ -85,13 +71,11 @@ describe("Sqlite Wrapper", () => {
             it("should return expected rows", () => {
                 expect.assertions(1);
 
-                return expect(
-                    testdb.query("SELECT * FROM people")
-                ).resolves.toEqual([
+                return expect(testdb.query("SELECT * FROM people")).resolves.toEqual([
                     { id: 1, name: "Jacob" },
                     { id: 2, name: "Libbey" },
                     { id: 3, name: "Bradley" },
-                    { id: 4, name: "Shah" }
+                    { id: 4, name: "Shah" },
                 ]);
             });
         });
@@ -102,7 +86,7 @@ describe("Sqlite Wrapper", () => {
 
                 return expect(
                     testdb.query("SELECT * FROM people WHERE id = $id", {
-                        $id: 4
+                        $id: 4,
                     })
                 ).resolves.toEqual([{ id: 4, name: "Shah" }]);
             });
@@ -112,7 +96,7 @@ describe("Sqlite Wrapper", () => {
 
                 return expect(
                     testdb.query("SELECT * FROM people WHERE id = $id", {
-                        $id: 8
+                        $id: 8,
                     })
                 ).resolves.toEqual([]);
             });

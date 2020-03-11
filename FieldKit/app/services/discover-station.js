@@ -19,65 +19,72 @@ class Station {
 
 class NetworkMonitor {
     constructor(services) {
-		console.log("NetworkMonitor::ctor");
+        console.log("NetworkMonitor::ctor");
 
-		this.services = services;
+        this.services = services;
         this.previous = null;
         this.timer = setInterval(() => {
-			return services.Conservify().findConnectedNetwork().then((status) => {
-				if (status.connectedWifi) {
-					log.info("NetworkMonitor: ", status.connectedWifi.ssid);
-				}
-				else {
-					log.info("NetworkMonitor: nothing");
-					this.previous = null;
-				}
-			});
+            return services
+                .Conservify()
+                .findConnectedNetwork()
+                .then(status => {
+                    if (status.connectedWifi) {
+                        log.info("NetworkMonitor: ", status.connectedWifi.ssid);
+                    } else {
+                        log.info("NetworkMonitor: nothing");
+                        this.previous = null;
+                    }
+                });
         }, 10000);
 
-		ConnectivityModule.startMonitoring((newType) => {
-			try {
-				switch (newType) {
-				case ConnectivityModule.connectionType.none:
-					log.info("connectivity: None");
-					break;
-				case ConnectivityModule.connectionType.wifi:
-					log.info("connectivity: WiFi");
-					this.tryFixedAddress();
-					break;
-				case ConnectivityModule.connectionType.mobile:
-					log.info("connectivity: Mobile");
-					break;
-				case ConnectivityModule.connectionType.ethernet:
-					log.info("connectivity: Ethernet");
-					break;
-				case ConnectivityModule.connectionType.bluetooth:
-					log.info("connectivity: Bluetooth");
-					break;
-				default:
-					break;
-				}
-			}
-			catch (e) {
-				console.log("error", e);
-			}
-		});
+        ConnectivityModule.startMonitoring(newType => {
+            try {
+                switch (newType) {
+                    case ConnectivityModule.connectionType.none:
+                        log.info("connectivity: None");
+                        break;
+                    case ConnectivityModule.connectionType.wifi:
+                        log.info("connectivity: WiFi");
+                        this.tryFixedAddress();
+                        break;
+                    case ConnectivityModule.connectionType.mobile:
+                        log.info("connectivity: Mobile");
+                        break;
+                    case ConnectivityModule.connectionType.ethernet:
+                        log.info("connectivity: Ethernet");
+                        break;
+                    case ConnectivityModule.connectionType.bluetooth:
+                        log.info("connectivity: Bluetooth");
+                        break;
+                    default:
+                        break;
+                }
+            } catch (e) {
+                console.log("error", e);
+            }
+        });
     }
 
-	tryFixedAddress() {
-		const ip = "192.168.2.1";
-		this.services.QueryStation().getStatus("http://" + ip + "/fk/v1").then((status) => {
-			console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
-			this.services.DiscoverStation().onFoundService({
-				type: "_fk._tcp",
-				name: status.identity.deviceId,
-				host: ip,
-				port: 80,
-			});
-		}, () => {
-			console.log("no devices in ap mode");
-		});
-	}
+    tryFixedAddress() {
+        const ip = "192.168.2.1";
+        this.services
+            .QueryStation()
+            .getStatus("http://" + ip + "/fk/v1")
+            .then(
+                status => {
+                    console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
+                    this.services.DiscoverStation().onFoundService({
+                        type: "_fk._tcp",
+                        name: status.identity.deviceId,
+                        host: ip,
+                        port: 80,
+                    });
+                },
+                () => {
+                    console.log("no devices in ap mode");
+                }
+            );
+    }
 
     couldBeStation(ssid) {
         const parts = ssid.split(" ");
@@ -91,14 +98,14 @@ class NetworkMonitor {
 export default class DiscoverStation extends Observable {
     constructor(services) {
         super();
-		this.services = services;
+        this.services = services;
         this.stations_ = {};
-		this.networkMonitor = null;
+        this.networkMonitor = null;
 
-		this.StationFoundProperty = "stationFound";
-		this.StationLostProperty = "stationLost";
+        this.StationFoundProperty = "stationFound";
+        this.StationLostProperty = "stationLost";
 
-		services.DiscoveryEvents().add(this);
+        services.DiscoveryEvents().add(this);
     }
 
     _watchFakePreconfiguredDiscoveries() {
@@ -116,42 +123,42 @@ export default class DiscoverStation extends Observable {
         }
     }
 
-	_loseConnectedStations() {
-		log.info("loseConnectedStations", this.stations_);
-		const connected = Object.values(this.stations_);
-		log.info("connected", connected);
-		connected.forEach(station => {
-			this.onLostService({
-				type: station.type,
-				name: station.name
-			});
-		});
-	}
+    _loseConnectedStations() {
+        log.info("loseConnectedStations", this.stations_);
+        const connected = Object.values(this.stations_);
+        log.info("connected", connected);
+        connected.forEach(station => {
+            this.onLostService({
+                type: station.type,
+                name: station.name,
+            });
+        });
+    }
 
     _watchWiFiNetworks() {
-		if (this.networkMonitor != null) {
-			return;
-		}
+        if (this.networkMonitor != null) {
+            return;
+        }
 
-		console.log("monitoring wifi");
+        console.log("monitoring wifi");
 
         this.networkMonitor = new NetworkMonitor(this.services);
     }
 
-	subscribeAll(receiver) {
-		this.on(Observable.propertyChangeEvent, data => {
-			return receiver(data);
-		});
+    subscribeAll(receiver) {
+        this.on(Observable.propertyChangeEvent, data => {
+            return receiver(data);
+        });
 
-		Object.keys(this.stations_).forEach(key => {
-			const station = this.stations_[key];
-			log.info("publishing known service", station);
-			this.onFoundService(station);
-		});
-	}
+        Object.keys(this.stations_).forEach(key => {
+            const station = this.stations_[key];
+            log.info("publishing known service", station);
+            this.onFoundService(station);
+        });
+    }
 
     _watchZeroconfAndMdns() {
-		return this.services.Conservify().start("_fk._tcp");
+        return this.services.Conservify().start("_fk._tcp");
     }
 
     startServiceDiscovery() {
@@ -191,7 +198,7 @@ export default class DiscoverStation extends Observable {
         return station.name + station.type;
     }
 
-	getConnectedStations() {
-		return Promise.resolve(this.stations_);
-	}
+    getConnectedStations() {
+        return Promise.resolve(this.stations_);
+    }
 }

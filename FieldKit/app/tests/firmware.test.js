@@ -8,7 +8,7 @@ describe("Firmware", () => {
 	beforeEach(() => {
 		services = new Services();
 
-        return services.CreateDb().initialize();
+		return services.CreateDb().initialize();
 	});
 
 	it("should get and store new firmware from portal", () => {
@@ -21,7 +21,7 @@ describe("Firmware", () => {
 						module: "module",
 						profile: "profile",
 						etag: "etag",
-						url: "/firmware/1000/download"
+						url: "/firmware/1000/download",
 					},
 					{
 						id: 1001,
@@ -29,15 +29,15 @@ describe("Firmware", () => {
 						module: "module",
 						profile: "profile",
 						etag: "etag",
-						url: "/firmware/1001/download"
-					}
-				]
+						url: "/firmware/1001/download",
+					},
+				],
 			});
 		});
 
 		services.PortalInterface().downloadFirmware = jest.fn(_ => {
 			return Promise.resolve({
-				status: 200
+				status: 200,
 			});
 		});
 

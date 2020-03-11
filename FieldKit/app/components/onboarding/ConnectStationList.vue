@@ -6,11 +6,7 @@
                     <StackLayout row="0" verticalAlignment="middle">
                         <GridLayout rows="*" columns="*">
                             <StackLayout row="0" verticalAlignment="middle">
-                                <Label
-                                    class="title m-t-20 m-b-10 text-center"
-                                    :text="step.title"
-                                    textWrap="true"
-                                ></Label>
+                                <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
                                 <Label
                                     v-for="instruction in step.instructions"
@@ -23,13 +19,7 @@
 
                                 <!-- stations list -->
                                 <StackLayout class="m-t-10"></StackLayout>
-                                <GridLayout
-                                    rows="auto"
-                                    columns="30,*"
-                                    class="option-container"
-                                    v-for="s in stationOptions"
-                                    :key="s.id"
-                                >
+                                <GridLayout rows="auto" columns="30,*" class="option-container" v-for="s in stationOptions" :key="s.id">
                                     <check-box
                                         col="0"
                                         :checked="s.selected"
@@ -41,11 +31,7 @@
                                         boxType="circle"
                                         @checkedChange="$event.value !== s.selected && toggleStation(s)"
                                     />
-                                    <Label
-                                        col="1"
-                                        class="m-t-5 m-l-5"
-                                        :text="s.name"
-                                    ></Label>
+                                    <Label col="1" class="m-t-5 m-l-5" :text="s.name"></Label>
                                 </GridLayout>
                                 <!-- end stations list -->
                             </StackLayout>
@@ -62,12 +48,7 @@
                     :isEnabled="!step.buttonDisabled"
                     @tap="goNext"
                 ></Button>
-                <Label
-                    :text="step.altOption"
-                    class="skip"
-                    @tap="tryAgain"
-                    textWrap="true"
-                />
+                <Label :text="step.altOption" class="skip" @tap="tryAgain" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
         </GridLayout>
@@ -76,7 +57,7 @@
 
 <script>
 import routes from "../../routes";
-import { _T } from "../../utilities"
+import { _T } from "../../utilities";
 import Services from "../../services/services";
 import ConnectStationCheck from "./ConnectStationCheck";
 import ConnectStationError from "./ConnectStationError";
@@ -86,12 +67,12 @@ export default {
     data() {
         return {
             step: {},
-            stationOptions: []
+            stationOptions: [],
         };
     },
     components: {
         ConnectStationCheck,
-        ConnectStationError
+        ConnectStationError,
     },
     methods: {
         onPageLoaded(args) {
@@ -117,30 +98,30 @@ export default {
             if (this.step && this.step.hasError) {
                 this.$navigateTo(ConnectStationError, {
                     props: {
-                        stepParam: this.step.name
-                    }
+                        stepParam: this.step.name,
+                    },
                 });
-                return
+                return;
             }
 
-           if (this.step && this.step.selectSettings) {
+            if (this.step && this.step.selectSettings) {
                 this.$navigateTo(routes.connectStation, {
                     props: {
                         stepParam: "selectSettings",
-                        stationParam: this.station
-                    }
+                        stationParam: this.station,
+                    },
                 });
-                return
+                return;
             }
 
             if (this.step && this.step.testingConnection) {
                 this.$navigateTo(ConnectStationCheck, {
                     props: {
                         stepParam: "testConnection",
-                        proceed: this.step.proceed
-                    }
+                        proceed: this.step.proceed,
+                    },
                 });
-                return
+                return;
             }
         },
 
@@ -158,39 +139,34 @@ export default {
             this.station = null;
             this.step = steps["trouble"];
             this.goNext();
-        }
-    }
+        },
+    },
 };
 
 const steps = {
-    "trouble":
-        {
-            hasError: true,
-            name: "trouble",
-            next: "testConnection"
-        },
-    "selectStation":
-        {
-            prev: "connect",
-            next: "selectSettings",
-            skip: "tryAgain",
-            title: "Select Your Station",
-            instructions: ["We found FieldKit Stations. Choose the station you want to connect to."],
-            button: "Next",
-            images: [],
-            altOption: "Don't see your station? Try again."
-        },
-    "testConnection":
-       {
-            testingConnection: true,
-            proceed: "selectStation"
-        },
-    "selectSettings":
-       {
-            selectSettings: true
-        }
+    trouble: {
+        hasError: true,
+        name: "trouble",
+        next: "testConnection",
+    },
+    selectStation: {
+        prev: "connect",
+        next: "selectSettings",
+        skip: "tryAgain",
+        title: "Select Your Station",
+        instructions: ["We found FieldKit Stations. Choose the station you want to connect to."],
+        button: "Next",
+        images: [],
+        altOption: "Don't see your station? Try again.",
+    },
+    testConnection: {
+        testingConnection: true,
+        proceed: "selectStation",
+    },
+    selectSettings: {
+        selectSettings: true,
+    },
 };
-
 </script>
 
 <style scoped lang="scss">

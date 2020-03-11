@@ -78,8 +78,8 @@
 <script>
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../routes";
-import { getLastSeen, _T } from "../utilities"
-import Services from "../services/services"
+import { getLastSeen, _T } from "../utilities";
+import Services from "../services/services";
 const dbInterface = Services.Database();
 const calibrationService = Services.CalibrationService();
 const sensorsThatCalibrate = ["ph", "do", "ec"];
@@ -91,8 +91,8 @@ export default {
             open: [],
             modules: [],
             pending: {},
-            statusChecked: {}
-        }
+            statusChecked: {},
+        };
     },
     props: ["station"],
     methods: {
@@ -102,7 +102,7 @@ export default {
                     .confirm({
                         title: "Would you like to recalibrate " + this.getModuleName(module) + "?",
                         okButtonText: _L("yes"),
-                        cancelButtonText: _L("cancel")
+                        cancelButtonText: _L("cancel"),
                     })
                     .then(result => {
                         if (result) {
@@ -111,60 +111,58 @@ export default {
                                 props: {
                                     station: this.station,
                                     type: module.calibrateSensor,
-                                    recalibrate: module.position
-                                }
+                                    recalibrate: module.position,
+                                },
                             });
                         }
                     });
-                return
+                return;
             }
             if (module.calibrated == "NA") {
-                return
+                return;
             }
 
             // navigate to calibration
             this.$navigateTo(routes.calibration, {
                 props: {
                     station: this.station,
-                    type: module.calibrateSensor
-                }
+                    type: module.calibrateSensor,
+                },
             });
         },
 
         updateModules(modules) {
             this.modules = modules.sort((a, b) => {
-                return b.position < a.position ? 1 : b.position > a.position ? -1 : 0
+                return b.position < a.position ? 1 : b.position > a.position ? -1 : 0;
             });
             this.modules.forEach(m => {
-                m.calibrated = "NA"
+                m.calibrated = "NA";
                 m.calibratedLabel = null;
-                this.open.push(m.id)
+                this.open.push(m.id);
                 m.sensorObjects.forEach(s => {
                     this.checkCalibrationStatus(m, s);
-                    s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--"
-                    s.icon = "~/images/Icon_Neutral.png"
+                    s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--";
+                    s.icon = "~/images/Icon_Neutral.png";
                 });
             });
         },
 
         checkCalibrationStatus(m, s) {
             if (
-                (m.position || m.position == 0)
-                && this.station.url
-                && !this.pending[m.position]
-                && !this.statusChecked[m.position]
-                && sensorsThatCalibrate.indexOf(s.name) > -1
+                (m.position || m.position == 0) &&
+                this.station.url &&
+                !this.pending[m.position] &&
+                !this.statusChecked[m.position] &&
+                sensorsThatCalibrate.indexOf(s.name) > -1
             ) {
                 m.calibratedLabel = "Getting calibration status";
                 m.calibrateSensor = s.name;
                 // keep track so many requests aren't sent at once
                 this.pending[m.position] = true;
                 const listView = this;
-                calibrationService
-                    .getCalibrationStatus(this.station.url + "/module/" + m.position)
-                    .then(result => {
-                        listView.handleCalibrationResult(result, m, s.name);
-                    });
+                calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then(result => {
+                    listView.handleCalibrationResult(result, m, s.name);
+                });
             }
         },
 
@@ -198,41 +196,41 @@ export default {
                     m.position = data.positions[m.name];
                 });
                 this.modules = this.modules.sort((a, b) => {
-                    return b.position < a.position ? 1 : b.position > a.position ? -1 : 0
+                    return b.position < a.position ? 1 : b.position > a.position ? -1 : 0;
                 });
             }
 
             this.modules.forEach(m => {
-                let sensors = []
+                let sensors = [];
                 m.sensorObjects.forEach(s => {
                     this.checkCalibrationStatus(m, s);
-                    let trendIcon = "Icon_Neutral.png"
+                    let trendIcon = "Icon_Neutral.png";
                     if (liveReadings && (liveReadings[m.name + s.name] || liveReadings[m.name + s.name] === 0)) {
-                        let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0
-                        let newReading = +liveReadings[m.name + s.name].toFixed(1)
-                        s.currentReading = newReading
-                        s.displayReading = newReading
-                        dbInterface.setCurrentReading(s)
+                        let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0;
+                        let newReading = +liveReadings[m.name + s.name].toFixed(1);
+                        s.currentReading = newReading;
+                        s.displayReading = newReading;
+                        dbInterface.setCurrentReading(s);
 
                         if (newReading < prevReading) {
-                            trendIcon = "Icon_Decrease.png"
+                            trendIcon = "Icon_Decrease.png";
                         } else if (newReading > prevReading) {
-                            trendIcon = "Icon_Increase.png"
+                            trendIcon = "Icon_Increase.png";
                         }
                     }
-                    s.icon = "~/images/" + trendIcon
-                    sensors.push(s)
+                    s.icon = "~/images/" + trendIcon;
+                    sensors.push(s);
                 });
                 // vue isn't rendering these dynamically, so set them
-                this.$set(m, "sensorObjects", sensors)
+                this.$set(m, "sensorObjects", sensors);
             });
         },
 
         lastSeen() {
             if (!this.station || !this.station.updated) {
-                return ""
+                return "";
             }
-            return "Last reading " + getLastSeen(this.station.updated)
+            return "Last reading " + getLastSeen(this.station.updated);
         },
 
         getModuleName(module) {
@@ -246,56 +244,56 @@ export default {
         getModuleImage(module) {
             switch (module.name) {
                 case "modules.distance":
-                    return "~/images/Icon_Distance_Module.png"
-                    break
+                    return "~/images/Icon_Distance_Module.png";
+                    break;
                 case "modules.weather":
-                    return "~/images/Icon_Weather_Module.png "
-                    break
+                    return "~/images/Icon_Weather_Module.png ";
+                    break;
                 case "modules.water.ec":
-                    return "~/images/Icon_WaterConductivity_Module.png"
-                    break
+                    return "~/images/Icon_WaterConductivity_Module.png";
+                    break;
                 case "modules.water.ph":
-                    return "~/images/Icon_WaterpH_Module.png"
-                    break
+                    return "~/images/Icon_WaterpH_Module.png";
+                    break;
                 case "modules.water.do":
-                    return "~/images/Icon_DissolvedOxygen_Module.png"
-                    break
+                    return "~/images/Icon_DissolvedOxygen_Module.png";
+                    break;
                 case "modules.water.temp":
-                    return "~/images/Icon_WaterTemp_Module.png"
-                    break
+                    return "~/images/Icon_WaterTemp_Module.png";
+                    break;
                 case "modules.water.orp":
-                    return "~/images/Icon_Water_Module.png"
-                    break
+                    return "~/images/Icon_Water_Module.png";
+                    break;
                 case "modules.water.unknown":
-                    return "~/images/Icon_Water_Module.png"
-                    break
+                    return "~/images/Icon_Water_Module.png";
+                    break;
                 default:
-                    return "~/images/Icon_Generic_Module.png"
-                    break
+                    return "~/images/Icon_Generic_Module.png";
+                    break;
             }
         },
 
         emitModuleTapped(event) {
-            this.$emit("moduleTapped", event)
+            this.$emit("moduleTapped", event);
         },
 
         toggleContainer(event) {
-            let id = event.object.dataId.split("m_id-")[1]
-            id = parseInt(id)
-            let index = this.open.indexOf(id)
+            let id = event.object.dataId.split("m_id-")[1];
+            id = parseInt(id);
+            let index = this.open.indexOf(id);
             if (index == -1) {
-                this.open.push(id)
+                this.open.push(id);
             } else {
-                this.open.splice(index, 1)
+                this.open.splice(index, 1);
             }
         },
     },
-}
+};
 </script>
 
 <style scoped lang="scss">
 // Start custom common variables
-@import '../app-variables';
+@import "../app-variables";
 // End custom common variables
 
 // Custom styles
@@ -324,7 +322,7 @@ export default {
 .sensor-name {
     width: 100%;
     margin-top: 5;
-    font-family: 'Avenir LT Pro', 'AvenirLTPro-Book';
+    font-family: "Avenir LT Pro", "AvenirLTPro-Book";
 }
 
 .link-container {

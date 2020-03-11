@@ -1,88 +1,23 @@
 <template>
-    <Page
-        class="page"
-        actionBarHidden="true"
-        @loaded="onLoaded"
-        @unloaded="onUnloaded"
-    >
+    <Page class="page" actionBarHidden="true" @loaded="onLoaded" @unloaded="onUnloaded">
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <GridLayout rows="60,*" automationText="dataSyncLayout">
-                    <ScreenHeader
-                        row="0"
-                        class="p-t-10"
-                        title="Data Sync"
-                        :canNavigateBack="false"
-                        :canNavigateSettings="false"
-                    />
+                    <ScreenHeader row="0" class="p-t-10" title="Data Sync" :canNavigateBack="false" :canNavigateSettings="false" />
                     <StackLayout row="1" class="sync-panel-container">
-                        <StackLayout
-                            v-for="s in recentSyncs"
-                            :key="s.deviceId"
-                            class="station-container"
-                        >
-                            <Label
-                                :text="s.name"
-                                textWrap="true"
-                                class="station-name"
-                            ></Label>
-                            <GridLayout
-                                rows="auto,auto,auto,auto"
-                                columns="*"
-                                class="m-l-10"
-                            >
-                                <Label
-                                    row="0"
-                                    class="history-label"
-                                    v-if="s.totalDownloads"
-                                    :text="s.totalDownloads"
-                                />
-                                <Label
-                                    row="1"
-                                    class="m-l-20"
-                                    v-if="s.lastDownloadTime"
-                                    :text="s.lastDownloadTime"
-                                />
-                                <Label
-                                    row="2"
-                                    class="history-label"
-                                    v-if="s.totalUploads"
-                                    :text="s.totalUploads"
-                                />
-                                <Label
-                                    row="3"
-                                    class="m-l-20"
-                                    v-if="s.lastUploadTime"
-                                    :text="s.lastUploadTime"
-                                />
+                        <StackLayout v-for="s in recentSyncs" :key="s.deviceId" class="station-container">
+                            <Label :text="s.name" textWrap="true" class="station-name"></Label>
+                            <GridLayout rows="auto,auto,auto,auto" columns="*" class="m-l-10">
+                                <Label row="0" class="history-label" v-if="s.totalDownloads" :text="s.totalDownloads" />
+                                <Label row="1" class="m-l-20" v-if="s.lastDownloadTime" :text="s.lastDownloadTime" />
+                                <Label row="2" class="history-label" v-if="s.totalUploads" :text="s.totalUploads" />
+                                <Label row="3" class="m-l-20" v-if="s.lastUploadTime" :text="s.lastUploadTime" />
                             </GridLayout>
                             <template v-if="s.canDownload">
-                                <GridLayout
-                                    rows="*,*,*"
-                                    columns="15*,70*,15*"
-                                    class="m-t-20"
-                                >
-                                    <Image
-                                        rowSpan="2"
-                                        col="0"
-                                        width="25"
-                                        src="~/images/Icon_Datafile.png"
-                                        verticalAlignment="top"
-                                    ></Image>
-                                    <Label
-                                        row="0"
-                                        col="1"
-                                        :text="s.downloadReadingsLabel"
-                                        textWrap="true"
-                                        class="status"
-                                    ></Label>
-                                    <Label
-                                        row="1"
-                                        col="1"
-                                        :text="_L('downloading')"
-                                        class="lighter"
-                                        textWrap="true"
-                                    ></Label>
+                                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
+                                    <Image rowSpan="2" col="0" width="25" src="~/images/Icon_Datafile.png" verticalAlignment="top"></Image>
+                                    <Label row="0" col="1" :text="s.downloadReadingsLabel" textWrap="true" class="status"></Label>
+                                    <Label row="1" col="1" :text="_L('downloading')" class="lighter" textWrap="true"></Label>
                                     <Image
                                         rowSpan="2"
                                         col="2"
@@ -92,25 +27,13 @@
                                         :dataDeviceId="s.deviceId"
                                         @tap="onDownloadTap"
                                     ></Image>
-                                    <Image
-                                        rowSpan="2"
-                                        col="2"
-                                        width="25"
-                                        :src="downloadingIcon"
-                                        v-if="downloading[s.deviceId]"
-                                    ></Image>
-                                    <StackLayout
-                                        row="2"
-                                        colSpan="3"
-                                        class="bottom-border"
-                                    ></StackLayout>
+                                    <Image rowSpan="2" col="2" width="25" :src="downloadingIcon" v-if="downloading[s.deviceId]"></Image>
+                                    <StackLayout row="2" colSpan="3" class="bottom-border"></StackLayout>
                                 </GridLayout>
                             </template>
                             <template v-else-if="s.disconnected">
                                 <StackLayout class="m-20">
-                                    <Label
-                                        :text="_L('notConnectedToStation')"
-                                    />
+                                    <Label :text="_L('notConnectedToStation')" />
                                 </StackLayout>
                             </template>
                             <template v-else>
@@ -120,32 +43,10 @@
                             </template>
 
                             <template v-if="s.canUpload">
-                                <GridLayout
-                                    rows="*,*,*"
-                                    columns="15*,70*,15*"
-                                    class="m-t-20"
-                                >
-                                    <Image
-                                        rowSpan="2"
-                                        col="0"
-                                        width="25"
-                                        src="~/images/Icon_Datafile.png"
-                                        verticalAlignment="top"
-                                    ></Image>
-                                    <Label
-                                        row="0"
-                                        col="1"
-                                        :text="s.uploadStatus"
-                                        textWrap="true"
-                                        class="status"
-                                    ></Label>
-                                    <Label
-                                        row="1"
-                                        col="1"
-                                        :text="s.uploadProgressLabel"
-                                        class="lighter"
-                                        textWrap="true"
-                                    ></Label>
+                                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
+                                    <Image rowSpan="2" col="0" width="25" src="~/images/Icon_Datafile.png" verticalAlignment="top"></Image>
+                                    <Label row="0" col="1" :text="s.uploadStatus" textWrap="true" class="status"></Label>
+                                    <Label row="1" col="1" :text="s.uploadProgressLabel" class="lighter" textWrap="true"></Label>
                                     <Image
                                         rowSpan="2"
                                         col="2"
@@ -155,13 +56,7 @@
                                         :dataDeviceId="s.deviceId"
                                         @tap="onUploadTap"
                                     ></Image>
-                                    <Image
-                                        rowSpan="2"
-                                        col="2"
-                                        width="25"
-                                        :src="uploadingIcon"
-                                        v-if="s.uploadState == 'uploading'"
-                                    ></Image>
+                                    <Image rowSpan="2" col="2" width="25" :src="uploadingIcon" v-if="s.uploadState == 'uploading'"></Image>
                                     <Image
                                         rowSpan="2"
                                         col="2"
@@ -169,11 +64,7 @@
                                         src="~/images/Icon_Success.png"
                                         v-if="s.uploadState == 'success'"
                                     ></Image>
-                                    <StackLayout
-                                        row="2"
-                                        colSpan="3"
-                                        class="bottom-border"
-                                    ></StackLayout>
+                                    <StackLayout row="2" colSpan="3" class="bottom-border"></StackLayout>
                                 </GridLayout>
                             </template>
                         </StackLayout>
@@ -207,12 +98,12 @@ export default {
             uploadingIcon: "~/images/Icon_Syncing_blue.png",
             downloading: {},
             uploading: {},
-            uploadInProgress: false
+            uploadInProgress: false,
         };
     },
     components: {
         ScreenHeader,
-        ScreenFooter
+        ScreenFooter,
     },
     methods: {
         onLoaded(args) {
@@ -247,37 +138,26 @@ export default {
         },
 
         updateHistory(recent) {
-            dbInterface
-                .getMostRecentDownloadByDeviceId(recent.deviceId)
-                .then(result => {
-                    this.updateDownloadHistory(result, recent);
-                });
+            dbInterface.getMostRecentDownloadByDeviceId(recent.deviceId).then(result => {
+                this.updateDownloadHistory(result, recent);
+            });
         },
 
         updateDownloadHistory(result, recent) {
             if (result.length > 0) {
                 const downloadRecord = result[0];
                 if (downloadRecord.uploaded) {
-                    recent.totalDownloads =
-                        downloadRecord.lastBlock +
-                        " total readings down & uploaded";
-                    recent.lastDownloadTime =
-                        "Last down/upload: " +
-                        this.getFormattedDateTime(downloadRecord.uploaded);
+                    recent.totalDownloads = downloadRecord.lastBlock + " total readings down & uploaded";
+                    recent.lastDownloadTime = "Last down/upload: " + this.getFormattedDateTime(downloadRecord.uploaded);
                     recent.totalUploads = "";
                     recent.lastUploadTime = "";
                 } else {
-                    recent.totalDownloads =
-                        downloadRecord.lastBlock + " total readings downloaded";
-                    recent.lastDownloadTime =
-                        "Last download: " +
-                        this.getFormattedDateTime(downloadRecord.timestamp);
+                    recent.totalDownloads = downloadRecord.lastBlock + " total readings downloaded";
+                    recent.lastDownloadTime = "Last download: " + this.getFormattedDateTime(downloadRecord.timestamp);
 
-                    dbInterface
-                        .getMostRecentUploadByDeviceId(recent.deviceId)
-                        .then(uploadResult => {
-                            this.updateUploadHistory(uploadResult, recent);
-                        });
+                    dbInterface.getMostRecentUploadByDeviceId(recent.deviceId).then(uploadResult => {
+                        this.updateUploadHistory(uploadResult, recent);
+                    });
                 }
             }
         },
@@ -285,11 +165,8 @@ export default {
         updateUploadHistory(uploadResult, recent) {
             if (uploadResult.length > 0) {
                 const uploadRecord = uploadResult[0];
-                recent.totalUploads =
-                    uploadRecord.lastBlock + " total readings uploaded";
-                recent.lastUploadTime =
-                    "Last upload: " +
-                    this.getFormattedDateTime(uploadRecord.uploaded);
+                recent.totalUploads = uploadRecord.lastBlock + " total readings uploaded";
+                recent.lastUploadTime = "Last upload: " + this.getFormattedDateTime(uploadRecord.uploaded);
             }
         },
 
@@ -321,13 +198,9 @@ export default {
             });
 
             // check for disconnected stations in recentSyncs
-            const disconnected = _.differenceBy(
-                this.recentSyncs,
-                status.station.stations,
-                s => {
-                    return s.deviceId ? s.deviceId : s.station.deviceId;
-                }
-            );
+            const disconnected = _.differenceBy(this.recentSyncs, status.station.stations, s => {
+                return s.deviceId ? s.deviceId : s.station.deviceId;
+            });
             disconnected.forEach(d => {
                 d.disconnected = true;
             });
@@ -342,8 +215,7 @@ export default {
         updateRecent(recent, station, status) {
             recent.disconnected = false;
             recent.readings = station.pending.records;
-            recent.downloadReadingsLabel =
-                recent.readings + " " + _L("readings");
+            recent.downloadReadingsLabel = recent.readings + " " + _L("readings");
             // need higher limit than 0, or get stuck in loop
             recent.canDownload = recent.readings > 3;
 
@@ -384,14 +256,13 @@ export default {
                 lastDownloadTime: "",
                 lastUploadTime: "",
                 uploadProgressLabel: _L("waitingToUpload"),
-                uploadState: "waiting"
+                uploadState: "waiting",
             };
             if (station.station) {
                 newSync.name = station.station.name;
                 newSync.deviceId = station.station.deviceId;
                 newSync.readings = station.pending.records;
-                newSync.downloadReadingsLabel =
-                    station.pending.records + " " + _L("readings");
+                newSync.downloadReadingsLabel = station.pending.records + " " + _L("readings");
                 newSync.canDownload = station.pending.records > 0;
             } else {
                 newSync.name = station.name;
@@ -420,16 +291,13 @@ export default {
                     // automatically start uploading if none in progress
                     if (!this.uploadInProgress) {
                         this.uploadData().catch(e => {
-							// If we're busy we're already uploading, so skip.
-							if (e.busy === true) {
-								return;
-							}
-                            console.log("This is why app reports 'Unable to upload':", e)
-                            recent.uploadProgressLabel = _L(
-                                "failedCheckConnection"
-                            );
-                            recent.uploadStatus =
-                                recent.uploadSize + " " + _L("toUpload");
+                            // If we're busy we're already uploading, so skip.
+                            if (e.busy === true) {
+                                return;
+                            }
+                            console.log("This is why app reports 'Unable to upload':", e);
+                            recent.uploadProgressLabel = _L("failedCheckConnection");
+                            recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
                             recent.uploadState = "waiting";
                             const inProgress = Object.keys(this.uploading);
                             if (inProgress.length == 0) {
@@ -454,8 +322,7 @@ export default {
                     if (uploadInfo.progress == 100) {
                         delete this.uploading[recent.deviceId];
                         recent.uploadStatus = _L("uploadSuccessful");
-                        recent.uploadProgressLabel =
-                            recent.uploadSize + " " + _L("uploaded");
+                        recent.uploadProgressLabel = recent.uploadSize + " " + _L("uploaded");
                         recent.uploadState = "success";
                     } else {
                         this.$set(this.uploading, recent.deviceId, true);
@@ -483,22 +350,18 @@ export default {
         downloadData(deviceId) {
             this.$set(this.downloading, deviceId, true);
             if (!this.downloadIntervalTimer) {
-                this.downloadIntervalTimer = setInterval(
-                    this.rotateDownloadingIcon,
-                    500
-                );
+                this.downloadIntervalTimer = setInterval(this.rotateDownloadingIcon, 500);
             }
             return Services.StateManager()
                 .synchronizeStation(deviceId)
                 .catch(error => {
-					if (error.busy === true) {
-						console.log("busy, ignored");
-					}
-					else {
-						console.log("ERROR SYNC STATION", JSON.stringify(error));
-						console.log("ERROR SYNC STATION", error.message, error);
-						console.error("ERROR SYNC STATION", error.message, error);
-					}
+                    if (error.busy === true) {
+                        console.log("busy, ignored");
+                    } else {
+                        console.log("ERROR SYNC STATION", JSON.stringify(error));
+                        console.log("ERROR SYNC STATION", error.message, error);
+                        console.error("ERROR SYNC STATION", error.message, error);
+                    }
                 });
         },
 
@@ -522,8 +385,7 @@ export default {
                     //         "Unable to upload. Are you connected to the internet?";
                     // }
                     recent.uploadProgressLabel = _L("failedCheckConnection");
-                    recent.uploadStatus =
-                        recent.uploadSize + " " + _L("toUpload");
+                    recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
                     recent.uploadState = "waiting";
                     const inProgress = Object.keys(this.uploading);
                     if (inProgress.length == 0) {
@@ -536,35 +398,31 @@ export default {
 
         uploadData() {
             if (!this.uploadIntervalTimer) {
-                this.uploadIntervalTimer = setInterval(
-                    this.rotateUploadingIcon,
-                    500
-                );
+                this.uploadIntervalTimer = setInterval(this.rotateUploadingIcon, 500);
             }
 
             return Services.StateManager()
                 .synchronizePortal()
                 .catch(error => {
-					if (error.busy === true) {
-						console.log("busy, ignored");
-					}
-					else {
-						console.error("ERROR SYNC PORTAL", error);
-						if (error.offline && !this.askedOnce) {
-							this.askedOnce = true;
-							return confirm({
-								title: "FieldKit",
-								message: _L("loginPrompt"),
-								okButtonText: _L("yes"),
-								cancelButtonText: _L("notNow")
-							}).then(res => {
-								if (res) {
-									this.$navigateTo(routes.login, {});
-								}
-							});
-						}
-						throw new Error(error);
-					}
+                    if (error.busy === true) {
+                        console.log("busy, ignored");
+                    } else {
+                        console.error("ERROR SYNC PORTAL", error);
+                        if (error.offline && !this.askedOnce) {
+                            this.askedOnce = true;
+                            return confirm({
+                                title: "FieldKit",
+                                message: _L("loginPrompt"),
+                                okButtonText: _L("yes"),
+                                cancelButtonText: _L("notNow"),
+                            }).then(res => {
+                                if (res) {
+                                    this.$navigateTo(routes.login, {});
+                                }
+                            });
+                        }
+                        throw new Error(error);
+                    }
                 });
         },
 
@@ -581,18 +439,7 @@ export default {
             hour = hour < 10 ? "0" + hour : hour;
             let origMinutes = date.getMinutes();
             const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
-            return (
-                month +
-                "/" +
-                day +
-                "/" +
-                year +
-                " " +
-                hour +
-                ":" +
-                minutes +
-                suffix
-            );
+            return month + "/" + day + "/" + year + " " + hour + ":" + minutes + suffix;
         },
 
         clearIntervals() {
@@ -618,8 +465,8 @@ export default {
                 this.uploadingIcon == "~/images/Icon_Syncing_blue.png"
                     ? "~/images/Icon_Syncing2_blue.png"
                     : "~/images/Icon_Syncing_blue.png";
-        }
-    }
+        },
+    },
 };
 </script>
 

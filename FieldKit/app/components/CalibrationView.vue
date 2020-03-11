@@ -24,17 +24,8 @@
                 <GridLayout order="1" rows="auto, auto" columns="*" class="top-line-bkgd m-t-10" v-if="currentCalibration">
                     <StackLayout row="0" horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
                     <!-- station disconnected warning -->
-                    <StackLayout
-                        row="1"
-                        class="text-center disconnect-warning"
-                        v-if="!currentStation.connected"
-                    >
-                        <Label
-                            text="Station disconnected. Tap here to reconnect."
-                            class="size-15"
-                            textWrap="true"
-                            @tap="goToReconnect"
-                        />
+                    <StackLayout row="1" class="text-center disconnect-warning" v-if="!currentStation.connected">
+                        <Label text="Station disconnected. Tap here to reconnect." class="size-15" textWrap="true" @tap="goToReconnect" />
                     </StackLayout>
                 </GridLayout>
                 <!-- end progress bar -->
@@ -55,24 +46,11 @@
                     lineHeight="4"
                     textWrap="true"
                 ></Label>
-                <Label
-                    order="4"
-                    v-if="currentCalibration"
-                    class="instruction"
-                    :text="instruction"
-                    lineHeight="4"
-                    textWrap="true"
-                ></Label>
+                <Label order="4" v-if="currentCalibration" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
 
                 <!-- pH calibration type choice -->
                 <StackLayout order="5" class="radio-container">
-                    <GridLayout
-                        rows="auto"
-                        columns="30,*"
-                        v-for="option in options"
-                        :key="option.value"
-                        class="option-container"
-                    >
+                    <GridLayout rows="auto" columns="30,*" v-for="option in options" :key="option.value" class="option-container">
                         <check-box
                             col="0"
                             :checked="option.selected"
@@ -84,11 +62,7 @@
                             boxType="circle"
                             @checkedChange="$event.value !== option.selected && toggleChoice(option)"
                         />
-                        <Label
-                            col="1"
-                            class="m-t-5 m-l-5"
-                            :text="option.text"
-                        ></Label>
+                        <Label col="1" class="m-t-5 m-l-5" :text="option.text"></Label>
                     </GridLayout>
                 </StackLayout>
                 <!-- end pH calibration type choice -->
@@ -146,61 +120,26 @@
             <!-- end sticky next button -->
 
             <!-- loading animation -->
-            <GridLayout
-                row="1"
-                rowSpan="2"
-                rows="auto"
-                columns="*"
-                v-if="loading"
-                class="text-center loading-container"
-            >
+            <GridLayout row="1" rowSpan="2" rows="auto" columns="*" v-if="loading" class="text-center loading-container">
                 <StackLayout id="loading-circle-blue"></StackLayout>
                 <StackLayout id="loading-circle-white"></StackLayout>
             </GridLayout>
 
             <!-- success screen -->
-            <StackLayout
-                rowSpan="3"
-                v-if="success"
-                height="100%"
-                backgroundColor="white"
-                verticalAlignment="middle"
-            >
+            <StackLayout rowSpan="3" v-if="success" height="100%" backgroundColor="white" verticalAlignment="middle">
                 <GridLayout rows="auto, auto" columns="*">
-                    <Image
-                        row="0"
-                        src="~/images/Icon_Success.png"
-                        class="small"
-                    ></Image>
-                    <Label
-                        row="1"
-                        text="Calibrated"
-                        class="instruction-heading"
-                    ></Label>
+                    <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
+                    <Label row="1" text="Calibrated" class="instruction-heading"></Label>
                 </GridLayout>
             </StackLayout>
             <!-- end success screen -->
 
             <!-- failure screen -->
-            <StackLayout
-                rowSpan="3"
-                v-if="failure"
-                height="100%"
-                backgroundColor="white"
-                verticalAlignment="middle"
-            >
+            <StackLayout rowSpan="3" v-if="failure" height="100%" backgroundColor="white" verticalAlignment="middle">
                 <GridLayout rows="*,80,60" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <Image
-                            row="0"
-                            src="~/images/Icon_Warning_error.png"
-                            class="small"
-                        ></Image>
-                        <Label
-                            row="1"
-                            text="Calibration Failed"
-                            class="instruction-heading"
-                        ></Label>
+                        <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
+                        <Label row="1" text="Calibration Failed" class="instruction-heading"></Label>
                         <Label
                             row="2"
                             text="Looks like an error occured. Try calibration again now or try later if you prefer."
@@ -208,18 +147,8 @@
                             textWrap="true"
                         ></Label>
                     </StackLayout>
-                    <Button
-                        row="1"
-                        class="btn btn-primary btn-padded"
-                        text="Calibrate Again"
-                        @tap="startOver"
-                    ></Button>
-                    <Label
-                        row="2"
-                        text="Calibrate later"
-                        class="skip"
-                        @tap="skip"
-                    ></Label>
+                    <Button row="1" class="btn btn-primary btn-padded" text="Calibrate Again" @tap="startOver"></Button>
+                    <Label row="2" text="Calibrate later" class="skip" @tap="skip"></Label>
                 </GridLayout>
             </StackLayout>
             <!-- end failure screen -->
@@ -228,14 +157,14 @@
 </template>
 
 <script>
-import { Observable, PropertyChangeData } from "tns-core-modules/data/observable"
-import routes from "../routes"
-import Services from "../services/services"
-import CircularProgressBar from "./CircularProgressBar"
+import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
+import routes from "../routes";
+import Services from "../services/services";
+import CircularProgressBar from "./CircularProgressBar";
 import ConnectStationModules from "./onboarding/ConnectStationModules";
 
 const calibrationService = Services.CalibrationService();
-const dbInterface = Services.Database()
+const dbInterface = Services.Database();
 
 export default {
     props: ["type", "station", "recalibrate", "onboarding"],
@@ -252,7 +181,7 @@ export default {
             percentDone: 0,
             nextEnabled: true,
             currentStation: {},
-            calibrationType : "",
+            calibrationType: "",
             currentCalibration: {},
             currentReading: "--",
             timerRunning: false,
@@ -261,16 +190,16 @@ export default {
             elapsedTimeLabel: "min sec",
             success: false,
             failure: false,
-            loading: true
-        }
+            loading: true,
+        };
     },
     components: {
         CircularProgressBar,
-        ConnectStationModules
+        ConnectStationModules,
     },
     methods: {
         onPageLoaded(args) {
-            this.page = args.object
+            this.page = args.object;
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.loading = false; // after loadingWhite defined
 
@@ -285,7 +214,7 @@ export default {
                 this.loadingTimer = setInterval(this.showLoadingAnimation, 1000);
                 this.clearCalibration(this.recalibrate).then(this.goNext);
             } else if (this.currentCalibration) {
-                this.goNext()
+                this.goNext();
             } else {
                 // handle no calibration type and/or steps
             }
@@ -303,17 +232,17 @@ export default {
         goToReconnect() {
             this.$navigateTo(routes.connectStation, {
                 props: {
-                    stepParam: "testConnection"
-                }
+                    stepParam: "testConnection",
+                },
             });
         },
 
         goBack(event) {
-            let cn = event.object.className
-            event.object.className = cn + " pressed"
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
             setTimeout(() => {
-                event.object.className = cn
-            }, 500)
+                event.object.className = cn;
+            }, 500);
 
             if (this.calibrationType == "quickCal" || this.calibrationType == "threePoint") {
                 if (this.step == 0) {
@@ -329,7 +258,7 @@ export default {
                 this.setupStep(steps);
                 this.setupOptions();
                 if (this.timerInterval) {
-                    clearInterval(this.timerInterval)
+                    clearInterval(this.timerInterval);
                 }
                 // handle timer step on back btn?
                 // if (steps[this.step].isTimer) {
@@ -343,17 +272,17 @@ export default {
                     this.$navigateTo(ConnectStationModules, {
                         props: {
                             stepParam: "startCalibration",
-                            stationParam: this.currentStation
-                        }
+                            stationParam: this.currentStation,
+                        },
                     });
                 } else if (this.currentStation && this.currentStation.id) {
                     this.$navigateTo(routes.stationDetail, {
                         props: {
-                            stationId: this.currentStation.id
-                        }
+                            stationId: this.currentStation.id,
+                        },
                     });
                 } else {
-                    this.$navigateTo(routes.stations)
+                    this.$navigateTo(routes.stations);
                 }
             }
         },
@@ -376,7 +305,7 @@ export default {
                         this.performLowPhCalibration(address, data);
                         break;
                 }
-                return
+                return;
             }
 
             if (this.step < steps.length - 1) {
@@ -388,7 +317,7 @@ export default {
                     this.stopTime = steps[this.step].time;
                     this.startTimer(steps[this.step].clearCal);
                 }
-               this.setupOptions();
+                this.setupOptions();
             } else {
                 // perform calibration
                 switch (this.calibrationType) {
@@ -441,15 +370,14 @@ export default {
         },
 
         clearCalibration(bay) {
-            return calibrationService
-                .clearCalibration(this.currentStation.url + "/module/" + bay);
+            return calibrationService.clearCalibration(this.currentStation.url + "/module/" + bay);
         },
 
         performQuickPhCalibration(address, data) {
             return calibrationService.calibrateQuickPh(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
-                    return
+                    return;
                 }
                 this.endCalibration(body.calibration.phStatus.middle);
             });
@@ -459,7 +387,7 @@ export default {
             return calibrationService.calibrateMidPh(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
-                    return
+                    return;
                 }
                 this.performCal = false;
                 if (body.calibration.phStatus.middle > 0) {
@@ -474,7 +402,7 @@ export default {
             return calibrationService.calibrateLowPh(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
-                    return
+                    return;
                 }
                 this.performCal = false;
                 if (body.calibration.phStatus.low > 0) {
@@ -489,7 +417,7 @@ export default {
             return calibrationService.calibrateHighPh(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
-                    return
+                    return;
                 }
                 this.endCalibration(body.calibration.phStatus.high);
             });
@@ -499,7 +427,7 @@ export default {
             return calibrationService.calibrateAtmosphereDissolvedOxygen(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
-                    return
+                    return;
                 }
                 this.endCalibration(body.calibration.doStatus.atm);
             });
@@ -509,7 +437,7 @@ export default {
             return calibrationService.calibrateSingleConductivity(address, data).then(body => {
                 if (body.errors && body.errors.length > 0) {
                     this.failure = true;
-                    return
+                    return;
                 }
                 this.endCalibration(body.calibration.ecStatus.single);
             });
@@ -534,14 +462,14 @@ export default {
                         this.$navigateTo(ConnectStationModules, {
                             props: {
                                 stepParam: "startCalibration",
-                                stationParam: this.currentStation
-                            }
+                                stationParam: this.currentStation,
+                            },
                         });
                     } else {
                         this.$navigateTo(routes.stationDetail, {
                             props: {
-                                stationId: this.currentStation.id
-                            }
+                                stationId: this.currentStation.id,
+                            },
                         });
                     }
                 }, 3000);
@@ -567,28 +495,28 @@ export default {
                 .getStation(this.paramId)
                 .then(this.getModules)
                 .then(this.setupModules)
-                .then(this.completeSetup)
+                .then(this.completeSetup);
         },
 
         getModules(stations) {
             if (stations.length == 0) {
                 // wait a few seconds and try again
-                setTimeout(this.getFromDatabase, 2000)
-                return Promise.reject()
+                setTimeout(this.getFromDatabase, 2000);
+                return Promise.reject();
             }
-            this.currentStation = stations[0]
-            return dbInterface.getModules(this.currentStation.id)
+            this.currentStation = stations[0];
+            return dbInterface.getModules(this.currentStation.id);
         },
 
         getSensors(moduleObject) {
             return dbInterface.getSensors(moduleObject.deviceId).then(sensors => {
-                moduleObject.sensorObjects = sensors
-            })
+                moduleObject.sensorObjects = sensors;
+            });
         },
 
         setupModules(modules) {
-            this.currentStation.moduleObjects = modules
-            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors))
+            this.currentStation.moduleObjects = modules;
+            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors));
         },
 
         completeSetup() {
@@ -600,49 +528,49 @@ export default {
                         }
                         case this.$stationMonitor.ReadingsChangedProperty: {
                             if (data.value.stationId == this.currentStation.id) {
-                                this.updateCurrentReading(data.value.readings)
+                                this.updateCurrentReading(data.value.readings);
                             }
-                            break
+                            break;
                         }
                     }
                 },
                 error => {
                     // console.log("propertyChangeEvent error", error);
                 }
-            )
+            );
             // start getting live readings for this station
             if (this.currentStation.url != "no_url") {
                 // see if live readings have been stored already
-                const readings = this.$stationMonitor.getStationReadings(this.currentStation)
+                const readings = this.$stationMonitor.getStationReadings(this.currentStation);
                 if (readings) {
-                    this.updateCurrentReading(readings)
+                    this.updateCurrentReading(readings);
                 }
-                this.$stationMonitor.startLiveReadings(this.currentStation.url)
+                this.$stationMonitor.startLiveReadings(this.currentStation.url);
             }
         },
 
         updateCurrentReading(readings) {
             if (!readings) {
-                return
+                return;
             }
             this.currentStation.moduleObjects.forEach(m => {
                 m.sensorObjects.forEach(s => {
                     if (s.name == this.currentCalibration.key) {
                         // store module position for calibration query
                         this.bay = m.position;
-                        const reading = readings[m.name + s.name]
+                        const reading = readings[m.name + s.name];
                         if (reading || reading === 0) {
-                            this.currentReading = +reading.toFixed(2)
+                            this.currentReading = +reading.toFixed(2);
                         }
                     }
                     if (s.name == "temp") {
-                        const reading = readings[m.name + s.name]
+                        const reading = readings[m.name + s.name];
                         if (reading || reading === 0) {
-                            this.currentTemp = +reading.toFixed(2)
+                            this.currentTemp = +reading.toFixed(2);
                         }
                     }
-                })
-            })
+                });
+            });
         },
 
         startTimer(clearCal) {
@@ -656,7 +584,7 @@ export default {
         },
 
         updateTimer() {
-            const elapsed = Date.now() - this.started
+            const elapsed = Date.now() - this.started;
             if (elapsed > this.stopTime) {
                 clearInterval(this.timerInterval);
                 this.nextEnabled = true;
@@ -697,21 +625,21 @@ export default {
         },
 
         skip() {
-            this.$navigateTo(routes.stations)
+            this.$navigateTo(routes.stations);
         },
 
         showLoadingAnimation() {
             this.loadingWhite
                 .animate({
                     rotate: 360,
-                    duration: 975
+                    duration: 975,
                 })
                 .then(() => {
                     this.loadingWhite.rotate = 0;
                 });
-        }
+        },
     },
-}
+};
 
 const calibrations = {
     ph: {
@@ -727,18 +655,18 @@ const calibrations = {
                     {
                         text: "Quick calibration",
                         value: "quickCal",
-                        selected: true
+                        selected: true,
                     },
                     {
                         text: "Three-point calibration",
                         value: "threePoint",
-                        selected: false
-                    }
+                        selected: false,
+                    },
                 ],
                 image: "",
                 buttonText: "Next",
-            }
-        ]
+            },
+        ],
     },
     quickCal: {
         key: "ph",
@@ -760,8 +688,7 @@ const calibrations = {
             },
             {
                 heading: "Quick pH Calibration",
-                instruction:
-                    "Place probe inside cup with solution. Make sure water temperature is also inside solution.",
+                instruction: "Place probe inside cup with solution. Make sure water temperature is also inside solution.",
                 image: "~/images/TI_13-B.jpg",
                 buttonText: "Start Timer",
             },
@@ -775,7 +702,7 @@ const calibrations = {
                 image: null,
                 buttonText: "Calibrate",
             },
-        ]
+        ],
     },
     threePoint: {
         key: "ph",
@@ -797,8 +724,7 @@ const calibrations = {
             },
             {
                 heading: "Mid-point Calibration",
-                instruction:
-                    "Place probe inside cup with 7.0 solution. Make sure water temperature is also inside solution.",
+                instruction: "Place probe inside cup with 7.0 solution. Make sure water temperature is also inside solution.",
                 image: "~/images/TI_13-B.jpg",
                 buttonText: "Start Timer",
             },
@@ -806,8 +732,7 @@ const calibrations = {
                 isTimer: true,
                 clearCal: true,
                 performCal: "mid",
-                time: 90000
-                ,
+                time: 90000,
                 heading: "Mid-point Calibration",
                 expectedValue: "7.0",
                 instruction: "",
@@ -822,8 +747,7 @@ const calibrations = {
             },
             {
                 heading: "Low-point Calibration",
-                instruction:
-                    "Place probe inside cup with 4.0 solution. Make sure water temperature is also inside solution.",
+                instruction: "Place probe inside cup with 4.0 solution. Make sure water temperature is also inside solution.",
                 image: "~/images/TI_13-B.jpg",
                 buttonText: "Start Timer",
             },
@@ -831,8 +755,7 @@ const calibrations = {
                 isTimer: true,
                 clearCal: false,
                 performCal: "low",
-                time: 90000
-                ,
+                time: 90000,
                 heading: "Low-point Calibration",
                 expectedValue: "4.0",
                 instruction: "",
@@ -847,23 +770,21 @@ const calibrations = {
             },
             {
                 heading: "High-point Calibration",
-                instruction:
-                    "Place probe inside cup with 10.0 solution. Make sure water temperature is also inside solution.",
+                instruction: "Place probe inside cup with 10.0 solution. Make sure water temperature is also inside solution.",
                 image: "~/images/TI_13-B.jpg",
                 buttonText: "Start Timer",
             },
             {
                 isTimer: true,
                 clearCal: false,
-                time: 90000
-                ,
+                time: 90000,
                 heading: "High-point Calibration",
                 expectedValue: "10.0",
                 instruction: "",
                 image: null,
                 buttonText: "Calibrate",
             },
-        ]
+        ],
     },
     do: {
         key: "do",
@@ -893,7 +814,7 @@ const calibrations = {
                 image: null,
                 buttonText: "Calibrate",
             },
-        ]
+        ],
     },
     ec: {
         key: "ec",
@@ -930,14 +851,14 @@ const calibrations = {
                 image: null,
                 buttonText: "Calibrate",
             },
-        ]
+        ],
     },
-}
+};
 </script>
 
 <style scoped lang="scss">
 // Start custom common variables
-@import '../app-variables';
+@import "../app-variables";
 // End custom common variables
 // Custom styles
 .loading-container {

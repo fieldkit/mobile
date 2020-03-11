@@ -17,8 +17,8 @@
     </Page>
 </template>
 <script>
-import { serializePromiseChain, promiseAfter } from '../utilities'
-import Services from '../services/services'
+import { serializePromiseChain, promiseAfter } from "../utilities";
+import Services from "../services/services";
 
 export default {
     data() {
@@ -26,7 +26,7 @@ export default {
             progress: 0,
             error: false,
             done: false,
-        }
+        };
     },
     props: {
         station: {
@@ -41,58 +41,58 @@ export default {
     methods: {
         onLoaded() {
             const updateProgress = progress => {
-                this.progress = progress.progress
-            }
+                this.progress = progress.progress;
+            };
 
             if (this.downloadOnly) {
-				console.log("downloading only");
+                console.log("downloading only");
                 return Services.StationFirmware()
                     .downloadFirmware(updateProgress, true)
                     .then(() => {
-                        this.done = true
+                        this.done = true;
                     })
                     .catch(err => {
-                        this.done = true
-                        console.log('error', err, err.stack)
-                    })
+                        this.done = true;
+                        console.log("error", err, err.stack);
+                    });
             }
 
-			console.log("checking for firmware");
+            console.log("checking for firmware");
             return Services.StationFirmware()
                 .haveFirmware()
                 .then(yes => {
-					console.log("firmware check", yes);
+                    console.log("firmware check", yes);
 
                     if (!yes) {
-						console.log("no firmware");
-                        this.error = true
-                        return { error: true }
+                        console.log("no firmware");
+                        this.error = true;
+                        return { error: true };
                     }
 
-					console.log("upgrading firmware");
+                    console.log("upgrading firmware");
                     return Services.StationFirmware()
                         .upgradeStation(this.station.url, updateProgress)
                         .then(() => {
-                            this.done = true
+                            this.done = true;
                         })
                         .catch(err => {
-                            this.done = true
-                            console.log('error', err, err.stack)
-                        })
-                })
+                            this.done = true;
+                            console.log("error", err, err.stack);
+                        });
+                });
         },
         onUnloaded() {
-            console.log('onUnloaded')
+            console.log("onUnloaded");
         },
         close() {
-            console.log('Close')
-            this.$modal.close(true)
+            console.log("Close");
+            this.$modal.close(true);
         },
     },
-}
+};
 </script>
 <style scoped lang="scss">
-@import '../app-variables';
+@import "../app-variables";
 
 .container {
     height: 20%;

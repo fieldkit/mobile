@@ -1,10 +1,5 @@
 <template>
-    <Page
-        class="page plain"
-        actionBarHidden="true"
-        @loaded="onPageLoaded"
-        @unloaded="onUnloaded"
-    >
+    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
         <GridLayout :rows="hasNotifications ? '*,35,55' : '*,55'">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
@@ -17,13 +12,7 @@
                     />
 
                     <!-- loading animation -->
-                    <GridLayout
-                        order="2"
-                        rows="auto"
-                        columns="*"
-                        v-if="loading"
-                        class="text-center"
-                    >
+                    <GridLayout order="2" rows="auto" columns="*" v-if="loading" class="text-center">
                         <StackLayout id="loading-circle-blue"></StackLayout>
                         <StackLayout id="loading-circle-white"></StackLayout>
                     </GridLayout>
@@ -34,11 +23,7 @@
                         <GridLayout row="0" col="0">
                             <FlexboxLayout flexDirection="column">
                                 <!-- station status details -->
-                                <StationStatusBox
-                                    order="1"
-                                    ref="statusBox"
-                                    @deployTapped="goToDeploy"
-                                />
+                                <StationStatusBox order="1" ref="statusBox" @deployTapped="goToDeploy" />
                                 <!-- field notes section -->
                                 <GridLayout
                                     order="2"
@@ -48,17 +33,8 @@
                                     class="m-t-5 m-b-10 m-x-10 p-10 bordered-container"
                                     @tap="goToFieldNotes"
                                 >
-                                    <Image
-                                        col="0"
-                                        width="25"
-                                        src="~/images/Icon_FieldNotes.png"
-                                    ></Image>
-                                    <Label
-                                        col="1"
-                                        text="Field Notes"
-                                        class="size-16 m-l-10"
-                                        verticalAlignment="middle"
-                                    />
+                                    <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
+                                    <Label col="1" text="Field Notes" class="size-16 m-l-10" verticalAlignment="middle" />
                                     <Label
                                         col="2"
                                         :text="percentComplete + '% ' + _L('complete')"
@@ -68,34 +44,18 @@
                                     />
                                 </GridLayout>
                                 <!-- module list with current readings -->
-                                <ModuleListView
-                                    order="3"
-                                    ref="moduleList"
-                                    :station="currentStation"
-                                    @moduleTapped="goToModule"
-                                />
+                                <ModuleListView order="3" ref="moduleList" :station="currentStation" @moduleTapped="goToModule" />
                             </FlexboxLayout>
                         </GridLayout>
                         <!-- end background elements -->
 
                         <!-- foreground elements -->
-                        <AbsoluteLayout
-                            row="0"
-                            col="0"
-                            class="text-center"
-                            v-if="newlyDeployed"
-                        >
+                        <AbsoluteLayout row="0" col="0" class="text-center" v-if="newlyDeployed">
                             <!-- center dialog with grid layout -->
                             <GridLayout top="75" width="100%">
                                 <StackLayout class="deployed-dialog-container">
-                                    <Image
-                                        width="60"
-                                        src="~/images/Icon_Success.png"
-                                    ></Image>
-                                    <Label
-                                        :text="_L('stationDeployed')"
-                                        class="deployed-dialog-text"
-                                    />
+                                    <Image width="60" src="~/images/Icon_Success.png"></Image>
+                                    <Label :text="_L('stationDeployed')" class="deployed-dialog-text" />
                                 </StackLayout>
                             </GridLayout>
                         </AbsoluteLayout>
@@ -105,25 +65,15 @@
             </ScrollView>
 
             <!-- notifications -->
-            <NotificationFooter
-                row="1"
-                :onClose="goToDetail"
-                v-if="hasNotifications"
-            />
+            <NotificationFooter row="1" :onClose="goToDetail" v-if="hasNotifications" />
             <!-- footer -->
-            <ScreenFooter
-                :row="hasNotifications ? '2' : '1'"
-                active="stations"
-            />
+            <ScreenFooter :row="hasNotifications ? '2' : '1'" active="stations" />
         </GridLayout>
     </Page>
 </template>
 
 <script>
-import {
-    Observable,
-    PropertyChangeData
-} from "tns-core-modules/data/observable";
+import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import routes from "../routes";
 import Services from "../services/services";
 import Config from "../config";
@@ -148,7 +98,7 @@ export default {
             currentStation: { name: "", id: 0 },
             paramId: null,
             newlyDeployed: false,
-            hasNotifications: false
+            hasNotifications: false,
         };
     },
     components: {
@@ -156,18 +106,18 @@ export default {
         StationStatusBox,
         ModuleListView,
         NotificationFooter,
-        ScreenFooter
+        ScreenFooter,
     },
     props: {
         stationId: {
-            type: String
+            type: String,
         },
         station: {
-            type: Object
+            type: Object,
         },
         redirectedFromDeploy: {
-            type: String
-        }
+            type: String,
+        },
     },
     methods: {
         goBack(event) {
@@ -180,21 +130,21 @@ export default {
 
             this.$navigateTo(routes.stations, {
                 props: {
-                    station: this.currentStation
+                    station: this.currentStation,
                 },
                 transition: {
                     name: "slideRight",
                     duration: 250,
-                    curve: "linear"
-                }
+                    curve: "linear",
+                },
             });
         },
 
         goToDeploy(event) {
             this.$navigateTo(routes.deployMap, {
                 props: {
-                    station: this.currentStation
-                }
+                    station: this.currentStation,
+                },
             });
         },
 
@@ -202,8 +152,8 @@ export default {
             this.$navigateTo(routes.deployNotes, {
                 props: {
                     station: this.currentStation,
-                    linkedFromStation: true
-                }
+                    linkedFromStation: true,
+                },
             });
         },
 
@@ -218,8 +168,8 @@ export default {
                 props: {
                     // remove the "m_id-" prefix
                     moduleId: event.object.id.split("m_id-")[1],
-                    station: this.currentStation
-                }
+                    station: this.currentStation,
+                },
             });
         },
 
@@ -237,8 +187,8 @@ export default {
 
             this.$navigateTo(routes.stationSettings, {
                 props: {
-                    station: this.currentStation
-                }
+                    station: this.currentStation,
+                },
             });
         },
 
@@ -251,8 +201,8 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    station: this.currentStation
-                }
+                    station: this.currentStation,
+                },
             });
         },
 
@@ -310,12 +260,8 @@ export default {
                             if (!data.value || !this.currentStation) {
                                 console.log("bad station refresh", data.value);
                             } else {
-                                if (
-                                    Number(data.value.id) ===
-                                    Number(this.paramId)
-                                ) {
-                                    this.currentStation.connected =
-                                        data.value.connected;
+                                if (Number(data.value.id) === Number(this.paramId)) {
+                                    this.currentStation.connected = data.value.connected;
                                 }
                             }
                             break;
@@ -323,9 +269,7 @@ export default {
                         case this.$stationMonitor.ReadingsChangedProperty: {
                             if (data.value.stationId == this.paramId) {
                                 this.$refs.statusBox.updateStatus(data.value);
-                                this.$refs.moduleList.updateReadings(
-                                    data.value
-                                );
+                                this.$refs.moduleList.updateReadings(data.value);
                             }
                             break;
                         }
@@ -363,9 +307,7 @@ export default {
 
         setupModules(modules) {
             this.currentStation.moduleObjects = modules;
-            return Promise.all(
-                this.currentStation.moduleObjects.map(this.getSensors)
-            );
+            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors));
         },
 
         completeSetup() {
@@ -379,13 +321,8 @@ export default {
                 }, 3000);
             }
 
-            if (
-                this.currentStation.deployStartTime &&
-                typeof this.currentStation.deployStartTime == "string"
-            ) {
-                this.currentStation.deployStartTime = new Date(
-                    this.currentStation.deployStartTime
-                );
+            if (this.currentStation.deployStartTime && typeof this.currentStation.deployStartTime == "string") {
+                this.currentStation.deployStartTime = new Date(this.currentStation.deployStartTime);
             }
             if (this.currentStation.status == "recording") {
                 this.setDeployedStatus();
@@ -397,9 +334,7 @@ export default {
                 this.deployedStatus = _L("readyToDeploy");
             }
             this.$refs.statusBox.updateStation(this.currentStation);
-            this.$refs.moduleList.updateModules(
-                this.currentStation.moduleObjects
-            );
+            this.$refs.moduleList.updateModules(this.currentStation.moduleObjects);
             this.currentStation.origName = this.currentStation.name;
             // add this station to portal if hasn't already been added
             // note: currently the tables are always dropped and re-created,
@@ -407,35 +342,23 @@ export default {
             let params = {
                 name: this.currentStation.name,
                 device_id: this.currentStation.deviceId,
-                status_json: this.currentStation
+                status_json: this.currentStation,
             };
-            if (
-                !this.currentStation.portalId &&
-                this.currentStation.url != "no_url"
-            ) {
-                this.$portalInterface
-                    .addStation(params)
-                    .then(stationPortalId => {
-                        this.currentStation.portalId = stationPortalId;
-                        dbInterface.setStationPortalId(this.currentStation);
-                    });
-            } else if (
-                this.currentStation.portalId &&
-                this.currentStation.url != "no_url"
-            ) {
-                this.$portalInterface
-                    .updateStation(params, this.currentStation.portalId)
-                    .then(stationPortalId => {
-                        // console.log("successfully updated", stationPortalId)
-                    });
+            if (!this.currentStation.portalId && this.currentStation.url != "no_url") {
+                this.$portalInterface.addStation(params).then(stationPortalId => {
+                    this.currentStation.portalId = stationPortalId;
+                    dbInterface.setStationPortalId(this.currentStation);
+                });
+            } else if (this.currentStation.portalId && this.currentStation.url != "no_url") {
+                this.$portalInterface.updateStation(params, this.currentStation.portalId).then(stationPortalId => {
+                    // console.log("successfully updated", stationPortalId)
+                });
             }
 
             // start getting live readings for this station
             if (this.currentStation.url != "no_url") {
                 // see if live readings have been stored already
-                const readings = this.$stationMonitor.getStationReadings(
-                    this.currentStation
-                );
+                const readings = this.$stationMonitor.getStationReadings(this.currentStation);
                 if (readings) {
                     this.$refs.moduleList.updateReadings(readings);
                 }
@@ -454,21 +377,20 @@ export default {
             let month = this.currentStation.deployStartTime.getMonth() + 1;
             let day = this.currentStation.deployStartTime.getDate();
             let year = this.currentStation.deployStartTime.getFullYear();
-            this.deployedStatus =
-                _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
+            this.deployedStatus = _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
         },
 
         showLoadingAnimation() {
             this.loadingWhite
                 .animate({
                     rotate: 360,
-                    duration: 975
+                    duration: 975,
                 })
                 .then(() => {
                     this.loadingWhite.rotate = 0;
                 });
-        }
-    }
+        },
+    },
 };
 </script>
 

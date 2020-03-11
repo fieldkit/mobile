@@ -1,3 +1,4 @@
+// prettier-ignore
 module.exports = {
     // Include module and sensor names
     ...require('./modules.es'),

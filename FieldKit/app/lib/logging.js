@@ -21,8 +21,8 @@ export function getLogsAsProtobufs() {
                     uptime: 0,
                     level: 0,
                     facility: "App",
-                    message: JSON.stringify(log)
-                }
+                    message: JSON.stringify(log),
+                },
             };
         })
         .map(log => {
@@ -61,7 +61,7 @@ export function sendLogs() {
 }
 
 function getPrettyTime() {
-	return moment().format();
+    return moment().format();
 }
 
 export function initializeLogging() {
@@ -83,8 +83,8 @@ export function initializeLogging() {
         console[method] = function() {
             try {
                 const args = Array.prototype.slice.apply(arguments);
-				const time = getPrettyTime();
-                const parts = [ time ];
+                const time = getPrettyTime();
+                const parts = [time];
                 for (let i = 0; i < args.length; i++) {
                     const arg = args[i];
                     if (typeof arg === "string") {
@@ -94,7 +94,7 @@ export function initializeLogging() {
                     }
                 }
                 logs.push(parts);
-				args.unshift(time);
+                args.unshift(time);
                 if (original.apply) {
                     original.apply(console, args);
                 } else {

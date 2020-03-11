@@ -19,37 +19,43 @@ class DomainServices {
 		}
 
 		console.log(data.name, "updating local db");
-		return Services.Database().setStationLocationCoordinates(data).then(() => {
-			const portalId = data.portalId;
-			if (!portalId) {
-				console.log(data.name, "skip portal update, no id");
-				return {};
-			}
-
-			console.log(data.name, "updating portal");
-			return Services.PortalInterface().isAvailable().then(yes => {
-				if (!yes) {
+		return Services.Database()
+			.setStationLocationCoordinates(data)
+			.then(() => {
+				const portalId = data.portalId;
+				if (!portalId) {
+					console.log(data.name, "skip portal update, no id");
 					return {};
 				}
 
-				const params = {
-					name: data.name,
-					device_id: data.deviceId,
-					status_json: data
-				};
+				console.log(data.name, "updating portal");
+				return Services.PortalInterface()
+					.isAvailable()
+					.then(yes => {
+						if (!yes) {
+							return {};
+						}
 
-				return Services.PortalInterface().updateStation(params, portalId).then(() => {
-					this.previous[data.deviceId] = data;
-					console.log(data.name, "done");
-					return { };
-				});
+						const params = {
+							name: data.name,
+							device_id: data.deviceId,
+							status_json: data,
+						};
+
+						return Services.PortalInterface()
+							.updateStation(params, portalId)
+							.then(() => {
+								this.previous[data.deviceId] = data;
+								console.log(data.name, "done");
+								return {};
+							});
+					});
+			})
+			.catch(error => {
+				console.log(data.name, "error", error);
+				return Promise.reject(error);
 			});
-		}).catch(error => {
-			console.log(data.name, "error", error);
-			return Promise.reject(error);
-		});
 	}
-
 }
 
 let instance = null;
@@ -58,5 +64,5 @@ export default function() {
 	if (instance) {
 		return instance;
 	}
-	return instance = new DomainServices();
+	return (instance = new DomainServices());
 }

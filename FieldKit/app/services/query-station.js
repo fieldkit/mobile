@@ -17,26 +17,26 @@ const MandatoryStatus = {
         identity: {},
         power: {
             battery: {
-                percentage: 0.0
-            }
+                percentage: 0.0,
+            },
         },
         memory: {
-            dataMemoryConsumption: 0
+            dataMemoryConsumption: 0,
         },
         recording: {
-            enabled: false
+            enabled: false,
         },
         gps: {
             latitude: 0,
-            longitude: 0
-        }
-    }
+            longitude: 0,
+        },
+    },
 };
 
 export default class QueryStation {
-	constructor(services) {
-		this.services = services;
-	}
+    constructor(services) {
+        this.services = services;
+    }
 
     getStatus(address, locate) {
         let message;
@@ -48,13 +48,13 @@ export default class QueryStation {
                     modifying: true,
                     longitude: locate.long,
                     latitude: locate.lat,
-                    time: locate.time
-                }
+                    time: locate.time,
+                },
             });
         } else {
             message = HttpQuery.create({
                 type: QueryType.values.QUERY_STATUS,
-                time: unixNow()
+                time: unixNow(),
             });
         }
 
@@ -66,7 +66,7 @@ export default class QueryStation {
     takeReadings(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_TAKE_READINGS,
-			time: unixNow()
+            time: unixNow(),
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -78,7 +78,7 @@ export default class QueryStation {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: true },
-			time: unixNow()
+            time: unixNow(),
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -91,7 +91,7 @@ export default class QueryStation {
     stopDataRecording(address) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
-            recording: { modifying: true, enabled: false }
+            recording: { modifying: true, enabled: false },
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -105,7 +105,7 @@ export default class QueryStation {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             schedules: { modifying: true, readings: { interval: station.interval } },
-			time: unixNow()
+            time: unixNow(),
         });
 
         return this.stationQuery(station.url, message).then(reply => {
@@ -116,7 +116,7 @@ export default class QueryStation {
     sendNetworkSettings(address, networks) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
-            networkSettings: { networks: networks }
+            networkSettings: { networks: networks },
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -127,7 +127,7 @@ export default class QueryStation {
     sendLoraSettings(address, lora) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
-            loraSettings: { appEui: lora.appEui, appKey: lora.appKey }
+            loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
         });
         return this.stationQuery(address, message).then(reply => {
             return this._fixupStatus(reply);
@@ -137,7 +137,7 @@ export default class QueryStation {
     configureName(address, name) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
-            identity: { name: name }
+            identity: { name: name },
         });
 
         return this.stationQuery(address, message).then(reply => {
@@ -145,51 +145,65 @@ export default class QueryStation {
         });
     }
 
-	calculateDownloadSize(url) {
+    calculateDownloadSize(url) {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject("ignored");
         }
 
-		return this.services.Conservify().json({
-			method: "HEAD",
-			url: url,
-		}).then(response => {
-			if (response.statusCode != 204) {
-				return Promise.reject(response);
-			}
-			const size = Number(response.headers["content-length"]);
-			return {
-				size
-			};
-		}, err => {
-			log.error(url, "query error", err);
-			return Promise.reject(err);
-		});
-	}
+        return this.services
+            .Conservify()
+            .json({
+                method: "HEAD",
+                url: url,
+            })
+            .then(
+                response => {
+                    if (response.statusCode != 204) {
+                        return Promise.reject(response);
+                    }
+                    const size = Number(response.headers["content-length"]);
+                    return {
+                        size,
+                    };
+                },
+                err => {
+                    log.error(url, "query error", err);
+                    return Promise.reject(err);
+                }
+            );
+    }
 
-	queryLogs(url) {
-		return this.services.Conservify().text({
-			url: url + "/download/logs",
-		}).then(response => {
-			return response.body;
-		}, err => {
-			log.error(url, "query error", err);
-			return Promise.reject(err);
-		});
-	}
+    queryLogs(url) {
+        return this.services
+            .Conservify()
+            .text({
+                url: url + "/download/logs",
+            })
+            .then(
+                response => {
+                    return response.body;
+                },
+                err => {
+                    log.error(url, "query error", err);
+                    return Promise.reject(err);
+                }
+            );
+    }
 
-	uploadFirmware(url, path, progress) {
-		return this.services.Conservify().upload({
-			method: "POST",
-			url: url + "/upload/firmware?swap=1",
-			path: path,
-			progress: progress
-		}).then(response => {
-			console.log(response);
-			return {
-			};
-		});
-	}
+    uploadFirmware(url, path, progress) {
+        return this.services
+            .Conservify()
+            .upload({
+                method: "POST",
+                url: url + "/upload/firmware?swap=1",
+                path: path,
+                progress: progress,
+            })
+            .then(response => {
+                console.log(response);
+                return {};
+            });
+    }
 
     /**
      * Perform a single station query, setting all the critical defaults for the
@@ -203,56 +217,52 @@ export default class QueryStation {
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         log.info(url, "querying", message);
 
-		return this.services.Conservify().protobuf({
-			method: "POST",
-			url: url,
-			body: binaryQuery
-		}).then(response => {
-			if (response.body.length == 0) {
-				log.info(url, "query success", "<empty>");
-				return {};
-			}
+        return this.services
+            .Conservify()
+            .protobuf({
+                method: "POST",
+                url: url,
+                body: binaryQuery,
+            })
+            .then(
+                response => {
+                    if (response.body.length == 0) {
+                        log.info(url, "query success", "<empty>");
+                        return {};
+                    }
 
-			const decoded = this._getResponseBody(response);
-			return this._handlePotentialBusyReply(
-				decoded,
-				url,
-				message
-			).then(finalReply => {
-				log.verbose(url, "query success", finalReply);
-				return finalReply;
-			});
-		}, err => {
-			log.error(url, "query error", err);
-			return Promise.reject(err);
-		});
-	}
+                    const decoded = this._getResponseBody(response);
+                    return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
+                        log.verbose(url, "query success", finalReply);
+                        return finalReply;
+                    });
+                },
+                err => {
+                    log.error(url, "query error", err);
+                    return Promise.reject(err);
+                }
+            );
+    }
 
-	_getResponseBody(response) {
-		if (Buffer.isBuffer(response.body)) {
-			return HttpReply.decodeDelimited(response.body);
-		}
-		return response.body;
-	}
+    _getResponseBody(response) {
+        if (Buffer.isBuffer(response.body)) {
+            return HttpReply.decodeDelimited(response.body);
+        }
+        return response.body;
+    }
 
-	_fixupStatus(reply) {
+    _fixupStatus(reply) {
         if (reply.errors && reply.errors.length > 0) {
             return reply;
         }
         // NOTE deepmerge ruins deviceId.
         if (reply.status && reply.status.identity) {
-            reply.status.identity.deviceId = new Buffer.from(
-                reply.status.identity.deviceId
-            ).toString("hex");
-            reply.status.identity.generationId = new Buffer.from(
-                reply.status.identity.generation
-            ).toString("hex");
+            reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
+            reply.status.identity.generationId = new Buffer.from(reply.status.identity.generation).toString("hex");
         }
         if (reply.modules && Array.isArray(reply.modules)) {
             reply.modules.map(m => {
-                m.deviceId = new Buffer.from(
-                    m.id
-                ).toString("hex");
+                m.deviceId = new Buffer.from(m.id).toString("hex");
             });
         }
         if (reply.streams && reply.streams.length > 0) {

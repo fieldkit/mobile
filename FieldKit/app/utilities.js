@@ -95,11 +95,7 @@ export function getLastSeen(date) {
     let year = date.getFullYear();
     let today = new Date();
     // if same day, return time instead
-    if (
-        today.getMonth() + 1 == month &&
-        today.getDate() == day &&
-        today.getFullYear() == year
-    ) {
+    if (today.getMonth() + 1 == month && today.getDate() == day && today.getFullYear() == year) {
         return getFormattedTime(date);
     }
     return month + "/" + day + "/" + year;

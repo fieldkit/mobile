@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import DomainServices from './domain-services';
+import _ from "lodash";
+import DomainServices from "./domain-services";
 
 export class Station {
 	constructor(deviceId) {
@@ -30,18 +30,18 @@ export class Station {
 
 	haveNewPhoneLocation(phone) {
 		if (!this.data.connected) {
-			console.log(this.data.name, 'ignoring disconnected');
-			return Promise.resolve({ });
+			console.log(this.data.name, "ignoring disconnected");
+			return Promise.resolve({});
 		}
 
 		if (!phone.location.valid()) {
-			return Promise.resolve({ });
+			return Promise.resolve({});
 		}
 
 		if (this.previousStatus) {
 			const statusLocation = new Coordinates(this.previousStatus.gps);
 			if (statusLocation.valid()) {
-				return Promise.resolve({ });
+				return Promise.resolve({});
 			}
 		}
 
@@ -88,18 +88,18 @@ export class KnownStations {
 			return this.getByDeviceId(lookup);
 		}
 		if (_.isObject(lookup) && _.isString(lookup.deviceId)) {
-			const station = this.getByDeviceId(lookup.deviceId)
+			const station = this.getByDeviceId(lookup.deviceId);
 			station.data = lookup;
 			return station;
 		}
-		throw new Error("Unexpected lookup method", lookup)
+		throw new Error("Unexpected lookup method", lookup);
 	}
 
 	getByDeviceId(deviceId) {
 		if (this.stations[deviceId]) {
 			return this.stations[deviceId];
 		}
-		return this.stations[deviceId] = new Station(deviceId);
+		return (this.stations[deviceId] = new Station(deviceId));
 	}
 
 	connected() {
@@ -112,8 +112,7 @@ export class Coordinates {
 		if (lat && lat.latitude) {
 			this.latitude = lat.latitude;
 			this.longitude = lat.longitude;
-		}
-		else {
+		} else {
 			this.latitude = lat || null;
 			this.longitude = lon || null;
 		}
@@ -132,4 +131,4 @@ export class Coordinates {
 		}
 		return true;
 	}
-};
+}

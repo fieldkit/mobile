@@ -1,21 +1,8 @@
 <template>
-    <FlexboxLayout
-        justifyContent="center"
-        alignItems="center"
-        class="notify-footer"
-        @tap="goToNotifications"
-    >
-        <Label
-            :text="_L('notifications')"
-            horizontalAlignment="right"
-        />
+    <FlexboxLayout justifyContent="center" alignItems="center" class="notify-footer" @tap="goToNotifications">
+        <Label :text="_L('notifications')" horizontalAlignment="right" />
         <GridLayout rows="auto" columns="*" horizontalAlignment="left">
-            <Label
-                row="0"
-                col="0"
-                :text="numNotifications"
-                class="notify-num text-center"
-            />
+            <Label row="0" col="0" :text="numNotifications" class="notify-num text-center" />
         </GridLayout>
     </FlexboxLayout>
 </template>
@@ -27,24 +14,24 @@ import routes from "../routes";
 export default {
     data() {
         return {
-            numNotifications: 2
+            numNotifications: 2,
         };
     },
     props: {
         onClose: {
             type: Function,
-            default: () => {}
-        }
+            default: () => {},
+        },
     },
     methods: {
         goToNotifications() {
             this.$navigateTo(routes.notifications, {
                 props: {
-                    onClose: this.onClose
-                }
+                    onClose: this.onClose,
+                },
             });
-        }
-    }
+        },
+    },
 };
 </script>
 

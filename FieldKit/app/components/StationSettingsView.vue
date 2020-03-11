@@ -2,28 +2,13 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="*,70">
             <ScrollView row="0">
-                <FlexboxLayout
-                    flexDirection="column"
-                    justifyContent="space-between"
-                    class="p-t-10"
-                >
-                    <ScreenHeader
-                        title="Station Settings"
-                        :subtitle="station.name"
-                        :onBack="goBack"
-                        :canNavigateSettings="false"
-                    />
+                <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
+                    <ScreenHeader title="Station Settings" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                     <StackLayout class="bottom-border p-b-10"></StackLayout>
 
                     <!-- edit station name -->
                     <WrapLayout orientation="horizontal" class="m-10">
-                        <Image
-                            class="m-10"
-                            width="17"
-                            v-show="isEditingName"
-                            @tap="cancelRename"
-                            src="~/images/Icon_Close.png"
-                        ></Image>
+                        <Image class="m-10" width="17" v-show="isEditingName" @tap="cancelRename" src="~/images/Icon_Close.png"></Image>
                         <Label
                             class="station-name text-center size-20"
                             :text="station.name"
@@ -41,25 +26,9 @@
                             returnKeyType="next"
                             @blur="checkName"
                         ></TextField>
-                        <Label
-                            class="size-10 char-count"
-                            :text="station.name.length"
-                            v-show="isEditingName"
-                        ></Label>
-                        <Image
-                            class="m-l-10"
-                            width="18"
-                            v-show="!isEditingName"
-                            @tap="startRename"
-                            src="~/images/Icon_Edit.png"
-                        ></Image>
-                        <Image
-                            class="m-10"
-                            width="17"
-                            v-show="isEditingName"
-                            @tap="saveStationName"
-                            src="~/images/Icon_Save.png"
-                        ></Image>
+                        <Label class="size-10 char-count" :text="station.name.length" v-show="isEditingName"></Label>
+                        <Image class="m-l-10" width="18" v-show="!isEditingName" @tap="startRename" src="~/images/Icon_Edit.png"></Image>
+                        <Image class="m-10" width="17" v-show="isEditingName" @tap="saveStationName" src="~/images/Icon_Save.png"></Image>
                         <!-- validation errors -->
                         <Label
                             class="validation-error"
@@ -80,38 +49,19 @@
                             id="name-not-printable"
                             :text="_L('nameNotPrintable')"
                             textWrap="true"
-                            :visibility="
-                                nameNotPrintable ? 'visible' : 'collapsed'
-                            "
+                            :visibility="nameNotPrintable ? 'visible' : 'collapsed'"
                         ></Label>
                         <!-- end edit name form -->
                     </WrapLayout>
                     <StackLayout class="section-border"></StackLayout>
 
                     <!-- stop deployment button -->
-                    <StackLayout
-                        class="m-x-10"
-                        v-if="station.status == 'recording'"
-                    >
-                        <Label
-                            :text="_L('endDeployment')"
-                            class="size-20 m-y-5 full-width"
-                        />
-                        <Label
-                            :text="_L('mustBeConnectedToStop')"
-                            class="size-16 m-y-5"
-                            textWrap="true"
-                        />
-                        <Button
-                            class="btn btn-primary btn-padded full-width"
-                            :text="_L('stopRecording')"
-                            @tap="stopRecording"
-                        ></Button>
+                    <StackLayout class="m-x-10" v-if="station.status == 'recording'">
+                        <Label :text="_L('endDeployment')" class="size-20 m-y-5 full-width" />
+                        <Label :text="_L('mustBeConnectedToStop')" class="size-16 m-y-5" textWrap="true" />
+                        <Button class="btn btn-primary btn-padded full-width" :text="_L('stopRecording')" @tap="stopRecording"></Button>
                     </StackLayout>
-                    <StackLayout
-                        class="section-border"
-                        v-if="station.status == 'recording'"
-                    ></StackLayout>
+                    <StackLayout class="section-border" v-if="station.status == 'recording'"></StackLayout>
 
                     <!-- data capture schedule -->
                     <ConfigureCaptureInterval :station="station" />
@@ -120,42 +70,14 @@
                     <!-- add/remove networks -->
                     <StackLayout class="m-x-10">
                         <Label :text="_L('wifiNetworks')" class="size-20"></Label>
-                        <GridLayout
-                            rows="auto"
-                            columns="75*,25*"
-                            v-for="n in networks"
-                            :key="n.ssid"
-                        >
-                            <Label
-                                :text="n.ssid"
-                                col="0"
-                                class="m-l-15 m-y-10"
-                            ></Label>
-                            <Image
-                                col="1"
-                                src="~/images/Icon_Close.png"
-                                width="17"
-                                :dataSsid="n.ssid"
-                                @tap="removeNetwork"
-                            ></Image>
+                        <GridLayout rows="auto" columns="75*,25*" v-for="n in networks" :key="n.ssid">
+                            <Label :text="n.ssid" col="0" class="m-l-15 m-y-10"></Label>
+                            <Image col="1" src="~/images/Icon_Close.png" width="17" :dataSsid="n.ssid" @tap="removeNetwork"></Image>
                         </GridLayout>
 
-                        <GridLayout
-                            v-if="!addingNetwork"
-                            rows="auto"
-                            columns="10*,90*"
-                            @tap="showNetworkForm"
-                        >
-                            <Image
-                                col="0"
-                                src="~/images/Icon_Add_Button.png"
-                                width="20"
-                            ></Image>
-                            <Label
-                                col="1"
-                                :text="_L('addNetwork')"
-                                class="size-16"
-                            ></Label>
+                        <GridLayout v-if="!addingNetwork" rows="auto" columns="10*,90*" @tap="showNetworkForm">
+                            <Image col="0" src="~/images/Icon_Add_Button.png" width="20"></Image>
+                            <Label col="1" :text="_L('addNetwork')" class="size-16"></Label>
                         </GridLayout>
 
                         <StackLayout v-if="addingNetwork">
@@ -176,13 +98,7 @@
                                     v-model="newNetwork.ssid"
                                     returnKeyType="next"
                                 ></TextField>
-                                <Label
-                                    row="1"
-                                    col="0"
-                                    :text="_L('password') + ': '"
-                                    verticalAlignment="middle"
-                                    class="text-right"
-                                ></Label>
+                                <Label row="1" col="0" :text="_L('password') + ': '" verticalAlignment="middle" class="text-right"></Label>
                                 <TextField
                                     row="1"
                                     col="1"
@@ -192,13 +108,7 @@
                                     v-model="newNetwork.password"
                                     returnKeyType="done"
                                 ></TextField>
-                                <Button
-                                    row="2"
-                                    colSpan="2"
-                                    class="btn btn-secondary"
-                                    :text="_L('add')"
-                                    @tap="addNetwork"
-                                ></Button>
+                                <Button row="2" colSpan="2" class="btn btn-secondary" :text="_L('add')" @tap="addNetwork"></Button>
                             </GridLayout>
                         </StackLayout>
                     </StackLayout>
@@ -206,45 +116,17 @@
 
                     <!-- edit LoRa -->
                     <StackLayout class="m-x-10" v-if="haveLora">
-                        <Label
-                            :text="_L('loraNetwork')"
-                            class="size-20"
-                        ></Label>
-                        <Label
-                            :text="_L('deviceEUI') + ': ' + lora.deviceEui"
-                            col="0"
-                            class="m-l-15 m-y-10"
-                        ></Label>
+                        <Label :text="_L('loraNetwork')" class="size-20"></Label>
+                        <Label :text="_L('deviceEUI') + ': ' + lora.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
 
-                        <GridLayout
-                            rows="auto"
-                            columns="10*,90*"
-                            @tap="showLoraForm"
-                        >
-                            <Image
-                                col="0"
-                                src="~/images/Icon_Add_Button.png"
-                                width="20"
-                            ></Image>
-                            <Label
-                                col="1"
-                                :text="_L('editAppEUI')"
-                                class="size-16"
-                            ></Label>
+                        <GridLayout rows="auto" columns="10*,90*" @tap="showLoraForm">
+                            <Image col="0" src="~/images/Icon_Add_Button.png" width="20"></Image>
+                            <Label col="1" :text="_L('editAppEUI')" class="size-16"></Label>
                         </GridLayout>
 
                         <StackLayout v-if="editingLora">
-                            <GridLayout
-                                rows="auto,auto,auto,auto,auto"
-                                columns="35*,65*"
-                            >
-                                <Label
-                                    row="0"
-                                    col="0"
-                                    :text="_L('appEUI') + ': '"
-                                    verticalAlignment="middle"
-                                    class="text-right"
-                                ></Label>
+                            <GridLayout rows="auto,auto,auto,auto,auto" columns="35*,65*">
+                                <Label row="0" col="0" :text="_L('appEUI') + ': '" verticalAlignment="middle" class="text-right"></Label>
                                 <TextField
                                     row="0"
                                     col="1"
@@ -260,17 +142,9 @@
                                     class="validation-error m-l-10"
                                     :text="_L('invalidAppEUI')"
                                     textWrap="true"
-                                    :visibility="
-                                        invalidEui ? 'visible' : 'collapsed'
-                                    "
+                                    :visibility="invalidEui ? 'visible' : 'collapsed'"
                                 ></Label>
-                                <Label
-                                    row="2"
-                                    col="0"
-                                    :text="_L('appKey') + ': '"
-                                    verticalAlignment="middle"
-                                    class="text-right"
-                                ></Label>
+                                <Label row="2" col="0" :text="_L('appKey') + ': '" verticalAlignment="middle" class="text-right"></Label>
                                 <TextField
                                     row="2"
                                     col="1"
@@ -286,63 +160,26 @@
                                     class="validation-error m-l-10"
                                     :text="_L('invalidAppKey')"
                                     textWrap="true"
-                                    :visibility="
-                                        invalidKey ? 'visible' : 'collapsed'
-                                    "
+                                    :visibility="invalidKey ? 'visible' : 'collapsed'"
                                 ></Label>
-                                <Button
-                                    row="4"
-                                    colSpan="2"
-                                    class="btn btn-secondary"
-                                    :text="_L('submit')"
-                                    @tap="editLora"
-                                ></Button>
+                                <Button row="4" colSpan="2" class="btn btn-secondary" :text="_L('submit')" @tap="editLora"></Button>
                             </GridLayout>
                         </StackLayout>
                     </StackLayout>
-                    <StackLayout
-                        class="section-border"
-                        v-if="haveLora"
-                    ></StackLayout>
+                    <StackLayout class="section-border" v-if="haveLora"></StackLayout>
 
-                    <Button
-                        v-if="loggedIn"
-                        class="btn btn-secondary"
-                        :text="_L('logOut')"
-                        @tap="logout"
-                    ></Button>
-                    <Button
-                        v-if="!loggedIn"
-                        class="btn btn-secondary"
-                        :text="_L('logIn')"
-                        @tap="goToLogin"
-                    ></Button>
+                    <Button v-if="loggedIn" class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
+                    <Button v-if="!loggedIn" class="btn btn-secondary" :text="_L('logIn')" @tap="goToLogin"></Button>
 
                     <WrapLayout orientation="horizontal" class="m-10">
-                        <Label
-                            :text="'Firmware: ' + versions.firmware"
-                            class="size-16 full-width m-t-10"
-                            textWrap="true"
-                        />
-                        <Label
-                            :text="'Firmware build: ' + versions.firmwareBuild"
-                            class="size-16 full-width"
-                            textWrap="true"
-                        />
-                        <Label
-                            :text="'Firmware number: ' + versions.firmwareNumber"
-                            class="size-16 full-width"
-                            textWrap="true"
-                        />
-                        <Label
-                            :text="'Device ID: ' + versions.device"
-                            class="size-16 full-width"
-                            textWrap="true"
-                        />
+                        <Label :text="'Firmware: ' + versions.firmware" class="size-16 full-width m-t-10" textWrap="true" />
+                        <Label :text="'Firmware build: ' + versions.firmwareBuild" class="size-16 full-width" textWrap="true" />
+                        <Label :text="'Firmware number: ' + versions.firmwareNumber" class="size-16 full-width" textWrap="true" />
+                        <Label :text="'Device ID: ' + versions.device" class="size-16 full-width" textWrap="true" />
                     </WrapLayout>
 
-					<Button :text="_L('downloadFirmware')" @tap="downloadFirmware" class="btn btn-secondary"></Button>
-					<Button :text="_L('upgradeFirmware')" @tap="upgradeFirmware" class="btn btn-secondary"></Button>
+                    <Button :text="_L('downloadFirmware')" @tap="downloadFirmware" class="btn btn-secondary"></Button>
+                    <Button :text="_L('upgradeFirmware')" @tap="upgradeFirmware" class="btn btn-secondary"></Button>
                 </FlexboxLayout>
             </ScrollView>
 
@@ -386,15 +223,15 @@ export default {
                 firmware: "1.0",
                 firmwareBuild: "1.0",
                 firmwareNumber: "--",
-                device: "1.0"
-            }
+                device: "1.0",
+            },
         };
     },
     props: ["station"],
     components: {
         ScreenHeader,
         ConfigureCaptureInterval,
-        ScreenFooter
+        ScreenFooter,
     },
     methods: {
         onPageLoaded(args) {
@@ -404,25 +241,17 @@ export default {
             let deviceStatus = JSON.parse(this.station.statusJson);
             if (deviceStatus && deviceStatus.status.identity) {
                 if (deviceStatus.status.identity.deviceId) {
-                    this.versions.device = hexStringToByteWiseString(
-                        deviceStatus.status.identity.deviceId
-                    );
+                    this.versions.device = hexStringToByteWiseString(deviceStatus.status.identity.deviceId);
                 }
                 if (deviceStatus.status.firmware) {
                     // newer firmware
-                    this.versions.firmware = hexStringToByteWiseString(
-                        deviceStatus.status.firmware.hash
-                    );
+                    this.versions.firmware = hexStringToByteWiseString(deviceStatus.status.firmware.hash);
                     this.versions.firmwareBuild = deviceStatus.status.firmware.build;
                     this.versions.firmwareNumber = deviceStatus.status.firmware.number;
                 } else if (deviceStatus.status.identity.firmware) {
-
-                    this.versions.firmware = hexStringToByteWiseString(
-                        deviceStatus.status.identity.firmware
-                    );
+                    this.versions.firmware = hexStringToByteWiseString(deviceStatus.status.identity.firmware);
                     let chunks = deviceStatus.status.identity.build.split("_");
-                    this.versions.firmwareBuild =
-                        chunks[chunks.length - 2] + "_" + chunks[chunks.length - 1];
+                    this.versions.firmwareBuild = chunks[chunks.length - 2] + "_" + chunks[chunks.length - 1];
                 }
             }
             if (deviceStatus && deviceStatus.networkSettings) {
@@ -431,32 +260,30 @@ export default {
             if (deviceStatus && deviceStatus.loraSettings) {
                 let deviceEui = deviceStatus.loraSettings.deviceEui;
                 if (deviceEui) {
-                    this.lora.deviceEui = new Buffer.from(
-                        Object.values(deviceEui)
-                    ).toString("hex");
+                    this.lora.deviceEui = new Buffer.from(Object.values(deviceEui)).toString("hex");
                     this.haveLora = true;
                 }
             }
             this.deviceStatus = deviceStatus;
-		},
+        },
 
-		downloadFirmware(args) {
-			this.$showModal(UpgradeFirmwareModal, {
-				props: {
-					station: this.station,
-					downloadOnly: true,
-				}
-			});
-		},
+        downloadFirmware(args) {
+            this.$showModal(UpgradeFirmwareModal, {
+                props: {
+                    station: this.station,
+                    downloadOnly: true,
+                },
+            });
+        },
 
-		upgradeFirmware(args) {
-			this.$showModal(UpgradeFirmwareModal, {
-				props: {
-					station: this.station,
-					downloadOnly: false,
-				}
-			});
-		},
+        upgradeFirmware(args) {
+            this.$showModal(UpgradeFirmwareModal, {
+                props: {
+                    station: this.station,
+                    downloadOnly: false,
+                },
+            });
+        },
 
         goBack(event) {
             // Change background color when pressed
@@ -468,13 +295,13 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    station: this.station
+                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",
                     duration: 250,
-                    curve: "linear"
-                }
+                    curve: "linear",
+                },
             });
         },
 
@@ -484,8 +311,8 @@ export default {
                     // remove the "m_id-" prefix
                     moduleId: event.object.dataId.split("m_id-")[1],
                     station: this.station,
-                    origin: "settings"
-                }
+                    origin: "settings",
+                },
             });
         },
 
@@ -550,7 +377,7 @@ export default {
                 .confirm({
                     title: "Are you sure you want to stop recording?",
                     okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel")
+                    cancelButtonText: _L("cancel"),
                 })
                 .then(result => {
                     if (result) {
@@ -570,14 +397,12 @@ export default {
                 let params = {
                     name: this.station.name,
                     device_id: this.station.deviceId,
-                    status_json: savingStation
+                    status_json: savingStation,
                 };
-                return this.$portalInterface
-                    .updateStation(params, this.station.portalId)
-                    .then(stationPortalId => {
-                        // console.log("successfully updated", stationPortalId)
-                        return Promise.resolve();
-                    });
+                return this.$portalInterface.updateStation(params, this.station.portalId).then(stationPortalId => {
+                    // console.log("successfully updated", stationPortalId)
+                    return Promise.resolve();
+                });
             } else {
                 return Promise.resolve();
             }
@@ -591,7 +416,7 @@ export default {
             this.addingNetwork = false;
             let network = {
                 ssid: this.newNetwork.ssid,
-                password: this.newNetwork.password
+                password: this.newNetwork.password,
             };
             let index = this.networks.findIndex(n => {
                 return n.ssid == network.ssid;
@@ -604,15 +429,13 @@ export default {
                 this.networks.push(network);
             }
 
-            queryStation
-                .sendNetworkSettings(this.station.url, this.networks)
-                .then(result => {
-                    this.networks = result.networkSettings.networks;
-                    // in order to match in the interim, must edit station.statusJson
-                    this.deviceStatus.networkSettings = result.networkSettings;
-                    let status = JSON.stringify(this.deviceStatus);
-                    this.station.statusJson = status;
-                });
+            queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
+                this.networks = result.networkSettings.networks;
+                // in order to match in the interim, must edit station.statusJson
+                this.deviceStatus.networkSettings = result.networkSettings;
+                let status = JSON.stringify(this.deviceStatus);
+                this.station.statusJson = status;
+            });
         },
 
         removeNetwork(event) {
@@ -623,15 +446,13 @@ export default {
             if (index > -1) {
                 this.networks.splice(index, 1);
             }
-            queryStation
-                .sendNetworkSettings(this.station.url, this.networks)
-                .then(result => {
-                    this.networks = result.networkSettings.networks;
-                    // in order to match in the interim, must edit station.statusJson
-                    this.deviceStatus.networkSettings = result.networkSettings;
-                    let status = JSON.stringify(this.deviceStatus);
-                    this.station.statusJson = status;
-                });
+            queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
+                this.networks = result.networkSettings.networks;
+                // in order to match in the interim, must edit station.statusJson
+                this.deviceStatus.networkSettings = result.networkSettings;
+                let status = JSON.stringify(this.deviceStatus);
+                this.station.statusJson = status;
+            });
         },
 
         showLoraForm(event) {
@@ -677,19 +498,17 @@ export default {
 
                 let sendableLora = {
                     appEui: appEui,
-                    appKey: appKey
+                    appKey: appKey,
                 };
 
-                queryStation
-                    .sendLoraSettings(this.station.url, sendableLora)
-                    .then(result => {
-                        // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
-                        // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
-                        // in order to match in the interim, must edit station.statusJson
-                        // NOTE: appEui and appKey currently aren't sent in statusJson, so they
-                        // won't be preserved after exiting this view
-                        // console.log("response from station after adding", result.loraSettings)
-                    });
+                queryStation.sendLoraSettings(this.station.url, sendableLora).then(result => {
+                    // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
+                    // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
+                    // in order to match in the interim, must edit station.statusJson
+                    // NOTE: appEui and appKey currently aren't sent in statusJson, so they
+                    // won't be preserved after exiting this view
+                    // console.log("response from station after adding", result.loraSettings)
+                });
             }
         },
 
@@ -698,15 +517,15 @@ export default {
             this.$navigateTo(routes.login, {
                 clearHistory: true,
                 props: {
-                    resetUser: true
-                }
+                    resetUser: true,
+                },
             });
         },
 
         goToLogin() {
             this.$navigateTo(routes.login);
-        }
-    }
+        },
+    },
 };
 </script>
 

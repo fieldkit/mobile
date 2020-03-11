@@ -18,18 +18,8 @@
                 class="m-b-10"
                 @mapReady="onMapReady"
             ></Mapbox>
-            <GridLayout
-                row="0"
-                col="1"
-                height="35"
-                verticalAlignment="bottom"
-                :class="ios ? 'ios-container' : 'toggle-container'"
-            >
-                <Image
-                    width="35"
-                    src="~/images/Icon_Collapse_Map.png"
-                    @tap="$modal.close()"
-                ></Image>
+            <GridLayout row="0" col="1" height="35" verticalAlignment="bottom" :class="ios ? 'ios-container' : 'toggle-container'">
+                <Image width="35" src="~/images/Icon_Collapse_Map.png" @tap="$modal.close()"></Image>
             </GridLayout>
         </GridLayout>
     </StackLayout>
@@ -44,7 +34,7 @@ export default {
     data() {
         return {
             ios: isIOS,
-            mapboxToken: MAPBOX_ACCESS_TOKEN
+            mapboxToken: MAPBOX_ACCESS_TOKEN,
         };
     },
     props: ["bounds", "stationMarkers", "mapHeight"],
@@ -54,37 +44,32 @@ export default {
             // re-define event listeners
             this.stationMarkers.forEach(s => {
                 s.onTap = this.onMarkerTap;
-                s.onCalloutTap = this.onCalloutTap
+                s.onCalloutTap = this.onCalloutTap;
             });
 
             if (this.stationMarkers.length == 1 && this.map) {
                 this.map.setZoomLevel({
                     level: 14,
-                    animated: false
+                    animated: false,
                 });
                 this.map.setCenter({
                     lat: this.stationMarkers[0].lat,
                     lng: this.stationMarkers[0].lng,
-                    animated: false
+                    animated: false,
                 });
-            } else if (
-                this.bounds.latMax == this.bounds.latMin
-                && this.bounds.longMax == this.bounds.longMin
-                && this.map
-            ) {
+            } else if (this.bounds.latMax == this.bounds.latMin && this.bounds.longMax == this.bounds.longMin && this.map) {
                 // prevent error when setting viewport with identical min max
                 this.map.setZoomLevel({
                     level: 14,
-                    animated: false
+                    animated: false,
                 });
                 this.map.setCenter({
                     lat: this.bounds.latMax,
                     lng: this.bounds.longMax,
-                    animated: false
+                    animated: false,
                 });
             } else if (this.stationMarkers.length > 1 && this.map) {
-                const smallLatMargin =
-                    (this.bounds.latMax - this.bounds.latMin) / 10;
+                const smallLatMargin = (this.bounds.latMax - this.bounds.latMin) / 10;
                 // const smallLongMargin = (longMax - longMin) / 10;
                 this.map.setViewport({
                     bounds: {
@@ -92,8 +77,8 @@ export default {
                         north: this.bounds.latMax + smallLatMargin,
                         east: this.bounds.longMax,
                         south: this.bounds.latMin,
-                        west: this.bounds.longMin
-                    }
+                        west: this.bounds.longMin,
+                    },
                 });
             }
 
@@ -107,12 +92,12 @@ export default {
         onMarkerTap(marker) {
             this.map.setZoomLevel({
                 level: 14,
-                animated: false
+                animated: false,
             });
             this.map.setCenter({
                 lat: marker.lat,
                 lng: marker.lng,
-                animated: false
+                animated: false,
             });
         },
 
@@ -123,14 +108,14 @@ export default {
             let id = marker.id.split("marker-")[1];
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    stationId: id
-                }
+                    stationId: id,
+                },
             });
             setTimeout(() => {
                 this.$modal.close();
             }, 100);
         },
-    }
+    },
 };
 </script>
 
@@ -148,5 +133,4 @@ export default {
     margin-bottom: 25;
     margin-right: 10;
 }
-
 </style>

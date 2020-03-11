@@ -28,9 +28,9 @@ export default {
         size: { default: 100 },
         progress: { default: 0 },
         offset: { default: 0 },
-        textColor: { default: '#bfbfc4' },
-        fillColor: { default: '#0A67AA' }, // $fk-primary-blue
-        fillBackgroundColor: { default: '#F4F5F7' }, // $fk-gray-lightest
+        textColor: { default: "#bfbfc4" },
+        fillColor: { default: "#0A67AA" }, // $fk-primary-blue
+        fillBackgroundColor: { default: "#F4F5F7" }, // $fk-gray-lightest
     },
     computed: {
         activeColor() {
@@ -38,25 +38,25 @@ export default {
             return this.value > 99 ? "#3F8530" : this.fillColor;
         },
         height() {
-            return Math.min(this.size, 250)
+            return Math.min(this.size, 250);
         },
         value() {
-            return Math.min(this.progress, 100)
+            return Math.min(this.progress, 100);
         },
         text() {
-            return `${this.value.toFixed()}%`
+            return `${this.value.toFixed()}%`;
         },
         textSize() {
-            return
-            this.height / 3.5
+            return;
+            this.height / 3.5;
         },
     },
-}
+};
 </script>
 
 <style scoped lang="scss">
 // Start custom common variables
-@import '../app-variables';
+@import "../app-variables";
 // End custom common variables
 // Custom styles
 </style>
