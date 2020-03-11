@@ -47,6 +47,7 @@ import * as dialogs from "tns-core-modules/ui/dialogs";
 import { knownFolders } from "tns-core-modules/file-system";
 import { BarcodeScanner } from "nativescript-barcodescanner";
 import { sendLogs } from "../lib/logging";
+import { listAllFiles } from "../lib/fs";
 import routes from "../routes";
 import Services from "../services/services";
 import Recalibrate from "./onboarding/Recalibrate";
@@ -243,7 +244,7 @@ export default {
             const firmwareFolder = rootFolder.getFolder("firmware");
             const dataFolder = rootFolder.getFolder("FieldKitData");
 
-            return Promise.all([firmwareFolder.remove(), diagnosticsFolder.remove(), dataFolder.remove()])
+            return Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), dataFolder.clear()])
                 .catch(res => {
                     console.log("error removing files", err.stack, res);
 
@@ -254,7 +255,15 @@ export default {
                     });
                 })
                 .then(res => {
-                    console.log("files deleted", res);
+                    return listAllFiles(rootFolder);
+                })
+                .then(after => {
+                    console.log(
+                        "files deleted",
+                        _(after)
+                            .map(f => f.path)
+                            .value()
+                    );
 
                     alert({
                         title: "Developer",

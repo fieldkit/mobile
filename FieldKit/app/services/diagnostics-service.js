@@ -4,6 +4,7 @@ import * as platform from "tns-core-modules/platform";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
 import { serializePromiseChain, getPathTimestamp } from "../utilities";
+import { listAllFiles } from "../lib/fs";
 
 function uuidv4() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
@@ -240,31 +241,12 @@ export default class Diagnostics {
         }
     }
 
-    _recurse(f, depth, callback) {
-        return f.getEntities().then(entities => {
-            return Promise.all(
-                entities.map(e => {
-                    if (Folder.exists(e.path)) {
-                        return this._recurse(Folder.fromPath(e.path), depth + 1, callback);
-                    } else {
-                        callback(depth, e.path);
-                    }
-                })
-            );
-        });
-    }
-
     _getAllFiles(f) {
-        const files = [];
-
-        return this._recurse(f, 0, (depth, path) => {
-            if (depth > 0) {
-                files.push(path);
-            } else {
-                console.log("ignoring", depth, path);
-            }
-        }).then(() => {
-            return files;
+        return listAllFiles(f).then(files => {
+            return _(files)
+                .filter(f => f.depth > 0)
+                .map(f => f.path)
+                .values();
         });
     }
 
