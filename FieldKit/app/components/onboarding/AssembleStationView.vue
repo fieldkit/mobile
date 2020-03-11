@@ -235,15 +235,13 @@ const steps = [
         title: "Assemble Station",
         instruction: "Plug in your micro USB cable to charge the station battery.",
         button: "Next",
-        noImage: "Image coming soon",
-        images: [],
+        images: ["TI_8-A.jpg", "TI_8-B.jpg"],
     },
     {
         title: "Assemble Station",
         instruction: 'Make sure that the switch is in the "On" position. Leave plugged in to charge for an hour.',
         button: "Next",
-        noImage: "Image coming soon",
-        images: [],
+        images: ["TI_15-A.jpg", "TI_15-B.jpg"],
     },
     {
         title: "Complete",

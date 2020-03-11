@@ -689,7 +689,7 @@ const calibrations = {
             {
                 heading: "Quick pH Calibration",
                 instruction: "Place probe inside cup with solution. Make sure water temperature is also inside solution.",
-                image: "~/images/TI_13-B.jpg",
+                image: "~/images/TI_13-C.jpg",
                 buttonText: "Start Timer",
             },
             {
@@ -725,7 +725,7 @@ const calibrations = {
             {
                 heading: "Mid-point Calibration",
                 instruction: "Place probe inside cup with 7.0 solution. Make sure water temperature is also inside solution.",
-                image: "~/images/TI_13-B.jpg",
+                image: "~/images/TI_13-C.jpg",
                 buttonText: "Start Timer",
             },
             {
@@ -748,7 +748,7 @@ const calibrations = {
             {
                 heading: "Low-point Calibration",
                 instruction: "Place probe inside cup with 4.0 solution. Make sure water temperature is also inside solution.",
-                image: "~/images/TI_13-B.jpg",
+                image: "~/images/TI_13-C.jpg",
                 buttonText: "Start Timer",
             },
             {
@@ -771,7 +771,7 @@ const calibrations = {
             {
                 heading: "High-point Calibration",
                 instruction: "Place probe inside cup with 10.0 solution. Make sure water temperature is also inside solution.",
-                image: "~/images/TI_13-B.jpg",
+                image: "~/images/TI_13-C.jpg",
                 buttonText: "Start Timer",
             },
             {
@@ -838,7 +838,7 @@ const calibrations = {
                 heading: "Conductivity Calibration",
                 instruction:
                     "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
-                image: "~/images/TI_13-B.jpg",
+                image: "~/images/TI_13-C.jpg",
                 buttonText: "Start Timer",
             },
             {
