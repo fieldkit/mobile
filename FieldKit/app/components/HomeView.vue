@@ -34,7 +34,6 @@
                 <Button class="btn btn-primary btn-padded" text="Reset Onboarding" @tap="resetOnboarding"></Button>
                 <Button class="btn btn-primary btn-padded" text="Save Diagnostics" @tap="saveDiagnostics"></Button>
                 <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
-                <Button class="btn btn-primary btn-padded" text="Copy Logs" @tap="copyLogs"></Button>
                 <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
                 <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
                 <!-- <Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button> -->
@@ -182,9 +181,6 @@ export default {
                         this.$navigateTo(routes.assembleStation);
                     }
                 });
-        },
-        copyLogs() {
-            sendLogs();
         },
         saveDiagnostics() {
             Services.Diagnostics()
