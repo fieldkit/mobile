@@ -190,13 +190,13 @@ const steps = [
     },
     {
         title: "Do You Have Everything?",
-        instruction: "Check that you have all of the necessary parts to assemble your FieldKit",
+        instruction: "Check that you have all of the necessary parts to assemble your FieldKit.",
         button: "Assemble Station",
         images: ["TI_1-A.jpg", "TI_1-A.jpg"],
     },
     {
         title: "Assemble Station",
-        instruction: "Place your core board and radio board together",
+        instruction: "Place your core board and radio board together.",
         button: "Next",
         images: ["TI_2-A.jpg", "TI_2-B.jpg"],
     },
@@ -215,13 +215,13 @@ const steps = [
     {
         title: "Assemble Station",
         instruction:
-            "Now it's time to take all of your attached components and place them inside the station enclosure. Secure the system down with screws.",
+            "Take all of your attached components and place them inside the station enclosure. Secure the system down with screws.",
         button: "Next",
         images: ["TI_5-A.jpg", "TI_5-B.jpg"],
     },
     {
         title: "Assemble Station",
-        instruction: 'Attach the battery at the top of the radio board where it says "Battery."',
+        instruction: 'Attach the battery at the top of the radio board where it says "BATTERY."',
         button: "Next",
         images: ["TI_6-A.jpg", "TI_6-B.jpg"],
     },
@@ -298,13 +298,13 @@ const checklist = [
         id: 8,
         row: 3,
         col: 1,
-        text: "\u{2022} Screw driver*",
+        text: "\u{2022} Micro USB cable",
     },
     {
         id: 9,
         row: 4,
         col: 1,
-        text: "\u{2022} Micro USB cable*",
+        text: "\u{2022} Screw driver*",
     },
 ];
 </script>
