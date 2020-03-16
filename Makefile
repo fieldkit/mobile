@@ -41,8 +41,8 @@ android-release: setup
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
-	jq '.nativescript.id = "com.fieldkit"' package.json > package.json.temp
-	mv package.json.temp package.json
+	jq '.nativescript.id = "com.fieldkit"' $(APP)/package.json > $(APP)/package.json.temp
+	mv $(APP)/package.json.temp $(APP)/package.json
 	npm install
 	cd $(APP) && tns build android --release --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 	cd $(APP) && tns build android --release --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
