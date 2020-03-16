@@ -44,7 +44,13 @@
                                 ></Label>
 
                                 <!-- radio buttons and info -->
-                                <GridLayout rows="auto,auto" columns="30,*" v-for="option in step.options" class="option-container">
+                                <GridLayout
+                                    rows="auto,auto"
+                                    columns="30,*"
+                                    v-for="option in step.options"
+                                    :key="step.id"
+                                    class="option-container"
+                                >
                                     <check-box
                                         row="0"
                                         col="0"
@@ -105,7 +111,6 @@ export default {
         return {
             step: {},
             stations: [],
-            stationOptions: [],
             frameImage: "",
             displayFrame: null,
         };
@@ -319,12 +324,14 @@ const steps = {
         images: [],
         options: [
             {
+                id: 1,
                 text: "Station WiFi (default)",
                 info: "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to a mobile device",
                 next: "rename",
                 selected: true,
             },
             {
+                id: 2,
                 text: "Your WiFi Network",
                 info:
                     "Connect your FieldKit station to your own WiFi network to sync data with the FieldKit portal directly. Unfortunately, only 2.4GHz WiFi is currently supported.",
