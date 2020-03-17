@@ -87,6 +87,7 @@ export default class CreateDB {
             `DROP TABLE IF EXISTS stations`,
             `DROP TABLE IF EXISTS firmware`,
             `DROP TABLE IF EXISTS config`,
+            `DROP TABLE IF EXISTS migrations`,
         ]);
     }
 
