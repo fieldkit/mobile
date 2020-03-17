@@ -23,6 +23,9 @@ try {
     console.log("startup error", e, e.stack);
 }
 
+console.log("starting: config", Config);
+console.log("starting: build", Build);
+
 try {
     traceModule.setErrorHandler({
         handleError(err) {
@@ -84,9 +87,6 @@ Vue.use(RadGauge);
 if (Config.vue.verbose) {
     Vue.config.silent = false;
 }
-
-console.log("config", Config);
-console.log("build", Build);
 
 const appSettings = new AppSettings();
 new Vue({

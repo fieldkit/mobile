@@ -5,6 +5,7 @@ import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
 import { serializePromiseChain, getPathTimestamp } from "../utilities";
 import { listAllFiles } from "../lib/fs";
+import Config, { Build } from "../config";
 
 function uuidv4() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
@@ -70,6 +71,8 @@ export default class Diagnostics {
             region: device.region,
             sdkVersion: device.sdkVersion,
             uuid: device.uuid,
+			config: Config,
+			build: Build,
         };
 
         return this.services.Conservify().text({
