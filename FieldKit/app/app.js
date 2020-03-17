@@ -8,7 +8,7 @@ import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
-import Config from "./config";
+import Config, { Build } from "./config";
 import * as traceModule from "tns-core-modules/trace";
 
 import Services from "./services/services";
@@ -86,6 +86,7 @@ if (Config.vue.verbose) {
 }
 
 console.log("config", Config);
+console.log("build", Build);
 
 const appSettings = new AppSettings();
 new Vue({
