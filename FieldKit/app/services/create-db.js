@@ -1,3 +1,4 @@
+import _ from "lodash";
 import Config from "../config";
 import Sqlite from "../wrappers/sqlite";
 
@@ -75,20 +76,22 @@ export default class CreateDB {
     }
 
     dropTables() {
-        return this.execute([
-            `DROP TABLE IF EXISTS downloads`,
-            `DROP TABLE IF EXISTS streams`,
-            `DROP TABLE IF EXISTS stations_config`,
-            `DROP TABLE IF EXISTS modules_config`,
-            `DROP TABLE IF EXISTS sensors`,
-            `DROP TABLE IF EXISTS modules`,
-            `DROP TABLE IF EXISTS fieldnotes`,
-            `DROP TABLE IF EXISTS fieldmedia`,
-            `DROP TABLE IF EXISTS stations`,
-            `DROP TABLE IF EXISTS firmware`,
-            `DROP TABLE IF EXISTS config`,
-            `DROP TABLE IF EXISTS migrations`,
-        ]);
+        return this.database.query("SELECT name FROM sqlite_master WHERE type = 'table'").then(tables => {
+            const dropping = _(tables)
+                .map(table => table.name)
+                .filter(name => name.indexOf("sqlite_") < 0);
+            return this.execute([`PRAGMA foreign_keys = OFF`])
+                .then(() => {
+                    return this.execute(
+                        _(dropping)
+                            .map(name => "DROP TABLE " + name)
+                            .value()
+                    );
+                })
+                .then(() => {
+                    return this.execute([`PRAGMA foreign_keys = ON`]);
+                });
+        });
     }
 
     createConfigTable() {
