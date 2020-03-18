@@ -9,7 +9,9 @@
 
 	There's is a tool in the repository to create a new repository and can be run like so:
 
+    #+BEGIN_SRC sh
 	tools/mkm.sh title_of_migration
+    #+END_SRC
 
 	Where `title_of_migration` is a short description of the
 	change. After running that there will be a new migration file and
