@@ -13,7 +13,6 @@ import * as traceModule from "tns-core-modules/trace";
 
 import Services from "./services/services";
 import AppSettings from "./wrappers/app-settings";
-import Migrating from "./services/migrating";
 
 import { initializeLogging } from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
@@ -45,10 +44,6 @@ registerLifecycleEvents();
 
 Services.CreateDb()
     .initialize()
-    .then(db => {
-        const migrations = new Migrating();
-        return migrations.up(db);
-    })
     .then(db => {
         const dbInterface = Services.Database();
         return dbInterface.checkConfig().then(c => {
