@@ -98,7 +98,7 @@ images:
   done; \
 
 test: $(APP)/app/secrets.ts
-	cd $(APP) && jest -w 1
+	cd $(APP) && jest
 
 update-third-party:
 	cd $(APP) && third-party/update.sh
