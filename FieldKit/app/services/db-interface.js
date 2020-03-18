@@ -1,23 +1,17 @@
 import Config from "../config";
-import Sqlite from "../wrappers/sqlite";
 import Constants from "../constants";
 import { sqliteToJs } from "../utilities";
 
 const log = Config.logger("DbInterface");
-
-const sqlite = new Sqlite();
 
 // thirty seconds
 const minInterval = 30;
 // two weeks (in seconds)
 const maxInterval = 1209600;
 
-let databasePromise;
-
 export default class DatabaseInterface {
-    constructor() {
-        databasePromise = this.openDatabase();
-        this.databasePromise = databasePromise;
+    constructor(services) {
+        this.services = services;
     }
 
     checkConfig() {
@@ -31,21 +25,8 @@ export default class DatabaseInterface {
         });
     }
 
-    getDatabaseName() {
-        if (TNS_ENV === "test") {
-            return "test_fieldkit.sqlite3";
-        }
-        return "fieldkit.sqlite3";
-    }
-
-    openDatabase() {
-        return sqlite.open(this.getDatabaseName()).then(db => {
-            return (this.database = db);
-        });
-    }
-
     getDatabase() {
-        return databasePromise;
+        return Promise.resolve(this.services.CreateDb().database);
     }
 
     getStationConfigs(stationId) {
@@ -62,10 +43,6 @@ export default class DatabaseInterface {
             .then(rows => {
                 return sqliteToJs(rows);
             });
-    }
-
-    getDatabase() {
-        return this.databasePromise;
     }
 
     getAll() {
@@ -356,62 +333,78 @@ export default class DatabaseInterface {
     }
 
     insertSensor(sensor) {
-        return this.database.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
-            sensor.moduleId,
-            sensor.name,
-            sensor.unitOfMeasure,
-            sensor.frequency,
-            sensor.currentReading,
-        ]);
+        return this.getDatabase().then(db =>
+            db.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
+                sensor.moduleId,
+                sensor.name,
+                sensor.unitOfMeasure,
+                sensor.frequency,
+                sensor.currentReading,
+            ])
+        );
     }
 
     insertModule(module) {
         // Note: device_id is the module's unique hardware id (not the station's)
-        return this.database.execute(
-            "INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)",
-            [module.moduleId, module.deviceId, module.name, module.interval || 0, module.position, module.stationId]
+        return this.getDatabase().then(db =>
+            db.execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
+                module.moduleId,
+                module.deviceId,
+                module.name,
+                module.interval || 0,
+                module.position,
+                module.stationId,
+            ])
         );
     }
 
     insertStation(station, statusJson) {
         const newStation = new Station(station);
-        return this.database.execute(
-            `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                newStation.deviceId,
-                newStation.generationId,
-                newStation.name,
-                newStation.url,
-                newStation.status,
-                newStation.deployStartTime,
-                newStation.batteryLevel,
-                newStation.consumedMemory,
-                newStation.totalMemory,
-                newStation.consumedMemoryPercent,
-                newStation.interval,
-                JSON.stringify(statusJson),
-                newStation.longitude,
-                newStation.latitude,
-                new Date(),
-            ]
+        return this.getDatabase().then(db =>
+            db.execute(
+                `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    newStation.deviceId,
+                    newStation.generationId,
+                    newStation.name,
+                    newStation.url,
+                    newStation.status,
+                    newStation.deployStartTime,
+                    newStation.batteryLevel,
+                    newStation.consumedMemory,
+                    newStation.totalMemory,
+                    newStation.consumedMemoryPercent,
+                    newStation.interval,
+                    JSON.stringify(statusJson),
+                    newStation.longitude,
+                    newStation.latitude,
+                    new Date(),
+                ]
+            )
         );
     }
 
     insertConfig(config) {
-        return this.database.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [config.baseUri, config.ingestionUri]);
+        return this.getDatabase().then(db =>
+            db.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [config.baseUri, config.ingestionUri])
+        );
     }
 
     insertFieldNote(note) {
-        return this.database.execute(
-            "INSERT INTO fieldnotes (station_id, generation_id, note, title, audio_file, category, author) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [note.stationId, note.generationId, note.note, note.title, note.audioFile, note.category, note.author]
+        return this.getDatabase().then(db =>
+            db.execute(
+                "INSERT INTO fieldnotes (station_id, generation_id, note, title, audio_file, category, author) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                [note.stationId, note.generationId, note.note, note.title, note.audioFile, note.category, note.author]
+            )
         );
     }
 
     insertFieldMedia(media) {
-        return this.database.execute(
-            "INSERT INTO fieldmedia (station_id, generation_id, image_name, image_label, category, author) VALUES (?, ?, ?, ?, ?, ?)",
-            [media.stationId, media.generationId, media.imageName, media.imageLabel, media.category, media.author]
+        return this.getDatabase().then(db =>
+            db.execute(
+                "INSERT INTO fieldmedia (station_id, generation_id, image_name, image_label, category, author) VALUES (?, ?, ?, ?, ?, ?)",
+                [media.stationId, media.generationId, media.imageName, media.imageLabel, media.category, media.author]
+            )
         );
     }
 
