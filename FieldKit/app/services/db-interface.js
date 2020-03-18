@@ -479,34 +479,36 @@ export default class DatabaseInterface {
     }
 
     insertDownloads(downloads) {
-        return Promise.all(
-            downloads.map(download => {
-                return this.database
-                    .execute(
-                        `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                        [
-                            download.stationId,
-                            download.deviceId,
-                            download.generation,
-                            download.path,
-                            download.type,
-                            download.timestamp,
-                            download.url,
-                            download.size,
-                            download.blocks,
-                            download.firstBlock,
-                            download.lastBlock,
-                        ]
-                    )
-                    .then(() => {
-                        const values = [download.size, download.firstBlock, download.lastBlock, download.stationId, download.type];
-                        return this.database.execute(
-                            `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ? WHERE station_id = ? AND type = ?`,
-                            values
-                        );
-                    });
-            })
-        );
+        return this.getDatabase().then(db => {
+            return Promise.all(
+                downloads.map(download => {
+                    return db
+                        .execute(
+                            `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            [
+                                download.stationId,
+                                download.deviceId,
+                                download.generation,
+                                download.path,
+                                download.type,
+                                download.timestamp,
+                                download.url,
+                                download.size,
+                                download.blocks,
+                                download.firstBlock,
+                                download.lastBlock,
+                            ]
+                        )
+                        .then(() => {
+                            const values = [download.size, download.firstBlock, download.lastBlock, download.stationId, download.type];
+                            return db.execute(
+                                `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ? WHERE station_id = ? AND type = ?`,
+                                values
+                            );
+                        });
+                })
+            );
+        });
     }
 
     getAllDownloads() {
