@@ -1,3 +1,4 @@
+import _ from "lodash";
 import Config from "../config";
 import Constants from "../constants";
 import { sqliteToJs } from "../utilities";
@@ -341,11 +342,14 @@ export default class DatabaseInterface {
     }
 
     _getModulePrimaryKey(deviceId) {
-        return this.getDatabase().then(db =>
-            db.query("SELECT id FROM modules WHERE device_id = ?", [deviceId]).then(rows => {
-                return rows[0].id;
-            })
-        );
+        if (_.isString(deviceId)) {
+            return this.getDatabase().then(db =>
+                db.query("SELECT id FROM modules WHERE device_id = ?", [deviceId]).then(rows => {
+                    return rows[0].id;
+                })
+            );
+        }
+        return Promise.resolve(deviceId);
     }
 
     insertSensor(sensor) {
