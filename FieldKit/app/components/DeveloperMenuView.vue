@@ -140,9 +140,7 @@ export default {
                 ingestionUri: baseUri + "/ingestion",
                 id: this.config.id,
             };
-            dbInterface.updateConfigUris(params).then(() => {
-                stateManager.refreshIngestionUri();
-            });
+            dbInterface.updateConfigUris(params);
         },
         resetCalibration() {
             if (this.stations.length == 0) {

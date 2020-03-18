@@ -10,23 +10,14 @@ const log = Config.logger("UploadManager");
 export default class UploadManager {
     constructor(databaseInterface, portalInterface, progressService) {
         this.databaseInterface = databaseInterface;
-        this.getUri().then(result => {
-            this.ingestionUri = result;
-        });
         this.portalInterface = portalInterface;
         this.progressService = progressService;
         this._mutex = new Mutex();
     }
 
     getUri() {
-        return this.databaseInterface.getConfig().then(result => {
-            return result[0].ingestionUri;
-        });
-    }
-
-    refreshUri() {
-        this.getUri().then(result => {
-            this.ingestionUri = result;
+        return this.databaseInterface.getConfig().then(config => {
+            return config[0].ingestionUri;
         });
     }
 
@@ -142,8 +133,6 @@ export default class UploadManager {
     }
 
     _upload(deviceId, deviceName, headers, filePath, operation) {
-        const url = this.ingestionUri;
-        log.info("url", url);
         log.info("uploading", filePath, headers);
 
         const defaultHeaders = {
@@ -156,32 +145,34 @@ export default class UploadManager {
         delete headers["connection"];
         delete headers["content-length"];
 
-        return Services.Conservify()
-            .upload({
-                method: "POST",
-                url: url,
-                path: filePath,
-                headers: { ...headers, ...defaultHeaders },
-                progress: (total, copied, info) => {
-                    operation.updateStation({
-                        deviceId: deviceId,
-                        key: filePath, // This is the same key used when generating the progress summary.
-                        // Right now this is local to the deviceId.
-                        currentSize: copied,
-                        totalSize: total,
-                    });
-                },
-            })
-            .then(
-                response => {
-                    if (response.statusCode != 200) {
-                        return Promise.reject(response);
+        return this.getUri().then(url =>
+            Services.Conservify()
+                .upload({
+                    method: "POST",
+                    url: url,
+                    path: filePath,
+                    headers: { ...headers, ...defaultHeaders },
+                    progress: (total, copied, info) => {
+                        operation.updateStation({
+                            deviceId: deviceId,
+                            key: filePath, // This is the same key used when generating the progress summary.
+                            // Right now this is local to the deviceId.
+                            currentSize: copied,
+                            totalSize: total,
+                        });
+                    },
+                })
+                .then(
+                    response => {
+                        if (response.statusCode != 200) {
+                            return Promise.reject(response);
+                        }
+                        return response;
+                    },
+                    err => {
+                        return Promise.reject(err);
                     }
-                    return response;
-                },
-                err => {
-                    return Promise.reject(err);
-                }
-            );
+                )
+        );
     }
 }
