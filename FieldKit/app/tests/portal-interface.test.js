@@ -1,13 +1,20 @@
 import axios from "axios";
 
-import Services from "../services/services";
-
-const portalInterface = Services.PortalInterface();
+import { Services } from "../services/services";
+import Fixtures from "./fixtures.js";
 
 jest.mock("axios");
 
 describe("UserAuth", () => {
-    beforeEach(() => {});
+    let services;
+    let portalInterface;
+
+    beforeEach(async () => {
+        services = new Services();
+        portalInterface = services.PortalInterface();
+        await services.CreateDb().initialize();
+        await new Fixtures(services.Database()).addMinimum();
+    });
 
     afterEach(() => {
         axios.mockReset();
