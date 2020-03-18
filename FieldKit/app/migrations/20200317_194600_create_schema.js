@@ -3,26 +3,21 @@ import Migration from "./Migration";
 
 export class CreateSchema_20200317_194600 extends Migration {
     up(db) {
-        return db
-            .batch(
-                _.flatten([
-                    this.configTable(),
-                    this.firmwareTable(),
-                    this.streamsTable(),
-                    this.downloadsTable(),
-                    this.sensorsTable(),
-                    this.modulesTable(),
-                    this.stationsTable(),
-                    this.fieldNotesTable(),
-                    this.fieldMediaTable(),
-                    this.stationConfigLogTable(),
-                    this.moduleConfigLogTable(),
-                ])
-            )
-            .then(all => {
-                console.log(all);
-                return all;
-            });
+        return db.batch(
+            _.flatten([
+                this.configTable(),
+                this.firmwareTable(),
+                this.streamsTable(),
+                this.downloadsTable(),
+                this.sensorsTable(),
+                this.modulesTable(),
+                this.stationsTable(),
+                this.fieldNotesTable(),
+                this.fieldMediaTable(),
+                this.stationConfigLogTable(),
+                this.moduleConfigLogTable(),
+            ])
+        );
     }
 
     configTable() {

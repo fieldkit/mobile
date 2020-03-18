@@ -13,7 +13,6 @@ export default class CreateDB {
         return this._open()
             .then(() => {
                 if (Config.dropTables || userInvokedDelete) {
-                    console.log("dropping");
                     return this.dropTables();
                 }
                 return Promise.resolve(this.database);

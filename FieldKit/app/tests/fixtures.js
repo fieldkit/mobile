@@ -12,7 +12,7 @@ export default class Fixtures {
     }
 
     addStationsAndModules() {
-        return Promise.delay(1000)
+        return Promise.resolve([])
             .then(() => Promise.all(stations.map(this._addStation.bind(this))))
             .then(this._handleConfig.bind(this))
             .then(this._handleModules.bind(this))
@@ -71,7 +71,6 @@ export default class Fixtures {
         });
         sensors = [].concat.apply([], sensors);
         return Promise.all(sensors.map(this._insertSensor.bind(this))).then(temp => {
-            console.log("sensors", temp);
             return temp;
         });
     }
