@@ -17,6 +17,25 @@ class DatabaseWrapper {
             return result ? result : this;
         });
     }
+
+    batch(sql) {
+        let sqlArray = sql;
+        if (!Array.isArray(sql)) {
+            sqlArray = [sql];
+        }
+        return sqlArray.reduce((promise, item, index) => {
+            return promise
+                .then(values =>
+                    this.execute(item).then(value => {
+                        values.push(value);
+                        return values;
+                    })
+                )
+                .catch(err => {
+                    console.log("SQL error", sql, err);
+                });
+        }, Promise.resolve([]));
+    }
 }
 
 export default class SqliteNativeScript {
