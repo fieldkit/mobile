@@ -1,0 +1,9 @@
+import Migration from "./Migration";
+
+export class {MIGRATION_NAME} extends Migration {
+    up(db) {
+        return db.batch([
+			"SELECT 1+1"
+        ]);
+    }
+}
