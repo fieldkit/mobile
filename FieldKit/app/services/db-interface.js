@@ -103,7 +103,11 @@ export default class DatabaseInterface {
 
     getSensors(moduleDeviceId) {
         return this.getDatabase()
-            .then(db => db.query("SELECT * FROM sensors WHERE module_id = ?", [moduleDeviceId]))
+            .then(db =>
+                this._getModulePrimaryKey(moduleDeviceId).then(modulePrimaryKey =>
+                    db.query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
+                )
+            )
             .then(rows => {
                 return sqliteToJs(rows);
             });
@@ -114,7 +118,11 @@ export default class DatabaseInterface {
     }
 
     removeSensors(moduleId) {
-        return this.getDatabase().then(db => db.query("DELETE FROM sensors WHERE module_id = ?", [moduleId]));
+        return this.getDatabase().then(db =>
+            this._getModulePrimaryKey(moduleId).then(modulePrimaryKey =>
+                db.query("DELETE FROM sensors WHERE module_id = ?", [modulePrimaryKey])
+            )
+        );
     }
 
     getFieldNotes(stationId) {
@@ -332,16 +340,31 @@ export default class DatabaseInterface {
         );
     }
 
-    insertSensor(sensor) {
+    _getModulePrimaryKey(deviceId) {
         return this.getDatabase().then(db =>
-            db.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
-                sensor.moduleId,
-                sensor.name,
-                sensor.unitOfMeasure,
-                sensor.frequency,
-                sensor.currentReading,
-            ])
+            db.query("SELECT id FROM modules WHERE device_id = ?", [deviceId]).then(rows => {
+                return rows[0].id;
+            })
         );
+    }
+
+    insertSensor(sensor) {
+        return this.getDatabase()
+            .then(db => {
+                return this._getModulePrimaryKey(sensor.moduleId).then(modulePrimaryKey => {
+                    console.log("MODULE_ID", modulePrimaryKey, sensor);
+                    return db.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
+                        modulePrimaryKey,
+                        sensor.name,
+                        sensor.unitOfMeasure,
+                        sensor.frequency,
+                        sensor.currentReading,
+                    ]);
+                });
+            })
+            .catch(err => {
+                console.log("ERROR", err);
+            });
     }
 
     insertModule(module) {
