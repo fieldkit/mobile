@@ -52,7 +52,7 @@ import routes from "../routes";
 import Services from "../services/services";
 import Recalibrate from "./onboarding/Recalibrate";
 import AppSettings from "../wrappers/app-settings";
-import DiagnosticsModal from "./DiagnosticsModal"
+import DiagnosticsModal from "./DiagnosticsModal";
 import modalStationPicker from "./ModalStationPicker";
 
 const appSettings = new AppSettings();
@@ -141,7 +141,6 @@ export default {
                 id: this.config.id,
             };
             dbInterface.updateConfigUris(params).then(() => {
-                this.$portalInterface.refreshUri();
                 stateManager.refreshIngestionUri();
             });
         },
@@ -207,8 +206,7 @@ export default {
         },
         uploadDiagnostics() {
             this.$showModal(DiagnosticsModal, {
-                props: {
-                },
+                props: {},
             });
         },
         deleteDB() {

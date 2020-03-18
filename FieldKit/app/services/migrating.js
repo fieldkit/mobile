@@ -5,8 +5,6 @@ import { serializePromiseChain } from "../utilities";
 import * as AllMigrations from "../migrations";
 
 export default class Migrating {
-    constructor() {}
-
     up(db) {
         return this._initialize(db).then(() => {
             const all = this._resolve();

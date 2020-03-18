@@ -21,8 +21,6 @@ export default class PortalInterface {
         });
     }
 
-    refreshUri() {}
-
     storeCurrentUser() {
         return this._query({
             method: "GET",
@@ -38,14 +36,9 @@ export default class PortalInterface {
         return this.getUri().then(baseUri =>
             axios({
                 url: baseUri + "/status",
-            }).then(
-                r => {
-                    return true;
-                },
-                e => {
-                    return false;
-                }
-            )
+            })
+                .then(r => true)
+                .catch(e => false)
         );
     }
 
