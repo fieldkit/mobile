@@ -13,7 +13,7 @@ import Module from "../components/ModuleDetailView";
 import Notifications from "../components/NotificationView";
 import StationDetail from "../components/StationDetailView";
 import Stations from "../components/StationListView";
-import StationSettings from "../components/StationSettingsView";
+import StationSettings from "../components/station_settings/StationSettingsView";
 
 const routes = {
     appSettings: AppSettings,

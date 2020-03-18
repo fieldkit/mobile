@@ -30,7 +30,7 @@
                                 autocapitalizationType="none"
                                 @blur="checkName"
                             ></TextField>
-                            <Image col="1" width="17" @tap="cancelRename" src="~/images/Icon_Close.png"></Image>
+                            <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png"></Image>
                         </GridLayout>
 
                         <!-- or edit ssid -->
@@ -205,7 +205,7 @@ export default {
             return !this.nameTooLong && !this.nameNotPrintable;
         },
 
-        cancelRename() {
+        clearName() {
             this.editingName = true;
             this.stationName = "";
         },
@@ -438,33 +438,5 @@ const steps = {
     margin-bottom: 10;
     margin-right: 30;
     margin-left: 30;
-}
-.option-container {
-    margin-top: 30;
-    margin-left: 30;
-    margin-right: 30;
-}
-.radio-info {
-    color: $fk-gray-hint;
-    margin-top: 10;
-    margin-bottom: 20;
-    margin-left: 35;
-}
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-    text-align: center;
-}
-.small {
-    width: 50;
-    margin: 20;
-}
-
-.bordered-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
 }
 </style>

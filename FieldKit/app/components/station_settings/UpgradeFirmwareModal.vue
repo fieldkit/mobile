@@ -17,8 +17,8 @@
     </Page>
 </template>
 <script>
-import { serializePromiseChain, promiseAfter } from "../utilities";
-import Services from "../services/services";
+import { serializePromiseChain, promiseAfter } from "../../utilities";
+import Services from "../../services/services";
 
 export default {
     data() {
@@ -92,7 +92,7 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-@import "../app-variables";
+@import "../../app-variables";
 
 .container {
     height: 20%;

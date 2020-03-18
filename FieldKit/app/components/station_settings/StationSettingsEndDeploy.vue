@@ -1,0 +1,128 @@
+<template>
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+        <GridLayout rows="*,70">
+            <ScrollView row="0">
+                <StackLayout class="p-t-10">
+                    <ScreenHeader title="End Deployment" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <GridLayout rows="*" columns="*">
+                        <StackLayout row="0">
+                            <!-- stop deployment button -->
+                            <StackLayout class="m-x-20 m-t-20" v-if="station.status == 'recording'">
+                                <Label :text="_L('mustBeConnectedToStop')" class="size-18 m-y-5" lineHeight="4" textWrap="true" />
+                                <StackLayout class="m-t-10" />
+                                <Button
+                                    class="btn btn-primary btn-padded full-width"
+                                    :text="_L('stopRecording')"
+                                    @tap="stopRecording"
+                                ></Button>
+                            </StackLayout>
+                            <StackLayout v-else class="m-20">
+                                <Label :text="station.name + ' is not currently recording.'" textWrap="true" />
+                            </StackLayout>
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+            </ScrollView>
+
+            <ScreenFooter row="1" :station="station" active="stations" />
+        </GridLayout>
+    </Page>
+</template>
+
+<script>
+import * as dialogs from "tns-core-modules/ui/dialogs";
+import routes from "../../routes";
+import Services from "../../services/services";
+
+import ScreenHeader from "../ScreenHeader";
+import ScreenFooter from "../ScreenFooter";
+
+const dbInterface = Services.Database();
+const queryStation = Services.QueryStation();
+
+export default {
+    data() {
+        return {};
+    },
+    props: ["station"],
+    components: {
+        ScreenHeader,
+        ScreenFooter,
+    },
+    methods: {
+        onPageLoaded(args) {},
+
+        goBack(event) {
+            if (event) {
+                // Change background color when pressed
+                let cn = event.object.className;
+                event.object.className = cn + " pressed";
+                setTimeout(() => {
+                    event.object.className = cn;
+                }, 500);
+            }
+
+            this.$navigateTo(routes.stationSettings, {
+                props: {
+                    station: this.station,
+                },
+                transition: {
+                    name: "slideRight",
+                    duration: 250,
+                    curve: "linear",
+                },
+            });
+        },
+
+        stopRecording(event) {
+            // confirm stop recording
+            dialogs
+                .confirm({
+                    title: "Are you sure you want to stop recording?",
+                    okButtonText: _L("yes"),
+                    cancelButtonText: _L("cancel"),
+                })
+                .then(result => {
+                    if (result) {
+                        let savingStation = this.station;
+                        savingStation.status = "";
+                        dbInterface.setStationDeployStatus(savingStation);
+
+                        queryStation.stopDataRecording(this.station.url).then(result => {
+                            this.updatePortal(savingStation);
+                        });
+                    }
+                });
+        },
+
+        updatePortal(savingStation) {
+            if (this.station.portalId && this.station.url != "no_url") {
+                let params = {
+                    name: this.station.name,
+                    device_id: this.station.deviceId,
+                    status_json: savingStation,
+                };
+                return this.$portalInterface.updateStation(params, this.station.portalId).then(stationPortalId => {
+                    // console.log("successfully updated", stationPortalId)
+                    return Promise.resolve();
+                });
+            } else {
+                return Promise.resolve();
+            }
+        },
+    },
+};
+</script>
+
+<style scoped lang="scss">
+// Start custom common variables
+@import "../../app-variables";
+// End custom common variables
+
+// Custom styles
+
+.full-width {
+    width: 100%;
+    margin-bottom: 10;
+}
+</style>
