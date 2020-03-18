@@ -1,12 +1,17 @@
-import Services from "../services/services";
-
-const dbInterface = Services.Database();
-const createDB = Services.CreateDb();
+import Promise from "bluebird";
+import { Services } from "../services/services";
+import Fixtures from "./fixtures.js";
 
 describe("DatabaseInterface", () => {
-    beforeAll(async done => {
-        await createDB.initialize();
-        done();
+    let services;
+    let dbInterface;
+
+    beforeAll(async () => {
+        services = new Services();
+        dbInterface = services.Database();
+        const db = await services.CreateDb().initialize();
+        const fixtures = new Fixtures(dbInterface);
+        const added = await fixtures.addStationsAndModules();
     });
 
     test("getDatabase should create and return a new database", () => {
@@ -25,7 +30,7 @@ describe("DatabaseInterface", () => {
 
     test("getSensors should get sensors", async () => {
         const m = await dbInterface.getModules(1);
-        const data = await dbInterface.getSensors(m[0].deviceId);
+        const data = await dbInterface.getSensors(m[0].id);
         expect(data.length).toBeGreaterThan(0);
     });
 

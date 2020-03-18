@@ -1,6 +1,7 @@
-import StationUpgrade from "../services/station-firmware";
 import { Services } from "../services/services";
+import StationUpgrade from "../services/station-firmware";
 import FileSystem from "../wrappers/file-system";
+import Fixtures from "./fixtures.js";
 
 describe("Firmware", () => {
 	let services;
@@ -8,7 +9,9 @@ describe("Firmware", () => {
 	beforeEach(() => {
 		services = new Services();
 
-		return services.CreateDb().initialize();
+		return services.CreateDb().initialize().then(() => {
+			return new Fixtures(services.Database()).addMinimum();
+		});
 	});
 
 	it("should get and store new firmware from portal", () => {

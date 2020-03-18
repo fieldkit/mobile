@@ -1,5 +1,5 @@
 import Sqlite from "../wrappers/sqlite";
-import Services from "../services/services";
+import { Services } from "../services/services";
 
 describe("Sqlite Wrapper", () => {
     let sqlite;
@@ -107,11 +107,10 @@ describe("Sqlite Wrapper", () => {
         it("should successfully create a new database", () => {
             expect.assertions(1);
 
+			const services = new Services();
+
             return expect(
-                Services.Database().getDatabase(db => {
-                    console.log(db);
-                    return db;
-                })
+                services.CreateDb().initialize()
             ).resolves.toBeDefined();
         });
     });
