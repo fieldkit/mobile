@@ -14,6 +14,14 @@ const nativescriptTarget = require("nativescript-dev-webpack/nativescript-target
 const { NativeScriptWorkerPlugin } = require("nativescript-worker-loader/NativeScriptWorkerPlugin");
 const hashSalt = Date.now().toString();
 
+const gitHash = require("child_process")
+    .execSync("git rev-parse HEAD")
+    .toString();
+
+const gitBranch = require("child_process")
+    .execSync("git rev-parse --abbrev-ref HEAD")
+    .toString();
+
 module.exports = env => {
     // Add your custom Activities, Services and other android app components here.
     const appComponents = ["tns-core-modules/ui/frame", "tns-core-modules/ui/frame/activity"];
@@ -247,8 +255,8 @@ module.exports = env => {
                 FK_BUILD_TIMESTAMP: JSON.stringify(process.env.BUILD_TIMESTAMP),
                 FK_BUILD_NUMBER: JSON.stringify(process.env.BUILD_NUMBER),
                 FK_BUILD_TAG: JSON.stringify(process.env.BUILD_TAG),
-                FK_GIT_COMMIT: JSON.stringify(process.env.GIT_COMMIT),
-                FK_GIT_BRANCH: JSON.stringify(process.env.GIT_BRANCH),
+                FK_GIT_COMMIT: JSON.stringify(gitHash),
+                FK_GIT_BRANCH: JSON.stringify(gitBranch),
             }),
             // Remove all files from the out dir.
             new CleanWebpackPlugin(itemsToClean, { verbose: !!verbose }),

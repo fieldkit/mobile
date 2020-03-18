@@ -9,11 +9,10 @@
                         <Button v-if="!loggedIn" class="btn btn-primary" :text="_L('logIn')" @tap="goToLogin"></Button>
                     </StackLayout>
                     <StackLayout class="m-x-10 m-y-20">
-                        <Label :text="'App build time: ' + versions.appBuildTime" class="size-16 m-b-10" textWrap="true" />
-                        <Label :text="'App build number: ' + versions.appBuildNumber" class="size-16 m-b-10" textWrap="true" />
-                        <Label :text="'Build Tag: ' + versions.appBuildTag" class="size-16 m-b-10" textWrap="true" />
-                        <Label :text="'Commit: ' + versions.appCommit" class="size-16 m-b-10" textWrap="true" />
-                        <Label :text="'Branch: ' + versions.appBranch" class="size-16 m-b-10" textWrap="true" />
+                        <Label :text="'Build: ' + versions.buildNumber" class="size-16 m-b-10" textWrap="true" />
+                        <Label :text="'Time: ' + versions.buildTime" class="size-16 m-b-10" textWrap="true" />
+                        <Label :text="'Tag: ' + versions.buildTag" class="size-16 m-b-10" textWrap="true" />
+                        <Label :text="'Hash: ' + versions.gitHash" class="size-16 m-b-10" textWrap="true" />
                     </StackLayout>
                 </FlexboxLayout>
             </ScrollView>
@@ -34,13 +33,7 @@ export default {
     data() {
         return {
             loggedIn: this.$portalInterface.isLoggedIn(),
-            versions: {
-                appBuildTime: Build.buildTime,
-                appBuildNumber: Build.buildTime,
-                appBuildTag: Build.buildTime,
-                appCommit: hexStringToByteWiseString(Build.commit),
-                appBranch: Build.branch,
-            },
+            versions: Build,
         };
     },
     components: {
