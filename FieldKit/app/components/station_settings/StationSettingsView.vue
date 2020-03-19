@@ -54,11 +54,7 @@ export default {
         Networks,
     },
     methods: {
-        onPageLoaded(args) {
-            this.page = args.object;
-            let user = this.$portalInterface.getCurrentUser();
-            this.userName = user.name;
-        },
+        onPageLoaded(args) {},
 
         selectFromMenu(event) {
             let cn = event.object.className;

@@ -26,8 +26,6 @@
 
 <script>
 import routes from "../../routes";
-import Services from "../../services/services";
-
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import WiFi from "./StationSettingsWiFi";
