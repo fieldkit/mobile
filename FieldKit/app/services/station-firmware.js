@@ -25,20 +25,18 @@ export default class StationUpgrade {
             .PortalInterface()
             .listFirmware("fk-core")
             .then(firmware => {
-                log.info("firmware", firmware);
                 return firmware.firmwares.map(f => {
                     const local = this.services
                         .FileSystem()
                         .getFolder("firmware")
                         .getFile("fk-bundled-fkb-" + f.id + ".bin");
-                    log.info("local", local);
+                    log.verbose("local", local);
                     return _.extend(f, {
                         path: local.path,
                     });
                 });
             })
             .then(firmwares => {
-                log.info("firmwares", firmwares);
                 if (!firmwares || firmwares.length == 0) {
                     log.info("no firmware");
                     return;
@@ -56,6 +54,9 @@ export default class StationUpgrade {
                         return this.services
                             .PortalInterface()
                             .downloadFirmware(firmwares[0].url, firmwares[0].path, downloadProgress)
+                            .catch(err => {
+                                log.error("downloading error:", err);
+                            })
                             .then(() => {
                                 return firmwares[0];
                             });

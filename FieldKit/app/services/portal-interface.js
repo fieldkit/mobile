@@ -5,8 +5,8 @@ import AppSettings from "../wrappers/app-settings";
 
 export default class PortalInterface {
     constructor(services) {
-        this.services = services;
-        this.dbInterface = services.Database();
+        this._services = services;
+        this._dbInterface = services.Database();
 
         this._handleTokenResponse = this._handleTokenResponse.bind(this);
         this._handleStandardResponse = this._handleStandardResponse.bind(this);
@@ -16,7 +16,7 @@ export default class PortalInterface {
     }
 
     getUri() {
-        return this.dbInterface.getConfig().then(config => {
+        return this._dbInterface.getConfig().then(config => {
             return config[0].baseUri;
         });
     }
@@ -34,9 +34,7 @@ export default class PortalInterface {
 
     isAvailable() {
         return this.getUri().then(baseUri =>
-            axios({
-                url: baseUri + "/status",
-            })
+            axios({ url: baseUri + "/status" })
                 .then(r => true)
                 .catch(e => false)
         );
@@ -158,7 +156,7 @@ export default class PortalInterface {
             Authorization: this._appSettings.getString("accessToken"),
         };
         return this.getUri().then(baseUri =>
-            this.services
+            this._services
                 .Conservify()
                 .download({
                     url: baseUri + url,
@@ -166,17 +164,22 @@ export default class PortalInterface {
                     headers: { ...headers },
                     progress: progress,
                 })
-                .then(
-                    e => {
-                        return {
-                            data: e.body,
-                            status: e.responseCode,
-                        };
-                    },
-                    e => {
-                        return Promise.reject(e);
+                .then(e => {
+                    // Our library uses statusCode, axios uses status
+                    if (e.statusCode != 200) {
+                        return this._services
+                            .FileSystem()
+                            .getFile(local)
+                            .remove()
+                            .then(() => {
+                                return Promise.reject(new Error(e.body));
+                            });
                     }
-                )
+                    return {
+                        data: e.body,
+                        status: e.statusCode,
+                    };
+                })
         );
     }
 
@@ -184,7 +187,7 @@ export default class PortalInterface {
         const headers = {
             Authorization: this._appSettings.getString("accessToken"),
         };
-        return this.services
+        return this._services
             .Conservify()
             .upload({
                 url: "/stations/" + data.stationId + "/field-note-media",
@@ -195,17 +198,13 @@ export default class PortalInterface {
                     // Do nothing.
                 },
             })
-            .then(
-                e => {
-                    return {
-                        data: e.body,
-                        status: e.responseCode,
-                    };
-                },
-                e => {
-                    return Promise.reject(e);
-                }
-            );
+            .then(e => {
+                // Our library uses statusCode, axios uses status
+                return {
+                    data: e.body,
+                    status: e.statusCode,
+                };
+            });
     }
 
     _handleStandardResponse(response) {
