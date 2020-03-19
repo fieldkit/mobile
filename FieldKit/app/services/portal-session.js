@@ -1,36 +1,36 @@
 export default class PortalSession {
-	constructor(services) {
-		this.services = services;
-	}
+    constructor(services) {
+        this.services = services;
+    }
 
-	portal() {
-		return this.services.PortalInterface();
-	}
+    portal() {
+        return this.services.PortalInterface();
+    }
 
-	login(user) {
-		return this.portal()
-			.login(user)
-			.then(user => {
-				console.log("logged in");
-				return this.services
-					.StationFirmware()
-					.downloadFirmware()
-					.then(_ => {
-						console.log("done");
-						return user;
-					});
-			});
-	}
+    login(user) {
+        return this.portal()
+            .login(user)
+            .then(user => {
+                console.log("logged in");
+                return this.services
+                    .StationFirmware()
+                    .downloadFirmware()
+                    .then(_ => {
+                        console.log("done");
+                        return user;
+                    });
+            });
+    }
 
-	logout() {
-		return this.portal().logout();
-	}
+    logout() {
+        return this.portal().logout();
+    }
 
-	register(user) {
-		return this.portal().register(user);
-	}
+    register(user) {
+        return this.portal().register(user);
+    }
 
-	resetPassword(newPassword) {
-		return this.portal().logout(newPassword);
-	}
+    resetPassword(newPassword) {
+        return this.portal().logout(newPassword);
+    }
 }
