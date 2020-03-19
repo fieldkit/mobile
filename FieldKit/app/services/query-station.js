@@ -205,6 +205,43 @@ export default class QueryStation {
             });
     }
 
+    uploadViaApp(address) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            transmission: {
+                wifi: {
+                    modifying: true,
+                    enabled: false,
+                },
+            },
+            time: unixNow(),
+        });
+
+        return this.stationQuery(address, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
+    uploadOverWifi(address, transmissionUrl, transmissionToken) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            transmission: {
+                wifi: {
+                    modifying: true,
+                    url: transmissionUrl,
+                    token: transmissionToken,
+                    enabled: true,
+                },
+            },
+            schedules: { modifying: true, network: { duration: 0xffffffff } },
+            time: unixNow(),
+        });
+
+        return this.stationQuery(address, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for
