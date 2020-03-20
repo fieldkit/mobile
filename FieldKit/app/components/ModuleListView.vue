@@ -3,31 +3,13 @@
         <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in modules" :key="m.id">
             <StackLayout class="bordered-container p-10 m-b-10">
                 <!-- top row of module list -->
-                <GridLayout rows="auto, auto" columns="15*,70*,15*">
+                <GridLayout rows="auto" columns="15*,70*,15*">
                     <!-- module icon -->
-                    <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
+                    <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
                     <!-- module name -->
-                    <Label
-                        row="0"
-                        col="1"
-                        :rowSpan="m.calibratedLabel ? '1' : '2'"
-                        :text="getModuleName(m)"
-                        verticalAlignment="middle"
-                        class="size-18"
-                        textWrap="true"
-                    />
-                    <!-- calibration status -->
-                    <Label
-                        row="1"
-                        col="1"
-                        :text="m.calibratedLabel"
-                        :class="'size-14 ' + (m.calibrated == 'uncalibrated' ? 'uncalibrated' : 'calibrated')"
-                        @tap="goToCalibration(m)"
-                        v-if="m.calibratedLabel"
-                    />
+                    <Label col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-18" textWrap="true" />
                     <!-- toggle sensor container -->
                     <Image
-                        rowSpan="2"
                         col="2"
                         verticalAlignment="center"
                         horizontalAlignment="right"
@@ -76,13 +58,10 @@
 </template>
 
 <script>
-import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../routes";
 import { getLastSeen, _T } from "../utilities";
 import Services from "../services/services";
 const dbInterface = Services.Database();
-const calibrationService = Services.CalibrationService();
-const sensorsThatCalibrate = ["ph", "do", "ec"];
 
 export default {
     name: "ModuleListView",
@@ -96,99 +75,17 @@ export default {
     },
     props: ["station"],
     methods: {
-        goToCalibration(module) {
-            if (module.calibrated == "done") {
-                dialogs
-                    .confirm({
-                        title: "Would you like to recalibrate " + this.getModuleName(module) + "?",
-                        okButtonText: _L("yes"),
-                        cancelButtonText: _L("cancel"),
-                    })
-                    .then(result => {
-                        if (result) {
-                            // navigate to recalibration
-                            this.$navigateTo(routes.calibration, {
-                                props: {
-                                    station: this.station,
-                                    type: module.calibrateSensor,
-                                    recalibrate: module.position,
-                                },
-                            });
-                        }
-                    });
-                return;
-            }
-            if (module.calibrated == "NA") {
-                return;
-            }
-
-            // navigate to calibration
-            this.$navigateTo(routes.calibration, {
-                props: {
-                    station: this.station,
-                    type: module.calibrateSensor,
-                },
-            });
-        },
-
         updateModules(modules) {
             this.modules = modules.sort((a, b) => {
                 return b.position < a.position ? 1 : b.position > a.position ? -1 : 0;
             });
             this.modules.forEach((m, i) => {
-                m.calibrated = "NA";
-                m.calibratedLabel = null;
                 this.open.push(m.id);
                 m.sensorObjects.forEach(s => {
-                    this.checkCalibrationStatus(m, i, s);
                     s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--";
                     s.icon = "~/images/Icon_Neutral.png";
                 });
             });
-        },
-
-        checkCalibrationStatus(m, i, s) {
-            if (
-                (m.position || m.position == 0) &&
-                this.station.url &&
-                !this.pending[m.position] &&
-                !this.statusChecked[m.position] &&
-                sensorsThatCalibrate.indexOf(s.name) > -1
-            ) {
-                m.calibratedLabel = "Getting calibration status";
-                m.calibrateSensor = s.name;
-                // keep track so many requests aren't sent at once
-                this.pending[m.position] = true;
-                const listView = this;
-                setTimeout(() => {
-                    calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then(result => {
-                        listView.handleCalibrationResult(result, m, s.name);
-                    });
-                }, i * 1000);
-            }
-        },
-
-        handleCalibrationResult(result, module, sensorName) {
-            let total = 0;
-            if (sensorName == "ph") {
-                if (result.calibration.phStatus) {
-                    total = _.sum(_.values(result.calibration.phStatus));
-                }
-            }
-            if (sensorName == "do") {
-                if (result.calibration.doStatus) {
-                    total = _.sum(_.values(result.calibration.doStatus));
-                }
-            }
-            if (sensorName == "ec") {
-                if (result.calibration.ecStatus) {
-                    total = _.sum(_.values(result.calibration.ecStatus));
-                }
-            }
-            module.calibrated = total > 0 ? "done" : "uncalibrated";
-            module.calibratedLabel = total > 0 ? "Calibrated" : "Uncalibrated";
-            this.pending[module.position] = false;
-            this.statusChecked[module.position] = true;
         },
 
         updateReadings(data) {
@@ -205,7 +102,6 @@ export default {
             this.modules.forEach((m, i) => {
                 let sensors = [];
                 m.sensorObjects.forEach(s => {
-                    this.checkCalibrationStatus(m, i, s);
                     let trendIcon = "Icon_Neutral.png";
                     if (liveReadings && (liveReadings[m.name + s.name] || liveReadings[m.name + s.name] === 0)) {
                         let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0;
@@ -339,11 +235,5 @@ export default {
 }
 .hint-color {
     color: $fk-gray-hint;
-}
-.calibrated {
-    color: $fk-gray-hint;
-}
-.uncalibrated {
-    color: $fk-primary-red;
 }
 </style>
