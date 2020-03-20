@@ -27,7 +27,7 @@ export default class DatabaseInterface {
     }
 
     getDatabase() {
-        return Promise.resolve(this.services.CreateDb().database);
+        return this.services.CreateDb().getDatabase();
     }
 
     getStationConfigs(stationId) {
