@@ -99,6 +99,12 @@
                         <StackLayout class="p-b-20"></StackLayout>
                         <!-- make this visible all the time again when radio buttons are reactivated -->
                         <Button v-show="addingNetwork" class="btn btn-primary btn-padded" :text="_L('save')" @tap="addNetwork"></Button>
+
+                        <StackLayout class="section-border">
+                            <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
+                            <Button class="btn btn-primary btn-padded" :text="wifiUploadButton" @tap="uploadOverWifi" />
+                        </StackLayout>
+
                         <StackLayout class="p-b-20"></StackLayout>
                     </StackLayout>
                 </GridLayout>
@@ -118,6 +124,7 @@ import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import Networks from "./StationSettingsNetworks";
 
+const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
 
 export default {
@@ -129,6 +136,9 @@ export default {
             addingNetwork: false,
             hidePassword: true,
             passwordVisibility: "Show",
+            wifiUpload: false,
+            wifiUploadText: "",
+            wifiUploadButton: "",
         };
     },
     props: ["station"],
@@ -140,6 +150,11 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
+
+            dbInterface.getConfig().then(config => {
+                this.transmissionUrl = config[0].ingestionUri;
+            });
+
             let deviceStatus = JSON.parse(this.station.statusJson);
             if (deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks.map(n => {
@@ -147,8 +162,8 @@ export default {
                     return n;
                 });
             }
-
             this.deviceStatus = deviceStatus;
+            this.setWifiUploadStatus(deviceStatus);
         },
 
         selectFromMenu(event) {
@@ -179,6 +194,33 @@ export default {
                     curve: "linear",
                 },
             });
+        },
+
+        uploadOverWifi() {
+            if (this.wifiUpload) {
+                queryStation.uploadViaApp(this.station.url).then(result => {
+                    this.setWifiUploadStatus(result);
+                });
+            } else {
+                this.$portalInterface.getTransmissionToken().then(result => {
+                    queryStation.uploadOverWifi(this.station.url, this.transmissionUrl, result.token).then(result => {
+                        this.setWifiUploadStatus(result);
+                    });
+                });
+            }
+        },
+
+        setWifiUploadStatus(status) {
+            this.deviceStatus.transmission = status.transmission;
+            if (status && status.transmission && status.transmission.wifi.enabled) {
+                this.wifiUpload = true;
+                this.wifiUploadText = "Your station is currently configured to upload data directly over WiFi.";
+                this.wifiUploadButton = "Upload via App";
+            } else {
+                this.wifiUpload = false;
+                this.wifiUploadText = "If desired, you can set your station to upload data directly over WiFi.";
+                this.wifiUploadButton = "Upload over WiFi";
+            }
         },
 
         showNetworkForm(event) {
@@ -301,5 +343,13 @@ export default {
     width: 100%;
     font-size: 13;
     color: $fk-tertiary-red;
+}
+.section-border {
+    margin-top: 20;
+    padding-top: 15;
+    padding-bottom: 15;
+    border-color: $fk-gray-lighter;
+    border-bottom-width: 1;
+    border-top-width: 1;
 }
 </style>

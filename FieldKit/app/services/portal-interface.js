@@ -83,6 +83,12 @@ export default class PortalInterface {
 
     resetPassword(email) {}
 
+    getTransmissionToken() {
+        return this._query({
+            url: "/user/transmission-token",
+        });
+    }
+
     addStation(data) {
         return this._query({
             method: "POST",

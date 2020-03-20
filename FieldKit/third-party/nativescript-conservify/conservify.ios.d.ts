@@ -1,4 +1,4 @@
-import { Common } from './conservify.common';
+import { Common } from "./conservify.common";
 interface NetworkingListener {
     onStarted(): void;
     onDiscoveryFailed(): void;

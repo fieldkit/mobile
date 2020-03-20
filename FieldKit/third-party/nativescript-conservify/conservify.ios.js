@@ -211,7 +211,7 @@ var Conservify = (function (_super) {
             _this.logger("initialize, ok");
             _this.started = {
                 resolve: resolve,
-                reject: reject
+                reject: reject,
             };
             _this.networking.serviceDiscovery.startWithServiceType(serviceType);
             _this.logger("starting...");
@@ -225,6 +225,9 @@ var Conservify = (function (_super) {
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
+        }
+        if (info.body) {
+            transfer.body = info.body;
         }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {
@@ -247,8 +250,7 @@ var Conservify = (function (_super) {
             transfer.headerWithKeyValue(key, value);
         }
         if (info.body) {
-            var requestBody = Buffer.from(info.body).toString("base64");
-            transfer.body = requestBody;
+            transfer.body = info.body;
         }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {
@@ -339,7 +341,7 @@ var Conservify = (function (_super) {
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
-                reject: reject
+                reject: reject,
             };
             _this.networking.wifi.findConnectedNetwork();
         });
@@ -349,7 +351,7 @@ var Conservify = (function (_super) {
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
-                reject: reject
+                reject: reject,
             };
             _this.networking.wifi.scan();
         });

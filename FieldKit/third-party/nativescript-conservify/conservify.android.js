@@ -60,7 +60,10 @@ var Conservify = (function (_super) {
                             return null;
                         }
                         return {
-                            ssid: status.getConnectedWifi().getSsid().replace(/"/g, '')
+                            ssid: status
+                                .getConnectedWifi()
+                                .getSsid()
+                                .replace(/"/g, ""),
                         };
                     }
                     function getWifiNetworks() {
@@ -73,7 +76,7 @@ var Conservify = (function (_super) {
                             for (var i = 0; i < networksArray.size(); ++i) {
                                 var n = networksArray[i];
                                 found.push({
-                                    ssid: n.getSsid()
+                                    ssid: n.getSsid(),
                                 });
                             }
                         }
@@ -82,7 +85,7 @@ var Conservify = (function (_super) {
                     var jsObject = {
                         connected: status.getConnected(),
                         connectedWifi: getConnectedWifi(),
-                        wifiNetworks: getWifiNetworks()
+                        wifiNetworks: getWifiNetworks(),
                     };
                     owner.networkStatus.resolve(jsObject);
                     owner.networkStatus = null;
@@ -202,7 +205,7 @@ var Conservify = (function (_super) {
         return new Promise(function (resolve, reject) {
             _this.started = {
                 resolve: resolve,
-                reject: reject
+                reject: reject,
             };
             _this.networking.getServiceDiscovery().start(serviceType);
             owner.logger("starting...");
@@ -233,6 +236,7 @@ var Conservify = (function (_super) {
         var transfer = new org.conservify.networking.WebTransfer();
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
+        transfer.setBody(info.body);
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.header(key, value);
@@ -317,7 +321,7 @@ var Conservify = (function (_super) {
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
-                reject: reject
+                reject: reject,
             };
             _this.networking.getWifi().findConnectedNetwork();
         });
@@ -327,7 +331,7 @@ var Conservify = (function (_super) {
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
-                reject: reject
+                reject: reject,
             };
             _this.networking.getWifi().scan();
         });
