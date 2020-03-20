@@ -71,15 +71,14 @@ export default class Diagnostics {
             region: device.region,
             sdkVersion: device.sdkVersion,
             uuid: device.uuid,
-			config: Config,
-			build: Build,
+            config: Config,
+            build: Build,
         };
 
         return this.services.Conservify().text({
             method: "POST",
             url: this.baseUrl + "/" + id + "/device.json",
             body: JSON.stringify(info),
-            path: path,
         });
     }
 
