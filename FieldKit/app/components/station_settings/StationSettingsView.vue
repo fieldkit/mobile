@@ -33,16 +33,16 @@ import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 
 import General from "./StationSettingsGeneral";
-import Firmware from "./StationSettingsFirmware";
 import Networks from "./StationSettingsNetworks";
+import Firmware from "./StationSettingsFirmware";
+import Modules from "./StationSettingsModuleList";
 import EndDeploy from "./StationSettingsEndDeploy";
 
 export default {
     data() {
         return {
             loggedIn: this.$portalInterface.isLoggedIn(),
-            // menuOptions: ["General", "Networks", "Firmware", "Modules", "End Deployment"],
-            menuOptions: ["General", "Networks", "Firmware", "End Deployment"],
+            menuOptions: ["General", "Networks", "Firmware", "Modules", "End Deployment"],
         };
     },
     props: ["station"],
@@ -74,6 +74,7 @@ export default {
                     this.goToFirmware();
                     break;
                 case "Modules":
+                    this.goToModules();
                     break;
                 case "End Deployment":
                     this.goToEndDeploy();
@@ -89,6 +90,14 @@ export default {
             });
         },
 
+        goToNetworks() {
+            this.$navigateTo(Networks, {
+                props: {
+                    station: this.station,
+                },
+            });
+        },
+
         goToFirmware() {
             this.$navigateTo(Firmware, {
                 props: {
@@ -97,8 +106,8 @@ export default {
             });
         },
 
-        goToNetworks() {
-            this.$navigateTo(Networks, {
+        goToModules() {
+            this.$navigateTo(Modules, {
                 props: {
                     station: this.station,
                 },
