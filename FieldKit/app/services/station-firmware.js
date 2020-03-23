@@ -46,7 +46,7 @@ export default class StationUpgrade {
                     return this.services.Database().addOrUpdateFirmware(firmware);
                 }).then(() => {
                     const local = this.services.FileSystem().getFile(firmwares[0].path);
-                    if (!local.exists() || local.size == 0 || force === true) {
+                    if (!local.exists || local.size == 0 || force === true) {
                         log.info("downloading", firmwares[0]);
 
                         const downloadProgress = transformProgress(progressCallback, p => p);
@@ -104,7 +104,7 @@ export default class StationUpgrade {
                 }
 
                 const local = this.services.FileSystem().getFile(firmware.path);
-                if (!local.exists() || local.size == 0) {
+                if (!local.exists || local.size == 0) {
                     return false;
                 }
                 return true;

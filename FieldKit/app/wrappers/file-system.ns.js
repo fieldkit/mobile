@@ -5,10 +5,7 @@ class FileWrapper {
         this.f = f;
         this.path = f.path;
         this.size = f.size;
-    }
-
-    exists() {
-        return File.exists(this.f.path);
+        this.exists = File.exists(this.f.path);
     }
 
     remove() {
