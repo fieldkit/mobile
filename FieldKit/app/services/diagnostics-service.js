@@ -4,7 +4,7 @@ import * as platform from "tns-core-modules/platform";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
 import { serializePromiseChain, getPathTimestamp } from "../utilities";
-import { listAllFiles } from "../lib/fs";
+import { listAllFiles, dumpAllFiles } from "../lib/fs";
 import Config, { Build } from "../config";
 
 function uuidv4() {
@@ -26,7 +26,13 @@ export default class Diagnostics {
 
         progress({ message: "Starting..." });
 
-        return this._uploadDeviceInformation(id)
+        return Promise.resolve(true)
+            .then(() => {
+                return dumpAllFiles();
+            })
+            .then(() => {
+                return this._uploadDeviceInformation(id);
+            })
             .then(() => {
                 progress({ message: "Querying stations." });
                 return this._queryLogs();

@@ -9,7 +9,7 @@ function recurse(f, depth, callback) {
                 if (Folder.exists(e.path)) {
                     return recurse(Folder.fromPath(e.path), depth + 1, callback);
                 } else {
-                    callback(depth, e.path);
+                    callback(depth, e);
                 }
             })
         );
@@ -19,12 +19,19 @@ function recurse(f, depth, callback) {
 export function listAllFiles(f) {
     const files = [];
 
-    return recurse(f, 0, (depth, path) => {
+    return recurse(f, 0, (depth, entry) => {
         files.push({
-            depth,
-            path,
+            depth: depth,
+            path: entry.path,
         });
     }).then(() => {
         return files;
+    });
+}
+
+export function dumpAllFiles() {
+    const rootFolder = knownFolders.documents();
+    return recurse(rootFolder, 0, (depth, entry) => {
+        console.log("files", entry.path, entry.size);
     });
 }
