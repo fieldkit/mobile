@@ -137,6 +137,11 @@ export default class UploadManager {
 
         const local = this.services.FileSystem().getFile(filePath);
 
+        if (!local.exists || local.size == 0) {
+            log.info("skipping", local.exists, local.size);
+            return Promise.resolve();
+        }
+
         log.info("local", local.exists, local.size);
 
         const defaultHeaders = {
