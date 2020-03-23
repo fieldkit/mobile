@@ -61,9 +61,32 @@ export default class StationUpgrade {
                                 return firmwares[0];
                             });
                     }
+
                     log.info("already have", firmwares[0]);
-                    return firmwares[0];
+
+                    return this._deleteOldFirmware().then(() => {
+                        return firmwares[0];
+                    });
                 });
+            });
+    }
+
+    _deleteOldFirmware() {
+        return this.services
+            .Database()
+            .getAllFirmware()
+            .then(firmware => {
+                return _(firmware)
+                    .tail()
+                    .map(fw => {
+                        const local = this.services.FileSystem().getFile(fw.path);
+                        if (local.exists) {
+                            log.info("removing", fw.path, local.exists, local.size);
+                            return local.remove();
+                        }
+                        return false;
+                    })
+                    .value();
             });
     }
 
