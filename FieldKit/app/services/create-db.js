@@ -7,6 +7,13 @@ import Migrating from "./migrating";
 export default class CreateDB {
     constructor() {
         this.sqlite = new Sqlite();
+        this.promisedDatabase = new Promise(resolve => {
+            this.resolveDatabase = resolve;
+        });
+    }
+
+    getDatabase() {
+        return this.promisedDatabase;
     }
 
     initialize(userInvokedDelete) {
@@ -20,6 +27,10 @@ export default class CreateDB {
             .then(() => {
                 const migrations = new Migrating();
                 return migrations.up(this.database);
+            })
+            .then(() => {
+                this.resolveDatabase(this.database);
+                return this.database;
             });
     }
 
