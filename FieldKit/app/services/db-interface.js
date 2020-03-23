@@ -51,6 +51,9 @@ export default class DatabaseInterface {
             .then(db => db.query("SELECT * FROM stations"))
             .then(rows => {
                 return sqliteToJs(rows);
+            })
+            .catch(e => {
+                console.log("Error fetching stations", e);
             });
     }
 
