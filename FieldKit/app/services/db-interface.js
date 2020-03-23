@@ -356,7 +356,6 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db => {
                 return this._getModulePrimaryKey(sensor.moduleId).then(modulePrimaryKey => {
-                    console.log("MODULE_ID", modulePrimaryKey, sensor);
                     return db.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
                         modulePrimaryKey,
                         sensor.name,
