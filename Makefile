@@ -97,7 +97,7 @@ images:
 		(cd $(APP) && node_modules/.bin/svgexport $$SOURCE $$OUTPUT 2x); \
   done; \
 
-test: $(APP)/app/secrets.ts
+test: setup
 	cd $(APP) && jest
 
 update-third-party:
