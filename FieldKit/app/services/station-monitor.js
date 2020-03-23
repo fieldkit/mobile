@@ -7,8 +7,6 @@ import StationLogs from "./station-logs";
 import Config from "../config";
 
 const pastDate = new Date(2000, 0, 1);
-const oneHour = 3600000;
-const oneMinute = 60000;
 
 function is_internal_module(module) {
     return !Config.includeInternalModules && module.flags & 1; // TODO Pull this enum in from the protobuf file.
@@ -73,7 +71,7 @@ export default class StationMonitor extends Observable {
     initializeStations(result) {
         const thisMonitor = this;
         result.map(r => {
-            r.lastSeen = new Date(r.updated);
+            r.lastSeen = pastDate;
             // not getting connected from db anymore
             // all are disconnected until discovered
             r.connected = false;
@@ -444,15 +442,26 @@ export default class StationMonitor extends Observable {
     sortStations() {
         let stations = Object.values(this.stations);
         // sort by alpha first
-        stations.sort((a, b) => {
-            return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
+        stations = _.sortBy(stations, s => {
+            return s.name.toUpperCase();
         });
-        // then sort by recency, rounded to minute
-        stations.sort((a, b) => {
-            const aTime = (a.lastSeen / oneMinute) * oneMinute;
-            const bTime = (b.lastSeen / oneMinute) * oneMinute;
-            return bTime > aTime ? 1 : bTime < aTime ? -1 : 0;
+        // then sort by recency, rounded to hour
+        stations = _.orderBy(
+            stations,
+            s => {
+                return s.lastSeen.getHours();
+            },
+            ["desc"]
+        );
+        // this will only catch one station, even if more were newly added
+        const index = stations.findIndex(s => {
+            return s.newlyConnected;
         });
+        if (index > -1) {
+            const newStation = stations.splice(index, 1)[0];
+            newStation.newlyConnected = false;
+            stations.unshift(newStation);
+        }
         stations.forEach((s, i) => {
             s.sortedIndex = i + "-" + s.deviceId;
         });
@@ -463,6 +472,7 @@ export default class StationMonitor extends Observable {
         console.log("activating station --------->", station.name);
         station.lastSeen = new Date();
         station.connected = true;
+        station.newlyConnected = true;
         this.stations[station.deviceId] = station;
 
         // start getting readings
@@ -481,6 +491,7 @@ export default class StationMonitor extends Observable {
         }
         this.stations[deviceId].connected = true;
         this.stations[deviceId].lastSeen = new Date();
+        this.stations[deviceId].newlyConnected = true;
         // prefer hardware name over database name, unless undefined or same
         if (statusResult.status.identity.device && statusResult.status.identity.device != this.stations[deviceId].name) {
             this.stations[deviceId].name = statusResult.status.identity.device;
