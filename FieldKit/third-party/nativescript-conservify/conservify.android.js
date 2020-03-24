@@ -98,10 +98,15 @@ var Conservify = (function (_super) {
         this.uploadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
                 owner.logger("upload:onProgress", taskId, bytes, total);
-                var info = active[taskId].info;
-                var progress = info.progress;
-                if (progress) {
-                    progress(total, bytes, info);
+                if (active[taskId]) {
+                    var info = active[taskId].info;
+                    var progress = info.progress;
+                    if (progress) {
+                        progress(total, bytes, info);
+                    }
+                }
+                else {
+                    this.logger("upload:onProgress orphaned", taskId, bytes, total);
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
@@ -145,10 +150,15 @@ var Conservify = (function (_super) {
         this.downloadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
                 owner.logger("download:onProgress", taskId, bytes, total);
-                var info = active[taskId].info;
-                var progress = info.progress;
-                if (progress) {
-                    progress(total, bytes, info);
+                if (active[taskId]) {
+                    var info = active[taskId].info;
+                    var progress = info.progress;
+                    if (progress) {
+                        progress(total, bytes, info);
+                    }
+                }
+                else {
+                    owner.logger("download:onProgress orphaned", taskId, bytes, total);
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {

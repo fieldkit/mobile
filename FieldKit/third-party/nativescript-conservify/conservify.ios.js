@@ -77,10 +77,16 @@ var UploadListener = (function (_super) {
     };
     UploadListener.prototype.onProgressWithTaskIdHeadersBytesTotal = function (taskId, headers, bytes, total) {
         this.logger("upload:onProgress", taskId, bytes, total);
-        var info = this.tasks.getTask(taskId).info;
-        var progress = info.progress;
-        if (progress) {
-            progress(bytes, total, info);
+        var task = this.tasks.getTask(taskId);
+        if (task) {
+            var info = task.info;
+            var progress = info.progress;
+            if (progress) {
+                progress(bytes, total, info);
+            }
+        }
+        else {
+            this.logger("upload:onProgress orphaned", taskId, bytes, total);
         }
     };
     UploadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
@@ -138,10 +144,16 @@ var DownloadListener = (function (_super) {
     };
     DownloadListener.prototype.onProgressWithTaskIdHeadersBytesTotal = function (taskId, headers, bytes, total) {
         this.logger("download:onProgress", taskId, bytes, total);
-        var info = this.tasks.getTask(taskId).info;
-        var progress = info.progress;
-        if (progress) {
-            progress(bytes, total);
+        var task = this.tasks.getTask(taskId);
+        if (task) {
+            var info = task.info;
+            var progress = info.progress;
+            if (progress) {
+                progress(bytes, total);
+            }
+        }
+        else {
+            this.logger("download:onProgress orphaned", taskId, bytes, total);
         }
     };
     DownloadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
