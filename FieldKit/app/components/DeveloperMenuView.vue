@@ -168,6 +168,7 @@ export default {
         },
         resetOnboarding() {
             appSettings.remove("completedSetup");
+            appSettings.remove("skipCount");
             dialogs
                 .confirm({
                     title: "Reset complete! Would you like to go to Onboarding?",

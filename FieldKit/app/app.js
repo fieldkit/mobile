@@ -82,12 +82,17 @@ if (Config.vue.verbose) {
 }
 
 const appSettings = new AppSettings();
+// Might need to set this first for Java
+// if (!appSettings.getNumber("skipCount")) {
+//     appSettings.setNumber("skipCount", 0);
+// }
+
 new Vue({
     render: h =>
         h("frame", [
             h(
                 Services.PortalInterface().isLoggedIn()
-                    ? appSettings.getString("completedSetup")
+                    ? appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2
                         ? routes.stations
                         : routes.assembleStation
                     : routes.login

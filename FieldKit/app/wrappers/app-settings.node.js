@@ -12,6 +12,15 @@ export default class AppSettingsNode {
         return stringValue;
     }
 
+    getNumber(numKey) {
+        return this.strings[numKey];
+    }
+
+    setNumber(numKey, numValue) {
+        this.strings[numKey] = numValue;
+        return numValue;
+    }
+
     remove(string) {
         delete this.strings[string];
         return;
