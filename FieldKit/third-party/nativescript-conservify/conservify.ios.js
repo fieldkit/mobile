@@ -86,7 +86,7 @@ var UploadListener = (function (_super) {
             }
         }
         else {
-            this.logger("upload:onProgress orphaned", taskId, bytes, total);
+            this.logger("upload:onProgress (orphaned)", taskId, bytes, total);
         }
     };
     UploadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
@@ -119,12 +119,17 @@ var UploadListener = (function (_super) {
     UploadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
         this.logger("upload:onError", taskId);
         var task = this.tasks.getTask(taskId);
-        var info = task.info;
-        this.tasks.removeTask(taskId, message);
-        task.reject({
-            info: info,
-            message: message,
-        });
+        if (task) {
+            var info = task.info;
+            this.tasks.removeTask(taskId, message);
+            task.reject({
+                info: info,
+                message: message,
+            });
+        }
+        else {
+            this.logger("upload:onError (orphaned)", taskId);
+        }
     };
     UploadListener.ObjCProtocols = [WebTransferListener];
     return UploadListener;
@@ -153,7 +158,7 @@ var DownloadListener = (function (_super) {
             }
         }
         else {
-            this.logger("download:onProgress orphaned", taskId, bytes, total);
+            this.logger("download:onProgress (orphaned)", taskId, bytes, total);
         }
     };
     DownloadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
@@ -186,12 +191,17 @@ var DownloadListener = (function (_super) {
     DownloadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
         this.logger("download:onError", taskId, message);
         var task = this.tasks.getTask(taskId);
-        var info = task.info;
-        this.tasks.removeTask(taskId);
-        task.reject({
-            info: info,
-            message: message,
-        });
+        if (task) {
+            var info = task.info;
+            this.tasks.removeTask(taskId);
+            task.reject({
+                info: info,
+                message: message,
+            });
+        }
+        else {
+            this.logger("download:onError (orphaned)", taskId, message);
+        }
     };
     DownloadListener.ObjCProtocols = [WebTransferListener];
     return DownloadListener;

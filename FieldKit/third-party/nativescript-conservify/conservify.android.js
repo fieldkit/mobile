@@ -139,12 +139,17 @@ var Conservify = (function (_super) {
             onError: function (taskId, message) {
                 owner.logger("upload:onError", taskId, message);
                 var task = active[taskId];
-                var info = task.info;
-                delete active[taskId];
-                task.reject({
-                    info: info,
-                    message: message,
-                });
+                if (task) {
+                    var info = task.info;
+                    delete active[taskId];
+                    task.reject({
+                        info: info,
+                        message: message,
+                    });
+                }
+                else {
+                    owner.logger("upload:onError (orphaned)", taskId, message);
+                }
             },
         });
         this.downloadListener = new org.conservify.networking.WebTransferListener({
@@ -158,7 +163,7 @@ var Conservify = (function (_super) {
                     }
                 }
                 else {
-                    owner.logger("download:onProgress orphaned", taskId, bytes, total);
+                    owner.logger("download:onProgress (orphaned)", taskId, bytes, total);
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
@@ -191,12 +196,17 @@ var Conservify = (function (_super) {
             onError: function (taskId, message) {
                 owner.logger("download:onError", taskId, message);
                 var task = active[taskId];
-                var info = task.info;
-                delete active[taskId];
-                task.reject({
-                    info: info,
-                    message: message,
-                });
+                if (task) {
+                    var info = task.info;
+                    delete active[taskId];
+                    task.reject({
+                        info: info,
+                        message: message,
+                    });
+                }
+                else {
+                    owner.logger("download:onError (orphaned)", taskId, message);
+                }
             },
         });
         this.dataListener = new org.conservify.data.DataListener({
