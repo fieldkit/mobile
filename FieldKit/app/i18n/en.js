@@ -26,6 +26,10 @@ module.exports = {
     days: "days",
     week: "week",
     weeks: "weeks",
+    month: "month",
+    months: "months",
+    year: "year",
+    years: "years",
     saveStartTime: "Save Start Time",
     saveEndTime: "Save End Time",
     // DataSyncView.vue
