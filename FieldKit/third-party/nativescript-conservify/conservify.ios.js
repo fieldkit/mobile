@@ -93,28 +93,33 @@ var UploadListener = (function (_super) {
         var jsHeaders = toJsHeaders(headers);
         this.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
-        var info = task.info, transfer = task.transfer;
-        this.tasks.removeTask(taskId);
-        function getBody() {
-            if (body) {
-                if (contentType.indexOf("application/json") >= 0) {
-                    return JSON.parse(body);
-                }
-                else {
-                    if (transfer.base64EncodeResponseBody) {
-                        return Buffer.from(body, "base64");
+        if (task) {
+            var info = task.info, transfer_1 = task.transfer;
+            this.tasks.removeTask(taskId);
+            function getBody() {
+                if (body) {
+                    if (contentType.indexOf("application/json") >= 0) {
+                        return JSON.parse(body);
                     }
-                    return body;
+                    else {
+                        if (transfer_1.base64EncodeResponseBody) {
+                            return Buffer.from(body, "base64");
+                        }
+                        return body;
+                    }
                 }
+                return null;
             }
-            return null;
+            task.resolve({
+                info: info,
+                headers: jsHeaders,
+                statusCode: statusCode,
+                body: getBody(),
+            });
         }
-        task.resolve({
-            info: info,
-            headers: jsHeaders,
-            statusCode: statusCode,
-            body: getBody(),
-        });
+        else {
+            this.logger("upload:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+        }
     };
     UploadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
         this.logger("upload:onError", taskId);
@@ -165,28 +170,33 @@ var DownloadListener = (function (_super) {
         var jsHeaders = toJsHeaders(headers);
         this.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
-        var info = task.info, transfer = task.transfer;
-        this.tasks.removeTask(taskId);
-        function getBody() {
-            if (body) {
-                if (contentType.indexOf("application/json") >= 0) {
-                    return JSON.parse(body);
-                }
-                else {
-                    if (transfer.base64EncodeResponseBody) {
-                        return Buffer.from(body, "base64");
+        if (task) {
+            var info = task.info, transfer_2 = task.transfer;
+            this.tasks.removeTask(taskId);
+            function getBody() {
+                if (body) {
+                    if (contentType.indexOf("application/json") >= 0) {
+                        return JSON.parse(body);
                     }
-                    return body;
+                    else {
+                        if (transfer_2.base64EncodeResponseBody) {
+                            return Buffer.from(body, "base64");
+                        }
+                        return body;
+                    }
                 }
+                return null;
             }
-            return null;
+            task.resolve({
+                info: info,
+                headers: jsHeaders,
+                statusCode: statusCode,
+                body: getBody(),
+            });
         }
-        task.resolve({
-            info: info,
-            headers: jsHeaders,
-            statusCode: statusCode,
-            body: getBody(),
-        });
+        else {
+            this.logger("download:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+        }
     };
     DownloadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
         this.logger("download:onError", taskId, message);

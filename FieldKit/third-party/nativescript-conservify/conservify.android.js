@@ -113,28 +113,33 @@ var Conservify = (function (_super) {
                 var jsHeaders = toJsHeaders(headers);
                 owner.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
-                var info = task.info, transfer = task.transfer;
-                function getBody() {
-                    if (body) {
-                        if (contentType.indexOf("application/json") >= 0) {
-                            return JSON.parse(body);
-                        }
-                        else {
-                            if (transfer.isBase64EncodeResponseBody()) {
-                                return Buffer.from(body, "base64");
+                if (task) {
+                    var info = task.info, transfer_1 = task.transfer;
+                    function getBody() {
+                        if (body) {
+                            if (contentType.indexOf("application/json") >= 0) {
+                                return JSON.parse(body);
                             }
-                            return body;
+                            else {
+                                if (transfer_1.isBase64EncodeResponseBody()) {
+                                    return Buffer.from(body, "base64");
+                                }
+                                return body;
+                            }
                         }
+                        return null;
                     }
-                    return null;
+                    delete active[taskId];
+                    task.resolve({
+                        info: info,
+                        headers: jsHeaders,
+                        statusCode: statusCode,
+                        body: getBody(),
+                    });
                 }
-                delete active[taskId];
-                task.resolve({
-                    info: info,
-                    headers: jsHeaders,
-                    statusCode: statusCode,
-                    body: getBody(),
-                });
+                else {
+                    owner.logger("upload:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+                }
             },
             onError: function (taskId, message) {
                 owner.logger("upload:onError", taskId, message);
@@ -170,28 +175,33 @@ var Conservify = (function (_super) {
                 var jsHeaders = toJsHeaders(headers);
                 owner.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
-                var info = task.info, transfer = task.transfer;
-                function getBody() {
-                    if (body) {
-                        if (contentType.indexOf("application/json") >= 0) {
-                            return JSON.parse(body);
-                        }
-                        else {
-                            if (transfer.isBase64EncodeResponseBody()) {
-                                return Buffer.from(body, "base64");
+                if (task) {
+                    var info = task.info, transfer_2 = task.transfer;
+                    function getBody() {
+                        if (body) {
+                            if (contentType.indexOf("application/json") >= 0) {
+                                return JSON.parse(body);
                             }
-                            return body;
+                            else {
+                                if (transfer_2.isBase64EncodeResponseBody()) {
+                                    return Buffer.from(body, "base64");
+                                }
+                                return body;
+                            }
                         }
+                        return null;
                     }
-                    return null;
+                    delete active[taskId];
+                    task.resolve({
+                        info: info,
+                        headers: jsHeaders,
+                        statusCode: statusCode,
+                        body: getBody(),
+                    });
                 }
-                delete active[taskId];
-                task.resolve({
-                    info: info,
-                    headers: jsHeaders,
-                    statusCode: statusCode,
-                    body: getBody(),
-                });
+                else {
+                    owner.logger("download:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+                }
             },
             onError: function (taskId, message) {
                 owner.logger("download:onError", taskId, message);
