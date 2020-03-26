@@ -34,28 +34,53 @@
                         </GridLayout>
 
                         <!-- or edit ssid -->
-                        <TextField
-                            class="size-18 p-x-20 input"
-                            :hint="step.hint"
-                            autocorrect="false"
-                            autocapitalizationType="none"
-                            v-model="newNetwork.ssid"
-                            v-if="editingSsid"
-                        ></TextField>
+                        <GridLayout rows="auto,auto" columns="*" class="p-x-20">
+                            <Label
+                                row="0"
+                                id="hidden-ssid-instruction"
+                                :text="step.hint"
+                                class="size-12"
+                                :visibility="typing && editingSsid ? 'visible' : 'collapsed'"
+                            />
+                            <TextField
+                                row="1"
+                                :class="'size-18 input ' + lineStatus"
+                                :hint="step.hint"
+                                autocorrect="false"
+                                autocapitalizationType="none"
+                                v-model="newNetwork.ssid"
+                                v-if="editingSsid"
+                                @focus="activateLine"
+                                @textChange="showSsidInstruction"
+                                @blur="deactivateLine"
+                            ></TextField>
+                        </GridLayout>
 
                         <!-- or edit password -->
-                        <GridLayout rows="auto" columns="*,42" v-if="editingPassword" class="input">
-                            <TextField
+                        <GridLayout rows="auto,auto" columns="*,42" :opacity="editingPassword ? 1 : 0" :class="'input ' + lineStatus">
+                            <Label
                                 row="0"
+                                col="0"
+                                horizontalAlignment="left"
+                                id="hidden-password-instruction"
+                                :text="step.hint"
+                                class="size-12"
+                                :visibility="typing ? 'visible' : 'collapsed'"
+                            />
+                            <TextField
+                                row="1"
                                 col="0"
                                 class="size-18 no-border-input"
                                 :hint="step.hint"
                                 :secure="hidePassword"
                                 ref="password"
                                 v-model="newNetwork.password"
+                                @focus="activateLine"
+                                @textChange="showPasswordInstruction"
+                                @blur="deactivateLine"
                             ></TextField>
                             <Label
-                                row="0"
+                                row="1"
                                 col="1"
                                 :text="passwordVisibility"
                                 class="size-16"
@@ -88,7 +113,7 @@
                         ></Label>
 
                         <!-- known wifi networks -->
-                        <WrapLayout orientation="horizontal" v-if="showNetworks" class="networks-container">
+                        <WrapLayout orientation="horizontal" :opacity="showNetworks ? 1 : 0" class="networks-container">
                             <Label text="Saved WiFi Networks" class="title" width="100%"></Label>
                             <Label text="No saved networks" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
                             <!-- wifi radio buttons -->
@@ -129,6 +154,7 @@
 </template>
 
 <script>
+import { AnimationCurve } from "tns-core-modules/ui/enums";
 import routes from "../../routes";
 import { _T } from "../../utilities";
 import Services from "../../services/services";
@@ -158,12 +184,16 @@ export default {
             editingName: false,
             editingSsid: false,
             editingPassword: false,
+            typing: false,
+            lineStatus: "inactive-line",
         };
     },
     components: {},
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
+            this.hiddenSsidInstruction = this.page.getViewById("hidden-ssid-instruction");
+            this.hiddenPasswordInstruction = this.page.getViewById("hidden-password-instruction");
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
@@ -186,6 +216,43 @@ export default {
                     });
                 }
             }
+        },
+        activateLine() {
+            this.lineStatus = "active-line";
+        },
+
+        deactivateLine() {
+            this.typing = false;
+            this.lineStatus = "inactive-line";
+        },
+
+        showSsidInstruction() {
+            if (!this.typing && this.newNetwork.ssid) {
+                this.animateText(this.hiddenSsidInstruction);
+            } else if (!this.newNetwork.ssid) {
+                this.typing = false;
+            }
+        },
+
+        showPasswordInstruction() {
+            if (!this.typing && this.newNetwork.password) {
+                this.animateText(this.hiddenPasswordInstruction);
+            } else if (!this.newNetwork.password) {
+                this.typing = false;
+            }
+        },
+
+        animateText(element) {
+            element.opacity = 0;
+            element.translateX = 5;
+            element.translateY = 20;
+            this.typing = true;
+            element.animate({
+                opacity: 0.75,
+                translate: { x: 0, y: 0 },
+                duration: 300,
+                curve: AnimationCurve.easeIn,
+            });
         },
 
         checkName() {
@@ -233,6 +300,9 @@ export default {
             this.editingSsid = false;
             this.editingPassword = true;
             this.label = this.newNetwork.ssid;
+            if (this.newNetwork.password) {
+                this.activateLine();
+            }
         },
 
         addNetwork() {
@@ -272,6 +342,7 @@ export default {
                 n.selected = false;
                 if (n.ssid == radioOption.ssid) {
                     n.selected = true;
+                    this.lineStatus = "active-line";
                     this.newNetwork.ssid = n.ssid;
                     this.newNetwork.password = n.password;
                 }
@@ -284,6 +355,7 @@ export default {
         },
 
         goNext() {
+            this.deactivateLine();
             if (this.step.field == "stationName") {
                 this.saveStationName();
             }
@@ -362,7 +434,7 @@ const steps = {
         prev: "ssid",
         next: "testConnection",
         title: "Your WiFi Network",
-        instructions: ["Enter network password"],
+        instructions: [],
         button: "Next",
         images: [],
         label: "",
@@ -411,7 +483,6 @@ const steps = {
     margin-left: 20;
     margin-right: 20;
     border-bottom-width: 1px;
-    text-align: center;
 }
 .validation-error {
     width: 100%;
@@ -438,5 +509,18 @@ const steps = {
     margin-bottom: 10;
     margin-right: 30;
     margin-left: 30;
+}
+#hidden-password-instruction,
+#hidden-ssid-instruction {
+    margin-bottom: 4;
+    color: $fk-gray-hint;
+}
+.inactive-line {
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
+}
+.active-line {
+    border-bottom-color: $fk-secondary-blue;
+    border-bottom-width: 2;
 }
 </style>
