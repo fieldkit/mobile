@@ -59,7 +59,11 @@ ios-release: setup
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
 	npm install
-	cd $(APP) && tns platform clean ios || true
+	if [ -d $(APP)/platforms/ios ]; then                \
+		cd $(APP) && tns platform clean ios || true    ;\
+	else                                                \
+		cd $(APP) && tns platform add ios || true      ;\
+	fi
 	cd $(APP) && tns build ios --provision || true
 	cd $(APP) && tns build ios --team-id || true
 	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device
