@@ -38,26 +38,30 @@ export default {
     methods: {
         update(progress) {
             this.progress = progress;
-            console.log("progress", progress.message);
+            console.log("diagnostics", progress.id, progress.message);
         },
         onLoaded() {
+            console.log("diagnostics loaded");
+
             Services.Diagnostics()
                 .upload(progress => {
                     this.update(progress);
                 })
                 .then(
                     res => {
+                        console.log("diagnostics done");
                         this.done = true;
                         this.phrase = res.reference.phrase;
                     },
                     e => {
+                        console.log("diagnostics done");
                         this.done = true;
                         this.error = true;
                     }
                 );
         },
         onUnloaded() {
-            console.log("onUnloaded");
+            console.log("diagnostics unloaded");
         },
         close() {
             console.log("Close");
