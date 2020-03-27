@@ -9,52 +9,57 @@ const logs = [];
 const originalConsole = console;
 
 function getPrettyTime() {
-	return moment().format();
+    return moment().format();
 }
 
 function getLogsFile() {
-	return knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
+    return knownFolders
+        .documents()
+        .getFolder("diagnostics")
+        .getFile("logs.txt");
 }
 
 function flush() {
-	const appending = _(logs).
-		  map(log => {
-			  return _(log).join(" ") + "\n";
-		  }).
-		  join("");
+    const appending = _(logs)
+        .map(log => {
+            return _(log).join(" ") + "\n";
+        })
+        .join("");
 
-	logs.length = 0; // Empty logs.
+    logs.length = 0; // Empty logs.
 
-	return new Promise((resolve, reject) => {
-		const file = getLogsFile();
-		const existing = file.readTextSync() || "";
-		const replacing = existing + appending + "\n";
+    return new Promise((resolve, reject) => {
+        const file = getLogsFile();
+        const existing = file.readTextSync() || "";
+        const replacing = existing + appending + "\n";
 
-		file.writeTextSync(replacing, (err) => {
-			if (err) {
-				reject(err)
-			}
-		});
+        file.writeTextSync(replacing, err => {
+            if (err) {
+                reject(err);
+            }
+        });
 
-		resolve()
-	});
+        resolve();
+    });
 }
 
 export function copyLogs(where) {
-	return new Promise((resolve, reject) => {
-		const file = getLogsFile();
-		const existing = file.readTextSync();
+    return flush().then(() => {
+        return new Promise((resolve, reject) => {
+            const file = getLogsFile();
+            const existing = file.readTextSync();
 
-		where.writeTextSync(existing, (err) => {
-			if (err) {
-				reject(err)
-			}
-		});
+            where.writeTextSync(existing, err => {
+                if (err) {
+                    reject(err);
+                }
+            });
 
-		originalConsole.info("copied", existing.length, where.path)
+            originalConsole.info("copied", existing.length, where.path);
 
-		resolve()
-	});
+            resolve();
+        });
+    });
 }
 
 export function initializeLogging(info) {
@@ -74,8 +79,8 @@ export function initializeLogging(info) {
         console[method] = function() {
             try {
                 const args = Array.prototype.slice.apply(arguments);
-				const time = getPrettyTime();
-                const parts = [ time ];
+                const time = getPrettyTime();
+                const parts = [time];
                 for (let i = 0; i < args.length; i++) {
                     const arg = args[i];
                     if (typeof arg === "string") {
@@ -85,7 +90,7 @@ export function initializeLogging(info) {
                     }
                 }
                 logs.push(parts);
-				args.unshift(time);
+                args.unshift(time);
                 if (original.apply) {
                     original.apply(console, args);
                 } else {
@@ -104,5 +109,5 @@ export function initializeLogging(info) {
 
     setInterval(flush, SaveInterval);
 
-	return Promise.resolve();
+    return Promise.resolve();
 }

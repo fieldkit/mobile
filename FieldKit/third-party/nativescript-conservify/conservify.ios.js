@@ -254,12 +254,10 @@ var Conservify = (function (_super) {
         var transfer = WebTransfer.alloc().init();
         transfer.method = info.method;
         transfer.url = info.url;
+        transfer.body = info.body;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
-        }
-        if (info.body) {
-            transfer.body = info.body;
         }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {
@@ -280,9 +278,6 @@ var Conservify = (function (_super) {
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
-        }
-        if (info.body) {
-            transfer.body = info.body;
         }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {

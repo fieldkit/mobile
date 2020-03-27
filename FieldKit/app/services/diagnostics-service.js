@@ -54,7 +54,8 @@ export default class Diagnostics {
             })
             .then(reference => {
                 return this._uploadArchived().then(() => {
-                    progress({ id: id, message: "Done!", id });
+                    progress({ id: id, message: "Done!" });
+                    console.log("diagnostics", JSON.parse(reference));
                     return {
                         reference: JSON.parse(reference),
                         id: id,
