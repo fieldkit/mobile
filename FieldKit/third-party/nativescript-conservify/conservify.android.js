@@ -98,95 +98,125 @@ var Conservify = (function (_super) {
         this.uploadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
                 owner.logger("upload:onProgress", taskId, bytes, total);
-                var info = active[taskId].info;
-                var progress = info.progress;
-                if (progress) {
-                    progress(total, bytes, info);
+                if (active[taskId]) {
+                    var info = active[taskId].info;
+                    var progress = info.progress;
+                    if (progress) {
+                        progress(total, bytes, info);
+                    }
+                }
+                else {
+                    this.logger("upload:onProgress orphaned", taskId, bytes, total);
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
                 var jsHeaders = toJsHeaders(headers);
                 owner.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
-                var info = task.info, transfer = task.transfer;
-                function getBody() {
-                    if (body) {
-                        if (contentType.indexOf("application/json") >= 0) {
-                            return JSON.parse(body);
-                        }
-                        else {
-                            if (transfer.isBase64EncodeResponseBody()) {
-                                return Buffer.from(body, "base64");
+                if (task) {
+                    var info = task.info, transfer_1 = task.transfer;
+                    function getBody() {
+                        if (body) {
+                            if (contentType.indexOf("application/json") >= 0) {
+                                return JSON.parse(body);
                             }
-                            return body;
+                            else {
+                                if (transfer_1.isBase64EncodeResponseBody()) {
+                                    return Buffer.from(body, "base64");
+                                }
+                                return body;
+                            }
                         }
+                        return null;
                     }
-                    return null;
+                    delete active[taskId];
+                    task.resolve({
+                        info: info,
+                        headers: jsHeaders,
+                        statusCode: statusCode,
+                        body: getBody(),
+                    });
                 }
-                delete active[taskId];
-                task.resolve({
-                    info: info,
-                    headers: jsHeaders,
-                    statusCode: statusCode,
-                    body: getBody(),
-                });
+                else {
+                    owner.logger("upload:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+                }
             },
             onError: function (taskId, message) {
                 owner.logger("upload:onError", taskId, message);
                 var task = active[taskId];
-                var info = task.info;
-                delete active[taskId];
-                task.reject({
-                    info: info,
-                    message: message,
-                });
+                if (task) {
+                    var info = task.info;
+                    delete active[taskId];
+                    task.reject({
+                        info: info,
+                        message: message,
+                    });
+                }
+                else {
+                    owner.logger("upload:onError (orphaned)", taskId, message);
+                }
             },
         });
         this.downloadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
                 owner.logger("download:onProgress", taskId, bytes, total);
-                var info = active[taskId].info;
-                var progress = info.progress;
-                if (progress) {
-                    progress(total, bytes, info);
+                if (active[taskId]) {
+                    var info = active[taskId].info;
+                    var progress = info.progress;
+                    if (progress) {
+                        progress(total, bytes, info);
+                    }
+                }
+                else {
+                    owner.logger("download:onProgress (orphaned)", taskId, bytes, total);
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
                 var jsHeaders = toJsHeaders(headers);
                 owner.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
-                var info = task.info, transfer = task.transfer;
-                function getBody() {
-                    if (body) {
-                        if (contentType.indexOf("application/json") >= 0) {
-                            return JSON.parse(body);
-                        }
-                        else {
-                            if (transfer.isBase64EncodeResponseBody()) {
-                                return Buffer.from(body, "base64");
+                if (task) {
+                    var info = task.info, transfer_2 = task.transfer;
+                    function getBody() {
+                        if (body) {
+                            if (contentType.indexOf("application/json") >= 0) {
+                                return JSON.parse(body);
                             }
-                            return body;
+                            else {
+                                if (transfer_2.isBase64EncodeResponseBody()) {
+                                    return Buffer.from(body, "base64");
+                                }
+                                return body;
+                            }
                         }
+                        return null;
                     }
-                    return null;
+                    delete active[taskId];
+                    task.resolve({
+                        info: info,
+                        headers: jsHeaders,
+                        statusCode: statusCode,
+                        body: getBody(),
+                    });
                 }
-                delete active[taskId];
-                task.resolve({
-                    info: info,
-                    headers: jsHeaders,
-                    statusCode: statusCode,
-                    body: getBody(),
-                });
+                else {
+                    owner.logger("download:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+                }
             },
             onError: function (taskId, message) {
                 owner.logger("download:onError", taskId, message);
                 var task = active[taskId];
-                var info = task.info;
-                delete active[taskId];
-                task.reject({
-                    info: info,
-                    message: message,
-                });
+                if (task) {
+                    var info = task.info;
+                    delete active[taskId];
+                    task.reject({
+                        info: info,
+                        message: message,
+                    });
+                }
+                else {
+                    owner.logger("download:onError (orphaned)", taskId, message);
+                }
             },
         });
         this.dataListener = new org.conservify.data.DataListener({

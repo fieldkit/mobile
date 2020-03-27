@@ -135,6 +135,15 @@ export default class UploadManager {
     _upload(deviceId, deviceName, headers, filePath, operation) {
         log.info("uploading", filePath, headers);
 
+        const local = this.services.FileSystem().getFile(filePath);
+
+        if (!local.exists || local.size == 0) {
+            log.info("skipping", local.exists, local.size);
+            return Promise.resolve();
+        }
+
+        log.info("local", local.exists, local.size);
+
         const defaultHeaders = {
             "Content-Type": "application/octet-stream",
             Authorization: this.portalInterface.getCurrentToken(),

@@ -113,6 +113,18 @@ export default class QueryStation {
         });
     }
 
+    setStationUploadSchedule(station) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            schedules: { modifying: true, network: { duration: station.uploadSchedule } },
+            time: unixNow(),
+        });
+
+        return this.stationQuery(station.url, message).then(reply => {
+            return this._fixupStatus(reply);
+        });
+    }
+
     sendNetworkSettings(address, networks) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,

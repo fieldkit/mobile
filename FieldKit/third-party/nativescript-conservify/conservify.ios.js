@@ -77,48 +77,64 @@ var UploadListener = (function (_super) {
     };
     UploadListener.prototype.onProgressWithTaskIdHeadersBytesTotal = function (taskId, headers, bytes, total) {
         this.logger("upload:onProgress", taskId, bytes, total);
-        var info = this.tasks.getTask(taskId).info;
-        var progress = info.progress;
-        if (progress) {
-            progress(bytes, total, info);
+        var task = this.tasks.getTask(taskId);
+        if (task) {
+            var info = task.info;
+            var progress = info.progress;
+            if (progress) {
+                progress(bytes, total, info);
+            }
+        }
+        else {
+            this.logger("upload:onProgress (orphaned)", taskId, bytes, total);
         }
     };
     UploadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
         var jsHeaders = toJsHeaders(headers);
         this.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
-        var info = task.info, transfer = task.transfer;
-        this.tasks.removeTask(taskId);
-        function getBody() {
-            if (body) {
-                if (contentType.indexOf("application/json") >= 0) {
-                    return JSON.parse(body);
-                }
-                else {
-                    if (transfer.base64EncodeResponseBody) {
-                        return Buffer.from(body, "base64");
+        if (task) {
+            var info = task.info, transfer_1 = task.transfer;
+            this.tasks.removeTask(taskId);
+            function getBody() {
+                if (body) {
+                    if (contentType.indexOf("application/json") >= 0) {
+                        return JSON.parse(body);
                     }
-                    return body;
+                    else {
+                        if (transfer_1.base64EncodeResponseBody) {
+                            return Buffer.from(body, "base64");
+                        }
+                        return body;
+                    }
                 }
+                return null;
             }
-            return null;
+            task.resolve({
+                info: info,
+                headers: jsHeaders,
+                statusCode: statusCode,
+                body: getBody(),
+            });
         }
-        task.resolve({
-            info: info,
-            headers: jsHeaders,
-            statusCode: statusCode,
-            body: getBody(),
-        });
+        else {
+            this.logger("upload:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+        }
     };
     UploadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
         this.logger("upload:onError", taskId);
         var task = this.tasks.getTask(taskId);
-        var info = task.info;
-        this.tasks.removeTask(taskId, message);
-        task.reject({
-            info: info,
-            message: message,
-        });
+        if (task) {
+            var info = task.info;
+            this.tasks.removeTask(taskId, message);
+            task.reject({
+                info: info,
+                message: message,
+            });
+        }
+        else {
+            this.logger("upload:onError (orphaned)", taskId);
+        }
     };
     UploadListener.ObjCProtocols = [WebTransferListener];
     return UploadListener;
@@ -138,48 +154,64 @@ var DownloadListener = (function (_super) {
     };
     DownloadListener.prototype.onProgressWithTaskIdHeadersBytesTotal = function (taskId, headers, bytes, total) {
         this.logger("download:onProgress", taskId, bytes, total);
-        var info = this.tasks.getTask(taskId).info;
-        var progress = info.progress;
-        if (progress) {
-            progress(bytes, total);
+        var task = this.tasks.getTask(taskId);
+        if (task) {
+            var info = task.info;
+            var progress = info.progress;
+            if (progress) {
+                progress(bytes, total);
+            }
+        }
+        else {
+            this.logger("download:onProgress (orphaned)", taskId, bytes, total);
         }
     };
     DownloadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
         var jsHeaders = toJsHeaders(headers);
         this.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
-        var info = task.info, transfer = task.transfer;
-        this.tasks.removeTask(taskId);
-        function getBody() {
-            if (body) {
-                if (contentType.indexOf("application/json") >= 0) {
-                    return JSON.parse(body);
-                }
-                else {
-                    if (transfer.base64EncodeResponseBody) {
-                        return Buffer.from(body, "base64");
+        if (task) {
+            var info = task.info, transfer_2 = task.transfer;
+            this.tasks.removeTask(taskId);
+            function getBody() {
+                if (body) {
+                    if (contentType.indexOf("application/json") >= 0) {
+                        return JSON.parse(body);
                     }
-                    return body;
+                    else {
+                        if (transfer_2.base64EncodeResponseBody) {
+                            return Buffer.from(body, "base64");
+                        }
+                        return body;
+                    }
                 }
+                return null;
             }
-            return null;
+            task.resolve({
+                info: info,
+                headers: jsHeaders,
+                statusCode: statusCode,
+                body: getBody(),
+            });
         }
-        task.resolve({
-            info: info,
-            headers: jsHeaders,
-            statusCode: statusCode,
-            body: getBody(),
-        });
+        else {
+            this.logger("download:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
+        }
     };
     DownloadListener.prototype.onErrorWithTaskIdMessage = function (taskId, message) {
         this.logger("download:onError", taskId, message);
         var task = this.tasks.getTask(taskId);
-        var info = task.info;
-        this.tasks.removeTask(taskId);
-        task.reject({
-            info: info,
-            message: message,
-        });
+        if (task) {
+            var info = task.info;
+            this.tasks.removeTask(taskId);
+            task.reject({
+                info: info,
+                message: message,
+            });
+        }
+        else {
+            this.logger("download:onError (orphaned)", taskId, message);
+        }
     };
     DownloadListener.ObjCProtocols = [WebTransferListener];
     return DownloadListener;
@@ -222,12 +254,10 @@ var Conservify = (function (_super) {
         var transfer = WebTransfer.alloc().init();
         transfer.method = info.method;
         transfer.url = info.url;
+        transfer.body = info.body;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
-        }
-        if (info.body) {
-            transfer.body = info.body;
         }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {
@@ -248,9 +278,6 @@ var Conservify = (function (_super) {
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
-        }
-        if (info.body) {
-            transfer.body = info.body;
         }
         return new Promise(function (resolve, reject) {
             _this.active[transfer.id] = {

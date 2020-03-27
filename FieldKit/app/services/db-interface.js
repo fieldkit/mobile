@@ -51,6 +51,9 @@ export default class DatabaseInterface {
             .then(db => db.query("SELECT * FROM stations"))
             .then(rows => {
                 return sqliteToJs(rows);
+            })
+            .catch(e => {
+                console.log("Error fetching stations", e);
             });
     }
 
@@ -356,7 +359,6 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db => {
                 return this._getModulePrimaryKey(sensor.moduleId).then(modulePrimaryKey => {
-                    console.log("MODULE_ID", modulePrimaryKey, sensor);
                     return db.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
                         modulePrimaryKey,
                         sensor.name,
@@ -449,6 +451,12 @@ export default class DatabaseInterface {
 
     insertDownload(download) {
         return this.insertDownloads([download]);
+    }
+
+    getAllFirmware() {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM firmware ORDER BY time DESC"))
+            .then(rows => sqliteToJs(rows));
     }
 
     getLatestFirmware() {

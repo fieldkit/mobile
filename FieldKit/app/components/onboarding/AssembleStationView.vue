@@ -94,6 +94,7 @@
 
 <script>
 import routes from "../../routes";
+import AppSettings from "../../wrappers/app-settings";
 
 export default {
     props: ["stepParam"],
@@ -114,6 +115,7 @@ export default {
     components: {},
     methods: {
         onPageLoaded() {
+            this._appSettings = new AppSettings();
             if (this.stepParam) {
                 this.step = this.stepParam == "last" ? this.lastStep - 2 : this.stepParam == "first" ? 0 : this.stepParam;
                 this.goNext();
@@ -164,6 +166,12 @@ export default {
         },
 
         skip() {
+            let skipCount = this._appSettings.getNumber("skipCount");
+            if (!skipCount) {
+                skipCount = 0;
+            }
+            skipCount += 1;
+            this._appSettings.setNumber("skipCount", skipCount);
             this.$navigateTo(routes.stations);
         },
 

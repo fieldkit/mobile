@@ -32,7 +32,6 @@
                 </StackLayout>
                 <Button class="btn btn-primary btn-padded" text="Reset Calibration" @tap="resetCalibration"></Button>
                 <Button class="btn btn-primary btn-padded" text="Reset Onboarding" @tap="resetOnboarding"></Button>
-                <Button class="btn btn-primary btn-padded" text="Save Diagnostics" @tap="saveDiagnostics"></Button>
                 <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
                 <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
                 <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
@@ -168,6 +167,7 @@ export default {
         },
         resetOnboarding() {
             appSettings.remove("completedSetup");
+            appSettings.remove("skipCount");
             dialogs
                 .confirm({
                     title: "Reset complete! Would you like to go to Onboarding?",
@@ -180,27 +180,6 @@ export default {
                         this.$navigateTo(routes.assembleStation);
                     }
                 });
-        },
-        saveDiagnostics() {
-            Services.Diagnostics()
-                .save()
-                .then(
-                    res => {
-                        alert({
-                            title: "Diagnostics",
-                            message: "Saved!",
-                            okButtonText: "OK",
-                        });
-                    },
-                    e => {
-                        console.log("error", e);
-                        alert({
-                            title: "Diagnostics",
-                            message: "Save Failed:\n" + e,
-                            okButtonText: "OK",
-                        });
-                    }
-                );
         },
         uploadDiagnostics() {
             this.$showModal(DiagnosticsModal, {

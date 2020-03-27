@@ -4,7 +4,7 @@ import * as platform from "tns-core-modules/platform";
 import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
 import { serializePromiseChain, getPathTimestamp } from "../utilities";
-import { listAllFiles } from "../lib/fs";
+import { listAllFiles, dumpAllFiles } from "../lib/fs";
 import Config, { Build } from "../config";
 
 function uuidv4() {
@@ -24,28 +24,38 @@ export default class Diagnostics {
     upload(progress) {
         const id = uuidv4();
 
-        progress({ message: "Starting..." });
+        console.log("upload diagnostics", id);
 
-        return this._uploadDeviceInformation(id)
+        progress({ id: id, message: "Starting..." });
+
+        return Promise.resolve(true)
             .then(() => {
-                progress({ message: "Querying stations." });
+                return dumpAllFiles();
+            })
+            .then(() => {
+                progress({ id: id, message: "Uploading device information." });
+                return this._uploadDeviceInformation(id);
+            })
+            .then(() => {
+                progress({ id: id, message: "Querying stations." });
                 return this._queryLogs();
             })
             .then(allLogs => {
-                progress({ message: "Uploading station logs." });
+                progress({ id: id, message: "Uploading station logs." });
                 return this._uploadAllLogs(id, allLogs);
             })
             .then(() => {
-                progress({ message: "Uploading app logs." });
+                progress({ id: id, message: "Uploading app logs." });
                 return this._uploadAppLogs(id);
             })
             .then(() => {
-                progress({ message: "Uploading database." });
+                progress({ id: id, message: "Uploading database." });
                 return this._uploadDatabase(id);
             })
             .then(reference => {
                 return this._uploadArchived().then(() => {
-                    progress({ message: "Done!", id });
+                    progress({ id: id, message: "Done!" });
+                    console.log("diagnostics", JSON.parse(reference));
                     return {
                         reference: JSON.parse(reference),
                         id: id,
@@ -74,6 +84,8 @@ export default class Diagnostics {
             config: Config,
             build: Build,
         };
+
+        console.log("device info", info);
 
         return this.services.Conservify().text({
             method: "POST",

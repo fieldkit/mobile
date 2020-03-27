@@ -1,14 +1,16 @@
-import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
+import { Folder, path, File, knownFolders, path as FilePaths } from "tns-core-modules/file-system";
 
 class FileWrapper {
-    constructor(f) {
-        this.f = f;
-        this.path = f.path;
-        this.size = f.size;
-    }
-
-    exists() {
-        return File.exists(this.f.path);
+    constructor(path) {
+        this.path = path;
+        this.exists = File.exists(this.path);
+        if (this.exists) {
+            this.f = File.fromPath(this.path);
+            this.size = this.f.size;
+        } else {
+            this.f = null;
+            this.size = 0;
+        }
     }
 
     remove() {
@@ -22,8 +24,8 @@ class FolderWrapper {
         this.path = f.path;
     }
 
-    getFile(path) {
-        return new FileWrapper(this.f.getFile(path));
+    getFile(relative) {
+        return new FileWrapper(FilePaths.join(this.path, relative));
     }
 }
 
@@ -35,6 +37,6 @@ export default class FileSystemNativeScript {
     }
 
     getFile(path) {
-        return new FileWrapper(File.fromPath(path));
+        return new FileWrapper(path);
     }
 }

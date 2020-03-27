@@ -1,8 +1,7 @@
-import { getString, setString, remove } from "tns-core-modules/application-settings";
+import { getString, setString, getNumber, setNumber, remove } from "tns-core-modules/application-settings";
 
 export default class AppSettingsNativeScript {
-    constructor() {
-    }
+    constructor() {}
 
     getString(string) {
         return getString(string);
@@ -10,6 +9,14 @@ export default class AppSettingsNativeScript {
 
     setString(stringKey, stringValue) {
         return setString(stringKey, stringValue);
+    }
+
+    getNumber(numKey) {
+        return getNumber(numKey);
+    }
+
+    setNumber(numKey, numValue) {
+        return setNumber(numKey, numValue);
     }
 
     remove(string) {

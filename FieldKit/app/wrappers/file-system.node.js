@@ -3,10 +3,7 @@ class File {
         this.fs = fs;
         this.path = path;
         this.size = 100;
-    }
-
-    exists() {
-        return false;
+        this.exists = false;
     }
 
     remove() {

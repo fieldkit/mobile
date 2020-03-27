@@ -46,7 +46,7 @@ export default class StationUpgrade {
                     return this.services.Database().addOrUpdateFirmware(firmware);
                 }).then(() => {
                     const local = this.services.FileSystem().getFile(firmwares[0].path);
-                    if (!local.exists() || local.size == 0 || force === true) {
+                    if (!local.exists || local.size == 0 || force === true) {
                         log.info("downloading", firmwares[0]);
 
                         const downloadProgress = transformProgress(progressCallback, p => p);
@@ -61,9 +61,32 @@ export default class StationUpgrade {
                                 return firmwares[0];
                             });
                     }
+
                     log.info("already have", firmwares[0]);
-                    return firmwares[0];
+
+                    return this._deleteOldFirmware().then(() => {
+                        return firmwares[0];
+                    });
                 });
+            });
+    }
+
+    _deleteOldFirmware() {
+        return this.services
+            .Database()
+            .getAllFirmware()
+            .then(firmware => {
+                return _(firmware)
+                    .tail()
+                    .map(fw => {
+                        const local = this.services.FileSystem().getFile(fw.path);
+                        if (local.exists) {
+                            log.info("removing", fw.path, local.exists, local.size);
+                            return local.remove();
+                        }
+                        return false;
+                    })
+                    .value();
             });
     }
 
@@ -104,7 +127,7 @@ export default class StationUpgrade {
                 }
 
                 const local = this.services.FileSystem().getFile(firmware.path);
-                if (!local.exists() || local.size == 0) {
+                if (!local.exists || local.size == 0) {
                     return false;
                 }
                 return true;
