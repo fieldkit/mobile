@@ -896,9 +896,6 @@ const calibrations = {
     color: $fk-primary-blue;
 }
 
-.page {
-    color: $fk-primary-black;
-}
 .top-line-bkgd {
     background-color: $fk-gray-lighter;
     margin-bottom: 40;

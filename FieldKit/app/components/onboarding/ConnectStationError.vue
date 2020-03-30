@@ -153,10 +153,6 @@ const steps = {
 @import "../../app-variables";
 // End custom common variables
 // Custom styles
-.page {
-    color: $fk-primary-black;
-}
-
 .skip {
     padding-top: 10;
     padding-bottom: 10;

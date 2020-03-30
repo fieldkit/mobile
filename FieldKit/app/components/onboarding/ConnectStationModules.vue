@@ -385,9 +385,6 @@ const steps = {
 #loading-circle-blue {
     border-color: $fk-secondary-blue;
 }
-.page {
-    color: $fk-primary-black;
-}
 
 .skip {
     padding-top: 10;

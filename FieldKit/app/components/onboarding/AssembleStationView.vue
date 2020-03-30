@@ -322,9 +322,6 @@ const checklist = [
 @import "../../app-variables";
 // End custom common variables
 // Custom styles
-.page {
-    color: $fk-primary-black;
-}
 .logo {
     margin-top: 8%;
     width: 50%;

@@ -459,9 +459,6 @@ const steps = {
 @import "../../app-variables";
 // End custom common variables
 // Custom styles
-.page {
-    color: $fk-primary-black;
-}
 .networks-container {
     margin-top: 40;
     margin-left: 20;
