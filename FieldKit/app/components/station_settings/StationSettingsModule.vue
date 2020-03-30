@@ -31,7 +31,7 @@
 
 <script>
 import routes from "../../routes";
-import { getLastSeen, _T } from "../../utilities";
+import { getLastSeen, _T, convertOldFirmwareResponse } from "../../utilities";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import Modules from "./StationSettingsModuleList";
@@ -90,8 +90,10 @@ export default {
         },
 
         getModuleName(module) {
-            return _T(module.name + ".name");
+            const newName = convertOldFirmwareResponse(module);
+            return _T(newName + ".name");
         },
+
         getModuleImage(module) {
             switch (module.name) {
                 case "modules.distance":

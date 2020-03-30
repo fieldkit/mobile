@@ -84,7 +84,7 @@
 
 <script>
 import routes from "../../routes";
-import { _T } from "../../utilities";
+import { _T, convertOldFirmwareResponse } from "../../utilities";
 import Services from "../../services/services";
 import AppSettings from "../../wrappers/app-settings";
 import ConnectStationError from "./ConnectStationError";
@@ -329,7 +329,8 @@ export default {
         },
 
         getModuleName(module) {
-            return _T(module.name + ".name");
+            const newName = convertOldFirmwareResponse(module);
+            return _T(newName + ".name");
         },
     },
 };
