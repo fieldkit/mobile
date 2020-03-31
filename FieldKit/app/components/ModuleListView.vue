@@ -58,8 +58,9 @@
 </template>
 
 <script>
+import _ from "lodash";
 import routes from "../routes";
-import { getLastSeen, _T } from "../utilities";
+import { getLastSeen, _T, convertOldFirmwareResponse } from "../utilities";
 import Services from "../services/services";
 const dbInterface = Services.Database();
 
@@ -76,8 +77,8 @@ export default {
     props: ["station"],
     methods: {
         updateModules(modules) {
-            this.modules = modules.sort((a, b) => {
-                return b.position < a.position ? 1 : b.position > a.position ? -1 : 0;
+            this.modules = _.sortBy(modules, m => {
+                return m.position;
             });
             this.modules.forEach((m, i) => {
                 this.open.push(m.id);
@@ -132,11 +133,13 @@ export default {
         },
 
         getModuleName(module) {
-            return _T(module.name + ".name");
+            const newName = convertOldFirmwareResponse(module);
+            return _T(newName + ".name");
         },
 
         getSensorName(module, sensor) {
-            return _T(module.name + ".sensors." + sensor.name);
+            const newName = convertOldFirmwareResponse(module);
+            return _T(newName + ".sensors." + sensor.name);
         },
 
         getModuleImage(module) {

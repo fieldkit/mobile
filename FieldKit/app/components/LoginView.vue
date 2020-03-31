@@ -1,7 +1,7 @@
 <template>
     <Page actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <FlexboxLayout class="page" justifyContent="space-between">
+            <FlexboxLayout class="page login-page" justifyContent="space-between">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
                 <StackLayout class="form">
                     <GridLayout rows="auto, auto, auto, auto">
@@ -382,8 +382,7 @@ export default {
 @import "../app-variables";
 // End custom common variables
 
-.page {
-    color: $fk-primary-black;
+.login-page {
     font-size: 16;
     align-items: center;
     flex-direction: column;

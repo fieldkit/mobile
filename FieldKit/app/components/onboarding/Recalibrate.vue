@@ -77,7 +77,7 @@
 
 <script>
 import routes from "../../routes";
-import { _T } from "../../utilities";
+import { _T, convertOldFirmwareResponse } from "../../utilities";
 import Services from "../../services/services";
 import ConnectStationError from "./ConnectStationError";
 
@@ -323,7 +323,8 @@ export default {
         },
 
         getModuleName(module) {
-            return _T(module.name + ".name");
+            const newName = convertOldFirmwareResponse(module);
+            return _T(newName + ".name");
         },
     },
 };
@@ -379,10 +380,6 @@ const steps = {
 #loading-circle-blue {
     border-color: $fk-secondary-blue;
 }
-.page {
-    color: $fk-primary-black;
-}
-
 .skip {
     padding-top: 10;
     padding-bottom: 10;
