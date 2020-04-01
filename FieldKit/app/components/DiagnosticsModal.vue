@@ -7,7 +7,7 @@
                 <Label text="Success! Please include this phrase in your bug report:" textWrap="true" v-if="phrase" />
                 <Label :text="phrase" textWrap="true" class="phrase" v-if="phrase" />
 
-                <Button @tap="close" v-if="done">OK</Button>
+                <Button @tap="close" v-if="done" class="btn btn-primary btn-padded">OK</Button>
             </StackLayout>
         </GridLayout>
     </Page>
