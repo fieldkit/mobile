@@ -17,7 +17,7 @@
                                 autocapitalizationType="none"
                                 v-model="user.name"
                                 returnKeyType="next"
-                                @returnPress="focusPassword"
+                                @returnPress="focusEmail"
                                 @focus="showActive"
                                 @blur="checkName"
                             ></TextField>
@@ -50,6 +50,7 @@
                                     id="email-field"
                                     class="input"
                                     :hint="_L('email')"
+                                    ref="email"
                                     horizontalAlignment="left"
                                     :isEnabled="!processing"
                                     keyboardType="email"
@@ -357,6 +358,9 @@ export default {
             });
         },
 
+        focusEmail() {
+            this.$refs.email.nativeView.focus();
+        },
         focusPassword() {
             this.$refs.password.nativeView.focus();
         },
