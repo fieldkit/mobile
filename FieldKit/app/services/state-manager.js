@@ -9,14 +9,14 @@ import Config from "../config";
 const log = Config.logger("StateManager");
 
 export default class StateManager extends BetterObservable {
-    constructor(databaseInterface, queryStation, stationMonitor, portalInterface, progressService) {
+    constructor(services) {
         super();
-        this.databaseInterface = databaseInterface;
-        this.queryStation = queryStation;
-        this.stationMonitor = stationMonitor;
-        this.portalInterface = portalInterface;
-        this.downloadManager = new DownloadManager(databaseInterface, queryStation, stationMonitor, progressService);
-        this.uploadManager = new UploadManager(databaseInterface, portalInterface, progressService);
+        this.databaseInterface = services.Database();
+        this.queryStation = services.QueryStation();
+        this.stationMonitor = services.StationMonitor();
+        this.portalInterface = services.PortalInterface();
+        this.downloadManager = new DownloadManager(services);
+        this.uploadManager = new UploadManager(services);
         this.stationMonitor.on(Observable.propertyChangeEvent, data => {
             switch (data.propertyName.toString()) {
                 case this.stationMonitor.StationRefreshedProperty: {

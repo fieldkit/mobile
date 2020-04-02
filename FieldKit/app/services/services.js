@@ -60,13 +60,7 @@ export class Services {
     StateManager() {
         if (!this.stateManager) {
             const StateManager = require("./state-manager").default;
-            this.stateManager = new StateManager(
-                this.Database(),
-                this.QueryStation(),
-                this.StationMonitor(),
-                this.PortalInterface(),
-                this.ProgressService()
-            );
+            this.stateManager = new StateManager(this);
         }
         return this.stateManager;
     }

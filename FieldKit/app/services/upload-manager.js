@@ -8,10 +8,11 @@ import { Mutex } from "./mutexes";
 const log = Config.logger("UploadManager");
 
 export default class UploadManager {
-    constructor(databaseInterface, portalInterface, progressService) {
-        this.databaseInterface = databaseInterface;
-        this.portalInterface = portalInterface;
-        this.progressService = progressService;
+    constructor(services) {
+        this.databaseInterface = services.Database();
+        this.portalInterface = services.PortalInterface();
+        this.progressService = services.ProgressService();
+        this.fileSystem = services.FileSystem();
         this._mutex = new Mutex();
     }
 
@@ -135,7 +136,7 @@ export default class UploadManager {
     _upload(deviceId, deviceName, headers, filePath, operation) {
         log.info("uploading", filePath, headers);
 
-        const local = this.services.FileSystem().getFile(filePath);
+        const local = this.fileSystem.getFile(filePath);
 
         if (!local.exists || local.size == 0) {
             log.info("skipping", local.exists, local.size);

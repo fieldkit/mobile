@@ -23,11 +23,11 @@ class DownloadStatus {
 }
 
 export default class DownloadManager {
-    constructor(databaseInterface, queryStation, stationMonitor, progressService) {
-        this.databaseInterface = databaseInterface;
-        this.queryStation = queryStation;
-        this.stationMonitor = stationMonitor;
-        this.progressService = progressService;
+    constructor(services) {
+        this.databaseInterface = services.Database();
+        this.queryStation = services.QueryStation();
+        this.stationMonitor = services.StationMonitor();
+        this.progressService = services.ProgressService();
         this._mutex = new Mutex();
     }
 
