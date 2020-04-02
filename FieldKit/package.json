@@ -40,7 +40,7 @@
         "nativescript-toasty": "^2.0.1",
         "nativescript-ui-chart": "5.0.0",
         "nativescript-ui-gauge": "^5.0.0",
-        "nativescript-vue": "2.3.0",
+        "nativescript-vue": "^2.5.0",
         "nativescript-vue-devtools": "^1.2.0",
         "protobufjs": "^6.8.8",
         "tns-core-modules": "^6.5.0",
