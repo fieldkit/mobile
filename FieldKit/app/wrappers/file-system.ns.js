@@ -14,7 +14,10 @@ class FileWrapper {
     }
 
     remove() {
-        return Promise.resolve(this.f.remove());
+        if (this.f) {
+            return Promise.resolve(this.f.remove());
+        }
+        return Promise.resolve();
     }
 }
 

@@ -86,7 +86,11 @@ export function initializeLogging(info) {
                     if (typeof arg === "string") {
                         parts.push(arg.trim());
                     } else {
-                        parts.push(JSON.stringify(arg));
+                        try {
+                            parts.push(JSON.stringify(arg));
+                        } catch (e) {
+                            originalConsole.log("[logging error]", e);
+                        }
                     }
                 }
                 logs.push(parts);
