@@ -80,7 +80,7 @@ export default class StationUpgrade {
                     .tail()
                     .map(fw => {
                         const local = this.services.FileSystem().getFile(fw.path);
-                        if (local.exists) {
+                        if (local && local.exists) {
                             log.info("removing", fw.path, local.exists, local.size);
                             return local.remove();
                         }

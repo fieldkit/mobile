@@ -20,7 +20,6 @@ export default class StateManager extends BetterObservable {
         this.stationMonitor.on(Observable.propertyChangeEvent, data => {
             switch (data.propertyName.toString()) {
                 case this.stationMonitor.StationRefreshedProperty: {
-                    log.info(this.stationMonitor.StationRefreshedProperty, data);
                     this.refresh();
                     break;
                 }

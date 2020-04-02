@@ -178,7 +178,7 @@ export default class PortalInterface {
                             .getFile(local)
                             .remove()
                             .then(() => {
-                                return Promise.reject(new Error(e.body));
+                                return Promise.reject(new Error("download failed: " + e.body));
                             });
                     }
                     return {
