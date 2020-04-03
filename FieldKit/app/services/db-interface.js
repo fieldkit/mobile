@@ -369,22 +369,26 @@ export default class DatabaseInterface {
                 });
             })
             .catch(err => {
-                console.log("ERROR", err);
+                console.log("Error inserting sensor", err);
             });
     }
 
     insertModule(module) {
         // Note: device_id is the module's unique hardware id (not the station's)
-        return this.getDatabase().then(db =>
-            db.execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
-                module.moduleId,
-                module.deviceId,
-                module.name,
-                module.interval || 0,
-                module.position,
-                module.stationId,
-            ])
-        );
+        return this.getDatabase()
+            .then(db =>
+                db.execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
+                    module.moduleId,
+                    module.deviceId,
+                    module.name,
+                    module.interval || 0,
+                    module.position,
+                    module.stationId,
+                ])
+            )
+            .catch(err => {
+                console.log("Error inserting module", err);
+            });
     }
 
     insertStation(station, statusJson) {
@@ -513,6 +517,9 @@ export default class DatabaseInterface {
                                 `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ? WHERE station_id = ? AND type = ?`,
                                 values
                             );
+                        })
+                        .catch(err => {
+                            console.log("Error inserting download for station id", download.stationId, "error:", err);
                         });
                 })
             );
@@ -647,12 +654,16 @@ export default class DatabaseInterface {
                         status.streams[index].block,
                         new Date(),
                     ];
-                    return this.getDatabase().then(db =>
-                        db.query(
-                            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                            values
+                    return this.getDatabase()
+                        .then(db =>
+                            db.query(
+                                `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                                values
+                            )
                         )
-                    );
+                        .catch(err => {
+                            console.log("Error inserting stream for station id", station.id, "device id", staton.deviceId, "error:", err);
+                        });
                 }
             });
     }
