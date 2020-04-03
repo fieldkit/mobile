@@ -17,7 +17,12 @@ export default class PortalInterface {
 
     getUri() {
         return this._dbInterface.getConfig().then(config => {
-            return config[0].baseUri;
+            if (config.length == 0) {
+                console.log("PortalInterface did not get config from db. Using config.js", Config.baseUri);
+                return Config.baseUri;
+            } else {
+                return config[0].baseUri;
+            }
         });
     }
 
