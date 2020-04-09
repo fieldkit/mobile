@@ -585,7 +585,7 @@ export default class DatabaseInterface {
 
     getStreamsByStationIds(ids) {
         return this.getDatabase()
-            .then(db => db.query(`SELECT * FROM streams WHERE station_id IN ($1)`, ids))
+            .then(db => db.query(`SELECT * FROM streams WHERE station_id IN ($1)`, [ids]))
             .then(rows => {
                 return sqliteToJs(rows);
             });
@@ -593,7 +593,7 @@ export default class DatabaseInterface {
 
     getStreamsByStationId(stationId) {
         return this.getDatabase()
-            .then(db => db.query(`SELECT * FROM streams WHERE station_id = $1`, stationId))
+            .then(db => db.query(`SELECT * FROM streams WHERE station_id = $1`, [stationId]))
             .then(rows => {
                 return sqliteToJs(rows);
             });
@@ -682,7 +682,7 @@ export default class DatabaseInterface {
 
     getStationStatusByDeviceId(deviceId) {
         return this.getDatabase()
-            .then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", deviceId))
+            .then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", [deviceId]))
             .then(rows => {
                 return JSON.parse(rows[0].status_json);
             });
@@ -690,7 +690,7 @@ export default class DatabaseInterface {
 
     getStationStatusById(id) {
         return this.getDatabase()
-            .then(db => db.query("SELECT status_json FROM stations WHERE id = ?", id))
+            .then(db => db.query("SELECT status_json FROM stations WHERE id = ?", [id]))
             .then(rows => {
                 return JSON.parse(rows[0].status_json);
             });
