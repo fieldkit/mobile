@@ -683,16 +683,16 @@ export default class DatabaseInterface {
     getStationStatusByDeviceId(deviceId) {
         return this.getDatabase()
             .then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", deviceId))
-            .then(json => {
-                return JSON.parse(json);
+            .then(rows => {
+                return JSON.parse(rows[0].status_json);
             });
     }
 
     getStationStatusById(id) {
         return this.getDatabase()
             .then(db => db.query("SELECT status_json FROM stations WHERE id = ?", id))
-            .then(json => {
-                return JSON.parse(json);
+            .then(rows => {
+                return JSON.parse(rows[0].status_json);
             });
     }
 }
