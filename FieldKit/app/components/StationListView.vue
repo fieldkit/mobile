@@ -145,11 +145,11 @@ export default {
             }
             // try using hardware's startedTime first
             try {
-                if (!station.statusReply.status.recording.startedTime) {
+                if (!station.statusJson.status.recording.startedTime) {
                     throw new Error("no startedTime");
                 }
                 // multiply by 1000 so the arg is in ms, not s
-                const start = new Date(station.statusReply.status.recording.startedTime * 1000);
+                const start = new Date(station.statusJson.status.recording.startedTime * 1000);
                 let month = start.getMonth() + 1;
                 let day = start.getDate();
                 let year = start.getFullYear();

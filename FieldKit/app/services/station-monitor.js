@@ -559,7 +559,7 @@ export default class StationMonitor extends Observable {
 
     _updateStationStatus(station, status) {
         if (status != null) {
-            station.statusReply = status;
+            station.statusJson = status;
 
             // save changes internally
             this.stations[station.deviceId] = station;
