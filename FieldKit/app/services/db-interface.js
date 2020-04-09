@@ -671,7 +671,7 @@ export default class DatabaseInterface {
     updateStationStatus(station, status) {
         return this.getDatabase()
             .then(db =>
-                db.query("UPDATE stations SET status_json = ?, updated = ? WHERE id = ?", JSON.stringify(status), new Date(), station.id)
+                db.query("UPDATE stations SET status_json = ?, updated = ? WHERE id = ?", [JSON.stringify(status), new Date(), station.id])
             )
             .then(() => {
                 return this._updateStreamFromStation(station, status, Constants.MetaStreamType, 1).then(() => {
