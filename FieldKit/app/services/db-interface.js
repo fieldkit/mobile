@@ -662,7 +662,7 @@ export default class DatabaseInterface {
                             )
                         )
                         .catch(err => {
-                            console.log("Error inserting stream for station id", station.id, "device id", staton.deviceId, "error:", err);
+                            console.log("Error inserting stream for station id", station.id, "device id", station.deviceId, "error:", err);
                         });
                 }
             });

@@ -18,6 +18,43 @@ describe("DatabaseInterface", () => {
         return expect(dbInterface.getDatabase()).resolves.toBeDefined();
     });
 
+    test("testing weird query issue", async () => {
+        const stations = await dbInterface.getAll();
+        console.log("BEFORE", stations[0]);
+        const db = await dbInterface.getDatabase();
+
+        {
+            const done = await db.query("UPDATE stations SET name = ? WHERE id = ?");
+            const after = await dbInterface.getAll();
+            console.log("AFTER", after[0]);
+        }
+
+        {
+            const done = await db.query("UPDATE stations SET name = ? WHERE id = ?", "Some Name", stations[0].id);
+            const after = await dbInterface.getAll();
+            console.log("AFTER", after[0]);
+        }
+
+        {
+            const done = await db.execute("UPDATE stations SET name = ? WHERE id = ?", "Some Name", stations[0].id);
+            const after = await dbInterface.getAll();
+            console.log("AFTER", after[0]);
+        }
+    });
+
+    test("updateStationStatus should succeed", async () => {
+        const data = await dbInterface.updateStationStatus(
+            { id: 1, deviceId: "device-id" },
+            {
+                streams: [
+                    { size: 0, block: 0, type: "meta" },
+                    { size: 0, block: 0, type: "data" },
+                ],
+                provisions: [],
+            }
+        );
+    });
+
     test("getAll should get all stations", async () => {
         const data = await dbInterface.getAll();
         expect(data.length).toEqual(5);

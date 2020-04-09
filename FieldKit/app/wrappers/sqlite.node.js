@@ -23,7 +23,7 @@ class DatabaseWrapper {
         return new Promise((resolve, reject) => {
             this.db.run(sql, params, function(err) {
                 if (err) {
-					console.log(sql, err)
+                    console.log(sql, err);
                     reject(err);
                     return;
                 }
