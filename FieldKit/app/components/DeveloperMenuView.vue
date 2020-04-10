@@ -47,6 +47,7 @@ import { knownFolders } from "tns-core-modules/file-system";
 import { BarcodeScanner } from "nativescript-barcodescanner";
 import { sendLogs } from "../lib/logging";
 import { listAllFiles } from "../lib/fs";
+import Config from "../config";
 import routes from "../routes";
 import Services from "../services/services";
 import Recalibrate from "./onboarding/Recalibrate";
@@ -89,7 +90,12 @@ export default {
             this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
 
             dbInterface.getConfig().then(result => {
-                this.config = result[0];
+                if (result.length == 0) {
+                    console.log("DeveloperMenuView did not get config from db. Using config.js", Config);
+                    this.config = Config;
+                } else {
+                    this.config = result[0];
+                }
                 const baseUri = this.config.baseUri;
                 this.currentEnv = this.environments.findIndex(env => {
                     return env.uri == baseUri;

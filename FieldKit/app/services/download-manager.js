@@ -78,7 +78,7 @@ export default class DownloadManager {
 
         return Promise.all(
             stations.map(keysToCamel).map(station => {
-                if (!station.statusReply) {
+                if (!station.statusJson) {
                     return {
                         station: station,
                         streams: {
@@ -92,8 +92,8 @@ export default class DownloadManager {
                     };
                 }
                 return this.databaseInterface.getStreamsByStationId(station.id).then(streams => {
-                    const deviceMeta = this._getStreamStatus(station.statusReply, 0, Constants.MetaStreamType);
-                    const deviceData = this._getStreamStatus(station.statusReply, 1, Constants.DataStreamType);
+                    const deviceMeta = this._getStreamStatus(station.statusJson, 0, Constants.MetaStreamType);
+                    const deviceData = this._getStreamStatus(station.statusJson, 1, Constants.DataStreamType);
                     const downloadStatus = getDownloadsStatus(streams);
                     const pendingMetaBytes = deviceMeta.size - downloadStatus.meta.size;
                     const pendingDataBytes = deviceData.size - downloadStatus.data.size;

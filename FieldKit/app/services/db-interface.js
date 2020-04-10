@@ -369,22 +369,26 @@ export default class DatabaseInterface {
                 });
             })
             .catch(err => {
-                console.log("ERROR", err);
+                console.log("Error inserting sensor", err);
             });
     }
 
     insertModule(module) {
         // Note: device_id is the module's unique hardware id (not the station's)
-        return this.getDatabase().then(db =>
-            db.execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
-                module.moduleId,
-                module.deviceId,
-                module.name,
-                module.interval || 0,
-                module.position,
-                module.stationId,
-            ])
-        );
+        return this.getDatabase()
+            .then(db =>
+                db.execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
+                    module.moduleId,
+                    module.deviceId,
+                    module.name,
+                    module.interval || 0,
+                    module.position,
+                    module.stationId,
+                ])
+            )
+            .catch(err => {
+                console.log("Error inserting module", err);
+            });
     }
 
     insertStation(station, statusJson) {
@@ -513,6 +517,9 @@ export default class DatabaseInterface {
                                 `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ? WHERE station_id = ? AND type = ?`,
                                 values
                             );
+                        })
+                        .catch(err => {
+                            console.log("Error inserting download for station id", download.stationId, "error:", err);
                         });
                 })
             );
@@ -578,7 +585,7 @@ export default class DatabaseInterface {
 
     getStreamsByStationIds(ids) {
         return this.getDatabase()
-            .then(db => db.query(`SELECT * FROM streams WHERE station_id IN ($1)`, ids))
+            .then(db => db.query(`SELECT * FROM streams WHERE station_id IN ($1)`, [ids]))
             .then(rows => {
                 return sqliteToJs(rows);
             });
@@ -586,7 +593,7 @@ export default class DatabaseInterface {
 
     getStreamsByStationId(stationId) {
         return this.getDatabase()
-            .then(db => db.query(`SELECT * FROM streams WHERE station_id = $1`, stationId))
+            .then(db => db.query(`SELECT * FROM streams WHERE station_id = $1`, [stationId]))
             .then(rows => {
                 return sqliteToJs(rows);
             });
@@ -647,12 +654,16 @@ export default class DatabaseInterface {
                         status.streams[index].block,
                         new Date(),
                     ];
-                    return this.getDatabase().then(db =>
-                        db.query(
-                            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                            values
+                    return this.getDatabase()
+                        .then(db =>
+                            db.query(
+                                `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                                values
+                            )
                         )
-                    );
+                        .catch(err => {
+                            console.log("Error inserting stream for station id", station.id, "device id", station.deviceId, "error:", err);
+                        });
                 }
             });
     }
@@ -660,7 +671,7 @@ export default class DatabaseInterface {
     updateStationStatus(station, status) {
         return this.getDatabase()
             .then(db =>
-                db.query("UPDATE stations SET status_json = ?, updated = ? WHERE id = ?", JSON.stringify(status), new Date(), station.id)
+                db.query("UPDATE stations SET status_json = ?, updated = ? WHERE id = ?", [JSON.stringify(status), new Date(), station.id])
             )
             .then(() => {
                 return this._updateStreamFromStation(station, status, Constants.MetaStreamType, 1).then(() => {
@@ -671,17 +682,17 @@ export default class DatabaseInterface {
 
     getStationStatusByDeviceId(deviceId) {
         return this.getDatabase()
-            .then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", deviceId))
-            .then(json => {
-                return JSON.parse(json);
+            .then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", [deviceId]))
+            .then(rows => {
+                return JSON.parse(rows[0].status_json);
             });
     }
 
     getStationStatusById(id) {
         return this.getDatabase()
-            .then(db => db.query("SELECT status_json FROM stations WHERE id = ?", id))
-            .then(json => {
-                return JSON.parse(json);
+            .then(db => db.query("SELECT status_json FROM stations WHERE id = ?", [id]))
+            .then(rows => {
+                return JSON.parse(rows[0].status_json);
             });
     }
 }

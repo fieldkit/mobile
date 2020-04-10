@@ -163,7 +163,7 @@
 
 <script>
 import { Folder, path, knownFolders } from "tns-core-modules/file-system";
-import { ImageSource, fromFile } from "tns-core-modules/image-source";
+import { ImageSource } from "tns-core-modules/image-source";
 import { takePicture, requestPermissions } from "nativescript-camera";
 import * as imagepicker from "nativescript-imagepicker";
 import * as dialogs from "tns-core-modules/ui/dialogs";
@@ -362,7 +362,7 @@ export default {
             this.fieldMedia.forEach((img, i) => {
                 if (img.generationId == this.station.generationId) {
                     const dest = path.join(folder.path, img.imageName);
-                    const imageFromLocalFile = fromFile(dest);
+                    const imageFromLocalFile = ImageSource.fromFileSync(dest);
                     this.photos.push({
                         id: i,
                         src: imageFromLocalFile,
