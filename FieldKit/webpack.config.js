@@ -16,11 +16,13 @@ const hashSalt = Date.now().toString();
 
 const gitHash = require("child_process")
     .execSync("git rev-parse HEAD")
-    .toString();
+    .toString()
+    .trim();
 
 const gitBranch = require("child_process")
     .execSync("git rev-parse --abbrev-ref HEAD")
-    .toString();
+    .toString()
+    .trim();
 
 module.exports = env => {
     // Add your custom Activities, Services and other android app components here.
