@@ -8,6 +8,7 @@ import {
     exitEvent,
     lowMemoryEvent,
     uncaughtErrorEvent,
+    discardedErrorEvent,
 } from "tns-core-modules/application";
 
 import Services from "./services";
@@ -92,5 +93,9 @@ export default function() {
 
     on(uncaughtErrorEvent, args => {
         console.log("Uncaught Error: " + args.error);
+    });
+
+    on(discardedErrorEvent, args => {
+        console.log("Discarded Error: " + args);
     });
 }
