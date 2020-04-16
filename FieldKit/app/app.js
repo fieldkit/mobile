@@ -15,8 +15,9 @@ import * as traceModule from "tns-core-modules/trace";
 import Services from "./services/services";
 import AppSettings from "./wrappers/app-settings";
 
-import { initializeLogging } from "./lib/logging";
+import initializeLogging from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
+import ApplicationWrapper from "./components/ApplicationWrapper";
 
 function configureGlobalErrorHandling() {
     try {
@@ -113,7 +114,14 @@ function getFirstRoute() {
 
 function startVueJs() {
     new Vue({
-        render: h => h("frame", [h(getFirstRoute())]),
+        render: h =>
+            h("frame", [
+                h(ApplicationWrapper, {
+                    props: {
+                        child: getFirstRoute(),
+                    },
+                }),
+            ]),
     }).$start();
 }
 
