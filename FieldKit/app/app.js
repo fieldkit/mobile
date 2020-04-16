@@ -40,11 +40,16 @@ function configureGlobalErrorHandling() {
             throw error;
         });
 
+        // err: error trace
+        // vm: component in which error occured
+        // info: Vue specific error information such as lifecycle hooks, events etc.
+
         Vue.config.errorHandler = (err, vm, info) => {
-            // err: error trace
-            // vm: component in which error occured
-            // info: Vue specific error information such as lifecycle hooks, events etc.
-            console.log("vuejs error handler", err, vm, info);
+            console.log("vuejs error:", err);
+        };
+
+        Vue.config.warnHandler = (msg, vm, info) => {
+            console.log("vuejs warning:", msg);
         };
     } catch (e) {
         console.log("startup error", e, e.stack);

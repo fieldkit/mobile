@@ -218,7 +218,11 @@ export default {
             },
         };
     },
-    props: ["resetUser"],
+    props: {
+        resetUser: {
+            required: false,
+        },
+    },
     methods: {
         onPageLoaded(args) {
             // logging out sends resetUser = true
