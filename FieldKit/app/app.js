@@ -4,58 +4,19 @@ import * as i18n from "tns-i18n";
 i18n("en");
 
 import routes from "./routes";
-import Bluebird from "bluebird";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Config, { Build } from "./config";
-import * as traceModule from "tns-core-modules/trace";
 
 import Services from "./services/services";
 import AppSettings from "./wrappers/app-settings";
 
 import initializeLogging from "./lib/logging";
+import configureGlobalErrorHandling from "./lib/errors";
 import registerLifecycleEvents from "./services/lifecycle";
 import ApplicationWrapper from "./components/ApplicationWrapper";
-
-function configureGlobalErrorHandling() {
-    try {
-        traceModule.setErrorHandler({
-            handleError(err) {
-                console.log("ERROR:");
-                console.log(err);
-                console.log(err.stack);
-            },
-        });
-
-        traceModule.enable();
-
-        Bluebird.onUnhandledRejectionHandled(error => {
-            console.log("onUnhandledRejectionHandled", error);
-            throw error;
-        });
-
-        Bluebird.onPossiblyUnhandledRejection(error => {
-            console.log("onPossiblyUnhandledRejection", error);
-            throw error;
-        });
-
-        // err: error trace
-        // vm: component in which error occured
-        // info: Vue specific error information such as lifecycle hooks, events etc.
-
-        Vue.config.errorHandler = (err, vm, info) => {
-            console.log("vuejs error:", err);
-        };
-
-        Vue.config.warnHandler = (msg, vm, info) => {
-            console.log("vuejs warning:", msg);
-        };
-    } catch (e) {
-        console.log("startup error", e, e.stack);
-    }
-}
 
 function initializeApplication() {
     return Services.CreateDb()
