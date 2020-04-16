@@ -33,4 +33,5 @@ const routes = {
     stations: Stations,
     stationSettings: StationSettings,
 };
+
 export default routes;

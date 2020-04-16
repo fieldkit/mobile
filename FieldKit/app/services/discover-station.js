@@ -140,8 +140,6 @@ export default class DiscoverStation extends Observable {
             return;
         }
 
-        console.log("monitoring wifi");
-
         this.networkMonitor = new NetworkMonitor(this.services);
     }
 

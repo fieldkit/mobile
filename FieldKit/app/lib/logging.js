@@ -62,7 +62,7 @@ export function copyLogs(where) {
     });
 }
 
-export function initializeLogging(info) {
+export default function initializeLogging(info) {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
     if (TNS_ENV === "test") {
         return;
