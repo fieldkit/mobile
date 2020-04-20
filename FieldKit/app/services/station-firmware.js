@@ -44,31 +44,56 @@ export default class StationUpgrade {
 
                 return serializePromiseChain(firmwares, firmware => {
                     return this.services.Database().addOrUpdateFirmware(firmware);
-                }).then(() => {
-                    const local = this.services.FileSystem().getFile(firmwares[0].path);
-                    if (!local.exists || local.size == 0 || force === true) {
-                        log.info("downloading", firmwares[0]);
+                })
+                    .then(() => {
+                        const local = this.services.FileSystem().getFile(firmwares[0].path);
+                        if (!local.exists || local.size == 0 || force === true) {
+                            log.info("downloading", firmwares[0]);
 
-                        const downloadProgress = transformProgress(progressCallback, p => p);
+                            const downloadProgress = transformProgress(progressCallback, p => p);
 
-                        return this.services
-                            .PortalInterface()
-                            .downloadFirmware(firmwares[0].url, firmwares[0].path, downloadProgress)
-                            .catch(err => {
-                                log.error("downloading error:", err);
-                            })
-                            .then(() => {
-                                return firmwares[0];
-                            });
-                    }
+                            return this.services
+                                .PortalInterface()
+                                .downloadFirmware(firmwares[0].url, firmwares[0].path, downloadProgress)
+                                .catch(err => {
+                                    log.error("downloading error:", err);
+                                })
+                                .then(() => {
+                                    return firmwares[0];
+                                });
+                        }
 
-                    log.info("already have", firmwares[0]);
+                        log.info("already have", firmwares[0]);
 
-                    return this._deleteOldFirmware().then(() => {
-                        return firmwares[0];
+                        return this._deleteOldFirmware().then(() => {
+                            return firmwares[0];
+                        });
+                    })
+                    .then(() => {
+                        return firmwares;
                     });
-                });
+            })
+            .then(firmwares => {
+                const ids = _(firmwares)
+                    .map("id")
+                    .value();
+                return this.services
+                    .Database()
+                    .deleteAllFirmwareExceptIds(ids)
+                    .then(deleted => {
+                        console.log("deleted", deleted);
+                        return Promise.all(deleted.map(fw => this._deleteFirmware(fw)));
+                    });
             });
+    }
+
+    _deleteFirmware(fw) {
+        const local = this.services.FileSystem().getFile(fw.path);
+        if (local && local.exists) {
+            log.info("removing", fw.path, local.exists, local.size);
+            return local.remove();
+        }
+        return false;
     }
 
     _deleteOldFirmware() {
@@ -78,14 +103,7 @@ export default class StationUpgrade {
             .then(firmware => {
                 return _(firmware)
                     .tail()
-                    .map(fw => {
-                        const local = this.services.FileSystem().getFile(fw.path);
-                        if (local && local.exists) {
-                            log.info("removing", fw.path, local.exists, local.size);
-                            return local.remove();
-                        }
-                        return false;
-                    })
+                    .map(fw => this._deleteFirmware(fw))
                     .value();
             });
     }

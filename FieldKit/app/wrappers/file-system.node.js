@@ -20,6 +20,10 @@ class Folder {
     getFile(path) {
         return new File(this.fs, this.path + "/" + path);
     }
+
+    entries() {
+        return Promise.resolve([]);
+    }
 }
 
 export default class FileSystemNode {
