@@ -1,7 +1,7 @@
-// From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
-
+import _ from "lodash";
 import moment from "moment";
 
+// From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
 const isObject = function(o) {
     return o === Object(o) && !isArray(o) && typeof o !== "function";
 };
@@ -139,4 +139,20 @@ export function convertOldFirmwareResponse(module) {
         }
     }
     return module.name;
+}
+
+const lastRunTimes = {};
+
+export function onlyAllowEvery(seconds, action) {
+    const id = _.uniqueId();
+    lastRunTimes[id] = 0;
+    return () => {
+        const now = unixNow();
+        if (now - lastRunTimes[id] > seconds) {
+            lastRunTimes[id] = now;
+            return action();
+        } else {
+            console.log("onlyAllowEvery throttled");
+        }
+    };
 }

@@ -475,6 +475,25 @@ export default class DatabaseInterface {
             });
     }
 
+    deleteFirmwareById(id) {
+        return this.getDatabase().then(db => db.query("DELETE FROM firmware WHERE id = ?", [id]));
+    }
+
+    deleteAllFirmwareExceptIds(ids) {
+        const values = _.range(ids.length)
+            .map(() => "?")
+            .join(",");
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids))
+            .then(data => {
+                return this.getDatabase()
+                    .then(db => db.query("DELETE FROM firmware WHERE id NOT IN (" + values + ")", ids))
+                    .then(() => {
+                        return data;
+                    });
+            });
+    }
+
     addOrUpdateFirmware(firmware) {
         return this.getDatabase()
             .then(db => db.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]))

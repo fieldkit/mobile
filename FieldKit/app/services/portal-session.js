@@ -14,7 +14,7 @@ export default class PortalSession {
                 console.log("logged in");
                 return this.services
                     .StationFirmware()
-                    .downloadFirmware()
+                    .check()
                     .then(_ => {
                         console.log("done");
                         return user;

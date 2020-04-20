@@ -30,6 +30,10 @@ class FolderWrapper {
     getFile(relative) {
         return new FileWrapper(FilePaths.join(this.path, relative));
     }
+
+    entries() {
+        return this.f.getEntities();
+    }
 }
 
 export default class FileSystemNativeScript {

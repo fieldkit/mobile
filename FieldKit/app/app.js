@@ -25,6 +25,7 @@ function initializeApplication() {
         .then(() => {
             Vue.prototype.$stationMonitor = Services.StationMonitor();
             Vue.prototype.$portalInterface = Services.PortalInterface();
+            return Services.OnlineStatus().start();
         })
         .catch(err => {
             console.log("startup error", err, err.stack);
