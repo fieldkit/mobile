@@ -3,6 +3,10 @@ import * as ConnectivityModule from "tns-core-modules/connectivity";
 import { promiseAfter } from "../utilities";
 import axios from "axios";
 
+import Config from "../config";
+
+const log = Config.logger("DiscoverStation");
+
 export default class OnlineStatus {
     constructor(services) {
         this._services = services;
@@ -33,7 +37,7 @@ export default class OnlineStatus {
 
                 this._try();
             } catch (e) {
-                console.log("error", e);
+                console.log("OnlineStatus error:", e);
             }
         });
     }

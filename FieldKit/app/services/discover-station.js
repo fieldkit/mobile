@@ -4,6 +4,7 @@ import { isIOS } from "tns-core-modules/platform";
 import { every } from "./rx";
 
 import Config from "../config";
+
 const log = Config.logger("DiscoverStation");
 
 class Station {
@@ -60,7 +61,7 @@ class NetworkMonitor {
                         break;
                 }
             } catch (e) {
-                console.log("error", e);
+                console.log("NetworkMonitor error:", e);
             }
         });
     }

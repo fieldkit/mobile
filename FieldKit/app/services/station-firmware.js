@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "../config";
-import { serializePromiseChain } from "../utilities";
+import { serializePromiseChain, onlyAllowEvery } from "../utilities";
 
 const log = Config.logger("StationFirmware");
 
@@ -18,6 +18,9 @@ function transformProgress(callback, fn) {
 export default class StationUpgrade {
     constructor(services) {
         this.services = services;
+        this.check = onlyAllowEvery(60, () => {
+            return this.downloadFirmware();
+        });
     }
 
     downloadFirmware(progressCallback, force) {

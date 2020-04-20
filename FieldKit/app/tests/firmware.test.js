@@ -50,7 +50,7 @@ describe("Firmware", () => {
         return services.StationFirmware().downloadFirmware();
     });
 
-    it.only("should delete firmware that disappears from the server", () => {
+    it("should delete firmware that disappears from the server", () => {
         services.PortalInterface().listFirmware = jest.fn(_ => {
             return Promise.resolve({
                 firmwares: [

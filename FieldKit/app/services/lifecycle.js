@@ -21,7 +21,7 @@ function onLaunchOrResume(services) {
             console.log("downloading firmware");
             return services
                 .StationFirmware()
-                .downloadFirmware()
+                .check()
                 .then(() => {
                     console.log("launch prep done");
                 });
