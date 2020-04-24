@@ -153,7 +153,7 @@ export function onlyAllowEvery(seconds, action, otherwise) {
             return action();
         } else {
             console.log("onlyAllowEvery throttled");
-            return otherwise();
+            return Promise.resolve(otherwise());
         }
     };
 }
