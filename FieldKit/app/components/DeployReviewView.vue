@@ -227,8 +227,8 @@ export default {
                     device_id: this.station.deviceId,
                     status_json: savingStation,
                 };
-                return this.$portalInterface.updateStation(params, this.station.portalId).then(stationPortalId => {
-                    // console.log("successfully updated", stationPortalId)
+                return this.$portalInterface.updateStation(params, this.station.portalId).then(result => {
+                    // console.log("successfully updated", result.id)
                     return Promise.resolve();
                 });
             } else {
