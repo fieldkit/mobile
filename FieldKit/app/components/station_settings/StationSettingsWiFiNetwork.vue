@@ -126,6 +126,7 @@ import WiFi from "./StationSettingsWiFi";
 
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
+const onlineStatus = Services.OnlineStatus();
 
 export default {
     data() {
@@ -199,14 +200,43 @@ export default {
         uploadOverWifi() {
             if (this.wifiUpload) {
                 queryStation.uploadViaApp(this.station.url).then(result => {
+                    alert({
+                        title: "Done",
+                        message: "Upload configuration has been updated.",
+                        okButtonText: "OK",
+                    });
                     this.setWifiUploadStatus(result);
                 });
             } else {
-                this.$portalInterface.getTransmissionToken().then(result => {
-                    queryStation.uploadOverWifi(this.station.url, this.transmissionUrl, result.token).then(result => {
-                        this.setWifiUploadStatus(result);
+                this.$portalInterface
+                    .getTransmissionToken()
+                    .then(result => {
+                        queryStation.uploadOverWifi(this.station.url, this.transmissionUrl, result.token).then(result => {
+                            this.setWifiUploadStatus(result);
+                            alert({
+                                title: "Done",
+                                message: "Upload configuration has been updated.",
+                                okButtonText: "OK",
+                            });
+                        });
+                    })
+                    .catch(e => {
+                        onlineStatus.isOnline().then(online => {
+                            if (online) {
+                                alert({
+                                    title: "Unable to update",
+                                    message: "Please log in to perform this action.",
+                                    okButtonText: "OK",
+                                });
+                            } else {
+                                alert({
+                                    title: "Unable to update",
+                                    message: "Note: you need to be connected to the internet in order to perform this action.",
+                                    okButtonText: "OK",
+                                });
+                            }
+                        });
                     });
-                });
             }
         },
 
