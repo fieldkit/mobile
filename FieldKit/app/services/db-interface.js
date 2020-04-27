@@ -200,6 +200,12 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationBatteryLevel(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET battery_level = ?, updated = ? WHERE id = ?", [station.batteryLevel, new Date(), station.id])
+        );
+    }
+
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET latitude = ?, longitude = ?, updated = ? WHERE id = ?", [
