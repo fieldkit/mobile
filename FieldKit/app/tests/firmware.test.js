@@ -28,6 +28,9 @@ describe("Firmware", () => {
                         profile: "profile",
                         etag: "etag",
                         url: "/firmware/1000/download",
+                        meta: "",
+                        buildTime: 0,
+                        buildNumber: 100,
                     },
                     {
                         id: 1001,
@@ -36,6 +39,9 @@ describe("Firmware", () => {
                         profile: "profile",
                         etag: "etag",
                         url: "/firmware/1001/download",
+                        meta: "",
+                        buildTime: 0,
+                        buildNumber: 100,
                     },
                 ],
             });
@@ -61,6 +67,9 @@ describe("Firmware", () => {
                         profile: "profile",
                         etag: "etag",
                         url: "/firmware/1000/download",
+                        meta: "",
+                        buildTime: 0,
+                        buildNumber: 100,
                     },
                     {
                         id: 1001,
@@ -69,6 +78,9 @@ describe("Firmware", () => {
                         profile: "profile",
                         etag: "etag",
                         url: "/firmware/1001/download",
+                        meta: "",
+                        buildTime: 0,
+                        buildNumber: 100,
                     },
                 ],
             });
@@ -90,6 +102,9 @@ describe("Firmware", () => {
                 etag: "etag",
                 url: "/firmware/1001/download",
                 path: "/var/lib/firmware-1101",
+                meta: "",
+                buildTime: 0,
+                buildNumber: 100,
             })
             .then(() => {
                 return services.StationFirmware().downloadFirmware();

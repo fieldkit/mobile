@@ -501,10 +501,24 @@ export default class DatabaseInterface {
                 if (id.length === 1) {
                     return Promise.resolve(id[0]);
                 }
-                const values = [firmware.id, firmware.time, firmware.url, firmware.module, firmware.profile, firmware.etag, firmware.path];
+                const values = [
+                    firmware.id,
+                    firmware.time,
+                    firmware.url,
+                    firmware.module,
+                    firmware.profile,
+                    firmware.etag,
+                    firmware.path,
+                    firmware.meta,
+                    firmware.buildTime,
+                    firmware.buildNumber,
+                ];
                 console.log("inserting", firmware);
                 return this.getDatabase().then(db =>
-                    db.query(`INSERT INTO firmware (id, time, url, module, profile, etag, path) VALUES (?, ?, ?, ?, ?, ?, ?)`, values)
+                    db.query(
+                        `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                        values
+                    )
                 );
             });
     }

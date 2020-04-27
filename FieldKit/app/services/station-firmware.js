@@ -34,6 +34,7 @@ export default class StationUpgrade {
             .PortalInterface()
             .listFirmware("fk-core")
             .then(firmware => {
+                log.info("firmwares", firmware.firmwares);
                 return firmware.firmwares.map(f => {
                     const local = this.services
                         .FileSystem()
