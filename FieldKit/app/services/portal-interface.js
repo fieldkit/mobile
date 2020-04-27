@@ -99,10 +99,6 @@ export default class PortalInterface {
             method: "POST",
             url: "/stations",
             data: data,
-        }).then(data => {
-            // TODO This should just return the entire payload just in
-            // case other users of this class need more information.
-            return data.id;
         });
     }
 
@@ -111,10 +107,6 @@ export default class PortalInterface {
             method: "PATCH",
             url: "/stations/" + portalId,
             data: data,
-        }).then(data => {
-            // TODO This should just return the entire payload just in
-            // case other users of this class need more information.
-            return data.id;
         });
     }
 

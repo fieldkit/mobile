@@ -6,9 +6,18 @@
                     <ScreenHeader title="Firmware" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                     <StackLayout class="m-t-10 m-b-30">
-                        <Label text="Version" class="size-20 m-x-15" />
+                        <Label text="Station firmware version" class="size-20 m-x-15" />
                         <Label :text="'Firmware number: ' + versions.firmwareNumber" class="size-15 m-x-15 m-b-20" textWrap="true" />
-                        <Button :text="_L('upgradeFirmware')" @tap="upgradeFirmware" class="btn btn-primary btn-padded"></Button>
+                        <Label text="App has firmware version" class="size-20 m-x-15" />
+                        <Label :text="'Firmware number: ' + appDownloaded" class="size-15 m-x-15 m-b-20" textWrap="true" />
+
+                        <Button
+                            v-if="updateAvailable"
+                            :text="_L('upgradeFirmware')"
+                            @tap="upgradeFirmware"
+                            class="btn btn-primary btn-padded"
+                        ></Button>
+                        <Label v-else text="You're up to date!" class="size-20 m-x-15 bottom-border" />
                     </StackLayout>
 
                     <WrapLayout orientation="horizontal" class="m-10 m-b-20">
@@ -34,6 +43,8 @@ import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal";
 
+const dbInterface = Services.Database();
+
 export default {
     data() {
         return {
@@ -43,6 +54,8 @@ export default {
                 firmwareNumber: "--",
                 device: "1.0",
             },
+            updateAvailable: true,
+            appDownloaded: "--",
         };
     },
     props: ["station"],
@@ -69,6 +82,11 @@ export default {
                     let chunks = deviceStatus.status.identity.build.split("_");
                     this.versions.firmwareBuild = chunks[chunks.length - 2] + "_" + chunks[chunks.length - 1];
                 }
+                // compare downloaded version
+                dbInterface.getLatestFirmware().then(latest => {
+                    // this.appVersion = latest.number;
+                    // this.updateAvailable = latest.number > this.versions.firmwareNumber;
+                });
             }
             this.deviceStatus = deviceStatus;
         },

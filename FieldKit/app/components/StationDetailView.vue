@@ -345,13 +345,13 @@ export default {
                 status_json: this.currentStation,
             };
             if (!this.currentStation.portalId && this.currentStation.url != "no_url") {
-                this.$portalInterface.addStation(params).then(stationPortalId => {
-                    this.currentStation.portalId = stationPortalId;
+                this.$portalInterface.addStation(params).then(result => {
+                    this.currentStation.portalId = result.id;
                     dbInterface.setStationPortalId(this.currentStation);
                 });
             } else if (this.currentStation.portalId && this.currentStation.url != "no_url") {
-                this.$portalInterface.updateStation(params, this.currentStation.portalId).then(stationPortalId => {
-                    // console.log("successfully updated", stationPortalId)
+                this.$portalInterface.updateStation(params, this.currentStation.portalId).then(result => {
+                    // console.log("successfully updated ------->", result.id);
                 });
             }
 

@@ -15,6 +15,10 @@ export default class PortalSession {
                 return this.services
                     .StationFirmware()
                     .check()
+                    .catch(_ => {
+                        console.log("firmware error");
+                        return user;
+                    })
                     .then(_ => {
                         console.log("done");
                         return user;

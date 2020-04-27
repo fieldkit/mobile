@@ -18,9 +18,15 @@ function transformProgress(callback, fn) {
 export default class StationUpgrade {
     constructor(services) {
         this.services = services;
-        this.check = onlyAllowEvery(60, () => {
-            return this.downloadFirmware();
-        });
+        this.check = onlyAllowEvery(
+            60,
+            () => {
+                return this.downloadFirmware();
+            },
+            () => {
+                return true;
+            }
+        );
     }
 
     downloadFirmware(progressCallback, force) {
@@ -28,6 +34,7 @@ export default class StationUpgrade {
             .PortalInterface()
             .listFirmware("fk-core")
             .then(firmware => {
+                log.info("firmwares", firmware.firmwares);
                 return firmware.firmwares.map(f => {
                     const local = this.services
                         .FileSystem()

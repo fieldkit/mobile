@@ -19,8 +19,9 @@ export default function configureGlobalErrorHandling() {
             // throw error;
         });
 
-        Bluebird.onPossiblyUnhandledRejection(error => {
+        Bluebird.onPossiblyUnhandledRejection((error, promise) => {
             console.log("onPossiblyUnhandledRejection", error);
+            console.log("onPossiblyUnhandledRejection", promise);
             // throw error;
         });
 

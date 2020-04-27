@@ -21,11 +21,7 @@
                                 @focus="showActive"
                                 @blur="checkName"
                             ></TextField>
-                            <StackLayout
-                                class="spacer-top"
-                                id="name-field-spacer"
-                                v-show="!noName && !nameTooLong && !nameHasSpace"
-                            ></StackLayout>
+                            <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong"></StackLayout>
                             <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName"></Label>
                             <Label
                                 class="validation-error"
@@ -33,13 +29,6 @@
                                 :text="_L('nameOver255')"
                                 textWrap="true"
                                 v-show="nameTooLong"
-                            ></Label>
-                            <Label
-                                class="validation-error"
-                                id="name-has-space"
-                                :text="_L('nameNoSpaces')"
-                                textWrap="true"
-                                v-show="nameHasSpace"
                             ></Label>
                         </StackLayout>
 
@@ -203,7 +192,6 @@ export default {
             processing: false,
             noName: false,
             nameTooLong: false,
-            nameHasSpace: false,
             noEmail: false,
             emailNotValid: false,
             noPassword: false,
@@ -251,7 +239,6 @@ export default {
                 return;
             }
             let matches = this.user.name.match(/\s/g);
-            this.nameHasSpace = matches && matches.length > 0;
             this.nameTooLong = this.user.name.length > 255;
         },
 

@@ -143,7 +143,7 @@ export function convertOldFirmwareResponse(module) {
 
 const lastRunTimes = {};
 
-export function onlyAllowEvery(seconds, action) {
+export function onlyAllowEvery(seconds, action, otherwise) {
     const id = _.uniqueId();
     lastRunTimes[id] = 0;
     return () => {
@@ -153,6 +153,7 @@ export function onlyAllowEvery(seconds, action) {
             return action();
         } else {
             console.log("onlyAllowEvery throttled");
+            return Promise.resolve(otherwise());
         }
     };
 }
