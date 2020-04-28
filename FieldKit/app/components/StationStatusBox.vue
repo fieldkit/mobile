@@ -11,7 +11,7 @@
                 <Label class="text-center size-16" :text="station.status == 'recording' ? _L('recordingData') : _L('notRecording')"></Label>
             </StackLayout>
             <!-- battery level -->
-            <StackLayout row="0" col="1" class="m-t-10">
+            <StackLayout v-if="station.connected" row="0" col="1" class="m-t-10">
                 <FlexboxLayout class="m-r-10" justifyContent="flex-end">
                     <Label class="m-r-5 size-12 lighter" :text="station.batteryLevel + '%'"></Label>
                     <Image width="25" :src="station.batteryImage"></Image>
