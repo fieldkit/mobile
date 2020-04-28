@@ -90,7 +90,8 @@ h1 {
 }
 
 .btn-primary:active {
-    background-color: $fk-primary-blue;
+    border-color: $fk-gray-light;
+    border-width: 1;
 }
 .pressed {
     background-color: $fk-gray-lighter;
