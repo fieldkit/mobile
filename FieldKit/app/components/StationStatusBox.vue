@@ -36,7 +36,7 @@
                         v-if="!station.connected && !syncing"
                         src="~/images/Icon_not_Connected.png"
                     ></Image>
-                    <Image rowSpan="2" col="0" width="20" :src="dataSyncingIcon" v-if="syncing"></Image>
+                    <Image rowSpan="2" col="0" height="20" width="20" :src="dataSyncingIcon" v-if="syncing"></Image>
                     <Label
                         row="0"
                         col="1"
