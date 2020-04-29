@@ -84,8 +84,8 @@ export default {
                 }
                 // compare downloaded version
                 dbInterface.getLatestFirmware().then(latest => {
-                    // this.appVersion = latest.number;
-                    // this.updateAvailable = latest.number > this.versions.firmwareNumber;
+                    this.appDownloaded = latest.buildNumber;
+                    this.updateAvailable = latest.buildTime > deviceStatus.status.firmware.timestamp;
                 });
             }
             this.deviceStatus = deviceStatus;
