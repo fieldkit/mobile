@@ -295,7 +295,9 @@ export default class QueryStation {
 
     _getResponseBody(response) {
         if (Buffer.isBuffer(response.body)) {
-            return HttpReply.decodeDelimited(response.body);
+            const decoded = HttpReply.decodeDelimited(response.body);
+            decoded.serialized = response.body.toString("base64");
+            return decoded;
         }
         return response.body;
     }
