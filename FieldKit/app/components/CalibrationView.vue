@@ -157,6 +157,7 @@
 </template>
 
 <script>
+import { on, off, suspendEvent, resumeEvent } from "tns-core-modules/application";
 import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import routes from "../routes";
 import Services from "../services/services";
@@ -192,6 +193,7 @@ export default {
             success: false,
             failure: false,
             loading: true,
+            suspended: false,
         };
     },
     components: {
@@ -204,20 +206,36 @@ export default {
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.loading = false; // after loadingWhite defined
 
-            this.calibrationType = this.type;
-            this.currentCalibration = calibrations[this.calibrationType];
-            if (this.station) {
-                this.currentStation = this.station;
-                this.completeSetup();
-            }
-            if (this.recalibrate && this.currentStation) {
-                this.loading = true;
-                this.loadingTimer = setInterval(this.showLoadingAnimation, 1000);
-                this.clearCalibration(this.recalibrate).then(this.goNext);
-            } else if (this.currentCalibration) {
-                this.goNext();
-            } else {
-                // handle no calibration type and/or steps
+            on(suspendEvent, args => {
+                // set flag if in the middle of countdown
+                if (this.timerRunning) {
+                    this.suspended = true;
+                }
+            });
+
+            on(resumeEvent, args => {
+                if (this.suspended) {
+                    this.timerInterval = setInterval(this.updateTimer, 500);
+                }
+                this.suspended = false;
+            });
+
+            if (!this.suspended) {
+                this.calibrationType = this.type;
+                this.currentCalibration = calibrations[this.calibrationType];
+                if (this.station) {
+                    this.currentStation = this.station;
+                    this.completeSetup();
+                }
+                if (this.recalibrate && this.currentStation) {
+                    this.loading = true;
+                    this.loadingTimer = setInterval(this.showLoadingAnimation, 1000);
+                    this.clearCalibration(this.recalibrate).then(this.goNext);
+                } else if (this.currentCalibration) {
+                    this.goNext();
+                } else {
+                    // handle no calibration type and/or steps
+                }
             }
         },
 
@@ -592,6 +610,7 @@ export default {
             if (elapsed > this.stopTime) {
                 clearInterval(this.timerInterval);
                 this.nextEnabled = true;
+                this.elapsedTime = "00:00";
             }
 
             this.timerProgress = (elapsed / this.stopTime) * 100;

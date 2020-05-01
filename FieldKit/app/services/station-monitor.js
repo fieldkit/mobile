@@ -222,6 +222,12 @@ export default class StationMonitor extends Observable {
             this.dbInterface.setStationName(station);
         }
 
+        const batteryLevel = result.status.power.battery.percentage;
+        if (batteryLevel != station.batteryLevel) {
+            station.batteryLevel = batteryLevel;
+            this.dbInterface.setStationBatteryLevel(station);
+        }
+
         // I'd like to move this state manipulation code into objects
         // that have a narrower set of dependencies so that we can do
         // more automated testing. Eventually most of the above code

@@ -248,6 +248,7 @@ export default {
                 m.calibratedLabel = "No calibration needed";
                 m.calibratedImage = "~/images/Icon_Success.png";
                 this.sensorsChecked += 1;
+                console.log("no calibration needed for", s.name, "sensorsChecked", this.sensorsChecked, "total", this.totalSensors);
             }
             if (this.sensorsChecked >= this.totalSensors) {
                 this.endModuleCheck();
@@ -279,6 +280,7 @@ export default {
             m.calibratedClass = total > 0 ? "gray-text" : "red-text";
             m.calibratedImage = total > 0 ? "~/images/Icon_Success.png" : "";
             this.pending[m.position] = false;
+            console.log("handled calibration status for", sensorName, "sensorsChecked", this.sensorsChecked, "total", this.totalSensors);
             if (this.sensorsChecked >= this.totalSensors) {
                 this.endModuleCheck();
             }

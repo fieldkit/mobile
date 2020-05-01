@@ -200,6 +200,12 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationBatteryLevel(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET battery_level = ?, updated = ? WHERE id = ?", [station.batteryLevel, new Date(), station.id])
+        );
+    }
+
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET latitude = ?, longitude = ?, updated = ? WHERE id = ?", [
@@ -513,7 +519,7 @@ export default class DatabaseInterface {
                     firmware.buildTime,
                     firmware.buildNumber,
                 ];
-                console.log("inserting", firmware);
+                log.info("inserting", firmware);
                 return this.getDatabase().then(db =>
                     db.query(
                         `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
