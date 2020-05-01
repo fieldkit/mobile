@@ -256,19 +256,22 @@ export default class StationMonitor extends Observable {
             const notFromHW = _.differenceBy(dbModules, hwModules, m => {
                 return m.deviceId;
             });
-            // remove modules not in the station's response
+
+            // remove modules (and sensors) not in the station's response
+            // delete the sensors first to avoid foreign key constraint error
             Promise.all(
                 notFromHW.map(m => {
-                    return this.dbInterface.removeModule(m.deviceId);
+                    return this.dbInterface.removeSensors(m.deviceId);
                 })
             ).then(() => {
-                // also remove associated sensors
+                // remove modules
                 Promise.all(
                     notFromHW.map(m => {
-                        return this.dbInterface.removeSensors(m.deviceId);
+                        return this.dbInterface.removeModule(m.deviceId);
                     })
                 );
             });
+
             // update modules in station's response
             hwModules.forEach(hwModule => {
                 const dbModule = dbModules.find(d => {
