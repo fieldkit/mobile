@@ -310,7 +310,7 @@ export default class CalibrationService {
 
                     const decoded = this._getResponseBody(response);
                     return this._handlePotentialRetryReply(decoded, url, message).then(finalReply => {
-                        log.verbose(url, "calibration query success", finalReply);
+                        log.info(url, "calibration query success", finalReply);
                         return finalReply;
                     });
                 },
