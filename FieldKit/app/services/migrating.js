@@ -55,6 +55,7 @@ export default class Migrating {
                 };
             })
             .sort(v => v.order)
+            .reverse()
             .value();
     }
 
