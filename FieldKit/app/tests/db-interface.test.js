@@ -185,6 +185,77 @@ describe("DatabaseInterface", () => {
         expect(newData[0].deployStartTime).toEqual(startTime);
     });
 
+    test("updateStation should update station fields", async () => {
+        const data = await dbInterface.getStation(1);
+        const stationParams = {
+            generationId: "5",
+            name: "Magnolia",
+            url: "http://12.34.56",
+            portalId: 1,
+            status: "recording",
+            deployStartTime: Date.now(),
+            locationName: "Corner",
+            studyObjective: "This is the objective.",
+            locationPurpose: "This is the location purpose.",
+            siteCriteria: "This is the site criteria.",
+            siteDescription: "Site description.",
+            percentComplete: 100,
+            batteryLevel: 67,
+            consumedMemory: 432,
+            totalMemory: 3425,
+            consumedMemoryPercent: 13,
+            interval: 1345435,
+            statusJson: { note: "All the various details about the station" },
+            longitude: -122.01,
+            latitude: 45.62,
+            serialized: "2342ur982uru2",
+        };
+        data[0].generationId = stationParams.generationId;
+        data[0].name = stationParams.name;
+        data[0].url = stationParams.url;
+        data[0].portalId = stationParams.portalId;
+        data[0].status = stationParams.status;
+        data[0].deployStartTime = stationParams.deployStartTime;
+        data[0].locationName = stationParams.locationName;
+        data[0].studyObjective = stationParams.studyObjective;
+        data[0].locationPurpose = stationParams.locationPurpose;
+        data[0].siteCriteria = stationParams.siteCriteria;
+        data[0].siteDescription = stationParams.siteDescription;
+        data[0].percentComplete = stationParams.percentComplete;
+        data[0].batteryLevel = stationParams.batteryLevel;
+        data[0].consumedMemory = stationParams.consumedMemory;
+        data[0].totalMemory = stationParams.totalMemory;
+        data[0].consumedMemoryPercent = stationParams.consumedMemoryPercent;
+        data[0].interval = stationParams.interval;
+        data[0].statusJson = stationParams.statusJson;
+        data[0].longitude = stationParams.longitude;
+        data[0].latitude = stationParams.latitude;
+        data[0].serialized = stationParams.serialized;
+        const change = await dbInterface.updateStation(data[0]);
+        const newData = await dbInterface.getStation(1);
+        expect(newData[0].generationId).toEqual(stationParams.generationId);
+        expect(newData[0].name).toEqual(stationParams.name);
+        expect(newData[0].url).toEqual(stationParams.url);
+        expect(newData[0].portalId).toEqual(stationParams.portalId);
+        expect(newData[0].status).toEqual(stationParams.status);
+        expect(newData[0].deployStartTime).toEqual(stationParams.deployStartTime);
+        expect(newData[0].locationName).toEqual(stationParams.locationName);
+        expect(newData[0].studyObjective).toEqual(stationParams.studyObjective);
+        expect(newData[0].locationPurpose).toEqual(stationParams.locationPurpose);
+        expect(newData[0].siteCriteria).toEqual(stationParams.siteCriteria);
+        expect(newData[0].siteDescription).toEqual(stationParams.siteDescription);
+        expect(newData[0].percentComplete).toEqual(stationParams.percentComplete);
+        expect(newData[0].batteryLevel).toEqual(stationParams.batteryLevel);
+        expect(newData[0].consumedMemory).toEqual(stationParams.consumedMemory);
+        expect(newData[0].totalMemory).toEqual(stationParams.totalMemory);
+        expect(newData[0].consumedMemoryPercent).toEqual(stationParams.consumedMemoryPercent);
+        expect(newData[0].interval).toEqual(stationParams.interval);
+        expect(JSON.parse(newData[0].statusJson)).toEqual(stationParams.statusJson);
+        expect(newData[0].longitude).toEqual(stationParams.longitude);
+        expect(newData[0].latitude).toEqual(stationParams.latitude);
+        expect(newData[0].serializedStatus).toEqual(stationParams.serialized);
+    });
+
     test("insertFieldNote should insert a field note", async () => {
         const fieldNote = {
             stationId: 1,

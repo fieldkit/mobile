@@ -326,6 +326,39 @@ export default class DatabaseInterface {
         );
     }
 
+    updateStation(station) {
+        return this.getDatabase().then(db =>
+            db.execute(
+                "UPDATE stations SET generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, location_name = ?, study_objective = ?, location_purpose = ?, site_criteria = ?, site_description = ?, percent_complete = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
+                [
+                    station.generationId,
+                    station.name,
+                    station.url,
+                    station.portalId,
+                    station.status,
+                    station.deployStartTime,
+                    station.locationName,
+                    station.studyObjective,
+                    station.locationPurpose,
+                    station.siteCriteria,
+                    station.siteDescription,
+                    station.percentComplete,
+                    station.batteryLevel,
+                    station.consumedMemory,
+                    station.totalMemory,
+                    station.consumedMemoryPercent,
+                    station.interval,
+                    JSON.stringify(station.statusJson),
+                    station.longitude,
+                    station.latitude,
+                    station.serialized,
+                    new Date(),
+                    station.id,
+                ]
+            )
+        );
+    }
+
     recordStationConfigChange(config) {
         return this.getDatabase().then(db =>
             db.query("INSERT INTO stations_config (station_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)", [
