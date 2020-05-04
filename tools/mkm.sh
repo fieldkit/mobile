@@ -13,7 +13,14 @@ CLASS_NAME=${BASE_NAME}_${TIME}
 
 cp ${APP}/app/migrations/{new_migration.js.template,${FN}}
 
-sed -i "s/{MIGRATION_NAME}/${CLASS_NAME}/gI" ${APP}/app/migrations/${FN}
+
+kernelName="$(uname -s)"
+case "${kernelName}" in
+    Darwin*)
+		sed -i '' "s/{MIGRATION_NAME}/${CLASS_NAME}/gI" ${APP}/app/migrations/${FN};;
+    Linux*)
+		sed -i "s/{MIGRATION_NAME}/${CLASS_NAME}/gI" ${APP}/app/migrations/${FN};;
+esac
 
 rm ${APP}/app/migrations/index.js
 
