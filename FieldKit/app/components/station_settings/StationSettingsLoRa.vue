@@ -111,7 +111,7 @@ export default {
             this.page = args.object;
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
-            let deviceStatus = JSON.parse(this.station.statusJson);
+            let deviceStatus = this.station.statusJson;
             if (deviceStatus && deviceStatus.loraSettings) {
                 let deviceEui = deviceStatus.loraSettings.deviceEui;
                 if (deviceEui) {

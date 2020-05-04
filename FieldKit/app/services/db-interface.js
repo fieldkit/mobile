@@ -50,6 +50,10 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM stations"))
             .then(rows => {
+                rows.map(r => {
+                    r.status_json = JSON.parse(r.status_json);
+                    return r;
+                });
                 return sqliteToJs(rows);
             })
             .catch(e => {
@@ -61,6 +65,10 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM stations WHERE id = ?", [stationId]))
             .then(rows => {
+                rows.map(r => {
+                    r.status_json = JSON.parse(r.status_json);
+                    return r;
+                });
                 return sqliteToJs(rows);
             });
     }
@@ -69,6 +77,10 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM stations WHERE device_id = ?", [deviceId]))
             .then(rows => {
+                rows.map(r => {
+                    r.status_json = JSON.parse(r.status_json);
+                    return r;
+                });
                 return sqliteToJs(rows);
             });
     }

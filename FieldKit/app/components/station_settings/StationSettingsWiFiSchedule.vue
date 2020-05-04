@@ -103,7 +103,7 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            let deviceStatus = JSON.parse(this.station.statusJson);
+            let deviceStatus = this.station.statusJson;
             let converted, origValue;
             try {
                 origValue = deviceStatus.schedules.network.duration;

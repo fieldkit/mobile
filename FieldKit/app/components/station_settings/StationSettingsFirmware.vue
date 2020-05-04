@@ -67,7 +67,7 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            let deviceStatus = JSON.parse(this.station.statusJson);
+            let deviceStatus = this.station.statusJson;
             if (deviceStatus && deviceStatus.status.identity) {
                 if (deviceStatus.status.identity.deviceId) {
                     this.versions.device = hexStringToByteWiseString(deviceStatus.status.identity.deviceId);

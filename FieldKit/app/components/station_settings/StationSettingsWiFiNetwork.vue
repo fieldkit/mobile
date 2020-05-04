@@ -156,7 +156,7 @@ export default {
                 this.transmissionUrl = config[0].ingestionUri;
             });
 
-            let deviceStatus = JSON.parse(this.station.statusJson);
+            let deviceStatus = this.station.statusJson;
             if (deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks.map(n => {
                     n.selected = false;

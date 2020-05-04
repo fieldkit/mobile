@@ -213,7 +213,6 @@ describe("DatabaseInterface", () => {
         };
         const change = await dbInterface.updateStation(stationParams);
         const newData = await dbInterface.getStation(1);
-        newData[0].statusJson = JSON.parse(newData[0].statusJson);
         expect(newData[0]).toEqual(expect.objectContaining(stationParams));
     });
 
