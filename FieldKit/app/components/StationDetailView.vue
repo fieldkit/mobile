@@ -336,24 +336,6 @@ export default {
             this.$refs.statusBox.updateStation(this.currentStation);
             this.$refs.moduleList.updateModules(this.currentStation.moduleObjects);
             this.currentStation.origName = this.currentStation.name;
-            // add this station to portal if hasn't already been added
-            // note: currently the tables are always dropped and re-created,
-            // so stations will not retain these saved portalIds
-            let params = {
-                name: this.currentStation.name,
-                device_id: this.currentStation.deviceId,
-                status_json: this.currentStation,
-            };
-            if (!this.currentStation.portalId && this.currentStation.url != "no_url") {
-                this.$portalInterface.addStation(params).then(result => {
-                    this.currentStation.portalId = result.id;
-                    dbInterface.setStationPortalId(this.currentStation);
-                });
-            } else if (this.currentStation.portalId && this.currentStation.url != "no_url") {
-                this.$portalInterface.updateStation(params, this.currentStation.portalId).then(result => {
-                    // console.log("successfully updated ------->", result.id);
-                });
-            }
 
             // start getting live readings for this station
             if (this.currentStation.url != "no_url") {
