@@ -196,37 +196,23 @@ export default class StationMonitor extends Observable {
     }
 
     keepDatabaseFieldsInSync(station, result) {
-        const newStatus = result.status.recording.enabled ? "recording" : "";
-        // db needs to be kept in sync
-        if (newStatus != station.status) {
-            station.status = newStatus;
-            this.dbInterface.setStationDeployStatus(station);
-        }
+        station.name = result.status.identity.device;
+        station.status = result.status.recording.enabled ? "recording" : "";
+        station.deployStartTime = result.status.recording.startedTime ? new Date(result.status.recording.startedTime * 1000) : "";
+        station.batteryLevel = result.status.power.battery.percentage;
+        station.serializedStatus = result.serialized;
         if (result.status.identity.generationId != station.generationId) {
             station.generationId = result.status.identity.generationId;
-            this.dbInterface.setGenerationId(station);
-            if (newStatus != "recording") {
+            if (station.status != "recording") {
                 // new generation and not recording, so
                 // possible factory reset. reset deploy notes
                 this.dbInterface.clearDeployNotes(station);
             }
         }
-        const deployStartTime = result.status.recording.startedTime ? new Date(result.status.recording.startedTime * 1000) : "";
-        if (deployStartTime != station.deployStartTime) {
-            station.deployStartTime = deployStartTime;
-            this.dbInterface.setStationDeployStartTime(station);
-        }
-        const newName = result.status.identity.device;
-        if (newName != station.name) {
-            station.name = result.status.identity.device;
-            this.dbInterface.setStationName(station);
-        }
-
-        const batteryLevel = result.status.power.battery.percentage;
-        if (batteryLevel != station.batteryLevel) {
-            station.batteryLevel = batteryLevel;
-            this.dbInterface.setStationBatteryLevel(station);
-        }
+        this.dbInterface.updateStation(station).catch(e => {
+            console.log("Error updating station in the db", e);
+        });
+        this.keepModulesAndSensorsInSync(station, result);
 
         // I'd like to move this state manipulation code into objects
         // that have a narrower set of dependencies so that we can do
@@ -242,8 +228,6 @@ export default class StationMonitor extends Observable {
         } catch (err) {
             console.log("error", err, err.stack);
         }
-
-        this.keepModulesAndSensorsInSync(station, result);
     }
 
     keepModulesAndSensorsInSync(station, result) {
@@ -501,15 +485,13 @@ export default class StationMonitor extends Observable {
         this.stations[deviceId].connected = true;
         this.stations[deviceId].lastSeen = new Date();
         this.stations[deviceId].newlyConnected = true;
-        // prefer hardware name over database name, unless undefined or same
-        if (statusResult.status.identity.device && statusResult.status.identity.device != this.stations[deviceId].name) {
-            this.stations[deviceId].name = statusResult.status.identity.device;
-            this.dbInterface.setStationName(this.stations[deviceId]);
-        }
-        // prefer discovered url over database url
+        this.stations[deviceId].name = statusResult.status.identity.device;
         this.stations[deviceId].url = address;
-        // and update the database url!
-        this.dbInterface.setStationUrl(this.stations[deviceId]);
+
+        // update the database
+        databaseStation.url = address;
+        databaseStation.name = statusResult.status.identity.device;
+        this.dbInterface.updateStation(databaseStation);
 
         // start getting readings
         if (!this.queriesInProgress[deviceId]) {
