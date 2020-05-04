@@ -206,6 +206,12 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationSerialized(station) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET serialized_status = ?, updated = ? WHERE id = ?", [station.serialized, new Date(), station.id])
+        );
+    }
+
     setStationLocationCoordinates(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET latitude = ?, longitude = ?, updated = ? WHERE id = ?", [
@@ -351,7 +357,7 @@ export default class DatabaseInterface {
                     JSON.stringify(station.statusJson),
                     station.longitude,
                     station.latitude,
-                    station.serialized,
+                    station.serializedStatus,
                     new Date(),
                     station.id,
                 ]
