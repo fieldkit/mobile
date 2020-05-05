@@ -4,7 +4,72 @@
         <Label class="size-18 bold" :text="_L('dataCaptureSchedule')"></Label>
         <Label class="gray-text size-14 m-y-5" textWrap="true" :text="_L('dataCaptureNotice')"></Label>
 
-        <GridLayout rows="*" columns="*" class="m-t-10">
+        <!-- remove this section when firmware supports custom capture schedule -->
+        <!-- and remove the temporaryView property -->
+        <GridLayout rows="*" columns="*" class="m-t-10" v-if="temporaryView">
+            <!-- nested grid layouts to achieve borders -->
+            <GridLayout row="0" col="0" class="inner-borderz" />
+            <GridLayout row="0" col="0" rows="auto,auto" columns="*" class="m-y-10 interval-container">
+                <GridLayout order="2" rows="auto,auto,auto" columns="*,*" v-for="(interval, index) in intervals" :key="interval.id">
+                    <Label row="0" col="0" class="size-12 m-t-5" :text="_L('every')"></Label>
+                    <TextField
+                        row="1"
+                        col="0"
+                        :class="'interval-field ' + (!interval.noInterval && !interval.intervalNotNumber ? 'interval-input' : 'no-border')"
+                        verticalAligment="bottom"
+                        keyboardType="name"
+                        autocorrect="false"
+                        autocapitalizationType="none"
+                        v-model="interval.display"
+                        @blur="saveInterval"
+                    ></TextField>
+                    <StackLayout row="1" col="1">
+                        <GridLayout rows="*" columns="*">
+                            <DropDown
+                                row="0"
+                                col="0"
+                                class="p-l-5 p-b-2 size-18 drop-down"
+                                :items="timeUnits"
+                                :id="'drop-down-' + interval.id"
+                                :selectedIndex="interval.unit"
+                                @opened="onOpened"
+                                @selectedIndexChanged="onDropDownSelection"
+                            ></DropDown>
+                            <Image
+                                row="0"
+                                col="0"
+                                width="15"
+                                class="m-r-5"
+                                horizontalAlignment="right"
+                                verticalAlignment="middle"
+                                src="~/images/Icon_Cheveron_Down.png"
+                                :dataIntervalId="interval.id"
+                                @tap="openDropDown"
+                            />
+                        </GridLayout>
+                    </StackLayout>
+                    <StackLayout row="2" col="0">
+                        <Label
+                            class="validation-error"
+                            horizontalAlignment="left"
+                            :text="_L('intervalRequired')"
+                            textWrap="true"
+                            :visibility="interval.noInterval ? 'visible' : 'collapsed'"
+                        ></Label>
+                        <Label
+                            class="validation-error"
+                            horizontalAlignment="left"
+                            :text="_L('intervalNotNumber')"
+                            textWrap="true"
+                            :visibility="interval.intervalNotNumber ? 'visible' : 'collapsed'"
+                        ></Label>
+                    </StackLayout>
+                </GridLayout>
+            </GridLayout>
+        </GridLayout>
+        <!-- end remove section when firmware supports custom capture schedule -->
+
+        <GridLayout rows="*" columns="*" class="m-t-10" v-if="!temporaryView">
             <!-- nested grid layouts to achieve borders -->
             <GridLayout row="0" col="0" class="inner-border" />
             <GridLayout row="0" col="0" rows="auto,auto" columns="*" class="m-y-10 interval-container">
@@ -177,6 +242,7 @@ export default {
             selectedTime: new Date(),
             currentlyPicking: {},
             timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")],
+            temporaryView: true,
         };
     },
     props: ["station"],
