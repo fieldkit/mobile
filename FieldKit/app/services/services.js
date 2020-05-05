@@ -103,6 +103,14 @@ export class Services {
         return this.portalInterface;
     }
 
+    PortalUpdater() {
+        if (!this.portalUpdater) {
+            const PortalUpdater = require("./portal-updater").default;
+            this.portalUpdater = new PortalUpdater(this);
+        }
+        return this.portalUpdater;
+    }
+
     ProgressService() {
         if (!this.progressService) {
             const ProgressService = require("./progress-service").default;
