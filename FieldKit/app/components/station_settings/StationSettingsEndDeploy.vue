@@ -87,28 +87,9 @@ export default {
                         let savingStation = this.station;
                         savingStation.status = "";
                         dbInterface.setStationDeployStatus(savingStation);
-
-                        queryStation.stopDataRecording(this.station.url).then(result => {
-                            this.updatePortal(savingStation);
-                        });
+                        queryStation.stopDataRecording(this.station.url);
                     }
                 });
-        },
-
-        updatePortal(savingStation) {
-            if (this.station.portalId && this.station.url != "no_url") {
-                let params = {
-                    name: this.station.name,
-                    device_id: this.station.deviceId,
-                    status_json: savingStation,
-                };
-                return this.$portalInterface.updateStation(params, this.station.portalId).then(result => {
-                    // console.log("successfully updated", result.id)
-                    return Promise.resolve();
-                });
-            } else {
-                return Promise.resolve();
-            }
         },
     },
 };

@@ -17,12 +17,11 @@ function is_internal_sensor(sensor) {
 }
 
 export default class StationMonitor extends Observable {
-    constructor(discoverStation, dbInterface, queryStation, phoneLocation, portalInterface) {
+    constructor(discoverStation, dbInterface, queryStation, phoneLocation) {
         super();
         this.dbInterface = dbInterface;
         this.queryStation = queryStation;
         this.phoneLocation = phoneLocation;
-        this.portalInterface = portalInterface;
         this.stations = {};
         // stations whose details are being viewed in app are "active"
         this.activeAddresses = [];
@@ -549,35 +548,13 @@ export default class StationMonitor extends Observable {
         return Promise.resolve();
     }
 
-    _updatePortal(station) {
-        let params = {
-            name: station.name,
-            device_id: station.deviceId,
-            status_json: station,
-            status_pb: station.serializedStatus,
-        };
-        if (!station.portalId) {
-            return this.portalInterface.addStation(params).then(result => {
-                station.portalId = result.id;
-                this.stations[station.deviceId] = station;
-                // store portalId
-                return dbInterface.setStationPortalId(station);
-            });
-        } else if (station.portalId) {
-            return this.portalInterface.updateStation(params, station.portalId);
-        }
-    }
-
     _updateStationStatus(station, status) {
         if (status != null) {
             station.statusJson = status;
-
             // save changes internally
             this.stations[station.deviceId] = station;
-            return this._updatePortal(station).then(() => {
-                return this._publishStationsUpdated().then(() => {
-                    return this._publishStationRefreshed(station);
-                });
+            return this._publishStationsUpdated().then(() => {
+                return this._publishStationRefreshed(station);
             });
         } else {
             console.log("No status");

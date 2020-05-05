@@ -206,11 +206,7 @@ export default {
             savingStation.percentComplete = this.percentComplete;
             dbInterface.setStationPercentComplete(savingStation);
 
-            queryStation.startDataRecording(this.station.url).then(result => {
-                this.updatePortal(savingStation).catch(e => {
-                    // TODO: put failure in notifications
-                    console.log("error updating portal", e);
-                });
+            queryStation.startDataRecording(this.station.url).then(() => {
                 this.$navigateTo(routes.stationDetail, {
                     props: {
                         station: this.station,
@@ -218,22 +214,6 @@ export default {
                     },
                 });
             });
-        },
-
-        updatePortal(savingStation) {
-            if (this.station.portalId && this.station.url != "no_url") {
-                let params = {
-                    name: this.station.name,
-                    device_id: this.station.deviceId,
-                    status_json: savingStation,
-                };
-                return this.$portalInterface.updateStation(params, this.station.portalId).then(result => {
-                    // console.log("successfully updated", result.id)
-                    return Promise.resolve();
-                });
-            } else {
-                return Promise.resolve();
-            }
         },
     },
 };

@@ -68,13 +68,7 @@ export class Services {
     StationMonitor() {
         if (!this.stationMonitor) {
             const StationMonitor = require("./station-monitor").default;
-            this.stationMonitor = new StationMonitor(
-                this.DiscoverStation(),
-                this.Database(),
-                this.QueryStation(),
-                this.PhoneLocation(),
-                this.PortalInterface()
-            );
+            this.stationMonitor = new StationMonitor(this.DiscoverStation(), this.Database(), this.QueryStation(), this.PhoneLocation());
         }
         return this.stationMonitor;
     }
