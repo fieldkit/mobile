@@ -367,19 +367,31 @@ export default {
                 return i.id == this.currentlyPicking.id;
             });
 
-            // will be checking to make sure end is after start
+            // checking to make sure end is after start
             let attemptingStart = new Date();
             let attemptingEnd = new Date();
             if (this.currentlyPicking.time == "start") {
+                // *** TEMP: not sure yet what hardware will want
+                interval.start.hour = origHour;
+                interval.start.minute = origMinutes;
+                interval.start.display = hour + ":" + minutes + suffix;
+
                 attemptingStart.setHours(origHour, origMinutes, 0);
                 attemptingEnd.setHours(interval.end.hour, interval.end.minute, 0);
-                if (attemptingStart < attemptingEnd) {
-                    // *** TEMP: not sure yet what hardware will want
-                    interval.start.hour = origHour;
-                    interval.start.minute = origMinutes;
-                    interval.start.display = hour + ":" + minutes + suffix;
-                } else {
-                    interval.startError = true;
+                if (attemptingStart > attemptingEnd) {
+                    // interval.startError = true;
+                    // bump the end time forward so it's after the start time
+                    const newEnd = new Date();
+                    newEnd.setHours(interval.start.hour + 1, interval.start.minute, 0);
+                    const endHour = newEnd.getHours();
+                    const endSuffix = endHour < 12 ? " AM" : " PM";
+                    let displayEndHour = endHour % 12 == 0 ? 12 : endHour % 12;
+                    displayEndHour = displayEndHour < 10 ? "0" + displayEndHour : displayEndHour;
+                    let endMinutes = newEnd.getMinutes();
+                    const displayEndMinutes = endMinutes < 10 ? "0" + endMinutes : endMinutes;
+                    interval.end.hour = endHour;
+                    interval.end.minute = endMinutes;
+                    interval.end.display = displayEndHour + ":" + displayEndMinutes + endSuffix;
                 }
             } else if (this.currentlyPicking.time == "end") {
                 attemptingStart.setHours(interval.start.hour, interval.start.minute, 0);
