@@ -260,7 +260,6 @@ export default {
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: this.station.id,
-                    station: this.station,
                 },
             });
         },
@@ -290,14 +289,14 @@ export default {
                 dbInterface.setStationPercentComplete(savingStation).then(() => {
                     this.$navigateTo(routes.stationDetail, {
                         props: {
-                            station: this.station,
+                            stationId: this.station.id,
                         },
                     });
                 });
             } else {
                 this.$navigateTo(routes.stationDetail, {
                     props: {
-                        station: this.station,
+                        stationId: this.station.id,
                     },
                 });
             }

@@ -295,16 +295,10 @@ export default {
         onCalloutTap(marker) {
             // remove the "marker-" prefix
             let id = marker.id.split("marker-")[1];
-            let stationObj = null;
-            if (this.station && this.station.id == id) {
-                stationObj = this.station;
-            }
-
             this.unsubscribe();
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: id,
-                    station: stationObj,
                 },
             });
         },
@@ -319,16 +313,10 @@ export default {
 
             // remove the "station-" prefix
             let id = event.object.id.split("station-")[1];
-            let stationObj = null;
-            if (this.station && this.station.id == id) {
-                stationObj = this.station;
-            }
-
             this.unsubscribe();
             this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: id,
-                    station: stationObj,
                 },
             });
         },

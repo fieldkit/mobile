@@ -209,7 +209,7 @@ export default {
             queryStation.startDataRecording(this.station.url).then(() => {
                 this.$navigateTo(routes.stationDetail, {
                     props: {
-                        station: this.station,
+                        stationId: this.station.id,
                         redirectedFromDeploy: "true",
                     },
                 });
