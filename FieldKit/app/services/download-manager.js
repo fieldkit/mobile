@@ -73,12 +73,15 @@ export default class DownloadManager {
         }
 
         const stations = this.stationMonitor.getStations().filter(s => {
+            console.log(" ~~ Connection Sleuthing ~~ during filtering", s.name, s.deviceId, s.url, s.connected);
             return s.deviceId && s.url && s.connected;
         });
+        console.log("~~ Connection Sleuthing ~~ after filtering", stations.length);
 
         return Promise.all(
             stations.map(keysToCamel).map(station => {
                 if (!station.statusJson) {
+                    console.log("~~ Connection Sleuthing ~~ no statusJson", station.name);
                     return {
                         station: station,
                         streams: {
@@ -99,7 +102,7 @@ export default class DownloadManager {
                     const pendingDataBytes = deviceData.size - downloadStatus.data.size;
                     const pendingMetaRecords = deviceMeta.blocks - downloadStatus.meta.lastBlock;
                     const pendingDataRecords = deviceData.blocks - downloadStatus.data.lastBlock;
-
+                    console.log("~~ Connection Sleuthing ~~ retrieved streams", station.name);
                     return {
                         station: station,
                         downloads: downloadStatus,
