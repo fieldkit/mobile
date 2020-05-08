@@ -6,22 +6,28 @@ import * as AllMigrations from "../migrations";
 
 export default class Migrating {
     up(db) {
-        return this._initialize(db).then(() => {
-            const all = this._resolve();
+        return this._initialize(db)
+            .then(() => {
+                const all = this._resolve();
 
-            return serializePromiseChain(all, migration => {
-                console.log("migration: check", migration.version, migration.name);
-                return this._isNecessary(db, migration).then(necessary => {
-                    if (necessary) {
-                        return this._migrateUp(db, migration);
-                    }
-                    return {
-                        migration,
-                        skipped: true,
-                    };
+                return serializePromiseChain(all, migration => {
+                    console.log("migration: check", migration.version, migration.name);
+                    return this._isNecessary(db, migration).then(necessary => {
+                        if (necessary) {
+                            return this._migrateUp(db, migration);
+                        }
+                        return {
+                            migration,
+                            skipped: true,
+                        };
+                    });
                 });
+            })
+            .catch(err => {
+                console.log("ERROR", err.message);
+                console.log("ERROR", err.stack);
+                return Promise.reject(err);
             });
-        });
     }
 
     _migrateUp(db, migration) {

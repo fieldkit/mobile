@@ -29,7 +29,8 @@ function initializeApplication() {
             return Services.OnlineStatus().start();
         })
         .catch(err => {
-            console.log("startup error", err, err.stack);
+            console.log("ERROR", err.message);
+            console.log("ERROR", err.stack);
         });
 }
 
