@@ -173,6 +173,7 @@ export default {
         manageRecentSyncs(status) {
             // manage downloads
             status.station.stations.forEach(s => {
+                console.log("~~ Connection Sleuthing ~~ DataSyncView got download status for", s.name);
                 const station = s;
                 let recent = this.recentSyncs.find(r => {
                     return r.deviceId == station.station.deviceId;
@@ -202,6 +203,7 @@ export default {
                 return s.deviceId ? s.deviceId : s.station.deviceId;
             });
             disconnected.forEach(d => {
+                console.log("~~ Connection Sleuthing ~~ DataSyncView registered as disconnected", d.name);
                 d.disconnected = true;
             });
 
