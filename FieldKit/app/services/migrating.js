@@ -54,8 +54,7 @@ export default class Migrating {
                     instance: new row.ctor(),
                 };
             })
-            .sort(v => v.order)
-            .reverse()
+            .sortBy(v => v.order)
             .value();
     }
 
