@@ -410,7 +410,7 @@ export default {
                         console.log("busy, ignored");
                     } else {
                         console.error("ERROR SYNC PORTAL", error);
-                        if (error.offline && !this.askedOnce) {
+                        if (error.notLoggedIn && !this.askedOnce) {
                             this.askedOnce = true;
                             return confirm({
                                 title: "FieldKit",

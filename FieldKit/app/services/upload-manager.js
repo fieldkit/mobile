@@ -50,9 +50,9 @@ export default class UploadManager {
 
     _onlyIfOnline() {
         if (!this.portalInterface.isLoggedIn()) {
-            log.info("offline!");
+            log.info("UploadManager reports not logged in!");
             return Promise.reject({
-                offline: true,
+                notLoggedIn: true,
             });
         }
 
