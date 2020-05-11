@@ -145,8 +145,8 @@ export default class StationMonitor extends Observable {
             return this.checkDatabase(station.deviceId, station.url);
         }
 
-        station.connected = true;
-        station.lastSeen = new Date();
+        this.stations[station.deviceId].connected = true;
+        this.stations[station.deviceId].lastSeen = new Date();
         this.keepDatabaseFieldsInSync(station, result);
         return this._updateStationStatus(station, result);
     }
@@ -161,8 +161,8 @@ export default class StationMonitor extends Observable {
             return this.checkDatabase(station.deviceId, station.url);
         }
 
-        station.connected = true;
-        station.lastSeen = new Date();
+        this.stations[station.deviceId].connected = true;
+        this.stations[station.deviceId].lastSeen = new Date();
         this.keepDatabaseFieldsInSync(station, result);
 
         const readings = {};
@@ -188,7 +188,7 @@ export default class StationMonitor extends Observable {
             consumedMemoryPercent: result.status.memory.dataMemoryConsumption,
         };
         // store one set of live readings per station
-        station.readings = readings;
+        this.stations[station.deviceId].readings = readings;
 
         this.notifyPropertyChange(this.ReadingsChangedProperty, data);
 
@@ -196,23 +196,25 @@ export default class StationMonitor extends Observable {
     }
 
     keepDatabaseFieldsInSync(station, result) {
-        station.name = result.status.identity.device;
-        station.status = result.status.recording.enabled ? "recording" : "";
-        station.deployStartTime = result.status.recording.startedTime ? new Date(result.status.recording.startedTime * 1000) : "";
-        station.batteryLevel = result.status.power.battery.percentage;
-        station.serializedStatus = result.serialized;
-        if (result.status.identity.generationId != station.generationId) {
-            station.generationId = result.status.identity.generationId;
-            if (station.status != "recording") {
+        this.stations[station.deviceId].name = result.status.identity.device;
+        this.stations[station.deviceId].status = result.status.recording.enabled ? "recording" : "";
+        this.stations[station.deviceId].deployStartTime = result.status.recording.startedTime
+            ? new Date(result.status.recording.startedTime * 1000)
+            : "";
+        this.stations[station.deviceId].batteryLevel = result.status.power.battery.percentage;
+        this.stations[station.deviceId].serializedStatus = result.serialized;
+        if (result.status.identity.generationId != this.stations[station.deviceId].generationId) {
+            this.stations[station.deviceId].generationId = result.status.identity.generationId;
+            if (this.stations[station.deviceId].status != "recording") {
                 // new generation and not recording, so
                 // possible factory reset. reset deploy notes
                 this.dbInterface.clearDeployNotes(station);
             }
         }
-        this.dbInterface.updateStation(station).catch(e => {
+        this.dbInterface.updateStation(this.stations[station.deviceId]).catch(e => {
             console.log("Error updating station in the db", e);
         });
-        this.keepModulesAndSensorsInSync(station, result);
+        this.keepModulesAndSensorsInSync(this.stations[station.deviceId], result);
 
         // I'd like to move this state manipulation code into objects
         // that have a narrower set of dependencies so that we can do
@@ -322,8 +324,7 @@ export default class StationMonitor extends Observable {
         });
         if (station) {
             const newStatus = recording == "started" ? "recording" : "";
-            station.status = newStatus;
-            this.stations[station.deviceId] = station;
+            this.stations[station.deviceId].status = newStatus;
             this._publishStationsUpdated();
         }
     }
@@ -550,11 +551,9 @@ export default class StationMonitor extends Observable {
 
     _updateStationStatus(station, status) {
         if (status != null) {
-            station.statusJson = status;
-            // save changes internally
-            this.stations[station.deviceId] = station;
+            this.stations[station.deviceId].statusJson = status;
             return this._publishStationsUpdated().then(() => {
-                return this._publishStationRefreshed(station);
+                return this._publishStationRefreshed(this.stations[station.deviceId]);
             });
         } else {
             console.log("No status");
