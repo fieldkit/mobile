@@ -262,6 +262,11 @@ export default {
                             } else {
                                 if (Number(data.value.id) === Number(this.paramId)) {
                                     this.currentStation.connected = data.value.connected;
+                                    // refetch modules
+                                    dbInterface
+                                        .getModules(this.paramId)
+                                        .then(this.setupModules)
+                                        .then(this.updateModules);
                                 }
                             }
                             break;
@@ -308,6 +313,10 @@ export default {
         setupModules(modules) {
             this.currentStation.moduleObjects = modules;
             return Promise.all(this.currentStation.moduleObjects.map(this.getSensors));
+        },
+
+        updateModules() {
+            this.$refs.moduleList.updateModules(this.currentStation.moduleObjects);
         },
 
         completeSetup() {

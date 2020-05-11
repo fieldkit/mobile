@@ -83,7 +83,7 @@ export default {
             this.modules.forEach((m, i) => {
                 this.open.push(m.id);
                 m.sensorObjects.forEach(s => {
-                    s.displayReading = s.currentReading ? s.currentReading.toFixed(1) : "--";
+                    s.displayReading = s.currentReading || s.currentReading === 0 ? s.currentReading.toFixed(1) : "--";
                     s.icon = "~/images/Icon_Neutral.png";
                 });
             });
