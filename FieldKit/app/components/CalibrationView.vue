@@ -819,13 +819,13 @@ const calibrations = {
             {
                 heading: "Dissolved Oxygen Calibration",
                 instruction: "Make sure you dry your probe before calibration.",
-                image: "~/images/Temporary_DO_1.jpg",
+                image: "~/images/TI_16-A.jpg",
                 buttonText: "Next",
             },
             {
                 heading: "Dissolved Oxygen Calibration",
                 instruction: "Hold probe out in the atmosphere.",
-                image: "~/images/Temporary_DO_2.jpg",
+                image: "~/images/TI_16-B.jpg",
                 buttonText: "Start Timer",
             },
             {
