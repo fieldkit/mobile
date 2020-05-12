@@ -162,12 +162,14 @@ export default {
                     fullscreen: true,
                 };
                 this.$showModal(modalStationPicker, options).then(station => {
-                    this.$navigateTo(Recalibrate, {
-                        props: {
-                            stepParam: "startCalibration",
-                            stationParam: station,
-                        },
-                    });
+                    if (station) {
+                        this.$navigateTo(Recalibrate, {
+                            props: {
+                                stepParam: "startCalibration",
+                                stationParam: station,
+                            },
+                        });
+                    }
                 });
             }
         },
