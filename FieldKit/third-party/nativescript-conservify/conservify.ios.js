@@ -82,7 +82,7 @@ var UploadListener = (function (_super) {
             var info = task.info;
             var progress = info.progress;
             if (progress) {
-                progress(bytes, total, info);
+                progress(total, bytes, info);
             }
         }
         else {
@@ -159,7 +159,7 @@ var DownloadListener = (function (_super) {
             var info = task.info;
             var progress = info.progress;
             if (progress) {
-                progress(bytes, total);
+                progress(total, bytes, info);
             }
         }
         else {
