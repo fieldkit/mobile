@@ -132,11 +132,7 @@ export default {
 
         goToAddStation() {
             this.unsubscribe();
-            this.$navigateTo(routes.assembleStation, {
-                props: {
-                    stepParam: "first",
-                },
-            });
+            this.$navigateTo(routes.connectStation);
         },
 
         getDeployStatus(station) {
