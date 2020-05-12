@@ -50,6 +50,7 @@ export default class PortalInterface {
     }
 
     isLoggedIn() {
+        console.log("~~ Token debugging ~~ PortalInterface has this token in isLoggedIn", this._appSettings.getString("accessToken"));
         return this._appSettings.getString("accessToken") ? true : false;
     }
 
@@ -223,6 +224,7 @@ export default class PortalInterface {
     }
 
     _handleTokenResponse(response) {
+        console.log("~~ Token debugging ~~ PortalInterface got response", response);
         if (response.status !== 204) {
             throw new Error("authentication failed");
         }
@@ -230,6 +232,7 @@ export default class PortalInterface {
         // Headers should always be lower case, bug otherwise.
         const accessToken = response.headers.authorization;
         this._appSettings.setString("accessToken", accessToken);
+        console.log("~~ Token debugging ~~ PortalInterface stored token", this._appSettings.getString("accessToken"));
         return this.storeCurrentUser().then(() => {
             return {
                 token: accessToken,
@@ -268,7 +271,9 @@ export default class PortalInterface {
     }
 
     _tryRefreshToken(original) {
+        console.log("~~ Token debugging ~~ PortalInterface gonna try refreshing with", this._appSettings.getString("accessToken"));
         const token = this._parseToken(this._appSettings.getString("accessToken"));
+        console.log("~~ Token debugging ~~ PortalInterface has this after parsing that", token);
         if (token == null) {
             return Promise.reject("no token");
         }
