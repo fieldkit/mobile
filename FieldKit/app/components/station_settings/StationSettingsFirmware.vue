@@ -92,21 +92,25 @@ export default {
         },
 
         downloadFirmware(args) {
-            this.$showModal(UpgradeFirmwareModal, {
+            const options = {
                 props: {
                     station: this.station,
                     downloadOnly: true,
                 },
-            });
+                fullscreen: true,
+            };
+            this.$showModal(UpgradeFirmwareModal, options);
         },
 
         upgradeFirmware(args) {
-            this.$showModal(UpgradeFirmwareModal, {
+            const options = {
                 props: {
                     station: this.station,
                     downloadOnly: false,
                 },
-            });
+                fullscreen: true,
+            };
+            this.$showModal(UpgradeFirmwareModal, options);
         },
 
         goBack(event) {

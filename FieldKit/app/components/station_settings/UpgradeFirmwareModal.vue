@@ -1,20 +1,38 @@
 <template>
-    <Page @loaded="onLoaded" @unloaded="onUnloaded">
-        <GridLayout rows="auto, *" class="container">
-            <StackLayout verticalAlign="center" class="bar-container" v-if="!done">
-                <Label text="Upgrading station firmware. Thank you for your patience." textWrap="true" v-if="!downloadOnly && !error" />
-                <Label text="No local firmware and you're offline so none can be downloaded." textWrap="true" v-if="error" />
-                <Label text="Downloading firmware." textWrap="true" v-if="downloadOnly" />
+    <StackLayout class="modal-bkgd" @loaded="onLoaded" @unloaded="onUnloaded">
+        <GridLayout rows="*" columns="*" width="100%" height="100%" class="p-20 modal-container text-center">
+            <StackLayout verticalAlignment="middle" class="bar-container" v-if="!done">
+                <Label
+                    class="info"
+                    lineHeight="4"
+                    text="Upgrading station firmware. Thank you for your patience."
+                    textWrap="true"
+                    v-if="!downloadOnly && !error"
+                />
+                <Label
+                    class="info"
+                    lineHeight="4"
+                    text="No local firmware and you're offline so none can be downloaded."
+                    textWrap="true"
+                    v-if="error"
+                />
+                <Label class="info" lineHeight="4" text="Downloading firmware." textWrap="true" v-if="downloadOnly" />
                 <Progress :value="progress" scaleY="4" v-if="!error" />
             </StackLayout>
 
-            <StackLayout verticalAlign="center" class="bar-container" v-if="done">
-                <Label text="Upgrade done, your station is now restarting." textWrap="true" v-if="!downloadOnly" />
-                <Label text="Downloaded." textWrap="true" v-if="downloadOnly" />
-                <Button @tap="close">OK</Button>
+            <StackLayout verticalAlignment="middle" class="bar-container" v-if="done">
+                <Label
+                    class="info"
+                    lineHeight="4"
+                    text="Upgrade done, your station is now restarting."
+                    textWrap="true"
+                    v-if="!downloadOnly"
+                />
+                <Label class="info" lineHeight="4" text="Downloaded." textWrap="true" v-if="downloadOnly" />
+                <Label class="ok-btn" text="OK" verticalAlignment="middle" @tap="$modal.close()" />
             </StackLayout>
         </GridLayout>
-    </Page>
+    </StackLayout>
 </template>
 <script>
 import { serializePromiseChain, promiseAfter } from "../../utilities";
@@ -84,20 +102,29 @@ export default {
         onUnloaded() {
             console.log("onUnloaded");
         },
-        close() {
-            console.log("Close");
-            this.$modal.close(true);
-        },
     },
 };
 </script>
 <style scoped lang="scss">
 @import "../../app-variables";
 
-.container {
-    height: 20%;
+.modal-bkgd {
+    background-color: gray;
 }
-
+.modal-container {
+    background-color: white;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+    border-radius: 4;
+}
+.info {
+    color: $fk-primary-black;
+    margin: 20;
+}
+.ok-btn {
+    color: $fk-primary-red;
+    font-weight: bold;
+}
 .bar-container {
     margin: 20;
 }
