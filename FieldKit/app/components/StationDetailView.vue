@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
-        <GridLayout :rows="hasNotifications ? '*,35,55' : '*,55'">
+        <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <ScreenHeader
@@ -65,9 +65,9 @@
             </ScrollView>
 
             <!-- notifications -->
-            <NotificationFooter row="1" :onClose="goToDetail" v-if="hasNotifications" />
+            <NotificationFooter row="1" :onClose="goToDetail" :notificationCodes="notificationCodes" v-if="notificationCodes.length > 0" />
             <!-- footer -->
-            <ScreenFooter :row="hasNotifications ? '2' : '1'" active="stations" />
+            <ScreenFooter :row="notificationCodes.length > 0 ? '2' : '1'" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -98,7 +98,7 @@ export default {
             currentStation: { name: "", id: 0 },
             paramId: null,
             newlyDeployed: false,
-            hasNotifications: false,
+            notificationCodes: [],
         };
     },
     components: {
@@ -328,6 +328,12 @@ export default {
                 setTimeout(() => {
                     this.newlyDeployed = false;
                 }, 3000);
+            }
+
+            if (this.currentStation.portalHttpError) {
+                if (this.notificationCodes.indexOf(this.currentStation.portalHttpError == -1)) {
+                    this.notificationCodes.push(this.currentStation.portalHttpError);
+                }
             }
 
             if (this.currentStation.deployStartTime && typeof this.currentStation.deployStartTime == "string") {

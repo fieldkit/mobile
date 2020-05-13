@@ -305,6 +305,12 @@ export default class DatabaseInterface {
         );
     }
 
+    setStationPortalError(station, errorCode) {
+        return this.getDatabase().then(db =>
+            db.query("UPDATE stations SET portal_http_error = ?, updated = ? WHERE id = ?", [errorCode, new Date(), station.id])
+        );
+    }
+
     setModuleName(module) {
         return this.getDatabase().then(db => db.query("UPDATE modules SET name = ? WHERE device_id = ?", [module.name, module.deviceId]));
     }
