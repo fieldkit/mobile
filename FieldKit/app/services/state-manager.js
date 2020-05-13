@@ -18,7 +18,7 @@ export default class StateManager extends BetterObservable {
         this.downloadManager = new DownloadManager(services);
         this.uploadManager = new UploadManager(services);
         this.stationMonitor.on(Observable.propertyChangeEvent, ev => {
-            log.info("updating", ev.value);
+            log.info("updating");
             this.refresh();
         });
     }

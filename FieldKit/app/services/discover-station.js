@@ -2,6 +2,7 @@ import { Observable, PropertyChangeData } from "tns-core-modules/data/observable
 import * as ConnectivityModule from "tns-core-modules/connectivity";
 import { isIOS } from "tns-core-modules/platform";
 import { every } from "./rx";
+import { EventHistory } from "./event-history";
 
 import Config from "../config";
 
@@ -102,6 +103,7 @@ export default class DiscoverStation extends Observable {
         this.services = services;
         this.stations_ = {};
         this.networkMonitor = null;
+        this.history = new EventHistory(this.services);
 
         this.StationFoundProperty = "stationFound";
         this.StationLostProperty = "stationLost";
@@ -177,7 +179,10 @@ export default class DiscoverStation extends Observable {
         const station = new Station(info);
         this.stations_[key] = station;
 
-        this.notifyPropertyChange(this.StationFoundProperty, station);
+        // save the event in our history before we notify the rest of the application.
+        this.history.onFoundStation(info).then(() => {
+            this.notifyPropertyChange(this.StationFoundProperty, station);
+        });
     }
 
     onLostService(info) {
@@ -186,11 +191,15 @@ export default class DiscoverStation extends Observable {
             info.type = "._fk._tcp";
         }
 
-        const key = this.makeKey(info);
-        this.notifyPropertyChange(this.StationLostProperty, this.stations_[key]);
+        // save the event in our history before we notify the rest of the application.
+        this.history.onLostStation(info).then(() => {
+            const key = this.makeKey(info);
 
-        // don't delete until after it has gone out with notification
-        delete this.stations_[key];
+            this.notifyPropertyChange(this.StationLostProperty, this.stations_[key]);
+
+            // don't delete until after it has gone out with notification
+            delete this.stations_[key];
+        });
     }
 
     makeKey(station) {

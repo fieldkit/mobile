@@ -779,6 +779,11 @@ export default class DatabaseInterface {
                 return JSON.parse(rows[0].status_json);
             });
     }
+
+    addEvent(event) {
+        const values = [event.createdAt, event.type, JSON.stringify(event.body)];
+        return this.getDatabase().then(db => db.query("INSERT INTO event_history (created_at, type, body) VALUES (? , ?, ?)", values));
+    }
 }
 
 class Station {

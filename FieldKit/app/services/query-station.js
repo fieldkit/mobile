@@ -2,6 +2,7 @@ import _ from "lodash";
 import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
 import { unixNow, promiseAfter } from "../utilities";
+import { EventHistory } from "./event-history";
 import Config from "../config";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
@@ -36,6 +37,7 @@ const MandatoryStatus = {
 export default class QueryStation {
     constructor(services) {
         this.services = services;
+        this.history = new EventHistory(this.services);
     }
 
     getStatus(address, locate) {
@@ -281,9 +283,11 @@ export default class QueryStation {
                     }
 
                     const decoded = this._getResponseBody(response);
-                    return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
-                        log.verbose(url, "query success", finalReply);
-                        return finalReply;
+                    return this.history.onStationReply(decoded).then(() => {
+                        return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
+                            log.verbose(url, "query success", finalReply);
+                            return finalReply;
+                        });
                     });
                 },
                 err => {
