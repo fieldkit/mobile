@@ -38,6 +38,7 @@ export default class QueryStation {
     constructor(services) {
         this.services = services;
         this.history = new EventHistory(this.services);
+        this.openQueries = {};
     }
 
     getStatus(address, locate) {
@@ -265,6 +266,12 @@ export default class QueryStation {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject("ignored");
         }
+
+        if (this.openQueries[url] > 0) {
+            return Promise.reject("throttled");
+        }
+        this.openQueries[url] = (this.openQueries[url] || 0) + 1;
+
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         log.info(url, "querying", message);
 
@@ -277,6 +284,8 @@ export default class QueryStation {
             })
             .then(
                 response => {
+                    this.openQueries[url] = 0;
+
                     if (response.body.length == 0) {
                         log.info(url, "query success", "<empty>");
                         return {};
@@ -291,7 +300,8 @@ export default class QueryStation {
                     });
                 },
                 err => {
-                    log.error(url, "query error", err);
+                    this.openQueries[url] = 0;
+                    log.error(url, "query error");
                     return Promise.reject(err);
                 }
             );
