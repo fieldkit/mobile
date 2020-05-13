@@ -26,6 +26,7 @@ function initializeApplication() {
             Vue.prototype.$stationMonitor = Services.StationMonitor();
             Vue.prototype.$portalInterface = Services.PortalInterface();
             Services.PortalUpdater().start();
+            Services.StateManager().start();
             return Services.OnlineStatus().start();
         })
         .catch(err => {

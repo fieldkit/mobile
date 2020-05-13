@@ -5,6 +5,7 @@ function get_blank_developer_config() {
         logging: {
             SaveLogs: true,
             EnableAll: true,
+            /*
             QueryStation: false,
             DownloadManager: false,
             UploadManager: false,
@@ -12,6 +13,7 @@ function get_blank_developer_config() {
             DiscoverStation: true,
             NativeScriptConservify: true,
             StationFirmware: true,
+			*/
         },
         developer: {
             machine: null,

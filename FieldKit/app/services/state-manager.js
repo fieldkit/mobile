@@ -23,6 +23,8 @@ export default class StateManager extends BetterObservable {
         });
     }
 
+    start() {}
+
     renameStation(station, newName) {
         return this.databaseInterface.setStationName(station).then(() => {
             return this.queryStation.configureName(station.url, newName);
