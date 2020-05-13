@@ -7,6 +7,7 @@ import Config from "../config";
 const SaveInterval = 10000;
 const logs = [];
 const originalConsole = console;
+const MaximumLogSize = 1024 * 1024 * 5;
 
 function getPrettyTime() {
     return moment().format();
@@ -17,6 +18,13 @@ function getLogsFile() {
         .documents()
         .getFolder("diagnostics")
         .getFile("logs.txt");
+}
+
+function getExistingLogs(file) {
+    if (file.size < MaximumLogSize) {
+        return file.readTextSync() || "";
+    }
+    return "";
 }
 
 function flush() {
@@ -30,7 +38,7 @@ function flush() {
 
     return new Promise((resolve, reject) => {
         const file = getLogsFile();
-        const existing = file.readTextSync() || "";
+        const existing = getExistingLogs(file);
         const replacing = existing + appending + "\n";
 
         file.writeTextSync(replacing, err => {
