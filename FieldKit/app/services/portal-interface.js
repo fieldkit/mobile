@@ -91,12 +91,14 @@ export default class PortalInterface {
 
     getTransmissionToken() {
         return this._query({
+            authenticated: true,
             url: "/user/transmission-token",
         });
     }
 
     addStation(data) {
         return this._query({
+            authenticated: true,
             method: "POST",
             url: "/stations",
             data: data,
@@ -105,6 +107,7 @@ export default class PortalInterface {
 
     updateStation(data, portalId) {
         return this._query({
+            authenticated: true,
             method: "PATCH",
             url: "/stations/" + portalId,
             data: data,
@@ -113,24 +116,28 @@ export default class PortalInterface {
 
     getStationSyncState(deviceId) {
         return this._query({
+            authenticated: true,
             url: "/data/devices/" + deviceId + "/summary",
         });
     }
 
     getStations() {
         return this._query({
+            authenticated: true,
             url: "/stations",
         });
     }
 
     getStationById(id) {
         return this._query({
+            authenticated: true,
             url: "/stations/@/" + id,
         });
     }
 
     addFieldNote(data) {
         return this._query({
+            authenticated: true,
             method: "POST",
             url: "/stations/" + data.stationId + "/field-notes",
             data: data,
@@ -242,31 +249,38 @@ export default class PortalInterface {
 
     _getHeaders(req) {
         const token = this._appSettings.getString("accessToken");
-        if (token) {
+        if (token && token.length > 0) {
             return _.merge(req.headers || {}, {
                 "Content-Type": "application/json",
-                Authorization: this._appSettings.getString("accessToken"),
+                Authorization: token,
             });
+        } else {
+            if (req.authenticated) {
+                console.log("skipping portal query, no auth");
+                return Promise.reject(new Error("no token, skipping query"));
+            }
         }
-        return req.headers;
+
+        return Promise.resolve(req.headers);
     }
 
     _query(req) {
         console.log("portal query", req.method || "GET", req.url);
-        req.headers = this._getHeaders(req);
-        return this.getUri().then(baseUri => {
-            req.url = baseUri + req.url;
-            return axios(req)
-                .then(response => response.data)
-                .catch(error => {
-                    if (error.response.status === 401) {
-                        return this._tryRefreshToken(req);
-                    }
+        return this._getHeaders(req).then(headers => {
+            return this.getUri().then(baseUri => {
+                req.url = baseUri + req.url;
+                return axios(req)
+                    .then(response => response.data)
+                    .catch(error => {
+                        if (error.response.status === 401) {
+                            return this._tryRefreshToken(req);
+                        }
 
-                    console.log("portal error", error.response.status, error.response.data);
+                        console.log("portal error", error.response.status, error.response.data);
 
-                    throw error;
-                });
+                        throw error;
+                    });
+            });
         });
     }
 
