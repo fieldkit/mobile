@@ -79,7 +79,7 @@ import * as dialogs from "tns-core-modules/ui/dialogs";
 import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import { request } from "tns-core-modules/http";
 
-import modalMap from "./ModalMapView";
+import MapModal from "./MapModal";
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
@@ -127,7 +127,7 @@ export default {
                 },
                 fullscreen: true,
             };
-            this.$showModal(modalMap, options);
+            this.$showModal(MapModal, options);
         },
 
         goToAddStation() {

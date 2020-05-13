@@ -229,7 +229,7 @@
 <script>
 import * as TimePicker from "tns-core-modules/ui/time-picker";
 import Services from "../services/services";
-import modalTimePicker from "./ModalTimePicker";
+import TimePickerModal from "./TimePickerModal";
 
 const queryStation = Services.QueryStation();
 const dbInterface = Services.Database();
@@ -413,7 +413,7 @@ export default {
                 },
                 fullscreen: true,
             };
-            this.$showModal(modalTimePicker, options).then(this.submitTime);
+            this.$showModal(TimePickerModal, options).then(this.submitTime);
         },
 
         submitTime(modalTime) {

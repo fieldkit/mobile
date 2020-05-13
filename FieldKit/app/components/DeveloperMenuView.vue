@@ -53,7 +53,7 @@ import Services from "../services/services";
 import Recalibrate from "./onboarding/Recalibrate";
 import AppSettings from "../wrappers/app-settings";
 import DiagnosticsModal from "./DiagnosticsModal";
-import modalStationPicker from "./ModalStationPicker";
+import StationPicker from "./StationPickerModal";
 
 const appSettings = new AppSettings();
 const dbInterface = Services.Database();
@@ -161,7 +161,7 @@ export default {
                     },
                     fullscreen: true,
                 };
-                this.$showModal(modalStationPicker, options).then(station => {
+                this.$showModal(StationPicker, options).then(station => {
                     if (station) {
                         this.$navigateTo(Recalibrate, {
                             props: {
