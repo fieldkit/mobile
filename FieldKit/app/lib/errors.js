@@ -14,15 +14,13 @@ export default function configureGlobalErrorHandling() {
 
         traceModule.enable();
 
-        Bluebird.onUnhandledRejectionHandled(error => {
-            console.log("onUnhandledRejectionHandled", error);
-            // throw error;
+        Bluebird.onUnhandledRejectionHandled(promise => {
+            console.log("onUnhandledRejectionHandled" /*, error*/);
         });
 
         Bluebird.onPossiblyUnhandledRejection((error, promise) => {
             console.log("onPossiblyUnhandledRejection", error);
-            console.log("onPossiblyUnhandledRejection", promise);
-            // throw error;
+            // console.log("onPossiblyUnhandledRejection", promise);
         });
 
         // err: error trace
