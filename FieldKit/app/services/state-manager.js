@@ -17,13 +17,9 @@ export default class StateManager extends BetterObservable {
         this.portalInterface = services.PortalInterface();
         this.downloadManager = new DownloadManager(services);
         this.uploadManager = new UploadManager(services);
-        this.stationMonitor.on(Observable.propertyChangeEvent, data => {
-            switch (data.propertyName.toString()) {
-                case this.stationMonitor.StationRefreshedProperty: {
-                    this.refresh();
-                    break;
-                }
-            }
+        this.stationMonitor.on(Observable.propertyChangeEvent, ev => {
+            log.info("updating", ev.value);
+            this.refresh();
         });
     }
 

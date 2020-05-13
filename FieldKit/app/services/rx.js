@@ -5,14 +5,17 @@ export const HiddenProperty = "valueChanged";
 export class BetterObservable extends Observable {
     constructor() {
         super();
-        this.has_value = false;
+        this.hasValue = false;
         this.value = null;
+        this.counter = 0;
     }
 
     subscribe(receiver) {
-        if (!this.has_value) {
+        if (!this.hasValue) {
+            console.log(this.constructor.name, "Rx, subscribe, no value, refreshing", this.counter);
             this.refresh();
         } else {
+            console.log(this.constructor.name, "Rx, subscribe, immediate value", this.counter);
             receiver(this.value);
         }
 
@@ -36,7 +39,9 @@ export class BetterObservable extends Observable {
 
     publish(value) {
         this.value = value;
-        this.has_value = true;
+        this.hasValue = true;
+        this.counter++;
+        console.log(this.constructor.name, "Rx, publishing new value", this.counter);
         this.notifyPropertyChange(HiddenProperty, value);
     }
 
@@ -49,7 +54,7 @@ export class BetterObservable extends Observable {
                 return value;
             })
             .catch(error => {
-                console.log("error", error);
+                console.log(this.constructor.name, "error", error);
             });
     }
 

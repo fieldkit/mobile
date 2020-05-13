@@ -109,20 +109,20 @@ export default {
         onLoaded(args) {
             log.info("loaded");
 
-            const stateManager = Services.StateManager();
-
-            log.info("subscribed");
-
             this.recentSyncs = [];
             this.stations = this.$stationMonitor.getStations();
             this.stations.forEach(s => {
-                let recent = this.createRecent(s);
-                this.updateHistory(recent);
+                this.updateHistory(this.createRecent(s));
             });
 
-            stateManager.subscribe(status => {
+            log.info("subscribing to stateManager");
+
+            Services.StateManager().subscribe(status => {
+                log.info("received stations", status);
                 this.manageRecentSyncs(status);
             });
+
+            log.info("subscribing to progress");
 
             Services.ProgressService().subscribe(data => {
                 if (data.message && data.message == "Uploading") {
