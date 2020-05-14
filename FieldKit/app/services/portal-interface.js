@@ -250,10 +250,12 @@ export default class PortalInterface {
     _getHeaders(req) {
         const token = this._appSettings.getString("accessToken");
         if (token && token.length > 0) {
-            return _.merge(req.headers || {}, {
-                "Content-Type": "application/json",
-                Authorization: token,
-            });
+            return Promise.resolve(
+                _.merge(req.headers || {}, {
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                })
+            );
         } else {
             if (req.authenticated) {
                 console.log("skipping portal query, no auth");
