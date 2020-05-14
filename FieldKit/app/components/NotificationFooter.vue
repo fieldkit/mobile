@@ -12,6 +12,11 @@ import Config from "../config";
 import NotificationModal from "./NotificationModal";
 
 const noteContent = {
+    1: {
+        heading: "Problem with Portal connection",
+        text: "We encountered an error when connecting to the Portal.",
+        error: true,
+    },
     403: {
         heading: "Unable to update Portal",
         text: "We do not have permission to update the Portal for this station. It may belong to another user.",
@@ -34,11 +39,15 @@ export default {
     methods: {
         onLoaded() {
             this.notificationCodes.forEach((n, i) => {
+                let note = noteContent[n];
+                if (!note) {
+                    let note = noteContent[1];
+                }
                 this.notifications.push({
                     id: i,
-                    heading: noteContent[n].heading,
-                    text: noteContent[n].text,
-                    error: noteContent[n].error,
+                    heading: note.heading,
+                    text: note.text,
+                    error: note.error,
                 });
             });
         },
