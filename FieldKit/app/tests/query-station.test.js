@@ -1,13 +1,20 @@
-import Services from "../services/services";
+import { Services } from "../services/services";
 import { MockStationReplies } from "./utilities";
+import Fixtures from "./fixtures.js";
 
 describe("QueryStation", () => {
+    let services;
     let queryStation;
     let mockStation;
+    let dbInterface;
 
-    beforeEach(() => {
-        queryStation = Services.QueryStation();
-        mockStation = new MockStationReplies(Services);
+    beforeEach(async () => {
+        services = new Services();
+        dbInterface = services.Database();
+        queryStation = services.QueryStation();
+        mockStation = new MockStationReplies(services);
+        const db = await services.CreateDb().initialize();
+        const fixtures = new Fixtures(dbInterface);
     });
 
     it("should retrieve a station status", () => {
