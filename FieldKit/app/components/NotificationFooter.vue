@@ -27,6 +27,7 @@ const noteContent = {
         text: "We are currently not authorized to update the Portal. Are you logged in?",
         error: true,
     },
+    // TODO: handle 400 errors?
 };
 
 export default {
@@ -41,7 +42,7 @@ export default {
             this.notificationCodes.forEach((n, i) => {
                 let note = noteContent[n];
                 if (!note) {
-                    let note = noteContent[1];
+                    note = noteContent[1];
                 }
                 this.notifications.push({
                     id: i,
