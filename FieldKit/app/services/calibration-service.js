@@ -132,8 +132,7 @@ export default class CalibrationService {
     }
 
     getDryEcRef(temp) {
-        // TODO: what should dry ref be?
-        return 12880;
+        return 0;
     }
 
     getLowEcRef(temp) {
