@@ -23,7 +23,7 @@ describe("Authentication", () => {
             const auth = {
                 status: 204,
                 headers: {
-                    Authoriation: "TOKEN",
+                    authorization: "TOKEN",
                 },
                 data: {},
             };
