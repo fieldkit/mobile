@@ -1,35 +1,65 @@
 <template>
-    <FlexboxLayout justifyContent="center" alignItems="center" class="notify-footer" @tap="goToNotifications">
+    <FlexboxLayout justifyContent="center" alignItems="center" class="notify-footer" @tap="showNotifications" @loaded="onLoaded">
         <Label :text="_L('notifications')" horizontalAlignment="right" />
         <GridLayout rows="auto" columns="*" horizontalAlignment="left">
-            <Label row="0" col="0" :text="numNotifications" class="notify-num text-center" />
+            <Label row="0" col="0" :text="notificationCodes.length" class="notify-num text-center" />
         </GridLayout>
     </FlexboxLayout>
 </template>
 
 <script>
 import Config from "../config";
-import routes from "../routes";
+import NotificationModal from "./NotificationModal";
+
+const noteContent = {
+    1: {
+        heading: "Problem with Portal connection",
+        text: "We encountered an error when connecting to the Portal.",
+        error: true,
+    },
+    403: {
+        heading: "Unable to update Portal",
+        text: "We do not have permission to update the Portal for this station. It may belong to another user.",
+        error: true,
+    },
+    401: {
+        heading: "Unable to access Portal",
+        text: "We are currently not authorized to update the Portal. Are you logged in?",
+        error: true,
+    },
+    // TODO: handle 400 errors?
+};
 
 export default {
     data() {
         return {
-            numNotifications: 2,
+            notifications: [],
         };
     },
-    props: {
-        onClose: {
-            type: Function,
-            default: () => {},
-        },
-    },
+    props: ["notificationCodes"],
     methods: {
-        goToNotifications() {
-            this.$navigateTo(routes.notifications, {
-                props: {
-                    onClose: this.onClose,
-                },
+        onLoaded() {
+            this.notificationCodes.forEach((n, i) => {
+                let note = noteContent[n];
+                if (!note) {
+                    note = noteContent[1];
+                }
+                this.notifications.push({
+                    id: i,
+                    heading: note.heading,
+                    text: note.text,
+                    error: note.error,
+                });
             });
+        },
+        showNotifications() {
+            const options = {
+                props: {
+                    notifications: this.notifications,
+                },
+                fullscreen: true,
+            };
+            this.$showModal(NotificationModal, options);
         },
     },
 };

@@ -7,16 +7,16 @@
                     <StackLayout colSpan="2" verticalAlignment="middle">
                         <Label class="title text-center" :text="_L('notifications')"></Label>
                     </StackLayout>
-                    <StackLayout col="1" class="round-bkgd" verticalAlignment="top" @tap="onClose">
+                    <StackLayout col="1" class="round-bkgd" verticalAlignment="top" @tap="$modal.close()">
                         <Image width="21" src="~/images/Icon_Close.png" />
                     </StackLayout>
                 </GridLayout>
 
                 <GridLayout v-for="n in notifications" :key="n.id" rows="*,*,*" columns="15*,85*" class="m-y-5 m-x-15 notify-box">
-                    <Image col="0" row="0" src="~/images/notify-bell.png" width="25" />
-                    <Label col="1" row="0" :text="n.heading" textWrap="true" />
-                    <Label col="1" row="1" :text="n.text" textWrap="true" />
-                    <Label col="1" row="2" :text="_L('dismiss')" class="dismiss-btn" />
+                    <Image col="0" row="0" :src="n.error ? '~/images/Icon_Warning_error.png' : '~/images/notify-bell.png'" width="25" />
+                    <Label col="1" row="0" :text="n.heading" textWrap="true" class="m-b-10" />
+                    <Label col="1" row="1" :text="n.text" textWrap="true" lineHeight="4" />
+                    <!-- <Label col="1" row="2" :text="_L('dismiss')" class="dismiss-btn" :dataId="n.id" @tap="dismiss" /> -->
                 </GridLayout>
             </StackLayout>
         </ScrollView>
@@ -26,28 +26,28 @@
 <script>
 export default {
     data() {
-        return {
-            notifications: [
-                // temporary, example notification
-                {
-                    heading: "You haven't synced for awhile",
-                    text: "Make sure you have enough room for data on your phone before heading out to the field.",
-                },
-                {
-                    heading: "You haven't synced for awhile",
-                    text: "Make sure you have enough room for data on your phone before heading out to the field.",
-                },
-            ],
-        };
+        return {};
     },
-    props: {
-        onClose: {
-            type: Function,
-            default: () => {},
-        },
-    },
+    props: ["notifications"],
     methods: {
         onPageLoaded(args) {},
+        dismiss(event) {
+            // Change color when pressed
+            let cn = event.object.className;
+            event.object.className = cn + " pressed";
+            setTimeout(() => {
+                event.object.className = cn;
+            }, 500);
+
+            let id = event.object.dataId;
+            id = parseInt(id);
+            let index = this.notifications.findIndex(n => {
+                return n.id == id;
+            });
+            if (index > -1) {
+                this.notifications.splice(index, 1);
+            }
+        },
     },
 };
 </script>
@@ -75,5 +75,6 @@ export default {
 }
 .dismiss-btn {
     margin-top: 20;
+    border-radius: 4;
 }
 </style>
