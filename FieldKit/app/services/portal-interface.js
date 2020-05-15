@@ -26,8 +26,10 @@ export default class PortalInterface {
         });
     }
 
-    storeCurrentUser() {
+    storeCurrentUser(refreshed) {
         return this._query({
+            refreshed: refreshed || false,
+            authenticated: true,
             method: "GET",
             url: "/user",
         }).then(data => {
@@ -240,7 +242,7 @@ export default class PortalInterface {
         const accessToken = response.headers.authorization;
         this._appSettings.setString("accessToken", accessToken);
         console.log("~~ Token debugging ~~ PortalInterface stored token", this._appSettings.getString("accessToken"));
-        return this.storeCurrentUser().then(() => {
+        return this.storeCurrentUser(true).then(() => {
             return {
                 token: accessToken,
             };
@@ -256,11 +258,11 @@ export default class PortalInterface {
                     Authorization: token,
                 })
             );
-        } else {
-            if (req.authenticated) {
-                console.log("skipping portal query, no auth");
-                return Promise.reject(new Error("no token, skipping query"));
-            }
+        }
+
+        if (req.authenticated) {
+            console.log("skipping portal query, no auth");
+            return Promise.reject(new Error("no token, skipping query"));
         }
 
         return Promise.resolve(req.headers);
@@ -270,6 +272,7 @@ export default class PortalInterface {
         console.log("portal query", req.method || "GET", req.url);
         return this._getHeaders(req).then(headers => {
             return this.getUri().then(baseUri => {
+                req.headers = headers;
                 req.url = baseUri + req.url;
                 return axios(req)
                     .then(response => response.data)
@@ -294,6 +297,13 @@ export default class PortalInterface {
             return Promise.reject("no token");
         }
 
+        if (original.refreshed === true) {
+            console.log("refresh failed", error);
+            return this.logout().then(_ => {
+                return Promise.reject(error);
+            });
+        }
+
         const requestBody = {
             refresh_token: token.refresh_token,
         };
@@ -308,7 +318,7 @@ export default class PortalInterface {
             })
                 .then(response => {
                     return this._handleTokenResponse(response).then(() => {
-                        return this._query(original);
+                        return this._query(_.extend({ refreshed: true }, original));
                     });
                 })
                 .catch(error => {
