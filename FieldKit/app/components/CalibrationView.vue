@@ -313,7 +313,7 @@ export default {
             };
 
             const steps = this.currentCalibration.steps;
-            // check to see if pH needs calibration performed,
+            // check to see if ec or pH needs calibration performed,
             // as it's not just always the last step, with three-point
             if (this.performCal) {
                 switch (steps[this.step].performCal) {
@@ -322,6 +322,9 @@ export default {
                         break;
                     case "low":
                         this.performLowPhCalibration(address, data);
+                        break;
+                    case "dry":
+                        this.performDryEcCalibration(address, data);
                         break;
                 }
                 return;
@@ -451,6 +454,21 @@ export default {
                     return;
                 }
                 this.endCalibration(body.calibration.doStatus.atm);
+            });
+        },
+
+        performDryEcCalibration(address, data) {
+            return calibrationService.calibrateDryConductivity(address, data).then(body => {
+                if (body.errors && body.errors.length > 0) {
+                    this.failure = true;
+                    return;
+                }
+                this.performCal = false;
+                if (body.calibration.ecStatus.dry > 0) {
+                    this.goNext();
+                } else {
+                    this.failure = true;
+                }
             });
         },
 
@@ -847,19 +865,42 @@ const calibrations = {
         icon: "~/images/Icon_WaterConductivity_Module.png",
         steps: [
             {
-                heading: "Conductivity Calibration",
+                heading: "Part 1: Dry Conductivity Calibration",
+                instruction: "Make sure you dry your probe before calibration.",
+                image: "~/images/TI_16-A.jpg",
+                buttonText: "Next",
+            },
+            {
+                heading: "Part 1: Dry Conductivity Calibration",
+                instruction: "Hold probe out in the atmosphere.",
+                image: "~/images/TI_16-B.jpg",
+                buttonText: "Start Timer",
+            },
+            {
+                isTimer: true,
+                clearCal: true,
+                performCal: "dry",
+                time: 90000,
+                heading: "Part 1: Dry Conductivity Calibration",
+                expectedValue: "0",
+                instruction: "",
+                image: null,
+                buttonText: "Calibrate",
+            },
+            {
+                heading: "Part 2: Wet Conductivity Calibration",
                 instruction: "Make sure you have your conductivity solution.",
                 image: "~/images/TI_11.jpg",
                 buttonText: "Next",
             },
             {
-                heading: "Conductivity Calibration",
+                heading: "Part 2: Wet Conductivity Calibration",
                 instruction: "Rinse probe off with de-ionized water.",
                 image: "~/images/TI_12-A.jpg",
                 buttonText: "Next",
             },
             {
-                heading: "Conductivity Calibration",
+                heading: "Part 2: Wet Conductivity Calibration",
                 instruction:
                     "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
                 image: "~/images/TI_13-C.jpg",
@@ -869,7 +910,7 @@ const calibrations = {
                 isTimer: true,
                 clearCal: true,
                 time: 90000,
-                heading: "Conductivity Calibration",
+                heading: "Part 2: Wet Conductivity Calibration",
                 expectedValue: "12,880",
                 instruction: "",
                 image: null,
