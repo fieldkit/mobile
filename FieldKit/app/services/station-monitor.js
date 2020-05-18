@@ -498,6 +498,9 @@ export default class StationMonitor extends Observable {
         if (!this.queriesInProgress[deviceId]) {
             this.requestInitialReadings(this.stations[deviceId]);
         }
+
+        this._publishStationsUpdated();
+        this._publishStationRefreshed(this.stations[station.deviceId]);
     }
 
     deactivateStation(deviceId) {
