@@ -65,8 +65,6 @@ import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import General from "./StationSettingsGeneral";
 
-const stateManager = Services.StateManager();
-
 export default {
     data() {
         return {
@@ -133,7 +131,7 @@ export default {
             let valid = this.checkName();
             if (valid && this.origName != this.stationName) {
                 this.station.name = this.stationName;
-                stateManager
+                Services.StateManager()
                     .renameStation(this.station, this.station.name)
                     .then(() => {
                         this.origName = this.stationName;

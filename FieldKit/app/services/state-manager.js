@@ -11,6 +11,7 @@ const log = Config.logger("StateManager");
 export default class StateManager extends BetterObservable {
     constructor(services) {
         super();
+        log.info("ctor");
         this.databaseInterface = services.Database();
         this.queryStation = services.QueryStation();
         this.stationMonitor = services.StationMonitor();
@@ -23,7 +24,9 @@ export default class StateManager extends BetterObservable {
         });
     }
 
-    start() {}
+    start() {
+        log.info("started");
+    }
 
     renameStation(station, newName) {
         return this.databaseInterface.setStationName(station).then(() => {
@@ -34,6 +37,7 @@ export default class StateManager extends BetterObservable {
     synchronizeStation(deviceId) {
         log.info("synchronizeStation");
         return this.downloadManager.startSynchronizeStation(deviceId).then(() => {
+            log.info("synchronizeStation, refreshing");
             return this.refresh();
         });
     }
@@ -41,6 +45,7 @@ export default class StateManager extends BetterObservable {
     synchronizePortal() {
         log.info("synchronizePortal");
         return this.uploadManager.synchronizePortal().then(() => {
+            log.info("synchronizePortal, refreshing");
             return this.refresh();
         });
     }

@@ -23,10 +23,10 @@ function initializeApplication() {
         .initialize()
         .then(db => Services.Database().checkConfig())
         .then(() => {
+            Services.StateManager().start();
+            Services.PortalUpdater().start();
             Vue.prototype.$stationMonitor = Services.StationMonitor();
             Vue.prototype.$portalInterface = Services.PortalInterface();
-            Services.PortalUpdater().start();
-            Services.StateManager().start();
             return Services.OnlineStatus().start();
         })
         .catch(err => {

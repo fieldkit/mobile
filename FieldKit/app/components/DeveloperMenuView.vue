@@ -55,10 +55,6 @@ import AppSettings from "../wrappers/app-settings";
 import DiagnosticsModal from "./DiagnosticsModal";
 import StationPicker from "./StationPickerModal";
 
-const appSettings = new AppSettings();
-const dbInterface = Services.Database();
-const stateManager = Services.StateManager();
-
 export default {
     data() {
         return {
@@ -89,28 +85,30 @@ export default {
 
             this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
 
-            dbInterface.getConfig().then(result => {
-                if (result.length == 0) {
-                    console.log("DeveloperMenuView did not get config from db. Using config.js", Config);
-                    this.config = Config;
-                } else {
-                    this.config = result[0];
-                }
-                const baseUri = this.config.baseUri;
-                this.currentEnv = this.environments.findIndex(env => {
-                    return env.uri == baseUri;
-                });
-                if (this.currentEnv == -1) {
-                    this.environments.push({
-                        uri: baseUri,
-                        label: "Local",
+            Services.Database()
+                .getConfig()
+                .then(result => {
+                    if (result.length == 0) {
+                        console.log("DeveloperMenuView did not get config from db. Using config.js", Config);
+                        this.config = Config;
+                    } else {
+                        this.config = result[0];
+                    }
+                    const baseUri = this.config.baseUri;
+                    this.currentEnv = this.environments.findIndex(env => {
+                        return env.uri == baseUri;
                     });
-                    this.currentEnv = this.environments.length - 1;
-                }
-                this.environmentLabels = this.environments.map(env => {
-                    return env.label;
+                    if (this.currentEnv == -1) {
+                        this.environments.push({
+                            uri: baseUri,
+                            label: "Local",
+                        });
+                        this.currentEnv = this.environments.length - 1;
+                    }
+                    this.environmentLabels = this.environments.map(env => {
+                        return env.label;
+                    });
                 });
-            });
         },
         updateStations(data) {
             switch (data.propertyName.toString()) {
@@ -145,7 +143,7 @@ export default {
                 ingestionUri: baseUri + "/ingestion",
                 id: this.config.id,
             };
-            dbInterface.updateConfigUris(params);
+            Services.Database().updateConfigUris(params);
         },
         resetCalibration() {
             if (this.stations.length == 0) {
@@ -174,6 +172,7 @@ export default {
             }
         },
         resetOnboarding() {
+            const appSettings = new AppSettings();
             appSettings.remove("completedSetup");
             appSettings.remove("skipCount");
             dialogs

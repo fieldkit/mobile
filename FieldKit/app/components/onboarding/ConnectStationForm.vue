@@ -161,9 +161,6 @@ import Services from "../../services/services";
 import ConnectStationCheck from "./ConnectStationCheck";
 import ConnectStationModules from "./ConnectStationModules";
 
-const queryStation = Services.QueryStation();
-const stateManager = Services.StateManager();
-
 export default {
     props: ["stepParam", "station"],
     data() {
@@ -281,7 +278,7 @@ export default {
             let valid = this.checkName();
             if (valid && this.origName != this.stationName) {
                 this.station.name = this.stationName;
-                return stateManager
+                return Services.StateManager()
                     .renameStation(this.station, this.stationName)
                     .then(() => {
                         this.origName = this.stationName;
@@ -321,12 +318,14 @@ export default {
                 this.networks.push(network);
             }
 
-            return queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
-                this.networks = result.networkSettings.networks.map(n => {
-                    n.selected = n.ssid == this.network.ssid;
-                    return n;
+            return Services.QueryStation()
+                .sendNetworkSettings(this.station.url, this.networks)
+                .then(result => {
+                    this.networks = result.networkSettings.networks.map(n => {
+                        n.selected = n.ssid == this.network.ssid;
+                        return n;
+                    });
                 });
-            });
         },
 
         useNetwork(event) {

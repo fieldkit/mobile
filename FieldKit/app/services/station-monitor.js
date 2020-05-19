@@ -19,6 +19,9 @@ function is_internal_sensor(sensor) {
 export default class StationMonitor extends Observable {
     constructor(discoverStation, dbInterface, queryStation, phoneLocation) {
         super();
+
+        console.log("StationMonitor ctor");
+
         this.dbInterface = dbInterface;
         this.queryStation = queryStation;
         this.phoneLocation = phoneLocation;
@@ -369,7 +372,11 @@ export default class StationMonitor extends Observable {
                             result: statusResult,
                         });
                     } else {
-                        this.reactivateStation(address, result[0], statusResult);
+                        try {
+                            return this.reactivateStation(address, result[0], statusResult);
+                        } catch (e) {
+                            console.log("error reactivating", e);
+                        }
                     }
                 });
             })
@@ -489,6 +496,11 @@ export default class StationMonitor extends Observable {
         this.stations[deviceId].name = statusResult.status.identity.device;
         this.stations[deviceId].url = address;
 
+        console.log("temporary publish");
+        this._publishStationsUpdated();
+        this._publishStationRefreshed(this.stations[station.deviceId]);
+
+        console.log("updating station in database");
         // update the database
         databaseStation.url = address;
         databaseStation.name = statusResult.status.identity.device;
@@ -501,6 +513,8 @@ export default class StationMonitor extends Observable {
 
         this._publishStationsUpdated();
         this._publishStationRefreshed(this.stations[station.deviceId]);
+
+        console.log("re-activated station --------->", databaseStation.name);
     }
 
     deactivateStation(deviceId) {
@@ -542,12 +556,24 @@ export default class StationMonitor extends Observable {
     }
 
     _publishStationRefreshed(station) {
+        console.log(
+            "publishing refreshed",
+            _(stations)
+                .map("connected")
+                .value()
+        );
         this.notifyPropertyChange(this.StationRefreshedProperty, station);
         return Promise.resolve();
     }
 
     _publishStationsUpdated() {
         const stations = this.sortStations();
+        console.log(
+            "publishing updated",
+            _(stations)
+                .map("connected")
+                .value()
+        );
         this.notifyPropertyChange(this.StationsUpdatedProperty, stations);
         return Promise.resolve();
     }
