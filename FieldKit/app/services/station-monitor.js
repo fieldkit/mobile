@@ -556,12 +556,7 @@ export default class StationMonitor extends Observable {
     }
 
     _publishStationRefreshed(station) {
-        console.log(
-            "publishing refreshed",
-            _(stations)
-                .map("connected")
-                .value()
-        );
+        console.log("publishing refreshed", station.connected);
         this.notifyPropertyChange(this.StationRefreshedProperty, station);
         return Promise.resolve();
     }
