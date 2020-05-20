@@ -498,7 +498,7 @@ export default class StationMonitor extends Observable {
 
         console.log("temporary publish");
         this._publishStationsUpdated();
-        this._publishStationRefreshed(this.stations[station.deviceId]);
+        this._publishStationRefreshed(this.stations[deviceId]);
 
         console.log("updating station in database");
         // update the database
@@ -512,7 +512,7 @@ export default class StationMonitor extends Observable {
         }
 
         this._publishStationsUpdated();
-        this._publishStationRefreshed(this.stations[station.deviceId]);
+        this._publishStationRefreshed(this.stations[deviceId]);
 
         console.log("re-activated station --------->", databaseStation.name);
     }
@@ -556,12 +556,7 @@ export default class StationMonitor extends Observable {
     }
 
     _publishStationRefreshed(station) {
-        console.log(
-            "publishing refreshed",
-            _(stations)
-                .map("connected")
-                .value()
-        );
+        console.log("publishing refreshed", station.connected);
         this.notifyPropertyChange(this.StationRefreshedProperty, station);
         return Promise.resolve();
     }
