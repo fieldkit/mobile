@@ -44,8 +44,8 @@ android-release: setup
 	jq '.nativescript.id = "com.fieldkit"' $(APP)/package.json > $(APP)/package.json.temp
 	mv $(APP)/package.json.temp $(APP)/package.json
 	npm install
-	cd $(APP) && tns build android --release --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
-	cd $(APP) && tns build android --release --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
+	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
+	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
 clean-secrets:
 	rm -rf $(APP)/app/secrets.ts
@@ -66,8 +66,8 @@ ios-release: setup
 	fi
 	cd $(APP) && tns build ios --provision || true
 	cd $(APP) && tns build ios --team-id || true
-	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device
-	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --release
+	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap
+	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --release --env.sourceMap
 
 android-logs:
 	adb logcat | grep -i " JS" | grep -v NSVue
