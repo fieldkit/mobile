@@ -375,7 +375,7 @@ export default class StationMonitor extends Observable {
                         try {
                             return this.reactivateStation(address, result[0], statusResult);
                         } catch (e) {
-                            console.log("error reactivating", e);
+                            console.log("error reactivating", e.message, e, e.stack);
                         }
                     }
                 });
