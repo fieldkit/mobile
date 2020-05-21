@@ -32,6 +32,7 @@ export class BetterObservable extends Observable {
 
         return {
             remove: () => {
+                console.log(this.constructor.name, "Rx, removing", this.counter);
                 this.removeEventListener(Observable.propertyChangeEvent, listener);
             },
         };

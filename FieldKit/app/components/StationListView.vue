@@ -107,7 +107,8 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
+            this.updateStations = this.updateStations.bind(this);
+            this.$stationMonitor.subscribeAll(this.updateStations);
         },
 
         onMapReady(args) {
@@ -333,7 +334,7 @@ export default {
         },
 
         unsubscribe() {
-            this.$stationMonitor.unsubscribeAll();
+            this.$stationMonitor.unsubscribeAll(this.updateStations);
         },
     },
 };
