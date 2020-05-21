@@ -114,6 +114,7 @@ export default {
             this.stations.forEach(s => {
                 this.updateHistory(this.createRecent(s));
             });
+            this.sortSyncs();
 
             log.info("subscribing to stateManager");
 
@@ -207,11 +208,7 @@ export default {
                 d.disconnected = true;
             });
 
-            // the constant jumping around and switching places is
-            // problematic here, so sort alphabetically
-            this.recentSyncs.sort((a, b) => {
-                return b.name > a.name ? 1 : b.name < a.name ? -1 : 0;
-            });
+            this.sortSyncs();
         },
 
         updateRecent(recent, station, status) {
@@ -278,6 +275,17 @@ export default {
                 }
             }
             return newSync;
+        },
+
+        sortSyncs() {
+            // sort by alpha first
+            this.recentSyncs = _.sortBy(this.recentSyncs, s => {
+                return s.name.toUpperCase();
+            });
+            // then by connection status
+            this.recentSyncs = _.sortBy(this.recentSyncs, s => {
+                return s.disconnected;
+            });
         },
 
         handleDeviceUpload(recent, deviceUpload) {

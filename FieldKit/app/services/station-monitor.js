@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Observable } from "tns-core-modules/data/observable";
+import { Observable } from "./observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import { Coordinates, Phone, KnownStations } from "./known-stations";
 import Services from "./services";
@@ -496,10 +496,6 @@ export default class StationMonitor extends Observable {
         this.stations[deviceId].name = statusResult.status.identity.device;
         this.stations[deviceId].url = address;
 
-        console.log("temporary publish");
-        this._publishStationsUpdated();
-        this._publishStationRefreshed(this.stations[deviceId]);
-
         console.log("updating station in database");
         // update the database
         databaseStation.url = address;
@@ -563,12 +559,11 @@ export default class StationMonitor extends Observable {
 
     _publishStationsUpdated() {
         const stations = this.sortStations();
-        console.log(
-            "publishing updated",
-            _(stations)
-                .map("connected")
-                .value()
-        );
+        const status = _(stations)
+            .map(r => [r.name, r.connected])
+            .fromPairs()
+            .value();
+        console.log("publishing updated", status, this._observers);
         this.notifyPropertyChange(this.StationsUpdatedProperty, stations);
         return Promise.resolve();
     }
