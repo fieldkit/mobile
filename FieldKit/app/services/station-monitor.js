@@ -548,7 +548,8 @@ export default class StationMonitor extends Observable {
     }
 
     unsubscribeAll(receiver) {
-        this.off(Observable.propertyChangeEvent);
+        console.log("unsubscribeAll");
+        this.off(Observable.propertyChangeEvent, receiver);
     }
 
     _publishStationRefreshed(station) {
