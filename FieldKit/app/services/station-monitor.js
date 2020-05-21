@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Observable } from "tns-core-modules/data/observable";
+import { Observable } from "./observable";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import { Coordinates, Phone, KnownStations } from "./known-stations";
 import Services from "./services";

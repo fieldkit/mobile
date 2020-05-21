@@ -1,4 +1,4 @@
-import { Observable } from "tns-core-modules/data/observable";
+import { Observable } from "./observable";
 
 export const HiddenProperty = "valueChanged";
 
