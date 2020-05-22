@@ -564,7 +564,7 @@ export default class StationMonitor extends Observable {
             .map(r => [r.name, r.connected])
             .fromPairs()
             .value();
-        console.log("publishing updated", status, this._observers);
+        console.log("publishing updated", status);
         this.notifyPropertyChange(this.StationsUpdatedProperty, stations);
         return Promise.resolve();
     }
