@@ -159,7 +159,7 @@ export default {
         },
 
         unsubscribe() {
-            this.$stationMonitor.unsubscribeAll();
+            this.$stationMonitor.unsubscribeAll(this.updateStations);
         },
     },
 };
