@@ -724,12 +724,14 @@ export default class DatabaseInterface {
 
     _updateStreamFromStation(station, status, type, index) {
         if (!status.streams) {
+            log.info("no streams in status, ignoring");
             return Promise.reject();
         }
         return this.getDatabase()
             .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
             .then(streamId => {
                 if (streamId.length > 0) {
+                    log.info("updating existing stream");
                     const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
                     return this.getDatabase().then(db =>
                         db.query(`UPDATE streams SET device_size = ?, device_last_block = ?, updated = ? WHERE id = ?`, values)
@@ -744,6 +746,7 @@ export default class DatabaseInterface {
                         status.streams[index].block,
                         new Date(),
                     ];
+                    log.info("inserting stream", values);
                     return this.getDatabase()
                         .then(db =>
                             db.query(
