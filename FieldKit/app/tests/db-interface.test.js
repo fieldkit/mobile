@@ -42,19 +42,6 @@ describe("DatabaseInterface", () => {
         }
     });
 
-    test("updateStationStatus should succeed", async () => {
-        const data = await dbInterface.updateStationStatus(
-            { id: 1, deviceId: "device-id" },
-            {
-                streams: [
-                    { size: 0, block: 0, type: "meta" },
-                    { size: 0, block: 0, type: "data" },
-                ],
-                provisions: [],
-            }
-        );
-    });
-
     test("getAll should get all stations", async () => {
         const data = await dbInterface.getAll();
         expect(data.length).toEqual(5);
@@ -206,7 +193,7 @@ describe("DatabaseInterface", () => {
             totalMemory: 3425,
             consumedMemoryPercent: 13,
             interval: 1345435,
-            statusJson: { note: "All the various details about the station" },
+            statusJson: { streams: [{}, {}] },
             longitude: -122.01,
             latitude: 45.62,
             serializedStatus: "2342ur982uru2",
