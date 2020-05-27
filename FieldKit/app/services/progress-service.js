@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { Observable } from "tns-core-modules/data/observable";
 import { BetterObservable } from "./rx";
 import Config from "../config";
 

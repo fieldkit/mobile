@@ -158,7 +158,7 @@
 
 <script>
 import { on, off, suspendEvent, resumeEvent } from "tns-core-modules/application";
-import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
+import { BetterObservable } from "../services/rx";
 import routes from "../routes";
 import Services from "../services/services";
 import CircularProgressBar from "./CircularProgressBar";
@@ -560,7 +560,7 @@ export default {
 
         completeSetup() {
             this.$stationMonitor.on(
-                Observable.propertyChangeEvent,
+                BetterObservable.propertyChangeEvent,
                 data => {
                     switch (data.propertyName.toString()) {
                         case this.$stationMonitor.StationRefreshedProperty: {

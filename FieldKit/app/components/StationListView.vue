@@ -76,7 +76,7 @@
 import routes from "../routes";
 import { screen } from "tns-core-modules/platform/platform";
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
+import { BetterObservable } from "../services/rx";
 import { request } from "tns-core-modules/http";
 
 import MapModal from "./MapModal";

@@ -93,7 +93,7 @@ export default class DiscoverStation extends BetterObservable {
 
     _watchFakePreconfiguredDiscoveries() {
         if (Config.discover && Config.discover.enabled) {
-            every(10000).on(Observable.propertyChangeEvent, data => {
+            every(10000).on(BetterObservable.propertyChangeEvent, data => {
                 Config.discover.stations.forEach(fake => {
                     this.onFoundService({
                         type: "_fk._tcp",

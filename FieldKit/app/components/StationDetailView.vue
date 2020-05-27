@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
+import { BetterObservable } from "../services/rx";
 import routes from "../routes";
 import Services from "../services/services";
 import Config from "../config";
@@ -253,7 +253,7 @@ export default {
 
         respondToUpdates() {
             this.$stationMonitor.on(
-                Observable.propertyChangeEvent,
+                BetterObservable.propertyChangeEvent,
                 data => {
                     switch (data.propertyName.toString()) {
                         case this.$stationMonitor.StationRefreshedProperty: {

@@ -588,14 +588,14 @@ export default class StationMonitor extends BetterObservable {
     }
 
     subscribeAll(receiver) {
-        this.on(Observable.propertyChangeEvent, receiver);
+        this.on(BetterObservable.propertyChangeEvent, receiver);
 
         return this._publishStationsUpdated();
     }
 
     unsubscribeAll(receiver) {
         console.log("unsubscribeAll");
-        this.off(Observable.propertyChangeEvent, receiver);
+        this.off(BetterObservable.propertyChangeEvent, receiver);
     }
 
     _publishStationRefreshed(station) {
