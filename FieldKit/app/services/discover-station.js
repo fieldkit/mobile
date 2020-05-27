@@ -1,6 +1,5 @@
 import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
 import * as ConnectivityModule from "tns-core-modules/connectivity";
-import { isIOS } from "tns-core-modules/platform";
 import { every } from "./rx";
 import { EventHistory } from "./event-history";
 
@@ -187,9 +186,6 @@ export default class DiscoverStation extends Observable {
 
     onLostService(info) {
         log.info("lost service:", info.type, info.name);
-        if (!isIOS && info.type == "_fk._tcp.") {
-            info.type = "._fk._tcp";
-        }
 
         // save the event in our history before we notify the rest of the application.
         this.history.onLostStation(info).then(() => {
