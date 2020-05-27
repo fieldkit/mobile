@@ -42,10 +42,20 @@ export default class StationMonitor extends Observable {
         this.dbInterface.removeNullIdModules();
 
         // TODO: hook in to lifecycle event instead?
-        setTimeout(() => {
+        // I usually avoid this kind of thing in the regular app code,
+        // but this makes tests more difficult, I'd like to find out
+        // why this is necessary and get rid of it.  I'm wondering if
+        // there's a way we can tell if this code didn't work and
+        // warn?
+        if (TNS_ENV === "test" || true) {
             this.phoneLocation.enableAndGetLocation().then(this.savePhoneLocation.bind(this));
             this.subscribeToStationDiscovery();
-        }, 3000);
+        } else {
+            setTimeout(() => {
+                this.phoneLocation.enableAndGetLocation().then(this.savePhoneLocation.bind(this));
+                this.subscribeToStationDiscovery();
+            }, 3000);
+        }
     }
 
     getPhone() {
@@ -334,17 +344,17 @@ export default class StationMonitor extends Observable {
 
     subscribeToStationDiscovery() {
         console.log("subscribing to station discovery");
-        this.discoverStation.subscribeAll(
+        return this.discoverStation.subscribeAll(
             data => {
                 switch (data.propertyName.toString()) {
                     case this.discoverStation.StationFoundProperty: {
-                        this.checkDatabase(data.value.name, data.value.url);
+                        return this.checkDatabase(data.value.name, data.value.url);
                         break;
                     }
                     case this.discoverStation.StationLostProperty: {
                         if (data.value) {
                             console.log("station lost");
-                            this.deactivateStation(data.value.name);
+                            return this.deactivateStation(data.value.name);
                         }
                         break;
                     }
@@ -361,6 +371,7 @@ export default class StationMonitor extends Observable {
     }
 
     checkDatabase(deviceId, address) {
+        console.log("querying");
         return this.queryStation
             .getStatus(address)
             .then(statusResult => {
