@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Observable } from "./observable";
+import { BetterObservable } from "./rx";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import { Coordinates, Phone, KnownStations } from "./known-stations";
 import Services from "./services";
@@ -16,7 +16,7 @@ function is_internal_sensor(sensor) {
     return !Config.includeInternalSensors && sensor.flags & 1; // TODO Pull this enum in from the protobuf file.
 }
 
-export default class StationMonitor extends Observable {
+export default class StationMonitor extends BetterObservable {
     constructor(discoverStation, dbInterface, queryStation, phoneLocation) {
         super();
 
@@ -100,13 +100,13 @@ export default class StationMonitor extends Observable {
         return this.stations[station.deviceId] ? this.stations[station.deviceId].readings : null;
     }
 
-    requestInitialReadings(station) {
+    _requestInitialReadings(station) {
         if (!station.connected) {
-            return Promise.reject();
+            return Promise.resolve();
         }
 
         // take readings first so they can be stored (active or not)
-        return this.requestStationData(station, true);
+        return this._requestStationData(station, true);
     }
 
     // take readings, if active, otherwise query status
@@ -123,36 +123,41 @@ export default class StationMonitor extends Observable {
         return this.queryStation.getStatus(station.url, locate).then(this.updateStatus.bind(this, station));
     }
 
-    requestStationData(station, takeReadings) {
+    _requestStationData(station, takeReadings) {
+        delete this.queriesInProgress[station.deviceId];
+
         // if station hasn't been heard from in awhile, disable it
         const elapsed = new Date() - station.lastSeen;
         if (elapsed > Config.stationTimeoutMs && station.lastSeen != pastDate) {
             console.log("station inactive");
-            delete this.queriesInProgress[station.deviceId];
-            this.deactivateStation(station.deviceId);
+            return this.deactivateStation(station.deviceId);
         }
 
         if (!station.connected) {
-            delete this.queriesInProgress[station.deviceId];
-            return Promise.reject();
+            return Promise.resolve();
         }
 
         this.queriesInProgress[station.deviceId] = true;
 
         return this._statusOrReadings(station, takeReadings)
-            .finally(() => {
-                return promiseAfter(10000).then(() => this.requestStationData(station, false));
-            })
             .catch(error => {
                 console.log("requestStationData error", error);
+            })
+            .finally(value => {
+                // This is intentional. Otherwise the main promise
+                // chain is held up by this repeated query.
+                promiseAfter(10000).then(() => this._requestStationData(station, false));
+                return value;
             });
     }
 
     updateStatus(station, result) {
         delete this.queriesInProgress[station.deviceId];
+
         if (result.errors.length > 0 || station.deviceId != result.status.identity.deviceId) {
-            return;
+            return Promise.resolve();
         }
+
         // now that db can be cleared, might need to re-add stations
         if (!this.stations[station.deviceId]) {
             return this.checkDatabase(station.deviceId, station.url);
@@ -166,9 +171,11 @@ export default class StationMonitor extends Observable {
 
     updateStationReadings(station, result) {
         delete this.queriesInProgress[station.deviceId];
+
         if (result.errors.length > 0 || station.deviceId != result.status.identity.deviceId) {
-            return Promise.reject();
+            return Promise.resolve();
         }
+
         // now that db can be cleared, might need to re-add stations
         if (!this.stations[station.deviceId]) {
             return this.checkDatabase(station.deviceId, station.url);
@@ -203,12 +210,14 @@ export default class StationMonitor extends Observable {
         // store one set of live readings per station
         this.stations[station.deviceId].readings = readings;
 
-        this.notifyPropertyChange(this.ReadingsChangedProperty, data);
-
-        return this._updateStationStatus(station, result);
+        return this.notifyPropertyChange(this.ReadingsChangedProperty, data).then(() => {
+            return this._updateStationStatus(station, result);
+        });
     }
 
     keepDatabaseFieldsInSync(station, result) {
+        const pending = [];
+
         this.stations[station.deviceId].name = result.status.identity.device;
         this.stations[station.deviceId].status = result.status.recording.enabled ? "recording" : "";
         this.stations[station.deviceId].deployStartTime = result.status.recording.startedTime
@@ -221,13 +230,15 @@ export default class StationMonitor extends Observable {
             if (this.stations[station.deviceId].status != "recording") {
                 // new generation and not recording, so
                 // possible factory reset. reset deploy notes
-                this.dbInterface.clearDeployNotes(station);
+                pending.push(this.dbInterface.clearDeployNotes(station));
             }
         }
-        this.dbInterface.updateStation(this.stations[station.deviceId]).catch(e => {
-            console.log("Error updating station in the db", e);
-        });
-        this.keepModulesAndSensorsInSync(this.stations[station.deviceId], result);
+        pending.push(
+            this.dbInterface.updateStation(this.stations[station.deviceId]).catch(e => {
+                console.log("Error updating station in the db", e);
+            })
+        );
+        pending.push(this.keepModulesAndSensorsInSync(this.stations[station.deviceId], result));
 
         // I'd like to move this state manipulation code into objects
         // that have a narrower set of dependencies so that we can do
@@ -240,9 +251,12 @@ export default class StationMonitor extends Observable {
                 .catch(err => {
                     console.log("error", err);
                 });
+            pending.push(updatePromise);
         } catch (err) {
             console.log("error", err, err.stack);
         }
+
+        return pending;
     }
 
     keepModulesAndSensorsInSync(station, result) {
@@ -250,7 +264,7 @@ export default class StationMonitor extends Observable {
             return !is_internal_module(m);
         });
 
-        this.dbInterface.getModules(station.id).then(dbModules => {
+        return this.dbInterface.getModules(station.id).then(dbModules => {
             // compare hwModules with dbModules
             const notFromHW = _.differenceBy(dbModules, hwModules, m => {
                 return m.deviceId;
@@ -258,44 +272,50 @@ export default class StationMonitor extends Observable {
 
             // remove modules (and sensors) not in the station's response
             // delete the sensors first to avoid foreign key constraint error
-            Promise.all(
+            return Promise.all(
                 notFromHW.map(m => {
                     return this.dbInterface.removeSensors(m.deviceId);
                 })
-            ).then(() => {
-                // remove modules
-                Promise.all(
-                    notFromHW.map(m => {
-                        return this.dbInterface.removeModule(m.deviceId);
-                    })
-                );
-            });
+            )
+                .then(() => {
+                    // remove modules
+                    return Promise.all(
+                        notFromHW.map(m => {
+                            return this.dbInterface.removeModule(m.deviceId);
+                        })
+                    );
+                })
+                .then(() => {
+                    // update modules in station's response
+                    return hwModules.forEach(hwModule => {
+                        const dbModule = dbModules.find(d => {
+                            return d.deviceId == hwModule.deviceId;
+                        });
+                        const pending = [];
+                        if (dbModule) {
+                            // update name if needed
+                            if (dbModule.name != hwModule.name) {
+                                pending.push(this.dbInterface.setModuleName(hwModule));
+                            }
+                            // update bay number if needed
+                            if (!hwModule.position) {
+                                hwModule.position = 0;
+                            }
+                            if (dbModule.position != hwModule.position) {
+                                pending.push(this.dbInterface.setModulePosition(hwModule));
+                            }
+                        } else {
+                            // add those not in the database
+                            hwModule.stationId = station.id;
+                            pending.push(this.dbInterface.insertModule(hwModule));
+                        }
 
-            // update modules in station's response
-            hwModules.forEach(hwModule => {
-                const dbModule = dbModules.find(d => {
-                    return d.deviceId == hwModule.deviceId;
+                        // and update its sensors
+                        pending.push(this.updateSensors(hwModule));
+
+                        return Promise.all(pending);
+                    });
                 });
-                if (dbModule) {
-                    // update name if needed
-                    if (dbModule.name != hwModule.name) {
-                        this.dbInterface.setModuleName(hwModule);
-                    }
-                    // update bay number if needed
-                    if (!hwModule.position) {
-                        hwModule.position = 0;
-                    }
-                    if (dbModule.position != hwModule.position) {
-                        this.dbInterface.setModulePosition(hwModule);
-                    }
-                } else {
-                    // add those not in the database
-                    hwModule.stationId = station.id;
-                    this.dbInterface.insertModule(hwModule);
-                }
-                // and update its sensors
-                this.updateSensors(hwModule);
-            });
         });
     }
 
@@ -304,23 +324,23 @@ export default class StationMonitor extends Observable {
             return !is_internal_sensor(s);
         });
 
-        this.dbInterface.getSensors(hwModule.deviceId).then(dbSensors => {
+        return this.dbInterface.getSensors(hwModule.deviceId).then(dbSensors => {
             // compare hwSensors with dbSensors
             // TODO: what if more than one sensor with the same name?
             const notFromHW = _.differenceBy(dbSensors, hwSensors, s => {
                 return s.name;
             });
-            const notInDB = _.differenceBy(hwSensors, dbSensors, s => {
-                return s.name;
-            });
             // remove those that are not on this module anymore
-            Promise.all(
+            return Promise.all(
                 notFromHW.map(s => {
                     return this.dbInterface.removeSensor(s.id);
                 })
             ).then(() => {
                 // and add those that are newly present
-                Promise.all(
+                const notInDB = _.differenceBy(hwSensors, dbSensors, s => {
+                    return s.name;
+                });
+                return Promise.all(
                     notInDB.map(s => {
                         s.moduleId = hwModule.deviceId;
                         return this.dbInterface.insertSensor(s);
@@ -332,13 +352,13 @@ export default class StationMonitor extends Observable {
 
     recordingStatusChange(address, recording) {
         const stations = Object.values(this.stations);
-        let station = stations.find(s => {
+        const station = stations.find(s => {
             return s.url == address;
         });
         if (station) {
             const newStatus = recording == "started" ? "recording" : "";
             this.stations[station.deviceId].status = newStatus;
-            this._publishStationsUpdated();
+            return this._publishStationsUpdated();
         }
     }
 
@@ -349,7 +369,6 @@ export default class StationMonitor extends Observable {
                 switch (data.propertyName.toString()) {
                     case this.discoverStation.StationFoundProperty: {
                         return this.checkDatabase(data.value.name, data.value.url);
-                        break;
                     }
                     case this.discoverStation.StationLostProperty: {
                         if (data.value) {
@@ -428,26 +447,32 @@ export default class StationMonitor extends Observable {
             totalMemory: deviceStatus.memory.dataMemoryInstalled,
             consumedMemoryPercent: deviceStatus.memory.dataMemoryConsumption,
         };
-        this.dbInterface.insertStation(station, data.result).then(id => {
+        return this.dbInterface.insertStation(station, data.result).then(id => {
             station.id = id;
-            this.activateStation(station);
-            modules
-                .filter(m => {
-                    return !is_internal_module(m);
-                })
-                .map(m => {
-                    m.stationId = id;
-                    this.dbInterface.insertModule(m).then(mid => {
-                        m.sensors
-                            .filter(s => {
-                                return !is_internal_sensor(s);
-                            })
-                            .map(s => {
-                                s.moduleId = m.deviceId;
-                                this.dbInterface.insertSensor(s);
+
+            return this.activateStation(station).then(() => {
+                return Promise.all(
+                    modules
+                        .filter(m => {
+                            return !is_internal_module(m);
+                        })
+                        .map(m => {
+                            m.stationId = id;
+                            return this.dbInterface.insertModule(m).then(mid => {
+                                return Promise.all(
+                                    m.sensors
+                                        .filter(s => {
+                                            return !is_internal_sensor(s);
+                                        })
+                                        .map(s => {
+                                            s.moduleId = m.deviceId;
+                                            return this.dbInterface.insertSensor(s);
+                                        })
+                                );
                             });
-                    });
-                });
+                        })
+                );
+            });
         });
     }
 
@@ -487,11 +512,11 @@ export default class StationMonitor extends Observable {
         station.newlyConnected = true;
         this.stations[station.deviceId] = station;
 
-        // start getting readings
-        this.requestInitialReadings(station);
-
-        this._publishStationsUpdated();
-        this._publishStationRefreshed(this.stations[station.deviceId]);
+        const pending = [];
+        pending.push(this._requestInitialReadings(station));
+        pending.push(this._publishStationsUpdated());
+        pending.push(this._publishStationRefreshed(this.stations[station.deviceId]));
+        return Promise.all(pending);
     }
 
     reactivateStation(address, databaseStation, statusResult) {
@@ -511,32 +536,42 @@ export default class StationMonitor extends Observable {
         // update the database
         databaseStation.url = address;
         databaseStation.name = statusResult.status.identity.device;
-        this.dbInterface.updateStation(databaseStation);
+        const pending = [];
+
+        pending.push(this.dbInterface.updateStation(databaseStation));
 
         // start getting readings
         if (!this.queriesInProgress[deviceId]) {
-            this.requestInitialReadings(this.stations[deviceId]);
+            pending.push(this._requestInitialReadings(this.stations[deviceId]));
         }
 
-        this._publishStationsUpdated();
-        this._publishStationRefreshed(this.stations[deviceId]);
+        pending.push(this._publishStationsUpdated());
+        pending.push(this._publishStationRefreshed(this.stations[deviceId]));
 
         console.log("re-activated station --------->", databaseStation.name);
+
+        return pending;
     }
 
     deactivateStation(deviceId) {
+        const pending = [];
+
         if (!deviceId) {
-            return;
+            return Promise.all(pending);
         }
+
         if (this.stations[deviceId]) {
             console.log("deactivating station --------->", this.stations[deviceId].name);
             this.stations[deviceId].connected = false;
             this.stations[deviceId].lastSeen = pastDate;
-            this._publishStationsUpdated();
-            this._publishStationRefreshed(this.stations[deviceId]);
+
+            pending.push(this._publishStationsUpdated());
+            pending.push(this._publishStationRefreshed(this.stations[deviceId]));
         } else {
             // console.log("** deactivation where we don't have the station stored? **");
         }
+
+        return Promise.all(pending);
     }
 
     startLiveReadings(address) {
@@ -555,7 +590,7 @@ export default class StationMonitor extends Observable {
     subscribeAll(receiver) {
         this.on(Observable.propertyChangeEvent, receiver);
 
-        this._publishStationsUpdated();
+        return this._publishStationsUpdated();
     }
 
     unsubscribeAll(receiver) {
@@ -565,8 +600,7 @@ export default class StationMonitor extends Observable {
 
     _publishStationRefreshed(station) {
         console.log("publishing refreshed", station.connected);
-        this.notifyPropertyChange(this.StationRefreshedProperty, station);
-        return Promise.resolve();
+        return this.notifyPropertyChange(this.StationRefreshedProperty, station);
     }
 
     _publishStationsUpdated() {
@@ -576,8 +610,7 @@ export default class StationMonitor extends Observable {
             .fromPairs()
             .value();
         console.log("publishing updated", status);
-        this.notifyPropertyChange(this.StationsUpdatedProperty, stations);
-        return Promise.resolve();
+        return this.notifyPropertyChange(this.StationsUpdatedProperty, stations);
     }
 
     _updateStationStatus(station, status) {

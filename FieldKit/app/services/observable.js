@@ -109,10 +109,12 @@ var Observable = (function() {
         console.log(this.constructor.name, "removeEventListener", eventNames, debugObservers(this._observers));
     };
     Observable.prototype.notify = function(data) {
+        let values = [];
         var observers = this._observers[data.eventName];
         if (!observers) {
-            return;
+            return Promise.all(values);
         }
+
         console.log(this.constructor.name, "notify", debugObservers(this._observers));
         for (var i = observers.length - 1; i >= 0; i--) {
             var entry = observers[i];
@@ -120,14 +122,16 @@ var Observable = (function() {
                 observers.splice(i, 1);
             }
             if (entry.thisArg) {
-                entry.callback.apply(entry.thisArg, [data]);
+                values.push(entry.callback.apply(entry.thisArg, [data]));
             } else {
-                entry.callback(data);
+                values.push(entry.callback(data));
             }
         }
+
+        return Promise.all(values);
     };
     Observable.prototype.notifyPropertyChange = function(name, value, oldValue) {
-        this.notify(this._createPropertyChangeData(name, value, oldValue));
+        return this.notify(this._createPropertyChangeData(name, value, oldValue));
     };
     Observable.prototype.hasListeners = function(eventName) {
         return eventName in this._observers;

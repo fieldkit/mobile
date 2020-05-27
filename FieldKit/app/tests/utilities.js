@@ -9,6 +9,7 @@ export class MockStationReplies {
     constructor(services) {
         this.services = services;
         this.call = jest.fn(() => {
+            console.log("no more mocked replies");
             return null;
         });
         this.mock = this.call.mock;

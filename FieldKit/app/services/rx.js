@@ -43,7 +43,7 @@ export class BetterObservable extends Observable {
         this.hasValue = true;
         this.counter++;
         console.log(this.constructor.name, "Rx, publishing new value", this.counter);
-        this.notifyPropertyChange(HiddenProperty, value);
+        return this.notifyPropertyChange(HiddenProperty, value);
     }
 
     refresh() {
