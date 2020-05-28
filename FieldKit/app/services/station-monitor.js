@@ -105,6 +105,10 @@ export default class StationMonitor extends BetterObservable {
             return Promise.resolve();
         }
 
+        if (this.queriesInProgress[station.deviceId]) {
+            return Promise.resolve();
+        }
+
         // take readings first so they can be stored (active or not)
         return this._requestStationData(station, true);
     }
@@ -182,6 +186,8 @@ export default class StationMonitor extends BetterObservable {
     updateStationReadings(station, result) {
         delete this.queriesInProgress[station.deviceId];
 
+        console.log("updateStationReadings");
+
         if (result.errors.length > 0) {
             return Promise.reject(`status reply has errors: ${result.errors}`);
         }
@@ -239,6 +245,8 @@ export default class StationMonitor extends BetterObservable {
     _keepDatabaseFieldsInSync(station, result) {
         const pending = [];
         const updating = this.stations[station.deviceId];
+
+        console.log("keepDatabaseFieldsInSync");
 
         updating.name = result.status.identity.device;
         updating.status = result.status.recording.enabled ? "recording" : "";
@@ -532,15 +540,12 @@ export default class StationMonitor extends BetterObservable {
         // update the database
         databaseStation.url = address;
         databaseStation.name = statusResult.status.identity.device;
+
         const pending = [];
 
         pending.push(this.dbInterface.updateStation(databaseStation));
 
-        // start getting readings
-        if (!this.queriesInProgress[deviceId]) {
-            pending.push(this._requestInitialReadings(this.stations[deviceId]));
-        }
-
+        pending.push(this._requestInitialReadings(this.stations[deviceId]));
         pending.push(this._publishStationsUpdated());
         pending.push(this._publishStationRefreshed(this.stations[deviceId]));
 
