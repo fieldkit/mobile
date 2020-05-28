@@ -345,36 +345,43 @@ export default class DatabaseInterface {
     }
 
     updateStation(station) {
-        return this.getDatabase().then(db =>
-            db.execute(
-                "UPDATE stations SET generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, location_name = ?, study_objective = ?, location_purpose = ?, site_criteria = ?, site_description = ?, percent_complete = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
-                [
-                    station.generationId,
-                    station.name,
-                    station.url,
-                    station.portalId,
-                    station.status,
-                    station.deployStartTime,
-                    station.locationName,
-                    station.studyObjective,
-                    station.locationPurpose,
-                    station.siteCriteria,
-                    station.siteDescription,
-                    station.percentComplete,
-                    station.batteryLevel,
-                    station.consumedMemory,
-                    station.totalMemory,
-                    station.consumedMemoryPercent,
-                    station.interval,
-                    JSON.stringify(station.statusJson),
-                    station.longitude,
-                    station.latitude,
-                    station.serializedStatus,
-                    new Date(),
-                    station.id,
-                ]
+        const values = [
+            station.generationId,
+            station.name,
+            station.url,
+            station.portalId,
+            station.status,
+            station.deployStartTime,
+            station.locationName,
+            station.studyObjective,
+            station.locationPurpose,
+            station.siteCriteria,
+            station.siteDescription,
+            station.percentComplete,
+            station.batteryLevel,
+            station.consumedMemory,
+            station.totalMemory,
+            station.consumedMemoryPercent,
+            station.interval,
+            JSON.stringify(station.statusJson),
+            station.longitude,
+            station.latitude,
+            station.serializedStatus,
+            new Date(),
+            station.id,
+        ];
+        return this.getDatabase()
+            .then(db =>
+                db.execute(
+                    "UPDATE stations SET generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, location_name = ?, study_objective = ?, location_purpose = ?, site_criteria = ?, site_description = ?, percent_complete = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
+                    values
+                )
             )
-        );
+            .then(() => {
+                return this._updateStreamFromStation(station, station.statusJson, Constants.MetaStreamType, 1).then(() => {
+                    return this._updateStreamFromStation(station, station.statusJson, Constants.DataStreamType, 0);
+                });
+            });
     }
 
     recordStationConfigChange(config) {
@@ -724,12 +731,14 @@ export default class DatabaseInterface {
 
     _updateStreamFromStation(station, status, type, index) {
         if (!status.streams) {
+            log.info("no streams in status, ignoring");
             return Promise.reject();
         }
         return this.getDatabase()
             .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
             .then(streamId => {
                 if (streamId.length > 0) {
+                    log.info("updating existing stream");
                     const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
                     return this.getDatabase().then(db =>
                         db.query(`UPDATE streams SET device_size = ?, device_last_block = ?, updated = ? WHERE id = ?`, values)
@@ -744,6 +753,7 @@ export default class DatabaseInterface {
                         status.streams[index].block,
                         new Date(),
                     ];
+                    log.info("inserting stream", values);
                     return this.getDatabase()
                         .then(db =>
                             db.query(
@@ -755,18 +765,6 @@ export default class DatabaseInterface {
                             console.log("Error inserting stream for station id", station.id, "device id", station.deviceId, "error:", err);
                         });
                 }
-            });
-    }
-
-    updateStationStatus(station, status) {
-        return this.getDatabase()
-            .then(db =>
-                db.query("UPDATE stations SET status_json = ?, updated = ? WHERE id = ?", [JSON.stringify(status), new Date(), station.id])
-            )
-            .then(() => {
-                return this._updateStreamFromStation(station, status, Constants.MetaStreamType, 1).then(() => {
-                    return this._updateStreamFromStation(station, status, Constants.DataStreamType, 0);
-                });
             });
     }
 
