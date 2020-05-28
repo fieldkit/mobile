@@ -116,7 +116,10 @@ export default class StationMonitor extends BetterObservable {
     // take readings, if active, otherwise query status
     _statusOrReadings(station, takeReadings) {
         if (takeReadings || this.activeAddresses.indexOf(station.url) > -1) {
-            return this.queryStation.takeReadings(station.url).then(this.updateStationReadings.bind(this, station));
+            console.log("statusOrReadings readings");
+            return this.queryStation.takeReadings(station.url).then(status => {
+                return this.updateStationReadings(station, status);
+            });
         }
 
         const updated = station.updated ? new Date(station.updated).getTime() : Date.now();
@@ -125,7 +128,9 @@ export default class StationMonitor extends BetterObservable {
             long: station.longitude,
             time: Math.round(updated / 1000),
         };
-        return this.queryStation.getStatus(station.url, locate).then(this.updateStatus.bind(this, station));
+        return this.queryStation.getStatus(station.url, locate).then(status => {
+            return this.updateStatus(station, status);
+        });
     }
 
     _requestStationData(station, takeReadings) {
@@ -298,24 +303,16 @@ export default class StationMonitor extends BetterObservable {
 
         return this.dbInterface.getModules(station.id).then(dbModules => {
             // compare hwModules with dbModules
-            const notFromHW = _.differenceBy(dbModules, hwModules, m => {
-                return m.deviceId;
-            });
+            const notFromHW = _.differenceBy(dbModules, hwModules, m => m.deviceId);
 
             // remove modules (and sensors) not in the station's response
             // delete the sensors first to avoid foreign key constraint error
-            return Promise.all(
-                notFromHW.map(m => {
-                    return this.dbInterface.removeSensors(m.deviceId);
-                })
-            )
+            const dropRemovedSensors = notFromHW.map(m => this.dbInterface.removeSensors(m.deviceId));
+            return Promise.all(dropRemovedSensors)
                 .then(() => {
                     // remove modules
-                    return Promise.all(
-                        notFromHW.map(m => {
-                            return this.dbInterface.removeModule(m.deviceId);
-                        })
-                    );
+                    const dropRemovedMOdules = notFromHW.map(m => this.dbInterface.removeModule(m.deviceId));
+                    return Promise.all(dropRemovedMOdules);
                 })
                 .then(() => {
                     // update modules in station's response
@@ -343,7 +340,7 @@ export default class StationMonitor extends BetterObservable {
                         }
 
                         // and update its sensors
-                        pending.push(this.updateSensors(hwModule));
+                        pending.push(this._updateSensors(hwModule));
 
                         return Promise.all(pending);
                     });
@@ -351,7 +348,7 @@ export default class StationMonitor extends BetterObservable {
         });
     }
 
-    updateSensors(hwModule) {
+    _updateSensors(hwModule) {
         const hwSensors = hwModule.sensors.filter(s => {
             return !is_internal_sensor(s);
         });
