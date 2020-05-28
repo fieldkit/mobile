@@ -116,7 +116,6 @@ export default class StationMonitor extends BetterObservable {
     // take readings, if active, otherwise query status
     _statusOrReadings(station, takeReadings) {
         if (takeReadings || this.activeAddresses.indexOf(station.url) > -1) {
-            console.log("statusOrReadings readings");
             return this.queryStation.takeReadings(station.url).then(status => {
                 return this.updateStationReadings(station, status);
             });
@@ -165,6 +164,8 @@ export default class StationMonitor extends BetterObservable {
 
     updateStatus(station, result) {
         delete this.queriesInProgress[station.deviceId];
+
+        console.log("updateStatus");
 
         if (result.errors.length > 0) {
             return Promise.reject(`status reply has errors: ${result.errors}`);
