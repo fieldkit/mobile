@@ -388,28 +388,23 @@ export default class StationMonitor extends BetterObservable {
 
     subscribeToStationDiscovery() {
         console.log("subscribing to station discovery");
-        return this.discoverStation.subscribeAll(
-            data => {
-                switch (data.propertyName.toString()) {
-                    case this.discoverStation.StationFoundProperty: {
-                        return this.checkDatabase(data.value.name, data.value.url);
-                    }
-                    case this.discoverStation.StationLostProperty: {
-                        if (data.value) {
-                            return this.deactivateStation(data.value.name);
-                        }
-                        break;
-                    }
-                    default: {
-                        console.log(data.propertyName.toString() + " " + data.value.toString());
-                        break;
-                    }
+        return this.discoverStation.subscribeAll(data => {
+            switch (data.propertyName.toString()) {
+                case this.discoverStation.StationFoundProperty: {
+                    return this.checkDatabase(data.value.name, data.value.url);
                 }
-            },
-            error => {
-                // console.log("propertyChangeEvent error", error);
+                case this.discoverStation.StationLostProperty: {
+                    if (data.value) {
+                        return this.deactivateStation(data.value.name);
+                    }
+                    break;
+                }
+                default: {
+                    console.log(data.propertyName.toString() + " " + data.value.toString());
+                    break;
+                }
             }
-        );
+        });
     }
 
     checkDatabase(deviceId, address) {
