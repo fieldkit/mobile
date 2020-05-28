@@ -1,9 +1,15 @@
 import protobuf from "protobufjs";
+import crypto from "crypto";
+
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
 const HttpReply = appRoot.lookupType("fk_app.HttpReply");
 
 const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
 const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
+
+export function randomHexString() {
+    return crypto.randomBytes(16).toString("hex");
+}
 
 export class MockStationReplies {
     constructor(services) {
@@ -32,6 +38,60 @@ export class MockStationReplies {
         };
 
         return this.queueResponse(response);
+    }
+
+    newFakeStation() {
+        return {
+            name: "Fake Station",
+            generationId: randomHexString(),
+            deviceId: randomHexString(),
+            moduleIds: [randomHexString(), randomHexString(), randomHexString(), randomHexString()],
+        };
+    }
+
+    queueStatusReply(station) {
+        return this.queueBody({
+            errors: [],
+            type: 15,
+            status: {
+                identity: {
+                    device: station.name,
+                    deviceId: Buffer.from(station.deviceId, "hex"),
+                    generation: Buffer.from(station.generationId, "hex"),
+                },
+            },
+            streams: [
+                {
+                    size: 100,
+                    block: 1,
+                },
+                {
+                    size: 100,
+                    block: 1,
+                },
+            ],
+            schedules: {
+                readings: {},
+            },
+            modules: [
+                {
+                    name: "modules.water.ph",
+                    path: "",
+                    flags: 0,
+                    header: {
+                        manufacturer: 0,
+                        kind: 0,
+                        version: 0,
+                    },
+                    position: 0,
+                    id: Buffer.from(station.moduleIds[0], "hex"),
+                    sensors: [
+                        { number: 0, name: "sensor_1" },
+                        { number: 1, name: "sensor_2" },
+                    ],
+                },
+            ],
+        });
     }
 
     queueResponse(response) {

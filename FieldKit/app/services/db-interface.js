@@ -57,7 +57,7 @@ export default class DatabaseInterface {
                 return sqliteToJs(rows);
             })
             .catch(e => {
-                console.log("Error fetching stations", e);
+                return Promise.reject(`error fetching stations: ${e}`);
             });
     }
 
@@ -412,6 +412,9 @@ export default class DatabaseInterface {
         if (_.isString(deviceId)) {
             return this.getDatabase().then(db =>
                 db.query("SELECT id FROM modules WHERE device_id = ?", [deviceId]).then(rows => {
+                    if (rows.length != 1) {
+                        return Promise.reject(`no such module: ${deviceId}`);
+                    }
                     return rows[0].id;
                 })
             );
@@ -433,7 +436,7 @@ export default class DatabaseInterface {
                 });
             })
             .catch(err => {
-                console.log("Error inserting sensor", err);
+                return Promise.reject(`error inserting sensor: ${err}`);
             });
     }
 
@@ -451,7 +454,7 @@ export default class DatabaseInterface {
                 ])
             )
             .catch(err => {
-                console.log("Error inserting module", err);
+                return Promise.reject(`error inserting module: ${err}`);
             });
     }
 
@@ -616,7 +619,7 @@ export default class DatabaseInterface {
                             );
                         })
                         .catch(err => {
-                            console.log("Error inserting download for station id", download.stationId, "error:", err);
+                            return Promise.reject(`error inserting download: ${err}`);
                         });
                 })
             );
@@ -730,15 +733,16 @@ export default class DatabaseInterface {
     }
 
     _updateStreamFromStation(station, status, type, index) {
+        if (!status) {
+            return Promise.reject(`_updateStreamFromStation: no status`);
+        }
         if (!status.streams) {
-            log.info("no streams in status, ignoring");
-            return Promise.reject();
+            return Promise.reject(`_updateStreamFromStation: no streams`);
         }
         return this.getDatabase()
             .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
             .then(streamId => {
                 if (streamId.length > 0) {
-                    log.info("updating existing stream");
                     const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
                     return this.getDatabase().then(db =>
                         db.query(`UPDATE streams SET device_size = ?, device_last_block = ?, updated = ? WHERE id = ?`, values)
@@ -753,17 +757,12 @@ export default class DatabaseInterface {
                         status.streams[index].block,
                         new Date(),
                     ];
-                    log.info("inserting stream", values);
-                    return this.getDatabase()
-                        .then(db =>
-                            db.query(
-                                `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                                values
-                            )
+                    return this.getDatabase().then(db =>
+                        db.query(
+                            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                            values
                         )
-                        .catch(err => {
-                            console.log("Error inserting stream for station id", station.id, "device id", station.deviceId, "error:", err);
-                        });
+                    );
                 }
             });
     }
