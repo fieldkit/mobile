@@ -168,15 +168,22 @@ export default class StationMonitor extends BetterObservable {
 
         this.stations[station.deviceId].connected = true;
         this.stations[station.deviceId].lastSeen = new Date();
-        this.keepDatabaseFieldsInSync(station, result);
-        return this._updateStationStatus(station, result);
+
+        const pending = [];
+        pending.push(this._keepDatabaseFieldsInSync(station, result));
+        pending.push(this._updateStationStatus(station, result));
+        return Promise.all(pending);
     }
 
     updateStationReadings(station, result) {
         delete this.queriesInProgress[station.deviceId];
 
-        if (result.errors.length > 0 || station.deviceId != result.status.identity.deviceId) {
-            return Promise.resolve();
+        if (result.errors.length > 0) {
+            return Promise.reject(`status reply has errors: ${result.errors}`);
+        }
+
+        if (station.deviceId != result.status.identity.deviceId) {
+            return Promise.reject(`status reply device id mismatch: ${station.deviceId} != ${result.status.identity.deviceId}`);
         }
 
         // now that db can be cleared, might need to re-add stations
@@ -184,9 +191,12 @@ export default class StationMonitor extends BetterObservable {
             return this.checkDatabase(station.deviceId, station.url);
         }
 
+        const pending = [];
+
         this.stations[station.deviceId].connected = true;
         this.stations[station.deviceId].lastSeen = new Date();
-        this.keepDatabaseFieldsInSync(station, result);
+
+        pending.push(this._keepDatabaseFieldsInSync(station, result));
 
         const readings = {};
         const positions = {};
@@ -201,6 +211,7 @@ export default class StationMonitor extends BetterObservable {
                 });
             });
         });
+
         let data = {
             stationId: station.id,
             readings: readings,
@@ -210,16 +221,21 @@ export default class StationMonitor extends BetterObservable {
             totalMemory: convertBytesToLabel(result.status.memory.dataMemoryInstalled),
             consumedMemoryPercent: result.status.memory.dataMemoryConsumption,
         };
+
         // store one set of live readings per station
         this.stations[station.deviceId].readings = readings;
 
-        return this.notifyPropertyChange(this.ReadingsChangedProperty, data).then(() => {
-            return this._updateStationStatus(station, result);
+        return Promise.all(pending).then(() => {
+            return this.notifyPropertyChange(this.ReadingsChangedProperty, data).then(() => {
+                return this._updateStationStatus(station, result);
+            });
         });
     }
 
-    keepDatabaseFieldsInSync(station, result) {
+    _keepDatabaseFieldsInSync(station, result) {
         const pending = [];
+
+        console.log("keepDatabaseFieldsInSync");
 
         this.stations[station.deviceId].name = result.status.identity.device;
         this.stations[station.deviceId].status = result.status.recording.enabled ? "recording" : "";
@@ -241,7 +257,7 @@ export default class StationMonitor extends BetterObservable {
                 console.log("Error updating station in the db", e);
             })
         );
-        pending.push(this.keepModulesAndSensorsInSync(this.stations[station.deviceId], result));
+        pending.push(this._keepModulesAndSensorsInSync(this.stations[station.deviceId], result));
 
         // I'd like to move this state manipulation code into objects
         // that have a narrower set of dependencies so that we can do
@@ -262,10 +278,12 @@ export default class StationMonitor extends BetterObservable {
         return pending;
     }
 
-    keepModulesAndSensorsInSync(station, result) {
+    _keepModulesAndSensorsInSync(station, result) {
         const hwModules = result.modules.filter(m => {
             return !is_internal_module(m);
         });
+
+        console.log("keepModulesAndSensorsInSync");
 
         return this.dbInterface.getModules(station.id).then(dbModules => {
             // compare hwModules with dbModules
@@ -310,6 +328,7 @@ export default class StationMonitor extends BetterObservable {
                         } else {
                             // add those not in the database
                             hwModule.stationId = station.id;
+                            console.log("keepModulesAndSensorsInSync: inserting module");
                             pending.push(this.dbInterface.insertModule(hwModule));
                         }
 
@@ -393,7 +412,6 @@ export default class StationMonitor extends BetterObservable {
     }
 
     checkDatabase(deviceId, address) {
-        console.log("querying");
         return this.queryStation
             .getStatus(address)
             .then(statusResult => {
@@ -403,6 +421,9 @@ export default class StationMonitor extends BetterObservable {
                             deviceId: deviceId,
                             address: address,
                             result: statusResult,
+                        }).then(value => {
+                            console.log("addToDatabase done");
+                            return value;
                         });
                     } else {
                         try {
@@ -450,10 +471,14 @@ export default class StationMonitor extends BetterObservable {
             totalMemory: deviceStatus.memory.dataMemoryInstalled,
             consumedMemoryPercent: deviceStatus.memory.dataMemoryConsumption,
         };
+
+        console.log("addToDatabase");
+
         return this.dbInterface.insertStation(station, data.result).then(id => {
             station.id = id;
 
             return this.activateStation(station).then(() => {
+                console.log("addToDatabase: inserting modules");
                 return Promise.all(
                     modules
                         .filter(m => {
@@ -461,6 +486,7 @@ export default class StationMonitor extends BetterObservable {
                         })
                         .map(m => {
                             m.stationId = id;
+                            console.log("inserting module");
                             return this.dbInterface.insertModule(m).then(mid => {
                                 return Promise.all(
                                     m.sensors
@@ -519,7 +545,9 @@ export default class StationMonitor extends BetterObservable {
         pending.push(this._requestInitialReadings(station));
         pending.push(this._publishStationsUpdated());
         pending.push(this._publishStationRefreshed(this.stations[station.deviceId]));
-        return Promise.all(pending);
+        return Promise.all(pending).then(() => {
+            console.log("activate station done", station.name);
+        });
     }
 
     reactivateStation(address, databaseStation, statusResult) {
