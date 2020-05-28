@@ -141,12 +141,15 @@ export default class StationMonitor extends BetterObservable {
 
         return this._statusOrReadings(station, takeReadings)
             .catch(error => {
-                console.log("requestStationData error", error);
+                console.log("statusOrReadings error", error);
+                return Promise.reject(error);
             })
             .finally(value => {
-                // This is intentional. Otherwise the main promise
-                // chain is held up by this repeated query.
-                promiseAfter(10000).then(() => this._requestStationData(station, false));
+                // NOTE This is intentional, for now. Otherwise the
+                // main promise chain is held up by this repeated
+                // query and so we never actually return.
+                const retryAfterMs = 10000;
+                promiseAfter(retryAfterMs).then(() => this._requestStationData(station, false));
                 return value;
             });
     }
@@ -411,8 +414,8 @@ export default class StationMonitor extends BetterObservable {
                 });
             })
             .catch(err => {
-                // console.log("error getting status in checkDatabase", err);
-                console.log("the station at", address, "did not respond with a status. instead:", err);
+                console.log(address, "checkDatabase failed", err);
+                return Promise.reject(err);
             });
     }
 
