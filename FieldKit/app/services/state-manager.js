@@ -21,7 +21,7 @@ export default class StateManager extends BetterObservable {
             BetterObservable.propertyChangeEvent,
             ev => {
                 log.info("updating");
-                this.refresh();
+                return this.refresh();
             },
             this
         );
