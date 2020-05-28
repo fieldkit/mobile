@@ -32,7 +32,7 @@ var Observable = (function() {
         if (typeof callback !== "function") {
             throw new TypeError("callback must be function.");
         }
-        console.log(this.constructor.name, "addEventListener", eventNames);
+        // console.log(this.constructor.name, "addEventListener", eventNames);
         var events = eventNames.split(",");
         for (var i = 0, l = events.length; i < l; i++) {
             var event_1 = events[i].trim();
@@ -42,7 +42,7 @@ var Observable = (function() {
                 thisArg: thisArg,
             });
         }
-        console.log(this.constructor.name, "addEventListener", eventNames, debugObservers(this._observers));
+        // console.log(this.constructor.name, "addEventListener", eventNames, debugObservers(this._observers));
     };
     Observable.prototype.removeEventListener = function(eventNames, callback, thisArg) {
         if (typeof eventNames !== "string") {
@@ -51,7 +51,7 @@ var Observable = (function() {
         if (callback && typeof callback !== "function") {
             throw new TypeError("callback must be function.");
         }
-        console.log(this.constructor.name, "removeEventListener", eventNames, debugObservers(this._observers));
+        // console.log(this.constructor.name, "removeEventListener", eventNames, debugObservers(this._observers));
         var events = eventNames.split(",");
         for (var i = 0, l = events.length; i < l; i++) {
             var event_2 = events[i].trim();
@@ -71,7 +71,7 @@ var Observable = (function() {
                 delete this._observers[event_2];
             }
         }
-        console.log(this.constructor.name, "removeEventListener", eventNames, debugObservers(this._observers));
+        // console.log(this.constructor.name, "removeEventListener", eventNames, debugObservers(this._observers));
     };
     Observable.prototype.notify = function(data) {
         let values = [];
@@ -80,7 +80,7 @@ var Observable = (function() {
             return Promise.all(values);
         }
 
-        console.log(this.constructor.name, "notify", debugObservers(this._observers));
+        // console.log(this.constructor.name, "notify", debugObservers(this._observers));
         for (var i = observers.length - 1; i >= 0; i--) {
             var entry = observers[i];
             if (entry.once) {
@@ -97,9 +97,6 @@ var Observable = (function() {
     };
     Observable.prototype.notifyPropertyChange = function(name, value, oldValue) {
         return this.notify(this._createPropertyChangeData(name, value, oldValue));
-    };
-    Observable.prototype.hasListeners = function(eventName) {
-        return eventName in this._observers;
     };
     Observable.prototype._createPropertyChangeData = function(propertyName, value, oldValue) {
         return { eventName: Observable.propertyChangeEvent, object: this, propertyName: propertyName, value: value, oldValue: oldValue };

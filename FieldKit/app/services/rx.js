@@ -12,10 +12,10 @@ export class BetterObservable extends Observable {
 
     subscribe(receiver) {
         if (!this.hasValue) {
-            console.log(this.constructor.name, "Rx, subscribe, no value, refreshing", this.counter);
+            // console.log(this.constructor.name, "Rx, subscribe, no value, refreshing", this.counter);
             this.refresh();
         } else {
-            console.log(this.constructor.name, "Rx, subscribe, immediate value", this.counter);
+            // console.log(this.constructor.name, "Rx, subscribe, immediate value", this.counter);
             receiver(this.value);
         }
 
@@ -32,7 +32,7 @@ export class BetterObservable extends Observable {
 
         return {
             remove: () => {
-                console.log(this.constructor.name, "Rx, removing", this.counter);
+                // console.log(this.constructor.name, "Rx, removing", this.counter);
                 this.removeEventListener(Observable.propertyChangeEvent, listener);
             },
         };
@@ -42,7 +42,7 @@ export class BetterObservable extends Observable {
         this.value = value;
         this.hasValue = true;
         this.counter++;
-        console.log(this.constructor.name, "Rx, publishing new value", this.counter);
+        // console.log(this.constructor.name, "Rx, publishing new value", this.counter);
         return this.notifyPropertyChange(HiddenProperty, value);
     }
 

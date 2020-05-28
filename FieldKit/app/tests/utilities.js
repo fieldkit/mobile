@@ -9,8 +9,8 @@ export class MockStationReplies {
     constructor(services) {
         this.services = services;
         this.call = jest.fn(() => {
-            console.log("no more mocked replies");
-            return null;
+            console.log("TESTS: no more mocked replies");
+            return Promise.reject(new Error("TESTS: no more mocked replies"));
         });
         this.mock = this.call.mock;
         services.Conservify().protobuf = this.call;
