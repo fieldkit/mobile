@@ -56,9 +56,7 @@ export default class DatabaseInterface {
                 });
                 return sqliteToJs(rows);
             })
-            .catch(e => {
-                return Promise.reject(`error fetching stations: ${e}`);
-            });
+            .catch(err => Promise.reject(`error fetching stations: ${err}`));
     }
 
     getStation(stationId) {
@@ -96,17 +94,13 @@ export default class DatabaseInterface {
     getModuleByDeviceId(deviceId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM modules WHERE device_id = ?", [deviceId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     getModules(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     removeModule(moduleId) {
@@ -117,12 +111,18 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("DELETE FROM modules WHERE device_id IS NULL"));
     }
 
+    getSensorsByStationId(stationId) {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId]))
+            .then(rows => sqliteToJs(rows));
+    }
+
     getSensors(moduleDeviceId) {
         return this.getDatabase()
             .then(db =>
-                this._getModulePrimaryKey(moduleDeviceId).then(modulePrimaryKey =>
-                    db.query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
-                )
+                this._getModulePrimaryKey(moduleDeviceId)
+                    .then(modulePrimaryKey => db.query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey]))
+                    .catch(err => Promise.reject(`error getting sensors: ${err}`))
             )
             .then(rows => {
                 return sqliteToJs(rows);
@@ -135,18 +135,16 @@ export default class DatabaseInterface {
 
     removeSensors(moduleId) {
         return this.getDatabase().then(db =>
-            this._getModulePrimaryKey(moduleId).then(modulePrimaryKey =>
-                db.query("DELETE FROM sensors WHERE module_id = ?", [modulePrimaryKey])
-            )
+            this._getModulePrimaryKey(moduleId)
+                .then(modulePrimaryKey => db.query("DELETE FROM sensors WHERE module_id = ?", [modulePrimaryKey]))
+                .catch(err => Promise.reject(`error removing sensor: ${err}`))
         );
     }
 
     getFieldNotes(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM fieldnotes WHERE station_id = ?", [stationId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     updateFieldNote(fieldnote) {
@@ -165,17 +163,13 @@ export default class DatabaseInterface {
     getFieldMedia(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM fieldmedia WHERE station_id = ?", [stationId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     getConfig() {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM config"))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     updateConfigUris(config) {
@@ -435,9 +429,7 @@ export default class DatabaseInterface {
                     ]);
                 });
             })
-            .catch(err => {
-                return Promise.reject(`error inserting sensor: ${err}`);
-            });
+            .catch(err => Promise.reject(`error inserting sensor: ${err}`));
     }
 
     insertModule(module) {
@@ -453,35 +445,35 @@ export default class DatabaseInterface {
                     module.stationId,
                 ])
             )
-            .catch(err => {
-                return Promise.reject(`error inserting module: ${err}`);
-            });
+            .catch(err => Promise.reject(`error inserting module: ${err}`));
     }
 
     insertStation(station, statusJson) {
         const newStation = new Station(station);
-        return this.getDatabase().then(db =>
-            db.execute(
-                `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    newStation.deviceId,
-                    newStation.generationId,
-                    newStation.name,
-                    newStation.url,
-                    newStation.status,
-                    newStation.deployStartTime,
-                    newStation.batteryLevel,
-                    newStation.consumedMemory,
-                    newStation.totalMemory,
-                    newStation.consumedMemoryPercent,
-                    newStation.interval,
-                    JSON.stringify(statusJson),
-                    newStation.longitude,
-                    newStation.latitude,
-                    new Date(),
-                ]
+        return this.getDatabase()
+            .then(db =>
+                db.execute(
+                    `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        newStation.deviceId,
+                        newStation.generationId,
+                        newStation.name,
+                        newStation.url,
+                        newStation.status,
+                        newStation.deployStartTime,
+                        newStation.batteryLevel,
+                        newStation.consumedMemory,
+                        newStation.totalMemory,
+                        newStation.consumedMemoryPercent,
+                        newStation.interval,
+                        JSON.stringify(statusJson),
+                        newStation.longitude,
+                        newStation.latitude,
+                        new Date(),
+                    ]
+                )
             )
-        );
+            .catch(err => Promise.reject(`error inserting station: ${err}`));
     }
 
     insertConfig(config) {
@@ -618,9 +610,7 @@ export default class DatabaseInterface {
                                 values
                             );
                         })
-                        .catch(err => {
-                            return Promise.reject(`error inserting download: ${err}`);
-                        });
+                        .catch(err => Promise.reject(`error inserting download: ${err}`));
                 })
             );
         });
