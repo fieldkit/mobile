@@ -512,12 +512,12 @@ export default class StationMonitor extends BetterObservable {
         this.stations[station.deviceId] = station;
 
         const pending = [];
+
         pending.push(this._requestInitialReadings(station));
         pending.push(this._publishStationsUpdated());
         pending.push(this._publishStationRefreshed(this.stations[station.deviceId]));
-        return Promise.all(pending).then(() => {
-            console.log("activate station done", station.name);
-        });
+
+        return Promise.all(pending).then(() => console.log("activate station done", station.name));
     }
 
     reactivateStation(address, databaseStation, statusResult) {
@@ -546,9 +546,7 @@ export default class StationMonitor extends BetterObservable {
         pending.push(this._publishStationsUpdated());
         pending.push(this._publishStationRefreshed(this.stations[deviceId]));
 
-        console.log("re-activated station --------->", databaseStation.name);
-
-        return pending;
+        return Promise.all(pending).then(() => console.log("re-activated station", databaseStation.name));
     }
 
     deactivateStation(deviceId) {
@@ -565,8 +563,6 @@ export default class StationMonitor extends BetterObservable {
 
             pending.push(this._publishStationsUpdated());
             pending.push(this._publishStationRefreshed(this.stations[deviceId]));
-        } else {
-            // console.log("** deactivation where we don't have the station stored? **");
         }
 
         return Promise.all(pending);
