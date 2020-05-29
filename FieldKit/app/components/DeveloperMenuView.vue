@@ -110,16 +110,8 @@ export default {
                     });
                 });
         },
-        updateStations(data) {
-            switch (data.propertyName.toString()) {
-                case this.$stationMonitor.StationsUpdatedProperty: {
-                    this.stations = data.value;
-                    break;
-                }
-                case this.$stationMonitor.StationRefreshedProperty: {
-                    break;
-                }
-            }
+        updateStations(stations) {
+            this.stations = stations;
         },
         viewStations() {
             this.$navigateTo(routes.stations);

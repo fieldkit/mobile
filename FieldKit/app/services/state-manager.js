@@ -17,14 +17,10 @@ export default class StateManager extends BetterObservable {
         this.portalInterface = services.PortalInterface();
         this.downloadManager = new DownloadManager(services);
         this.uploadManager = new UploadManager(services);
-        this.stationMonitor.on(
-            BetterObservable.propertyChangeEvent,
-            ev => {
-                log.info("updating");
-                return this.refresh();
-            },
-            this
-        );
+        this.stationMonitor.subscribe(ev => {
+            log.info("updating");
+            return this.refresh();
+        });
     }
 
     start() {

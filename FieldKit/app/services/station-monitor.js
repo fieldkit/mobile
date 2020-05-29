@@ -32,9 +32,6 @@ export default class StationMonitor extends BetterObservable {
         this.queriesInProgress = {};
         this.discoverStation = discoverStation;
         this.dbInterface.getAll().then(this.initializeStations.bind(this));
-        this.StationsUpdatedProperty = "stationsUpdated";
-        this.StationRefreshedProperty = "stationRefreshed";
-        this.ReadingsChangedProperty = "readingsChanged";
         this.logs = new StationLogs(discoverStation, queryStation);
         this.phone = new Phone();
         this.knownStations = new KnownStations();
@@ -243,9 +240,7 @@ export default class StationMonitor extends BetterObservable {
         this.stations[station.deviceId].readings = readings;
 
         return Promise.all(pending).then(() => {
-            return this.notifyPropertyChange(this.ReadingsChangedProperty, data).then(() => {
-                return this._updateStationStatus(station, result);
-            });
+            return this._updateStationStatus(station, result);
         });
     }
 
@@ -517,7 +512,6 @@ export default class StationMonitor extends BetterObservable {
 
         pending.push(this._requestInitialReadings(station));
         pending.push(this._publishStationsUpdated());
-        pending.push(this._publishStationRefreshed(this.stations[station.deviceId]));
 
         return Promise.all(pending).then(() => log.info("activate station done", station.name));
     }
@@ -546,7 +540,6 @@ export default class StationMonitor extends BetterObservable {
 
         pending.push(this._requestInitialReadings(this.stations[deviceId]));
         pending.push(this._publishStationsUpdated());
-        pending.push(this._publishStationRefreshed(this.stations[deviceId]));
 
         return Promise.all(pending).then(() => log.info("re-activated station", databaseStation.name));
     }
@@ -564,7 +557,6 @@ export default class StationMonitor extends BetterObservable {
             this.stations[deviceId].lastSeen = pastDate;
 
             pending.push(this._publishStationsUpdated());
-            pending.push(this._publishStationRefreshed(this.stations[deviceId]));
         }
 
         return Promise.all(pending);
@@ -584,39 +576,29 @@ export default class StationMonitor extends BetterObservable {
     }
 
     subscribeAll(receiver) {
-        this.on(BetterObservable.propertyChangeEvent, receiver);
-
+        this.subscribe(receiver);
         return this._publishStationsUpdated();
     }
 
     unsubscribeAll(receiver) {
         log.info("unsubscribeAll");
-        this.off(BetterObservable.propertyChangeEvent, receiver);
-    }
-
-    _publishStationRefreshed(station) {
-        // log.info("publishing refreshed", station.connected);
-        return this.notifyPropertyChange(this.StationRefreshedProperty, station);
+        this.unsubscribe(receiver);
     }
 
     _publishStationsUpdated() {
         const stations = this.sortStations();
-        /*
         const status = _(stations)
             .map(r => [r.name, r.connected])
             .fromPairs()
             .value();
         log.info("publishing updated", status);
-		*/
-        return this.notifyPropertyChange(this.StationsUpdatedProperty, stations);
+        return this.publish(stations);
     }
 
     _updateStationStatus(station, status) {
         if (status != null) {
             this.stations[station.deviceId].statusJson = status;
-            return this._publishStationsUpdated().then(() => {
-                return this._publishStationRefreshed(this.stations[station.deviceId]);
-            });
+            return this._publishStationsUpdated();
         } else {
             log.info("no status for station", station.name);
         }
