@@ -150,18 +150,19 @@ Observable.propertyChangeEvent = "propertyChange";
 export class BetterObservable extends Observable {
     constructor() {
         super();
-        this.hasValue = false;
-        this.value = null;
-        this.counter = 0;
+        this._hasValue = false;
+        this._value = null;
+        this._counter = 0;
+        this._listeners = {};
     }
 
     subscribe(receiver) {
-        if (!this.hasValue) {
-            // console.log(this.constructor.name, "Rx, subscribe, no value, refreshing", this.counter);
+        if (!this._hasValue) {
+            // console.log(this.constructor.name, "Rx, subscribe, no value, refreshing", this._counter);
             this.refresh();
         } else {
-            // console.log(this.constructor.name, "Rx, subscribe, immediate value", this.counter);
-            receiver(this.value);
+            // console.log(this.constructor.name, "Rx, subscribe, immediate value", this._counter);
+            receiver(this._value);
         }
 
         const listener = data => {
@@ -173,21 +174,30 @@ export class BetterObservable extends Observable {
             }
         };
 
+        this._listeners[receiver] = listener;
+
         this.addEventListener(Observable.propertyChangeEvent, listener);
 
         return {
             remove: () => {
-                // console.log(this.constructor.name, "Rx, removing", this.counter);
+                delete this._listeners[receiver];
+                // console.log(this.constructor.name, "Rx, removing", this._counter);
                 this.removeEventListener(Observable.propertyChangeEvent, listener);
             },
         };
     }
 
+    unsubscribe(receiver) {
+        const listener = this._listeners[receiver];
+        // console.log(this.constructor.name, "Rx, removing", this._counter);
+        this.removeEventListener(Observable.propertyChangeEvent, listener);
+    }
+
     publish(value) {
-        this.value = value;
-        this.hasValue = true;
-        this.counter++;
-        // console.log(this.constructor.name, "Rx, publishing new value", this.counter);
+        this._value = value;
+        this._hasValue = true;
+        this._counter++;
+        // console.log(this.constructor.name, "Rx, publishing new value", this._counter);
         return this.notifyPropertyChange(HiddenProperty, value);
     }
 
