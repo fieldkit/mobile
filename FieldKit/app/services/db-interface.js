@@ -339,19 +339,23 @@ export default class DatabaseInterface {
     }
 
     updateStation(station) {
+        // For the time being, need to not update the fields that are being set individually,
+        // as they get overwritten with null if we do. Those include:
+        // station.locationName,
+        // station.studyObjective,
+        // station.locationPurpose,
+        // station.siteCriteria,
+        // station.siteDescription,
+        // station.percentComplete,
+
         const values = [
+            station.connected,
             station.generationId,
             station.name,
             station.url,
             station.portalId,
             station.status,
             station.deployStartTime,
-            station.locationName,
-            station.studyObjective,
-            station.locationPurpose,
-            station.siteCriteria,
-            station.siteDescription,
-            station.percentComplete,
             station.batteryLevel,
             station.consumedMemory,
             station.totalMemory,
@@ -367,7 +371,7 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db =>
                 db.execute(
-                    "UPDATE stations SET generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, location_name = ?, study_objective = ?, location_purpose = ?, site_criteria = ?, site_description = ?, percent_complete = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
+                    "UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
                     values
                 )
             )
