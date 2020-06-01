@@ -1,5 +1,6 @@
 import Promise from "bluebird";
 import { Services } from "../services/services";
+import { randomHexString } from "./utilities";
 import Fixtures from "./fixtures.js";
 
 describe("DatabaseInterface", () => {
@@ -20,25 +21,21 @@ describe("DatabaseInterface", () => {
 
     test("testing weird query issue", async () => {
         const stations = await dbInterface.getAll();
-        console.log("BEFORE", stations[0]);
         const db = await dbInterface.getDatabase();
 
         {
             const done = await db.query("UPDATE stations SET name = ? WHERE id = ?");
             const after = await dbInterface.getAll();
-            console.log("AFTER", after[0]);
         }
 
         {
             const done = await db.query("UPDATE stations SET name = ? WHERE id = ?", "Some Name", stations[0].id);
             const after = await dbInterface.getAll();
-            console.log("AFTER", after[0]);
         }
 
         {
             const done = await db.execute("UPDATE stations SET name = ? WHERE id = ?", "Some Name", stations[0].id);
             const after = await dbInterface.getAll();
-            console.log("AFTER", after[0]);
         }
     });
 
@@ -177,6 +174,7 @@ describe("DatabaseInterface", () => {
         const stationParams = {
             id: data[0].id,
             generationId: "5",
+            deviceId: data[0].deviceId,
             name: "Magnolia",
             url: "http://12.34.56",
             portalId: 1,
@@ -193,7 +191,12 @@ describe("DatabaseInterface", () => {
             totalMemory: 3425,
             consumedMemoryPercent: 13,
             interval: 1345435,
-            statusJson: { streams: [{}, {}] },
+            statusJson: {
+                streams: [
+                    { size: 1, block: 1 },
+                    { size: 1, block: 1 },
+                ],
+            },
             longitude: -122.01,
             latitude: 45.62,
             serializedStatus: "2342ur982uru2",

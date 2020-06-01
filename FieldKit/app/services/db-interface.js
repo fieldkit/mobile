@@ -56,9 +56,7 @@ export default class DatabaseInterface {
                 });
                 return sqliteToJs(rows);
             })
-            .catch(e => {
-                console.log("Error fetching stations", e);
-            });
+            .catch(err => Promise.reject(`error fetching stations: ${err}`));
     }
 
     getStation(stationId) {
@@ -96,17 +94,13 @@ export default class DatabaseInterface {
     getModuleByDeviceId(deviceId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM modules WHERE device_id = ?", [deviceId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     getModules(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     removeModule(moduleId) {
@@ -117,12 +111,18 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("DELETE FROM modules WHERE device_id IS NULL"));
     }
 
+    getSensorsByStationId(stationId) {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId]))
+            .then(rows => sqliteToJs(rows));
+    }
+
     getSensors(moduleDeviceId) {
         return this.getDatabase()
             .then(db =>
-                this._getModulePrimaryKey(moduleDeviceId).then(modulePrimaryKey =>
-                    db.query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
-                )
+                this._getModulePrimaryKey(moduleDeviceId)
+                    .then(modulePrimaryKey => db.query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey]))
+                    .catch(err => Promise.reject(`error getting sensors: ${err}`))
             )
             .then(rows => {
                 return sqliteToJs(rows);
@@ -135,18 +135,16 @@ export default class DatabaseInterface {
 
     removeSensors(moduleId) {
         return this.getDatabase().then(db =>
-            this._getModulePrimaryKey(moduleId).then(modulePrimaryKey =>
-                db.query("DELETE FROM sensors WHERE module_id = ?", [modulePrimaryKey])
-            )
+            this._getModulePrimaryKey(moduleId)
+                .then(modulePrimaryKey => db.query("DELETE FROM sensors WHERE module_id = ?", [modulePrimaryKey]))
+                .catch(err => Promise.reject(`error removing sensor: ${err}`))
         );
     }
 
     getFieldNotes(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM fieldnotes WHERE station_id = ?", [stationId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     updateFieldNote(fieldnote) {
@@ -165,17 +163,13 @@ export default class DatabaseInterface {
     getFieldMedia(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM fieldmedia WHERE station_id = ?", [stationId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     getConfig() {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM config"))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     updateConfigUris(config) {
@@ -345,19 +339,23 @@ export default class DatabaseInterface {
     }
 
     updateStation(station) {
+        // For the time being, need to not update the fields that are being set individually,
+        // as they get overwritten with null if we do. Those include:
+        // station.locationName,
+        // station.studyObjective,
+        // station.locationPurpose,
+        // station.siteCriteria,
+        // station.siteDescription,
+        // station.percentComplete,
+
         const values = [
+            station.connected,
             station.generationId,
             station.name,
             station.url,
             station.portalId,
             station.status,
             station.deployStartTime,
-            station.locationName,
-            station.studyObjective,
-            station.locationPurpose,
-            station.siteCriteria,
-            station.siteDescription,
-            station.percentComplete,
             station.batteryLevel,
             station.consumedMemory,
             station.totalMemory,
@@ -373,7 +371,7 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db =>
                 db.execute(
-                    "UPDATE stations SET generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, location_name = ?, study_objective = ?, location_purpose = ?, site_criteria = ?, site_description = ?, percent_complete = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
+                    "UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
                     values
                 )
             )
@@ -412,6 +410,9 @@ export default class DatabaseInterface {
         if (_.isString(deviceId)) {
             return this.getDatabase().then(db =>
                 db.query("SELECT id FROM modules WHERE device_id = ?", [deviceId]).then(rows => {
+                    if (rows.length != 1) {
+                        return Promise.reject(`no such module: ${deviceId}`);
+                    }
                     return rows[0].id;
                 })
             );
@@ -432,9 +433,7 @@ export default class DatabaseInterface {
                     ]);
                 });
             })
-            .catch(err => {
-                console.log("Error inserting sensor", err);
-            });
+            .catch(err => Promise.reject(`error inserting sensor: ${err}`));
     }
 
     insertModule(module) {
@@ -450,35 +449,35 @@ export default class DatabaseInterface {
                     module.stationId,
                 ])
             )
-            .catch(err => {
-                console.log("Error inserting module", err);
-            });
+            .catch(err => Promise.reject(`error inserting module: ${err}`));
     }
 
     insertStation(station, statusJson) {
         const newStation = new Station(station);
-        return this.getDatabase().then(db =>
-            db.execute(
-                `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    newStation.deviceId,
-                    newStation.generationId,
-                    newStation.name,
-                    newStation.url,
-                    newStation.status,
-                    newStation.deployStartTime,
-                    newStation.batteryLevel,
-                    newStation.consumedMemory,
-                    newStation.totalMemory,
-                    newStation.consumedMemoryPercent,
-                    newStation.interval,
-                    JSON.stringify(statusJson),
-                    newStation.longitude,
-                    newStation.latitude,
-                    new Date(),
-                ]
+        return this.getDatabase()
+            .then(db =>
+                db.execute(
+                    `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        newStation.deviceId,
+                        newStation.generationId,
+                        newStation.name,
+                        newStation.url,
+                        newStation.status,
+                        newStation.deployStartTime,
+                        newStation.batteryLevel,
+                        newStation.consumedMemory,
+                        newStation.totalMemory,
+                        newStation.consumedMemoryPercent,
+                        newStation.interval,
+                        JSON.stringify(statusJson),
+                        newStation.longitude,
+                        newStation.latitude,
+                        new Date(),
+                    ]
+                )
             )
-        );
+            .catch(err => Promise.reject(`error inserting station: ${err}`));
     }
 
     insertConfig(config) {
@@ -615,9 +614,7 @@ export default class DatabaseInterface {
                                 values
                             );
                         })
-                        .catch(err => {
-                            console.log("Error inserting download for station id", download.stationId, "error:", err);
-                        });
+                        .catch(err => Promise.reject(`error inserting download: ${err}`));
                 })
             );
         });
@@ -730,15 +727,16 @@ export default class DatabaseInterface {
     }
 
     _updateStreamFromStation(station, status, type, index) {
+        if (!status) {
+            return Promise.reject(`_updateStreamFromStation: no status`);
+        }
         if (!status.streams) {
-            log.info("no streams in status, ignoring");
-            return Promise.reject();
+            return Promise.reject(`_updateStreamFromStation: no streams`);
         }
         return this.getDatabase()
             .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
             .then(streamId => {
                 if (streamId.length > 0) {
-                    log.info("updating existing stream");
                     const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
                     return this.getDatabase().then(db =>
                         db.query(`UPDATE streams SET device_size = ?, device_last_block = ?, updated = ? WHERE id = ?`, values)
@@ -753,17 +751,12 @@ export default class DatabaseInterface {
                         status.streams[index].block,
                         new Date(),
                     ];
-                    log.info("inserting stream", values);
-                    return this.getDatabase()
-                        .then(db =>
-                            db.query(
-                                `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                                values
-                            )
+                    return this.getDatabase().then(db =>
+                        db.query(
+                            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                            values
                         )
-                        .catch(err => {
-                            console.log("Error inserting stream for station id", station.id, "device id", station.deviceId, "error:", err);
-                        });
+                    );
                 }
             });
     }

@@ -1,6 +1,5 @@
-import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
-import * as ConnectivityModule from "tns-core-modules/connectivity";
-import { isIOS } from "tns-core-modules/platform";
+import { BetterObservable } from "./rx";
+import { Connectivity } from "../wrappers/connectivity";
 import { every } from "./rx";
 import { EventHistory } from "./event-history";
 
@@ -39,28 +38,9 @@ class NetworkMonitor {
                 });
         }, 10000);
 
-        ConnectivityModule.startMonitoring(newType => {
+        Connectivity.startMonitoring(newType => {
             try {
-                switch (newType) {
-                    case ConnectivityModule.connectionType.none:
-                        log.info("connectivity: None");
-                        break;
-                    case ConnectivityModule.connectionType.wifi:
-                        log.info("connectivity: WiFi");
-                        this.tryFixedAddress();
-                        break;
-                    case ConnectivityModule.connectionType.mobile:
-                        log.info("connectivity: Mobile");
-                        break;
-                    case ConnectivityModule.connectionType.ethernet:
-                        log.info("connectivity: Ethernet");
-                        break;
-                    case ConnectivityModule.connectionType.bluetooth:
-                        log.info("connectivity: Bluetooth");
-                        break;
-                    default:
-                        break;
-                }
+                log.info(newType);
             } catch (e) {
                 console.log("NetworkMonitor error:", e);
             }
@@ -97,7 +77,7 @@ class NetworkMonitor {
     }
 }
 
-export default class DiscoverStation extends Observable {
+export default class DiscoverStation extends BetterObservable {
     constructor(services) {
         super();
         this.services = services;
@@ -113,7 +93,7 @@ export default class DiscoverStation extends Observable {
 
     _watchFakePreconfiguredDiscoveries() {
         if (Config.discover && Config.discover.enabled) {
-            every(10000).on(Observable.propertyChangeEvent, data => {
+            every(10000).on(BetterObservable.propertyChangeEvent, data => {
                 Config.discover.stations.forEach(fake => {
                     this.onFoundService({
                         type: "_fk._tcp",
@@ -147,7 +127,7 @@ export default class DiscoverStation extends Observable {
     }
 
     subscribeAll(receiver) {
-        this.on(Observable.propertyChangeEvent, data => {
+        this.on(BetterObservable.propertyChangeEvent, data => {
             return receiver(data);
         });
 
@@ -180,25 +160,24 @@ export default class DiscoverStation extends Observable {
         this.stations_[key] = station;
 
         // save the event in our history before we notify the rest of the application.
-        this.history.onFoundStation(info).then(() => {
-            this.notifyPropertyChange(this.StationFoundProperty, station);
+        return this.history.onFoundStation(info).then(() => {
+            return this.notifyPropertyChange(this.StationFoundProperty, station);
         });
     }
 
     onLostService(info) {
         log.info("lost service:", info.type, info.name);
-        if (!isIOS && info.type == "_fk._tcp.") {
-            info.type = "._fk._tcp";
-        }
 
         // save the event in our history before we notify the rest of the application.
-        this.history.onLostStation(info).then(() => {
+        return this.history.onLostStation(info).then(() => {
             const key = this.makeKey(info);
 
-            this.notifyPropertyChange(this.StationLostProperty, this.stations_[key]);
+            const pending = this.notifyPropertyChange(this.StationLostProperty, this.stations_[key]);
 
             // don't delete until after it has gone out with notification
             delete this.stations_[key];
+
+            return pending;
         });
     }
 

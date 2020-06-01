@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { Observable } from "tns-core-modules/data/observable";
 import { BetterObservable } from "./rx";
 
 import DownloadManager from "./download-manager";
@@ -18,14 +17,10 @@ export default class StateManager extends BetterObservable {
         this.portalInterface = services.PortalInterface();
         this.downloadManager = new DownloadManager(services);
         this.uploadManager = new UploadManager(services);
-        this.stationMonitor.on(
-            Observable.propertyChangeEvent,
-            ev => {
-                log.info("updating");
-                this.refresh();
-            },
-            this
-        );
+        this.stationMonitor.subscribe(ev => {
+            log.info("updating");
+            return this.refresh();
+        });
     }
 
     start() {

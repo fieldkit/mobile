@@ -158,7 +158,7 @@
 
 <script>
 import { on, off, suspendEvent, resumeEvent } from "tns-core-modules/application";
-import { Observable, PropertyChangeData } from "tns-core-modules/data/observable";
+import { BetterObservable } from "../services/rx";
 import routes from "../routes";
 import Services from "../services/services";
 import CircularProgressBar from "./CircularProgressBar";
@@ -559,24 +559,12 @@ export default {
         },
 
         completeSetup() {
-            this.$stationMonitor.on(
-                Observable.propertyChangeEvent,
-                data => {
-                    switch (data.propertyName.toString()) {
-                        case this.$stationMonitor.StationRefreshedProperty: {
-                        }
-                        case this.$stationMonitor.ReadingsChangedProperty: {
-                            if (data.value.stationId == this.currentStation.id) {
-                                this.updateCurrentReading(data.value.readings);
-                            }
-                            break;
-                        }
-                    }
-                },
-                error => {
-                    // console.log("propertyChangeEvent error", error);
+            this.$stationMonitor.subscribe(stations => {
+                const readings = this.$stationMonitor.getStationReadings(this.currentStation);
+                if (data.value.stationId == this.currentStation.id) {
+                    this.updateCurrentReading(data.value.readings);
                 }
-            );
+            });
             // start getting live readings for this station
             if (this.currentStation.url != "no_url") {
                 // see if live readings have been stored already
