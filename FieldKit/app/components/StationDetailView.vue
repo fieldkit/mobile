@@ -233,12 +233,14 @@ export default {
 
             if (this.station) {
                 this.currentStation = this.station;
-                this.paramId = this.currentStation.id;
+                this.paramId = Number(this.currentStation.id);
                 this.completeSetup();
             } else {
                 this.paramId = this.stationId;
                 this.getFromDatabase();
             }
+
+            console.log("loaded station detail", this.paramId);
         },
 
         onUnloaded() {
@@ -261,7 +263,7 @@ export default {
                 }
 
                 const station = _(stations)
-                    .filter(s => Number(s.id) == Number(this.paramId))
+                    .filter(s => Number(s.id) == this.paramId)
                     .first();
                 if (!station) {
                     return Promise.resolve();
@@ -274,31 +276,23 @@ export default {
                     .then(this.updateModules);
             });
 
-            this.$stationMonitor.on(
-                BetterObservable.propertyChangeEvent,
-                data => {
-                    switch (data.propertyName.toString()) {
-                        case this.$stationMonitor.ReadingsChangedProperty: {
-                            if (data.value.stationId == this.paramId) {
-                                this.$refs.statusBox.updateStatus(data.value);
-                                this.$refs.moduleList.updateReadings(data.value);
-                            }
-                            break;
-                        }
-                    }
-                },
-                error => {
-                    // console.log("propertyChangeEvent error", error);
+            this.$stationMonitor.subscribe(stations => {
+                const station = _(stations).filter(s => Number(s.id) == this.paramId);
+                if (station.some()) {
+                    this.$refs.statusBox.updateStatus(station.first().readings);
+                    this.$refs.moduleList.updateReadings(station.first().readings);
                 }
-            );
+            });
         },
 
         getModules(stations) {
             if (stations.length == 0) {
                 // adding to db in background hasn't finished yet,
                 // wait a few seconds and try again
-                setTimeout(this.getFromDatabase, 2000);
-                return Promise.reject();
+                // jacob: This delay is kind of ugly, would love to remove this.
+                return promiseAfter(2000).then(() => {
+                    return this.getFromDatabase();
+                });
             }
             this.currentStation = stations[0];
             // update via stationMonitor
