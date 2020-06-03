@@ -306,6 +306,7 @@ export default {
         },
 
         getSensors(moduleObject) {
+            moduleObject.sensorObjects = [];
             return dbInterface.getSensors(moduleObject.deviceId).then(sensors => {
                 moduleObject.sensorObjects = sensors;
             });
@@ -313,7 +314,10 @@ export default {
 
         setupModules(modules) {
             this.currentStation.moduleObjects = modules;
-            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors));
+            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors)).catch(err => {
+                console.log(`swallowing setupModules error ${err}`);
+                return [];
+            });
         },
 
         updateModules() {
