@@ -148,12 +148,12 @@ export default {
             if (result.length > 0) {
                 const downloadRecord = result[0];
                 if (downloadRecord.uploaded) {
-                    recent.totalDownloads = downloadRecord.lastBlock + " total readings down & uploaded";
+                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} total readings down & uploaded`;
                     recent.lastDownloadTime = "Last down/upload: " + this.getFormattedDateTime(downloadRecord.uploaded);
                     recent.totalUploads = "";
                     recent.lastUploadTime = "";
                 } else {
-                    recent.totalDownloads = downloadRecord.lastBlock + " total readings downloaded";
+                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} + total readings downloaded`;
                     recent.lastDownloadTime = "Last download: " + this.getFormattedDateTime(downloadRecord.timestamp);
 
                     dbInterface.getMostRecentUploadByDeviceId(recent.deviceId).then(uploadResult => {
@@ -166,7 +166,7 @@ export default {
         updateUploadHistory(uploadResult, recent) {
             if (uploadResult.length > 0) {
                 const uploadRecord = uploadResult[0];
-                recent.totalUploads = uploadRecord.lastBlock + " total readings uploaded";
+                recent.totalUploads = `${uploadRecord.lastBlock - 1} + total readings uploaded`;
                 recent.lastUploadTime = "Last upload: " + this.getFormattedDateTime(uploadRecord.uploaded);
             }
         },
