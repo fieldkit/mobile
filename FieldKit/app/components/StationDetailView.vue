@@ -219,6 +219,8 @@ export default {
         },
 
         onPageLoaded(args) {
+            console.log("loading station detail");
+
             this.page = args.object;
 
             this.user = this.$portalInterface.getCurrentUser();

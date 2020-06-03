@@ -301,7 +301,8 @@ export default {
             }, 500);
 
             // remove the "station-" prefix
-            let id = event.object.id.split("station-")[1];
+            const id = event.object.id.split("station-")[1];
+            console.log("showing station", id);
             this.unsubscribe();
             this.$navigateTo(routes.stationDetail, {
                 props: {
