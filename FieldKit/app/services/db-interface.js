@@ -120,13 +120,13 @@ export default class DatabaseInterface {
     getSensors(moduleDeviceId) {
         return this.getDatabase()
             .then(db =>
-                this._getModulePrimaryKey(moduleDeviceId)
-                    .then(modulePrimaryKey => db.query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey]))
-                    .catch(err => Promise.reject(`error getting sensors: ${err}`))
+                this._getModulePrimaryKey(moduleDeviceId).then(modulePrimaryKey =>
+                    db
+                        .query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
+                        .catch(err => Promise.reject(`error getting sensors: ${err}`))
+                )
             )
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+            .then(rows => sqliteToJs(rows));
     }
 
     removeSensor(sensorId) {

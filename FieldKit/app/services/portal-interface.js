@@ -228,7 +228,7 @@ export default class PortalInterface {
             return {};
         }
 
-        throw new Error("Query failed");
+        throw new Error("query failed");
     }
 
     _handleTokenResponse(response) {
@@ -278,7 +278,8 @@ export default class PortalInterface {
                             return this._tryRefreshToken(req);
                         }
 
-                        console.log("portal error", error.response.status, error.response.data);
+                        console.log(req.url, "portal error", error.response.status, error.response.data);
+                        console.log(req.url, "portal error", req);
 
                         throw error;
                     });

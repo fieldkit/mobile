@@ -3,20 +3,20 @@ import * as i18n from "tns-i18n";
 // and this default language initialization does not override that
 i18n("en");
 
-import routes from "./routes";
+import Vue from "nativescript-vue";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
-import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Config, { Build } from "./config";
 
+import initializeLogging from "./lib/logging";
 import Services from "./services/services";
 import AppSettings from "./wrappers/app-settings";
-
-import initializeLogging from "./lib/logging";
 import configureGlobalErrorHandling from "./lib/errors";
 import registerLifecycleEvents from "./services/lifecycle";
+
 import ApplicationWrapper from "./components/ApplicationWrapper";
+import routes from "./routes";
 
 function initializeApplication() {
     return Services.CreateDb()
