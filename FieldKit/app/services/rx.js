@@ -189,7 +189,7 @@ export class BetterObservable extends Observable {
 
     unsubscribe(receiver) {
         const listener = this._listeners[receiver];
-        // console.log(this.constructor.name, "Rx, removing", this._counter);
+        // console.log(this.constructor.name, "Rx, removing", this._counter, listener);
         this.removeEventListener(Observable.propertyChangeEvent, listener);
     }
 

@@ -43,15 +43,10 @@ export default {
             this.checkForConnections();
         },
 
-        updateStations(data) {
-            switch (data.propertyName.toString()) {
-                case this.$stationMonitor.StationsUpdatedProperty: {
-                    this.stations = data.value.filter(s => {
-                        return s.connected;
-                    });
-                    break;
-                }
-            }
+        updateStations(stations) {
+            this.stations = stations.filter(s => {
+                return s.connected;
+            });
         },
 
         goNext() {
