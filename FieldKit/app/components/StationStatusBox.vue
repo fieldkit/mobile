@@ -13,7 +13,7 @@
             <!-- battery level -->
             <StackLayout v-if="station.connected" row="0" col="1" class="m-t-10">
                 <FlexboxLayout class="m-r-10" justifyContent="flex-end">
-                    <Label class="m-r-5 size-12 lighter" :text="station.batteryLevel + '%'"></Label>
+                    <Label class="m-r-5 size-12 lighter" :text="getBatteryLevel()"></Label>
                     <Image width="25" :src="station.batteryImage"></Image>
                 </FlexboxLayout>
             </StackLayout>
@@ -160,11 +160,18 @@ export default {
         updateStatus(data) {
             this.station.batteryLevel = data.batteryLevel;
             this.setBatteryImage();
-            this.displayConsumedMemory = data.consumedMemory;
-            this.displayTotalMemory = data.totalMemory;
+            this.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
+            this.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
             if (data.consumedMemoryPercent) {
                 this.page.addCss("#station-memory-bar {width: " + data.consumedMemoryPercent + "%;}");
             }
+        },
+
+        getBatteryLevel() {
+            if (this.station.batteryLevel != 0 && !this.station.batteryLevel) {
+                return "Unknown";
+            }
+            return this.station.batteryLevel + "%";
         },
 
         setBatteryImage() {
