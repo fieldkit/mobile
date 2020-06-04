@@ -279,7 +279,7 @@ export default {
             this.$stationMonitor.subscribe(stations => {
                 const station = _(stations).filter(s => Number(s.id) == this.paramId);
                 if (station.some()) {
-                    this.$refs.statusBox.updateStatus(station.first().readings);
+                    this.$refs.statusBox.updateStatus(station.first());
                     this.$refs.moduleList.updateReadings(station.first().readings);
                 }
             });
