@@ -409,9 +409,23 @@ export default class DatabaseInterface {
     _getModulePrimaryKey(deviceId) {
         if (_.isString(deviceId)) {
             return this.getDatabase().then(db =>
-                db.query("SELECT id FROM modules WHERE device_id = ?", [deviceId]).then(rows => {
-                    if (rows.length != 1) {
-                        return Promise.reject(`no such module: ${deviceId}`);
+                db.query("SELECT id FROM modules WHERE device_id = ? ORDER BY id DESC", [deviceId]).then(rows => {
+                    if (rows.length == 0) {
+                        return Promise.reject(`no such module: ${deviceId} ${rows.length}`);
+                    }
+                    if (rows.length > 1) {
+                        const keeping = rows[0];
+                        console.log(`deleting duplicate modules ${deviceId} ${rows.length}`);
+                        return db
+                            .query("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE device_id = ? AND id != ?)", [
+                                deviceId,
+                                keeping,
+                            ])
+                            .then(() => {
+                                return db.query("DELETE FROM modules WHERE device_id = ? AND id != ?", [deviceId, keeping]).then(() => {
+                                    return keeping;
+                                });
+                            });
                     }
                     return rows[0].id;
                 })
