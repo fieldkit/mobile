@@ -246,8 +246,7 @@ export default {
                     queryStation.setStationUploadSchedule(this.station).then(result => {
                         // in order to match in the interim, must edit station.statusJson
                         this.deviceStatus.schedules = result.schedules;
-                        let status = JSON.stringify(this.deviceStatus);
-                        this.station.statusJson = status;
+                        this.station.statusJson = this.deviceStatus;
                         this.goBack();
                     });
                 }

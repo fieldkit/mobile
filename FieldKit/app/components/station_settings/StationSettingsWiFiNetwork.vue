@@ -281,8 +281,7 @@ export default {
                 this.networks = result.networkSettings.networks;
                 // in order to match in the interim, must edit station.statusJson
                 this.deviceStatus.networkSettings = result.networkSettings;
-                let status = JSON.stringify(this.deviceStatus);
-                this.station.statusJson = status;
+                this.station.statusJson = this.deviceStatus;
                 this.goBack();
             });
         },
@@ -307,8 +306,7 @@ export default {
                             this.networks = result.networkSettings.networks;
                             // in order to match in the interim, must edit station.statusJson
                             this.deviceStatus.networkSettings = result.networkSettings;
-                            let status = JSON.stringify(this.deviceStatus);
-                            this.station.statusJson = status;
+                            this.station.statusJson = this.deviceStatus;
                         });
                     }
                 });
