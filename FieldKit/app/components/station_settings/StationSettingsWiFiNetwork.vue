@@ -98,11 +98,24 @@
                         </StackLayout>
                         <StackLayout class="p-b-20"></StackLayout>
                         <!-- make this visible all the time again when radio buttons are reactivated -->
-                        <Button v-show="addingNetwork" class="btn btn-primary btn-padded" :text="_L('save')" @tap="addNetwork"></Button>
+                        <Button
+                            v-show="addingNetwork"
+                            class="btn btn-primary btn-padded"
+                            :text="_L('save')"
+                            :isEnabled="station.connected"
+                            @tap="addNetwork"
+                        ></Button>
+
+                        <ConnectionNote :station="station" />
 
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
-                            <Button class="btn btn-primary btn-padded" :text="wifiUploadButton" @tap="uploadOverWifi" />
+                            <Button
+                                class="btn btn-primary btn-padded"
+                                :text="wifiUploadButton"
+                                :isEnabled="station.connected"
+                                @tap="uploadOverWifi"
+                            />
                         </StackLayout>
 
                         <StackLayout class="p-b-20"></StackLayout>
@@ -123,6 +136,7 @@ import Services from "../../services/services";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import WiFi from "./StationSettingsWiFi";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
@@ -147,6 +161,7 @@ export default {
         ScreenHeader,
         ScreenFooter,
         WiFi,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {

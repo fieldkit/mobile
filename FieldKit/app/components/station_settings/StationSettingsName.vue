@@ -47,7 +47,8 @@
 
                         <StackLayout class="m-30"></StackLayout>
 
-                        <Button class="btn btn-primary btn-padded" text="Save Name" @tap="saveStationName" />
+                        <Button class="btn btn-primary btn-padded" text="Save Name" :isEnabled="station.connected" @tap="saveStationName" />
+                        <ConnectionNote :station="station" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -64,6 +65,7 @@ import Services from "../../services/services";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import General from "./StationSettingsGeneral";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 export default {
     data() {
@@ -79,6 +81,7 @@ export default {
         ScreenHeader,
         ScreenFooter,
         General,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {

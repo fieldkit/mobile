@@ -14,10 +14,12 @@
                         <Button
                             v-if="updateAvailable"
                             :text="_L('upgradeFirmware')"
+                            :isEnabled="station.connected"
                             @tap="upgradeFirmware"
                             class="btn btn-primary btn-padded"
                         ></Button>
                         <Label v-else text="You're up to date!" class="size-20 m-x-15 bottom-border" />
+                        <ConnectionNote v-if="updateAvailable" :station="station" />
                     </StackLayout>
 
                     <WrapLayout orientation="horizontal" class="m-10 m-b-20">
@@ -42,6 +44,7 @@ import Services from "../../services/services";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 const dbInterface = Services.Database();
 
@@ -62,6 +65,7 @@ export default {
     components: {
         ScreenHeader,
         ScreenFooter,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {

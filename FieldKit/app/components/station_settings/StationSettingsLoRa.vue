@@ -69,7 +69,13 @@
                                 ></Label>
                             </GridLayout>
                             <StackLayout class="p-b-20"></StackLayout>
-                            <Button class="btn btn-primary btn-padded" :text="_L('save')" @tap="editLora"></Button>
+                            <Button
+                                class="btn btn-primary btn-padded"
+                                :text="_L('save')"
+                                :isEnabled="station.connected"
+                                @tap="editLora"
+                            ></Button>
+                            <ConnectionNote :station="station" />
                             <StackLayout class="p-b-20"></StackLayout>
                         </StackLayout>
                     </StackLayout>
@@ -88,6 +94,7 @@ import Services from "../../services/services";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import Networks from "./StationSettingsNetworks";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 const queryStation = Services.QueryStation();
 
@@ -105,6 +112,7 @@ export default {
         ScreenHeader,
         ScreenFooter,
         Networks,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {

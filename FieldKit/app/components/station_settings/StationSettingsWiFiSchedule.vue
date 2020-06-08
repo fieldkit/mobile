@@ -64,7 +64,13 @@
                         </StackLayout>
                     </GridLayout>
                     <StackLayout class="p-b-20"></StackLayout>
-                    <Button class="btn btn-primary btn-padded" :text="_L('save')" @tap="saveUploadInterval" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('save')"
+                        :isEnabled="station.connected"
+                        @tap="saveUploadInterval"
+                    />
+                    <ConnectionNote :station="station" />
                 </StackLayout>
             </ScrollView>
 
@@ -81,6 +87,7 @@ import Services from "../../services/services";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import WiFi from "./StationSettingsWiFi";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
@@ -98,6 +105,7 @@ export default {
         ScreenHeader,
         ScreenFooter,
         WiFi,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {
