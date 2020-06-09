@@ -241,7 +241,7 @@ export default {
             intervals: [],
             selectedTime: new Date(),
             currentlyPicking: {},
-            timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")],
+            timeUnits: [_L("minutes"), _L("hours"), _L("days"), _L("weeks")],
             temporaryView: true,
         };
     },
@@ -293,29 +293,27 @@ export default {
 
         convertFromSeconds(interval) {
             let displayValue = interval;
-            let unit = 0;
+            let unit;
             // unit is an index into timeUnits:
-            // timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
-            if (interval < 60) {
-                // already set to seconds
-            } else if (interval < 3600) {
+            // timeUnits: ["minutes", "hours", "days", "weeks"]
+            if (interval < 3600) {
                 // minutes
-                unit = 1;
+                unit = 0;
                 displayValue /= 60;
                 displayValue = Math.round(displayValue);
             } else if (interval < 86400) {
                 // hours
-                unit = 2;
+                unit = 1;
                 displayValue /= 3600;
                 displayValue = Math.round(displayValue);
             } else if (interval < 604800) {
                 // days
-                unit = 3;
+                unit = 2;
                 displayValue /= 86400;
                 displayValue = Math.round(displayValue);
             } else {
                 // weeks
-                unit = 4;
+                unit = 3;
                 displayValue /= 604800;
                 displayValue = Math.round(displayValue);
             }
@@ -325,18 +323,15 @@ export default {
         convertToSeconds(interval) {
             switch (interval.unit) {
                 case 0:
-                    interval.value = interval.display;
-                    break;
-                case 1:
                     interval.value = interval.display * 60;
                     break;
-                case 2:
+                case 1:
                     interval.value = interval.display * 3600;
                     break;
-                case 3:
+                case 2:
                     interval.value = interval.display * 86400;
                     break;
-                case 4:
+                case 3:
                     interval.value = interval.display * 604800;
                     break;
                 default:

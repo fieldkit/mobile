@@ -16,10 +16,12 @@
                         <Label :text="calibrationText" lineHeight="3" class="size-15 m-x-15 m-b-20" textWrap="true" />
                         <Button
                             text="Calibrate Sensor"
+                            :isEnabled="station.connected"
                             @tap="goToCalibration"
                             class="btn btn-primary btn-padded"
                             v-show="module.calibrateSensor"
                         ></Button>
+                        <ConnectionNote :station="station" />
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
@@ -35,6 +37,7 @@ import { getLastSeen, _T, convertOldFirmwareResponse } from "../../utilities";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import Modules from "./StationSettingsModuleList";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 export default {
     data() {
@@ -47,6 +50,7 @@ export default {
         ScreenHeader,
         ScreenFooter,
         Modules,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {

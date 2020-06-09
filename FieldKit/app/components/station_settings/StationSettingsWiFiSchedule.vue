@@ -64,7 +64,13 @@
                         </StackLayout>
                     </GridLayout>
                     <StackLayout class="p-b-20"></StackLayout>
-                    <Button class="btn btn-primary btn-padded" :text="_L('save')" @tap="saveUploadInterval" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('save')"
+                        :isEnabled="station.connected"
+                        @tap="saveUploadInterval"
+                    />
+                    <ConnectionNote :station="station" />
                 </StackLayout>
             </ScrollView>
 
@@ -81,6 +87,7 @@ import Services from "../../services/services";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import WiFi from "./StationSettingsWiFi";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
@@ -90,7 +97,7 @@ export default {
     data() {
         return {
             interval: {},
-            timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks"), _L("months"), _L("years")],
+            timeUnits: [_L("minutes"), _L("hours"), _L("days"), _L("weeks"), _L("months"), _L("years")],
         };
     },
     props: ["station"],
@@ -98,6 +105,7 @@ export default {
         ScreenHeader,
         ScreenFooter,
         WiFi,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {
@@ -149,38 +157,36 @@ export default {
 
         convertFromSeconds(interval) {
             let displayValue = interval;
-            let unit = 0;
+            let unit;
             // unit is an index into this.timeUnits:
-            if (interval < 60) {
-                // already set to seconds
-            } else if (interval < 3600) {
+            if (interval < 3600) {
                 // minutes
-                unit = 1;
+                unit = 0;
                 displayValue /= 60;
                 displayValue = Math.round(displayValue);
             } else if (interval < 86400) {
                 // hours
-                unit = 2;
+                unit = 1;
                 displayValue /= 3600;
                 displayValue = Math.round(displayValue);
             } else if (interval < 604800) {
                 // days
-                unit = 3;
+                unit = 2;
                 displayValue /= 86400;
                 displayValue = Math.round(displayValue);
             } else if (interval < 2628000) {
                 // weeks
-                unit = 4;
+                unit = 3;
                 displayValue /= 604800;
                 displayValue = Math.round(displayValue);
             } else if (interval < 31535965) {
                 // months
-                unit = 5;
+                unit = 4;
                 displayValue /= 2628000;
                 displayValue = Math.round(displayValue);
             } else {
                 // years
-                unit = 6;
+                unit = 5;
                 displayValue /= 31535965;
                 displayValue = Math.round(displayValue);
                 // if they have ever configured the station to upload over wifi,
@@ -196,24 +202,21 @@ export default {
         convertToSeconds(interval) {
             switch (interval.unit) {
                 case 0:
-                    interval.value = interval.display;
-                    break;
-                case 1:
                     interval.value = interval.display * 60;
                     break;
-                case 2:
+                case 1:
                     interval.value = interval.display * 3600;
                     break;
-                case 3:
+                case 2:
                     interval.value = interval.display * 86400;
                     break;
-                case 4:
+                case 3:
                     interval.value = interval.display * 604800;
                     break;
-                case 5:
+                case 4:
                     interval.value = interval.display * 2628000;
                     break;
-                case 6:
+                case 5:
                     interval.value = interval.display * 31535965;
                     break;
                 default:
@@ -246,8 +249,7 @@ export default {
                     queryStation.setStationUploadSchedule(this.station).then(result => {
                         // in order to match in the interim, must edit station.statusJson
                         this.deviceStatus.schedules = result.schedules;
-                        let status = JSON.stringify(this.deviceStatus);
-                        this.station.statusJson = status;
+                        this.station.statusJson = this.deviceStatus;
                         this.goBack();
                     });
                 }

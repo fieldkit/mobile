@@ -13,6 +13,7 @@
                                 <Button
                                     class="btn btn-primary btn-padded full-width"
                                     :text="_L('stopRecording')"
+                                    :isEnabled="station.connected"
                                     @tap="stopRecording"
                                 ></Button>
                             </StackLayout>

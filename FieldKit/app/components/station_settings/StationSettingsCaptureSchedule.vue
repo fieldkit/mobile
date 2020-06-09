@@ -16,8 +16,9 @@
                     <!-- data capture schedule -->
                     <ConfigureCaptureInterval :station="station" />
 
-                    <Button class="btn btn-primary btn-padded" text="Save" @tap="goBack" />
+                    <Button class="btn btn-primary btn-padded" text="Save" :isEnabled="station.connected" @tap="goBack" />
                     <StackLayout class="p-b-20"></StackLayout>
+                    <ConnectionNote :station="station" />
                 </FlexboxLayout>
             </ScrollView>
 
@@ -33,6 +34,7 @@ import ConfigureCaptureInterval from "../ConfigureCaptureInterval";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import General from "./StationSettingsGeneral";
+import ConnectionNote from "./StationSettingsConnectionNote";
 
 export default {
     data() {
@@ -44,6 +46,7 @@ export default {
         ScreenHeader,
         ScreenFooter,
         General,
+        ConnectionNote,
     },
     methods: {
         onPageLoaded(args) {},
