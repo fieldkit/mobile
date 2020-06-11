@@ -13,11 +13,14 @@ class PortalUpdater {
         Services.PortalInterface()
             .isAvailable()
             .then(yes => {
-                if (yes) {
-                    // retrieve stations
-                    Services.Database()
-                        .getAll()
-                        .then(stations => {
+                if (!yes) {
+                    return Promise.resolve();
+                }
+                // retrieve stations
+                return Services.Database()
+                    .getAll()
+                    .then(stations => {
+                        return Promise.all(
                             stations.map(station => {
                                 const params = {
                                     name: station.name,
@@ -27,25 +30,25 @@ class PortalUpdater {
                                 };
                                 // update or add station
                                 if (station.portalId) {
-                                    Services.PortalInterface()
+                                    return Services.PortalInterface()
                                         .updateStation(params, station.portalId)
                                         .then(() => {
-                                            Services.Database().setStationPortalError(station, "");
+                                            return Services.Database().setStationPortalError(station, "");
                                         })
                                         .catch(error => {
-                                            Services.Database().setStationPortalError(station, error.response.status);
+                                            return Services.Database().setStationPortalError(station, error.response.status);
                                         });
                                 } else {
-                                    Services.PortalInterface()
+                                    return Services.PortalInterface()
                                         .addStation(params)
                                         .then(result => {
                                             station.portalId = result.id;
                                             Services.Database().setStationPortalId(station);
                                         });
                                 }
-                            });
-                        });
-                }
+                            })
+                        );
+                    });
             });
     }
 }
