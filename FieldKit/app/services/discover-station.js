@@ -153,10 +153,11 @@ export default class DiscoverStation extends BetterObservable {
     }
 
     onFoundService(info) {
-        log.info("found service:", info.type, info.name, info.host, info.port);
-
         const key = this.makeKey(info);
         const station = new Station(info);
+
+        log.info("found service:", info.type, info.name, info.host, info.port, key);
+
         this.stations_[key] = station;
 
         // save the event in our history before we notify the rest of the application.
@@ -171,18 +172,23 @@ export default class DiscoverStation extends BetterObservable {
         // save the event in our history before we notify the rest of the application.
         return this.history.onLostStation(info).then(() => {
             const key = this.makeKey(info);
+            const station = this.stations_[key];
+            if (!station) {
+                log.info("ignoring station, never seen before", key);
+                return Promise.resolve();
+            }
 
-            const pending = this.notifyPropertyChange(this.StationLostProperty, this.stations_[key]);
+            log.info("notify station lost", key);
 
+            const pending = this.notifyPropertyChange(this.StationLostProperty, station);
             // don't delete until after it has gone out with notification
             delete this.stations_[key];
-
             return pending;
         });
     }
 
     makeKey(station) {
-        return station.name + station.type;
+        return station.name;
     }
 
     getConnectedStations() {
