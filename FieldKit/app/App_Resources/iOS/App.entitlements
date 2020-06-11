@@ -3,6 +3,6 @@
 <plist version="1.0">
 	<dict>
 		<key>com.apple.developer.networking.wifi-info</key>
-		<string>yes</string>
+		<true/>
 	</dict>
 </plist>
