@@ -1,40 +1,67 @@
+import { BetterObservable } from "./rx";
 import { Accuracy } from "tns-core-modules/ui/enums";
 import { GeoLocation } from "../wrappers/geolocation";
 import { promiseAfter } from "../utilities";
 import { Coordinates } from "./known-stations";
+import Config from "../config";
 
-// Conservify's office in LA:
+const log = Config.logger("PhoneLocation");
+
+// Twin Peaks East in Angeles National Forest
 const defaultLocation = {
-    latitude: 34.031803131103516,
-    longitude: -118.27091979980469,
+    latitude: 34.3318104,
+    longitude: -118.0730372,
 };
 
-export default class PhoneLocation {
+export default class PhoneLocation extends BetterObservable {
     constructor() {
+        super();
         this.geolocation = new GeoLocation();
     }
 
     enableAndGetLocation() {
-        return this.geolocation.isEnabled().then(isEnabled => {
-            if (isEnabled) {
-                if (false) {
-                    console.log("location delay for debugging");
-                    return promiseAfter(10000).then(() => {
-                        return this.getLocation();
+        return this.geolocation
+            .isEnabled()
+            .then(isEnabled => {
+                if (isEnabled) {
+                    // TODO Remove this eventually.
+                    this.testAccuracies();
+
+                    return this.getLocation();
+                } else {
+                    return this.geolocation.enableLocationRequest().then(
+                        v => this.getLocation(),
+                        e => new Coordinates(defaultLocation)
+                    );
+                }
+            })
+            .then(location => {
+                this._keepLocationUpdated();
+                return location;
+            });
+    }
+
+    _keepLocationUpdated() {
+        this.geolocation
+            .isEnabled()
+            .then(enabled => {
+                if (enabled) {
+                    return this.getLocation().then(location => {
+                        return this.publish(location);
                     });
                 }
+                return Promise.resolve(defaultLocation);
+            })
+            .then(l => {
+                promiseAfter(10000).then(() => {
+                    log.info("check location");
+                    return this._keepLocationUpdated();
+                });
 
-                // TODO Remove this eventually.
-                this.testAccuracies();
+                return l;
+            });
 
-                return this.getLocation();
-            } else {
-                return this.geolocation.enableLocationRequest().then(
-                    () => this.getLocation(),
-                    e => new Coordinates(defaultLocation)
-                );
-            }
-        });
+        return true;
     }
 
     test(name, params) {
@@ -43,12 +70,12 @@ export default class PhoneLocation {
             loc => {
                 const done = new Date();
                 const elapsed = done - started;
-                console.log("location done", name, elapsed, loc.latitude, loc.longitude, loc.horizontalAccuracy);
+                log.info("done", name, elapsed, loc.latitude, loc.longitude, loc.horizontalAccuracy);
             },
             err => {
                 const done = new Date();
                 const elapsed = done - started;
-                console.log("location failed", name, elapsed, err);
+                log.info("failed", name, elapsed, err);
             }
         );
     }
@@ -100,12 +127,7 @@ export default class PhoneLocation {
                 timeout: 20000,
             })
             .then(
-                location => {
-                    if (location) {
-                        return new Coordinates(location);
-                    }
-                    return new Coordinates(defaultLocation);
-                },
+                l => new Coordinates(l || defaultLocation),
                 e => new Coordinates(defaultLocation)
             );
     }

@@ -78,11 +78,16 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
             this.step = steps["selectStation"];
-            this.stationOptions = this.stationOptionsParam;
-            this.stationOptions.forEach(s => {
+            this.stationOptions = this.stationOptionsParam.map((s, i) => {
                 if (s.selected) {
                     this.station = s;
                 }
+                return {
+                    id: i,
+                    selected: s.selected,
+                    name: s.name,
+                    deviceId: s.deviceId,
+                };
             });
             this.takeStep();
         },
@@ -130,7 +135,9 @@ export default {
                 option.selected = false;
                 if (option.name == radioOption.name) {
                     option.selected = true;
-                    this.station = option;
+                    this.station = this.stationOptionsParam.find(s => {
+                        return s.deviceId == option.deviceId;
+                    });
                 }
             });
         },
