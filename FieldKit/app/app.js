@@ -3,6 +3,7 @@ import * as i18n from "tns-i18n";
 // and this default language initialization does not override that
 i18n("en");
 
+import Promise from "bluebird";
 import Vue from "nativescript-vue";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
@@ -89,6 +90,14 @@ function startVueJs() {
             ]),
     }).$start();
 }
+
+Promise.config({
+    warnings: true,
+    longStackTraces: true,
+    cancellation: true,
+    monitoring: true,
+    asyncHooks: true,
+});
 
 try {
     initializeLogging();

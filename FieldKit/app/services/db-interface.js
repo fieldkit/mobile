@@ -366,12 +366,13 @@ export default class DatabaseInterface {
             station.latitude,
             station.serializedStatus,
             new Date(),
+            station.lastSeen,
             station.id,
         ];
         return this.getDatabase()
             .then(db =>
                 db.execute(
-                    "UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ? WHERE id = ?",
+                    "UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ? WHERE id = ?",
                     values
                 )
             )

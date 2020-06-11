@@ -1,5 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
+import Promise from "bluebird";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
 const isObject = function(o) {
@@ -57,9 +58,14 @@ export function serializePromiseChain(all, fn) {
 }
 
 export function promiseAfter(t, v) {
-    return new Promise(function(resolve) {
-        setTimeout(resolve.bind(null, v), t);
-    });
+    if (t == 0) {
+        return {
+            then: cb => {
+                return cb();
+            },
+        };
+    }
+    return Promise.delay(t).then(() => v);
 }
 
 export function hexStringToByteWiseString(str) {

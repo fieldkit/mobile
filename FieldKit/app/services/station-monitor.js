@@ -156,17 +156,17 @@ export default class StationMonitor extends BetterObservable {
             });
     }
 
-    updateStatus(station, result) {
+    updateStatus(station, statusReply) {
         delete this.queriesInProgress[station.deviceId];
 
         log.verbose("updateStatus");
 
-        if (result.errors.length > 0) {
-            return Promise.reject(`status reply has errors: ${result.errors}`);
+        if (statusReply.errors.length > 0) {
+            return Promise.reject(`status reply has errors: ${statusReply.errors}`);
         }
 
-        if (station.deviceId != result.status.identity.deviceId) {
-            return Promise.reject(`status reply device id mismatch: ${station.deviceId} != ${result.status.identity.deviceId}`);
+        if (station.deviceId != statusReply.status.identity.deviceId) {
+            return Promise.reject(`status reply device id mismatch: ${station.deviceId} != ${statusReply.status.identity.deviceId}`);
         }
 
         // now that db can be cleared, might need to re-add stations
@@ -178,8 +178,8 @@ export default class StationMonitor extends BetterObservable {
         this.stations[station.deviceId].lastSeen = new Date();
 
         const pending = [];
-        pending.push(this._keepDatabaseFieldsInSync(station, result));
-        pending.push(this._updateStationStatus(station, result));
+        pending.push(this._keepDatabaseFieldsInSync(station, statusReply));
+        pending.push(this._updateStationStatusJSON(station, statusReply));
         return Promise.all(pending);
     }
 
@@ -236,23 +236,25 @@ export default class StationMonitor extends BetterObservable {
         this.stations[station.deviceId].readings = readings;
 
         return Promise.all(pending).then(() => {
-            return this._updateStationStatus(station, result);
+            return this._updateStationStatusJSON(station, result);
         });
     }
 
-    _keepDatabaseFieldsInSync(station, result) {
+    _keepDatabaseFieldsInSync(station, statusReply) {
         const pending = [];
         const updating = this.stations[station.deviceId];
 
         log.verbose("keepDatabaseFieldsInSync");
 
-        updating.name = result.status.identity.device;
-        updating.status = result.status.recording.enabled ? "recording" : "";
-        updating.deployStartTime = result.status.recording.startedTime ? new Date(result.status.recording.startedTime * 1000) : "";
-        updating.batteryLevel = result.status.power.battery.percentage;
-        updating.serializedStatus = result.serialized;
-        if (result.status.identity.generationId != this.stations[station.deviceId].generationId) {
-            updating.generationId = result.status.identity.generationId;
+        updating.name = statusReply.status.identity.device;
+        updating.status = statusReply.status.recording.enabled ? "recording" : "";
+        updating.deployStartTime = statusReply.status.recording.startedTime
+            ? new Date(statusReply.status.recording.startedTime * 1000)
+            : "";
+        updating.batteryLevel = statusReply.status.power.battery.percentage;
+        updating.serializedStatus = statusReply.serialized;
+        if (statusReply.status.identity.generationId != this.stations[station.deviceId].generationId) {
+            updating.generationId = statusReply.status.identity.generationId;
             if (updating.status != "recording") {
                 // new generation and not recording, so
                 // possible factory reset. reset deploy notes
@@ -263,23 +265,21 @@ export default class StationMonitor extends BetterObservable {
         // With the more complete promise chains, we were getting to
         // updateStation below w/o having this assigned and getting
         // errors.
-        if (!updating.statusJson) {
-            updating.statusJson = result;
-        }
+        this._updateStationStatusJSON(updating, statusReply);
 
         pending.push(
             this.dbInterface.updateStation(updating).catch(e => {
                 return Promise.reject(`error updating station in the db: ${e}`);
             })
         );
-        pending.push(this._keepModulesAndSensorsInSync(updating, result));
+        pending.push(this._keepModulesAndSensorsInSync(updating, statusReply));
 
         // I'd like to move this state manipulation code into objects
         // that have a narrower set of dependencies so that we can do
         // more automated testing. Eventually most of the above code
         // can migrate into these objects.
         try {
-            pending.push(this.knownStations.get(station).haveNewStatus(result, this.phone));
+            pending.push(this.knownStations.get(station).haveNewStatus(statusReply, this.phone));
         } catch (err) {
             log.error("error", err, err.stack);
         }
@@ -287,8 +287,8 @@ export default class StationMonitor extends BetterObservable {
         return Promise.all(pending);
     }
 
-    _keepModulesAndSensorsInSync(station, result) {
-        const hwModules = result.modules.filter(m => {
+    _keepModulesAndSensorsInSync(station, statusReply) {
+        const hwModules = statusReply.modules.filter(m => {
             return !is_internal_module(m);
         });
 
@@ -392,14 +392,7 @@ export default class StationMonitor extends BetterObservable {
                     return this.checkDatabase(data.value.name, data.value.url);
                 }
                 case this.discoverStation.StationLostProperty: {
-                    if (data.value) {
-                        return this.deactivateStation(data.value.name);
-                    }
-                    break;
-                }
-                default: {
-                    log.info(data.propertyName.toString() + " " + data.value.toString());
-                    break;
+                    return this.deactivateStation(data.value.name);
                 }
             }
         });
@@ -408,17 +401,17 @@ export default class StationMonitor extends BetterObservable {
     checkDatabase(deviceId, address) {
         return this.queryStation
             .getStatus(address)
-            .then(statusResult => {
-                return this.dbInterface.getStationByDeviceId(deviceId).then(result => {
-                    if (result.length == 0) {
+            .then(statusReply => {
+                return this.dbInterface.getStationByDeviceId(deviceId).then(dbStations => {
+                    if (dbStations.length == 0) {
                         return this.addToDatabase({
                             deviceId: deviceId,
                             address: address,
-                            result: statusResult,
+                            result: statusReply,
                         });
                     } else {
                         try {
-                            return this.reactivateStation(address, result[0], statusResult);
+                            return this.reactivateStation(address, dbStations[0], statusReply);
                         } catch (e) {
                             log.error(`error reactivating: ${e.message} ${e.stack}`);
                         }
@@ -591,7 +584,7 @@ export default class StationMonitor extends BetterObservable {
         return this.publish(stations);
     }
 
-    _updateStationStatus(station, status) {
+    _updateStationStatusJSON(station, status) {
         if (status != null) {
             this.stations[station.deviceId].statusJson = status;
             return this._publishStationsUpdated();

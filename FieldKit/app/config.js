@@ -44,6 +44,7 @@ const configs = {
         includeInternalModules: false,
         includeInternalSensors: false,
         syncMode: "auto",
+        lossBufferDelay: 2000,
     },
     test: {
         vue: {
@@ -57,6 +58,7 @@ const configs = {
         includeInternalModules: false,
         includeInternalSensors: false,
         syncMode: "auto",
+        lossBufferDelay: 0,
     },
 };
 
