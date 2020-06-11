@@ -1,6 +1,7 @@
 import { BetterObservable } from "./rx";
 import { Connectivity } from "../wrappers/connectivity";
 import { every } from "./rx";
+import { promiseAfter } from "../utilities";
 import { EventHistory } from "./event-history";
 
 import Config from "../config";
@@ -22,9 +23,9 @@ class NetworkMonitor {
     constructor(services) {
         console.log("NetworkMonitor::ctor");
 
-        this.services = services;
-        this.previous = null;
-        this.timer = setInterval(() => {
+        this._services = services;
+        this._previous = null;
+        this._timer = setInterval(() => {
             return services
                 .Conservify()
                 .findConnectedNetwork()
@@ -33,7 +34,7 @@ class NetworkMonitor {
                         log.info("NetworkMonitor: ", status.connectedWifi.ssid);
                     } else {
                         log.info("NetworkMonitor: nothing");
-                        this.previous = null;
+                        this._previous = null;
                     }
                 });
         }, 10000);
@@ -49,13 +50,13 @@ class NetworkMonitor {
 
     tryFixedAddress() {
         const ip = "192.168.2.1";
-        this.services
+        this._services
             .QueryStation()
             .getStatus("http://" + ip + "/fk/v1")
             .then(
                 status => {
                     console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
-                    this.services.DiscoverStation().onFoundService({
+                    this._services.DiscoverStation().onFoundService({
                         type: "_fk._tcp",
                         name: status.identity.deviceId,
                         host: ip,
@@ -80,10 +81,11 @@ class NetworkMonitor {
 export default class DiscoverStation extends BetterObservable {
     constructor(services) {
         super();
-        this.services = services;
-        this.stations_ = {};
-        this.networkMonitor = null;
-        this.history = new EventHistory(this.services);
+        this._services = services;
+        this._stations = {};
+        this._networkMonitor = null;
+        this._history = new EventHistory(this._services);
+        this._pending = {};
 
         this.StationFoundProperty = "stationFound";
         this.StationLostProperty = "stationLost";
@@ -107,8 +109,8 @@ export default class DiscoverStation extends BetterObservable {
     }
 
     _loseConnectedStations() {
-        log.info("loseConnectedStations", this.stations_);
-        const connected = Object.values(this.stations_);
+        log.info("loseConnectedStations", this._stations);
+        const connected = Object.values(this._stations);
         log.info("connected", connected);
         connected.forEach(station => {
             this.onLostService({
@@ -119,11 +121,10 @@ export default class DiscoverStation extends BetterObservable {
     }
 
     _watchWiFiNetworks() {
-        if (this.networkMonitor != null) {
+        if (this._networkMonitor != null) {
             return;
         }
-
-        this.networkMonitor = new NetworkMonitor(this.services);
+        this._networkMonitor = new NetworkMonitor(this._services);
     }
 
     subscribeAll(receiver) {
@@ -131,15 +132,15 @@ export default class DiscoverStation extends BetterObservable {
             return receiver(data);
         });
 
-        Object.keys(this.stations_).forEach(key => {
-            const station = this.stations_[key];
+        Object.keys(this._stations).forEach(key => {
+            const station = this._stations[key];
             log.info("publishing known service", station);
             this.onFoundService(station);
         });
     }
 
     _watchZeroconfAndMdns() {
-        return this.services.Conservify().start("_fk._tcp");
+        return this._services.Conservify().start("_fk._tcp");
     }
 
     startServiceDiscovery() {
@@ -149,7 +150,7 @@ export default class DiscoverStation extends BetterObservable {
     }
 
     stopServiceDiscovery() {
-        this.stations_ = {};
+        this._stations = {};
     }
 
     onFoundService(info) {
@@ -158,33 +159,51 @@ export default class DiscoverStation extends BetterObservable {
 
         log.info("found service:", info.type, info.name, info.host, info.port, key);
 
-        this.stations_[key] = station;
+        if (this._pending[key]) {
+            log.info("cancel pending loss");
+            this._pending[key].cancel();
+            delete this._pending[key];
+        }
+
+        this._stations[key] = station;
 
         // save the event in our history before we notify the rest of the application.
-        return this.history.onFoundStation(info).then(() => {
+        return this._history.onFoundStation(info).then(() => {
             return this.notifyPropertyChange(this.StationFoundProperty, station);
         });
     }
 
     onLostService(info) {
-        log.info("lost service:", info.type, info.name);
+        const key = this.makeKey(info);
 
-        // save the event in our history before we notify the rest of the application.
-        return this.history.onLostStation(info).then(() => {
-            const key = this.makeKey(info);
-            const station = this.stations_[key];
-            if (!station) {
-                log.info("ignoring station, never seen before", key);
-                return Promise.resolve();
-            }
+        log.info("lost service(pending):", info.type, info.name, Config.lossBufferDelay);
 
-            log.info("notify station lost", key);
+        if (this._pending[key]) {
+            this._pending[key].cancel();
+            delete this._pending[key];
+        }
 
-            const pending = this.notifyPropertyChange(this.StationLostProperty, station);
-            // don't delete until after it has gone out with notification
-            delete this.stations_[key];
-            return pending;
-        });
+        return (this._pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
+            log.info("lost service(final):", info.type, info.name);
+
+            delete this._pending[key];
+
+            // save the event in our history before we notify the rest of the application.
+            return this._history.onLostStation(info).then(() => {
+                const station = this._stations[key];
+                if (!station) {
+                    log.info("ignoring station, never seen before", key);
+                    return Promise.resolve();
+                }
+
+                log.info("notify station lost", key);
+
+                const pending = this.notifyPropertyChange(this.StationLostProperty, station);
+                // don't delete until after it has gone out with notification
+                delete this._stations[key];
+                return pending;
+            });
+        }));
     }
 
     makeKey(station) {
@@ -192,6 +211,6 @@ export default class DiscoverStation extends BetterObservable {
     }
 
     getConnectedStations() {
-        return Promise.resolve(this.stations_);
+        return Promise.resolve(this._stations);
     }
 }
