@@ -2,11 +2,14 @@ import { Accuracy } from "tns-core-modules/ui/enums";
 import { GeoLocation } from "../wrappers/geolocation";
 import { promiseAfter } from "../utilities";
 import { Coordinates } from "./known-stations";
+import Config from "../config";
 
-// Conservify's office in LA:
+const log = Config.logger("PhoneLocation");
+
+// Twin Peaks East in Angeles National Forest
 const defaultLocation = {
-    latitude: 34.031803131103516,
-    longitude: -118.27091979980469,
+    latitude: 34.3318104,
+    longitude: -118.0730372,
 };
 
 export default class PhoneLocation {
@@ -17,20 +20,13 @@ export default class PhoneLocation {
     enableAndGetLocation() {
         return this.geolocation.isEnabled().then(isEnabled => {
             if (isEnabled) {
-                if (false) {
-                    console.log("location delay for debugging");
-                    return promiseAfter(10000).then(() => {
-                        return this.getLocation();
-                    });
-                }
-
                 // TODO Remove this eventually.
                 this.testAccuracies();
 
                 return this.getLocation();
             } else {
                 return this.geolocation.enableLocationRequest().then(
-                    () => this.getLocation(),
+                    v => this.getLocation(),
                     e => new Coordinates(defaultLocation)
                 );
             }
@@ -43,12 +39,12 @@ export default class PhoneLocation {
             loc => {
                 const done = new Date();
                 const elapsed = done - started;
-                console.log("location done", name, elapsed, loc.latitude, loc.longitude, loc.horizontalAccuracy);
+                log.info("location done", name, elapsed, loc.latitude, loc.longitude, loc.horizontalAccuracy);
             },
             err => {
                 const done = new Date();
                 const elapsed = done - started;
-                console.log("location failed", name, elapsed, err);
+                log.info("location failed", name, elapsed, err);
             }
         );
     }
