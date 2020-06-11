@@ -26,34 +26,28 @@ export default class StationMonitor extends BetterObservable {
         this.dbInterface = dbInterface;
         this.queryStation = queryStation;
         this.phoneLocation = phoneLocation;
+        this.discoverStation = discoverStation;
         this.stations = {};
         // stations whose details are being viewed in app are "active"
         this.activeAddresses = [];
         this.queriesInProgress = {};
-        this.discoverStation = discoverStation;
-        this.dbInterface.getAll().then(this.initializeStations.bind(this));
         this.logs = new StationLogs(discoverStation, queryStation);
         this.phone = new Phone();
         this.knownStations = new KnownStations();
 
-        // temporary method to clear out modules with no device ids
-        this.dbInterface.removeNullIdModules();
+        // temporary method to clear out modules with no device ids (is this still necessary?)
+        this.dbInterface.removeNullIdModules().then(() => this.dbInterface.getAll().then(stations => this.initializeStations(stations)));
 
-        // TODO: hook in to lifecycle event instead?
-        // I usually avoid this kind of thing in the regular app code,
-        // but this makes tests more difficult, I'd like to find out
-        // why this is necessary and get rid of it.  I'm wondering if
-        // there's a way we can tell if this code didn't work and
-        // warn?
-        if (TNS_ENV === "test" || true) {
-            this.phoneLocation.enableAndGetLocation().then(this.savePhoneLocation.bind(this));
-            this.subscribeToStationDiscovery();
-        } else {
-            setTimeout(() => {
-                this.phoneLocation.enableAndGetLocation().then(this.savePhoneLocation.bind(this));
-                this.subscribeToStationDiscovery();
-            }, 3000);
-        }
+        // start getting updates about which stations are nearby.
+        this.subscribeToStationDiscovery();
+
+        // Get the phone's location right away and then subscribe to
+        // any updates to the phone's location and pass them over to
+        // update any stations that may need updating.
+        this.phoneLocation
+            .enableAndGetLocation()
+            .then(location => this.savePhoneLocation(location))
+            .then(() => this.phoneLocation.subscribe(location => this.savePhoneLocation(location)));
     }
 
     getPhone() {
@@ -70,6 +64,8 @@ export default class StationMonitor extends BetterObservable {
     }
 
     savePhoneLocation(location) {
+        log.info("new phone location", location);
+
         this.phone.location = new Coordinates(location);
 
         return Promise.all(
