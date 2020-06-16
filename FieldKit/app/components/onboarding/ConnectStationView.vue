@@ -281,6 +281,10 @@ export default {
         },
     },
 };
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
 
 const steps = {
     intro: {
@@ -290,14 +294,11 @@ const steps = {
         skip: "goToStations",
         hasBackButton: true,
         regularFormat: true,
-        title: "FieldKit Station WiFi",
-        instructions: [
-            "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to your mobile device.",
-            "Confirm that your station WiFi is on by pressing the external WiFi button.",
-        ],
-        button: "Continue",
+        title: _L("fieldkitWifi"),
+        instructions: [_L("introConnectStep1"), _L("introConnectStep2")],
+        button: _L("continue"),
         images: ["TI_9-A.jpg", "TI_9-B.jpg"],
-        altOption: "Skip this step",
+        altOption: _L("skipStep"),
     },
     connect: {
         name: "connect",
@@ -306,13 +307,11 @@ const steps = {
         skip: "goToStations",
         hasBackButton: true,
         regularFormat: true,
-        title: "Connect your FieldKit Station",
-        instructions: [
-            "To connect to your station, go to your mobile phone WiFi settings and select the station's WiFi name as displayed on the station screen.",
-        ],
-        button: "Done",
+        title: _L("connectYourStation"),
+        instructions: [_L("connectStep1")],
+        button: _L("done"),
         images: ["TI_10-A.jpg", "TI_10-A.jpg"],
-        altOption: "Skip this step",
+        altOption: _L("skipStep"),
     },
     selectSettings: {
         name: "selectSettings",
@@ -320,23 +319,22 @@ const steps = {
         next: "rename",
         hasBackButton: false,
         regularFormat: false,
-        title: "Choose WiFi Settings",
-        instructions: ["Choose how you would like to sync your data"],
-        button: "Next",
+        title: _L("chooseWifiSettings"),
+        instructions: [_L("chooseWifiInstruction")],
+        button: _L("next"),
         images: [],
         options: [
             {
                 id: 1,
-                text: "Station WiFi (default)",
-                info: "Your FieldKit station has its own WiFi signal, acting as a hotspot and allowing connection to a mobile device",
+                text: _L("stationWifi"),
+                info: _L("stationWifiInfo"),
                 next: "rename",
                 selected: true,
             },
             {
                 id: 2,
-                text: "Your WiFi Network",
-                info:
-                    "Connect your FieldKit station to your own WiFi network to sync data with the FieldKit portal directly. Unfortunately, only 2.4GHz WiFi is currently supported.",
+                text: _L("yourWifi"),
+                info: _L("yourWifiInfo"),
                 next: "ssid",
                 selected: false,
             },
@@ -356,13 +354,11 @@ const steps = {
         skip: "goToStations",
         hasBackButton: true,
         regularFormat: true,
-        title: "Reconnect to your FieldKit Station",
-        instructions: [
-            "To reconnect to your station, go to your mobile phone WiFi settings and select the station's new WiFi name as displayed on the station screen.",
-        ],
-        button: "Done",
+        title: _L("reconnectToStation"),
+        instructions: [_L("reconnectInstruction")],
+        button: _L("done"),
         images: ["TI_10-A.jpg", "TI_10-A.jpg"],
-        altOption: "Skip this step",
+        altOption: _L("skipStep"),
     },
     ssid: {
         name: "ssid",

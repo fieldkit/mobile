@@ -1,5 +1,5 @@
 import * as i18n from "tns-i18n";
-// Note: i18n detects the preferred language on the station,
+// Note: i18n detects the preferred language on the phone,
 // and this default language initialization does not override that
 i18n("en");
 

@@ -5,7 +5,7 @@
                 <GridLayout rows="auto, auto" columns="*">
                     <StackLayout row="0" id="loading-circle-blue"></StackLayout>
                     <StackLayout row="0" id="loading-circle-white"></StackLayout>
-                    <Label row="1" class="instruction m-t-20" text="Connecting" lineHeight="4" textWrap="true"></Label>
+                    <Label row="1" class="instruction m-t-20" :text="_L('connecting')" lineHeight="4" textWrap="true"></Label>
                 </GridLayout>
             </StackLayout>
         </GridLayout>
@@ -168,7 +168,7 @@ const steps = {
         prev: "",
         next: "",
         title: "",
-        instructions: ["Connecting"],
+        instructions: [],
         button: "",
         images: [],
     },
