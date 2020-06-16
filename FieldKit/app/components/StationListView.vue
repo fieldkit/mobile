@@ -112,6 +112,7 @@ export default {
         },
 
         onMapReady(args) {
+            console.log("onMapReady");
             this.map = args.map;
             this.showToggle = true;
             if (this.stations && this.stations.length > 0) {
