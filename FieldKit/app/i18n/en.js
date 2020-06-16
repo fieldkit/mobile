@@ -24,7 +24,7 @@ module.exports = {
     radioBoard: "Radio board",
     coreBoard: "Core board",
     backPlane: "Back plane",
-    moduleParts: "Module(s)o",
+    moduleParts: "Module(s)",
     battery: "battery",
     screws: "Screws",
     microCable: "Micro USB cable",
