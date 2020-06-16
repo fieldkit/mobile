@@ -37,7 +37,7 @@
                             :col="item.col"
                             :text="item.text"
                         />
-                        <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" text="*not included" />
+                        <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" :text="'*' + _L('notIncluded')" />
                     </Gridlayout>
                 </StackLayout>
 
@@ -74,18 +74,13 @@
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
                 <Image class="illo" src="~/images/FieldKit_welcome_image.jpg"></Image>
                 <StackLayout class="welcome-text-container">
-                    <Label text="Welcome!" class="welcome text-center" />
-                    <Label
-                        text="Our mobile app makes it easy to set up and deploy your FieldKit station."
-                        textWrap="true"
-                        lineHeight="4"
-                        class="m-t-5 m-x-20"
-                    />
+                    <Label :text="_L('welcome')" class="welcome text-center" />
+                    <Label :text="_L('mobileAppIntro')" textWrap="true" lineHeight="4" class="m-t-5 m-x-20" />
                 </StackLayout>
                 <StackLayout class="m-x-10">
-                    <Button class="btn btn-primary btn-padded" text="Get Started" @tap="goNext"></Button>
+                    <Button class="btn btn-primary btn-padded" :text="_L('getStarted')" @tap="goNext"></Button>
                 </StackLayout>
-                <Label text="Skip instructions" class="skip" @tap="skip" textWrap="true" />
+                <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
             </FlexboxLayout>
             <!-- end intro screen -->
         </GridLayout>
@@ -187,6 +182,10 @@ export default {
         },
     },
 };
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
 
 const steps = [
     {
@@ -197,64 +196,63 @@ const steps = [
         images: [],
     },
     {
-        title: "Do You Have Everything?",
-        instruction: "Check that you have all of the necessary parts to assemble your FieldKit.",
-        button: "Assemble Station",
+        title: _L("haveEverything"),
+        instruction: _L("assembleStep1"),
+        button: _L("assembleStation"),
         images: ["TI_1-A.jpg", "TI_1-A.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction: "Place your core board and radio board together.",
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep2"),
         button: "Next",
         images: ["TI_2-A.jpg", "TI_2-B.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction: "Take the combined core board and radio board and attach it to the back plane.",
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep3"),
         button: "Next",
         images: ["TI_3-A.jpg", "TI_3-B.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction: "Attach your individual modules to the back plane, then secure them with screws.",
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep4"),
         button: "Next",
         images: ["TI_4-A.jpg", "TI_4-B.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction:
-            "Take all of your attached components and place them inside the station enclosure. Secure the system down with screws.",
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep5"),
         button: "Next",
         images: ["TI_5-A.jpg", "TI_5-B.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction: 'Attach the battery at the top of the radio board where it says "BATTERY."',
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep6"),
         button: "Next",
         images: ["TI_6-A.jpg", "TI_6-B.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction: 'Insert the button cord to the radio board into the port labeled "BTN."',
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep7"),
         button: "Done",
         images: ["TI_7-A.jpg", "TI_7-B.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction: "Plug in your micro USB cable to charge the station battery.",
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep8"),
         button: "Next",
         images: ["TI_8-A.jpg", "TI_8-B.jpg"],
     },
     {
-        title: "Assemble Station",
-        instruction: 'Make sure that the switch is in the "On" position. Leave plugged in to charge for an hour.',
+        title: _L("assembleStation"),
+        instruction: _L("assembleStep9"),
         button: "Next",
         images: ["TI_15-A.jpg", "TI_15-B.jpg"],
     },
     {
-        title: "Complete",
-        instruction: "Station Assembled",
-        button: "Continue",
+        title: _L("complete"),
+        instruction: _L("assembleStep10"),
+        button: _L("continue"),
         images: [],
     },
 ];
@@ -264,55 +262,55 @@ const checklist = [
         id: 1,
         row: 1,
         col: 0,
-        text: "\u{2022} Enclosure",
+        text: "\u{2022} " + _L("enclosure"),
     },
     {
         id: 2,
         row: 2,
         col: 0,
-        text: "\u{2022} Radio board",
+        text: "\u{2022} " + _L("radioBoard"),
     },
     {
         id: 3,
         row: 3,
         col: 0,
-        text: "\u{2022} Core board",
+        text: "\u{2022} " + _L("coreBoard"),
     },
     {
         id: 4,
         row: 4,
         col: 0,
-        text: "\u{2022} Back plane",
+        text: "\u{2022} " + _L("backPlane"),
     },
     {
         id: 5,
         row: 5,
         col: 0,
-        text: "\u{2022} Module(s)",
+        text: "\u{2022} " + _L("moduleParts"),
     },
     {
         id: 6,
         row: 1,
         col: 1,
-        text: "\u{2022} 1 battery",
+        text: "\u{2022} 1 " + _L("battery"),
     },
     {
         id: 7,
         row: 2,
         col: 1,
-        text: "\u{2022} Screws",
+        text: "\u{2022} " + _L("screws"),
     },
     {
         id: 8,
         row: 3,
         col: 1,
-        text: "\u{2022} Micro USB cable",
+        text: "\u{2022} " + _L("microCable"),
     },
     {
         id: 9,
         row: 4,
         col: 1,
-        text: "\u{2022} Screw driver*",
+        text: "\u{2022} " + _L("screwdriver") + "*",
     },
 ];
 </script>

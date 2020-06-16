@@ -110,28 +110,28 @@ export default {
         },
     },
 };
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
 
 const steps = {
     trouble: {
         prev: "",
         next: "testConnection",
-        title: "Having Problems Connecting?",
+        title: _L("havingProblems"),
         skip: "goToStations",
-        instructions: [
-            "1. Press the WiFi button again",
-            "2. Turn on station's WiFi access point directly from the station settings menu",
-            "3. If you are still having trouble get help at our support and troubleshooting center",
-        ],
-        button: "Try Again",
+        instructions: ["1. " + _L("problemStep1"), "2. " + _L("problemStep2"), "3. " + _L("problemStep3")],
+        button: _L("tryAgain"),
         images: [],
-        altOption: "Skip this step",
+        altOption: _L("skipStep"),
     },
     testConnection: {
         prev: "",
         next: "",
         proceed: "selectStation",
         title: "",
-        instructions: ["Connecting"],
+        instructions: [_L("connecting")],
         button: "",
         images: [],
     },
@@ -139,11 +139,11 @@ const steps = {
         prev: "startCalibration",
         next: "goToModuleAssembly",
         skip: "goToStations",
-        title: "No Modules Connected",
-        instructions: ["Complete your FieldKit Station by adding sensor modules."],
-        button: "Add Modules",
+        title: _L("noModulesConnected"),
+        instructions: [_L("noModulesInstruction")],
+        button: _L("addModules"),
         images: [],
-        altOption: "Continue without modules",
+        altOption: _L("continueWithoutModules"),
     },
 };
 </script>

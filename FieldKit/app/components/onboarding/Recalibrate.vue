@@ -67,7 +67,7 @@
                 <GridLayout rows="auto, auto" columns="*">
                     <StackLayout row="0" id="loading-circle-blue"></StackLayout>
                     <StackLayout row="0" id="loading-circle-white"></StackLayout>
-                    <Label row="1" class="instruction m-t-30" text="Fetching station information" lineHeight="4" textWrap="true"></Label>
+                    <Label row="1" class="instruction m-t-30" :text="_L('fetchingStationInfo')" lineHeight="4" textWrap="true"></Label>
                 </GridLayout>
             </StackLayout>
             <!-- end loading screen -->
@@ -166,7 +166,7 @@ export default {
 
         assessCalibration() {
             const toCalibrate = this.modules.filter(m => {
-                return !m.calibratedLabel || m.calibratedLabel == "Uncalibrated";
+                return !m.calibratedLabel || m.calibratedLabel == _L("uncalibrated");
             });
             if (toCalibrate.length == 0) {
                 this.step = steps.endCalibration;
@@ -178,7 +178,7 @@ export default {
         },
 
         goToCalibration(m) {
-            if (m.calibratedLabel != "Uncalibrated") {
+            if (m.calibratedLabel != _L("uncalibrated")) {
                 return;
             }
 
@@ -252,7 +252,7 @@ export default {
                     this.sensorsChecked += 1;
                 }
             } else if (!this.pending[m.position]) {
-                m.calibratedLabel = "No calibration needed";
+                m.calibratedLabel = _L("noCalibrationNeeded");
                 m.calibratedImage = "~/images/Icon_Success.png";
                 this.sensorsChecked += 1;
             }
@@ -282,7 +282,7 @@ export default {
                     total = _.sum(_.values(result.calibration.ecStatus));
                 }
             }
-            m.calibratedLabel = total > 0 ? "Calibrated" : "Uncalibrated";
+            m.calibratedLabel = total > 0 ? _L("calibrated") : _L("uncalibrated");
             m.calibratedClass = total > 0 ? "gray-text" : "red-text";
             m.calibratedImage = total > 0 ? "~/images/Icon_Success.png" : "";
             this.pending[m.position] = false;
@@ -335,6 +335,10 @@ export default {
         },
     },
 };
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
 
 const steps = {
     startCalibration: {
@@ -343,15 +347,12 @@ const steps = {
         next: "",
         hasHeading: false,
         title: "",
-        instructions: [
-            "Let's set up your station before you deploy!",
-            "To complete setup, calibrate each sensor module for accurate data readings.",
-        ],
-        button: "Done",
+        instructions: [_L("startCalibrationStep1"), _L("startCalibrationStep2")],
+        button: _L("done"),
         buttonDisabled: true,
         images: [],
         progressImage: "~/images/Icon_incomplete.png",
-        altOption: "Go to stations",
+        altOption: _L("goToStations"),
     },
     endCalibration: {
         showingModules: true,
@@ -359,8 +360,8 @@ const steps = {
         next: "goToStations",
         hasHeading: false,
         title: "",
-        instructions: ["Your FieldKit station setup is complete."],
-        button: "Done",
+        instructions: [_L("endCalibrationStep")],
+        button: _L("done"),
         images: [],
         progressImage: "~/images/Icon_complete.png",
     },

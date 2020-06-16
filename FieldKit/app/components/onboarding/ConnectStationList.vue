@@ -149,6 +149,10 @@ export default {
         },
     },
 };
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
 
 const steps = {
     trouble: {
@@ -160,11 +164,11 @@ const steps = {
         prev: "connect",
         next: "selectSettings",
         skip: "tryAgain",
-        title: "Select Your Station",
-        instructions: ["We found FieldKit Stations. Choose the station you want to connect to."],
-        button: "Next",
+        title: _L("selectYourStation"),
+        instructions: [_L("selectStationInstruction")],
+        button: _L("next"),
         images: [],
-        altOption: "Don't see your station? Try again.",
+        altOption: _L("noStationTryAgain"),
     },
     testConnection: {
         testingConnection: true,

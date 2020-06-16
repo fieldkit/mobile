@@ -114,8 +114,8 @@
 
                         <!-- known wifi networks -->
                         <WrapLayout orientation="horizontal" :opacity="showNetworks ? 1 : 0" class="networks-container">
-                            <Label text="Saved WiFi Networks" class="title" width="100%"></Label>
-                            <Label text="No saved networks" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
+                            <Label :text="_L('savedNetworks')" class="title" width="100%"></Label>
+                            <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
                             <!-- wifi radio buttons -->
                             <GridLayout rows="auto" columns="30,*" v-for="n in networks" :key="n.ssid" class="m-10">
                                 <check-box
@@ -176,7 +176,7 @@ export default {
             networks: [],
             showNetworks: false,
             hidePassword: true,
-            passwordVisibility: "Show",
+            passwordVisibility: _L("show"),
             newNetwork: { ssid: "", password: "" },
             editingName: false,
             editingSsid: false,
@@ -350,7 +350,7 @@ export default {
 
         togglePassword() {
             this.hidePassword = !this.hidePassword;
-            this.passwordVisibility = this.hidePassword ? "Show" : "Hide";
+            this.passwordVisibility = this.hidePassword ? _L("show") : _L("hide");
         },
 
         goNext() {
@@ -396,49 +396,51 @@ export default {
     },
 };
 
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
+
 const steps = {
     stationName: {
         prev: "selectSettings",
         next: "reconnect",
         skip: "startCalibration",
-        title: "Change your FieldKit station name?",
-        instructions: ["You can change the name or leave it the same. You can always change it later."],
-        button: "Save New Name",
+        title: _L("changeStationName"),
+        instructions: [_L("changeStationNameInstruction")],
+        button: _L("saveNewName"),
         images: [],
         label: "",
         field: "stationName",
-        hint: "Enter a name for your station",
-        altOption: "Skip this step",
+        hint: _L("stationNameHint"),
+        altOption: _L("skipStep"),
     },
     reconnect: {
         prev: "stationName",
         next: "testConnection",
-        title: "Reconnect to your FieldKit Station",
+        title: _L("reconnectToStation"),
     },
     ssid: {
         prev: "selectSettings",
         next: "password",
-        title: "Your WiFi Network",
-        instructions: [
-            "Enter the name of the WiFi network you would like to connect your FieldKit station to.",
-            "Unfortunately, only 2.4GHz WiFi is currently supported.",
-        ],
-        button: "Next",
+        title: _L("yourWifi"),
+        instructions: [_L("wifiStep1"), _L("wifiStep2")],
+        button: _L("next"),
         images: [],
         label: "",
         field: "ssid",
-        hint: "Enter WiFi network name",
+        hint: _L("networkNameHint"),
     },
     password: {
         prev: "ssid",
         next: "testConnection",
-        title: "Your WiFi Network",
+        title: _L("yourWifi"),
         instructions: [],
-        button: "Next",
+        button: _L("next"),
         images: [],
         label: "",
         field: "password",
-        hint: "Enter network password",
+        hint: _L("networkPasswordHint"),
     },
     testConnection: {
         testingConnection: true,
@@ -446,7 +448,7 @@ const steps = {
         next: "",
         proceed: "startCalibration",
         title: "",
-        instructions: ["Connecting"],
+        instructions: [_L("connecting")],
         button: "",
         images: [],
     },
