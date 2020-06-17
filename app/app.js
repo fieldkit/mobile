@@ -11,10 +11,11 @@ import VueDevtools from "nativescript-vue-devtools";
 import Firebase from "nativescript-plugin-firebase";
 
 import initializeLogging from "./lib/logging";
-import Services from "./services/services";
-import AppSettings from "./wrappers/app-settings";
 import configureGlobalErrorHandling from "./lib/errors";
 import registerLifecycleEvents from "./services/lifecycle";
+
+import Services from "./services/services";
+import AppSettings from "./wrappers/app-settings";
 import ApplicationWrapper from "./components/ApplicationWrapper";
 import routes from "./routes";
 

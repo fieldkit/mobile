@@ -44,3 +44,5 @@ mochawesome-report/*
 
 GoogleService-Info.plist
 google-services.json
+
+*.swp
