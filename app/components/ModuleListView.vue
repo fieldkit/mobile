@@ -70,8 +70,7 @@ export default {
         return {
             open: [],
             modules: [],
-            pending: {},
-            statusChecked: {},
+            initialized: [],
         };
     },
     props: ["station"],
@@ -81,7 +80,10 @@ export default {
                 return m.position;
             });
             this.modules.forEach((m, i) => {
-                this.open.push(m.id);
+                if (this.initialized.indexOf(m.id) == -1) {
+                    this.open.push(m.id);
+                    this.initialized.push(m.id);
+                }
                 m.sensorObjects.forEach(s => {
                     s.displayReading = s.currentReading || s.currentReading === 0 ? s.currentReading.toFixed(1) : "--";
                     s.icon = "~/images/Icon_Neutral.png";
@@ -90,7 +92,7 @@ export default {
         },
 
         updateReadings(data) {
-            const liveReadings = data.readings;
+            const liveReadings = data;
             if (data.positions) {
                 this.modules.forEach(m => {
                     m.position = data.positions[m.name];

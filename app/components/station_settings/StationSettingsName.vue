@@ -148,8 +148,6 @@ export default {
                     .catch(error => {
                         console.error("unhandled error", error);
                     });
-            } else {
-                this.goBack();
             }
         },
 

@@ -561,17 +561,13 @@ export default {
         completeSetup() {
             this.$stationMonitor.subscribe(stations => {
                 const readings = this.$stationMonitor.getStationReadings(this.currentStation);
-                if (data.value.stationId == this.currentStation.id) {
-                    this.updateCurrentReading(data.value.readings);
-                }
+                this.updateCurrentReading(readings);
             });
             // start getting live readings for this station
             if (this.currentStation.url != "no_url") {
                 // see if live readings have been stored already
                 const readings = this.$stationMonitor.getStationReadings(this.currentStation);
-                if (readings) {
-                    this.updateCurrentReading(readings);
-                }
+                this.updateCurrentReading(readings);
                 this.$stationMonitor.startLiveReadings(this.currentStation.url);
             }
         },

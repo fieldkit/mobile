@@ -13,7 +13,10 @@
                             row="1"
                             col="0"
                             :class="
-                                'interval-field ' + (!interval.noInterval && !interval.intervalNotNumber ? 'interval-input' : 'no-border')
+                                'interval-field ' +
+                                (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber
+                                    ? 'interval-input'
+                                    : 'no-border')
                             "
                             verticalAligment="bottom"
                             keyboardType="name"
@@ -53,6 +56,13 @@
                                 :text="_L('intervalRequired')"
                                 textWrap="true"
                                 :visibility="interval.noInterval ? 'visible' : 'collapsed'"
+                            ></Label>
+                            <Label
+                                class="validation-error"
+                                horizontalAlignment="left"
+                                :text="_L('intervalTooSmall')"
+                                textWrap="true"
+                                :visibility="interval.intervalTooSmall ? 'visible' : 'collapsed'"
                             ></Label>
                             <Label
                                 class="validation-error"
@@ -124,6 +134,7 @@ export default {
             this.interval = {
                 id: Date.now(),
                 noInterval: false,
+                intervalTooSmall: false,
                 intervalNotNumber: false,
                 origValue: origValue,
                 origUnit: converted.unit,
@@ -131,6 +142,7 @@ export default {
                 display: converted.display,
                 unit: converted.unit,
             };
+            this.checkInterval(this.interval);
         },
 
         goBack(event) {
@@ -227,10 +239,15 @@ export default {
         checkInterval(interval) {
             // reset these first
             interval.noInterval = false;
+            interval.intervalTooSmall = false;
             interval.intervalNotNumber = false;
             // then check
             interval.noInterval = !interval.display || interval.display == 0 || interval.display.length == 0;
             if (interval.noInterval) {
+                return false;
+            }
+            if (interval.display < 1) {
+                interval.intervalTooSmall = true;
                 return false;
             }
             interval.intervalNotNumber = isNaN(interval.display);
