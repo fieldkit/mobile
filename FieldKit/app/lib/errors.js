@@ -3,6 +3,10 @@ import * as traceModule from "tns-core-modules/trace";
 import Vue from "nativescript-vue";
 
 export default function configureGlobalErrorHandling() {
+    if (true) {
+        return Bluebird.resolve();
+    }
+
     try {
         traceModule.setErrorHandler({
             handleError(err) {
@@ -14,7 +18,7 @@ export default function configureGlobalErrorHandling() {
 
         traceModule.enable();
 
-        Bluebird.onUnhandledRejectionHandled(promise => {
+        Bluebird.onUnhandledRejectionHandled((promise) => {
             console.log("onUnhandledRejectionHandled" /*, error*/);
         });
 
@@ -37,4 +41,6 @@ export default function configureGlobalErrorHandling() {
     } catch (e) {
         console.log("startup error", e, e.stack);
     }
+
+    return Bluebird.resolve();
 }

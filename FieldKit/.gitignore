@@ -41,3 +41,6 @@ test_fieldkit.sqlite3
 
 # Test results
 mochawesome-report/*
+
+GoogleService-Info.plist
+google-services.json

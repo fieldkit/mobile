@@ -35,13 +35,15 @@
                 <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
                 <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
                 <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
-                <!-- <Button class="btn btn-primary btn-padded" text="Start QR Code Scanning" @tap="doScanWithBackCamera"></Button> -->
+                <Button class="btn btn-primary btn-padded" text="Crash" @tap="crash"></Button>
+                <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash"></Button>
             </FlexboxLayout>
         </Scrollview>
     </Page>
 </template>
 
 <script>
+import { crashlytics } from "nativescript-plugin-firebase";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import { knownFolders } from "tns-core-modules/file-system";
 import { BarcodeScanner } from "nativescript-barcodescanner";
@@ -263,6 +265,14 @@ export default {
                         // console.log("No scan. " + errorMessage);
                     }
                 );
+        },
+
+        crash() {
+            crashlytics.crash();
+        },
+
+        manualCrash() {
+            crashlytics.sendCrashLog(new java.lang.Exception("Oh, no! Manual crash!"));
         },
 
         doScanWithBackCamera() {

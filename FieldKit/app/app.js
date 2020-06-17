@@ -8,21 +8,22 @@ import Vue from "nativescript-vue";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
 import VueDevtools from "nativescript-vue-devtools";
-import Config, { Build } from "./config";
+import Firebase from "nativescript-plugin-firebase";
 
 import initializeLogging from "./lib/logging";
 import Services from "./services/services";
 import AppSettings from "./wrappers/app-settings";
 import configureGlobalErrorHandling from "./lib/errors";
 import registerLifecycleEvents from "./services/lifecycle";
-
 import ApplicationWrapper from "./components/ApplicationWrapper";
 import routes from "./routes";
+
+import Config, { Build } from "./config";
 
 function initializeApplication() {
     return Services.CreateDb()
         .initialize()
-        .then(db => Services.Database().checkConfig())
+        .then((db) => Services.Database().checkConfig())
         .then(() => {
             Services.StateManager().start();
             Services.PortalUpdater().start();
@@ -30,7 +31,7 @@ function initializeApplication() {
             Vue.prototype.$portalInterface = Services.PortalInterface();
             return Services.OnlineStatus().start();
         })
-        .catch(err => {
+        .catch((err) => {
             console.log("ERROR", err.message);
             console.log("ERROR", err.stack);
         });
@@ -79,8 +80,10 @@ function getFirstRoute() {
 }
 
 function startVueJs() {
+    configureVueJs();
+
     new Vue({
-        render: h =>
+        render: (h) =>
             h("frame", [
                 h(ApplicationWrapper, {
                     props: {
@@ -89,6 +92,22 @@ function startVueJs() {
                 }),
             ]),
     }).$start();
+}
+
+function initializeFirebase() {
+    try {
+        return Firebase.init({
+            crashlyticsCollectionEnabled: true,
+        }).then(
+            () => {},
+            (error) => {
+                console.log("firebase error", error);
+            }
+        );
+    } catch (e) {
+        console.log("firebase error", e);
+        return Promise.resolve();
+    }
 }
 
 Promise.config({
@@ -107,8 +126,17 @@ try {
     console.log("startup error", e, e.stack);
 }
 
-configureGlobalErrorHandling();
-registerLifecycleEvents();
-initializeApplication();
-configureVueJs();
-startVueJs();
+configureGlobalErrorHandling().then(() => {
+    startVueJs();
+
+    registerLifecycleEvents();
+
+    // For some very irritating reason we can't chain this as part of
+    // the application startup. We end up getting errors about main
+    // not working to startup.
+    initializeFirebase().then(() => {
+        return initializeApplication().then(() => {
+            console.log("ready");
+        });
+    });
+});

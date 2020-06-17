@@ -10,6 +10,10 @@ timestamps {
             }
 
             stage ("configuration") {
+                withCredentials([file(credentialsId: 'app-ios-google-services', variable: 'APP_IOS_GOOGLE_SERVICES')]) {
+                    sh "cp -f $APP_IOS_GOOGLE_SERVICES FieldKit/app/App_Resources/iOS"
+                    // sh "cp -f $APP_ANDROID_GOOGLE_SERVICES app/App_Resources/iOS"
+				}
             }
 
             stage ('build') {

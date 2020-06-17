@@ -1,0 +1,4 @@
+project.ext {
+    googlePlayServicesVersion = "+"
+}
+
