@@ -90,7 +90,7 @@ export default {
         },
 
         updateReadings(data) {
-            const liveReadings = data.readings;
+            const liveReadings = data;
             if (data.positions) {
                 this.modules.forEach(m => {
                     m.position = data.positions[m.name];
