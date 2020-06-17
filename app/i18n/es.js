@@ -158,6 +158,7 @@ module.exports = {
     endAfterStart: "El final debe ser después del inicio",
     every: "Todo",
     intervalRequired: "Intervalo no debe estar en blanco.",
+    intervalTooSmall: "Intervalo debe ser de al menos un minuto.",
     intervalNotNumber: "Intervalo debe ser un número.",
     addTime: "Añadir Tiempo",
     second: "segundo",

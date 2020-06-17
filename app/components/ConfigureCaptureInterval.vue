@@ -15,7 +15,12 @@
                     <TextField
                         row="1"
                         col="0"
-                        :class="'interval-field ' + (!interval.noInterval && !interval.intervalNotNumber ? 'interval-input' : 'no-border')"
+                        :class="
+                            'interval-field ' +
+                            (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber
+                                ? 'interval-input'
+                                : 'no-border')
+                        "
                         verticalAligment="bottom"
                         keyboardType="name"
                         autocorrect="false"
@@ -32,6 +37,7 @@
                                 :items="timeUnits"
                                 :id="'drop-down-' + interval.id"
                                 :selectedIndex="interval.unit"
+                                :dataInterval="interval"
                                 @opened="onOpened"
                                 @selectedIndexChanged="onDropDownSelection"
                             ></DropDown>
@@ -55,6 +61,13 @@
                             :text="_L('intervalRequired')"
                             textWrap="true"
                             :visibility="interval.noInterval ? 'visible' : 'collapsed'"
+                        ></Label>
+                        <Label
+                            class="validation-error"
+                            horizontalAlignment="left"
+                            :text="_L('intervalTooSmall')"
+                            textWrap="true"
+                            :visibility="interval.intervalTooSmall ? 'visible' : 'collapsed'"
                         ></Label>
                         <Label
                             class="validation-error"
@@ -160,7 +173,9 @@
                                 col="0"
                                 :class="
                                     'interval-field ' +
-                                        (!interval.noInterval && !interval.intervalNotNumber ? 'interval-input' : 'no-border')
+                                    (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber
+                                        ? 'interval-input'
+                                        : 'no-border')
                                 "
                                 verticalAligment="bottom"
                                 keyboardType="name"
@@ -178,6 +193,7 @@
                                         :items="timeUnits"
                                         :id="'drop-down-' + interval.id"
                                         :selectedIndex="interval.unit"
+                                        :dataInterval="interval"
                                         @opened="onOpened"
                                         @selectedIndexChanged="onDropDownSelection"
                                     ></DropDown>
@@ -201,6 +217,13 @@
                                     :text="_L('intervalRequired')"
                                     textWrap="true"
                                     :visibility="interval.noInterval ? 'visible' : 'collapsed'"
+                                ></Label>
+                                <Label
+                                    class="validation-error"
+                                    horizontalAlignment="left"
+                                    :text="_L('intervalTooSmall')"
+                                    textWrap="true"
+                                    :visibility="interval.intervalTooSmall ? 'visible' : 'collapsed'"
                                 ></Label>
                                 <Label
                                     class="validation-error"
@@ -263,12 +286,14 @@ export default {
                 display: converted.display,
                 unit: converted.unit,
                 noInterval: false,
+                intervalTooSmall: false,
                 intervalNotNumber: false,
                 start: { hour: 6, minute: 1, display: "06:00 AM" },
                 end: { hour: 8, minute: 1, display: "08:00 AM" },
                 startError: false,
                 endError: false,
             };
+            this.checkInterval(interval);
             this.intervals.push(interval);
         },
 
@@ -282,12 +307,14 @@ export default {
                 display: converted.display,
                 unit: converted.unit,
                 noInterval: false,
+                intervalTooSmall: false,
                 intervalNotNumber: false,
                 start: { hour: 6, minute: 1, display: "06:00 AM" },
                 end: { hour: 8, minute: 1, display: "08:00 AM" },
                 startError: false,
                 endError: false,
             };
+            this.checkInterval(interval);
             this.intervals.push(interval);
         },
 
@@ -342,10 +369,15 @@ export default {
         checkInterval(interval) {
             // reset these first
             interval.noInterval = false;
+            interval.intervalTooSmall = false;
             interval.intervalNotNumber = false;
             // then check
             interval.noInterval = !interval.display || interval.display == 0 || interval.display.length == 0;
             if (interval.noInterval) {
+                return false;
+            }
+            if (interval.display < 1) {
+                interval.intervalTooSmall = true;
                 return false;
             }
             interval.intervalNotNumber = isNaN(interval.display);
@@ -474,6 +506,8 @@ export default {
         },
 
         onOpened(event) {
+            // count this as @blur event for text field
+            this.checkInterval(event.object.dataInterval);
             // provide feedback by changing background color
             event.object.backgroundColor = "#F4F5F7";
             setTimeout(() => {
