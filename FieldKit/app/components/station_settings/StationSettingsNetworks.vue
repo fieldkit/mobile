@@ -3,7 +3,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader title="Networks" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('networks')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                     <!-- menu -->
                     <StackLayout class="m-t-5">
@@ -34,7 +34,7 @@ import LoRa from "./StationSettingsLoRa";
 export default {
     data() {
         return {
-            menuOptions: ["WiFi", "LoRa"],
+            menuOptions: [_L("wifi"), _L("lora")],
         };
     },
     props: ["station"],

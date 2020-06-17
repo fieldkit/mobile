@@ -3,7 +3,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader title="Station Settings" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('stationSettings')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                     <GridLayout rows="*" columns="*">
                         <StackLayout row="0">
                             <!-- menu -->
@@ -42,7 +42,7 @@ export default {
     data() {
         return {
             loggedIn: this.$portalInterface.isLoggedIn(),
-            menuOptions: ["General", "Networks", "Firmware", "Modules", "End Deployment"],
+            menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
         };
     },
     props: ["station"],
@@ -64,19 +64,19 @@ export default {
             }, 500);
 
             switch (event.object.text) {
-                case "General":
+                case _L("general"):
                     this.goToGeneral();
                     break;
-                case "Networks":
+                case _L("networks"):
                     this.goToNetworks();
                     break;
-                case "Firmware":
+                case _L("firmware"):
                     this.goToFirmware();
                     break;
-                case "Modules":
+                case _L("modulesTitle"):
                     this.goToModules();
                     break;
-                case "End Deployment":
+                case _L("endDeployment"):
                     this.goToEndDeploy();
                     break;
             }

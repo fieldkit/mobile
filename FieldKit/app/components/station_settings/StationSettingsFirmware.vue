@@ -3,13 +3,17 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
-                    <ScreenHeader title="Firmware" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('firmware')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                     <StackLayout class="m-t-10 m-b-30">
-                        <Label text="Station firmware version" class="size-20 m-x-15" />
-                        <Label :text="'Firmware number: ' + versions.firmwareNumber" class="size-15 m-x-15 m-b-20" textWrap="true" />
-                        <Label text="App has firmware version" class="size-20 m-x-15" />
-                        <Label :text="'Firmware number: ' + appDownloaded" class="size-15 m-x-15 m-b-20" textWrap="true" />
+                        <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
+                        <Label
+                            :text="_L('firmwareNumber') + ': ' + versions.firmwareNumber"
+                            class="size-15 m-x-15 m-b-20"
+                            textWrap="true"
+                        />
+                        <Label :text="_L('appFirmwareVersion')" class="size-20 m-x-15" />
+                        <Label :text="_L('firmwareNumber') + ': ' + appDownloaded" class="size-15 m-x-15 m-b-20" textWrap="true" />
 
                         <Button
                             v-if="updateAvailable"
@@ -18,15 +22,15 @@
                             @tap="upgradeFirmware"
                             class="btn btn-primary btn-padded"
                         ></Button>
-                        <Label v-else text="You're up to date!" class="size-20 m-x-15 bottom-border" />
+                        <Label v-else :text="_L('upToDate')" class="size-20 m-x-15 bottom-border" />
                         <ConnectionNote v-if="updateAvailable" :station="station" />
                     </StackLayout>
 
                     <WrapLayout orientation="horizontal" class="m-10 m-b-20">
-                        <Label text="Additional information" class="size-16 full-width" textWrap="true" />
-                        <Label :text="'Firmware: ' + versions.firmware" class="size-14 full-width m-t-10" textWrap="true" />
-                        <Label :text="'Firmware build: ' + versions.firmwareBuild" class="size-14 full-width" textWrap="true" />
-                        <Label :text="'Device ID: ' + versions.device" class="size-14 full-width" textWrap="true" />
+                        <Label :text="_L('additionalInfo')" class="size-16 full-width" textWrap="true" />
+                        <Label :text="_L('firmware') + ': ' + versions.firmware" class="size-14 full-width m-t-10" textWrap="true" />
+                        <Label :text="_L('firmwareBuild') + ': ' + versions.firmwareBuild" class="size-14 full-width" textWrap="true" />
+                        <Label :text="_L('deviceId') + ': ' + versions.device" class="size-14 full-width" textWrap="true" />
                     </WrapLayout>
                 </FlexboxLayout>
             </ScrollView>

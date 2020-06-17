@@ -2,7 +2,7 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="80,*,70">
             <StackLayout row="0" class="p-t-10">
-                <ScreenHeader title="WiFi Network" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                <ScreenHeader :title="_L('wifiNetwork')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                 <StackLayout class="p-b-10"></StackLayout>
             </StackLayout>
             <ScrollView row="1">
@@ -11,8 +11,8 @@
                     <StackLayout class="m-x-10">
                         <!-- known wifi networks -->
                         <WrapLayout orientation="horizontal" class="networks-container">
-                            <Label text="Saved WiFi Networks" class="size-20" width="100%"></Label>
-                            <Label text="No saved networks" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
+                            <Label :text="_L('savedNetworks')" class="size-20" width="100%"></Label>
+                            <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
                             <!-- wifi radio buttons -->
                             <GridLayout rows="auto" columns="0,*,30" v-for="n in networks" :key="n.ssid" class="m-10">
                                 <!-- <check-box
@@ -41,10 +41,7 @@
                         </WrapLayout>
 
                         <StackLayout v-show="networks.length == maxNetworks" class="m-t-20 m-x-10 gray-bkgd">
-                            <Label
-                                text="A maximum of two WiFi networks can be saved. Please remove one if you would like to add another."
-                                textWrap="true"
-                            />
+                            <Label :text="_L('maxTwoNetworksWarning')" textWrap="true" />
                         </StackLayout>
 
                         <GridLayout
@@ -62,7 +59,7 @@
                             <!-- ssid -->
                             <TextField
                                 class="size-18 p-x-20 m-t-20 input"
-                                hint="Enter WiFi network name"
+                                :hint="_L('networkNameHint')"
                                 autocorrect="false"
                                 autocapitalizationType="none"
                                 v-model="newNetwork.ssid"
@@ -73,7 +70,7 @@
                                 <Label
                                     row="0"
                                     colSpan="2"
-                                    text="Enter network password"
+                                    :text="_L('networkPasswordHint')"
                                     class="size-18 hint"
                                     :opacity="newNetwork.password.length == 0 ? 1 : 0"
                                 />
@@ -150,7 +147,7 @@ export default {
             newNetwork: { ssid: "", password: "" },
             addingNetwork: false,
             hidePassword: true,
-            passwordVisibility: "Show",
+            passwordVisibility: _L("show"),
             wifiUpload: false,
             wifiUploadText: "",
             wifiUploadButton: "",
@@ -216,9 +213,9 @@ export default {
             if (this.wifiUpload) {
                 queryStation.uploadViaApp(this.station.url).then(result => {
                     alert({
-                        title: "Done",
-                        message: "Upload configuration has been updated.",
-                        okButtonText: "OK",
+                        title: _L("done"),
+                        message: _L("uploadConfigUpdated"),
+                        okButtonText: _L("ok"),
                     });
                     this.setWifiUploadStatus(result);
                 });
@@ -229,9 +226,9 @@ export default {
                         queryStation.uploadOverWifi(this.station.url, this.transmissionUrl, result.token).then(result => {
                             this.setWifiUploadStatus(result);
                             alert({
-                                title: "Done",
-                                message: "Upload configuration has been updated.",
-                                okButtonText: "OK",
+                                title: _L("done"),
+                                message: _L("uploadConfigUpdated"),
+                                okButtonText: _L("ok"),
                             });
                         });
                     })
@@ -239,15 +236,15 @@ export default {
                         onlineStatus.isOnline().then(online => {
                             if (online) {
                                 alert({
-                                    title: "Unable to update",
-                                    message: "Please log in to perform this action.",
-                                    okButtonText: "OK",
+                                    title: _L("unableToUpdate"),
+                                    message: _L("pleaseLogin"),
+                                    okButtonText: _L("ok"),
                                 });
                             } else {
                                 alert({
-                                    title: "Unable to update",
-                                    message: "Note: you need to be connected to the internet in order to perform this action.",
-                                    okButtonText: "OK",
+                                    title: _L("unableToUpdate"),
+                                    message: _L("noteNeedInternet"),
+                                    okButtonText: _L("ok"),
                                 });
                             }
                         });
@@ -259,12 +256,12 @@ export default {
             this.deviceStatus.transmission = status.transmission;
             if (status && status.transmission && status.transmission.wifi.enabled) {
                 this.wifiUpload = true;
-                this.wifiUploadText = "Your station is currently configured to upload data directly over WiFi.";
-                this.wifiUploadButton = "Upload via App";
+                this.wifiUploadText = _L("configuredToUploadDirectly");
+                this.wifiUploadButton = _L("uploadViaApp");
             } else {
                 this.wifiUpload = false;
-                this.wifiUploadText = "If desired, you can set your station to upload data directly over WiFi.";
-                this.wifiUploadButton = "Upload over WiFi";
+                this.wifiUploadText = _L("noteUploadDirectlyOption");
+                this.wifiUploadButton = _L("uploadOverWifi");
             }
         },
 
@@ -304,7 +301,7 @@ export default {
         removeNetwork(event) {
             dialogs
                 .confirm({
-                    title: "Are you sure you want to remove this network?",
+                    title: _L("areYouSureRemoveNetwork"),
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel"),
                 })
@@ -348,7 +345,7 @@ export default {
 
         togglePassword() {
             this.hidePassword = !this.hidePassword;
-            this.passwordVisibility = this.hidePassword ? "Show" : "Hide";
+            this.passwordVisibility = this.hidePassword ? _L("show") : _L("hide");
         },
     },
 };

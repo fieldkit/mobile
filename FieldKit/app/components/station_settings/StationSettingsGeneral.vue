@@ -3,7 +3,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader title="General" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('general')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                     <!-- menu -->
                     <StackLayout class="m-t-5">
@@ -36,7 +36,7 @@ import CaptureSchedule from "./StationSettingsCaptureSchedule";
 export default {
     data() {
         return {
-            menuOptions: ["Station Name", "Data Capture Schedule"],
+            menuOptions: [_L("stationName"), _L("dataCaptureSchedule")],
         };
     },
     props: ["station"],
@@ -57,10 +57,10 @@ export default {
             }, 500);
 
             switch (event.object.text) {
-                case "Station Name":
+                case _L("stationName"):
                     this.goToName();
                     break;
-                case "Data Capture Schedule":
+                case _L("dataCaptureSchedule"):
                     this.goToSchedule();
                     break;
             }

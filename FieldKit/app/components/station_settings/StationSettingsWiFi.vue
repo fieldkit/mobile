@@ -3,7 +3,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader title="WiFi" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('wifi')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                     <!-- menu -->
                     <StackLayout class="m-t-5">
@@ -35,7 +35,7 @@ import WiFiSchedule from "./StationSettingsWiFiSchedule";
 export default {
     data() {
         return {
-            menuOptions: ["Network", "Upload Schedule"],
+            menuOptions: [_L("network"), _L("uploadSchedule")],
         };
     },
     props: ["station"],
@@ -57,10 +57,10 @@ export default {
             }, 500);
 
             switch (event.object.text) {
-                case "Network":
+                case _L("network"):
                     this.goToNetwork();
                     break;
-                case "Upload Schedule":
+                case _L("uploadSchedule"):
                     this.goToSchedule();
                     break;
             }

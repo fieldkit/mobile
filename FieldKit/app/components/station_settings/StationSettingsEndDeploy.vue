@@ -3,7 +3,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader title="End Deployment" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                     <GridLayout rows="*" columns="*">
                         <StackLayout row="0">
                             <!-- stop deployment button -->
@@ -18,7 +18,7 @@
                                 ></Button>
                             </StackLayout>
                             <StackLayout v-else class="m-20">
-                                <Label :text="station.name + ' is not currently recording.'" textWrap="true" />
+                                <Label :text="station.name + ' ' + _L('notCurrentlyRecording')" textWrap="true" />
                             </StackLayout>
                         </StackLayout>
                     </GridLayout>
@@ -79,7 +79,7 @@ export default {
             // confirm stop recording
             dialogs
                 .confirm({
-                    title: "Are you sure you want to stop recording?",
+                    title: _L("areYouSureStopRecording"),
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel"),
                 })

@@ -3,7 +3,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader title="Module" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('moduleTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                     <GridLayout rows="auto" columns="15*,85*" class="p-10 m-x-10">
                         <!-- module icon -->
                         <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(module)"></Image>
@@ -12,10 +12,10 @@
                     </GridLayout>
 
                     <StackLayout class="m-y-30">
-                        <Label text="Calibration" class="size-20 m-x-15 m-b-10" />
+                        <Label :text="_L('calibration')" class="size-20 m-x-15 m-b-10" />
                         <Label :text="calibrationText" lineHeight="3" class="size-15 m-x-15 m-b-20" textWrap="true" />
                         <Button
-                            text="Calibrate Sensor"
+                            :text="_L('calibrateSensor')"
                             :isEnabled="station.connected"
                             @tap="goToCalibration"
                             class="btn btn-primary btn-padded"
@@ -55,9 +55,9 @@ export default {
     methods: {
         onPageLoaded(args) {
             if (this.module.calibrateSensor) {
-                this.calibrationText = "Calibrate your sensor any time. It is recommended to calibrate every 6 months to a year.";
+                this.calibrationText = _L("calibrationRecommendation");
             } else {
-                this.calibrationText = "No calibration needed for this sensor.";
+                this.calibrationText = _L("noCalibrationNeededSensor");
             }
         },
 

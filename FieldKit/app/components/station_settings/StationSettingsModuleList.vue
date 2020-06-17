@@ -3,7 +3,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader title="Modules" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                    <ScreenHeader :title="_L('modulesTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
                     <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in modules" :key="m.id" :dataModule="m" @tap="goToModule">
                         <StackLayout :class="'bordered-container ' + (moduleIndex == modules.length - 1 ? 'bottom-border' : '')">

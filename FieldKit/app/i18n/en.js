@@ -88,6 +88,64 @@ module.exports = {
     reconnectInstruction: "To reconnect to your station, go to your mobile phone WiFi settings and select the station's new WiFi name as displayed on the station screen.",
     // Recalibrate.vue
     goToStations: "Go to stations",
+    // StationSettingsCaptureSchedule.vue
+    // StationSettingsConnectionNote.vue
+    mustBeConnected: "Note: You must be connected to the station to make this change.",
+    // StationSettingsEndDeploy.vue
+    notCurrentlyRecording: "is not currently recording.",
+    areYouSureStopRecording: "Are you sure you want to stop recording?",
+    // StationSettingsFirmware.vue
+    firmware: "Firmware",
+    stationFirmwareVersion: "Station firmware version",
+    firmwareNumber: "Firmware number",
+    appFirmwareVersion: "App has firmware version",
+    upToDate: "You're up to date!",
+    additionalInfo: "Additional information",
+    firmwareBuild: "Firmware build",
+    deviceId: "Device ID",
+    // StationSettingsGeneral.vue
+    general: "General",
+    stationName: "Station Name",
+    // StationSettingsLoRa.vue
+    longRangeNetwork: "Long Range Network",
+    // StationSettingsModule.vue
+    moduleTitle: "Module",
+    calibration: "Calibration",
+    calibrateSensor: "Calibrate Sensor",
+    calibrationRecommendation: "Calibrate your sensor any time. It is recommended to calibrate every 6 months to a year.",
+    noCalibrationNeededSensor: "No calibration needed for this sensor.",
+    // StationSettingsModuleList.vue
+    modulesTitle: "Modules",
+    // StationSettingsName.vue
+    saveName: "Save Name",
+    // StationSettingsNetworks.vue
+    networks: "Networks",
+    wifi: "WiFi",
+    lora: "LoRa",
+    // StationSettingsView.vue
+    stationSettings: "Station Settings",
+    // StationSettingsWiFi.vue
+    network: "Network",
+    uploadSchedule: "Upload Schedule",
+    // StationSettingsWiFiNetwork.vue
+    wifiNetwork: "WiFi Network",
+    maxTwoNetworksWarning: "A maximum of two WiFi networks can be saved. Please remove one if you would like to add another.",
+    uploadConfigUpdated: "Upload configuration has been updated.",
+    unableToUpdate: "Unable to update",
+    pleaseLogin: "Please log in to perform this action.",
+    noteNeedInternet: "Note: you need to be connected to the internet in order to perform this action.",
+    configuredToUploadDirectly: "Your station is currently configured to upload data directly over WiFi.",
+    uploadViaApp: "Upload via App",
+    noteUploadDirectlyOption: "If desired, you can set your station to upload data directly over WiFi.",
+    uploadOverWifi: "Upload over WiFi",
+    areYouSureRemoveNetwork: "Are you sure you want to remove this network?",
+    // StationSettingsWiFiSchedule.vue
+    // UpgradeFirmwareModal.vue
+    upgradeInProcess: "Upgrading station firmware. Thank you for your patience.",
+    noLocalFirmwareOffline: "No local firmware and you're offline so none can be downloaded.",
+    downloadingFirmware: "Downloading firmware.",
+    upgradeDone: "Upgrade done, your station is now restarting.",
+    downloaded: "Downloaded.",
     // ConfigureCaptureInterval.vue
     dataCaptureSchedule: "Data capture schedule",
     dataCaptureNotice: "Frequent data capture drains the battery at a quicker rate",

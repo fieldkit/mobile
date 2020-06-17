@@ -2,7 +2,7 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="80,*,70">
             <StackLayout row="0">
-                <ScreenHeader title="Station Name" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                <ScreenHeader :title="_L('stationName')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                 <StackLayout class="p-b-10"></StackLayout>
             </StackLayout>
             <ScrollView row="1">
@@ -47,7 +47,12 @@
 
                         <StackLayout class="m-30"></StackLayout>
 
-                        <Button class="btn btn-primary btn-padded" text="Save Name" :isEnabled="station.connected" @tap="saveStationName" />
+                        <Button
+                            class="btn btn-primary btn-padded"
+                            :text="_L('saveName')"
+                            :isEnabled="station.connected"
+                            @tap="saveStationName"
+                        />
                         <ConnectionNote :station="station" />
                     </StackLayout>
                 </GridLayout>

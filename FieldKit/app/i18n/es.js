@@ -88,6 +88,64 @@ module.exports = {
     reconnectInstruction: "Para volver a conectarse a su estación, ir a la configuración de Wi-Fi del teléfono móvil y seleccionar el nuevo nombre de la estación de conexión Wi-Fi como se muestra en la pantalla de la estación.",
     // Recalibrate.vue
     goToStations: "Ir a las estaciones",
+    // StationSettingsCaptureSchedule.vue
+    // StationSettingsConnectionNote.vue
+    mustBeConnected: "Nota: Debe estar conectado a la estación para hacer este cambio.",
+    // StationSettingsEndDeploy.vue
+    notCurrentlyRecording: "Actualmente no está grabando.",
+    areYouSureStopRecording: "¿Seguro que desea detener la grabación?",
+    // StationSettingsFirmware.vue
+    firmware: "Firmware",
+    stationFirmwareVersion: "Versión de firmware de la estación",
+    firmwareNumber: "Número de firmware",
+    appFirmwareVersion: "Aplicación tiene la versión de firmware",
+    upToDate: "Usted está al día!",
+    additionalInfo: "Información Adicional",
+    firmwareBuild: "Acumulación de firmware",
+    deviceId: "ID del dispositivo",
+    // StationSettingsGeneral.vue
+    general: "General",
+    stationName: "Nombre de estación",
+    // StationSettingsLoRa.vue
+    longRangeNetwork: "Red de Largo Alcance",
+    // StationSettingsModule.vue
+    moduleTitle: "Módulo",
+    calibration: "Calibración",
+    calibrateSensor: "Calibrar sensor",
+    calibrationRecommendation: "Calibrar el sensor en cualquier momento. Se recomienda calibrar cada 6 meses a un año.",
+    noCalibrationNeededSensor: "No se requiere calibración para este sensor.",
+    // StationSettingsModuleList.vue
+    modulesTitle: "Módulos",
+    // StationSettingsName.vue
+    saveName: "Guardar Nombre",
+    // StationSettingsNetworks.vue
+    networks: "Redes",
+    wifi: "WiFi",
+    lora: "LoRa",
+    // StationSettingsView.vue
+    stationSettings: "Ajustes de la Estación",
+    // StationSettingsWiFi.vue
+    network: "Red",
+    uploadSchedule: "Subir Horario",
+    // StationSettingsWiFiNetwork.vue
+    wifiNetwork: "Red WiFi",
+    maxTwoNetworksWarning: "Un máximo de dos redes WiFi puede ser salvado. Por favor, quitar uno si desea añadir otro.",
+    uploadConfigUpdated: "Cargar la configuración se ha actualizado.",
+    unableToUpdate: "No se puede actualizar",
+    pleaseLogin: "Por favor inicie sesión para realizar esta acción.",
+    noteNeedInternet: "Nota: es necesario estar conectado a internet con el fin de realizar esta acción.",
+    configuredToUploadDirectly: "Su estación está actualmente configurado para cargar datos directamente a través de WiFi.",
+    uploadViaApp: "Subir a través de la aplicación",
+    noteUploadDirectlyOption: "Si lo desea, puede configurar su estación para cargar datos directamente a través de WiFi.",
+    uploadOverWifi: "Sube a través de WiFi",
+    areYouSureRemoveNetwork: "¿Está seguro de que desea eliminar esta red?",
+    // StationSettingsWiFiSchedule.vue
+    // UpgradeFirmwareModal.vue
+    upgradeInProcess: "Actualización de firmware de la estación. Gracias por su paciencia.",
+    noLocalFirmwareOffline: "Sin firmware local y sin estar conectado por lo que ninguno puede ser descargado.",
+    downloadingFirmware: "La descarga de firmware.",
+    upgradeDone: "Asciende hecho, su estación está reiniciando.",
+    downloaded: "Descargado.",
     // ConfigureCaptureInterval.vue
     dataCaptureSchedule: "Datos de programación de captura",
     dataCaptureNotice: "Captura de datos frecuente drena la batería a un ritmo más rápido",

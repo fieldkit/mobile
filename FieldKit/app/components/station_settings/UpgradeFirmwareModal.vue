@@ -2,34 +2,16 @@
     <StackLayout class="modal-bkgd" @loaded="onLoaded" @unloaded="onUnloaded">
         <GridLayout rows="*" columns="*" width="100%" height="100%" class="p-20 modal-container text-center">
             <StackLayout verticalAlignment="middle" class="bar-container" v-if="!done">
-                <Label
-                    class="info"
-                    lineHeight="4"
-                    text="Upgrading station firmware. Thank you for your patience."
-                    textWrap="true"
-                    v-if="!downloadOnly && !error"
-                />
-                <Label
-                    class="info"
-                    lineHeight="4"
-                    text="No local firmware and you're offline so none can be downloaded."
-                    textWrap="true"
-                    v-if="error"
-                />
-                <Label class="info" lineHeight="4" text="Downloading firmware." textWrap="true" v-if="downloadOnly" />
+                <Label class="info" lineHeight="4" :text="_L('upgradeInProcess')" textWrap="true" v-if="!downloadOnly && !error" />
+                <Label class="info" lineHeight="4" :text="_L('noLocalFirmwareOffline')" textWrap="true" v-if="error" />
+                <Label class="info" lineHeight="4" :text="_L('downloadingFirmware')" textWrap="true" v-if="downloadOnly" />
                 <Progress :value="progress" scaleY="4" v-if="!error" />
             </StackLayout>
 
             <StackLayout verticalAlignment="middle" class="bar-container" v-if="done">
-                <Label
-                    class="info"
-                    lineHeight="4"
-                    text="Upgrade done, your station is now restarting."
-                    textWrap="true"
-                    v-if="!downloadOnly"
-                />
-                <Label class="info" lineHeight="4" text="Downloaded." textWrap="true" v-if="downloadOnly" />
-                <Label class="ok-btn" text="OK" verticalAlignment="middle" @tap="$modal.close()" />
+                <Label class="info" lineHeight="4" :text="_L('upgradeDone')" textWrap="true" v-if="!downloadOnly" />
+                <Label class="info" lineHeight="4" :text="_L('downloaded')" textWrap="true" v-if="downloadOnly" />
+                <Label class="ok-btn" :text="_L('ok')" verticalAlignment="middle" @tap="$modal.close()" />
             </StackLayout>
         </GridLayout>
     </StackLayout>

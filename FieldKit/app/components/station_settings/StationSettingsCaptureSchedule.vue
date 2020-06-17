@@ -5,7 +5,7 @@
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
                     <StackLayout>
                         <ScreenHeader
-                            title="Data Capture Schedule"
+                            :title="_L('dataCaptureSchedule')"
                             :subtitle="station.name"
                             :onBack="goBack"
                             :canNavigateSettings="false"
@@ -16,7 +16,7 @@
                     <!-- data capture schedule -->
                     <ConfigureCaptureInterval :station="station" />
 
-                    <Button class="btn btn-primary btn-padded" text="Save" :isEnabled="station.connected" @tap="goBack" />
+                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="goBack" />
                     <StackLayout class="p-b-20"></StackLayout>
                     <ConnectionNote :station="station" />
                 </FlexboxLayout>
