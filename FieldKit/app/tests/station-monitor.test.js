@@ -46,7 +46,7 @@ describe("StationMonitor", () => {
         expect(_(sensors).size()).toEqual(2);
     });
 
-    test("discovered new station, then losing station", async () => {
+    test.only("discovered new station, then losing station", async () => {
         const station = mockStation.newFakeStation();
         mockStation.queueStatusReply(station);
         // NOTE: We need to remove this second query, leaving for now.

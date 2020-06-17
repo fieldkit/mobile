@@ -2,7 +2,6 @@ import _ from "lodash";
 import { BetterObservable } from "./rx";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import { Coordinates, Phone, KnownStations } from "./known-stations";
-import Services from "./services";
 import StationLogs from "./station-logs";
 import Config from "../config";
 
@@ -313,6 +312,8 @@ export default class StationMonitor extends BetterObservable {
                         const dbModule = dbModules.find(d => {
                             return d.deviceId == hwModule.deviceId;
                         });
+
+                        // TODO Update once.
                         const pending = [];
                         if (dbModule) {
                             // update name if needed
@@ -332,10 +333,10 @@ export default class StationMonitor extends BetterObservable {
                             pending.push(this.dbInterface.insertModule(hwModule));
                         }
 
-                        // and update its sensors
-                        pending.push(this._updateSensors(hwModule));
-
-                        return Promise.all(pending);
+                        return Promise.all(pending).then(() => {
+                            // and update its sensors
+                            return this._updateSensors(hwModule);
+                        });
                     });
                 });
         });
