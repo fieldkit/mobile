@@ -1,5 +1,5 @@
 ANDROID ?= $(HOME)/Android/Sdk/tools/bin
-APP ?= FieldKit
+APP ?= ./
 
 default: setup
 

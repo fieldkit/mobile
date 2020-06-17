@@ -10,6 +10,9 @@ timestamps {
             }
 
             stage ("configuration") {
+                withCredentials([file(credentialsId: 'app-ios-google-services', variable: 'APP_IOS_GOOGLE_SERVICES')]) {
+                    sh "cp -f $APP_IOS_GOOGLE_SERVICES app/App_Resources/iOS"
+				}
             }
 
             stage ('build') {
@@ -28,7 +31,7 @@ make ios-release
             }
 
             stage ('archive') {
-                archiveArtifacts artifacts: 'FieldKit/platforms/ios/build/Debug-iphoneos/*.ipa, FieldKit/platforms/ios/build/Release-iphoneos/*.ipa'
+                archiveArtifacts artifacts: 'platforms/ios/build/Debug-iphoneos/*.ipa, platforms/ios/build/Release-iphoneos/*.ipa'
             }
 
             notifySuccess()
