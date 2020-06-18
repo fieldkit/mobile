@@ -25,7 +25,7 @@
                     <StackLayout row="0" horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
                     <!-- station disconnected warning -->
                     <StackLayout row="1" class="text-center disconnect-warning" v-if="!currentStation.connected">
-                        <Label text="Station disconnected. Tap here to reconnect." class="size-15" textWrap="true" @tap="goToReconnect" />
+                        <Label :text="_L('stationDisconnectedTapHere')" class="size-15" textWrap="true" @tap="goToReconnect" />
                     </StackLayout>
                 </GridLayout>
                 <!-- end progress bar -->
@@ -42,7 +42,7 @@
                     order="3"
                     v-if="expectedValue"
                     class="size-14 text-center"
-                    :text="'Expected value: ' + expectedValue"
+                    :text="_L('expectedValue') + ': ' + expectedValue"
                     lineHeight="4"
                     textWrap="true"
                 ></Label>
@@ -129,7 +129,7 @@
             <StackLayout rowSpan="3" v-if="success" height="100%" backgroundColor="white" verticalAlignment="middle">
                 <GridLayout rows="auto, auto" columns="*">
                     <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
-                    <Label row="1" text="Calibrated" class="instruction-heading"></Label>
+                    <Label row="1" :text="_L('calibrated')" class="instruction-heading"></Label>
                 </GridLayout>
             </StackLayout>
             <!-- end success screen -->
@@ -139,16 +139,11 @@
                 <GridLayout rows="*,80,60" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
                         <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
-                        <Label row="1" text="Calibration Failed" class="instruction-heading"></Label>
-                        <Label
-                            row="2"
-                            text="Looks like an error occured. Try calibration again now or try later if you prefer."
-                            class="instruction"
-                            textWrap="true"
-                        ></Label>
+                        <Label row="1" :text="_L('calibrationFailed')" class="instruction-heading"></Label>
+                        <Label row="2" :text="_L('calibrationErrorOccured')" class="instruction" textWrap="true"></Label>
                     </StackLayout>
                     <Button row="1" class="btn btn-primary btn-padded" text="Calibrate Again" @tap="startOver"></Button>
-                    <Label row="2" text="Calibrate later" class="skip" @tap="skip"></Label>
+                    <Label row="2" :text="_L('calibrateLater')" class="skip" @tap="skip"></Label>
                 </GridLayout>
             </StackLayout>
             <!-- end failure screen -->
@@ -172,12 +167,12 @@ export default {
     data() {
         return {
             step: -1,
-            title: "Set Up",
+            title: _L("setup"),
             instruction: "",
             instructionHeading: "",
             expectedValue: "",
             options: [],
-            buttonText: "Next",
+            buttonText: _L("next"),
             displayImage: null,
             percentDone: 0,
             nextEnabled: true,
@@ -489,7 +484,7 @@ export default {
                     m.sensorObjects.forEach(s => {
                         if (s.name == this.currentCalibration.key) {
                             // record these for onboarding views
-                            m.calibratedLabel = "Calibrated";
+                            m.calibratedLabel = _L("calibrated");
                             m.calibratedClass = "gray-text";
                             m.calibratedImage = "~/images/Icon_Success.png";
                         }
@@ -530,11 +525,7 @@ export default {
         },
 
         getFromDatabase() {
-            dbInterface
-                .getStation(this.paramId)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
+            dbInterface.getStation(this.paramId).then(this.getModules).then(this.setupModules).then(this.completeSetup);
         },
 
         getModules(stations) {
@@ -629,12 +620,12 @@ export default {
 
         startOver() {
             this.step = -1;
-            this.title = "Set Up";
+            this.title = _L("setup");
             this.instruction = "";
             this.instructionHeading = "";
             this.expectedValue = "";
             this.options = [];
-            this.buttonText = "Next";
+            this.buttonText = _L("next");
             this.displayImage = null;
             this.percentDone = 0;
             this.nextEnabled = true;
@@ -666,239 +657,242 @@ export default {
         },
     },
 };
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
 
 const calibrations = {
     ph: {
         key: "ph",
         unit: "pH",
-        title: "Water pH",
+        title: _L("waterPh"),
         icon: "~/images/Icon_WaterpH_Module.png",
         steps: [
             {
-                heading: "Choose calibration type",
-                instruction: "Would you like to perform quick calibration or three-point calibration?",
+                heading: _L("chooseCalibrationType"),
+                instruction: _L("choosePhInstruction"),
                 options: [
                     {
-                        text: "Quick calibration",
+                        text: _L("quickCalibration"),
                         value: "quickCal",
                         selected: true,
                     },
                     {
-                        text: "Three-point calibration",
+                        text: _L("threePointCalibration"),
                         value: "threePoint",
                         selected: false,
                     },
                 ],
                 image: "",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
         ],
     },
     quickCal: {
         key: "ph",
         unit: "pH",
-        title: "Water pH",
+        title: _L("waterPh"),
         icon: "~/images/Icon_WaterpH_Module.png",
         steps: [
             {
-                heading: "Quick pH Calibration",
-                instruction: "Make sure you have your quick calibration pH solution.",
+                heading: _L("quickPhCalibration"),
+                instruction: _L("haveYourQuickSolution"),
                 image: "~/images/TI_11.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Quick pH Calibration",
-                instruction: "Rinse probe off with de-ionized water.",
+                heading: _L("quickPhCalibration"),
+                instruction: _L("rinseWithDeionizedWater"),
                 image: "~/images/TI_12-A.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Quick pH Calibration",
-                instruction: "Place probe inside cup with solution. Make sure water temperature is also inside solution.",
+                heading: _L("quickPhCalibration"),
+                instruction: _L("placeProbeInSolutionWithTemp"),
                 image: "~/images/TI_13-C.jpg",
-                buttonText: "Start Timer",
+                buttonText: _L("startTimer"),
             },
             {
                 isTimer: true,
                 clearCal: true,
                 time: 90000,
-                heading: "Quick pH Calibration",
+                heading: _L("quickPhCalibration"),
                 expectedValue: "6.86",
                 instruction: "",
                 image: null,
-                buttonText: "Calibrate",
+                buttonText: _L("calibrate"),
             },
         ],
     },
     threePoint: {
         key: "ph",
         unit: "pH",
-        title: "Water pH",
+        title: _L("waterPh"),
         icon: "~/images/Icon_WaterpH_Module.png",
         steps: [
             {
-                heading: "Three-point Calibration",
-                instruction: "Make sure you have your pH calibration fluids for pH levels 7, 4, and 10.",
+                heading: _L("threePointCalibration"),
+                instruction: _L("makeSureYouHavePhFluids"),
                 image: "~/images/TI_11_three_bottles.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Mid-point Calibration",
-                instruction: "Rinse probe off with de-ionized water.",
+                heading: _L("midPointCalibration"),
+                instruction: _L("rinseWithDeionizedWater"),
                 image: "~/images/TI_12-A.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Mid-point Calibration",
-                instruction: "Place probe inside cup with 7.0 solution. Make sure water temperature is also inside solution.",
+                heading: _L("midPointCalibration"),
+                instruction: _L("placeProbeIn7Solution"),
                 image: "~/images/TI_13-C.jpg",
-                buttonText: "Start Timer",
+                buttonText: _L("startTimer"),
             },
             {
                 isTimer: true,
                 clearCal: true,
                 performCal: "mid",
                 time: 90000,
-                heading: "Mid-point Calibration",
+                heading: _L("midPointCalibration"),
                 expectedValue: "7.0",
                 instruction: "",
                 image: null,
-                buttonText: "Calibrate",
+                buttonText: _L("calibrate"),
             },
             {
-                heading: "Low-point Calibration",
-                instruction: "Rinse probe off with de-ionized water.",
+                heading: _L("lowPointCalibration"),
+                instruction: _L("rinseWithDeionizedWater"),
                 image: "~/images/TI_12-A.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Low-point Calibration",
-                instruction: "Place probe inside cup with 4.0 solution. Make sure water temperature is also inside solution.",
+                heading: _L("lowPointCalibration"),
+                instruction: _L("placeProbeIn4Solution"),
                 image: "~/images/TI_13-C.jpg",
-                buttonText: "Start Timer",
+                buttonText: _L("startTimer"),
             },
             {
                 isTimer: true,
                 clearCal: false,
                 performCal: "low",
                 time: 90000,
-                heading: "Low-point Calibration",
+                heading: _L("lowPointCalibration"),
                 expectedValue: "4.0",
                 instruction: "",
                 image: null,
-                buttonText: "Calibrate",
+                buttonText: _L("calibrate"),
             },
             {
-                heading: "High-point Calibration",
-                instruction: "Rinse probe off with de-ionized water.",
+                heading: _L("highPointCalibration"),
+                instruction: _L("rinseWithDeionizedWater"),
                 image: "~/images/TI_12-A.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "High-point Calibration",
-                instruction: "Place probe inside cup with 10.0 solution. Make sure water temperature is also inside solution.",
+                heading: _L("highPointCalibration"),
+                instruction: _L("placeProbeIn10Solution"),
                 image: "~/images/TI_13-C.jpg",
-                buttonText: "Start Timer",
+                buttonText: _L("startTimer"),
             },
             {
                 isTimer: true,
                 clearCal: false,
                 time: 90000,
-                heading: "High-point Calibration",
+                heading: _L("highPointCalibration"),
                 expectedValue: "10.0",
                 instruction: "",
                 image: null,
-                buttonText: "Calibrate",
+                buttonText: _L("calibrate"),
             },
         ],
     },
     do: {
         key: "do",
         unit: "mg/L",
-        title: "Water Dissolved Oxygen",
+        title: _L("waterDissolvedOxygen"),
         icon: "~/images/Icon_DissolvedOxygen_Module.png",
         steps: [
             {
-                heading: "Dissolved Oxygen Calibration",
-                instruction: "Make sure you dry your probe before calibration.",
+                heading: _L("dissovedOxygenCalibration"),
+                instruction: _L("dryProbeBefore"),
                 image: "~/images/TI_16-A.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Dissolved Oxygen Calibration",
-                instruction: "Hold probe out in the atmosphere.",
+                heading: _L("dissovedOxygenCalibration"),
+                instruction: _L("holdProbeOut"),
                 image: "~/images/TI_16-B.jpg",
-                buttonText: "Start Timer",
+                buttonText: _L("startTimer"),
             },
             {
                 isTimer: true,
                 clearCal: true,
                 time: 90000,
-                heading: "Dissolved Oxygen Calibration",
+                heading: _L("dissovedOxygenCalibration"),
                 expectedValue: "0",
                 instruction: "",
                 image: null,
-                buttonText: "Calibrate",
+                buttonText: _L("calibrate"),
             },
         ],
     },
     ec: {
         key: "ec",
         unit: "μS",
-        title: "Water Electrical Conductivity",
+        title: _L("waterConductivity"),
         icon: "~/images/Icon_WaterConductivity_Module.png",
         steps: [
             {
-                heading: "Part 1: Dry Conductivity Calibration",
-                instruction: "Make sure you dry your probe before calibration.",
+                heading: _L("part1Dry"),
+                instruction: _L("dryProbeBefore"),
                 image: "~/images/TI_16-A.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Part 1: Dry Conductivity Calibration",
-                instruction: "Hold probe out in the atmosphere.",
+                heading: _L("part1Dry"),
+                instruction: _L("holdProbeOut"),
                 image: "~/images/TI_16-B.jpg",
-                buttonText: "Start Timer",
+                buttonText: _L("startTimer"),
             },
             {
                 isTimer: true,
                 clearCal: true,
                 performCal: "dry",
                 time: 90000,
-                heading: "Part 1: Dry Conductivity Calibration",
+                heading: _L("part1Dry"),
                 expectedValue: "0",
                 instruction: "",
                 image: null,
-                buttonText: "Calibrate",
+                buttonText: _L("calibrate"),
             },
             {
-                heading: "Part 2: Wet Conductivity Calibration",
-                instruction: "Make sure you have your conductivity solution.",
+                heading: _L("part2Wet"),
+                instruction: _L("haveYourConductivitySolution"),
                 image: "~/images/TI_11.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Part 2: Wet Conductivity Calibration",
-                instruction: "Rinse probe off with de-ionized water.",
+                heading: _L("part2Wet"),
+                instruction: _L("rinseWithDeionizedWater"),
                 image: "~/images/TI_12-A.jpg",
-                buttonText: "Next",
+                buttonText: _L("next"),
             },
             {
-                heading: "Part 2: Wet Conductivity Calibration",
-                instruction:
-                    "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
+                heading: _L("part2Wet"),
+                instruction: _L("placeInAndStabilizeWithTemp"),
                 image: "~/images/TI_13-C.jpg",
-                buttonText: "Start Timer",
+                buttonText: _L("startTimer"),
             },
             {
                 isTimer: true,
                 clearCal: true,
                 time: 90000,
-                heading: "Part 2: Wet Conductivity Calibration",
+                heading: _L("part2Wet"),
                 expectedValue: "12,880",
                 instruction: "",
                 image: null,
-                buttonText: "Calibrate",
+                buttonText: _L("calibrate"),
             },
         ],
     },

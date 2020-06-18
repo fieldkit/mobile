@@ -8,7 +8,7 @@
         <!-- and remove the temporaryView property -->
         <GridLayout rows="*" columns="*" class="m-t-10" v-if="temporaryView">
             <!-- nested grid layouts to achieve borders -->
-            <GridLayout row="0" col="0" class="inner-borderz" />
+            <GridLayout row="0" col="0" class="temp-inner-border" />
             <GridLayout row="0" col="0" rows="auto,auto" columns="*" class="m-y-10 interval-container">
                 <GridLayout order="2" rows="auto,auto,auto" columns="*,*" v-for="(interval, index) in intervals" :key="interval.id">
                     <Label row="0" col="0" class="size-12 m-t-5" :text="_L('every')"></Label>

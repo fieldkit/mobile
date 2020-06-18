@@ -1,7 +1,7 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="75,*,55">
-            <ScreenHeader row="0" title="FieldKit Settings" :canNavigateBack="false" :canNavigateSettings="false" class="m-t-10" />
+            <ScreenHeader row="0" :title="_L('fieldkitSettings')" :canNavigateBack="false" :canNavigateSettings="false" class="m-t-10" />
             <ScrollView row="1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout>
