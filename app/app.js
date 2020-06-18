@@ -20,22 +20,22 @@ import routes from "./routes";
 
 import Config, { Build } from "./config";
 
-function initializeApplication() {
-    return Services.CreateDb()
+function initializeApplication(services) {
+    Vue.prototype.$stationMonitor = services.StationMonitor();
+    Vue.prototype.$portalInterface = services.PortalInterface();
+    return services
+        .CreateDb()
         .initialize()
-        .then((db) => Services.Database().checkConfig())
+        .then(db => services.Database().checkConfig())
         .then(() => {
             return Promise.all([
-                Services.StateManager().start(),
-                Services.StationMonitor().start(),
-                Services.PortalUpdater().start(),
-                Services.OnlineStatus().start(),
-            ]).then(() => {
-                Vue.prototype.$stationMonitor = Services.StationMonitor();
-                Vue.prototype.$portalInterface = Services.PortalInterface();
-            });
+                services.StateManager().start(),
+                services.StationMonitor().start(),
+                services.PortalUpdater().start(),
+                services.OnlineStatus().start(),
+            ]);
         })
-        .catch((err) => {
+        .catch(err => {
             console.log("ERROR", err.message);
             console.log("ERROR", err.stack);
         });
@@ -87,7 +87,7 @@ function startVueJs() {
     configureVueJs();
 
     new Vue({
-        render: (h) =>
+        render: h =>
             h("frame", [
                 h(ApplicationWrapper, {
                     props: {
@@ -104,7 +104,7 @@ function initializeFirebase() {
             crashlyticsCollectionEnabled: true,
         }).then(
             () => {},
-            (error) => {
+            error => {
                 console.log("firebase error", error);
             }
         );
@@ -142,7 +142,7 @@ registerLifecycleEvents();
 // the application startup. We end up getting errors about main
 // not working to startup.
 initializeFirebase().then(() => {
-    return initializeApplication().then(() => {
+    return initializeApplication(Services).then(() => {
         console.log("ready");
     });
 });
