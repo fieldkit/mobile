@@ -17,14 +17,15 @@ export default class StateManager extends BetterObservable {
         this.portalInterface = services.PortalInterface();
         this.downloadManager = new DownloadManager(services);
         this.uploadManager = new UploadManager(services);
-        this.stationMonitor.subscribe(ev => {
-            log.info("updating");
-            return this.refresh();
-        });
     }
 
     start() {
-        log.info("started");
+        this.stationMonitor.subscribe((ev) => {
+            log.info("updating");
+            return this.refresh();
+        });
+
+        return Promise.resolve();
     }
 
     renameStation(station, newName) {
@@ -50,7 +51,7 @@ export default class StateManager extends BetterObservable {
     }
 
     getStatus() {
-        return Promise.all([this.downloadManager.getStatus(), this.uploadManager.getStatus()]).then(all => {
+        return Promise.all([this.downloadManager.getStatus(), this.uploadManager.getStatus()]).then((all) => {
             return {
                 station: all[0],
                 portal: all[1],
@@ -66,12 +67,12 @@ export default class StateManager extends BetterObservable {
         if (this.portalInterface.isLoggedIn()) {
             return this.portalInterface
                 .getStationSyncState(station.deviceId)
-                .then(summary => {
-                    return this.databaseInterface.updateStationFromPortal(station, summary).then(status => {
+                .then((summary) => {
+                    return this.databaseInterface.updateStationFromPortal(station, summary).then((status) => {
                         log.info(status);
                     });
                 })
-                .catch(error => {
+                .catch((error) => {
                     log.error("error", error);
                 });
         }

@@ -1,7 +1,8 @@
 import _ from "lodash";
 import axios from "axios";
-import Config from "../config";
+import { AuthenticationError } from "../lib/errors";
 import AppSettings from "../wrappers/app-settings";
+import Config from "../config";
 
 export default class PortalInterface {
     constructor(services) {
@@ -16,7 +17,7 @@ export default class PortalInterface {
     }
 
     getUri() {
-        return this._dbInterface.getConfig().then(config => {
+        return this._dbInterface.getConfig().then((config) => {
             if (config.length == 0) {
                 console.log("PortalInterface did not get config from db. Using config.js", Config.baseUri);
                 return Config.baseUri;
@@ -32,7 +33,7 @@ export default class PortalInterface {
             authenticated: true,
             method: "GET",
             url: "/user",
-        }).then(data => {
+        }).then((data) => {
             this._currentUser.name = data.name;
             this._currentUser.portalId = data.id;
             return data;
@@ -40,10 +41,10 @@ export default class PortalInterface {
     }
 
     isAvailable() {
-        return this.getUri().then(baseUri =>
+        return this.getUri().then((baseUri) =>
             axios({ url: baseUri + "/status" })
-                .then(r => true)
-                .catch(e => false)
+                .then((r) => true)
+                .catch((e) => false)
         );
     }
 
@@ -60,7 +61,7 @@ export default class PortalInterface {
     }
 
     login(user) {
-        return this.getUri().then(baseUri =>
+        return this.getUri().then((baseUri) =>
             axios({
                 method: "POST",
                 url: baseUri + "/login",
@@ -153,11 +154,11 @@ export default class PortalInterface {
 
     onlyIfAuthenticated() {
         if (!this.isLoggedIn()) {
-            return Promise.reject(false);
+            return Promise.reject(new AuthenticationError("unauthenticated"));
         }
-        return this.isAvailable().then(yes => {
+        return this.isAvailable().then((yes) => {
             if (!yes) {
-                return Promise.reject(false);
+                return Promise.reject(new AuthenticationError("unauthenticated"));
             }
             return true;
         });
@@ -167,7 +168,7 @@ export default class PortalInterface {
         const headers = {
             Authorization: this._appSettings.getString("accessToken"),
         };
-        return this.getUri().then(baseUri =>
+        return this.getUri().then((baseUri) =>
             this._services
                 .Conservify()
                 .download({
@@ -176,7 +177,7 @@ export default class PortalInterface {
                     headers: { ...headers },
                     progress: progress,
                 })
-                .then(e => {
+                .then((e) => {
                     // Our library uses statusCode, axios uses status
                     if (e.statusCode != 200) {
                         return this._services
@@ -210,7 +211,7 @@ export default class PortalInterface {
                     // Do nothing.
                 },
             })
-            .then(e => {
+            .then((e) => {
                 // Our library uses statusCode, axios uses status
                 return {
                     data: e.body,
@@ -259,7 +260,7 @@ export default class PortalInterface {
 
         if (req.authenticated) {
             console.log("skipping portal query, no auth");
-            return Promise.reject(new Error("no token, skipping query"));
+            return Promise.reject(new AuthenticationError("no token, skipping query"));
         }
 
         return Promise.resolve(req.headers);
@@ -267,13 +268,13 @@ export default class PortalInterface {
 
     _query(req) {
         console.log("portal query", req.method || "GET", req.url);
-        return this._getHeaders(req).then(headers => {
-            return this.getUri().then(baseUri => {
+        return this._getHeaders(req).then((headers) => {
+            return this.getUri().then((baseUri) => {
                 req.headers = headers;
                 req.url = baseUri + req.url;
                 return axios(req)
-                    .then(response => response.data)
-                    .catch(error => {
+                    .then((response) => response.data)
+                    .catch((error) => {
                         if (error.response.status === 401) {
                             return this._tryRefreshToken(req);
                         }
@@ -290,13 +291,13 @@ export default class PortalInterface {
     _tryRefreshToken(original) {
         const token = this._parseToken(this._appSettings.getString("accessToken"));
         if (token == null) {
-            return Promise.reject("no token");
+            return Promise.reject(new AuthenticationError("no token"));
         }
 
         if (original.refreshed === true) {
-            console.log("refresh failed", error);
-            return this.logout().then(_ => {
-                return Promise.reject(error);
+            console.log("refresh failed, clear token");
+            return this.logout().then((_) => {
+                return Promise.reject(new AuthenticationError("refresh token failed"));
             });
         }
 
@@ -306,20 +307,20 @@ export default class PortalInterface {
 
         console.log("refreshing token", requestBody);
 
-        return this.getUri().then(baseUri =>
+        return this.getUri().then((baseUri) =>
             axios({
                 method: "POST",
                 url: baseUri + "/refresh",
                 data: requestBody,
             })
-                .then(response => {
+                .then((response) => {
                     return this._handleTokenResponse(response).then(() => {
                         return this._query(_.extend({ refreshed: true }, original));
                     });
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.log("refresh failed", error);
-                    return this.logout().then(_ => {
+                    return this.logout().then((_) => {
                         return Promise.reject(error);
                     });
                 })

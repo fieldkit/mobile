@@ -12,9 +12,10 @@ describe("StationMonitor", () => {
 
     beforeAll(async () => {
         services = new Services();
-        await services.CreateDb().initialize();
         db = services.Database();
         stationMonitor = services.StationMonitor();
+        await services.CreateDb().initialize();
+        await stationMonitor.start();
         mockStation = new MockStationReplies(services);
     });
 
@@ -36,7 +37,7 @@ describe("StationMonitor", () => {
         const stations = await db.getAll();
         expect(
             _(stations)
-                .filter(s => s.deviceId == station.deviceId)
+                .filter((s) => s.deviceId == station.deviceId)
                 .size()
         ).toEqual(1);
 
@@ -61,14 +62,14 @@ describe("StationMonitor", () => {
             port: 80,
         });
 
-        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(1);
+        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(1);
 
         await services.DiscoverStation().onLostService({
             type: "_fk._tcp",
             name: station.deviceId,
         });
 
-        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(0);
+        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(0);
     });
 
     test.only("discovered new station, then losing and rediscovering station", async () => {
@@ -86,14 +87,14 @@ describe("StationMonitor", () => {
             port: 80,
         });
 
-        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(1);
+        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(1);
 
         await services.DiscoverStation().onLostService({
             type: "_fk._tcp",
             name: station.deviceId,
         });
 
-        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(0);
+        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(0);
 
         mockStation.queueStatusReply(station);
         // NOTE: We need to remove this second query, leaving for now.
@@ -106,6 +107,6 @@ describe("StationMonitor", () => {
             port: 80,
         });
 
-        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(1);
+        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(1);
     });
 });

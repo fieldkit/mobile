@@ -33,20 +33,24 @@ export default class StationMonitor extends BetterObservable {
         this.logs = new StationLogs(discoverStation, queryStation);
         this.phone = new Phone();
         this.knownStations = new KnownStations();
+    }
 
-        // temporary method to clear out modules with no device ids (is this still necessary?)
-        this.dbInterface.removeNullIdModules().then(() => this.dbInterface.getAll().then(stations => this.initializeStations(stations)));
-
-        // start getting updates about which stations are nearby.
-        this.subscribeToStationDiscovery();
-
-        // Get the phone's location right away and then subscribe to
-        // any updates to the phone's location and pass them over to
-        // update any stations that may need updating.
-        this.phoneLocation
-            .enableAndGetLocation()
-            .then(location => this.savePhoneLocation(location))
-            .then(() => this.phoneLocation.subscribe(location => this.savePhoneLocation(location)));
+    start() {
+        return Promise.all([
+            // temporary method to clear out modules with no device ids (is this still necessary?)
+            this.dbInterface
+                .removeNullIdModules()
+                .then(() => this.dbInterface.getAll().then((stations) => this.initializeStations(stations))),
+            // start getting updates about which stations are nearby.
+            this.subscribeToStationDiscovery(),
+            // Get the phone's location right away and then subscribe to
+            // any updates to the phone's location and pass them over to
+            // update any stations that may need updating.
+            this.phoneLocation
+                .enableAndGetLocation()
+                .then((location) => this.savePhoneLocation(location))
+                .then(() => this.phoneLocation.subscribe((location) => this.savePhoneLocation(location))),
+        ]);
     }
 
     getPhone() {
@@ -68,7 +72,7 @@ export default class StationMonitor extends BetterObservable {
         this.phone.location = new Coordinates(location);
 
         return Promise.all(
-            Object.values(this.stations).map(station => {
+            Object.values(this.stations).map((station) => {
                 return this.knownStations.get(station).haveNewPhoneLocation(this.phone);
             })
         );
@@ -76,7 +80,7 @@ export default class StationMonitor extends BetterObservable {
 
     initializeStations(result) {
         const thisMonitor = this;
-        result.map(r => {
+        result.map((r) => {
             r.lastSeen = pastDate;
             // not getting connected from db anymore
             // all are disconnected until discovered
@@ -109,7 +113,7 @@ export default class StationMonitor extends BetterObservable {
     // take readings, if active, otherwise query status
     _statusOrReadings(station, takeReadings) {
         if (takeReadings || this.activeAddresses.indexOf(station.url) > -1) {
-            return this.queryStation.takeReadings(station.url).then(status => {
+            return this.queryStation.takeReadings(station.url).then((status) => {
                 return this.updateStationReadings(station, status);
             });
         }
@@ -120,7 +124,7 @@ export default class StationMonitor extends BetterObservable {
             long: station.longitude,
             time: Math.round(updated / 1000),
         };
-        return this.queryStation.getStatus(station.url, locate).then(status => {
+        return this.queryStation.getStatus(station.url, locate).then((status) => {
             return this.updateStatus(station, status);
         });
     }
@@ -142,10 +146,10 @@ export default class StationMonitor extends BetterObservable {
         this.queriesInProgress[station.deviceId] = true;
 
         return this._statusOrReadings(station, takeReadings)
-            .catch(error => {
+            .catch((error) => {
                 return Promise.reject(`statusOrReadings error: ${error}`);
             })
-            .finally(value => {
+            .finally((value) => {
                 // NOTE This is intentional, for now. Otherwise the
                 // main promise chain is held up by this repeated
                 // query and so we never actually return.
@@ -209,13 +213,13 @@ export default class StationMonitor extends BetterObservable {
 
         const readings = {};
         const positions = {};
-        result.liveReadings.forEach(lr => {
-            lr.modules.forEach(m => {
+        result.liveReadings.forEach((lr) => {
+            lr.modules.forEach((m) => {
                 if (!m.module.position) {
                     m.module.position = 0;
                 }
                 positions[m.module.name] = m.module.position;
-                m.readings.forEach(r => {
+                m.readings.forEach((r) => {
                     readings[m.module.name + r.sensor.name] = r.value || 0;
                 });
             });
@@ -267,7 +271,7 @@ export default class StationMonitor extends BetterObservable {
         this._updateStationStatusJSON(updating, statusReply);
 
         pending.push(
-            this.dbInterface.updateStation(updating).catch(e => {
+            this.dbInterface.updateStation(updating).catch((e) => {
                 return Promise.reject(`error updating station in the db: ${e}`);
             })
         );
@@ -287,29 +291,29 @@ export default class StationMonitor extends BetterObservable {
     }
 
     _keepModulesAndSensorsInSync(station, statusReply) {
-        const hwModules = statusReply.modules.filter(m => {
+        const hwModules = statusReply.modules.filter((m) => {
             return !is_internal_module(m);
         });
 
         log.verbose("keepModulesAndSensorsInSync");
 
-        return this.dbInterface.getModules(station.id).then(dbModules => {
+        return this.dbInterface.getModules(station.id).then((dbModules) => {
             // compare hwModules with dbModules
-            const notFromHW = _.differenceBy(dbModules, hwModules, m => m.deviceId);
+            const notFromHW = _.differenceBy(dbModules, hwModules, (m) => m.deviceId);
 
             // remove modules (and sensors) not in the station's response
             // delete the sensors first to avoid foreign key constraint error
-            const dropRemovedSensors = notFromHW.map(m => this.dbInterface.removeSensors(m.deviceId));
+            const dropRemovedSensors = notFromHW.map((m) => this.dbInterface.removeSensors(m.deviceId));
             return Promise.all(dropRemovedSensors)
                 .then(() => {
                     // remove modules
-                    const dropRemovedMOdules = notFromHW.map(m => this.dbInterface.removeModule(m.deviceId));
+                    const dropRemovedMOdules = notFromHW.map((m) => this.dbInterface.removeModule(m.deviceId));
                     return Promise.all(dropRemovedMOdules);
                 })
                 .then(() => {
                     // update modules in station's response
-                    return hwModules.forEach(hwModule => {
-                        const dbModule = dbModules.find(d => {
+                    return hwModules.forEach((hwModule) => {
+                        const dbModule = dbModules.find((d) => {
                             return d.deviceId == hwModule.deviceId;
                         });
 
@@ -343,28 +347,28 @@ export default class StationMonitor extends BetterObservable {
     }
 
     _updateSensors(hwModule) {
-        const hwSensors = hwModule.sensors.filter(s => {
+        const hwSensors = hwModule.sensors.filter((s) => {
             return !is_internal_sensor(s);
         });
 
-        return this.dbInterface.getSensors(hwModule.deviceId).then(dbSensors => {
+        return this.dbInterface.getSensors(hwModule.deviceId).then((dbSensors) => {
             // compare hwSensors with dbSensors
             // TODO: what if more than one sensor with the same name?
-            const notFromHW = _.differenceBy(dbSensors, hwSensors, s => {
+            const notFromHW = _.differenceBy(dbSensors, hwSensors, (s) => {
                 return s.name;
             });
             // remove those that are not on this module anymore
             return Promise.all(
-                notFromHW.map(s => {
+                notFromHW.map((s) => {
                     return this.dbInterface.removeSensor(s.id);
                 })
             ).then(() => {
                 // and add those that are newly present
-                const notInDB = _.differenceBy(hwSensors, dbSensors, s => {
+                const notInDB = _.differenceBy(hwSensors, dbSensors, (s) => {
                     return s.name;
                 });
                 return Promise.all(
-                    notInDB.map(s => {
+                    notInDB.map((s) => {
                         s.moduleId = hwModule.deviceId;
                         return this.dbInterface.insertSensor(s);
                     })
@@ -375,7 +379,7 @@ export default class StationMonitor extends BetterObservable {
 
     recordingStatusChange(address, recording) {
         const stations = Object.values(this.stations);
-        const station = stations.find(s => {
+        const station = stations.find((s) => {
             return s.url == address;
         });
         if (station) {
@@ -387,7 +391,7 @@ export default class StationMonitor extends BetterObservable {
 
     subscribeToStationDiscovery() {
         log.info("subscribing to station discovery");
-        return this.discoverStation.subscribeAll(data => {
+        return this.discoverStation.subscribeAll((data) => {
             switch (data.propertyName.toString()) {
                 case this.discoverStation.StationFoundProperty: {
                     return this.checkDatabase(data.value.name, data.value.url);
@@ -402,8 +406,8 @@ export default class StationMonitor extends BetterObservable {
     checkDatabase(deviceId, address) {
         return this.queryStation
             .getStatus(address)
-            .then(statusReply => {
-                return this.dbInterface.getStationByDeviceId(deviceId).then(dbStations => {
+            .then((statusReply) => {
+                return this.dbInterface.getStationByDeviceId(deviceId).then((dbStations) => {
                     if (dbStations.length == 0) {
                         return this.addToDatabase({
                             deviceId: deviceId,
@@ -419,7 +423,7 @@ export default class StationMonitor extends BetterObservable {
                     }
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 return Promise.reject(`${address}: checkDatabase failed: ${err}`);
             });
     }
@@ -456,7 +460,7 @@ export default class StationMonitor extends BetterObservable {
             consumedMemoryPercent: deviceStatus.memory.dataMemoryConsumption,
         };
 
-        return this.dbInterface.insertStation(station, data.result).then(id => {
+        return this.dbInterface.insertStation(station, data.result).then((id) => {
             station.id = id;
             return this.activateStation(station);
         });
@@ -465,19 +469,19 @@ export default class StationMonitor extends BetterObservable {
     sortStations() {
         let stations = Object.values(this.stations);
         // sort by alpha first
-        stations = _.sortBy(stations, s => {
+        stations = _.sortBy(stations, (s) => {
             return s.name.toUpperCase();
         });
         // then sort by recency, rounded to hour
         stations = _.orderBy(
             stations,
-            s => {
+            (s) => {
                 return s.lastSeen.getHours();
             },
             ["desc"]
         );
         // this will only catch one station, even if more were newly added
-        const index = stations.findIndex(s => {
+        const index = stations.findIndex((s) => {
             return s.newlyConnected;
         });
         if (index > -1) {
@@ -578,7 +582,7 @@ export default class StationMonitor extends BetterObservable {
     _publishStationsUpdated() {
         const stations = this.sortStations();
         const status = _(stations)
-            .map(r => [r.name, r.connected])
+            .map((r) => [r.name, r.connected])
             .fromPairs()
             .value();
         log.info("publishing updated", status);
