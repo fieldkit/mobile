@@ -2,7 +2,9 @@ import _ from "lodash";
 import moment from "moment";
 import Promise from "bluebird";
 import { knownFolders } from "tns-core-modules/file-system";
+import * as traceModule from "tns-core-modules/trace";
 import { crashlytics } from "nativescript-plugin-firebase";
+import Vue from "nativescript-vue";
 import Config from "../config";
 
 const SaveInterval = 10000;
@@ -116,6 +118,43 @@ function wrapLoggingMethod(method) {
     };
 }
 
+function configureGlobalErrorHandling() {
+    try {
+        traceModule.setErrorHandler({
+            handleError(err) {
+                console.log("ERROR:");
+                console.log(err);
+                console.log(err.stack);
+            },
+        });
+
+        traceModule.enable();
+
+        Promise.onPossiblyUnhandledRejection((reason, promise) => {
+            console.log("onPossiblyUnhandledRejection", reason);
+        });
+
+        Promise.onUnhandledRejectionHandled((promise) => {
+            console.log("onUnhandledRejectionHandled");
+        });
+
+        // err: error trace
+        // vm: component in which error occured
+        // info: Vue specific error information such as lifecycle hooks, events etc.
+        Vue.config.errorHandler = (err, vm, info) => {
+            console.log("vuejs error:", err);
+        };
+
+        Vue.config.warnHandler = (msg, vm, info) => {
+            console.log("vuejs warning:", msg);
+        };
+    } catch (e) {
+        console.log("startup error", e, e.stack);
+    }
+
+    return Promise.resolve();
+}
+
 export default function initializeLogging(info) {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
     if (TNS_ENV === "test") {
@@ -134,6 +173,8 @@ export default function initializeLogging(info) {
     }
 
     setInterval(flush, SaveInterval);
+
+    configureGlobalErrorHandling();
 
     return Promise.resolve();
 }
