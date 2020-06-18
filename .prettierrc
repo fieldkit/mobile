@@ -6,4 +6,5 @@
   "singleQuote": false,
   "htmlWhitespaceSensitivity": "ignore",
   "endOfLine": "lf",
+  "arrowParens": "avoid"
 }
