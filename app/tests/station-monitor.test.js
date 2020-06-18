@@ -47,7 +47,7 @@ describe("StationMonitor", () => {
         expect(_(sensors).size()).toEqual(2);
     });
 
-    test.only("discovered new station, then losing station", async () => {
+    test("discovered new station, then losing station", async () => {
         const station = mockStation.newFakeStation();
         mockStation.queueStatusReply(station);
         // NOTE: We need to remove this second query, leaving for now.
@@ -72,7 +72,7 @@ describe("StationMonitor", () => {
         expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(0);
     });
 
-    test.only("discovered new station, then losing and rediscovering station", async () => {
+    test("discovered new station, then losing and rediscovering station", async () => {
         const station = mockStation.newFakeStation();
         mockStation.queueStatusReply(station);
         // NOTE: We need to remove this second query, leaving for now.
