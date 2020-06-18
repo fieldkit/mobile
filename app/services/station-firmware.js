@@ -21,15 +21,20 @@ export default class StationUpgrade {
         this.check = onlyAllowEvery(
             60,
             () => {
-                return this.downloadFirmware();
+                console.log("firmware check: allowed");
+                return this.downloadFirmware().catch(error => {
+                    console.log("firmware error", error);
+                });
             },
             () => {
+                console.log("firmware check: throttled");
                 return true;
             }
         );
     }
 
     downloadFirmware(progressCallback, force) {
+        log.info("downloading firmware");
         return this.services
             .PortalInterface()
             .listFirmware("fk-core")
@@ -48,7 +53,7 @@ export default class StationUpgrade {
             })
             .then(firmwares => {
                 if (!firmwares || firmwares.length == 0) {
-                    log.info("no firmware");
+                    log.info("no firmware to download");
                     return;
                 }
 
@@ -84,9 +89,7 @@ export default class StationUpgrade {
                     });
             })
             .then(firmwares => {
-                const ids = _(firmwares)
-                    .map("id")
-                    .value();
+                const ids = _(firmwares).map("id").value();
                 return this.services
                     .Database()
                     .deleteAllFirmwareExceptIds(ids)
@@ -123,7 +126,7 @@ export default class StationUpgrade {
 
         return this.haveFirmware().then(yes => {
             if (!yes) {
-                return Promise.reject("missingFirmware");
+                return Promise.reject(new Error("missingFirmware"));
             }
             return this.services
                 .StationMonitor()
@@ -148,14 +151,13 @@ export default class StationUpgrade {
             .Database()
             .getLatestFirmware()
             .then(firmware => {
-                log.info("firmware", firmware);
-
                 if (!firmware) {
                     return false;
                 }
-
+                log.info("firmware", firmware, firmware.path);
                 const local = this.services.FileSystem().getFile(firmware.path);
                 if (!local.exists || local.size == 0) {
+                    log.info("firmware", local.exists, local.size, firmware.path);
                     return false;
                 }
                 return true;

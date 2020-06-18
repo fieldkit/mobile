@@ -14,6 +14,7 @@ import {
 import Services from "./services";
 
 function onLaunchOrResume(services) {
+    console.log("lifecycle: downloading firmware");
     services
         .PortalInterface()
         .onlyIfAuthenticated()
@@ -28,7 +29,7 @@ function onLaunchOrResume(services) {
         });
 }
 
-export default function() {
+export default function () {
     const services = Services;
 
     on(launchEvent, args => {
