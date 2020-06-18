@@ -4,7 +4,7 @@ set -xe
 
 echo updating third-party from `pwd`...
 
-SOURCE=../../nativescript-conservify
+SOURCE=../nativescript-conservify
 if [ -d $SOURCE ]; then
 	pushd $SOURCE
     ./update-android.sh

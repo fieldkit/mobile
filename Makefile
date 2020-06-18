@@ -102,7 +102,7 @@ images:
   done; \
 
 test: setup
-	cd $(APP) && jest
+	jest
 
 update-third-party:
-	cd $(APP) && third-party/update.sh
+	third-party/update.sh
