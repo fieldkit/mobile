@@ -7,6 +7,16 @@ var Common = (function (_super) {
         return _super.call(this) || this;
     }
     return Common;
-}(observable_1.Observable));
+})(observable_1.Observable);
 exports.Common = Common;
+var ConnectionError = (function (_super) {
+    __extends(ConnectionError, _super);
+    function ConnectionError(message, info) {
+        var _this = _super.call(this, message) || this;
+        _this.info = info;
+        return _this;
+    }
+    return ConnectionError;
+})(Error);
+exports.ConnectionError = ConnectionError;
 //# sourceMappingURL=conservify.common.js.map
