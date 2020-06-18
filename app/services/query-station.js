@@ -3,6 +3,7 @@ import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
 import { unixNow, promiseAfter } from "../utilities";
 import { EventHistory } from "./event-history";
+import { StationQueryError, HttpError } from "../lib/errors";
 import Config from "../config";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
@@ -162,7 +163,7 @@ export default class QueryStation {
 
     calculateDownloadSize(url) {
         if (!Config.developer.stationFilter(url)) {
-            return Promise.reject("ignored");
+            return Promise.reject(new StationQueryError("ignored"));
         }
 
         return this.services
@@ -174,7 +175,7 @@ export default class QueryStation {
             .then(
                 response => {
                     if (response.statusCode != 204) {
-                        return Promise.reject(response);
+                        return Promise.reject(new HttpError("status", response));
                     }
                     const size = Number(response.headers["content-length"]);
                     return {
@@ -264,11 +265,11 @@ export default class QueryStation {
      */
     stationQuery(url, message) {
         if (!Config.developer.stationFilter(url)) {
-            return Promise.reject("ignored");
+            return Promise.reject(new StationQueryError("ignored"));
         }
 
         if (this.openQueries[url] > 0) {
-            return Promise.reject("throttled");
+            return Promise.reject(new StationQueryError("throttled"));
         }
         this.openQueries[url] = (this.openQueries[url] || 0) + 1;
 
@@ -346,7 +347,7 @@ export default class QueryStation {
         }
         const delays = _.sumBy(reply.errors, "delay");
         if (delays == 0) {
-            return Promise.reject(new Error("busy"));
+            return Promise.reject(new StationQueryError("busy"));
         }
         return this._retryAfter(delays, url, message);
     }

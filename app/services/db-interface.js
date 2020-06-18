@@ -56,7 +56,7 @@ export default class DatabaseInterface {
                 });
                 return sqliteToJs(rows);
             })
-            .catch(err => Promise.reject(`error fetching stations: ${err}`));
+            .catch(err => Promise.reject(new Error(`error fetching stations: ${err}`)));
     }
 
     getStation(stationId) {
@@ -123,7 +123,7 @@ export default class DatabaseInterface {
                 this._getModulePrimaryKey(moduleDeviceId).then(modulePrimaryKey =>
                     db
                         .query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
-                        .catch(err => Promise.reject(`error getting sensors: ${err}`))
+                        .catch(err => Promise.reject(new Error(`error getting sensors: ${err}`)))
                 )
             )
             .then(rows => sqliteToJs(rows));
@@ -137,7 +137,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db =>
             this._getModulePrimaryKey(moduleId)
                 .then(modulePrimaryKey => db.query("DELETE FROM sensors WHERE module_id = ?", [modulePrimaryKey]))
-                .catch(err => Promise.reject(`error removing sensor: ${err}`))
+                .catch(err => Promise.reject(new Error(`error removing sensor: ${err}`)))
         );
     }
 
@@ -412,7 +412,7 @@ export default class DatabaseInterface {
             return this.getDatabase().then(db =>
                 db.query("SELECT id FROM modules WHERE device_id = ? ORDER BY id DESC", [deviceId]).then(rows => {
                     if (rows.length == 0) {
-                        return Promise.reject(`no such module: ${deviceId} ${rows.length}`);
+                        return Promise.reject(new Error(`no such module: ${deviceId} ${rows.length}`));
                     }
                     if (rows.length > 1) {
                         const keeping = rows[0];
@@ -448,7 +448,7 @@ export default class DatabaseInterface {
                     ]);
                 });
             })
-            .catch(err => Promise.reject(`error inserting sensor: ${err}`));
+            .catch(err => Promise.reject(new Error(`error inserting sensor: ${err}`)));
     }
 
     insertModule(module) {
@@ -464,7 +464,7 @@ export default class DatabaseInterface {
                     module.stationId,
                 ])
             )
-            .catch(err => Promise.reject(`error inserting module: ${err}`));
+            .catch(err => Promise.reject(new Error(`error inserting module: ${err}`)));
     }
 
     insertStation(station, statusJson) {
@@ -492,7 +492,7 @@ export default class DatabaseInterface {
                     ]
                 )
             )
-            .catch(err => Promise.reject(`error inserting station: ${err}`));
+            .catch(err => Promise.reject(new Error(`error inserting station: ${err}`)));
     }
 
     insertConfig(config) {
@@ -629,7 +629,7 @@ export default class DatabaseInterface {
                                 values
                             );
                         })
-                        .catch(err => Promise.reject(`error inserting download: ${err}`));
+                        .catch(err => Promise.reject(new Error(`error inserting download: ${err}`)));
                 })
             );
         });
@@ -714,7 +714,7 @@ export default class DatabaseInterface {
 
     updateStationFromPortal(station, status) {
         if (!station.id) {
-            return Promise.reject();
+            return Promise.reject(new Error(`updateStationsFromPortal: invalid arg`));
         }
         return this._updateStreamFromPortal(station, status, Constants.MetaStreamType, 1).then(() => {
             return this._updateStreamFromPortal(station, status, Constants.DataStreamType, 0).then(() => {
@@ -728,12 +728,10 @@ export default class DatabaseInterface {
             .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
             .then(streamId => {
                 if (streamId.length == 0) {
-                    return Promise.reject();
+                    return Promise.reject(new Error(`unable to find stream: ${station.id}`));
                 }
                 log.info("updating stream", station.id, type, streamId);
-                const provision = _(status.provisions)
-                    .orderBy("updated")
-                    .last();
+                const provision = _(status.provisions).orderBy("updated").last();
                 const values = [provision[type].size, provision[type].first, provision[type].last, streamId[0].id];
                 return this.getDatabase().then(db =>
                     db.query(`UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ? WHERE id = ?`, values)
@@ -743,10 +741,10 @@ export default class DatabaseInterface {
 
     _updateStreamFromStation(station, status, type, index) {
         if (!status) {
-            return Promise.reject(`_updateStreamFromStation: no status`);
+            return Promise.reject(new Error(`_updateStreamFromStation: no status`));
         }
         if (!status.streams) {
-            return Promise.reject(`_updateStreamFromStation: no streams`);
+            return Promise.reject(new Error(`_updateStreamFromStation: no streams`));
         }
         return this.getDatabase()
             .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
