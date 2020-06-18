@@ -10,7 +10,7 @@ describe("StationMonitor", () => {
     let mockStation;
     let db;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         services = new Services();
         db = services.Database();
         stationMonitor = services.StationMonitor();
