@@ -44,3 +44,5 @@ test_fieldkit.sqlite3
 
 GoogleService-Info.plist
 google-services.json
+
+*.swp

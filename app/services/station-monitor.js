@@ -33,20 +33,24 @@ export default class StationMonitor extends BetterObservable {
         this.logs = new StationLogs(discoverStation, queryStation);
         this.phone = new Phone();
         this.knownStations = new KnownStations();
+    }
 
-        // temporary method to clear out modules with no device ids (is this still necessary?)
-        this.dbInterface.removeNullIdModules().then(() => this.dbInterface.getAll().then(stations => this.initializeStations(stations)));
-
-        // start getting updates about which stations are nearby.
-        this.subscribeToStationDiscovery();
-
-        // Get the phone's location right away and then subscribe to
-        // any updates to the phone's location and pass them over to
-        // update any stations that may need updating.
-        this.phoneLocation
-            .enableAndGetLocation()
-            .then(location => this.savePhoneLocation(location))
-            .then(() => this.phoneLocation.subscribe(location => this.savePhoneLocation(location)));
+    start() {
+        return Promise.all([
+            // temporary method to clear out modules with no device ids (is this still necessary?)
+            this.dbInterface
+                .removeNullIdModules()
+                .then(() => this.dbInterface.getAll().then(stations => this.initializeStations(stations))),
+            // start getting updates about which stations are nearby.
+            this.subscribeToStationDiscovery(),
+            // Get the phone's location right away and then subscribe to
+            // any updates to the phone's location and pass them over to
+            // update any stations that may need updating.
+            this.phoneLocation
+                .enableAndGetLocation()
+                .then(location => this.savePhoneLocation(location))
+                .then(() => this.phoneLocation.subscribe(location => this.savePhoneLocation(location))),
+        ]);
     }
 
     getPhone() {
@@ -143,7 +147,7 @@ export default class StationMonitor extends BetterObservable {
 
         return this._statusOrReadings(station, takeReadings)
             .catch(error => {
-                return Promise.reject(`statusOrReadings error: ${error}`);
+                return Promise.reject(new Error(`statusOrReadings error: ${error}`));
             })
             .finally(value => {
                 // NOTE This is intentional, for now. Otherwise the
@@ -161,11 +165,13 @@ export default class StationMonitor extends BetterObservable {
         log.verbose("updateStatus");
 
         if (statusReply.errors.length > 0) {
-            return Promise.reject(`status reply has errors: ${statusReply.errors}`);
+            return Promise.reject(new Error(`status reply has errors: ${statusReply.errors}`));
         }
 
         if (station.deviceId != statusReply.status.identity.deviceId) {
-            return Promise.reject(`status reply device id mismatch: ${station.deviceId} != ${statusReply.status.identity.deviceId}`);
+            return Promise.reject(
+                new Error(`status reply device id mismatch: ${station.deviceId} != ${statusReply.status.identity.deviceId}`)
+            );
         }
 
         // now that db can be cleared, might need to re-add stations
@@ -188,11 +194,11 @@ export default class StationMonitor extends BetterObservable {
         log.verbose("updateStationReadings");
 
         if (result.errors.length > 0) {
-            return Promise.reject(`status reply has errors: ${result.errors}`);
+            return Promise.reject(new Error(`status reply has errors: ${result.errors}`));
         }
 
         if (station.deviceId != result.status.identity.deviceId) {
-            return Promise.reject(`status reply device id mismatch: ${station.deviceId} != ${result.status.identity.deviceId}`);
+            return Promise.reject(new Error(`status reply device id mismatch: ${station.deviceId} != ${result.status.identity.deviceId}`));
         }
 
         // now that db can be cleared, might need to re-add stations
@@ -268,7 +274,7 @@ export default class StationMonitor extends BetterObservable {
 
         pending.push(
             this.dbInterface.updateStation(updating).catch(e => {
-                return Promise.reject(`error updating station in the db: ${e}`);
+                return Promise.reject(new Error(`error updating station in the db: ${e}`));
             })
         );
         pending.push(this._keepModulesAndSensorsInSync(updating, statusReply));
@@ -308,36 +314,38 @@ export default class StationMonitor extends BetterObservable {
                 })
                 .then(() => {
                     // update modules in station's response
-                    return hwModules.forEach(hwModule => {
-                        const dbModule = dbModules.find(d => {
-                            return d.deviceId == hwModule.deviceId;
-                        });
+                    return Promise.all(
+                        hwModules.map(hwModule => {
+                            const dbModule = dbModules.find(d => {
+                                return d.deviceId == hwModule.deviceId;
+                            });
 
-                        // TODO Update once.
-                        const pending = [];
-                        if (dbModule) {
-                            // update name if needed
-                            if (dbModule.name != hwModule.name) {
-                                pending.push(this.dbInterface.setModuleName(hwModule));
+                            // TODO Update once.
+                            const pending = [];
+                            if (dbModule) {
+                                // update name if needed
+                                if (dbModule.name != hwModule.name) {
+                                    pending.push(this.dbInterface.setModuleName(hwModule));
+                                }
+                                // update bay number if needed
+                                if (!hwModule.position) {
+                                    hwModule.position = 0;
+                                }
+                                if (dbModule.position != hwModule.position) {
+                                    pending.push(this.dbInterface.setModulePosition(hwModule));
+                                }
+                            } else {
+                                // add those not in the database
+                                hwModule.stationId = station.id;
+                                pending.push(this.dbInterface.insertModule(hwModule));
                             }
-                            // update bay number if needed
-                            if (!hwModule.position) {
-                                hwModule.position = 0;
-                            }
-                            if (dbModule.position != hwModule.position) {
-                                pending.push(this.dbInterface.setModulePosition(hwModule));
-                            }
-                        } else {
-                            // add those not in the database
-                            hwModule.stationId = station.id;
-                            pending.push(this.dbInterface.insertModule(hwModule));
-                        }
 
-                        return Promise.all(pending).then(() => {
-                            // and update its sensors
-                            return this._updateSensors(hwModule);
-                        });
-                    });
+                            return Promise.all(pending).then(() => {
+                                // and update its sensors
+                                return this._updateSensors(hwModule);
+                            });
+                        })
+                    );
                 });
         });
     }
@@ -420,7 +428,7 @@ export default class StationMonitor extends BetterObservable {
                 });
             })
             .catch(err => {
-                return Promise.reject(`${address}: checkDatabase failed: ${err}`);
+                return Promise.reject(new Error(`${address}: checkDatabase failed: ${err}`));
             });
     }
 

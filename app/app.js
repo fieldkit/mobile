@@ -3,7 +3,7 @@ import * as i18n from "tns-i18n";
 // and this default language initialization does not override that
 i18n("en");
 
-import Promise from "bluebird";
+import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
@@ -11,10 +11,10 @@ import VueDevtools from "nativescript-vue-devtools";
 import Firebase from "nativescript-plugin-firebase";
 
 import initializeLogging from "./lib/logging";
+import registerLifecycleEvents from "./services/lifecycle";
+
 import Services from "./services/services";
 import AppSettings from "./wrappers/app-settings";
-import configureGlobalErrorHandling from "./lib/errors";
-import registerLifecycleEvents from "./services/lifecycle";
 import ApplicationWrapper from "./components/ApplicationWrapper";
 import routes from "./routes";
 
@@ -25,11 +25,15 @@ function initializeApplication() {
         .initialize()
         .then((db) => Services.Database().checkConfig())
         .then(() => {
-            Services.StateManager().start();
-            Services.PortalUpdater().start();
-            Vue.prototype.$stationMonitor = Services.StationMonitor();
-            Vue.prototype.$portalInterface = Services.PortalInterface();
-            return Services.OnlineStatus().start();
+            return Promise.all([
+                Services.StateManager().start(),
+                Services.StationMonitor().start(),
+                Services.PortalUpdater().start(),
+                Services.OnlineStatus().start(),
+            ]).then(() => {
+                Vue.prototype.$stationMonitor = Services.StationMonitor();
+                Vue.prototype.$portalInterface = Services.PortalInterface();
+            });
         })
         .catch((err) => {
             console.log("ERROR", err.message);
@@ -106,11 +110,12 @@ function initializeFirebase() {
         );
     } catch (e) {
         console.log("firebase error", e);
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 }
 
-Promise.config({
+// Configure Bluebird as the primary Promise implementation.
+Bluebird.config({
     warnings: true,
     longStackTraces: true,
     cancellation: true,
@@ -118,25 +123,26 @@ Promise.config({
     asyncHooks: true,
 });
 
-try {
-    initializeLogging();
-    console.log("starting: config", Config);
-    console.log("starting: build", Build);
-} catch (e) {
-    console.log("startup error", e, e.stack);
-}
+global.Promise = Bluebird;
 
-configureGlobalErrorHandling().then(() => {
-    startVueJs();
+// Logging stuff, this includes our hooks to save logs as well as
+// configure logging on Promise failures and funneling errors to
+// Crashlytics.
+initializeLogging();
 
-    registerLifecycleEvents();
+console.log("starting: config", Config);
+console.log("starting: build", Build);
 
-    // For some very irritating reason we can't chain this as part of
-    // the application startup. We end up getting errors about main
-    // not working to startup.
-    initializeFirebase().then(() => {
-        return initializeApplication().then(() => {
-            console.log("ready");
-        });
+// Startup VueJS and install hooks so we can show UI as soon as
+// possible, especially if something goes wrong.
+startVueJs();
+registerLifecycleEvents();
+
+// For some very irritating reason we can't chain this as part of
+// the application startup. We end up getting errors about main
+// not working to startup.
+initializeFirebase().then(() => {
+    return initializeApplication().then(() => {
+        console.log("ready");
     });
 });
