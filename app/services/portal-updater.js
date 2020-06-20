@@ -11,13 +11,13 @@ export default class PortalUpdater {
     }
 
     addOrUpdateStations() {
-        return this.portalInterface.isAvailable().then((yes) => {
+        return this.portalInterface.isAvailable().then(yes => {
             if (!yes) {
                 return Promise.resolve();
             }
-            return this.database.getAll().then((stations) => {
+            return this.database.getAll().then(stations => {
                 return Promise.all(
-                    stations.map((station) => {
+                    stations.map(station => {
                         const params = {
                             name: station.name,
                             device_id: station.deviceId,
@@ -31,13 +31,13 @@ export default class PortalUpdater {
                                 .then(() => {
                                     return this.database.setStationPortalError(station, "");
                                 })
-                                .catch((error) => {
+                                .catch(error => {
                                     return this.database.setStationPortalError(station, error.response.status);
                                 });
                         } else {
-                            return this.portalInterface.addStation(params).then((result) => {
+                            return this.portalInterface.addStation(params).then(result => {
                                 station.portalId = result.id;
-                                this.database.setStationPortalId(station);
+                                return this.database.setStationPortalId(station);
                             });
                         }
                     })
