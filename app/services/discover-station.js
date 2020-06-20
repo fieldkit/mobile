@@ -84,7 +84,7 @@ export default class DiscoverStation extends BetterObservable {
         this._services = services;
         this._stations = {};
         this._networkMonitor = null;
-        this._history = new EventHistory(this._services);
+        this._history = new EventHistory(this._services.Database());
         this._pending = {};
 
         this.StationFoundProperty = "stationFound";

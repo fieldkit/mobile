@@ -1,6 +1,6 @@
 export class EventHistory {
-    constructor(services) {
-        this.db = services.Database();
+    constructor(db) {
+        this.db = db;
     }
 
     onFoundStation(info) {

@@ -206,14 +206,19 @@ export default {
             savingStation.percentComplete = this.percentComplete;
             dbInterface.setStationPercentComplete(savingStation);
 
-            queryStation.startDataRecording(this.station.url).then(() => {
-                this.$navigateTo(routes.stationDetail, {
-                    props: {
-                        stationId: this.station.id,
-                        redirectedFromDeploy: "true",
-                    },
+            queryStation
+                .startDataRecording(this.station.url)
+                .then(() => {
+                    return Services.StationMonitor().recordingStatusChange(this.station.url, "started");
+                })
+                .then(() => {
+                    return this.$navigateTo(routes.stationDetail, {
+                        props: {
+                            stationId: this.station.id,
+                            redirectedFromDeploy: "true",
+                        },
+                    });
                 });
-            });
         },
     },
 };

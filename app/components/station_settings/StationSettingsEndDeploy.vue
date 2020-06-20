@@ -88,7 +88,9 @@ export default {
                         let savingStation = this.station;
                         savingStation.status = "";
                         dbInterface.setStationDeployStatus(savingStation);
-                        queryStation.stopDataRecording(this.station.url);
+                        queryStation.stopDataRecording(this.station.url).then(() => {
+                            return Services.StationMonitor().recordingStatusChange(this.station.url, "stopped");
+                        });
                     }
                 });
         },

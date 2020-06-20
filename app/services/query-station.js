@@ -37,9 +37,9 @@ const MandatoryStatus = {
 
 export default class QueryStation {
     constructor(services) {
-        this.services = services;
-        this.history = new EventHistory(this.services);
-        this.openQueries = {};
+        this._conservify = services.Conservify();
+        this._history = new EventHistory(services.Database());
+        this._openQueries = {};
     }
 
     getStatus(address, locate) {
@@ -86,8 +86,6 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            // notify StationMonitor
-            this.services.StationMonitor().recordingStatusChange(address, "started");
             return this._fixupStatus(reply);
         });
     }
@@ -99,8 +97,6 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then(reply => {
-            // notify StationMonitor
-            this.services.StationMonitor().recordingStatusChange(address, "stopped");
             return this._fixupStatus(reply);
         });
     }
@@ -166,8 +162,7 @@ export default class QueryStation {
             return Promise.reject(new StationQueryError("ignored"));
         }
 
-        return this.services
-            .Conservify()
+        return this._conservify
             .json({
                 method: "HEAD",
                 url: url,
@@ -190,8 +185,7 @@ export default class QueryStation {
     }
 
     queryLogs(url) {
-        return this.services
-            .Conservify()
+        return this._conservify
             .text({
                 url: url + "/download/logs",
             })
@@ -207,8 +201,7 @@ export default class QueryStation {
     }
 
     uploadFirmware(url, path, progress) {
-        return this.services
-            .Conservify()
+        return this._conservify
             .upload({
                 method: "POST",
                 url: url + "/upload/firmware?swap=1",
@@ -268,16 +261,15 @@ export default class QueryStation {
             return Promise.reject(new StationQueryError("ignored"));
         }
 
-        if (this.openQueries[url] > 0) {
+        if (this._openQueries[url] > 0) {
             return Promise.reject(new StationQueryError("throttled"));
         }
-        this.openQueries[url] = (this.openQueries[url] || 0) + 1;
+        this._openQueries[url] = (this._openQueries[url] || 0) + 1;
 
         const binaryQuery = HttpQuery.encodeDelimited(message).finish();
         log.info(url, "querying", message);
 
-        return this.services
-            .Conservify()
+        return this._conservify
             .protobuf({
                 method: "POST",
                 url: url,
@@ -285,7 +277,7 @@ export default class QueryStation {
             })
             .then(
                 response => {
-                    this.openQueries[url] = 0;
+                    this._openQueries[url] = 0;
 
                     if (response.body.length == 0) {
                         log.info(url, "query success", "<empty>");
@@ -293,7 +285,7 @@ export default class QueryStation {
                     }
 
                     const decoded = this._getResponseBody(response);
-                    return this.history.onStationReply(decoded).then(() => {
+                    return this._history.onStationReply(decoded).then(() => {
                         return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
                             log.verbose(url, "query success", finalReply);
                             return finalReply;
@@ -301,7 +293,7 @@ export default class QueryStation {
                     });
                 },
                 err => {
-                    this.openQueries[url] = 0;
+                    this._openQueries[url] = 0;
                     log.error(url, "query error");
                     return Promise.reject(err);
                 }
