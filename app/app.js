@@ -47,10 +47,15 @@ function initializeApplication(services) {
                     console.log("error", err.message);
                     console.log("error", err.stack);
                 })
+                .then(() => {
+                    console.log("started!");
+                })
         );
 }
 
 function configureVueJs() {
+    Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
+
     Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
 
     Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
@@ -61,8 +66,6 @@ function configureVueJs() {
             event: "checkedChange",
         },
     });
-
-    Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
 
     Vue.use(RadChart);
     Vue.use(RadGauge);
@@ -122,6 +125,7 @@ global.Promise = Bluebird;
 // Crashlytics.
 initializeLogging();
 
+console.log("starting: TNS_ENV", TNS_ENV);
 console.log("starting: config", Config);
 console.log("starting: build", Build);
 

@@ -38,7 +38,6 @@ const configs = {
         },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
-        seedDB: true,
         dropTables: true,
         stationTimeoutMs: 90000,
         includeInternalModules: false,
@@ -52,7 +51,6 @@ const configs = {
         },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
-        seedDB: true,
         dropTables: true,
         stationTimeoutMs: 90000,
         includeInternalModules: false,
@@ -63,11 +61,16 @@ const configs = {
 };
 
 function get_config() {
+    const envs = {
+        env: {
+            dev: /^dev/.test(TNS_ENV),
+            test: /^test/.test(TNS_ENV),
+        },
+    };
     if (TNS_ENV === "test") {
-        return Object.assign({}, configs["test"], get_blank_developer_config());
+        return Object.assign({}, envs, configs["test"], get_blank_developer_config());
     }
-    // TODO Recursive deep merge is ideal here.
-    return Object.assign({}, configs["default"], get_developer_config());
+    return Object.assign({}, envs, configs["default"], get_developer_config());
 }
 
 const final = get_config();
@@ -75,17 +78,17 @@ const final = get_config();
 final.logger = name => {
     if (final.logging.EnableAll || final.logging[name]) {
         return {
-            info: function() {
+            info: function () {
                 const args = Array.from(arguments);
                 args.unshift(name);
                 console.log.apply(console, args);
             },
-            verbose: function() {
+            verbose: function () {
                 const args = Array.from(arguments);
                 args.unshift(name);
                 // console.log.apply(console, args);
             },
-            error: function() {
+            error: function () {
                 const args = Array.from(arguments);
                 args.unshift(name);
                 console.error.apply(console, args);

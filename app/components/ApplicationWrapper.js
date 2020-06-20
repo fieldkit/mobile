@@ -2,14 +2,13 @@ import { Observable } from "tns-core-modules/data/observable";
 import AppSettings from "../wrappers/app-settings";
 import Services from "../services/services";
 import routes from "../routes";
+import Config from "../config";
 
 function getFirstRoute() {
     const appSettings = new AppSettings();
-
     if (Services.PortalInterface().isLoggedIn()) {
         return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2 ? routes.stations : routes.assembleStation;
     }
-
     return routes.login;
 }
 
@@ -18,6 +17,9 @@ export default {
     mounted() {
         console.log(`wrapper mounted`);
         const frame = this.$refs.mainFrame.nativeView;
+        if (Config.env.dev) {
+            frame.transition = { name: "fade", animated: false };
+        }
         this.$navigateTo(getFirstRoute(), {
             frame: this.$refs.mainFrame,
         });

@@ -284,9 +284,9 @@ export default {
 
             this.processing = true;
             if (this.isLoggingIn) {
-                this.login();
+                return this.login();
             } else {
-                this.register();
+                return this.register();
             }
         },
 
@@ -295,7 +295,7 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    this.$navigateTo(Config.seedDB ? Home : AssembleStation, {
+                    return this.$navigateTo(AssembleStation, {
                         clearHistory: true,
                     });
                 })
