@@ -3,6 +3,7 @@ import { MockStationReplies } from "./utilities";
 import Fixtures from "./fixtures.js";
 
 describe("QueryStation", () => {
+    const url = "http://192.168.0.1";
     let services;
     let queryStation;
     let mockStation;
@@ -32,7 +33,7 @@ describe("QueryStation", () => {
             ],
         });
 
-        return queryStation.getStatus().then(body => {
+        return queryStation.getStatus(url).then(body => {
             expect(body.liveReadings).toBeDefined();
             expect(mockStation.mock.calls.length).toBe(1);
         });
@@ -52,7 +53,7 @@ describe("QueryStation", () => {
             liveReadings: [{ modules: [{}], time: 1565734980 }],
         });
 
-        return queryStation.takeReadings().then(body => {
+        return queryStation.takeReadings(url).then(body => {
             expect(body.liveReadings).toBeDefined();
             expect(mockStation.mock.calls.length).toBe(1);
         });
@@ -74,7 +75,7 @@ describe("QueryStation", () => {
             },
         });
 
-        return queryStation.takeReadings().then(body => {
+        return queryStation.takeReadings(url).then(body => {
             expect(body.liveReadings).toBeDefined();
             expect(mockStation.mock.calls.length).toBe(1);
         });
