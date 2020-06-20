@@ -284,6 +284,10 @@ export default class QueryStation {
         return url.replace(/\/v1.*/, "");
     }
 
+    ifLastQueriedBefore(url, window) {
+        return Promise.resolve(0);
+    }
+
     _trackActivity(url, factory) {
         const stationKey = this._urlToStationKey(url);
         if (this._openQueries[stationKey] === true) {

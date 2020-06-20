@@ -113,8 +113,10 @@ export default class StationMonitor extends BetterObservable {
     // take readings, if active, otherwise query status
     _statusOrReadings(station, takeReadings) {
         if (takeReadings || this.activeAddresses.indexOf(station.url) > -1) {
-            return this.queryStation.takeReadings(station.url).then(status => {
-                return this.updateStationReadings(station, status);
+            return this.queryStation.ifLastQueriedBefore(station.url, 10000).then(() => {
+                return this.queryStation.takeReadings(station.url).then(status => {
+                    return this.updateStationReadings(station, status);
+                });
             });
         }
 
@@ -124,8 +126,11 @@ export default class StationMonitor extends BetterObservable {
             long: station.longitude,
             time: Math.round(updated / 1000),
         };
-        return this.queryStation.getStatus(station.url, locate).then(status => {
-            return this.updateStatus(station, status);
+
+        return this.queryStation.ifLastQueriedBefore(station.url, 10000).then(() => {
+            return this.queryStation.getStatus(station.url, locate).then(status => {
+                return this.updateStatus(station, status);
+            });
         });
     }
 
@@ -512,6 +517,10 @@ export default class StationMonitor extends BetterObservable {
         pending.push(this._publishStationsUpdated());
 
         return Promise.all(pending).then(() => log.info("activate station done", station.name));
+    }
+
+    _queryStations() {
+        return Promise.all([]);
     }
 
     reactivateStation(address, databaseStation, statusResult) {
