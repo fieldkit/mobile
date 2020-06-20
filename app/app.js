@@ -6,6 +6,7 @@ i18n("en");
 import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
+import Vuex from "vuex";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
 import Firebase from "nativescript-plugin-firebase";
@@ -14,8 +15,8 @@ import initializeLogging from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
 
 import Services from "./services/services";
+import storeFactory from "./store";
 import ApplicationWrapper from "./components/ApplicationWrapper";
-
 import Config, { Build } from "./config";
 
 function initializeApplication(services) {
@@ -67,6 +68,7 @@ function configureVueJs() {
         },
     });
 
+    Vue.use(Vuex);
     Vue.use(RadChart);
     Vue.use(RadGauge);
 
@@ -88,7 +90,10 @@ function configureVueJs() {
 function startVueJs() {
     configureVueJs();
 
+    const store = storeFactory();
+
     new Vue({
+        store,
         render: h => h(ApplicationWrapper),
     }).$start();
 }
