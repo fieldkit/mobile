@@ -5,18 +5,16 @@ i18n("en");
 
 import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
+import VueDevtools from "nativescript-vue-devtools";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
-import VueDevtools from "nativescript-vue-devtools";
 import Firebase from "nativescript-plugin-firebase";
 
 import initializeLogging from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
 
 import Services from "./services/services";
-import AppSettings from "./wrappers/app-settings";
 import ApplicationWrapper from "./components/ApplicationWrapper";
-import routes from "./routes";
 
 import Config, { Build } from "./config";
 
@@ -84,28 +82,11 @@ function configureVueJs() {
     }
 }
 
-function getFirstRoute() {
-    const appSettings = new AppSettings();
-
-    if (Services.PortalInterface().isLoggedIn()) {
-        return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2 ? routes.stations : routes.assembleStation;
-    }
-
-    return routes.login;
-}
-
 function startVueJs() {
     configureVueJs();
 
     new Vue({
-        render: h =>
-            h("frame", [
-                h(ApplicationWrapper, {
-                    props: {
-                        child: getFirstRoute(),
-                    },
-                }),
-            ]),
+        render: h => h(ApplicationWrapper),
     }).$start();
 }
 
