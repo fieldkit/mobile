@@ -23,22 +23,33 @@ import Config, { Build } from "./config";
 function initializeApplication(services) {
     Vue.prototype.$stationMonitor = services.StationMonitor();
     Vue.prototype.$portalInterface = services.PortalInterface();
-    return services
-        .CreateDb()
-        .initialize()
-        .then(db => services.Database().checkConfig())
-        .then(() => {
-            return Promise.all([
-                services.StateManager().start(),
-                services.StationMonitor().start(),
-                services.PortalUpdater().start(),
-                services.OnlineStatus().start(),
-            ]);
+
+    return Firebase.analytics
+        .logEvent({
+            key: "app_open",
         })
-        .catch(err => {
-            console.log("ERROR", err.message);
-            console.log("ERROR", err.stack);
-        });
+        .catch(message => {
+            console.log("error", message);
+            return Promise.resolve(false);
+        })
+        .then(() =>
+            services
+                .CreateDb()
+                .initialize()
+                .then(db => services.Database().checkConfig())
+                .then(() => {
+                    return Promise.all([
+                        services.StateManager().start(),
+                        services.StationMonitor().start(),
+                        services.PortalUpdater().start(),
+                        services.OnlineStatus().start(),
+                    ]);
+                })
+                .catch(err => {
+                    console.log("error", err.message);
+                    console.log("error", err.stack);
+                })
+        );
 }
 
 function configureVueJs() {

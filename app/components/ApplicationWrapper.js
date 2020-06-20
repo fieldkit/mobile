@@ -1,7 +1,4 @@
 export default {
-    data() {
-        return {};
-    },
     props: {
         child: {
             required: true,

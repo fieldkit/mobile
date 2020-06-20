@@ -1,7 +1,7 @@
 {
     "using_ios": true,
     "using_android": true,
-    "analytics": false,
+    "analytics": true,
     "firestore": false,
     "realtimedb": false,
     "authentication": false,
