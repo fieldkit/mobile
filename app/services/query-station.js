@@ -40,6 +40,8 @@ export default class QueryStation {
         this._conservify = services.Conservify();
         this._history = new EventHistory(services.Database());
         this._openQueries = {};
+        this._lastQueries = {};
+        this._lastQueryTried = {};
     }
 
     getStatus(address, locate) {
@@ -162,56 +164,82 @@ export default class QueryStation {
             return Promise.reject(new StationQueryError("ignored"));
         }
 
-        return this._conservify
-            .json({
-                method: "HEAD",
-                url: url,
-            })
-            .then(
-                response => {
-                    if (response.statusCode != 204) {
-                        return Promise.reject(new HttpError("status", response));
+        return this._trackActivity(url, () => {
+            return this._conservify
+                .json({
+                    method: "HEAD",
+                    url: url,
+                })
+                .then(
+                    response => {
+                        if (response.statusCode != 204) {
+                            return Promise.reject(new HttpError("status", response));
+                        }
+                        const size = Number(response.headers["content-length"]);
+                        return {
+                            size,
+                        };
+                    },
+                    err => {
+                        log.error(url, "query error", err);
+                        return Promise.reject(err);
                     }
-                    const size = Number(response.headers["content-length"]);
-                    return {
-                        size,
-                    };
-                },
-                err => {
-                    log.error(url, "query error", err);
-                    return Promise.reject(err);
-                }
-            );
+                );
+        });
     }
 
     queryLogs(url) {
-        return this._conservify
-            .text({
-                url: url + "/download/logs",
-            })
-            .then(
-                response => {
-                    return response.body;
-                },
-                err => {
-                    log.error(url, "query error", err);
-                    return Promise.reject(err);
-                }
-            );
+        return this._trackActivity(url, () => {
+            return this._conservify
+                .text({
+                    url: url + "/download/logs",
+                })
+                .then(
+                    response => {
+                        return response.body;
+                    },
+                    err => {
+                        log.error(url, "query error", err);
+                        return Promise.reject(err);
+                    }
+                );
+        });
+    }
+
+    download(url, path, progress) {
+        return this._trackActivity(url, () => {
+            return this._conservify
+                .download({
+                    method: "GET",
+                    url: url,
+                    path: path,
+                    progress: prgoress,
+                })
+                .then(response => {
+                    log.info("headers", response.headers);
+                    log.info("status", response.statusCode);
+                    if (response.statusCode != 200) {
+                        return Promise.reject(response);
+                    }
+                    return response;
+                });
+        });
     }
 
     uploadFirmware(url, path, progress) {
-        return this._conservify
-            .upload({
-                method: "POST",
-                url: url + "/upload/firmware?swap=1",
-                path: path,
-                progress: progress,
-            })
-            .then(response => {
-                console.log(response);
-                return {};
-            });
+        return this._trackActivity(url, () => {
+            return this._conservify
+                .upload({
+                    method: "POST",
+                    url: url + "/upload/firmware?swap=1",
+                    path: path,
+                    progress: progress,
+                })
+                .then(response => {
+                    console.log(response);
+                    return {};
+                });
+        });
     }
 
     uploadViaApp(address) {
@@ -251,53 +279,73 @@ export default class QueryStation {
         });
     }
 
+    _urlToStationKey(url) {
+        // http://192.168.0.100:2380/fk/v1 -> http://192.168.0.100:2380/fk
+        return url.replace(/\/v1.*/, "");
+    }
+
+    _trackActivity(url, factory) {
+        const stationKey = this._urlToStationKey(url);
+        if (this._openQueries[stationKey] === true) {
+            return Promise.reject(new StationQueryError("throttled"));
+        }
+        this._openQueries[stationKey] = true;
+        this._lastQueryTried[stationKey] = new Date();
+
+        return factory().then(
+            value => {
+                this._openQueries[stationKey] = false;
+                this._lastQueries[stationKey] = new Date();
+                return value;
+            },
+            error => {
+                this._openQueries[stationKey] = false;
+                return Promise.reject(error);
+            }
+        );
+    }
+
     /**
      * Perform a single station query, setting all the critical defaults for the
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
     stationQuery(url, message) {
-        if (!Config.developer.stationFilter(url)) {
-            return Promise.reject(new StationQueryError("ignored"));
-        }
+        return this._trackActivity(url, () => {
+            if (!Config.developer.stationFilter(url)) {
+                return Promise.reject(new StationQueryError("ignored"));
+            }
 
-        if (this._openQueries[url] > 0) {
-            return Promise.reject(new StationQueryError("throttled"));
-        }
-        this._openQueries[url] = (this._openQueries[url] || 0) + 1;
+            const binaryQuery = HttpQuery.encodeDelimited(message).finish();
+            log.info(url, "querying", message);
 
-        const binaryQuery = HttpQuery.encodeDelimited(message).finish();
-        log.info(url, "querying", message);
+            return this._conservify
+                .protobuf({
+                    method: "POST",
+                    url: url,
+                    body: binaryQuery,
+                })
+                .then(
+                    response => {
+                        if (response.body.length == 0) {
+                            log.info(url, "query success", "<empty>");
+                            return {};
+                        }
 
-        return this._conservify
-            .protobuf({
-                method: "POST",
-                url: url,
-                body: binaryQuery,
-            })
-            .then(
-                response => {
-                    this._openQueries[url] = 0;
-
-                    if (response.body.length == 0) {
-                        log.info(url, "query success", "<empty>");
-                        return {};
-                    }
-
-                    const decoded = this._getResponseBody(response);
-                    return this._history.onStationReply(decoded).then(() => {
-                        return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
-                            log.verbose(url, "query success", finalReply);
-                            return finalReply;
+                        const decoded = this._getResponseBody(response);
+                        return this._history.onStationReply(decoded).then(() => {
+                            return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
+                                log.verbose(url, "query success", finalReply);
+                                return finalReply;
+                            });
                         });
-                    });
-                },
-                err => {
-                    this._openQueries[url] = 0;
-                    log.error(url, "query error");
-                    return Promise.reject(err);
-                }
-            );
+                    },
+                    err => {
+                        log.error(url, "query error");
+                        return Promise.reject(err);
+                    }
+                );
+        });
     }
 
     _getResponseBody(response) {

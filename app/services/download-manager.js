@@ -297,26 +297,16 @@ export default class DownloadManager {
     }
 
     _download(station, url, type, destination, operation) {
-        return Services.Conservify()
-            .download({
-                method: "GET",
-                url: url,
-                path: destination.path,
-                progress: (total, copied, info) => {
-                    operation.updateStation({
-                        deviceId: station.deviceId,
-                        key: url,
-                        currentSize: copied,
-                        totalSize: total,
-                    });
-                },
+        return Services.QueryStation()
+            .download(url, destination.path, (total, copied, info) => {
+                return operation.updateStation({
+                    deviceId: station.deviceId,
+                    key: url,
+                    currentSize: copied,
+                    totalSize: total,
+                });
             })
             .then(response => {
-                log.info("headers", response.headers);
-                log.info("status", response.statusCode);
-                if (response.statusCode != 200) {
-                    return Promise.reject(response);
-                }
                 return this._createDownloadRow(station, url, type, destination, response.headers);
             });
     }
@@ -361,10 +351,7 @@ export default class DownloadManager {
     }
 
     _getStationFolder(station) {
-        return knownFolders
-            .documents()
-            .getFolder("FieldKitData")
-            .getFolder(station.deviceId);
+        return knownFolders.documents().getFolder("FieldKitData").getFolder(station.deviceId);
     }
 
     _getNewDownloadFolder(station) {
