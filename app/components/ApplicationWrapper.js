@@ -1,3 +1,4 @@
+import { Observable } from "tns-core-modules/data/observable";
 import AppSettings from "../wrappers/app-settings";
 import Services from "../services/services";
 import routes from "../routes";
@@ -13,34 +14,25 @@ function getFirstRoute() {
 }
 
 export default {
-    // template: `<Frame id="mainFrame"></Frame>`,
-    props: {},
-    data() {
-        return {
-            child: getFirstRoute(),
-        };
-    },
+    template: `<Frame ref="mainFrame" @navigated="navigated"></Frame>`,
     mounted() {
         console.log(`wrapper mounted`);
-        /*
-        return this.$navigateTo(getFirstRoute(), {
-            frame: "mainFrame",
-        }).then(
-            () => {
-                console.log("AW: done");
-            },
-            err => {
-                console.log("ERROR", err);
-            }
-        );
-		*/
+        const frame = this.$refs.mainFrame.nativeView;
+        this.$navigateTo(getFirstRoute(), {
+            frame: this.$refs.mainFrame,
+        });
+        console.log("ready");
+    },
+    unmounted() {
+        console.log(`wrapped unmounted`);
     },
     errorCaptured(err, vm, info) {
         console.log(`error: ${err.toString()} info: ${info}`);
         return false;
     },
-    methods: {},
-    render(h) {
-        return h("Frame", [h(this.child)]);
+    methods: {
+        navigated(entry) {
+            console.log("nav");
+        },
     },
 };
