@@ -4,11 +4,13 @@ import { Services } from "../services/services";
 import { MockStationReplies } from "./utilities";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
+import FakeTimers from "@sinonjs/fake-timers";
 
 describe("Store", () => {
     let services;
     let mockStation;
     let store;
+    let clock;
 
     beforeEach(async () => {
         services = new Services();
@@ -17,12 +19,15 @@ describe("Store", () => {
         store = services.Store();
 
         store.commit(MutationTypes.SERVICES, () => services);
+
+        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
+        clock.tick(10);
     });
 
     afterEach(() => {});
 
     describe("nearby stations", () => {
-        it("should be blank to begin with and add stations when found", () => {
+        it("should be blank to begin with and add stations when found", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
 
@@ -32,17 +37,17 @@ describe("Store", () => {
 
             expect(_.size(store.state.nearby.stations)).toEqual(0);
             expect(store.getters.availableStations.length).toEqual(0);
-            return store.dispatch(ActionTypes.FOUND, info).then(() => {
-                expect(_.size(store.state.nearby.stations)).toEqual(1);
-                expect(
-                    _(store.getters.availableStations)
-                        .filter(s => s.connected)
-                        .size()
-                ).toEqual(1);
-            });
+            await store.dispatch(ActionTypes.FOUND, info);
+
+            expect(_.size(store.state.nearby.stations)).toEqual(1);
+            expect(
+                _(store.getters.availableStations)
+                    .filter(s => s.connected)
+                    .size()
+            ).toEqual(1);
         });
 
-        it("should remove stations when they're lost", () => {
+        it("should remove stations when they're lost", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
 
@@ -51,19 +56,17 @@ describe("Store", () => {
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
             expect(_.size(store.state.nearby.stations)).toEqual(0);
-            return store.dispatch(ActionTypes.FOUND, info).then(() => {
-                return store.dispatch(ActionTypes.LOST, info).then(() => {
-                    expect(_.size(store.state.nearby.stations)).toEqual(0);
-                    expect(
-                        _(store.getters.availableStations)
-                            .filter(s => s.connected)
-                            .size()
-                    ).toEqual(0);
-                });
-            });
+            await store.dispatch(ActionTypes.FOUND, info);
+            await store.dispatch(ActionTypes.LOST, info);
+            expect(_.size(store.state.nearby.stations)).toEqual(0);
+            expect(
+                _(store.getters.availableStations)
+                    .filter(s => s.connected)
+                    .size()
+            ).toEqual(0);
         });
 
-        it("should query nearby when told", () => {
+        it("should query station when found", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
 
@@ -71,14 +74,11 @@ describe("Store", () => {
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
-            return store.dispatch(ActionTypes.FOUND, info).then(() => {
-                return store.dispatch(ActionTypes.QUERY_NECESSARY).then(() => {
-                    expect(mockStation.mock.calls.length).toBe(1);
-                });
-            });
+            await store.dispatch(ActionTypes.FOUND, info);
+            expect(mockStation.mock.calls.length).toBe(1);
         });
 
-        it("should query skip previously queried", () => {
+        it("should query skip previously queried", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
 
@@ -86,25 +86,39 @@ describe("Store", () => {
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
-            store.dispatch(ActionTypes.FOUND, info);
-            return store.dispatch(ActionTypes.QUERY_NECESSARY).then(() => {
-                return store.dispatch(ActionTypes.QUERY_NECESSARY).then(() => {
-                    expect(mockStation.mock.calls.length).toBe(1);
-                });
-            });
+            await store.dispatch(ActionTypes.FOUND, info);
+            clock.tick(1005);
+            await store.dispatch(ActionTypes.QUERY_NECESSARY);
+            expect(mockStation.mock.calls.length).toBe(1);
+        });
+
+        it("should query again after delay", async () => {
+            const station = mockStation.newFakeStation();
+            mockStation.queueStatusReply(station);
+            mockStation.queueStatusReply(station);
+
+            expect.assertions(2);
+
+            const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
+
+            await store.dispatch(ActionTypes.FOUND, info);
+            clock.tick(1000);
+            await store.dispatch(ActionTypes.QUERY_NECESSARY);
+            clock.tick(9005);
+            expect(mockStation.mock.calls.length).toBe(1);
+            await store.dispatch(ActionTypes.QUERY_NECESSARY);
+            expect(mockStation.mock.calls.length).toBe(2);
         });
     });
 
     describe("stations", () => {
-        it("loading", () => {
+        it("loading", async () => {
             expect.assertions(1);
 
-            return store.dispatch(ActionTypes.LOAD).then(v => {
-                const statusReply = mockStation.newFakeStatusReply(mockStation.newFakeStation());
-                return store.dispatch(ActionTypes.REPLY, statusReply).then(() => {
-                    expect(true).toBe(true);
-                });
-            });
+            await store.dispatch(ActionTypes.LOAD);
+            const statusReply = mockStation.newFakeStatusReply(mockStation.newFakeStation());
+            await store.dispatch(ActionTypes.REPLY, statusReply);
+            expect(true).toBe(true);
         });
     });
 });

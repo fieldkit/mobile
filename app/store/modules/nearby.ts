@@ -40,7 +40,8 @@ const actions = {
                     }
                     const now = new Date();
                     const elapsed = now.getTime() - station.tried.getTime();
-                    return elapsed > 10;
+                    const querying = elapsed > 10 * 1000;
+                    return querying;
                 })
                 .map((station: NearbyStation) => dispatch(ActionTypes.QUERY_STATION, station.info))
         );

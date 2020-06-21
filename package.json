@@ -13,6 +13,7 @@
     "repository": "<fill-your-repository-here>",
     "dependencies": {
         "@nstudio/nativescript-checkbox": "^1.0.0",
+        "@sinonjs/fake-timers": "^6.0.1",
         "@types/lodash": "^4.14.155",
         "@vue/devtools": "^5.1.1",
         "ajv": "^6.12.2",

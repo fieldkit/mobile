@@ -58,12 +58,12 @@ export interface ServiceInfo {
 }
 
 export class NearbyStation {
-    tried: Date;
-    queried: Date | null;
+    queried: Date;
+    tried: Date | null;
 
     constructor(public readonly info: ServiceInfo) {
-        this.tried = new Date();
-        this.queried = null;
+        this.queried = new Date();
+        this.tried = null;
     }
 }
 
@@ -78,12 +78,12 @@ export interface GlobalState {
 }
 
 function isConnected(nearby: NearbyStation | null): boolean {
-    if (!nearby || !nearby.queried) {
+    if (!nearby || !nearby.tried) {
         return false;
     }
     const now = new Date();
-    const lastQueried = Math.abs(now.getTime() - nearby.queried.getTime());
-    return lastQueried < 60;
+    const lastTried = Math.abs(now.getTime() - nearby.tried.getTime());
+    return lastTried < 60;
 }
 
 export enum StationStatus {

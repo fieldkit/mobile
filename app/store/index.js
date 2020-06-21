@@ -1,3 +1,4 @@
+import _ from "lodash";
 import Vuex from "vuex";
 import { nearby } from "./modules/nearby";
 import { stations } from "./modules/stations";
