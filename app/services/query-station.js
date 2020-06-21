@@ -330,25 +330,25 @@ export default class QueryStation {
                     body: binaryQuery,
                 })
                 .then(
-                    response => {
-                        if (response.body.length == 0) {
-                            log.info(url, "query success", "<empty>");
-                            return {};
-                        }
-
-                        const decoded = this._getResponseBody(response);
-                        return this._history.onStationReply(decoded).then(() => {
-                            return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
-                                log.verbose(url, "query success", finalReply);
-                                return finalReply;
-                            });
-                        });
-                    },
+                    response => response,
                     err => {
                         log.error(url, "query error");
                         return Promise.reject(err);
                     }
                 );
+        }).then(response => {
+            if (response.body.length == 0) {
+                log.info(url, "query success", "<empty>");
+                return {};
+            }
+
+            const decoded = this._getResponseBody(response);
+            return this._history.onStationReply(decoded).then(() => {
+                return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
+                    log.verbose(url, "query success", finalReply);
+                    return finalReply;
+                });
+            });
         });
     }
 
