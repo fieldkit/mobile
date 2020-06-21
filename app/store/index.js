@@ -3,10 +3,11 @@ import createLogger from "vuex/dist/logger";
 import { nearby } from "./modules/nearby";
 import { stations } from "./modules/stations";
 import { phone } from "./modules/phone";
+import Config from "../config";
 
 export default function () {
     return new Vuex.Store({
-        plugins: [createLogger()],
+        plugins: Config.env.dev ? [createLogger()] : [],
         modules: {
             nearby,
             stations,
