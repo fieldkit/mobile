@@ -2,7 +2,6 @@ import _ from "lodash";
 import { BetterObservable } from "./rx";
 import { promiseAfter, convertBytesToLabel } from "../utilities";
 import { Coordinates, Phone, KnownStations } from "./known-stations";
-import StationLogs from "./station-logs";
 import Config from "../config";
 
 const log = Config.logger("StationMonitor");
@@ -30,7 +29,6 @@ export default class StationMonitor extends BetterObservable {
         // stations whose details are being viewed in app are "active"
         this.activeAddresses = [];
         this.queriesInProgress = {};
-        this.logs = new StationLogs(discoverStation, queryStation);
         this.phone = new Phone();
         this.knownStations = new KnownStations();
     }
