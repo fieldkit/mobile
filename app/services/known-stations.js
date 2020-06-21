@@ -33,7 +33,7 @@ export class Station {
 
     haveNewPhoneLocation(phone) {
         if (!this.data.connected) {
-            log.info(this.data.name, "ignoring disconnected");
+            // log.info(this.data.name, "ignoring disconnected");
             return Promise.resolve({});
         }
 

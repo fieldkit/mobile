@@ -14,13 +14,13 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            return {};
+            return state;
         },
         mutationTransformer(mutation) {
-            return mutation.type;
+            return mutation;
         },
         actionTransformer(action) {
-            return action.type;
+            return action;
         },
         logActions: true,
         logMutations: true,

@@ -114,14 +114,13 @@
                     var nextState = deepCopy(state);
 
                     if (filter(mutation, prevState, nextState)) {
-                        var formattedTime = getFormattedTime();
                         var formattedMutation = mutationTransformer(mutation);
-                        var message = "mutation " + mutation.type + formattedTime;
+                        var message = "store: mutation " + mutation.type;
 
                         startMessage(logger, message, collapsed);
-                        logger.log("%c prev state", "color: #9E9E9E; font-weight: bold", transformer(prevState));
-                        logger.log("%c mutation", "color: #03A9F4; font-weight: bold", formattedMutation);
-                        logger.log("%c next state", "color: #4CAF50; font-weight: bold", transformer(nextState));
+                        logger.log("store: prev state", transformer(prevState));
+                        logger.log("store: mutation", formattedMutation);
+                        logger.log("store: next state", transformer(nextState));
                         endMessage(logger);
                     }
 
@@ -132,12 +131,11 @@
             if (logActions) {
                 store.subscribeAction(function (action, state) {
                     if (actionFilter(action, state)) {
-                        var formattedTime = getFormattedTime();
                         var formattedAction = actionTransformer(action);
-                        var message = "action " + action.type + formattedTime;
+                        var message = "store: action " + action.type;
 
                         startMessage(logger, message, collapsed);
-                        logger.log("%c action", "color: #03A9F4; font-weight: bold", formattedAction);
+                        logger.log("store: action", formattedAction);
                         endMessage(logger);
                     }
                 });
@@ -160,22 +158,8 @@
         try {
             logger.groupEnd();
         } catch (e) {
-            logger.log("—— log end ——");
+            logger.log("store: end");
         }
-    }
-
-    function getFormattedTime() {
-        var time = new Date();
-        return (
-            " @ " +
-            pad(time.getHours(), 2) +
-            ":" +
-            pad(time.getMinutes(), 2) +
-            ":" +
-            pad(time.getSeconds(), 2) +
-            "." +
-            pad(time.getMilliseconds(), 3)
-        );
     }
 
     function repeat(str, times) {
