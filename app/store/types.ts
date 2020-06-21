@@ -3,15 +3,33 @@ export interface HasLocation {
     readonly longitude: number | null;
 }
 
-export interface Station {
-    readonly deviceId: string;
-    readonly generationId: string;
-    readonly name: string;
-    readonly batteryLevel: number | null;
-    readonly consumedMemory: number | null;
-    readonly totalMemory: number | null;
-    readonly longitude: number | null;
-    readonly latitude: number | null;
+export class Station {
+    public readonly deviceId: string;
+    public readonly generationId: string;
+    public readonly name: string;
+    public readonly batteryLevel: number | null;
+    public readonly consumedMemory: number | null;
+    public readonly totalMemory: number | null;
+    public readonly longitude: number | null;
+    public readonly latitude: number | null;
+
+    constructor(o: any) {
+        this.deviceId = o.deviceId;
+        this.generationId = o.generationId;
+        this.name = o.name;
+        this.batteryLevel = o.batteryLevel;
+        this.consumedMemory = o.consumedMemory;
+        this.totalMemory = o.totalMemory;
+        this.latitude = o.latitude;
+        this.longitude = o.longitude;
+    }
+
+    public location(): Location | null {
+        if (this.latitude && this.longitude) {
+            return new Location(this.latitude, this.longitude);
+        }
+        return null;
+    }
 }
 
 export interface StationsState {
@@ -54,17 +72,31 @@ function isConnected(nearby: NearbyStation | null): boolean {
     return lastQueried < 60;
 }
 
+export enum StationStatus {
+    Unknown,
+    Ready,
+    Recording,
+}
+
+export class Location implements HasLocation {
+    constructor(public readonly latitude: number, public readonly longitude) {}
+}
+
 export class AvailableStation {
     readonly deviceId: string;
-    readonly name: string | null;
     readonly connected: boolean;
+    readonly status: StationStatus;
+    readonly name: string | null;
+    readonly location: Location | null;
 
     constructor(deviceId: string, nearby: NearbyStation | null, station: Station | null) {
         if (!nearby && !station) {
             throw new Error(`AvailableStation invalid args`);
         }
         this.deviceId = deviceId;
-        this.name = station != null ? station.name : null;
         this.connected = isConnected(nearby);
+        this.status = StationStatus.Unknown;
+        this.name = station ? station.name : null;
+        this.location = station ? station.location() : null;
     }
 }

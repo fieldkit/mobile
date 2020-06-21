@@ -27,7 +27,7 @@ function getLocationFrom(o: HasLocation): HasLocation {
 
 function makeStationFromStatus(statusReply): Station {
     const { latitude, longitude } = getLocationFrom(statusReply.status.gps);
-    return {
+    const properties = {
         deviceId: statusReply.status.identity.deviceId,
         generationId: statusReply.status.identity.generationId,
         name: statusReply.status.identity.device,
@@ -37,6 +37,7 @@ function makeStationFromStatus(statusReply): Station {
         longitude: longitude,
         latitude: latitude,
     };
+    return new Station(properties);
 }
 
 const actions = {
@@ -45,7 +46,11 @@ const actions = {
             .db()
             .getAll()
             .then(
-                stations => commit(MutationTypes.SET, stations),
+                rows =>
+                    commit(
+                        MutationTypes.SET,
+                        rows.map(row => new Station(row))
+                    ),
                 error => commit(MutationTypes.ERROR, error)
             );
     },
@@ -58,7 +63,12 @@ const actions = {
                     state
                         .db()
                         .getAll()
-                        .then(stations => commit(MutationTypes.SET, stations)),
+                        .then(rows =>
+                            commit(
+                                MutationTypes.SET,
+                                rows.map(row => new Station(row))
+                            )
+                        ),
                 error => commit(MutationTypes.ERROR, error.message)
             );
     },
