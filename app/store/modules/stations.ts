@@ -1,7 +1,7 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationsState, GlobalState, AvailableStation, Station, HasLocation } from "../types";
+import { StationsState, GlobalState, StationCreationFields, Station, HasLocation, AvailableStation } from "../types";
 
 const getters = {
     availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): AvailableStation[] => {
@@ -12,6 +12,9 @@ const getters = {
         const deviceIds = _(nearby).keys().union(_(stations).keys().value()).uniq().value();
         return _(deviceIds)
             .map(deviceId => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
+            .sortBy(available => {
+                return [available.name];
+            })
             .value();
     },
 };
@@ -25,9 +28,14 @@ function getLocationFrom(o: HasLocation): HasLocation {
     };
 }
 
-function makeStationFromStatus(statusReply): Station {
+interface HttpStatusReply {
+    status: any;
+    serialized: string;
+}
+
+function makeStationFromStatus(statusReply: HttpStatusReply): Station {
     const { latitude, longitude } = getLocationFrom(statusReply.status.gps);
-    const properties = {
+    const fields: StationCreationFields = {
         deviceId: statusReply.status.identity.deviceId,
         generationId: statusReply.status.identity.generationId,
         name: statusReply.status.identity.device,
@@ -36,8 +44,9 @@ function makeStationFromStatus(statusReply): Station {
         totalMemory: statusReply.status.memory.dataMemoryInstalled,
         longitude: longitude,
         latitude: latitude,
+        serializedStatus: statusReply.serialized,
     };
-    return new Station(properties);
+    return new Station(fields);
 }
 
 const actions = {

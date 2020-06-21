@@ -3,6 +3,18 @@ export interface HasLocation {
     readonly longitude: number | null;
 }
 
+export interface StationCreationFields {
+    deviceId: string;
+    generationId: string;
+    name: string;
+    batteryLevel: number | null;
+    consumedMemory: number | null;
+    totalMemory: number | null;
+    longitude: number | null;
+    latitude: number | null;
+    serializedStatus: string;
+}
+
 export class Station {
     public readonly deviceId: string;
     public readonly generationId: string;
@@ -12,8 +24,9 @@ export class Station {
     public readonly totalMemory: number | null;
     public readonly longitude: number | null;
     public readonly latitude: number | null;
+    public readonly serializedStatus: string;
 
-    constructor(o: any) {
+    constructor(o: StationCreationFields) {
         this.deviceId = o.deviceId;
         this.generationId = o.generationId;
         this.name = o.name;
@@ -22,6 +35,7 @@ export class Station {
         this.totalMemory = o.totalMemory;
         this.latitude = o.latitude;
         this.longitude = o.longitude;
+        this.serializedStatus = o.serializedStatus;
     }
 
     public location(): Location | null {

@@ -343,6 +343,10 @@ export default class DatabaseInterface {
     }
 
     updateStation(station) {
+        if (!station.id) {
+            return Promise.reject(new Error(`no station id in update station`));
+        }
+
         // For the time being, need to not update the fields that are being set individually,
         // as they get overwritten with null if we do. Those include:
         // station.locationName,
@@ -356,7 +360,7 @@ export default class DatabaseInterface {
             station.connected,
             station.generationId,
             station.name,
-            station.url,
+            station.url || "", // TODO remove
             station.portalId,
             station.status,
             station.deployStartTime,
@@ -380,7 +384,7 @@ export default class DatabaseInterface {
                     values
                 )
             )
-            .then(() => {
+            .then(value => {
                 if (station.statusJson) {
                     return this._updateStreamFromStation(station, station.statusJson, Constants.MetaStreamType, 1).then(() => {
                         return this._updateStreamFromStation(station, station.statusJson, Constants.DataStreamType, 0);
@@ -479,7 +483,7 @@ export default class DatabaseInterface {
             if (id === null) {
                 return this.insertStation(station);
             }
-            return this.updateStation(station);
+            return this.updateStation(_.merge({ id: id }, station));
         });
     }
 
@@ -488,7 +492,7 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db =>
                 db.execute(
-                    `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, serialized_status, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         newStation.deviceId,
                         newStation.generationId,
@@ -504,6 +508,7 @@ export default class DatabaseInterface {
                         JSON.stringify(statusJson),
                         newStation.longitude,
                         newStation.latitude,
+                        newStation.serializedStatus,
                         new Date(),
                     ]
                 )
@@ -842,5 +847,6 @@ class Station {
         this.interval = _station.interval ? _station.interval : Math.round(Math.random() * maxInterval + minInterval);
         this.longitude = _station.longitude;
         this.latitude = _station.latitude;
+        this.serializedStatus = _station.serializedStatus;
     }
 }

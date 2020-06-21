@@ -98,6 +98,7 @@ export class MockStationReplies {
                     ],
                 },
             ],
+            serialized: "AABBCCDDEEFFGGHH",
         };
     }
 

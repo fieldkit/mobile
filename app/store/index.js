@@ -14,7 +14,21 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            return state;
+            const { nearby, stations, phone } = state;
+            return {
+                phone,
+                nearby,
+                stations: {
+                    deviceIds: _(stations.all)
+                        .keyBy(s => s.deviceId)
+                        .mapValues(s => {
+                            return {
+                                name: s.name,
+                            };
+                        })
+                        .value(),
+                },
+            };
         },
         mutationTransformer(mutation) {
             return mutation;
