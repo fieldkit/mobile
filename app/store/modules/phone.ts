@@ -1,8 +1,22 @@
-import * as ActionTypes from "../actions";
+// import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 
+interface PhoneLocation {
+    latitude: Number;
+    longitude: Number;
+}
+
+interface PhoneNetwork {
+    ssid: string;
+}
+
+interface PhoneState {
+    network: PhoneNetwork;
+    location: PhoneLocation;
+}
+
 // Twin Peaks East in Angeles National Forest
-const TwinPeaksEastLosAngelesNationlForest = {
+const TwinPeaksEastLosAngelesNationlForest: PhoneLocation = {
     latitude: 34.3318104,
     longitude: -118.0730372,
 };
@@ -12,10 +26,10 @@ const getters = {};
 const actions = {};
 
 const mutations = {
-    [MutationTypes.PHONE_LOCATION]: (state, location) => {
+    [MutationTypes.PHONE_LOCATION]: (state: PhoneState, location: PhoneLocation) => {
         state.location = location;
     },
-    [MutationTypes.PHONE_NETWORK]: (state, network) => {
+    [MutationTypes.PHONE_NETWORK]: (state: PhoneState, network: PhoneNetwork) => {
         state.network = network;
     },
 };

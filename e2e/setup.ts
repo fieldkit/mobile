@@ -1,5 +1,5 @@
 import { startServer, stopServer, ITestReporter, nsCapabilities, LogImageType } from "nativescript-dev-appium";
-const addContext = require('mochawesome/addContext');
+const addContext = require("mochawesome/addContext");
 
 const testReporterContext = <ITestReporter>{};
 testReporterContext.name = "mochawesome";
@@ -15,7 +15,9 @@ testReporterContext.logImageTypes = [LogImageType.screenshots];
 nsCapabilities.testReporter = testReporterContext;
 
 before("start server", async function () {
-    nsCapabilities.testReporter.context = this;
+    if (nsCapabilities && nsCapabilities.testReporter) {
+        nsCapabilities.testReporter.context = this;
+    }
     await startServer();
 });
 

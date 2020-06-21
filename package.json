@@ -13,6 +13,7 @@
     "repository": "<fill-your-repository-here>",
     "dependencies": {
         "@nstudio/nativescript-checkbox": "^1.0.0",
+        "@types/lodash": "^4.14.155",
         "@vue/devtools": "^5.1.1",
         "ajv": "^6.12.2",
         "axios": "^0.19.0",
@@ -53,6 +54,7 @@
         "@babel/core": "^7.5.5",
         "@babel/preset-env": "^7.5.5",
         "@types/chai": "~4.1.7",
+        "@types/jest": "^26.0.0",
         "@types/mocha": "~5.2.5",
         "@types/node": "~10.12.18",
         "babel-jest": "^26.0.1",
@@ -60,6 +62,7 @@
         "chai": "^4.2.0",
         "electron-devtools-installer": "^3.0.0",
         "jest": "^26.0.1",
+        "jest-runner-tsc": "^1.6.0",
         "mocha": "^8.0.1",
         "mocha-junit-reporter": "^2.0.0",
         "mocha-multi": "^1.1.3",
@@ -72,6 +75,7 @@
         "prettier": "^2.0.5",
         "sqlite3": "^4.2.0",
         "svgexport": "^0.4.0",
+        "ts-jest": "^26.1.0",
         "typescript": "^3.9.5",
         "vue": "^2.6.11",
         "vue-loader": "^15.9.2"
@@ -82,21 +86,5 @@
         "test": "jest",
         "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  tsc -p e2e  &&  mocha --opts ./e2e/config/mocha.opts ",
         "e2e-watch": "tsc -p e2e --watch"
-    },
-    "jest": {
-        "globals": {
-            "__ENV__": "test",
-            "TNS_ENV": "test"
-        },
-        "setupFiles": [
-            "./app/tests/setup.js"
-        ],
-        "modulePaths": [
-            "<rootDir>/app",
-            "<rootDir>/node_modules"
-        ],
-        "moduleDirectories": [
-            "node_modules"
-        ]
     }
 }

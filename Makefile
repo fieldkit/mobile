@@ -1,7 +1,7 @@
 ANDROID ?= $(HOME)/Android/Sdk/tools/bin
 APP ?= ./
 
-default: setup
+default: setup test
 
 setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 
@@ -102,7 +102,7 @@ images:
   done; \
 
 test: setup
-	jest
+	jest --silent
 
 update-third-party:
 	third-party/update.sh

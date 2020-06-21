@@ -1,4 +1,3 @@
-import storeFactory from "../store";
 import { Services } from "../services/services";
 import { MockStationReplies } from "./utilities";
 import * as ActionTypes from "../store/actions";
@@ -7,7 +6,6 @@ import * as MutationTypes from "../store/mutations";
 describe("Store", () => {
     let services;
     let mockStation;
-    let db;
     let url = "http://127.0.0.1";
     let deviceId = "device-id";
     let store;
@@ -15,9 +13,8 @@ describe("Store", () => {
     beforeEach(async () => {
         services = new Services();
         mockStation = new MockStationReplies(services);
-        db = services.Database();
         await services.CreateDb().initialize();
-        store = storeFactory();
+        store = services.Store();
 
         store.commit(MutationTypes.SERVICES, () => services);
     });
@@ -62,15 +59,7 @@ describe("Store", () => {
     describe("stations", () => {
         it("loading", () => {
             return store.dispatch(ActionTypes.LOAD).then(v => {
-                const statusReply = {
-                    status: {
-                        identity: {
-                            deviceId: "device-id",
-                            generationId: "generation-id",
-                            name: "Fake Station",
-                        },
-                    },
-                };
+                const statusReply = mockStation.newFakeStatusReply(mockStation.newFakeStation());
                 return store.dispatch(ActionTypes.REPLY, statusReply).then(() => {
                     return store.dispatch(ActionTypes.REPLY, statusReply);
                 });

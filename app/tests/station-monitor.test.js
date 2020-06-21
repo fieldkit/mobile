@@ -1,6 +1,8 @@
 import _ from "lodash";
 import Promise from "bluebird";
 import { Services } from "../services/services";
+import * as ActionTypes from "../store/actions";
+import * as MutationTypes from "../store/mutations";
 import { MockStationReplies } from "./utilities";
 import Fixtures from "./fixtures.js";
 
@@ -8,12 +10,15 @@ describe("StationMonitor", () => {
     let services;
     let stationMonitor;
     let mockStation;
+    let store;
     let db;
 
     beforeEach(async () => {
         services = new Services();
         db = services.Database();
         stationMonitor = services.StationMonitor();
+        store = services.Store();
+        store.commit(MutationTypes.SERVICES, () => services);
         await services.CreateDb().initialize();
         await stationMonitor.start();
         mockStation = new MockStationReplies(services);
@@ -37,7 +42,7 @@ describe("StationMonitor", () => {
         const stations = await db.getAll();
         expect(
             _(stations)
-                .filter((s) => s.deviceId == station.deviceId)
+                .filter(s => s.deviceId == station.deviceId)
                 .size()
         ).toEqual(1);
 
@@ -62,14 +67,14 @@ describe("StationMonitor", () => {
             port: 80,
         });
 
-        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(1);
+        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(1);
 
         await services.DiscoverStation().onLostService({
             type: "_fk._tcp",
             name: station.deviceId,
         });
 
-        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(0);
+        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(0);
     });
 
     test("discovered new station, then losing and rediscovering station", async () => {
@@ -87,14 +92,14 @@ describe("StationMonitor", () => {
             port: 80,
         });
 
-        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(1);
+        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(1);
 
         await services.DiscoverStation().onLostService({
             type: "_fk._tcp",
             name: station.deviceId,
         });
 
-        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(0);
+        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(0);
 
         mockStation.queueStatusReply(station);
         // NOTE: We need to remove this second query, leaving for now.
@@ -107,6 +112,6 @@ describe("StationMonitor", () => {
             port: 80,
         });
 
-        expect(stationMonitor.getStations().filter((s) => s.connected).length).toEqual(1);
+        expect(stationMonitor.getStations().filter(s => s.connected).length).toEqual(1);
     });
 });

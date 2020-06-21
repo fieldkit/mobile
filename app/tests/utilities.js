@@ -49,8 +49,8 @@ export class MockStationReplies {
         };
     }
 
-    queueStatusReply(station) {
-        return this.queueBody({
+    newFakeStatusReply(station) {
+        return {
             errors: [],
             type: 15,
             status: {
@@ -58,6 +58,13 @@ export class MockStationReplies {
                     device: station.name,
                     deviceId: Buffer.from(station.deviceId, "hex"),
                     generation: Buffer.from(station.generationId, "hex"),
+                },
+                power: {
+                    battery: {},
+                    solar: {},
+                },
+                memory: {
+                    dataMemoryUsed: 0,
                 },
             },
             streams: [
@@ -91,7 +98,11 @@ export class MockStationReplies {
                     ],
                 },
             ],
-        });
+        };
+    }
+
+    queueStatusReply(station) {
+        return this.queueBody(this.newFakeStatusReply(station));
     }
 
     queueResponse(response) {
