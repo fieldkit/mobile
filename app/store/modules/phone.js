@@ -15,10 +15,14 @@ const mutations = {
     [MutationTypes.PHONE_LOCATION]: (state, location) => {
         state.location = location;
     },
+    [MutationTypes.PHONE_NETWORK]: (state, network) => {
+        state.network = network;
+    },
 };
 
 const state = () => {
     return {
+        network: null,
         location: TwinPeaksEastLosAngelesNationlForest,
     };
 };

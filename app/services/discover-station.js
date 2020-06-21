@@ -5,6 +5,7 @@ import { promiseAfter } from "../utilities";
 import { EventHistory } from "./event-history";
 
 import * as ActionTypes from "../store/actions";
+import * as MutationTypes from "../store/mutations";
 
 import Config from "../config";
 
@@ -27,17 +28,14 @@ class NetworkMonitor {
         console.log("NetworkMonitor::ctor");
 
         this._services = services;
-        this._previous = null;
+        this._store = services.Store();
         this._timer = setInterval(() => {
             return services
                 .Conservify()
                 .findConnectedNetwork()
                 .then(status => {
-                    if (status.connectedWifi) {
-                        log.info("NetworkMonitor: ", status.connectedWifi.ssid);
-                    } else {
-                        log.info("NetworkMonitor: nothing");
-                        this._previous = null;
+                    if (Config.env.jacob) {
+                        this._store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi);
                     }
                 });
         }, 10000);
