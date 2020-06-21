@@ -1,8 +1,8 @@
 import Vuex from "vuex";
-import createLogger from "vuex/dist/logger";
 import { nearby } from "./modules/nearby";
 import { stations } from "./modules/stations";
 import { phone } from "./modules/phone";
+import createLogger from "./logger";
 import Config from "../config";
 
 function customizeLogger() {
