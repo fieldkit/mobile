@@ -10,3 +10,8 @@ export const SET = "SET";
 export const UPDATE = "UPDATE";
 
 export const PHONE_LOCATION = "PHONE_LOCATION";
+
+export const NAVIGATION = "NAVIGATION";
+
+export const QUERIED = "QUERIED";
+export const TRIED = "TRIED";

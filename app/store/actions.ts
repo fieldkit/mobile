@@ -8,3 +8,4 @@ export const LOST = "LOST";
 
 export const QUERY_ALL = "QUERY_ALL";
 export const QUERY_NECESSARY = "QUERY_NECESSARY";
+export const QUERY_STATION = "QUERY_STATION";

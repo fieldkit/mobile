@@ -3,33 +3,29 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 
-const QUERY_STATION = "QUERY_STATION";
-const QUERIED = "QUERIED";
-const TRIED = "TRIED";
-
 const actions = {
     [ActionTypes.FOUND]: ({ commit, dispatch, state }, info) => {
         commit(MutationTypes.FIND, info);
-        return dispatch(QUERY_STATION, info);
+        return dispatch(ActionTypes.QUERY_STATION, info);
     },
     [ActionTypes.LOST]: ({ commit, dispatch, state }, info) => {
         commit(MutationTypes.LOSE, info);
     },
-    [QUERY_STATION]: ({ commit, dispatch, state }, info) => {
-        commit(QUERIED, info);
+    [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }, info) => {
+        commit(MutationTypes.QUERIED, info);
         return state
             .queryStation()
             .getStatus(info.url)
             .then(
                 statusReply => {
-                    commit(TRIED, info);
+                    commit(MutationTypes.TRIED, info);
                     return dispatch(ActionTypes.REPLY, statusReply, { root: true });
                 },
                 error => {
                     if (error instanceof QueryThrottledError) {
                         return error;
                     }
-                    commit(TRIED, info);
+                    commit(MutationTypes.TRIED, info);
                     return Promise.reject(error);
                 }
             );
@@ -46,11 +42,11 @@ const actions = {
                     const elapsed = Number(now - lastTry);
                     return elapsed > 10;
                 })
-                .map(info => dispatch(QUERY_STATION, info))
+                .map(info => dispatch(ActionTypes.QUERY_STATION, info))
         );
     },
     [ActionTypes.QUERY_ALL]: ({ dispatch, state }) => {
-        return Promise.all(Object.values(state.addresses).map(info => dispatch(QUERY_STATION, info)));
+        return Promise.all(Object.values(state.addresses).map(info => dispatch(ActionTypes.QUERY_STATION, info)));
     },
 };
 
@@ -67,11 +63,13 @@ const mutations = {
     },
     [MutationTypes.LOSE]: (state, serviceInfo) => {
         delete state.addresses[serviceInfo.deviceId];
+        delete state.queried[serviceInfo.deviceId];
+        delete state.tried[serviceInfo.deviceId];
     },
-    [QUERIED]: (state, serviceInfo) => {
+    [MutationTypes.QUERIED]: (state, serviceInfo) => {
         state.queried[serviceInfo.deviceId] = new Date();
     },
-    [TRIED]: (state, serviceInfo) => {
+    [MutationTypes.TRIED]: (state, serviceInfo) => {
         state.tried[serviceInfo.deviceId] = new Date();
     },
 };
