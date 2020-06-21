@@ -77,15 +77,6 @@ export interface GlobalState {
     readonly stations: StationsState;
 }
 
-function isConnected(nearby: NearbyStation | null): boolean {
-    if (!nearby || !nearby.tried) {
-        return false;
-    }
-    const now = new Date();
-    const lastTried = Math.abs(now.getTime() - nearby.tried.getTime());
-    return lastTried < 60;
-}
-
 export enum StationStatus {
     Unknown,
     Ready,
@@ -96,6 +87,14 @@ export class Location implements HasLocation {
     constructor(public readonly latitude: number, public readonly longitude) {}
 }
 
+function isConnected(now: Date, nearby: NearbyStation | null): boolean {
+    if (!nearby || !nearby.tried) {
+        return false;
+    }
+    const elapsed = Math.abs(now.getTime() - nearby.tried.getTime());
+    return elapsed < 60 * 1000;
+}
+
 export class AvailableStation {
     readonly deviceId: string;
     readonly connected: boolean;
@@ -103,12 +102,12 @@ export class AvailableStation {
     readonly name: string | null;
     readonly location: Location | null;
 
-    constructor(deviceId: string, nearby: NearbyStation | null, station: Station | null) {
+    constructor(now: Date, deviceId: string, nearby: NearbyStation | null, station: Station | null) {
         if (!nearby && !station) {
             throw new Error(`AvailableStation invalid args`);
         }
         this.deviceId = deviceId;
-        this.connected = isConnected(nearby);
+        this.connected = isConnected(now, nearby);
         this.status = StationStatus.Unknown;
         this.name = station ? station.name : null;
         this.location = station ? station.location() : null;

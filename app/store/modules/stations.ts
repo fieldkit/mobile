@@ -4,14 +4,16 @@ import * as MutationTypes from "../mutations";
 import { StationsState, GlobalState, StationCreationFields, Station, HasLocation, AvailableStation } from "../types";
 
 const getters = {
-    availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): AvailableStation[] => {
+    availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): ((now: Date) => AvailableStation[]) => (
+        now: Date
+    ) => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
             .keyBy(a => a.deviceId)
             .value();
         const deviceIds = _(nearby).keys().union(_(stations).keys().value()).uniq().value();
         return _(deviceIds)
-            .map(deviceId => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
+            .map(deviceId => new AvailableStation(now, deviceId, nearby[deviceId], stations[deviceId]))
             .sortBy(available => {
                 return [available.name];
             })
