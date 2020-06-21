@@ -26,6 +26,7 @@ function customizeLogger() {
         logMutations: true,
     });
 }
+
 export default function () {
     return new Vuex.Store({
         plugins: Config.env.dev ? [customizeLogger()] : [],

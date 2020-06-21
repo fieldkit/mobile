@@ -1,21 +1,22 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
+import { StationsState, GlobalState, AvailableStation, Station, HasLocation } from "../types";
 
-interface StationsState {
-    db: any;
-    all: any[];
-    error: string | null;
-}
+const getters = {
+    availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): AvailableStation[] => {
+        const nearby = rootState.nearby.stations;
+        const stations = _(state.all)
+            .keyBy(a => a.deviceId)
+            .value();
+        const deviceIds = _(nearby).keys().union(_(stations).keys().value()).uniq().value();
+        return _(deviceIds)
+            .map(deviceId => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
+            .value();
+    },
+};
 
-interface Location {
-    latitude: number | null;
-    longitude: number | null;
-}
-
-const getters = {};
-
-function getLocationFrom(o: Location): Location {
+function getLocationFrom(o: HasLocation): HasLocation {
     const latitude = o && o.latitude && o.latitude < 90 && o.latitude > -90 ? o.latitude : null;
     const longitude = o && o.longitude && o.longitude < 180 && o.longitude > -180 ? o.longitude : null;
     return {
@@ -24,13 +25,12 @@ function getLocationFrom(o: Location): Location {
     };
 }
 
-function makeStationFromStatus(statusReply) {
+function makeStationFromStatus(statusReply): Station {
     const { latitude, longitude } = getLocationFrom(statusReply.status.gps);
     return {
         deviceId: statusReply.status.identity.deviceId,
         generationId: statusReply.status.identity.generationId,
         name: statusReply.status.identity.device,
-        serialized: statusReply.serialized,
         batteryLevel: statusReply.status.power.battery.percentage,
         consumedMemory: statusReply.status.memory.dataMemoryUsed,
         totalMemory: statusReply.status.memory.dataMemoryInstalled,
@@ -70,18 +70,18 @@ const mutations = {
             return services().Database();
         };
     },
-    [MutationTypes.SET]: (state: StationsState, stations) => {
+    [MutationTypes.SET]: (state: StationsState, stations: Station[]) => {
         state.all = _.cloneDeep(stations);
-        state.error = null;
+        state.error = false;
     },
     [MutationTypes.ERROR]: (state: StationsState, error: string) => {
         state.error = error;
     },
 };
 
-const state = () => {
+const state = (): StationsState => {
     return {
-        db: null,
+        db: () => new Error(),
         error: false,
         all: [],
     };

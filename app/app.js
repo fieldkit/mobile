@@ -16,6 +16,7 @@ import registerLifecycleEvents from "./services/lifecycle";
 
 import Services from "./services/services";
 import * as MutationTypes from "./store/mutations";
+import * as ActionTypes from "./store/actions";
 import ApplicationWrapper from "./components/ApplicationWrapper";
 import Config, { Build } from "./config";
 
@@ -38,13 +39,16 @@ function initializeApplication(services) {
                 .then(db => services.Database().checkConfig())
                 .then(() => {
                     Services.Store().commit(MutationTypes.SERVICES, () => Services);
-
-                    return Promise.all([
-                        services.StateManager().start(),
-                        services.StationMonitor().start(),
-                        services.PortalUpdater().start(),
-                        services.OnlineStatus().start(),
-                    ]);
+                    return Services.Store()
+                        .dispatch(ActionTypes.LOAD)
+                        .then(() => {
+                            return Promise.all([
+                                services.StateManager().start(),
+                                services.StationMonitor().start(),
+                                services.PortalUpdater().start(),
+                                services.OnlineStatus().start(),
+                            ]);
+                        });
                 })
                 .catch(err => {
                     console.log("error", err.message);

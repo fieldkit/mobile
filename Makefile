@@ -104,5 +104,8 @@ images:
 test: setup
 	jest --silent
 
+watch: setup
+	jest --silent --watch
+
 update-third-party:
 	third-party/update.sh

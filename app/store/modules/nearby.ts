@@ -2,18 +2,7 @@ import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-
-interface NearbyState {
-    queryStation: any;
-    addresses: any;
-    queried: any;
-    tried: any;
-}
-
-interface ServiceInfo {
-    deviceId: string;
-    url: string;
-}
+import { ServiceInfo, NearbyState, NearbyStation } from "../types";
 
 const actions = {
     [ActionTypes.FOUND]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }, info: ServiceInfo) => {
@@ -44,25 +33,28 @@ const actions = {
     },
     [ActionTypes.QUERY_NECESSARY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }) => {
         return Promise.all(
-            Object.values(state.addresses)
-                .filter((info: ServiceInfo) => {
-                    const lastTry = state.tried[info.deviceId];
-                    if (!lastTry) {
+            Object.values(state.stations)
+                .filter((station: NearbyStation) => {
+                    if (!station.tried) {
                         return true;
                     }
                     const now = new Date();
-                    const elapsed = now.getTime() - lastTry.getTime();
+                    const elapsed = now.getTime() - station.tried.getTime();
                     return elapsed > 10;
                 })
-                .map((info: ServiceInfo) => dispatch(ActionTypes.QUERY_STATION, info))
+                .map((station: NearbyStation) => dispatch(ActionTypes.QUERY_STATION, station.info))
         );
     },
     [ActionTypes.QUERY_ALL]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }) => {
-        return Promise.all(Object.values(state.addresses).map(info => dispatch(ActionTypes.QUERY_STATION, info)));
+        return Promise.all(Object.values(state.stations).map(station => dispatch(ActionTypes.QUERY_STATION, station.info)));
     },
 };
 
-const getters = {};
+const getters = {
+    nearbyStations: (): NearbyStation[] => {
+        return [];
+    },
+};
 
 const mutations = {
     [MutationTypes.SERVICES]: (state: NearbyState, services: any) => {
@@ -70,28 +62,24 @@ const mutations = {
             return services().QueryStation();
         };
     },
-    [MutationTypes.FIND]: (state: NearbyState, serviceInfo: ServiceInfo) => {
-        state.addresses[serviceInfo.deviceId] = _.extend({}, serviceInfo, { added: new Date() });
+    [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
+        state.stations[info.deviceId] = new NearbyStation(info);
     },
-    [MutationTypes.LOSE]: (state: NearbyState, serviceInfo: ServiceInfo) => {
-        delete state.addresses[serviceInfo.deviceId];
-        delete state.queried[serviceInfo.deviceId];
-        delete state.tried[serviceInfo.deviceId];
+    [MutationTypes.LOSE]: (state: NearbyState, info: ServiceInfo) => {
+        delete state.stations[info.deviceId];
     },
-    [MutationTypes.QUERIED]: (state: NearbyState, serviceInfo: ServiceInfo) => {
-        state.queried[serviceInfo.deviceId] = new Date();
+    [MutationTypes.QUERIED]: (state: NearbyState, info: ServiceInfo) => {
+        state.stations[info.deviceId].queried = new Date();
     },
-    [MutationTypes.TRIED]: (state: NearbyState, serviceInfo: ServiceInfo) => {
-        state.tried[serviceInfo.deviceId] = new Date();
+    [MutationTypes.TRIED]: (state: NearbyState, info: ServiceInfo) => {
+        state.stations[info.deviceId].tried = new Date();
     },
 };
 
-const state = () => {
+const state = (): NearbyState => {
     return {
-        queryStation: null,
-        addresses: {},
-        queried: {},
-        tried: {},
+        queryStation: () => new Error(),
+        stations: {},
     };
 };
 
