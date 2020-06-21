@@ -3,18 +3,15 @@ import moment from "moment";
 import Promise from "bluebird";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
-const isObject = function(o) {
+const isObject = function (o) {
     return o === Object(o) && !isArray(o) && typeof o !== "function";
 };
-const isArray = function(a) {
+const isArray = function (a) {
     return Array.isArray(a);
 };
 const toCamel = s => {
     return s.replace(/([-_][a-z])/gi, $1 => {
-        return $1
-            .toUpperCase()
-            .replace("-", "")
-            .replace("_", "");
+        return $1.toUpperCase().replace("-", "").replace("_", "");
     });
 };
 export function keysToCamel(o) {
@@ -41,9 +38,7 @@ export function sqliteToJs(o) {
 }
 
 export function getPathTimestamp() {
-    return moment()
-        .utc()
-        .format("YYYYMMDD_hhmmss");
+    return moment().utc().format("YYYYMMDD_hhmmss");
 }
 
 export function serializePromiseChain(all, fn) {

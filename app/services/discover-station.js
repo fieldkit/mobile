@@ -4,6 +4,8 @@ import { every } from "./rx";
 import { promiseAfter } from "../utilities";
 import { EventHistory } from "./event-history";
 
+import * as ActionTypes from "../store/actions";
+
 import Config from "../config";
 
 const log = Config.logger("DiscoverStation");
@@ -13,6 +15,7 @@ class Station {
         this.scheme = "http";
         this.type = info.type;
         this.name = info.name;
+        this.deviceId = info.name;
         this.host = info.host;
         this.port = info.port;
         this.url = this.scheme + "://" + this.host + ":" + this.port + "/fk/v1";
@@ -82,10 +85,13 @@ export default class DiscoverStation extends BetterObservable {
     constructor(services) {
         super();
         this._services = services;
+        this._store = services.Store();
+        this._conservify = services.Conservify();
         this._stations = {};
         this._networkMonitor = null;
         this._history = new EventHistory(this._services.Database());
         this._pending = {};
+        this._networkMonitor = new NetworkMonitor(this._services);
 
         this.StationFoundProperty = "stationFound";
         this.StationLostProperty = "stationLost";
@@ -120,13 +126,6 @@ export default class DiscoverStation extends BetterObservable {
         });
     }
 
-    _watchWiFiNetworks() {
-        if (this._networkMonitor != null) {
-            return;
-        }
-        this._networkMonitor = new NetworkMonitor(this._services);
-    }
-
     subscribeAll(receiver) {
         this.on(BetterObservable.propertyChangeEvent, data => {
             return receiver(data);
@@ -140,12 +139,11 @@ export default class DiscoverStation extends BetterObservable {
     }
 
     _watchZeroconfAndMdns() {
-        return this._services.Conservify().start("_fk._tcp");
+        return this._conservify.start("_fk._tcp");
     }
 
     startServiceDiscovery() {
         this._watchFakePreconfiguredDiscoveries();
-        this._watchWiFiNetworks();
         this._watchZeroconfAndMdns();
     }
 
@@ -168,9 +166,17 @@ export default class DiscoverStation extends BetterObservable {
         this._stations[key] = station;
 
         // save the event in our history before we notify the rest of the application.
-        return this._history.onFoundStation(info).then(() => {
-            return this.notifyPropertyChange(this.StationFoundProperty, station);
-        });
+        return this._history
+            .onFoundStation(info)
+            .then(() => {
+                if (Config.env.dev) {
+                    return this._store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
+                }
+                return true;
+            })
+            .then(() => {
+                return this.notifyPropertyChange(this.StationFoundProperty, station);
+            });
     }
 
     onLostService(info) {
@@ -189,20 +195,28 @@ export default class DiscoverStation extends BetterObservable {
             delete this._pending[key];
 
             // save the event in our history before we notify the rest of the application.
-            return this._history.onLostStation(info).then(() => {
-                const station = this._stations[key];
-                if (!station) {
-                    log.info("ignoring station, never seen before", key);
-                    return Promise.resolve();
-                }
+            return this._history
+                .onLostStation(info)
+                .then(() => {
+                    if (Config.env.dev) {
+                        return this._store.dispatch(ActionTypes.LOST, { deviceId: info.name });
+                    }
+                    return true;
+                })
+                .then(() => {
+                    const station = this._stations[key];
+                    if (!station) {
+                        log.info("ignoring station, never seen before", key);
+                        return Promise.resolve();
+                    }
 
-                log.info("notify station lost", key);
+                    log.info("notify station lost", key);
 
-                const pending = this.notifyPropertyChange(this.StationLostProperty, station);
-                // don't delete until after it has gone out with notification
-                delete this._stations[key];
-                return pending;
-            });
+                    const pending = this.notifyPropertyChange(this.StationLostProperty, station);
+                    // don't delete until after it has gone out with notification
+                    delete this._stations[key];
+                    return pending;
+                });
         }));
     }
 

@@ -15,6 +15,10 @@ export default class DatabaseInterface {
         this.services = services;
     }
 
+    toJSON() {
+        return "<DB>";
+    }
+
     checkConfig() {
         return this.getConfig().then(result => {
             if (result.length == 0) {
@@ -377,9 +381,12 @@ export default class DatabaseInterface {
                 )
             )
             .then(() => {
-                return this._updateStreamFromStation(station, station.statusJson, Constants.MetaStreamType, 1).then(() => {
-                    return this._updateStreamFromStation(station, station.statusJson, Constants.DataStreamType, 0);
-                });
+                if (station.statusJson) {
+                    return this._updateStreamFromStation(station, station.statusJson, Constants.MetaStreamType, 1).then(() => {
+                        return this._updateStreamFromStation(station, station.statusJson, Constants.DataStreamType, 0);
+                    });
+                }
+                return Promise.resolve();
             });
     }
 
@@ -465,6 +472,15 @@ export default class DatabaseInterface {
                 ])
             )
             .catch(err => Promise.reject(new Error(`error inserting module: ${err}`)));
+    }
+
+    addOrUpdateStation(station) {
+        return this.getStationIdByDeviceId(station.deviceId).then(id => {
+            if (id === null) {
+                return this.insertStation(station);
+            }
+            return this.updateStation(station);
+        });
     }
 
     insertStation(station, statusJson) {
@@ -779,6 +795,20 @@ export default class DatabaseInterface {
             .then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", [deviceId]))
             .then(rows => {
                 return JSON.parse(rows[0].status_json);
+            });
+    }
+
+    getStationIdByDeviceId(deviceId) {
+        if (!deviceId) {
+            return Promise.reject(new Error(`invalid device id`));
+        }
+        return this.getDatabase()
+            .then(db => db.query("SELECT id FROM stations WHERE device_id = ?", [deviceId]))
+            .then(rows => {
+                if (rows.length != 1) {
+                    return null;
+                }
+                return rows[0].id;
             });
     }
 

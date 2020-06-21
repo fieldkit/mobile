@@ -15,7 +15,7 @@ import initializeLogging from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
 
 import Services from "./services/services";
-import storeFactory from "./store";
+import * as MutationTypes from "./store/mutations";
 import ApplicationWrapper from "./components/ApplicationWrapper";
 import Config, { Build } from "./config";
 
@@ -37,6 +37,8 @@ function initializeApplication(services) {
                 .initialize()
                 .then(db => services.Database().checkConfig())
                 .then(() => {
+                    Services.Store().commit(MutationTypes.SERVICES, () => Services);
+
                     return Promise.all([
                         services.StateManager().start(),
                         services.StationMonitor().start(),
@@ -90,7 +92,7 @@ function configureVueJs() {
 function startVueJs() {
     configureVueJs();
 
-    const store = storeFactory();
+    const store = Services.Store();
 
     new Vue({
         store,

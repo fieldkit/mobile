@@ -9,12 +9,12 @@ const mutations = {};
 
 const state = () => {
     return {
-        stations: [],
+        addresses: [],
     };
 };
 
-export const stations = {
-    namespaced: true,
+export const phone = {
+    namespaced: false,
     state,
     getters,
     actions,

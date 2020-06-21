@@ -1,4 +1,5 @@
 import Config from "../config";
+import storeFactory from "../store";
 
 class DiscoveryEvents {
     constructor() {
@@ -25,6 +26,12 @@ class DiscoveryEvents {
 }
 
 export class Services {
+    Store() {
+        if (!this.store) {
+            this.store = storeFactory();
+        }
+        return this.store;
+    }
     DiscoverStation() {
         if (!this.discoverStation) {
             const DiscoverStation = require("./discover-station").default;
