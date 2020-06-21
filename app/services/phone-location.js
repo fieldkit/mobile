@@ -3,6 +3,8 @@ import { Accuracy } from "tns-core-modules/ui/enums";
 import { GeoLocation } from "../wrappers/geolocation";
 import { promiseAfter } from "../utilities";
 import { Coordinates } from "./known-stations";
+import * as MutationTypes from "../store/mutations";
+import * as ActionTypes from "../store/actions";
 import Config from "../config";
 
 const log = Config.logger("PhoneLocation");
@@ -14,13 +16,14 @@ const defaultLocation = {
 };
 
 export default class PhoneLocation extends BetterObservable {
-    constructor() {
+    constructor(store) {
         super();
-        this.geolocation = new GeoLocation();
+        this._store = store;
+        this._geolocation = new GeoLocation();
     }
 
     enableAndGetLocation() {
-        return this.geolocation
+        return this._geolocation
             .isEnabled()
             .then(isEnabled => {
                 if (isEnabled) {
@@ -29,44 +32,54 @@ export default class PhoneLocation extends BetterObservable {
 
                     return this.getLocation();
                 } else {
-                    return this.geolocation.enableLocationRequest().then(
+                    return this._geolocation.enableLocationRequest().then(
                         v => this.getLocation(),
                         e => new Coordinates(defaultLocation)
                     );
                 }
             })
             .then(location => {
+                if (Config.env.jacob) {
+                    this._store.commit(MutationTypes.PHONE_LOCATION, location);
+                }
+
                 this._keepLocationUpdated();
                 return location;
             });
     }
 
     _keepLocationUpdated() {
-        this.geolocation
+        return this._geolocation
             .isEnabled()
             .then(enabled => {
                 if (enabled) {
-                    return this.getLocation().then(location => {
-                        return this.publish(location);
-                    });
+                    return this.getLocation()
+                        .then(location => {
+                            if (Config.env.jacob) {
+                                return Promise.resolve(this._store.commit(MutationTypes.PHONE_LOCATION, location)).then(() => {
+                                    return location;
+                                });
+                            }
+                            return location;
+                        })
+                        .then(location => {
+                            return this.publish(location);
+                        });
                 }
                 return Promise.resolve(defaultLocation);
             })
             .then(l => {
                 promiseAfter(10000).then(() => {
-                    log.info("check location");
                     return this._keepLocationUpdated();
                 });
 
                 return l;
             });
-
-        return true;
     }
 
     test(name, params) {
         const started = new Date();
-        return this.geolocation.getCurrentLocation(params).then(
+        return this._geolocation.getCurrentLocation(params).then(
             loc => {
                 const done = new Date();
                 const elapsed = done - started;
@@ -119,7 +132,7 @@ export default class PhoneLocation extends BetterObservable {
     }
 
     getLocation() {
-        return this.geolocation
+        return this._geolocation
             .getCurrentLocation({
                 desiredAccuracy: Accuracy.high,
                 updateDistance: 10,

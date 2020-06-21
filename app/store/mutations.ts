@@ -8,3 +8,5 @@ export const INITIALIZE = "INITIALIZE";
 export const CONFIGURE = "CONFIGURE";
 export const SET = "SET";
 export const UPDATE = "UPDATE";
+
+export const PHONE_LOCATION = "PHONE_LOCATION";

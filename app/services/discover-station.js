@@ -169,7 +169,7 @@ export default class DiscoverStation extends BetterObservable {
         return this._history
             .onFoundStation(info)
             .then(() => {
-                if (Config.env.dev) {
+                if (Config.env.jacob) {
                     return this._store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
                 }
                 return true;
@@ -198,7 +198,7 @@ export default class DiscoverStation extends BetterObservable {
             return this._history
                 .onLostStation(info)
                 .then(() => {
-                    if (Config.env.dev) {
+                    if (Config.env.jacob) {
                         return this._store.dispatch(ActionTypes.LOST, { deviceId: info.name });
                     }
                     return true;

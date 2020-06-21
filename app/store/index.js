@@ -6,7 +6,25 @@ import { phone } from "./modules/phone";
 import Config from "../config";
 
 function customizeLogger() {
-    return createLogger();
+    return createLogger({
+        filter(mutation, stateBefore, stateAfter) {
+            return true;
+        },
+        actionFilter(action, state) {
+            return true;
+        },
+        transformer(state) {
+            return {};
+        },
+        mutationTransformer(mutation) {
+            return mutation.type;
+        },
+        actionTransformer(action) {
+            return action.type;
+        },
+        logActions: true,
+        logMutations: true,
+    });
 }
 export default function () {
     return new Vuex.Store({

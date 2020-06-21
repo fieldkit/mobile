@@ -65,8 +65,6 @@ export default class StationMonitor extends BetterObservable {
     }
 
     savePhoneLocation(location) {
-        log.info("new phone location", location);
-
         this.phone.location = new Coordinates(location);
 
         return Promise.all(
