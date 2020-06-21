@@ -13,6 +13,13 @@ export class StationQueryError extends Error {
     }
 }
 
+export class QueryThrottledError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "QueryThrottledError";
+    }
+}
+
 export class HttpError extends Error {
     constructor(message, response) {
         super(message);

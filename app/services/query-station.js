@@ -3,7 +3,7 @@ import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
 import { unixNow, promiseAfter } from "../utilities";
 import { EventHistory } from "./event-history";
-import { StationQueryError, HttpError } from "../lib/errors";
+import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors";
 import Config from "../config";
 
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
@@ -291,7 +291,7 @@ export default class QueryStation {
     _trackActivity(url, factory) {
         const stationKey = this._urlToStationKey(url);
         if (this._openQueries[stationKey] === true) {
-            return Promise.reject(new StationQueryError("throttled"));
+            return Promise.reject(new QueryThrottledError("throttled"));
         }
         this._openQueries[stationKey] = true;
         this._lastQueryTried[stationKey] = new Date();
