@@ -21,8 +21,6 @@ import routes from "./routes";
 import Config, { Build } from "./config";
 
 function initializeApplication(services) {
-    Vue.prototype.$stationMonitor = services.StationMonitor();
-    Vue.prototype.$portalInterface = services.PortalInterface();
     return services
         .CreateDb()
         .initialize()
@@ -41,7 +39,7 @@ function initializeApplication(services) {
         });
 }
 
-function configureVueJs() {
+function configureVueJs(services) {
     Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
 
     Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
@@ -71,6 +69,9 @@ function configureVueJs() {
     if (Config.vue.verbose) {
         Vue.config.silent = false;
     }
+
+    Vue.prototype.$stationMonitor = services.StationMonitor();
+    Vue.prototype.$portalInterface = services.PortalInterface();
 }
 
 function getFirstRoute() {
@@ -83,8 +84,8 @@ function getFirstRoute() {
     return routes.login;
 }
 
-function startVueJs() {
-    configureVueJs();
+function startVueJs(services) {
+    configureVueJs(services);
 
     new Vue({
         render: h =>
@@ -135,7 +136,7 @@ console.log("starting: build", Build);
 
 // Startup VueJS and install hooks so we can show UI as soon as
 // possible, especially if something goes wrong.
-startVueJs();
+startVueJs(Services);
 registerLifecycleEvents();
 
 // For some very irritating reason we can't chain this as part of
