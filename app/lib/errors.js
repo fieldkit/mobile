@@ -13,6 +13,13 @@ export class StationQueryError extends Error {
     }
 }
 
+export class BusyError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "BusyError";
+    }
+}
+
 export class QueryThrottledError extends Error {
     constructor(message) {
         super(message);
