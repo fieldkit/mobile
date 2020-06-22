@@ -441,7 +441,7 @@ export default {
             this.currentNote = {
                 field: "additional",
                 value: "",
-                title: "Field Note",
+                title: "",
                 instruction: _L("additionalNoteInstruction"),
                 audioFile: "",
             };
@@ -459,7 +459,7 @@ export default {
                 stationId: this.station.id,
                 generationId: this.station.generationId,
                 note: note.value,
-                title: note.title,
+                title: note.title ? note.title : "Field Note",
                 category: note.field,
                 audioFile: note.audioFile,
                 author: this.userName,
@@ -469,7 +469,7 @@ export default {
                     fieldNoteId: id,
                     field: note.field,
                     value: note.value,
-                    title: note.title,
+                    title: newNote.title,
                     instruction: _L("additionalNoteInstruction"),
                     audioFile: note.audioFile,
                 });
