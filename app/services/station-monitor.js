@@ -34,6 +34,15 @@ export default class StationMonitor extends BetterObservable {
     }
 
     start() {
+        // Get the phone's location right away and then subscribe to
+        // any updates to the phone's location and pass them over to
+        // update any stations that may need updating.
+        this.phoneLocation
+            .enableAndGetLocation()
+            .then(location => this.savePhoneLocation(location))
+            .then(() => this.phoneLocation.subscribe(location => this.savePhoneLocation(location)))
+            .done();
+
         return Promise.all([
             // temporary method to clear out modules with no device ids (is this still necessary?)
             this.dbInterface
@@ -41,13 +50,6 @@ export default class StationMonitor extends BetterObservable {
                 .then(() => this.dbInterface.getAll().then(stations => this.initializeStations(stations))),
             // start getting updates about which stations are nearby.
             this.subscribeToStationDiscovery(),
-            // Get the phone's location right away and then subscribe to
-            // any updates to the phone's location and pass them over to
-            // update any stations that may need updating.
-            this.phoneLocation
-                .enableAndGetLocation()
-                .then(location => this.savePhoneLocation(location))
-                .then(() => this.phoneLocation.subscribe(location => this.savePhoneLocation(location))),
         ]);
     }
 
