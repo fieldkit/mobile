@@ -99,12 +99,15 @@ describe("Store", () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
 
-            expect.assertions(1);
+            expect.assertions(3);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
             await store.dispatch(ActionTypes.FOUND, info);
+
             expect(mockStation.mock.calls.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
         });
 
         it("should query skip previously queried", async () => {
@@ -142,12 +145,19 @@ describe("Store", () => {
 
     describe("stations", () => {
         it("loading", async () => {
-            expect.assertions(1);
+            const station = mockStation.newFakeStation();
+            mockStation.queueStatusReply(station);
+
+            expect.assertions(3);
+
+            const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
             await store.dispatch(ActionTypes.LOAD);
-            const statusReply = mockStation.newFakeStatusReply(mockStation.newFakeStation());
-            await store.dispatch(ActionTypes.REPLY, statusReply);
-            expect(true).toBe(true);
+            await store.dispatch(ActionTypes.QUERY_STATION, info);
+
+            expect(store.state.stations.all.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
         });
     });
 });

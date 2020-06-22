@@ -365,14 +365,17 @@ export default class QueryStation {
         if (reply.errors && reply.errors.length > 0) {
             return reply;
         }
+
         // NOTE deepmerge ruins deviceId.
         if (reply.status && reply.status.identity) {
             reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
             reply.status.identity.generationId = new Buffer.from(reply.status.identity.generation).toString("hex");
+            reply.status.identity.generation = null;
         }
         if (reply.modules && Array.isArray(reply.modules)) {
             reply.modules.map(m => {
                 m.deviceId = new Buffer.from(m.id).toString("hex");
+                m.id = null;
             });
         }
         if (reply.streams && reply.streams.length > 0) {

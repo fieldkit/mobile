@@ -66,6 +66,9 @@ export class MockStationReplies {
                 memory: {
                     dataMemoryUsed: 0,
                 },
+                recording: {
+                    startedTime: 0,
+                },
             },
             streams: [
                 {

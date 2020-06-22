@@ -1,7 +1,7 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationsState, GlobalState, StationCreationFields, Station, HasLocation, AvailableStation } from "../types";
+import { StationsState, GlobalState, StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor } from "../types";
 
 const getters = {
     availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): ((now: Date) => AvailableStation[]) => (
@@ -32,12 +32,51 @@ function getLocationFrom(o: HasLocation): HasLocation {
 
 interface HttpStatusReply {
     status: any;
+    modules: any;
     serialized: string;
 }
 
+interface StationTableRow extends StationCreationFields {
+    id: number;
+}
+
+interface ModuleTableRow {
+    id: number;
+    name: string;
+    moduleId: string;
+    stationId: number | null;
+}
+
+interface SensorTableRow {
+    id: number;
+    name: string;
+    unit: string;
+    currentReading: number | null;
+    moduleId: number | null;
+}
+
 function makeStationFromStatus(statusReply: HttpStatusReply): Station {
+    if (!statusReply.status.identity.deviceId || !_.isString(statusReply.status.identity.deviceId)) {
+        console.log("malformed status", statusReply);
+        throw new Error(`station missing deviceId`);
+    }
+    if (!statusReply.status.identity.generationId || !_.isString(statusReply.status.identity.generationId)) {
+        console.log("malformed status", statusReply);
+        throw new Error(`station missing generation`);
+    }
+
     const { latitude, longitude } = getLocationFrom(statusReply.status.gps);
+    const deployStartTime = statusReply.status.recording.startedTime ? new Date(statusReply.status.recording.startedTime * 1000) : null;
+    const modules = _(statusReply.modules)
+        .map(moduleReply => {
+            const sensors = _(moduleReply.sensors)
+                .map(sensorReply => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null))
+                .value();
+            return new Module(null, moduleReply.name, moduleReply.deviceId, sensors);
+        })
+        .value();
     const fields: StationCreationFields = {
+        id: null,
         deviceId: statusReply.status.identity.deviceId,
         generationId: statusReply.status.identity.generationId,
         name: statusReply.status.identity.device,
@@ -46,41 +85,61 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
         totalMemory: statusReply.status.memory.dataMemoryInstalled,
         longitude: longitude,
         latitude: latitude,
+        deployStartTime: deployStartTime,
         serializedStatus: statusReply.serialized,
     };
-    return new Station(fields);
+    return new Station(fields, modules);
+}
+
+function loadStationsFromDatabase(db) {
+    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll()])
+        .then((values: any[]) => {
+            const stations: StationTableRow[] = values[0];
+            const modules: ModuleTableRow[] = values[1];
+            const sensors: SensorTableRow[] = values[2];
+            return {
+                stations,
+                modules: _(modules)
+                    .groupBy(m => m.stationId)
+                    .value(),
+                sensors: _(sensors)
+                    .groupBy(m => m.moduleId)
+                    .value(),
+            };
+        })
+        .then(tables => {
+            return _(tables.stations)
+                .map(stationRow => {
+                    const moduleRows = tables.modules[stationRow.id] || [];
+                    const modules = _(moduleRows)
+                        .map(moduleRow => {
+                            const sensorRows = tables.sensors[moduleRow.id] || [];
+                            const sensors = _(sensorRows)
+                                .map(sensorRow => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading))
+                                .value();
+                            return new Module(moduleRow.id, moduleRow.name, moduleRow.moduleId, sensors);
+                        })
+                        .value();
+                    return new Station(stationRow, modules);
+                })
+                .value();
+        });
 }
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
-        return state
-            .db()
-            .getAll()
-            .then(
-                rows =>
-                    commit(
-                        MutationTypes.SET,
-                        rows.map(row => new Station(row))
-                    ),
-                error => commit(MutationTypes.ERROR, error)
-            );
+        return loadStationsFromDatabase(state.db()).then(
+            stations => commit(MutationTypes.SET, stations)
+            // error => commit(MutationTypes.ERROR, error)
+        );
     },
     [ActionTypes.REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
         return state
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))
             .then(
-                station =>
-                    state
-                        .db()
-                        .getAll()
-                        .then(rows =>
-                            commit(
-                                MutationTypes.SET,
-                                rows.map(row => new Station(row))
-                            )
-                        ),
-                error => commit(MutationTypes.ERROR, error.message)
+                station => dispatch(ActionTypes.LOAD)
+                // error => commit(MutationTypes.ERROR, error.message)
             );
     },
 };

@@ -70,10 +70,14 @@ const mutations = {
         delete state.stations[info.deviceId];
     },
     [MutationTypes.QUERIED]: (state: NearbyState, info: ServiceInfo) => {
-        state.stations[info.deviceId].queried = new Date();
+        if (state.stations[info.deviceId]) {
+            state.stations[info.deviceId].queried = new Date();
+        }
     },
     [MutationTypes.TRIED]: (state: NearbyState, info: ServiceInfo) => {
-        state.stations[info.deviceId].tried = new Date();
+        if (state.stations[info.deviceId]) {
+            state.stations[info.deviceId].tried = new Date();
+        }
     },
 };
 

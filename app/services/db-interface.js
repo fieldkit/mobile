@@ -63,6 +63,18 @@ export default class DatabaseInterface {
             .catch(err => Promise.reject(new Error(`error fetching stations: ${err}`)));
     }
 
+    getModuleAll() {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM modules ORDER BY station_id"))
+            .then(rows => sqliteToJs(rows));
+    }
+
+    getSensorAll() {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM sensors ORDER BY module_id"))
+            .then(rows => sqliteToJs(rows));
+    }
+
     getStation(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM stations WHERE id = ?", [stationId]))
@@ -447,51 +459,114 @@ export default class DatabaseInterface {
     }
 
     insertSensor(sensor) {
-        return this.getDatabase()
-            .then(db => {
-                return this._getModulePrimaryKey(sensor.moduleId).then(modulePrimaryKey => {
-                    return db.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
+        return this.getDatabase().then(db =>
+            this._getModulePrimaryKey(sensor.moduleId).then(modulePrimaryKey =>
+                db
+                    .execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
                         modulePrimaryKey,
                         sensor.name,
                         sensor.unitOfMeasure,
                         sensor.frequency,
                         sensor.currentReading,
-                    ]);
-                });
-            })
-            .catch(err => Promise.reject(new Error(`error inserting sensor: ${err}`)));
+                    ])
+                    .catch(err => Promise.reject(new Error(`error inserting sensor: ${err}`)))
+            )
+        );
     }
 
     insertModule(module) {
         // Note: device_id is the module's unique hardware id (not the station's)
-        return this.getDatabase()
-            .then(db =>
-                db.execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
-                    module.moduleId,
-                    module.deviceId,
+        return this.getDatabase().then(db =>
+            db
+                .execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
+                    module.moduleId || module.deviceId,
+                    module.deviceId || module.moduleId,
                     module.name,
                     module.interval || 0,
                     module.position,
                     module.stationId,
                 ])
-            )
-            .catch(err => Promise.reject(new Error(`error inserting module: ${err}`)));
+                .catch(err => Promise.reject(new Error(`error inserting module: ${err}`)))
+        );
+    }
+
+    _synchronizeSensors(db, moduleId, module, sensorRows) {
+        // TODO: include position?
+        const incoming = _.keyBy(module.sensors, s => s.name);
+        const existing = _.keyBy(sensorRows, s => s.name);
+        const adding = _.difference(_.keys(incoming), _.keys(existing));
+        const removed = _.difference(_.keys(existing), _.keys(incoming));
+        const keeping = _.intersection(_.keys(existing), _.keys(incoming));
+
+        log.verbose("synchronize sensors", adding, removed, keeping);
+
+        return Promise.all(
+            _(adding)
+                .map(name => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
+                .value()
+        ).then(() => {
+            return Promise.all(_(removed).map(name => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id])));
+        });
+    }
+
+    _synchronizeModules(db, stationId, station, moduleRows) {
+        const incoming = _.keyBy(station.modules, m => m.moduleId);
+        const existing = _.keyBy(moduleRows, m => m.moduleId || m.deviceId);
+        const adding = _.difference(_.keys(incoming), _.keys(existing));
+        const removed = _.difference(_.keys(existing), _.keys(incoming));
+        const keeping = _.intersection(_.keys(existing), _.keys(incoming));
+
+        log.verbose("synchronize modules", stationId, adding, removed, keeping);
+
+        return Promise.all(
+            _(adding)
+                .map(moduleId =>
+                    this.insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
+                        this._synchronizeSensors(db, moduleId, incoming[moduleId], [])
+                    )
+                )
+                .value()
+        ).then(() => {
+            return Promise.all(
+                _(removed).map(moduleId =>
+                    db.query("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id]).then(() => {
+                        db.query("DELETE FROM modules WHERE id = ?", [existing[moduleId].id]);
+                    })
+                )
+            );
+        });
     }
 
     addOrUpdateStation(station) {
-        return this.getStationIdByDeviceId(station.deviceId).then(id => {
-            if (id === null) {
-                return this.insertStation(station);
-            }
-            return this.updateStation(_.merge({ id: id }, station));
+        return this.getDatabase().then(db => {
+            return this.getStationIdByDeviceId(station.deviceId)
+                .then(id => {
+                    if (id === null) {
+                        return this.insertStation(station);
+                    }
+                    return this.updateStation(_.merge({}, station, { id: id }));
+                })
+                .then(() => this.getStationIdByDeviceId(station.deviceId))
+                .then(stationId => {
+                    return Promise.all([
+                        db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]).then(r => sqliteToJs(r)),
+                        db
+                            .query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId])
+                            .then(r => sqliteToJs(r)),
+                    ]).then(all => {
+                        const moduleRows = all[0];
+                        const sensorRows = all[1];
+                        return this._synchronizeModules(db, stationId, station, moduleRows);
+                    });
+                });
         });
     }
 
     insertStation(station, statusJson) {
         const newStation = new Station(station);
-        return this.getDatabase()
-            .then(db =>
-                db.execute(
+        return this.getDatabase().then(db =>
+            db
+                .execute(
                     `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, serialized_status, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         newStation.deviceId,
@@ -512,8 +587,8 @@ export default class DatabaseInterface {
                         new Date(),
                     ]
                 )
-            )
-            .catch(err => Promise.reject(new Error(`error inserting station: ${err}`)));
+                .catch(err => Promise.reject(new Error(`error inserting station: ${err}`)))
+        );
     }
 
     insertConfig(config) {

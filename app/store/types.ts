@@ -3,7 +3,26 @@ export interface HasLocation {
     readonly longitude: number | null;
 }
 
+export class Sensor {
+    constructor(
+        public readonly id: number | null,
+        public readonly name: string,
+        public readonly unitOfMeasure: string,
+        public readonly value: number | null
+    ) {}
+}
+
+export class Module {
+    constructor(
+        public readonly id: number | null,
+        public readonly name: string,
+        public readonly moduleId: string,
+        public readonly sensors: Sensor[]
+    ) {}
+}
+
 export interface StationCreationFields {
+    id: number | null;
     deviceId: string;
     generationId: string;
     name: string;
@@ -12,10 +31,12 @@ export interface StationCreationFields {
     totalMemory: number | null;
     longitude: number | null;
     latitude: number | null;
+    deployStartTime: Date | null;
     serializedStatus: string;
 }
 
-export class Station {
+export class Station implements StationCreationFields {
+    public readonly id: number | null;
     public readonly deviceId: string;
     public readonly generationId: string;
     public readonly name: string;
@@ -24,9 +45,12 @@ export class Station {
     public readonly totalMemory: number | null;
     public readonly longitude: number | null;
     public readonly latitude: number | null;
+    public readonly deployStartTime: Date | null;
     public readonly serializedStatus: string;
+    public readonly modules: Module[] = [];
 
-    constructor(o: StationCreationFields) {
+    constructor(o: StationCreationFields, modules: Module[] = []) {
+        this.id = o.id;
         this.deviceId = o.deviceId;
         this.generationId = o.generationId;
         this.name = o.name;
@@ -35,7 +59,9 @@ export class Station {
         this.totalMemory = o.totalMemory;
         this.latitude = o.latitude;
         this.longitude = o.longitude;
+        this.deployStartTime = o.deployStartTime;
         this.serializedStatus = o.serializedStatus;
+        this.modules = modules;
     }
 
     public location(): Location | null {
