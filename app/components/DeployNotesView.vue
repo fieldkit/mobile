@@ -308,10 +308,7 @@ export default {
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            dbInterface
-                .getFieldNotes(this.station.id)
-                .then(this.getFieldMedia)
-                .then(this.setup);
+            dbInterface.getFieldNotes(this.station.id).then(this.getFieldMedia).then(this.setup);
         },
 
         getFieldMedia(notes) {
