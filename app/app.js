@@ -8,36 +8,15 @@ import Vue from "nativescript-vue";
 import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
 import VueDevtools from "nativescript-vue-devtools";
-import Firebase from "nativescript-plugin-firebase";
 
 import initializeLogging from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
 
 import Services from "./services/services";
-import AppSettings from "./wrappers/app-settings";
 import ApplicationWrapper from "./components/ApplicationWrapper";
-import routes from "./routes";
+import StartupScreen from "./components/StartupScreen";
 
 import Config, { Build } from "./config";
-
-function initializeApplication(services) {
-    return services
-        .CreateDb()
-        .initialize()
-        .then(db => services.Database().checkConfig())
-        .then(() => {
-            return Promise.all([
-                services.StateManager().start(),
-                services.StationMonitor().start(),
-                services.PortalUpdater().start(),
-                services.OnlineStatus().start(),
-            ]);
-        })
-        .catch(err => {
-            console.log("ERROR", err.message);
-            console.log("ERROR", err.stack);
-        });
-}
 
 function configureVueJs(services) {
     Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
@@ -74,16 +53,6 @@ function configureVueJs(services) {
     Vue.prototype.$portalInterface = services.PortalInterface();
 }
 
-function getFirstRoute() {
-    const appSettings = new AppSettings();
-
-    if (Services.PortalInterface().isLoggedIn()) {
-        return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2 ? routes.stations : routes.assembleStation;
-    }
-
-    return routes.login;
-}
-
 function startVueJs(services) {
     configureVueJs(services);
 
@@ -92,27 +61,11 @@ function startVueJs(services) {
             h("frame", [
                 h(ApplicationWrapper, {
                     props: {
-                        child: getFirstRoute(),
+                        child: StartupScreen,
                     },
                 }),
             ]),
     }).$start();
-}
-
-function initializeFirebase() {
-    try {
-        return Firebase.init({
-            crashlyticsCollectionEnabled: true,
-        }).then(
-            () => {},
-            error => {
-                console.log("firebase error", error);
-            }
-        );
-    } catch (e) {
-        console.log("firebase error", e);
-        return Bluebird.resolve();
-    }
 }
 
 // Configure Bluebird as the primary Promise implementation.
@@ -129,21 +82,13 @@ global.Promise = Bluebird;
 // Logging stuff, this includes our hooks to save logs as well as
 // configure logging on Promise failures and funneling errors to
 // Crashlytics.
-initializeLogging();
-
+initializeLogging(Services);
 console.log("starting: config", Config);
 console.log("starting: build", Build);
 
 // Startup VueJS and install hooks so we can show UI as soon as
 // possible, especially if something goes wrong.
-startVueJs(Services);
-registerLifecycleEvents();
+registerLifecycleEvents(Services);
 
-// For some very irritating reason we can't chain this as part of
-// the application startup. We end up getting errors about main
-// not working to startup.
-initializeFirebase().then(() => {
-    return initializeApplication(Services).then(() => {
-        console.log("ready");
-    });
-});
+// This has to be the last thing we do. On iOS this will never return.
+startVueJs(Services);
