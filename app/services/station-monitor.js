@@ -256,6 +256,7 @@ export default class StationMonitor extends BetterObservable {
         updating.deployStartTime = statusReply.status.recording.startedTime
             ? new Date(statusReply.status.recording.startedTime * 1000)
             : "";
+        updating.interval = statusReply.schedules.readings.interval;
         updating.batteryLevel = statusReply.status.power.battery.percentage;
         updating.serializedStatus = statusReply.serialized;
         if (statusReply.status.identity.generationId != this.stations[station.deviceId].generationId) {
