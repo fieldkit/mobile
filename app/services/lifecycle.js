@@ -19,13 +19,7 @@ function onLaunchOrResume(services) {
         .PortalInterface()
         .onlyIfAuthenticated()
         .then(() => {
-            console.log("downloading firmware");
-            return services
-                .StationFirmware()
-                .check()
-                .then(() => {
-                    console.log("launch prep done");
-                });
+            return services.StationFirmware().check();
         });
 }
 

@@ -81,12 +81,6 @@ export class Station implements StationCreationFields {
     }
 }
 
-export interface StationsState {
-    db: () => any;
-    error: string | boolean;
-    all: Station[];
-}
-
 export interface ServiceInfo {
     readonly deviceId: string;
     readonly url: string;
@@ -136,6 +130,7 @@ export class AvailableStation {
         this.status = StationStatus.Unknown;
         this.name = station ? station.name : null;
         this.location = station ? station.location() : null;
+        console.log("AvailableStation: CTOR", this.connected);
     }
 }
 
@@ -151,6 +146,6 @@ export class PhoneLocation {
     constructor(public readonly latitude: number, public readonly longitude: number, public readonly time: number) {}
 }
 
-export interface PhoneNetwork {
-    ssid: string;
+export class PhoneNetwork {
+    constructor(public readonly ssid: string | null = null) {}
 }

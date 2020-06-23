@@ -6,6 +6,7 @@ import { phone } from "./modules/phone";
 import { nav } from "./modules/nav";
 import { network } from "./modules/network";
 import { map } from "./modules/map";
+import { clock } from "./modules/clock";
 import createLogger from "./logger";
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
@@ -14,6 +15,9 @@ import Config from "../config";
 function customizeLogger() {
     return createLogger({
         filter(mutation, stateBefore, stateAfter) {
+            if (mutation.type == MutationTypes.TICK) {
+                return false;
+            }
             if (mutation.type == MutationTypes.NAVIGATION) {
                 console.log("mutation: navigation", mutation.payload);
                 return false;
@@ -36,8 +40,9 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            const { nearby, stations, phone, map, network, nav } = state;
+            const { clock, nearby, stations, phone, map, network, nav } = state;
             return {
+                clock,
                 nav,
                 phone,
                 nearby,
@@ -70,6 +75,7 @@ export default function () {
     return new Vuex.Store({
         plugins: Config.env.dev ? [customizeLogger()] : [],
         modules: {
+            clock,
             nearby,
             stations,
             phone,

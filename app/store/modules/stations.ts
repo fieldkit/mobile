@@ -1,25 +1,24 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationsState, StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor } from "../types";
-import { NearbyState } from "./nearby";
+import { StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor } from "../types";
+import { GlobalState } from "./global";
 
-export interface GlobalState {
-    readonly nearby: NearbyState;
-    readonly stations: StationsState;
+export class StationsState {
+    db: () => any = () => new Error();
+    error: string | boolean = false;
+    all: Station[] = [];
 }
 
 const getters = {
-    availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): ((now: Date) => AvailableStation[]) => (
-        now: Date
-    ) => {
+    availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): AvailableStation[] => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
             .keyBy(a => a.deviceId)
             .value();
         const deviceIds = _(nearby).keys().union(_(stations).keys().value()).uniq().value();
         return _(deviceIds)
-            .map(deviceId => new AvailableStation(now, deviceId, nearby[deviceId], stations[deviceId]))
+            .map(deviceId => new AvailableStation(rootState.clock.now, deviceId, nearby[deviceId], stations[deviceId]))
             .sortBy(available => {
                 return [available.name];
             })
@@ -247,13 +246,7 @@ const mutations = {
     },
 };
 
-const state = (): StationsState => {
-    return {
-        db: () => new Error(),
-        error: false,
-        all: [],
-    };
-};
+const state = () => new StationsState();
 
 export const stations = {
     namespaced: false,

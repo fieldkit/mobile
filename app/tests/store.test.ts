@@ -13,15 +13,15 @@ describe("Store", () => {
     let clock;
 
     beforeEach(async () => {
+        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
+        clock.tick(10);
+
         services = new Services();
         mockStation = new MockStationReplies(services);
         await services.CreateDb().initialize();
         store = services.Store();
 
         store.commit(MutationTypes.SERVICES, () => services);
-
-        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
-        clock.tick(10);
     });
 
     afterEach(() => {});
@@ -36,12 +36,12 @@ describe("Store", () => {
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
             expect(_.size(store.state.nearby.stations)).toEqual(0);
-            expect(store.getters.availableStations(new Date()).length).toEqual(0);
+            expect(store.getters.availableStations.length).toEqual(0);
             await store.dispatch(ActionTypes.FOUND, info);
 
             expect(_.size(store.state.nearby.stations)).toEqual(1);
             expect(
-                _(store.getters.availableStations(new Date()))
+                _(store.getters.availableStations)
                     .filter(s => s.connected)
                     .size()
             ).toEqual(1);
@@ -62,15 +62,17 @@ describe("Store", () => {
             expect(_.size(store.state.nearby.stations)).toEqual(1);
 
             clock.tick(10005);
+            await store.commit(MutationTypes.TICK);
 
-            const s1 = _(store.getters.availableStations(new Date()))
+            const s1 = _(store.getters.availableStations)
                 .filter(s => s.connected)
                 .size();
             expect(s1).toEqual(1);
 
             clock.tick(50000);
+            await store.commit(MutationTypes.TICK);
 
-            const s2 = _(store.getters.availableStations(new Date()))
+            const s2 = _(store.getters.availableStations)
                 .filter(s => s.connected)
                 .size();
             expect(s2).toEqual(0);
@@ -89,7 +91,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.LOST, info);
             expect(_.size(store.state.nearby.stations)).toEqual(0);
 
-            const s = _(store.getters.availableStations(new Date()))
+            const s = _(store.getters.availableStations)
                 .filter(s => s.connected)
                 .size();
             expect(s).toEqual(0);

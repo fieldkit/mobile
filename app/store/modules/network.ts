@@ -1,7 +1,7 @@
 // import * as MutationTypes from "../mutations";
 // import * as ActionTypes from "../actions";
 
-class NetworkState {
+export class NetworkState {
     online: boolean = false;
     authenticated: boolean = false;
     station: boolean = false;

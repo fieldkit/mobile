@@ -24,6 +24,7 @@ function initializeFirebase(services) {
 function updateStore(store) {
     promiseAfter(1000)
         .then(() => {
+            store.commit(MutationTypes.TICK);
             return store.dispatch(ActionTypes.REFRESH);
         })
         .then(() => {

@@ -4,10 +4,10 @@ import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, PhoneLocation } from "../types";
 
-export interface NearbyState {
-    queryStation: () => any | never;
-    stations: { [index: string]: NearbyStation };
-    location: PhoneLocation | null;
+export class NearbyState {
+    queryStation: () => any | never = () => new Error();
+    stations: { [index: string]: NearbyStation } = {};
+    location: PhoneLocation = PhoneLocation.TwinPeaksEastLosAngelesNationalForest;
 }
 
 const actions = {
@@ -60,11 +60,7 @@ const actions = {
     },
 };
 
-const getters = {
-    nearbyStations: (): NearbyStation[] => {
-        return [];
-    },
-};
+const getters = {};
 
 const mutations = {
     [MutationTypes.SERVICES]: (state: NearbyState, services: any) => {
@@ -93,13 +89,7 @@ const mutations = {
     },
 };
 
-const state = (): NearbyState => {
-    return {
-        queryStation: () => new Error(),
-        stations: {},
-        location: null,
-    };
-};
+const state = () => new NearbyState();
 
 export const nearby = {
     namespaced: false,

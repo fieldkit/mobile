@@ -1,7 +1,7 @@
 import * as MutationTypes from "../mutations";
 import { RouteState } from "../../routes/navigate";
 
-class NavigationState {
+export class NavigationState {
     public route: RouteState | null = null;
 }
 
