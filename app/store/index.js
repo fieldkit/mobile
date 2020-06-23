@@ -5,12 +5,13 @@ import { stations } from "./modules/stations";
 import { phone } from "./modules/phone";
 import { nav } from "./modules/nav";
 import createLogger from "./logger";
+import * as MutationTypes from "./mutations";
 import Config from "../config";
 
 function customizeLogger() {
     return createLogger({
         filter(mutation, stateBefore, stateAfter) {
-            return true;
+            return mutation.type != MutationTypes.PHONE_LOCATION && mutation.type != MutationTypes.PHONE_NETWORK;
         },
         actionFilter(action, state) {
             return true;

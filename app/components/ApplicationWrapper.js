@@ -27,7 +27,7 @@ export default {
     },
     methods: {
         navigated(entry) {
-            console.log("nav");
+            // console.log("nav");
         },
     },
 };
