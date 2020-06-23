@@ -118,8 +118,9 @@ export class AvailableStation {
     readonly deviceId: string;
     readonly connected: boolean;
     readonly status: StationStatus;
-    readonly name: string | null;
-    readonly location: Location | null;
+    readonly name: string | null | undefined;
+    readonly deployStartTime: Date | null | undefined;
+    readonly location: Location | null | undefined;
 
     constructor(now: Date, deviceId: string, nearby: NearbyStation | null, station: Station | null) {
         if (!nearby && !station) {
@@ -128,9 +129,9 @@ export class AvailableStation {
         this.deviceId = deviceId;
         this.connected = isConnected(now, nearby);
         this.status = StationStatus.Unknown;
-        this.name = station ? station.name : null;
-        this.location = station ? station.location() : null;
-        console.log("AvailableStation: CTOR", this.connected);
+        this.name = station?.name;
+        this.deployStartTime = station?.deployStartTime;
+        this.location = station?.location();
     }
 }
 
@@ -140,7 +141,6 @@ export interface Store {
 }
 
 export class PhoneLocation {
-    // Twin Peaks East in Angeles National Forest
     static TwinPeaksEastLosAngelesNationalForest: PhoneLocation = new PhoneLocation(34.3318104, -118.0730372, 0);
 
     constructor(public readonly latitude: number, public readonly longitude: number, public readonly time: number) {}
