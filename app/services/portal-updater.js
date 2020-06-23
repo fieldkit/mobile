@@ -12,7 +12,7 @@ export default class PortalUpdater {
 
     addOrUpdateStations() {
         return this.portalInterface.isAvailable().then(yes => {
-            if (!yes) {
+            if (!yes && this.portalInterface.isLoggedIn()) {
                 return Promise.resolve();
             }
             return this.database.getAll().then(stations => {
