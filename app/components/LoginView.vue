@@ -182,6 +182,7 @@
 <script>
 import AssembleStation from "./onboarding/AssembleStationView";
 import Config from "../config";
+import routes from "../routes";
 import { USERNAME, PASSWORD } from "../secrets";
 import Services from "../services/services";
 
@@ -271,8 +272,8 @@ export default {
 
         continueOffline() {
             if (!this.navigatedAway) {
-                this.$navigateTo(AssembleStation, { clearHistory: true });
                 this.navigatedAway = true;
+                return this.$navigateTo(routes.assembleStation, { clearHistory: true });
             }
         },
 
@@ -295,7 +296,7 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    return this.$navigateTo(AssembleStation, {
+                    return this.$navigateTo(routes.assembleStation, {
                         clearHistory: true,
                     });
                 })

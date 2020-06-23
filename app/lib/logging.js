@@ -29,7 +29,7 @@ function getExistingLogs(file) {
 
 function flush() {
     const appending = _(logs)
-        .map((log) => {
+        .map(log => {
             return _(log).join(" ") + "\n";
         })
         .join("");
@@ -41,7 +41,7 @@ function flush() {
         const existing = getExistingLogs(file);
         const replacing = existing + appending + "\n";
 
-        file.writeTextSync(replacing, (err) => {
+        file.writeTextSync(replacing, err => {
             if (err) {
                 reject(err);
             }
@@ -57,7 +57,7 @@ export function copyLogs(where) {
             const file = getLogsFile();
             const existing = file.readTextSync();
 
-            where.writeTextSync(existing, (err) => {
+            where.writeTextSync(existing, err => {
                 if (err) {
                     reject(err);
                 }
@@ -131,10 +131,10 @@ function configureGlobalErrorHandling() {
         traceModule.enable();
 
         Promise.onPossiblyUnhandledRejection((reason, promise) => {
-            console.log("onPossiblyUnhandledRejection", reason);
+            console.log("onPossiblyUnhandledRejection", reason, reason.stack);
         });
 
-        Promise.onUnhandledRejectionHandled((promise) => {
+        Promise.onUnhandledRejectionHandled(promise => {
             console.log("onUnhandledRejectionHandled");
         });
 

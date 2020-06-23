@@ -32,7 +32,11 @@ export default class PortalUpdater {
                                     return this.database.setStationPortalError(station, "");
                                 })
                                 .catch(error => {
-                                    return this.database.setStationPortalError(station, error.response.status);
+                                    if (error.response) {
+                                        return this.database.setStationPortalError(station, error.response.status);
+                                    }
+                                    console.log("unexpected portal response", error);
+                                    return Promise.reject(new Error("unexpected portal response"));
                                 });
                         } else {
                             return this.portalInterface.addStation(params).then(result => {
