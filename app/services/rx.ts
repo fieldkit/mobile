@@ -1,5 +1,8 @@
+import _ from "lodash";
+
 export const HiddenProperty = "valueChanged";
 
+/*
 function debugObservers(observers) {
     return _(observers)
         .map((v, k) => {
@@ -8,8 +11,11 @@ function debugObservers(observers) {
         .fromPairs()
         .value();
 }
+*/
 
 class Observable {
+    _observers: any;
+
     constructor() {
         this._observers = {};
     }
@@ -27,7 +33,7 @@ class Observable {
         return this.removeEventListener(eventNames, callback, thisArg);
     }
 
-    addEventListener(eventNames, callback, thisArg) {
+    addEventListener(eventNames, callback, thisArg: any = null) {
         if (typeof eventNames !== "string") {
             throw new TypeError("Events name(s) must be string.");
         }
@@ -47,7 +53,7 @@ class Observable {
         // console.log(this.constructor.name, "addEventListener", eventNames, debugObservers(this._observers));
     }
 
-    removeEventListener(eventNames, callback, thisArg) {
+    removeEventListener(eventNames, callback, thisArg: any = null) {
         if (typeof eventNames !== "string") {
             throw new TypeError("Events name(s) must be string.");
         }
@@ -78,7 +84,7 @@ class Observable {
     }
 
     notify(data) {
-        const values = [];
+        const values: Promise<any>[] = [];
         const observers = this._observers[data.eventName];
         if (!observers) {
             return Promise.all(values);
@@ -91,16 +97,18 @@ class Observable {
                 observers.splice(i, 1);
             }
             if (entry.thisArg) {
-                values.push(entry.callback.apply(entry.thisArg, [data]));
+                const rv = entry.callback.apply(entry.thisArg, [data]);
+                values.push(Promise.resolve(rv));
             } else {
-                values.push(entry.callback(data));
+                const rv = entry.callback(data);
+                values.push(Promise.resolve(rv));
             }
         }
 
         return Promise.all(values);
     }
 
-    notifyPropertyChange(name, value, oldValue) {
+    notifyPropertyChange(name, value, oldValue: any = null) {
         return this.notify(this._createPropertyChangeData(name, value, oldValue));
     }
 
@@ -143,11 +151,16 @@ class Observable {
         }
         return -1;
     }
+
+    static propertyChangeEvent: string = "propertyChange";
 }
 
-Observable.propertyChangeEvent = "propertyChange";
-
 export class BetterObservable extends Observable {
+    _hasValue: boolean;
+    _value: any;
+    _counter: number;
+    _listeners: any;
+
     constructor() {
         super();
         this._hasValue = false;
@@ -176,13 +189,13 @@ export class BetterObservable extends Observable {
 
         this._listeners[receiver] = listener;
 
-        this.addEventListener(Observable.propertyChangeEvent, listener);
+        this.addEventListener(Observable.propertyChangeEvent, listener, null);
 
         return {
             remove: () => {
                 delete this._listeners[receiver];
                 // console.log(this.constructor.name, "Rx, removing", this._counter);
-                this.removeEventListener(Observable.propertyChangeEvent, listener);
+                this.removeEventListener(Observable.propertyChangeEvent, listener, null);
             },
         };
     }
@@ -190,7 +203,7 @@ export class BetterObservable extends Observable {
     unsubscribe(receiver) {
         const listener = this._listeners[receiver];
         // console.log(this.constructor.name, "Rx, removing", this._counter, listener);
-        this.removeEventListener(Observable.propertyChangeEvent, listener);
+        this.removeEventListener(Observable.propertyChangeEvent, listener, null);
     }
 
     publish(value) {
