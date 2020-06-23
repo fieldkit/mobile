@@ -8,7 +8,9 @@ import Services from "../services/services";
 import AppSettings from "../wrappers/app-settings";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
+import { promiseAfter } from "../utilities";
 import routes from "../routes";
+import Config from "../config";
 
 function initializeFirebase(services) {
     return Firebase.init({
@@ -17,6 +19,17 @@ function initializeFirebase(services) {
         console.log("firebase error", error);
         return Promise.resolve();
     });
+}
+
+function updateStore(store) {
+    promiseAfter(1000)
+        .then(() => {
+            return store.dispatch(ActionTypes.REFRESH);
+        })
+        .then(() => {
+            return updateStore(store);
+        });
+    return null;
 }
 
 function initializeApplication(services) {
@@ -40,10 +53,16 @@ function initializeApplication(services) {
                         .then(() => {
                             return Promise.all([
                                 services.StateManager().start(),
-                                services.StationMonitor().start(),
                                 services.PortalUpdater().start(),
                                 services.OnlineStatus().start(),
                             ]);
+                        })
+                        .then(() => {
+                            if (Config.env.jacob) {
+                                return updateStore(Services.Store());
+                            } else {
+                                return services.StationMonitor().start();
+                            }
                         });
                 })
                 .catch(err => {
@@ -69,10 +88,9 @@ function getFirstRoute() {
 export default {
     methods: {
         onPageLoaded(args) {
-            console.log("page loaded");
+            console.log("startup loaded");
             return initializeApplication(Services).then(() => {
-                const page = getFirstRoute();
-                return this.$navigateTo(page, {
+                return this.$navigateTo(getFirstRoute(), {
                     clearHistory: true,
                 });
             });

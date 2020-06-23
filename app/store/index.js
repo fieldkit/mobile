@@ -8,6 +8,7 @@ import { network } from "./modules/network";
 import { map } from "./modules/map";
 import createLogger from "./logger";
 import * as MutationTypes from "./mutations";
+import * as ActionTypes from "./actions";
 import Config from "../config";
 
 function customizeLogger() {
@@ -26,6 +27,12 @@ function customizeLogger() {
             return true;
         },
         actionFilter(action, state) {
+            if (action.type == ActionTypes.REFRESH) {
+                return false;
+            }
+            if (action.type == ActionTypes.QUERY_NECESSARY) {
+                return false;
+            }
             return true;
         },
         transformer(state) {

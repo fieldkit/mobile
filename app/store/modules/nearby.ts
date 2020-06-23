@@ -55,6 +55,9 @@ const actions = {
     [ActionTypes.QUERY_ALL]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }) => {
         return Promise.all(Object.values(state.stations).map(station => dispatch(ActionTypes.QUERY_STATION, station.info)));
     },
+    [ActionTypes.REFRESH]: ({ commit, dispatch }: { commit: any; dispatch: any }) => {
+        return dispatch(ActionTypes.QUERY_NECESSARY);
+    },
 };
 
 const getters = {
