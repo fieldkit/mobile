@@ -1,9 +1,5 @@
+import { Store } from "../store/types";
 import * as MutationTypes from "../store/mutations";
-
-export interface Store {
-    commit(type: string, mutation: any): void;
-    dispatch(type: string, action: any): Promise<any>;
-}
 
 export interface NavigateOptions {
     clearHistory: boolean | null;

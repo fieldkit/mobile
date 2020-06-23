@@ -89,6 +89,7 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
         latitude: latitude,
         lastSeen: new Date(),
         portalId: null,
+        portalError: null,
     };
     return new Station(fields, modules);
 }
@@ -128,6 +129,16 @@ function loadStationsFromDatabase(db) {
         });
 }
 
+interface StationPortalReply {
+    id: number;
+    portalId: number;
+}
+
+interface StationPortalError {
+    id: number;
+    error: string;
+}
+
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
         return loadStationsFromDatabase(state.db()).then(stations => commit(MutationTypes.SET, stations));
@@ -136,6 +147,24 @@ const actions = {
         return state
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))
+            .then(station => dispatch(ActionTypes.LOAD));
+    },
+    [ActionTypes.STATION_PORTAL_ERROR]: (
+        { commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState },
+        error: StationPortalError
+    ) => {
+        return state
+            .db()
+            .setStationPortalError({ id: error.id }, error.error)
+            .then(station => dispatch(ActionTypes.LOAD));
+    },
+    [ActionTypes.STATION_PORTAL_REPLY]: (
+        { commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState },
+        reply: StationPortalReply
+    ) => {
+        return state
+            .db()
+            .setStationPortalId(reply)
             .then(station => dispatch(ActionTypes.LOAD));
     },
 };

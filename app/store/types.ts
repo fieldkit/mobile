@@ -35,6 +35,7 @@ export interface StationCreationFields {
     serializedStatus: string;
     lastSeen: Date;
     portalId: number | null;
+    portalError: string | null;
 }
 
 export class Station implements StationCreationFields {
@@ -49,9 +50,10 @@ export class Station implements StationCreationFields {
     public readonly latitude: number | null;
     public readonly deployStartTime: Date | null;
     public readonly serializedStatus: string;
-    public readonly modules: Module[] = [];
     public readonly lastSeen: Date;
     public readonly portalId: number | null;
+    public readonly portalError: string | null;
+    public readonly modules: Module[] = [];
 
     constructor(o: StationCreationFields, modules: Module[] = []) {
         this.id = o.id;
@@ -67,6 +69,7 @@ export class Station implements StationCreationFields {
         this.serializedStatus = o.serializedStatus;
         this.lastSeen = o.lastSeen;
         this.portalId = o.portalId;
+        this.portalError = o.portalError;
         this.modules = modules;
     }
 
@@ -144,4 +147,9 @@ export class AvailableStation {
         this.name = station ? station.name : null;
         this.location = station ? station.location() : null;
     }
+}
+
+export interface Store {
+    commit(type: string, mutation: any): void;
+    dispatch(type: string, action: any): Promise<any>;
 }

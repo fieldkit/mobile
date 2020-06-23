@@ -217,9 +217,9 @@ export default class DatabaseInterface {
     }
 
     setStationPortalId(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id])
-        );
+        return this.getDatabase()
+            .then(db => db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id]))
+            .catch(error => `error setting portal id ${error}`);
     }
 
     setStationBatteryLevel(station) {
@@ -309,16 +309,12 @@ export default class DatabaseInterface {
         );
     }
 
-    setGenerationId(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET generation_id = ?, updated = ? WHERE id = ?", [station.generationId, new Date(), station.id])
-        );
-    }
-
     setStationPortalError(station, errorCode) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET portal_http_error = ?, updated = ? WHERE id = ?", [errorCode, new Date(), station.id])
-        );
+        return this.getDatabase()
+            .then(db =>
+                db.query("UPDATE stations SET portal_http_error = ?, updated = ? WHERE id = ?", [errorCode, new Date(), station.id])
+            )
+            .catch(error => `error setting portal error ${error}`);
     }
 
     setModuleName(module) {

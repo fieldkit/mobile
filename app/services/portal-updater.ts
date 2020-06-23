@@ -1,3 +1,4 @@
+import * as ActionTypes from "../store/actions";
 import { Store } from "../store/types";
 
 export default class PortalUpdater {
@@ -34,21 +35,25 @@ export default class PortalUpdater {
                         if (station.portalId) {
                             return this.portalInterface
                                 .updateStation(params, station.portalId)
-                                .then(() => {
-                                    return this.database.setStationPortalError(station, "");
-                                })
+                                .then(() => this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, { id: station.id, error: null }))
                                 .catch(error => {
                                     if (error.response) {
-                                        return this.database.setStationPortalError(station, error.response.status);
+                                        return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
+                                            id: station.id,
+                                            error: error.response.status,
+                                        });
                                     }
-                                    console.log("unexpected portal response", error);
-                                    return Promise.reject(new Error("unexpected portal response"));
+                                    return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
+                                        id: station.id,
+                                        error: "error",
+                                    });
                                 });
                         } else {
-                            return this.portalInterface.addStation(params).then(result => {
-                                station.portalId = result.id;
-                                return this.database.setStationPortalId(station);
-                            });
+                            return this.portalInterface
+                                .addStation(params)
+                                .then(saved =>
+                                    this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, { id: station.id, portalId: saved.id })
+                                );
                         }
                     })
                 );
