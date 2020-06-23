@@ -11,7 +11,17 @@ import Config from "../config";
 function customizeLogger() {
     return createLogger({
         filter(mutation, stateBefore, stateAfter) {
-            return mutation.type != MutationTypes.PHONE_LOCATION && mutation.type != MutationTypes.PHONE_NETWORK;
+            if (mutation.type == MutationTypes.NAVIGATION) {
+                console.log("mutation: navigation", mutation.payload);
+                return false;
+            }
+            if (mutation.type == MutationTypes.PHONE_LOCATION) {
+                return false;
+            }
+            if (mutation.type == MutationTypes.PHONE_NETWORK) {
+                return false;
+            }
+            return true;
         },
         actionFilter(action, state) {
             return true;
