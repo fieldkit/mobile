@@ -463,7 +463,7 @@ export default class DatabaseInterface {
                         sensor.name,
                         sensor.unitOfMeasure,
                         sensor.frequency,
-                        sensor.currentReading,
+                        sensor.currentReading | sensor.reading,
                     ])
                     .catch(err => Promise.reject(new Error(`error inserting sensor: ${err}`)))
             )
@@ -496,16 +496,26 @@ export default class DatabaseInterface {
 
         log.verbose("synchronize sensors", adding, removed, keeping);
 
-        return Promise.all(
-            _(adding)
-                .map(name => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
-                .value()
-        ).then(() => {
-            return Promise.all(_(removed).map(name => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id])));
-        });
+        return Promise.all([
+            Promise.all(
+                adding.map(name => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
+            ),
+            Promise.all(removed.map(name => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
+            Promise.all(
+                keeping
+                    .map(name => {
+                        return {
+                            id: existing[name].id,
+                            reading: incoming[name].reading,
+                        };
+                    })
+                    .filter(update => update.reading != null)
+                    .map(update => db.query("UPDATE sensors SET current_reading = ? WHERE id = ?", [update.reading, update.id]))
+            ),
+        ]);
     }
 
-    _synchronizeModules(db, stationId, station, moduleRows) {
+    _synchronizeModules(db, stationId, station, moduleRows, sensorRows) {
         const incoming = _.keyBy(station.modules, m => m.moduleId);
         const existing = _.keyBy(moduleRows, m => m.moduleId || m.deviceId);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
@@ -514,23 +524,28 @@ export default class DatabaseInterface {
 
         log.verbose("synchronize modules", stationId, adding, removed, keeping);
 
-        return Promise.all(
-            _(adding)
-                .map(moduleId =>
+        return Promise.all([
+            Promise.all(
+                adding.map(moduleId =>
                     this.insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
                         this._synchronizeSensors(db, moduleId, incoming[moduleId], [])
                     )
                 )
-                .value()
-        ).then(() => {
-            return Promise.all(
-                _(removed).map(moduleId =>
+            ),
+            Promise.all(
+                removed.map(moduleId =>
                     db.query("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id]).then(() => {
                         db.query("DELETE FROM modules WHERE id = ?", [existing[moduleId].id]);
                     })
                 )
-            );
-        });
+            ),
+            Promise.all(
+                keeping.map(moduleId => {
+                    const moduleSensorRows = sensorRows.filter(r => r.moduleId == existing[moduleId].id);
+                    return this._synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
+                })
+            ),
+        ]);
     }
 
     addOrUpdateStation(station) {
@@ -552,7 +567,7 @@ export default class DatabaseInterface {
                     ]).then(all => {
                         const moduleRows = all[0];
                         const sensorRows = all[1];
-                        return this._synchronizeModules(db, stationId, station, moduleRows);
+                        return this._synchronizeModules(db, stationId, station, moduleRows, sensorRows);
                     });
                 });
         });

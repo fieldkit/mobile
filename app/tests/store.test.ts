@@ -143,8 +143,8 @@ describe("Store", () => {
         });
     });
 
-    describe("stations", () => {
-        it("loading", async () => {
+    describe("stations store module", () => {
+        it("loading status reply", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
 
@@ -158,6 +158,44 @@ describe("Store", () => {
             expect(store.state.stations.all.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(1);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
+        });
+
+        it("loading readings reply", async () => {
+            const station = mockStation.newFakeStation();
+            mockStation.queueReadingsReply(station);
+
+            expect.assertions(5);
+
+            const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
+
+            await store.dispatch(ActionTypes.LOAD);
+            await store.dispatch(ActionTypes.QUERY_STATION, info);
+
+            expect(store.state.stations.all.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
+            expect(store.state.stations.all[0].modules[0].sensors[0].reading).toBe(100);
+            expect(store.state.stations.all[0].modules[0].sensors[1].reading).toBe(200);
+        });
+
+        it("loading readings reply twice updates readings", async () => {
+            const station = mockStation.newFakeStation();
+            mockStation.queueReadingsReply(station);
+            mockStation.queueReadingsReply(station);
+
+            expect.assertions(5);
+
+            const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
+
+            await store.dispatch(ActionTypes.LOAD);
+            await store.dispatch(ActionTypes.QUERY_STATION, info);
+            await store.dispatch(ActionTypes.QUERY_STATION, info);
+
+            expect(store.state.stations.all.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
+            expect(store.state.stations.all[0].modules[0].sensors[0].reading).toBe(100 * 2);
+            expect(store.state.stations.all[0].modules[0].sensors[1].reading).toBe(200 * 2);
         });
     });
 });

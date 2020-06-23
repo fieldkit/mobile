@@ -378,6 +378,16 @@ export default class QueryStation {
                 m.id = null;
             });
         }
+        if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
+            reply.liveReadings.map(lr => {
+                lr.modules
+                    .filter(m => m.module && m.module.id)
+                    .map(m => {
+                        m.module.deviceId = new Buffer.from(m.module.id).toString("hex");
+                        m.module.id = null;
+                    });
+            });
+        }
         if (reply.streams && reply.streams.length > 0) {
             reply.streams.forEach(s => {
                 s.block = s.block ? s.block : 0;

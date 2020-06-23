@@ -50,7 +50,7 @@ describe("QueryStation", () => {
             type: 18,
             modules: [],
             streams: [],
-            liveReadings: [{ modules: [{}], time: 1565734980 }],
+            liveReadings: [{ modules: [{ module: {} }], time: 1565734980 }],
         });
 
         return queryStation.takeReadings(url).then(body => {
@@ -71,7 +71,7 @@ describe("QueryStation", () => {
                 type: 18,
                 modules: [],
                 streams: [],
-                liveReadings: [{ modules: [{}], time: 1565734980 }],
+                liveReadings: [{ modules: [{ module: {} }], time: 1565734980 }],
             },
         });
 

@@ -30,9 +30,44 @@ function getLocationFrom(o: HasLocation): HasLocation {
     };
 }
 
+interface LiveSensorReading {
+    sensor: SensorCapabilities;
+    value: number;
+}
+
+interface LiveModuleReadings {
+    module: ModuleCapabilities;
+    readings: LiveSensorReading[];
+}
+
+interface LiveReadings {
+    time: number;
+    modules: LiveModuleReadings[];
+}
+
+interface ModuleCapabilities {
+    name: string;
+    deviceId: string;
+    sensors: SensorCapabilities[];
+}
+
+interface SensorCapabilities {
+    name: string;
+    unitOfMeasure: string;
+}
+
+interface HttpStatusStatus {
+    identity: any;
+    gps: any;
+    recording: any;
+    memory: any;
+    power: any;
+}
+
 interface HttpStatusReply {
-    status: any;
-    modules: any;
+    status: HttpStatusStatus;
+    modules: ModuleCapabilities[];
+    liveReadings: LiveReadings[];
     serialized: string;
 }
 
@@ -55,6 +90,35 @@ interface SensorTableRow {
     moduleId: number | null;
 }
 
+function makeModulesFromStatus(statusReply: HttpStatusReply): Module[] {
+    if (statusReply.liveReadings && statusReply.liveReadings.length > 0) {
+        const modules = _(statusReply.liveReadings)
+            .map(lr =>
+                _(lr.modules)
+                    .map(moduleReply => {
+                        const sensors = _(moduleReply.readings)
+                            .map(
+                                sensorReply =>
+                                    new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value)
+                            )
+                            .value();
+                        return new Module(null, moduleReply.module.name, moduleReply.module.deviceId, sensors);
+                    })
+                    .value()
+            )
+            .head();
+        return modules || [];
+    }
+    return _(statusReply.modules)
+        .map(moduleReply => {
+            const sensors = _(moduleReply.sensors)
+                .map(sensorReply => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null))
+                .value();
+            return new Module(null, moduleReply.name, moduleReply.deviceId, sensors);
+        })
+        .value();
+}
+
 function makeStationFromStatus(statusReply: HttpStatusReply): Station {
     if (!statusReply.status.identity.deviceId || !_.isString(statusReply.status.identity.deviceId)) {
         console.log("malformed status", statusReply);
@@ -67,14 +131,7 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
 
     const { latitude, longitude } = getLocationFrom(statusReply.status.gps);
     const deployStartTime = statusReply.status.recording.startedTime ? new Date(statusReply.status.recording.startedTime * 1000) : null;
-    const modules = _(statusReply.modules)
-        .map(moduleReply => {
-            const sensors = _(moduleReply.sensors)
-                .map(sensorReply => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null))
-                .value();
-            return new Module(null, moduleReply.name, moduleReply.deviceId, sensors);
-        })
-        .value();
+    const modules = makeModulesFromStatus(statusReply);
     const fields: StationCreationFields = {
         id: null,
         deviceId: statusReply.status.identity.deviceId,
