@@ -153,3 +153,12 @@ export interface Store {
     commit(type: string, mutation: any): void;
     dispatch(type: string, action: any): Promise<any>;
 }
+
+export interface PhoneLocation {
+    latitude: Number;
+    longitude: Number;
+}
+
+export interface PhoneNetwork {
+    ssid: string;
+}

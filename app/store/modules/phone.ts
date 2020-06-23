@@ -1,14 +1,6 @@
-// import * as ActionTypes from "../actions";
+import { PhoneLocation, PhoneNetwork } from "../types";
 import * as MutationTypes from "../mutations";
-
-interface PhoneLocation {
-    latitude: Number;
-    longitude: Number;
-}
-
-interface PhoneNetwork {
-    ssid: string;
-}
+// import * as ActionTypes from "../actions";
 
 interface PhoneState {
     network: PhoneNetwork;

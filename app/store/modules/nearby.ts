@@ -2,7 +2,7 @@ import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyState, NearbyStation } from "../types";
+import { ServiceInfo, NearbyState, NearbyStation, PhoneLocation } from "../types";
 
 const actions = {
     [ActionTypes.FOUND]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }, info: ServiceInfo) => {
@@ -79,6 +79,7 @@ const mutations = {
             state.stations[info.deviceId].tried = new Date();
         }
     },
+    [MutationTypes.PHONE_LOCATION]: (state: NearbyState, location: PhoneLocation) => {},
 };
 
 const state = (): NearbyState => {
