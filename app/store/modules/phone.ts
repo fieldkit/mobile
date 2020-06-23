@@ -1,10 +1,10 @@
-import { PhoneLocation, PhoneNetwork } from "../types";
+import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import * as MutationTypes from "../mutations";
 // import * as ActionTypes from "../actions";
 
 export class PhoneState {
     network: PhoneNetwork = new PhoneNetwork();
-    location: PhoneLocation = PhoneLocation.TwinPeaksEastLosAngelesNationalForest;
+    location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 
 const getters = {};

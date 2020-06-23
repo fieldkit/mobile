@@ -1,8 +1,8 @@
-import { PhoneLocation } from "../types";
+import { PhoneLocation, CommonLocations } from "../types";
 import * as MutationTypes from "../mutations";
 
 export class MapState {
-    location: PhoneLocation = PhoneLocation.TwinPeaksEastLosAngelesNationalForest;
+    center: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 
 const getters = {};
@@ -12,8 +12,7 @@ const actions = {};
 const mutations = {
     [MutationTypes.PHONE_LOCATION]: (state: MapState, location: PhoneLocation) => {
         if (location != null) {
-            console.log("LOCATION", location);
-            state.location = location;
+            state.center = location;
         }
     },
 };

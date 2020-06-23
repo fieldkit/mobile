@@ -2,12 +2,11 @@ import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyStation, PhoneLocation } from "../types";
+import { ServiceInfo, NearbyStation } from "../types";
 
 export class NearbyState {
     queryStation: () => any | never = () => new Error();
     stations: { [index: string]: NearbyStation } = {};
-    location: PhoneLocation = PhoneLocation.TwinPeaksEastLosAngelesNationalForest;
 }
 
 const actions = {
@@ -83,9 +82,6 @@ const mutations = {
         if (state.stations[info.deviceId]) {
             state.stations[info.deviceId].tried = new Date();
         }
-    },
-    [MutationTypes.PHONE_LOCATION]: (state: NearbyState, location: PhoneLocation) => {
-        state.location = location;
     },
 };
 

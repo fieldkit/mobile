@@ -141,9 +141,12 @@ export interface Store {
 }
 
 export class PhoneLocation {
-    static TwinPeaksEastLosAngelesNationalForest: PhoneLocation = new PhoneLocation(34.3318104, -118.0730372, 0);
-
     constructor(public readonly latitude: number, public readonly longitude: number, public readonly time: number) {}
+}
+
+export class CommonLocations {
+    static TwinPeaksEastLosAngelesNationalForest: PhoneLocation = new PhoneLocation(34.3318104, -118.0730372, 0);
+    static ConservifyLab: PhoneLocation = new PhoneLocation(0, 0, 0);
 }
 
 export class PhoneNetwork {

@@ -3,7 +3,7 @@ import { Accuracy } from "tns-core-modules/ui/enums";
 import { GeoLocation } from "../wrappers/geolocation";
 import { promiseAfter, unixNow } from "../utilities";
 import * as MutationTypes from "../store/mutations";
-import { PhoneLocation } from "../store/types";
+import { CommonLocations, PhoneLocation } from "../store/types";
 import Config from "../config";
 
 const log = Config.logger("PhoneLocation");
@@ -43,7 +43,7 @@ export default class PhoneLocationWatcher extends BetterObservable {
             .isEnabled()
             .then(enabled => {
                 if (!enabled) {
-                    return PhoneLocation.TwinPeaksEastLosAngelesNationalForest;
+                    return CommonLocations.TwinPeaksEastLosAngelesNationalForest;
                 }
                 return this.getLocation();
             })
@@ -127,7 +127,7 @@ export default class PhoneLocationWatcher extends BetterObservable {
             })
             .then(
                 l => new PhoneLocation(l.latitude, l.longitude, unixNow()),
-                e => PhoneLocation.TwinPeaksEastLosAngelesNationalForest
+                e => CommonLocations.TwinPeaksEastLosAngelesNationalForest
             );
     }
 }
