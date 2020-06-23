@@ -1,4 +1,5 @@
 import { Observable } from "tns-core-modules/data/observable";
+import { Route } from "../routes/navigate";
 import StartupScreen from "./StartupScreen";
 import Config from "../config";
 
@@ -10,7 +11,9 @@ export default {
         if (Config.env.dev) {
             frame.transition = { name: "fade", animated: false };
         }
-        this.$navigateTo(StartupScreen, {
+
+        const route = new Route(StartupScreen, { startup: true });
+        this.$navigateTo(route, {
             frame: this.$refs.mainFrame,
         });
         console.log("ready");

@@ -13,6 +13,7 @@ import RadGauge from "nativescript-ui-gauge/vue";
 import initializeLogging from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
 import Services from "./services/services";
+import navigatorFactory from "./routes/navigate";
 import ApplicationWrapper from "./components/ApplicationWrapper";
 import Config, { Build } from "./config";
 
@@ -48,14 +49,17 @@ function configureVueJs(services) {
         Vue.config.silent = false;
     }
 
+    const store = services.Store();
+
     Vue.prototype.$stationMonitor = services.StationMonitor();
     Vue.prototype.$portalInterface = services.PortalInterface();
+    Vue.prototype.$navigateTo = navigatorFactory(store, Vue.prototype.$navigateTo);
+
+    return store;
 }
 
 function startVueJs(services) {
-    configureVueJs(services);
-
-    const store = services.Store();
+    const store = configureVueJs(services);
 
     new Vue({
         store,

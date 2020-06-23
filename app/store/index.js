@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import { nearby } from "./modules/nearby";
 import { stations } from "./modules/stations";
 import { phone } from "./modules/phone";
+import { nav } from "./modules/nav";
 import createLogger from "./logger";
 import Config from "../config";
 
@@ -15,8 +16,9 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            const { nearby, stations, phone } = state;
+            const { nearby, stations, phone, nav } = state;
             return {
+                nav,
                 phone,
                 nearby,
                 stations: {
@@ -49,6 +51,7 @@ export default function () {
             nearby,
             stations,
             phone,
+            nav,
         },
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",

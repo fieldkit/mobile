@@ -128,19 +128,13 @@ function loadStationsFromDatabase(db) {
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
-        return loadStationsFromDatabase(state.db()).then(
-            stations => commit(MutationTypes.SET, stations)
-            // error => commit(MutationTypes.ERROR, error)
-        );
+        return loadStationsFromDatabase(state.db()).then(stations => commit(MutationTypes.SET, stations));
     },
     [ActionTypes.REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
         return state
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))
-            .then(
-                station => dispatch(ActionTypes.LOAD)
-                // error => commit(MutationTypes.ERROR, error.message)
-            );
+            .then(station => dispatch(ActionTypes.LOAD));
     },
 };
 
