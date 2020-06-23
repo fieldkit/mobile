@@ -3,6 +3,7 @@ import * as MutationTypes from "../store/mutations";
 
 export interface NavigateOptions {
     clearHistory: boolean | null;
+    props: any | null;
 }
 
 export class RouteState {
@@ -13,18 +14,28 @@ export class RouteState {
     public login: boolean = false;
     public developer: boolean = false;
     public dataSync: boolean = false;
+    public props: any | null = null;
 }
 
 export class Route {
     constructor(public readonly page: any, public readonly state: RouteState) {}
+
+    combine(options: NavigateOptions | null): RouteState {
+        if (options) {
+            const c = this.state;
+            c.props = options.props;
+            return this.state;
+        }
+        return this.state;
+    }
 }
 
-type NavigateToFunc = (page: any, options: NavigateOptions) => Promise<any>;
+type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<any>;
 
 export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
-    return (pageOrRoute: Route | any, options: NavigateOptions): Promise<any> => {
+    return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<any> => {
         if (pageOrRoute instanceof Route) {
-            store.commit(MutationTypes.NAVIGATION, pageOrRoute.state);
+            store.commit(MutationTypes.NAVIGATION, pageOrRoute.combine(options));
             return navigateTo(pageOrRoute.page, options);
         }
         const error = new Error();
