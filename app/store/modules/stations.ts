@@ -205,7 +205,7 @@ const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
         return loadStationsFromDatabase(state.db()).then(stations => commit(MutationTypes.SET, stations));
     },
-    [ActionTypes.REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
+    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
         return state
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))

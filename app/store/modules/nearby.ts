@@ -25,7 +25,7 @@ const actions = {
             .then(
                 statusReply => {
                     commit(MutationTypes.TRIED, info);
-                    return dispatch(ActionTypes.REPLY, statusReply, { root: true });
+                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
                 },
                 error => {
                     if (error instanceof QueryThrottledError) {
