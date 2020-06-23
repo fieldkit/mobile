@@ -83,10 +83,12 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
         batteryLevel: statusReply.status.power.battery.percentage,
         consumedMemory: statusReply.status.memory.dataMemoryUsed,
         totalMemory: statusReply.status.memory.dataMemoryInstalled,
-        longitude: longitude,
-        latitude: latitude,
         deployStartTime: deployStartTime,
         serializedStatus: statusReply.serialized,
+        longitude: longitude,
+        latitude: latitude,
+        lastSeen: new Date(),
+        portalId: null,
     };
     return new Station(fields, modules);
 }

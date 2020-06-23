@@ -33,6 +33,8 @@ export interface StationCreationFields {
     latitude: number | null;
     deployStartTime: Date | null;
     serializedStatus: string;
+    lastSeen: Date;
+    portalId: number | null;
 }
 
 export class Station implements StationCreationFields {
@@ -48,6 +50,8 @@ export class Station implements StationCreationFields {
     public readonly deployStartTime: Date | null;
     public readonly serializedStatus: string;
     public readonly modules: Module[] = [];
+    public readonly lastSeen: Date;
+    public readonly portalId: number | null;
 
     constructor(o: StationCreationFields, modules: Module[] = []) {
         this.id = o.id;
@@ -61,6 +65,8 @@ export class Station implements StationCreationFields {
         this.longitude = o.longitude;
         this.deployStartTime = o.deployStartTime;
         this.serializedStatus = o.serializedStatus;
+        this.lastSeen = o.lastSeen;
+        this.portalId = o.portalId;
         this.modules = modules;
     }
 
