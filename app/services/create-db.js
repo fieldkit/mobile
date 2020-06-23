@@ -47,7 +47,9 @@ export default class CreateDB {
                 .map(table => table.name)
                 .filter(name => name.indexOf("sqlite_") < 0)
                 .value();
-            console.log("dropping", dropping);
+            if (dropping.length > 0) {
+                console.log("dropping", dropping);
+            }
             return this.database
                 .query(`PRAGMA foreign_keys = OFF`)
                 .then(() => {

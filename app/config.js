@@ -76,25 +76,32 @@ function get_config() {
 
 const final = get_config();
 
+const disabledByEnv = {
+    test: { Migrations: true },
+};
+
 final.logger = name => {
     if (final.logging.EnableAll || final.logging[name]) {
-        return {
-            info: function () {
-                const args = Array.from(arguments);
-                args.unshift(name);
-                console.log.apply(console, args);
-            },
-            verbose: function () {
-                const args = Array.from(arguments);
-                args.unshift(name);
-                // console.log.apply(console, args);
-            },
-            error: function () {
-                const args = Array.from(arguments);
-                args.unshift(name);
-                console.error.apply(console, args);
-            },
-        };
+        const byEnv = disabledByEnv[TNS_ENV] || [];
+        if (!(byEnv[name] === true)) {
+            return {
+                info: function () {
+                    const args = Array.from(arguments);
+                    args.unshift(name);
+                    console.log.apply(console, args);
+                },
+                verbose: function () {
+                    const args = Array.from(arguments);
+                    args.unshift(name);
+                    // console.log.apply(console, args);
+                },
+                error: function () {
+                    const args = Array.from(arguments);
+                    args.unshift(name);
+                    console.error.apply(console, args);
+                },
+            };
+        }
     }
     return {
         info: () => {},

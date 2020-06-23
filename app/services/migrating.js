@@ -3,6 +3,9 @@ import moment from "moment";
 import Promise from "bluebird";
 import { serializePromiseChain } from "../utilities";
 import * as AllMigrations from "../migrations";
+import Config from "../config";
+
+const log = Config.logger("Migrations");
 
 export default class Migrating {
     up(db) {
@@ -11,7 +14,7 @@ export default class Migrating {
                 const all = this._resolve();
 
                 return serializePromiseChain(all, migration => {
-                    console.log("migration: check", migration.version, migration.name);
+                    log.verbose("migration: check", migration.version, migration.name);
                     return this._isNecessary(db, migration).then(necessary => {
                         if (necessary) {
                             return this._migrateUp(db, migration);
@@ -24,14 +27,14 @@ export default class Migrating {
                 });
             })
             .catch(err => {
-                console.log("ERROR", err.message);
-                console.log("ERROR", err.stack);
+                log.error("ERROR", err.message);
+                log.error("ERROR", err.stack);
                 return Promise.reject(err);
             });
     }
 
     _migrateUp(db, migration) {
-        console.log("migration: up", migration.version, migration.name);
+        log.info("migration: up", migration.version, migration.name);
         return Promise.resolve(migration.instance.up(db)).then(action => {
             return this._markRan(db, migration).then(() => {
                 return {
@@ -71,7 +74,7 @@ export default class Migrating {
     }
 
     _markRan(db, migration) {
-        console.log("marking ran", migration.version);
+        log.info("marking ran", migration.version);
         return db.query("INSERT INTO migrations (version) VALUES (?)", [migration.version]);
     }
 
