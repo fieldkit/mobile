@@ -142,7 +142,7 @@ function configureGlobalErrorHandling() {
         // vm: component in which error occured
         // info: Vue specific error information such as lifecycle hooks, events etc.
         Vue.config.errorHandler = (err, vm, info) => {
-            console.log("vuejs error:", err);
+            console.log("vuejs error:", err, err.stack);
         };
 
         Vue.config.warnHandler = (msg, vm, info) => {
