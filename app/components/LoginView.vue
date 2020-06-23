@@ -184,6 +184,7 @@ import AssembleStation from "./onboarding/AssembleStationView";
 import Config from "../config";
 import routes from "../routes";
 import { USERNAME, PASSWORD } from "../secrets";
+import * as ActionTypes from "../store/actions";
 import Services from "../services/services";
 
 export default {
@@ -296,8 +297,10 @@ export default {
                 .login(this.user)
                 .then(() => {
                     this.processing = false;
-                    return this.$navigateTo(routes.assembleStation, {
-                        clearHistory: true,
+                    return this.$store.dispatch(ActionTypes.AUTHENTICATED).then(() => {
+                        return this.$navigateTo(routes.assembleStation, {
+                            clearHistory: true,
+                        });
                     });
                 })
                 .catch(error => {
