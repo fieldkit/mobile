@@ -102,16 +102,6 @@ export class NearbyStation {
     }
 }
 
-export interface NearbyState {
-    queryStation: () => any | never;
-    stations: { [index: string]: NearbyStation };
-}
-
-export interface GlobalState {
-    readonly nearby: NearbyState;
-    readonly stations: StationsState;
-}
-
 export enum StationStatus {
     Unknown,
     Ready,
@@ -154,9 +144,11 @@ export interface Store {
     dispatch(type: string, action: any): Promise<any>;
 }
 
-export interface PhoneLocation {
-    latitude: Number;
-    longitude: Number;
+export class PhoneLocation {
+    // Twin Peaks East in Angeles National Forest
+    static TwinPeaksEastLosAngelesNationalForest: PhoneLocation = new PhoneLocation(34.3318104, -118.0730372, 0);
+
+    constructor(public readonly latitude: number, public readonly longitude: number, public readonly time: number) {}
 }
 
 export interface PhoneNetwork {

@@ -2,7 +2,13 @@ import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyState, NearbyStation, PhoneLocation } from "../types";
+import { ServiceInfo, NearbyStation, PhoneLocation } from "../types";
+
+export interface NearbyState {
+    queryStation: () => any | never;
+    stations: { [index: string]: NearbyStation };
+    location: PhoneLocation | null;
+}
 
 const actions = {
     [ActionTypes.FOUND]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }, info: ServiceInfo) => {
@@ -79,13 +85,16 @@ const mutations = {
             state.stations[info.deviceId].tried = new Date();
         }
     },
-    [MutationTypes.PHONE_LOCATION]: (state: NearbyState, location: PhoneLocation) => {},
+    [MutationTypes.PHONE_LOCATION]: (state: NearbyState, location: PhoneLocation) => {
+        state.location = location;
+    },
 };
 
 const state = (): NearbyState => {
     return {
         queryStation: () => new Error(),
         stations: {},
+        location: null,
     };
 };
 

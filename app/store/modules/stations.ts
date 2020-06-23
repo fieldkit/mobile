@@ -1,7 +1,13 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationsState, GlobalState, StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor } from "../types";
+import { StationsState, StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor } from "../types";
+import { NearbyState } from "./nearby";
+
+export interface GlobalState {
+    readonly nearby: NearbyState;
+    readonly stations: StationsState;
+}
 
 const getters = {
     availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): ((now: Date) => AvailableStation[]) => (

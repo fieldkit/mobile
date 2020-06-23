@@ -7,12 +7,6 @@ interface PhoneState {
     location: PhoneLocation;
 }
 
-// Twin Peaks East in Angeles National Forest
-const TwinPeaksEastLosAngelesNationlForest: PhoneLocation = {
-    latitude: 34.3318104,
-    longitude: -118.0730372,
-};
-
 const getters = {};
 
 const actions = {};
@@ -29,7 +23,7 @@ const mutations = {
 const state = () => {
     return {
         network: null,
-        location: TwinPeaksEastLosAngelesNationlForest,
+        location: PhoneLocation.TwinPeaksEastLosAngelesNationalForest,
     };
 };
 

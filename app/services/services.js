@@ -138,8 +138,8 @@ export class Services {
 
     PhoneLocation() {
         if (!this.phoneLocation) {
-            const PhoneLocation = require("./phone-location").default;
-            this.phoneLocation = new PhoneLocation(this.Store());
+            const PhoneLocationWatcher = require("./phone-location").default;
+            this.phoneLocation = new PhoneLocationWatcher(this.Store());
         }
         return this.phoneLocation;
     }
