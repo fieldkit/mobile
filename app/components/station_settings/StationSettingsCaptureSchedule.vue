@@ -14,7 +14,7 @@
                     </StackLayout>
 
                     <!-- data capture schedule -->
-                    <ConfigureCaptureInterval :station="station" />
+                    <ConfigureCaptureInterval :station="station" ref="configCaptureInterval" />
 
                     <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="goBack" />
                     <StackLayout class="p-b-20"></StackLayout>
@@ -60,16 +60,18 @@ export default {
                 }, 500);
             }
 
-            this.$navigateTo(General, {
-                props: {
-                    station: this.station,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+            if (this.$refs.configCaptureInterval.checkAllIntervals()) {
+                this.$navigateTo(General, {
+                    props: {
+                        station: this.station,
+                    },
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear",
+                    },
+                });
+            }
         },
     },
 };

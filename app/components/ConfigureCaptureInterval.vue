@@ -384,6 +384,17 @@ export default {
             return !interval.intervalNotNumber;
         },
 
+        checkAllIntervals() {
+            let allValid = true;
+            this.intervals.forEach(interval => {
+                let valid = this.checkInterval(interval);
+                if (!valid) {
+                    allValid = false;
+                }
+            });
+            return allValid;
+        },
+
         saveInterval() {
             this.intervals.forEach(interval => {
                 let valid = this.checkInterval(interval);
