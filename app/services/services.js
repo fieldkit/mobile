@@ -107,7 +107,7 @@ export class Services {
     PortalUpdater() {
         if (!this.portalUpdater) {
             const PortalUpdater = require("./portal-updater").default;
-            this.portalUpdater = new PortalUpdater(this.Database(), this.PortalInterface());
+            this.portalUpdater = new PortalUpdater(this.Database(), this.PortalInterface(), this.Store());
         }
         return this.portalUpdater;
     }

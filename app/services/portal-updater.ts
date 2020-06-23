@@ -1,8 +1,14 @@
+import { Store } from "../store/types";
+
 export default class PortalUpdater {
-    constructor(database, portalInterface) {
-        console.log("PortalUpdater", "constructor");
+    portalInterface: any;
+    store: Store;
+    database: any;
+
+    constructor(database, portalInterface, store) {
         this.database = database;
         this.portalInterface = portalInterface;
+        this.store = store;
     }
 
     start() {
