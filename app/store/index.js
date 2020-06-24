@@ -28,6 +28,16 @@ function customizeLogger() {
             if (mutation.type == MutationTypes.PHONE_NETWORK) {
                 return false;
             }
+            if (mutation.type == MutationTypes.STATIONS) {
+                console.log(
+                    "mutation: ",
+                    mutation.type,
+                    _(mutation.payload)
+                        .map(s => s.name)
+                        .value()
+                );
+                return false;
+            }
             return true;
         },
         actionFilter(action, state) {
@@ -35,6 +45,14 @@ function customizeLogger() {
                 return false;
             }
             if (action.type == ActionTypes.QUERY_NECESSARY) {
+                return false;
+            }
+            if (action.type == ActionTypes.STATION_REPLY) {
+                console.log("store: action", action.type, action.payload.status.identity.device);
+                return false;
+            }
+            if (action.type == ActionTypes.STATIONS_LOADED) {
+                console.log("store: action", action.type);
                 return false;
             }
             return true;

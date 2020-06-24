@@ -26,7 +26,7 @@ export default class DownloadManager {
     constructor(services) {
         this.databaseInterface = services.Database();
         this.queryStation = services.QueryStation();
-        this.stationMonitor = services.StationMonitor();
+        this.store = services.Store();
         this.progressService = services.ProgressService();
         this._mutex = new Mutex();
     }
@@ -72,13 +72,19 @@ export default class DownloadManager {
             };
         }
 
-        const stations = this.stationMonitor.getStations().filter(s => {
-            return s.deviceId && s.url && s.connected;
+        const stations = Object.values(this.store.getters.legacyStations).filter(s => {
+            return s.connected;
         });
 
+        console.log(
+            "refresh stations",
+            _.map(stations, s => s.name)
+        );
+
         return Promise.all(
-            stations.map(keysToCamel).map(station => {
-                if (!station.statusJson) {
+            stations.map(station => {
+                if (!station.statusJson()) {
+                    console.log("no status json");
                     return {
                         station: station,
                         streams: {
@@ -92,8 +98,8 @@ export default class DownloadManager {
                     };
                 }
                 return this.databaseInterface.getStreamsByStationId(station.id).then(streams => {
-                    const deviceMeta = this._getStreamStatus(station.statusJson, 0, Constants.MetaStreamType);
-                    const deviceData = this._getStreamStatus(station.statusJson, 1, Constants.DataStreamType);
+                    const deviceMeta = this._getStreamStatus(station.statusJson(), 0, Constants.MetaStreamType);
+                    const deviceData = this._getStreamStatus(station.statusJson(), 1, Constants.DataStreamType);
                     const downloadStatus = getDownloadsStatus(streams);
                     const pendingMetaBytes = deviceMeta.size - downloadStatus.meta.size;
                     const pendingDataBytes = deviceData.size - downloadStatus.data.size;
@@ -168,6 +174,7 @@ export default class DownloadManager {
                         return operation.complete();
                     })
                     .catch(error => {
+                        console.log("error", error.message, error.stack);
                         return operation.cancel(error);
                     });
             });

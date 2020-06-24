@@ -5,7 +5,12 @@ import { StationCreationFields, Station, HasLocation, AvailableStation, Module, 
 import { GlobalState } from "./global";
 
 export class StationsState {
-    db: () => any = () => new Error();
+    db: () => any = () => {
+        throw new Error();
+    };
+    stateManager: () => any = () => {
+        throw new Error();
+    };
     error: string | boolean = false;
     all: Station[] = [];
 }
@@ -223,7 +228,11 @@ interface StationPortalError {
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
-        return loadStationsFromDatabase(state.db()).then(stations => commit(MutationTypes.STATIONS, stations));
+        return loadStationsFromDatabase(state.db()).then(stations => dispatch(ActionTypes.STATIONS_LOADED, stations));
+    },
+    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, stations) => {
+        commit(MutationTypes.STATIONS, stations);
+        return state.stateManager().refresh();
     },
     [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
         return state
@@ -255,6 +264,9 @@ const mutations = {
     [MutationTypes.SERVICES]: (state: StationsState, services: any) => {
         state.db = function () {
             return services().Database();
+        };
+        state.stateManager = function () {
+            return services().StateManager();
         };
     },
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {
