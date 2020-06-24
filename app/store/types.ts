@@ -104,6 +104,18 @@ export class Station implements StationCreationFields {
     }
 }
 
+export class LegacyStation extends Station {
+    id: number;
+    connected: boolean;
+
+    constructor(fields: StationCreationFields, modules: Module[], available: AvailableStation) {
+        super(fields, modules);
+        if (!available.id) throw new Error(`AvailableStation missing id`);
+        this.id = available.id;
+        this.connected = available.connected;
+    }
+}
+
 export interface ServiceInfo {
     readonly deviceId: string;
     readonly url: string;

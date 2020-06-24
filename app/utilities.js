@@ -136,7 +136,7 @@ export function convertOldFirmwareResponse(module) {
         module.name = "modules." + module.name;
         if (module.name == "modules.water") {
             // this is dicey, but temporary...
-            module.name += "." + module.sensorObjects[0].name;
+            module.name += "." + module.sensors[0].name;
         }
     }
     return module.name;

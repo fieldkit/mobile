@@ -1,7 +1,7 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor } from "../types";
+import { StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor, LegacyStation } from "../types";
 import { GlobalState } from "./global";
 
 export class StationsState {
@@ -24,15 +24,23 @@ const getters = {
             })
             .value();
     },
-    findStationById: (state: StationsState, getters, rootState: GlobalState, rootGetters) => (id: number): AvailableStation => {
-        return _(getters.availableStations)
-            .filter(available => available.id == id)
-            .head();
-    },
-    findStationByDeviceId: (state: StationsState, getters, rootState: GlobalState, rootGetters) => (deviceId: string): AvailableStation => {
-        return _(getters.availableStations)
-            .filter(available => available.deviceId == deviceId)
-            .head();
+    legacyStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): { [index: number]: LegacyStation } => {
+        const nearby = rootState.nearby.stations;
+        const stations = _(state.all)
+            .keyBy(a => a.deviceId)
+            .value();
+        const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
+        const legacy = _(deviceIds)
+            .map(deviceId => {
+                const station = stations[deviceId];
+                const available = new AvailableStation(rootState.clock.now, deviceId, nearby[deviceId], station);
+                return new LegacyStation(station, station.modules, available);
+            })
+            .sortBy(ls => {
+                return [ls.name];
+            })
+            .value();
+        return _.keyBy(legacy, s => s.id);
     },
 };
 
