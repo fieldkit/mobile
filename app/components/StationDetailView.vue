@@ -110,7 +110,7 @@ export default {
     },
     props: {
         stationId: {
-            type: String,
+            type: Number,
         },
         station: {
             type: Object,

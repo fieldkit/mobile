@@ -36,7 +36,6 @@ type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<an
 export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<any> => {
         if (pageOrRoute instanceof Route) {
-            if (options) console.log("OPTIONS", options.props);
             store.commit(MutationTypes.NAVIGATION, pageOrRoute.combine(options));
             return navigateTo(pageOrRoute.page, options);
         }
