@@ -24,6 +24,16 @@ const getters = {
             })
             .value();
     },
+    findStationById: (state: StationsState, getters, rootState: GlobalState, rootGetters) => (id: number): AvailableStation => {
+        return _(getters.availableStations)
+            .filter(available => available.id == id)
+            .head();
+    },
+    findStationByDeviceId: (state: StationsState, getters, rootState: GlobalState, rootGetters) => (deviceId: string): AvailableStation => {
+        return _(getters.availableStations)
+            .filter(available => available.deviceId == deviceId)
+            .head();
+    },
 };
 
 function getLocationFrom(o: HasLocation): HasLocation {
