@@ -50,7 +50,7 @@ export class MockStationReplies {
         };
     }
 
-    newFakeStatusReply(station) {
+    newFakeStatusReply(station, gps) {
         return {
             errors: [],
             type: 15,
@@ -70,6 +70,7 @@ export class MockStationReplies {
                 recording: {
                     startedTime: 0,
                 },
+                gps: gps || {},
             },
             streams: [
                 {

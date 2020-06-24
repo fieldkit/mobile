@@ -1,10 +1,14 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { Services } from "../services/services";
+import { prepareReply } from "../services/query-station";
 import { MockStationReplies } from "./utilities";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
+
+import { PhoneLocation, CommonLocations } from "../store/types";
+// import { MapCenter } from "../store/modules/map";
 
 describe("Store", () => {
     let services;
@@ -198,6 +202,46 @@ describe("Store", () => {
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
             expect(store.state.stations.all[0].modules[0].sensors[0].reading).toBe(100 * 2);
             expect(store.state.stations.all[0].modules[0].sensors[1].reading).toBe(200 * 2);
+        });
+    });
+
+    function locationToGpsStatus(location: PhoneLocation): any {
+        return {
+            enabled: false,
+            fix: false,
+            time: location.time,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            altitude: 0,
+        };
+    }
+
+    describe("map", () => {
+        it("should begin with no default location", async () => {
+            expect(store.getters.mapCenter).toBe(null);
+        });
+
+        it("should center on the phone's location", async () => {
+            expect(store.getters.mapCenter).toBe(null);
+            store.commit(MutationTypes.PHONE_LOCATION, CommonLocations.ConservifyLab);
+            expect(store.getters.mapCenter.location).toEqual(CommonLocations.ConservifyLab.location());
+        });
+
+        it("should include all nearby stations", async () => {
+            expect.assertions(3);
+
+            const station1 = mockStation.newFakeStation();
+            const station2 = mockStation.newFakeStation();
+
+            const reply1 = prepareReply(mockStation.newFakeStatusReply(station1, locationToGpsStatus(CommonLocations.ConservifyLab)));
+            const reply2 = prepareReply(mockStation.newFakeStatusReply(station2, locationToGpsStatus(CommonLocations.DowntownLA)));
+
+            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            await store.dispatch(ActionTypes.STATION_REPLY, reply2);
+
+            expect(Object.keys(store.state.map.stations).length).toBe(2);
+            expect(store.state.map.stations[station1.deviceId].location).toEqual(CommonLocations.ConservifyLab.location());
+            expect(store.state.map.stations[station2.deviceId].location).toEqual(CommonLocations.DowntownLA.location());
         });
     });
 });

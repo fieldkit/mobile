@@ -3,6 +3,28 @@ export interface HasLocation {
     readonly longitude: number | null;
 }
 
+export class Location implements HasLocation {
+    constructor(public readonly latitude: number, public readonly longitude) {}
+
+    maximum(other: Location): Location {
+        return new Location(
+            other.latitude > this.latitude ? other.latitude : this.latitude,
+            other.longitude > this.longitude ? other.longitude : this.longitude
+        );
+    }
+
+    minimum(other: Location): Location {
+        return new Location(
+            other.latitude < this.latitude ? other.latitude : this.latitude,
+            other.longitude < this.longitude ? other.longitude : this.longitude
+        );
+    }
+
+    clone(): Location {
+        return new Location(this.latitude, this.longitude);
+    }
+}
+
 export class Sensor {
     constructor(
         public readonly id: number | null,
@@ -102,10 +124,6 @@ export enum StationStatus {
     Recording,
 }
 
-export class Location implements HasLocation {
-    constructor(public readonly latitude: number, public readonly longitude) {}
-}
-
 function isConnected(now: Date, nearby: NearbyStation | null): boolean {
     if (!nearby || !nearby.tried) {
         return false;
@@ -115,6 +133,7 @@ function isConnected(now: Date, nearby: NearbyStation | null): boolean {
 }
 
 export class AvailableStation {
+    readonly id: number | null | undefined;
     readonly deviceId: string;
     readonly connected: boolean;
     readonly status: StationStatus;
@@ -129,6 +148,7 @@ export class AvailableStation {
         this.deviceId = deviceId;
         this.connected = isConnected(now, nearby);
         this.status = StationStatus.Unknown;
+        this.id = station?.id;
         this.name = station?.name;
         this.deployStartTime = station?.deployStartTime;
         this.location = station?.location();
@@ -142,11 +162,22 @@ export interface Store {
 
 export class PhoneLocation {
     constructor(public readonly latitude: number, public readonly longitude: number, public readonly time: number) {}
+
+    public location(): Location {
+        return new Location(this.latitude, this.longitude);
+    }
+
+    clone(): PhoneLocation {
+        return new PhoneLocation(this.latitude, this.longitude, this.time);
+    }
 }
 
 export class CommonLocations {
     static TwinPeaksEastLosAngelesNationalForest: PhoneLocation = new PhoneLocation(34.3318104, -118.0730372, 0);
-    static ConservifyLab: PhoneLocation = new PhoneLocation(0, 0, 0);
+    static ConservifyLab: PhoneLocation = new PhoneLocation(34.029137, -118.2652074, 0);
+    static ConservifyBlueLine: PhoneLocation = new PhoneLocation(34.0316369, -118.2684833, 0);
+    static DowntownLA: PhoneLocation = new PhoneLocation(34.0479489, -118.2515045, 0);
+    static VermontAndWilshire: PhoneLocation = new PhoneLocation(34.0680158, -118.291605, 0);
 }
 
 export class PhoneNetwork {

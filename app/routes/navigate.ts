@@ -1,9 +1,10 @@
+import _ from "lodash";
 import { Store } from "../store/types";
 import * as MutationTypes from "../store/mutations";
 
 export interface NavigateOptions {
     clearHistory: boolean | null;
-    props: any | null;
+    props: object | null;
 }
 
 export class RouteState {
@@ -21,10 +22,10 @@ export class Route {
     constructor(public readonly page: any, public readonly state: RouteState) {}
 
     combine(options: NavigateOptions | null): RouteState {
-        if (options) {
-            const c = this.state;
-            c.props = options.props;
-            return this.state;
+        if (options && options.props) {
+            const cloned = _.cloneDeep(this.state);
+            cloned.props = options.props;
+            return cloned;
         }
         return this.state;
     }
@@ -35,6 +36,7 @@ type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<an
 export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<any> => {
         if (pageOrRoute instanceof Route) {
+            if (options) console.log("OPTIONS", options.props);
             store.commit(MutationTypes.NAVIGATION, pageOrRoute.combine(options));
             return navigateTo(pageOrRoute.page, options);
         }
