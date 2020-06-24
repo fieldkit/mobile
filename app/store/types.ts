@@ -111,12 +111,14 @@ export class LegacyStation extends Station {
 
     id: number;
     connected: boolean;
+    url: string | null;
 
     constructor(fields: StationCreationFields, modules: Module[], available: AvailableStation) {
         super(fields, modules);
         if (!available.id) throw new Error(`AvailableStation missing id`);
         this.id = available.id;
         this.connected = available.connected;
+        this.url = available.url;
     }
 
     statusJson(): any {
@@ -133,10 +135,12 @@ export interface ServiceInfo {
 }
 
 export class NearbyStation {
+    url: string;
     queried: Date;
     tried: Date | null;
 
     constructor(public readonly info: ServiceInfo) {
+        this.url = info.url;
         this.queried = new Date();
         this.tried = null;
     }
@@ -157,25 +161,27 @@ function isConnected(now: Date, nearby: NearbyStation | null): boolean {
 }
 
 export class AvailableStation {
-    readonly id: number | null | undefined;
+    readonly id: number | null;
     readonly deviceId: string;
     readonly connected: boolean;
     readonly status: StationStatus;
-    readonly name: string | null | undefined;
-    readonly deployStartTime: Date | null | undefined;
-    readonly location: Location | null | undefined;
+    readonly name: string | null;
+    readonly deployStartTime: Date | null;
+    readonly location: Location | null;
+    readonly url: string | null;
 
     constructor(now: Date, deviceId: string, nearby: NearbyStation | null, station: Station | null) {
         if (!nearby && !station) {
             throw new Error(`AvailableStation invalid args`);
         }
         this.deviceId = deviceId;
-        this.connected = isConnected(now, nearby);
         this.status = StationStatus.Unknown;
-        this.id = station?.id;
-        this.name = station?.name;
-        this.deployStartTime = station?.deployStartTime;
-        this.location = station?.location();
+        this.id = station?.id || null;
+        this.name = station?.name || null;
+        this.deployStartTime = station?.deployStartTime || null;
+        this.url = nearby?.url || null;
+        this.location = station?.location() || null;
+        this.connected = isConnected(now, nearby);
     }
 }
 
