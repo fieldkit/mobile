@@ -5,6 +5,7 @@ import { knownFolders } from "tns-core-modules/file-system";
 import * as traceModule from "tns-core-modules/trace";
 import { crashlytics } from "nativescript-plugin-firebase";
 import Vue from "nativescript-vue";
+import { AuthenticationError } from "./errors";
 import Config from "../config";
 
 const SaveInterval = 10000;
@@ -131,7 +132,11 @@ function configureGlobalErrorHandling() {
         traceModule.enable();
 
         Promise.onPossiblyUnhandledRejection((reason, promise) => {
-            console.log("onPossiblyUnhandledRejection", reason, reason.stack);
+            if (reason instanceof AuthenticationError) {
+                console.log("onPossiblyUnhandledRejection", reason);
+            } else {
+                console.log("onPossiblyUnhandledRejection", reason, reason.stack);
+            }
         });
 
         Promise.onUnhandledRejectionHandled(promise => {
