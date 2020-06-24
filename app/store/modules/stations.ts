@@ -16,7 +16,7 @@ const getters = {
         const stations = _(state.all)
             .keyBy(a => a.deviceId)
             .value();
-        const deviceIds = _(nearby).keys().union(_(stations).keys().value()).uniq().value();
+        const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
         return _(deviceIds)
             .map(deviceId => new AvailableStation(rootState.clock.now, deviceId, nearby[deviceId], stations[deviceId]))
             .sortBy(available => {
@@ -63,6 +63,7 @@ interface LiveReadings {
 interface ModuleCapabilities {
     name: string;
     deviceId: string;
+    position: number;
     sensors: SensorCapabilities[];
 }
 
@@ -93,6 +94,7 @@ interface StationTableRow extends StationCreationFields {
 interface ModuleTableRow {
     id: number;
     name: string;
+    position: number;
     moduleId: string;
     stationId: number | null;
 }
@@ -117,7 +119,7 @@ function makeModulesFromStatus(statusReply: HttpStatusReply): Module[] {
                                     new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value)
                             )
                             .value();
-                        return new Module(null, moduleReply.module.name, moduleReply.module.deviceId, sensors);
+                        return new Module(null, moduleReply.module.name, moduleReply.module.position, moduleReply.module.deviceId, sensors);
                     })
                     .value()
             )
@@ -129,7 +131,7 @@ function makeModulesFromStatus(statusReply: HttpStatusReply): Module[] {
             const sensors = _(moduleReply.sensors)
                 .map(sensorReply => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null))
                 .value();
-            return new Module(null, moduleReply.name, moduleReply.deviceId, sensors);
+            return new Module(null, moduleReply.name, moduleReply.position, moduleReply.deviceId, sensors);
         })
         .value();
 }
@@ -192,7 +194,7 @@ function loadStationsFromDatabase(db) {
                             const sensors = _(sensorRows)
                                 .map(sensorRow => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading))
                                 .value();
-                            return new Module(moduleRow.id, moduleRow.name, moduleRow.moduleId, sensors);
+                            return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, sensors);
                         })
                         .value();
                     return new Station(stationRow, modules);

@@ -38,6 +38,7 @@ export class Module {
     constructor(
         public readonly id: number | null,
         public readonly name: string,
+        public readonly position: number,
         public readonly moduleId: string,
         public readonly sensors: Sensor[]
     ) {}
