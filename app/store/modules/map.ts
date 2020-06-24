@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { Station, Location, PhoneLocation } from "../types";
 import * as MutationTypes from "../mutations";
 
@@ -77,14 +78,14 @@ const actions = {};
 
 const mutations = {
     [MutationTypes.STATIONS]: (state: MapState, stations: Station[]) => {
-        const bounds = new BoundingRectangle();
+        const newStations = {};
         stations.forEach(station => {
             const location = station.location();
             if (location) {
-                state.stations[station.deviceId] = new MappedStation(station.deviceId, station.name, location);
-                bounds.include(location);
+                newStations[station.deviceId] = new MappedStation(station.deviceId, station.name, location);
             }
         });
+        state.stations = newStations;
     },
     [MutationTypes.PHONE_LOCATION]: (state: MapState, phone: PhoneLocation) => {
         state.phone = phone.location();

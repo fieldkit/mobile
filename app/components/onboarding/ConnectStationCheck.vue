@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from "vuex";
 import routes from "../../routes";
 import Services from "../../services/services";
 import ConnectStationError from "./ConnectStationError";
@@ -24,9 +25,16 @@ export default {
     data() {
         return {
             step: {},
-            stations: [],
             stationOptions: [],
         };
+    },
+    computed: {
+        ...mapGetters({ anyNearbyStations: "anyNearbyStations" }),
+    },
+    watch: {
+        anyNearbyStations(newValue, oldValue) {
+            console.log("has nearby", newValue);
+        },
     },
     components: {
         ConnectStationError,
@@ -36,17 +44,10 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
-            this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
             this.step = steps[this.stepParam];
             this.preShowSpinner();
             this.connectingTimer = setInterval(this.showSpinner, 1000);
             this.checkForConnections();
-        },
-
-        updateStations(stations) {
-            this.stations = stations.filter(s => {
-                return s.connected;
-            });
         },
 
         goNext() {
@@ -71,7 +72,6 @@ export default {
 
         goToError() {
             this.stopAnimation();
-            this.unsubscribe();
             this.$navigateTo(ConnectStationError, {
                 props: {
                     stepParam: this.step.name,
@@ -81,7 +81,6 @@ export default {
 
         goToSelectStation() {
             this.stopAnimation();
-            this.unsubscribe();
             this.$navigateTo(ConnectStationList, {
                 props: {
                     stationOptionsParam: this.stationOptions,
@@ -91,7 +90,6 @@ export default {
 
         goToModules() {
             this.stopAnimation();
-            this.unsubscribe();
             this.$navigateTo(ConnectStationModules, {
                 props: {
                     stepParam: this.proceed,
@@ -140,10 +138,10 @@ export default {
         },
 
         checkForConnections() {
-            if (this.stations && this.stations.length > 0) {
+            if (this.anyNearbyStations) {
                 clearInterval(this.connectingTimer);
                 this.step.next = this.step.proceed;
-                this.stationOptions = this.stations.map((s, i) => {
+                this.stationOptions = this.$store.state.stations.all.map((s, i) => {
                     s.selected = i == 0;
                     return s;
                 });
@@ -151,10 +149,6 @@ export default {
             } else {
                 this.step.next = "trouble";
             }
-        },
-
-        unsubscribe() {
-            this.$stationMonitor.unsubscribeAll(this.updateStations);
         },
     },
 };

@@ -59,7 +59,11 @@ const actions = {
     },
 };
 
-const getters = {};
+const getters = {
+    anyNearbyStations: (state: NearbyState): boolean => {
+        return Object.values(state.stations).length > 0;
+    },
+};
 
 const mutations = {
     [MutationTypes.SERVICES]: (state: NearbyState, services: any) => {
@@ -68,10 +72,12 @@ const mutations = {
         };
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
-        state.stations[info.deviceId] = new NearbyStation(info);
+        state.stations = { ...state.stations, [info.deviceId]: new NearbyStation(info) };
     },
     [MutationTypes.LOSE]: (state: NearbyState, info: ServiceInfo) => {
-        delete state.stations[info.deviceId];
+        const clone = { ...state.stations };
+        delete clone[info.deviceId];
+        state.stations = clone;
     },
     [MutationTypes.QUERIED]: (state: NearbyState, info: ServiceInfo) => {
         if (state.stations[info.deviceId]) {
