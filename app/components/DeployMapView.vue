@@ -14,7 +14,7 @@
                     <StackLayout col="0" class="top-line"></StackLayout>
                 </GridLayout>
                 <StackLayout class="text-center disconnect-warning" v-if="!station.connected">
-                    <Label text="Station disconnected." />
+                    <Label :text="_L('stationDisconnected')" />
                 </StackLayout>
             </StackLayout>
 

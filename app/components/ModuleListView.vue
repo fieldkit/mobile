@@ -131,7 +131,7 @@ export default {
             if (!this.station || !this.station.updated) {
                 return "";
             }
-            return "Last reading " + getLastSeen(this.station.updated);
+            return _L("lastReading") + " " + getLastSeen(this.station.updated);
         },
 
         getModuleName(module) {

@@ -8,7 +8,7 @@
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
                 <StackLayout class="text-center disconnect-warning" v-if="!station.connected">
-                    <Label text="Station disconnected." />
+                    <Label :text="_L('stationDisconnected')" />
                 </StackLayout>
             </StackLayout>
 
@@ -41,7 +41,7 @@
                     <!-- field notes -->
                     <StackLayout class="review-section-no-border">
                         <GridLayout rows="auto" columns="30*,60*,10*" class="m-b-10">
-                            <Label row="0" col="0" text="Field Notes" class="size-16 bold"></Label>
+                            <Label row="0" col="0" :text="_L('fieldNotes')" class="size-16 bold"></Label>
                             <Label
                                 row="0"
                                 col="1"

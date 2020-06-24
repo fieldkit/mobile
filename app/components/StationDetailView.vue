@@ -34,7 +34,7 @@
                                     @tap="goToFieldNotes"
                                 >
                                     <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
-                                    <Label col="1" text="Field Notes" class="size-16 m-l-10" verticalAlignment="middle" />
+                                    <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
                                     <Label
                                         col="2"
                                         :text="percentComplete + '% ' + _L('complete')"
@@ -248,11 +248,7 @@ export default {
         },
 
         getFromDatabase() {
-            dbInterface
-                .getStation(this.paramId)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
+            dbInterface.getStation(this.paramId).then(this.getModules).then(this.setupModules).then(this.completeSetup);
         },
 
         respondToUpdates() {
@@ -270,10 +266,7 @@ export default {
                 }
 
                 this.currentStation.connected = station.connected;
-                return dbInterface
-                    .getModules(this.paramId)
-                    .then(this.setupModules)
-                    .then(this.updateModules);
+                return dbInterface.getModules(this.paramId).then(this.setupModules).then(this.updateModules);
             });
 
             this.$stationMonitor.subscribe(stations => {

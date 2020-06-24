@@ -169,7 +169,7 @@ export default {
 
         getBatteryLevel() {
             if (this.station.batteryLevel != 0 && !this.station.batteryLevel) {
-                return "Unknown";
+                return _L("unknown");
             }
             return this.station.batteryLevel + "%";
         },
@@ -197,7 +197,7 @@ export default {
             if (!this.station.updated) {
                 return "";
             }
-            return "Since " + getLastSeen(this.station.updated);
+            return _L("since") + " " + getLastSeen(this.station.updated);
         },
 
         displayElapsedTime() {

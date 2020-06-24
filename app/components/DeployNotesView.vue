@@ -16,14 +16,14 @@
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
                 <StackLayout class="text-center disconnect-warning" v-if="!station.connected && !isEditing">
-                    <Label text="Station disconnected." />
+                    <Label :text="_L('stationDisconnected')" />
                 </StackLayout>
             </StackLayout>
 
             <!-- alternate header section -->
             <GridLayout row="0" rows="auto" columns="85*,15*" :class="isEditing ? '' : 'alternate-header'" v-if="linkedFromStation">
                 <StackLayout row="0" col="0" colSpan="2" verticalAlignment="middle" v-if="!isEditing">
-                    <Label class="title text-center" text="Field Notes"></Label>
+                    <Label class="title text-center" :text="_L('fieldNotes')"></Label>
                 </StackLayout>
                 <StackLayout row="0" col="1" class="round-bkgd m-r-10" verticalAlignment="top" @tap="onEditDone" v-if="!isEditing">
                     <Image width="21" src="~/images/Icon_Close.png"></Image>
@@ -36,7 +36,7 @@
                     <StackLayout class="m-x-20" v-if="!isEditing">
                         <!-- top label section -->
                         <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
-                            <Label row="0" col="0" text="Field Notes" class="size-18 bold"></Label>
+                            <Label row="0" col="0" :text="_L('fieldNotes')" class="size-18 bold"></Label>
                             <Label
                                 row="0"
                                 col="1"
@@ -456,7 +456,7 @@ export default {
                 stationId: this.station.id,
                 generationId: this.station.generationId,
                 note: note.value,
-                title: note.title ? note.title : "Field Note",
+                title: note.title ? note.title : _L("fieldNote"),
                 category: note.field,
                 audioFile: note.audioFile,
                 author: this.userName,
@@ -657,8 +657,8 @@ export default {
                 image: this.imageSrc,
                 field: "image_label",
                 value: "",
-                title: "Photo Description",
-                instruction: "Describe what is in the photo",
+                title: _L("photoDescription"),
+                instruction: _L("describePhoto"),
             };
             this.currentNote = note;
             this.isEditing = true;
