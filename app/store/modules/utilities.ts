@@ -4,8 +4,10 @@ export interface Services {
     LegacyHooks(): any;
 }
 
+export type ServicesFactory = () => Services;
+
 export class ServiceRef {
-    constructor(private readonly services: Services | null = null) {}
+    constructor(private readonly services: ServicesFactory | null = null) {}
 
     db(): any {
         return this.verify().Database();
@@ -23,6 +25,6 @@ export class ServiceRef {
         if (!this.services) {
             throw new Error(`Services unfilled`);
         }
-        return this.services;
+        return this.services();
     }
 }

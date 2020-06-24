@@ -48,7 +48,8 @@ function initializeApplication(services) {
                 .initialize()
                 .then(db => services.Database().checkConfig())
                 .then(() => {
-                    Services.Store().commit(MutationTypes.SERVICES, Services);
+                    // This uses a function so that the services object doesn't get spammed into the logs.
+                    Services.Store().commit(MutationTypes.SERVICES, () => Services);
                     return Services.Store()
                         .dispatch(ActionTypes.LOAD)
                         .then(() => {

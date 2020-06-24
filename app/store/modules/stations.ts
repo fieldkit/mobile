@@ -257,7 +257,7 @@ const actions = {
 };
 
 const mutations = {
-    [MutationTypes.SERVICES]: (state: StationsState, services: Services) => {
+    [MutationTypes.SERVICES]: (state: StationsState, services: () => Services) => {
         state.services = new ServiceRef(services);
     },
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {

@@ -4,6 +4,7 @@ import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation } from "../types";
 import { Services, ServiceRef } from "./utilities";
+import { RouteState } from "../../routes/navigate";
 
 export class NearbyState {
     services: ServiceRef = new ServiceRef();
@@ -68,7 +69,7 @@ const getters = {
 };
 
 const mutations = {
-    [MutationTypes.SERVICES]: (state: NearbyState, services: Services) => {
+    [MutationTypes.SERVICES]: (state: NearbyState, services: () => Services) => {
         state.services = new ServiceRef(services);
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
@@ -89,6 +90,7 @@ const mutations = {
             state.stations[info.deviceId].tried = new Date();
         }
     },
+    [MutationTypes.NAVIGATION]: (state: NearbyState, route: RouteState) => {},
 };
 
 const state = () => new NearbyState();
