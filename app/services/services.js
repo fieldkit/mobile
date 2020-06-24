@@ -11,6 +11,7 @@ class DiscoveryEvents {
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onFoundService(info);
         }
+        console.log("onServiceFound (done)");
     }
 
     onLostService(info) {
@@ -18,6 +19,7 @@ class DiscoveryEvents {
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onLostService(info);
         }
+        console.log("onServiceLost (done)");
     }
 
     add(listener) {
@@ -32,6 +34,7 @@ export class Services {
         }
         return this.store;
     }
+
     DiscoverStation() {
         if (!this.discoverStation) {
             const DiscoverStation = require("./discover-station").default;
@@ -85,14 +88,6 @@ export class Services {
                 return this.StateManager().refresh();
             },
         };
-    }
-
-    StationMonitor() {
-        if (!this.stationMonitor) {
-            const StationMonitor = require("./station-monitor").default;
-            this.stationMonitor = new StationMonitor(this.DiscoverStation(), this.Database(), this.QueryStation(), this.PhoneLocation());
-        }
-        return this.stationMonitor;
     }
 
     CreateDb() {
