@@ -6,7 +6,7 @@
                     <ScreenHeader
                         order="1"
                         :title="currentStation.name"
-                        :subtitle="deployedStatus"
+                        :subtitle="getDeployedStatus()"
                         :onBack="goBack"
                         :onSettings="goToSettings"
                     />
@@ -23,7 +23,7 @@
                         <GridLayout row="0" col="0">
                             <FlexboxLayout flexDirection="column">
                                 <!-- station status details -->
-                                <StationStatusBox order="1" ref="statusBox" @deployTapped="goToDeploy" />
+                                <StationStatusBox v-if="currentStation" order="1" @deployTapped="goToDeploy" :station="currentStation" />
                                 <!-- field notes section -->
                                 <GridLayout
                                     order="2"
@@ -44,7 +44,7 @@
                                     />
                                 </GridLayout>
                                 <!-- module list with current readings -->
-                                <ModuleListView order="3" ref="moduleList" :station="currentStation" @moduleTapped="goToModule" />
+                                <ModuleListView v-if="currentStation" order="3" :station="currentStation" @moduleTapped="goToModule" />
                             </FlexboxLayout>
                         </GridLayout>
                         <!-- end background elements -->
@@ -91,15 +91,22 @@ export default {
     data() {
         return {
             loading: true,
+            deviceId: null,
             isDeployed: false,
             deployedStatus: "",
             percentComplete: 0,
             modules: [],
-            currentStation: { name: "", id: 0 },
-            paramId: null,
             newlyDeployed: false,
             notificationCodes: [],
         };
+    },
+    computed: {
+        currentStation() {
+            if (!this.$store.getters.legacyStations) {
+                throw new Error(`missing legacyStations`);
+            }
+            return this.$store.getters.legacyStations[this.stationId];
+        },
     },
     components: {
         ScreenHeader,
@@ -207,9 +214,6 @@ export default {
         },
 
         stopProcesses() {
-            if (this.currentStation && this.currentStation.url != "no_url") {
-                this.$stationMonitor.stopLiveReadings(this.currentStation.url);
-            }
             if (this.intervalTimer) {
                 clearInterval(this.intervalTimer);
             }
@@ -229,99 +233,25 @@ export default {
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
 
-            this.stations = this.$stationMonitor.getStations();
-
             if (this.station) {
                 this.currentStation = this.station;
-                this.paramId = Number(this.currentStation.id);
+                this.stationId = Number(this.currentStation.id);
                 this.completeSetup();
-            } else {
-                this.paramId = this.stationId;
-                this.getFromDatabase();
+            }
+            if (this.currentStation) {
+                this.stationId = Number(this.currentStation.id);
+                this.completeSetup();
             }
 
-            console.log("loaded station detail", this.paramId);
+            console.log("loaded station detail", this.stationId);
         },
 
         onUnloaded() {
             this.stopProcesses();
         },
 
-        getFromDatabase() {
-            dbInterface
-                .getStation(this.paramId)
-                .then(this.getModules)
-                .then(this.setupModules)
-                .then(this.completeSetup);
-        },
-
-        respondToUpdates() {
-            this.$stationMonitor.subscribe(stations => {
-                if (!this.currentStation) {
-                    console.log("view has no station");
-                    return Promise.resolve();
-                }
-
-                const station = _(stations)
-                    .filter(s => Number(s.id) == this.paramId)
-                    .first();
-                if (!station) {
-                    return Promise.resolve();
-                }
-
-                this.currentStation.connected = station.connected;
-                return dbInterface
-                    .getModules(this.paramId)
-                    .then(this.setupModules)
-                    .then(this.updateModules);
-            });
-
-            this.$stationMonitor.subscribe(stations => {
-                const station = _(stations).filter(s => Number(s.id) == this.paramId);
-                if (station.some()) {
-                    this.$refs.statusBox.updateStatus(station.first());
-                    this.$refs.moduleList.updateReadings(station.first().readings);
-                }
-            });
-        },
-
-        getModules(stations) {
-            if (stations.length == 0) {
-                // adding to db in background hasn't finished yet,
-                // wait a few seconds and try again
-                // jacob: This delay is kind of ugly, would love to remove this.
-                return promiseAfter(2000).then(() => {
-                    return this.getFromDatabase();
-                });
-            }
-            this.currentStation = stations[0];
-            // update via stationMonitor
-            let listStation = this.stations.find(s => {
-                return s.deviceId == this.currentStation.deviceId;
-            });
-            if (listStation) {
-                this.currentStation.connected = listStation.connected;
-            }
-            return dbInterface.getModules(this.currentStation.id);
-        },
-
-        getSensors(moduleObject) {
-            moduleObject.sensorObjects = [];
-            return dbInterface.getSensors(moduleObject.deviceId).then(sensors => {
-                moduleObject.sensorObjects = sensors;
-            });
-        },
-
-        setupModules(modules) {
-            this.currentStation.moduleObjects = modules;
-            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors)).catch(err => {
-                console.log(`swallowing setupModules error ${err}`);
-                return [];
-            });
-        },
-
         updateModules() {
-            this.$refs.moduleList.updateModules(this.currentStation.moduleObjects);
+            // this.$refs.moduleList.updateModules(this.currentStation.modules);
         },
 
         completeSetup() {
@@ -335,51 +265,25 @@ export default {
                 }, 3000);
             }
 
-            if (this.currentStation.portalHttpError) {
-                if (this.notificationCodes.indexOf(this.currentStation.portalHttpError == -1)) {
-                    this.notificationCodes.push(this.currentStation.portalHttpError);
+            if (this.currentStation.portalError) {
+                if (this.notificationCodes.indexOf(this.currentStation.portalError) == -1) {
+                    this.notificationCodes.push(this.currentStation.portalError);
                 }
             }
 
-            if (this.currentStation.deployStartTime && typeof this.currentStation.deployStartTime == "string") {
-                this.currentStation.deployStartTime = new Date(this.currentStation.deployStartTime);
-            }
-            if (this.currentStation.status == "recording") {
-                this.setDeployedStatus();
-                this.isDeployed = true;
-                if (this.currentStation.percentComplete) {
-                    this.percentComplete = this.currentStation.percentComplete;
-                }
-            } else {
-                this.deployedStatus = _L("readyToDeploy");
-            }
-            this.$refs.statusBox.updateStation(this.currentStation);
-            this.$refs.moduleList.updateModules(this.currentStation.moduleObjects);
+            // this.$refs.statusBox.updateStation(this.currentStation);
+            // this.$refs.moduleList.updateModules(this.currentStation.modules);
             this.currentStation.origName = this.currentStation.name;
-
-            // start getting live readings for this station
-            if (this.currentStation.url != "no_url") {
-                // see if live readings have been stored already
-                const readings = this.$stationMonitor.getStationReadings(this.currentStation);
-                if (readings) {
-                    this.$refs.moduleList.updateReadings(readings);
-                }
-                this.$stationMonitor.startLiveReadings(this.currentStation.url);
-            }
-
-            // now that currentStation and modules are defined, respond to updates
-            this.respondToUpdates();
         },
 
-        setDeployedStatus() {
+        getDeployedStatus() {
             if (!this.currentStation.deployStartTime) {
-                this.deployedStatus = _L("deployed");
-                return;
+                return _L("readyToDeploy");
             }
-            let month = this.currentStation.deployStartTime.getMonth() + 1;
-            let day = this.currentStation.deployStartTime.getDate();
-            let year = this.currentStation.deployStartTime.getFullYear();
-            this.deployedStatus = _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
+            const month = this.currentStation.deployStartTime.getMonth() + 1;
+            const day = this.currentStation.deployStartTime.getDate();
+            const year = this.currentStation.deployStartTime.getFullYear();
+            return _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
         },
 
         showLoadingAnimation() {

@@ -1,6 +1,6 @@
 <template>
-    <StackLayout class="m-t-5 m-b-10 m-l-10 m-r-10">
-        <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in modules" :key="m.id">
+    <StackLayout class="m-t-5 m-b-10 m-l-10 m-r-10" @loaded="onPageLoaded" @unloaded="onUnloaded">
+        <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in station.modules" :key="m.id">
             <StackLayout class="bordered-container p-10 m-b-10">
                 <!-- top row of module list -->
                 <GridLayout rows="auto" columns="15*,70*,15*">
@@ -13,18 +13,18 @@
                         col="2"
                         verticalAlignment="center"
                         horizontalAlignment="right"
-                        :src="open.indexOf(m.id) > -1 ? '~/images/Icon_Cheveron_Up.png' : '~/images/Icon_Cheveron_Down.png'"
+                        :src="closed.indexOf(m.id) > -1 ? '~/images/Icon_Cheveron_Down.png' : '~/images/Icon_Cheveron_Up.png'"
                         width="25"
                         :dataId="'m_id-' + m.id"
                         @tap="toggleContainer"
                     ></Image>
                 </GridLayout>
                 <!-- sensor container -->
-                <WrapLayout orientation="horizontal" class="m-t-5" v-if="open.indexOf(m.id) > -1">
+                <WrapLayout orientation="horizontal" class="m-t-5" v-if="closed.indexOf(m.id) < 0">
                     <Label :text="lastSeen()" width="100%" v-if="!station.connected" class="m-t-5 size-14 hint-color" />
                     <WrapLayout
                         orientation="horizontal"
-                        v-for="(s, sensorIndex) in m.sensorObjects"
+                        v-for="(s, sensorIndex) in m.sensors"
                         :key="s.id"
                         class="sensor-block"
                         :opacity="station.connected ? 1 : 0.5"
@@ -68,23 +68,21 @@ export default {
     name: "ModuleListView",
     data: () => {
         return {
-            open: [],
-            modules: [],
-            initialized: [],
+            closed: [],
         };
     },
-    props: ["station"],
+    props: { station: { required: true } },
     methods: {
-        updateModules(modules) {
-            this.modules = _.sortBy(modules, m => {
-                return m.position;
-            });
-            this.modules.forEach((m, i) => {
-                if (this.initialized.indexOf(m.id) == -1) {
-                    this.open.push(m.id);
-                    this.initialized.push(m.id);
-                }
-                m.sensorObjects.forEach(s => {
+        getDisplayReading(s) {
+            return s.currentReading || s.currentReading === 0 ? s.currentReading.toFixed(1) : "--";
+        },
+        onPageLoaded(args) {
+            this.updateModules();
+        },
+        onUnloaded() {},
+        updateModules() {
+            this.station.modules.forEach((m, i) => {
+                m.sensors.forEach(s => {
                     s.displayReading = s.currentReading || s.currentReading === 0 ? s.currentReading.toFixed(1) : "--";
                     s.icon = "~/images/Icon_Neutral.png";
                 });
@@ -97,7 +95,7 @@ export default {
                 return;
             }
             if (data.positions) {
-                this.modules.forEach(m => {
+                this.station.modules.forEach(m => {
                     m.position = data.positions[m.name];
                 });
                 this.modules = this.modules.sort((a, b) => {
@@ -105,16 +103,17 @@ export default {
                 });
             }
 
-            this.modules.forEach((m, i) => {
+            /*
+            this.station.modules.forEach((m, i) => {
                 let sensors = [];
-                m.sensorObjects.forEach(s => {
+                m.sensors.forEach(s => {
                     let trendIcon = "Icon_Neutral.png";
                     if (liveReadings && (liveReadings[m.name + s.name] || liveReadings[m.name + s.name] === 0)) {
                         let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0;
                         let newReading = +liveReadings[m.name + s.name].toFixed(1);
                         s.currentReading = newReading;
                         s.displayReading = newReading;
-                        dbInterface.setCurrentReading(s);
+                        // dbInterface.setCurrentReading(s);
 
                         if (newReading < prevReading) {
                             trendIcon = "Icon_Decrease.png";
@@ -126,8 +125,9 @@ export default {
                     sensors.push(s);
                 });
                 // vue isn't rendering these dynamically, so set them
-                this.$set(m, "sensorObjects", sensors);
+                this.$set(m, "sensors", sensors);
             });
+*/
         },
 
         lastSeen() {
@@ -186,11 +186,11 @@ export default {
         toggleContainer(event) {
             let id = event.object.dataId.split("m_id-")[1];
             id = parseInt(id);
-            let index = this.open.indexOf(id);
+            let index = this.closed.indexOf(id);
             if (index == -1) {
-                this.open.push(id);
+                this.closed.push(id);
             } else {
-                this.open.splice(index, 1);
+                this.closed.splice(index, 1);
             }
         },
     },

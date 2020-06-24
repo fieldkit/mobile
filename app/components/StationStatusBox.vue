@@ -103,15 +103,13 @@ export default {
             dataSyncMessage: "",
             displayConsumedMemory: 0,
             displayTotalMemory: 0,
-            station: {
-                batteryLevel: 0,
-                batteryImage: "~/images/Icon_Battery_0.png",
-                connected: false,
-                status: "",
-            },
         };
     },
-    props: [],
+    props: {
+        station: {
+            required: true,
+        },
+    },
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
@@ -127,6 +125,8 @@ export default {
                     this.syncing = false;
                 }
             });
+
+            this.updateStation(this.station);
         },
 
         onUnloaded() {
@@ -139,8 +139,7 @@ export default {
 
         updateStation(station) {
             this.loading = false;
-            this.station = station;
-            if (this.station.status == "recording") {
+            if (this.station.deployStartTime) {
                 this.outer = this.page.getViewById("outer-circle");
                 this.inner = this.page.getViewById("inner-circle");
                 this.outer.className = this.outer.className + " active";
