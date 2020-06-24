@@ -480,7 +480,7 @@ export default {
         endCalibration(result) {
             if (result && result > 0) {
                 this.success = true;
-                this.currentStation.moduleObjects.forEach(m => {
+                this.currentStation.modules.forEach(m => {
                     m.sensorObjects.forEach(s => {
                         if (s.name == this.currentCalibration.key) {
                             // record these for onboarding views
@@ -524,32 +524,8 @@ export default {
             });
         },
 
-        getFromDatabase() {
-            dbInterface.getStation(this.paramId).then(this.getModules).then(this.setupModules).then(this.completeSetup);
-        },
-
-        getModules(stations) {
-            if (stations.length == 0) {
-                // wait a few seconds and try again
-                setTimeout(this.getFromDatabase, 2000);
-                return Promise.reject();
-            }
-            this.currentStation = stations[0];
-            return dbInterface.getModules(this.currentStation.id);
-        },
-
-        getSensors(moduleObject) {
-            return dbInterface.getSensors(moduleObject.deviceId).then(sensors => {
-                moduleObject.sensorObjects = sensors;
-            });
-        },
-
-        setupModules(modules) {
-            this.currentStation.moduleObjects = modules;
-            return Promise.all(this.currentStation.moduleObjects.map(this.getSensors));
-        },
-
         completeSetup() {
+            /*
             this.$stationMonitor.subscribe(stations => {
                 const readings = this.$stationMonitor.getStationReadings(this.currentStation);
                 this.updateCurrentReading(readings);
@@ -561,14 +537,15 @@ export default {
                 this.updateCurrentReading(readings);
                 this.$stationMonitor.startLiveReadings(this.currentStation.url);
             }
+			*/
         },
 
         updateCurrentReading(readings) {
             if (!readings) {
                 return;
             }
-            this.currentStation.moduleObjects.forEach(m => {
-                m.sensorObjects.forEach(s => {
+            this.currentStation.modules.forEach(m => {
+                m.sensors.forEach(s => {
                     if (s.name == this.currentCalibration.key) {
                         // store module position for calibration query
                         this.bay = m.position;

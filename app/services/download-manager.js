@@ -31,7 +31,7 @@ export default class DownloadManager {
         this._mutex = new Mutex();
     }
 
-    getStatus() {
+    getStatus(connectedOnly) {
         function getDownloadsStatus(streams) {
             if (!_.some(streams)) {
                 return {
@@ -73,7 +73,10 @@ export default class DownloadManager {
         }
 
         const stations = Object.values(this.store.getters.legacyStations).filter(s => {
-            return s.connected;
+            if (connectedOnly === true) {
+                return s.connected;
+            }
+            return true;
         });
 
         console.log(
@@ -332,7 +335,7 @@ export default class DownloadManager {
             };
         }
 
-        return this.getStatus().then(status => {
+        return this.getStatus(true).then(status => {
             return status.stations.map(stationStatus => {
                 const { station, downloads, streams } = stationStatus;
 

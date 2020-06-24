@@ -51,7 +51,6 @@ function configureVueJs(services) {
 
     const store = services.Store();
 
-    Vue.prototype.$stationMonitor = services.StationMonitor();
     Vue.prototype.$portalInterface = services.PortalInterface();
     Vue.prototype.$navigateTo = navigatorFactory(store, Vue.prototype.$navigateTo);
 

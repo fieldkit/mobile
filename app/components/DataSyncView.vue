@@ -31,7 +31,7 @@
                                     <StackLayout row="2" colSpan="3" class="bottom-border"></StackLayout>
                                 </GridLayout>
                             </template>
-                            <template v-else-if="s.disconnected">
+                            <template v-else-if="!s.connected">
                                 <StackLayout class="m-20">
                                     <Label :text="_L('notConnectedToStation')" />
                                 </StackLayout>
@@ -110,16 +110,14 @@ export default {
             log.info("loaded");
 
             this.recentSyncs = [];
-            this.stations = this.$stationMonitor.getStations();
-            this.stations.forEach(s => {
-                this.updateHistory(this.createRecent(s));
-            });
-            this.sortSyncs();
 
             log.info("subscribing to stateManager");
 
             Services.StateManager().subscribe(status => {
-                log.info("received stations", status);
+                log.info(
+                    "received stations",
+                    _.map(status.station.stations, s => s.station.name)
+                );
                 this.manageRecentSyncs(status);
             });
 
@@ -198,23 +196,14 @@ export default {
                 this.updateHistory(recent);
             });
 
-            // check for disconnected stations in recentSyncs
-            const disconnected = _.differenceBy(this.recentSyncs, status.station.stations, s => {
-                return s.deviceId ? s.deviceId : s.station.deviceId;
-            });
-            disconnected.forEach(d => {
-                d.disconnected = true;
-            });
-
             this.sortSyncs();
         },
 
         updateRecent(recent, station, status) {
-            recent.disconnected = false;
             recent.readings = station.pending.records;
             recent.downloadReadingsLabel = recent.readings + " " + _L("readings");
             // need higher limit than 0, or get stuck in loop
-            recent.canDownload = recent.readings > 3;
+            recent.canDownload = station.station.connected && recent.readings > 3;
 
             if (Config.syncMode == "manual") {
                 // in manual mode
@@ -254,6 +243,7 @@ export default {
                 lastUploadTime: "",
                 uploadProgressLabel: _L("waitingToUpload"),
                 uploadState: "waiting",
+                connected: false,
             };
             if (station.station) {
                 newSync.name = station.station.name;
@@ -261,9 +251,12 @@ export default {
                 newSync.readings = station.pending.records;
                 newSync.downloadReadingsLabel = station.pending.records + " " + _L("readings");
                 newSync.canDownload = station.pending.records > 0;
+                newSync.connected = station.station.connected;
+                console.log("connected", newSync.connected);
             } else {
-                newSync.name = station.name;
-                newSync.deviceId = station.deviceId;
+                throw new Error("malformed station data");
+                // newSync.name = station.name;
+                // newSync.deviceId = station.deviceId;
             }
             this.recentSyncs.push(newSync);
             if (Config.syncMode != "manual") {
@@ -282,7 +275,7 @@ export default {
             });
             // then by connection status
             this.recentSyncs = _.sortBy(this.recentSyncs, s => {
-                return s.disconnected;
+                return !s.connected;
             });
         },
 
