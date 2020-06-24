@@ -35,6 +35,43 @@ const MandatoryStatus = {
     },
 };
 
+export function prepareReply(reply) {
+    if (reply.errors && reply.errors.length > 0) {
+        return reply;
+    }
+
+    // NOTE deepmerge ruins deviceId.
+    if (reply.status && reply.status.identity) {
+        reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
+        reply.status.identity.generationId = new Buffer.from(reply.status.identity.generation).toString("hex");
+        reply.status.identity.generation = null;
+    }
+    if (reply.modules && Array.isArray(reply.modules)) {
+        reply.modules.map(m => {
+            m.deviceId = new Buffer.from(m.id).toString("hex");
+            m.id = null;
+        });
+    }
+    if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
+        reply.liveReadings.map(lr => {
+            lr.modules
+                .filter(m => m.module && m.module.id)
+                .map(m => {
+                    m.module.deviceId = new Buffer.from(m.module.id).toString("hex");
+                    m.module.id = null;
+                });
+        });
+    }
+    if (reply.streams && reply.streams.length > 0) {
+        reply.streams.forEach(s => {
+            s.block = s.block ? s.block : 0;
+            s.size = s.size ? s.size : 0;
+        });
+    }
+
+    return deepmerge.all([MandatoryStatus, reply]);
+}
+
 export default class QueryStation {
     constructor(services) {
         this._conservify = services.Conservify();
@@ -362,40 +399,7 @@ export default class QueryStation {
     }
 
     _fixupStatus(reply) {
-        if (reply.errors && reply.errors.length > 0) {
-            return reply;
-        }
-
-        // NOTE deepmerge ruins deviceId.
-        if (reply.status && reply.status.identity) {
-            reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
-            reply.status.identity.generationId = new Buffer.from(reply.status.identity.generation).toString("hex");
-            reply.status.identity.generation = null;
-        }
-        if (reply.modules && Array.isArray(reply.modules)) {
-            reply.modules.map(m => {
-                m.deviceId = new Buffer.from(m.id).toString("hex");
-                m.id = null;
-            });
-        }
-        if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
-            reply.liveReadings.map(lr => {
-                lr.modules
-                    .filter(m => m.module && m.module.id)
-                    .map(m => {
-                        m.module.deviceId = new Buffer.from(m.module.id).toString("hex");
-                        m.module.id = null;
-                    });
-            });
-        }
-        if (reply.streams && reply.streams.length > 0) {
-            reply.streams.forEach(s => {
-                s.block = s.block ? s.block : 0;
-                s.size = s.size ? s.size : 0;
-            });
-        }
-
-        return deepmerge.all([MandatoryStatus, reply]);
+        return prepareReply(reply);
     }
 
     _handlePotentialBusyReply(reply, url, message) {
