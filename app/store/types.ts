@@ -1,3 +1,5 @@
+import { decodeAndPrepare } from "../services/query-station";
+
 export interface HasLocation {
     readonly latitude: number | null;
     readonly longitude: number | null;
@@ -105,6 +107,8 @@ export class Station implements StationCreationFields {
 }
 
 export class LegacyStation extends Station {
+    private decodedStatus: object | null = null;
+
     id: number;
     connected: boolean;
 
@@ -113,6 +117,13 @@ export class LegacyStation extends Station {
         if (!available.id) throw new Error(`AvailableStation missing id`);
         this.id = available.id;
         this.connected = available.connected;
+    }
+
+    statusJson(): any {
+        if (this.decodedStatus == null) {
+            this.decodedStatus = decodeAndPrepare(Buffer.from(this.serializedStatus, "base64"));
+        }
+        return this.decodedStatus;
     }
 }
 

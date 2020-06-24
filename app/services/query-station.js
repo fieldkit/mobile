@@ -35,6 +35,10 @@ const MandatoryStatus = {
     },
 };
 
+export function decodeAndPrepare(reply) {
+    return prepareReply(HttpReply.decodeDelimited(reply));
+}
+
 export function prepareReply(reply) {
     if (reply.errors && reply.errors.length > 0) {
         return reply;
