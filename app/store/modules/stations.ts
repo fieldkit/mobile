@@ -203,7 +203,7 @@ interface StationPortalError {
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
-        return loadStationsFromDatabase(state.db()).then(stations => commit(MutationTypes.SET, stations));
+        return loadStationsFromDatabase(state.db()).then(stations => commit(MutationTypes.STATIONS, stations));
     },
     [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
         return state
@@ -237,7 +237,7 @@ const mutations = {
             return services().Database();
         };
     },
-    [MutationTypes.SET]: (state: StationsState, stations: Station[]) => {
+    [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {
         state.all = _.cloneDeep(stations);
         state.error = false;
     },

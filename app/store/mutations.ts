@@ -7,7 +7,7 @@ export const LOSE = "LOSE";
 export const QUERIED = "QUERIED";
 export const TRIED = "TRIED";
 
-export const SET = "SET";
+export const STATIONS = "STATIONS";
 export const UPDATE = "UPDATE";
 
 export const PHONE_NETWORK = "PHONE_NETWORK";
