@@ -85,8 +85,6 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            this.$stationMonitor.subscribeAll(this.updateStations.bind(this));
-
             Services.Database()
                 .getConfig()
                 .then(result => {
@@ -111,9 +109,6 @@ export default {
                         return env.label;
                     });
                 });
-        },
-        updateStations(stations) {
-            this.stations = stations;
         },
         viewStations() {
             this.$navigateTo(routes.stations);
@@ -140,7 +135,8 @@ export default {
             Services.Database().updateConfigUris(params);
         },
         resetCalibration() {
-            if (this.stations.length == 0) {
+            const stations = this.$store.stations.all;
+            if (stations.length == 0) {
                 alert({
                     title: "Reset Calibration",
                     message: "No stations found",
@@ -149,7 +145,7 @@ export default {
             } else {
                 const options = {
                     props: {
-                        stations: this.stations,
+                        stations: stations,
                     },
                     fullscreen: true,
                 };
@@ -190,9 +186,7 @@ export default {
         deleteDB() {
             Services.CreateDb()
                 .initialize(true)
-                .then(result => {
-                    this.$stationMonitor.clearStations();
-
+                .then(() => {
                     alert({
                         title: "Developer",
                         message: "Database Deleted",
