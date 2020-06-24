@@ -85,6 +85,7 @@ export default class UploadManager {
                                 return operation.complete();
                             })
                             .catch(error => {
+                                console.log("error", error.message, error.stack);
                                 return operation.cancel(error);
                             });
                     });

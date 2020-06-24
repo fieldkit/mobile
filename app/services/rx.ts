@@ -218,12 +218,12 @@ export class BetterObservable extends Observable {
         return this.getValue()
             .then(value => {
                 if (value != null) {
-                    this.publish(value);
+                    return this.publish(value);
                 }
                 return value;
             })
             .catch(error => {
-                console.log(this.constructor.name, "error", error);
+                console.log(this.constructor.name, "error", error, error.stack);
             });
     }
 

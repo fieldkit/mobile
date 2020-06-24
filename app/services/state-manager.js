@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { BetterObservable } from "./rx";
 
+import * as MutationTypes from "../store/mutations";
 import DownloadManager from "./download-manager";
 import UploadManager from "./upload-manager";
 import Config from "../config";
@@ -10,21 +11,14 @@ const log = Config.logger("StateManager");
 export default class StateManager extends BetterObservable {
     constructor(services) {
         super();
-        log.info("ctor");
         this.databaseInterface = services.Database();
         this.queryStation = services.QueryStation();
-        this.stationMonitor = services.StationMonitor();
         this.portalInterface = services.PortalInterface();
         this.downloadManager = new DownloadManager(services);
         this.uploadManager = new UploadManager(services);
     }
 
     start() {
-        this.stationMonitor.subscribe((ev) => {
-            log.info("updating");
-            return this.refresh();
-        });
-
         return Promise.resolve();
     }
 
@@ -51,7 +45,7 @@ export default class StateManager extends BetterObservable {
     }
 
     getStatus() {
-        return Promise.all([this.downloadManager.getStatus(), this.uploadManager.getStatus()]).then((all) => {
+        return Promise.all([this.downloadManager.getStatus(), this.uploadManager.getStatus()]).then(all => {
             return {
                 station: all[0],
                 portal: all[1],
@@ -67,13 +61,13 @@ export default class StateManager extends BetterObservable {
         if (this.portalInterface.isLoggedIn()) {
             return this.portalInterface
                 .getStationSyncState(station.deviceId)
-                .then((summary) => {
-                    return this.databaseInterface.updateStationFromPortal(station, summary).then((status) => {
+                .then(summary => {
+                    return this.databaseInterface.updateStationFromPortal(station, summary).then(status => {
                         log.info(status);
                     });
                 })
-                .catch((error) => {
-                    log.error("error", error);
+                .catch(error => {
+                    log.error("error", error, error.stack);
                 });
         }
         return Promise.reject();

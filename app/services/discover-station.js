@@ -86,15 +86,19 @@ export default class DiscoverStation extends BetterObservable {
         this._store = services.Store();
         this._conservify = services.Conservify();
         this._stations = {};
-        this._networkMonitor = null;
         this._history = new EventHistory(this._services.Database());
         this._pending = {};
         this._networkMonitor = new NetworkMonitor(this._services);
+        this._started = false;
 
         this.StationFoundProperty = "stationFound";
         this.StationLostProperty = "stationLost";
 
         services.DiscoveryEvents().add(this);
+    }
+
+    started() {
+        return this._started;
     }
 
     _watchFakePreconfiguredDiscoveries() {
@@ -110,6 +114,7 @@ export default class DiscoverStation extends BetterObservable {
                 });
             });
         }
+        return null;
     }
 
     _loseConnectedStations() {
@@ -141,8 +146,9 @@ export default class DiscoverStation extends BetterObservable {
     }
 
     startServiceDiscovery() {
+        this._started = true;
         this._watchFakePreconfiguredDiscoveries();
-        this._watchZeroconfAndMdns();
+        return this._watchZeroconfAndMdns();
     }
 
     stopServiceDiscovery() {

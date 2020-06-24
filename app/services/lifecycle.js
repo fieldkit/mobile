@@ -15,12 +15,15 @@ import Services from "./services";
 
 function onLaunchOrResume(services) {
     console.log("lifecycle: downloading firmware");
+
     services
         .PortalInterface()
         .onlyIfAuthenticated()
         .then(() => {
             return services.StationFirmware().check();
         });
+
+    return null;
 }
 
 export default function () {
@@ -34,6 +37,8 @@ export default function () {
         }
 
         onLaunchOrResume(services);
+
+        return null;
     });
 
     on(suspendEvent, args => {
@@ -44,6 +49,8 @@ export default function () {
         }
 
         services.DiscoverStation().stopServiceDiscovery();
+
+        return null;
     });
 
     on(resumeEvent, args => {
@@ -53,9 +60,14 @@ export default function () {
             console.log("Resume UIApplication: " + args.ios);
         }
 
-        services.DiscoverStation().startServiceDiscovery();
+        const sd = services.DiscoverStation();
+        if (sd && sd.started()) {
+            sd.startServiceDiscovery();
+        }
 
         onLaunchOrResume(services);
+
+        return null;
     });
 
     on(displayedEvent, args => {
