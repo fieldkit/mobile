@@ -48,7 +48,7 @@ function initializeApplication(services) {
                 .initialize()
                 .then(db => services.Database().checkConfig())
                 .then(() => {
-                    Services.Store().commit(MutationTypes.SERVICES, () => Services);
+                    Services.Store().commit(MutationTypes.SERVICES, Services);
                     return Services.Store()
                         .dispatch(ActionTypes.LOAD)
                         .then(() => {
@@ -60,6 +60,9 @@ function initializeApplication(services) {
                                 services.PortalUpdater().start(),
                                 services.OnlineStatus().start(),
                             ]);
+                        })
+                        .then(() => {
+                            return services.DiscoverStation().startServiceDiscovery();
                         })
                         .then(() => {
                             if (Config.env.jacob) {

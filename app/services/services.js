@@ -72,6 +72,21 @@ export class Services {
         return this.stateManager;
     }
 
+    LegacyHooks() {
+        if (Config.env.test) {
+            return {
+                refresh: () => {
+                    return Promise.resolve();
+                },
+            };
+        }
+        return {
+            refresh: () => {
+                return this.StateManager().refresh();
+            },
+        };
+    }
+
     StationMonitor() {
         if (!this.stationMonitor) {
             const StationMonitor = require("./station-monitor").default;

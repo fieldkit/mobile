@@ -3,9 +3,10 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation } from "../types";
+import { Services, ServiceRef } from "./utilities";
 
 export class NearbyState {
-    queryStation: () => any | never = () => new Error();
+    services: ServiceRef = new ServiceRef();
     stations: { [index: string]: NearbyStation } = {};
 }
 
@@ -16,10 +17,11 @@ const actions = {
     },
     [ActionTypes.LOST]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }, info: ServiceInfo) => {
         commit(MutationTypes.LOSE, info);
+        return state.services.legacy().refresh();
     },
     [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: NearbyState }, info: ServiceInfo) => {
         commit(MutationTypes.QUERIED, info);
-        return state
+        return state.services
             .queryStation()
             .getStatus(info.url)
             .then(
@@ -66,10 +68,8 @@ const getters = {
 };
 
 const mutations = {
-    [MutationTypes.SERVICES]: (state: NearbyState, services: any) => {
-        state.queryStation = function () {
-            return services().QueryStation();
-        };
+    [MutationTypes.SERVICES]: (state: NearbyState, services: Services) => {
+        state.services = new ServiceRef(services);
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
         state.stations = { ...state.stations, [info.deviceId]: new NearbyStation(info) };

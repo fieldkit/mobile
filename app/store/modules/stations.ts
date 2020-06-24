@@ -3,14 +3,10 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor, LegacyStation } from "../types";
 import { GlobalState } from "./global";
+import { Services, ServiceRef } from "./utilities";
 
 export class StationsState {
-    db: () => any = () => {
-        throw new Error();
-    };
-    stateManager: () => any = () => {
-        throw new Error();
-    };
+    services: ServiceRef = new ServiceRef();
     error: string | boolean = false;
     all: Station[] = [];
 }
@@ -228,14 +224,14 @@ interface StationPortalError {
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
-        return loadStationsFromDatabase(state.db()).then(stations => dispatch(ActionTypes.STATIONS_LOADED, stations));
+        return loadStationsFromDatabase(state.services.db()).then(stations => dispatch(ActionTypes.STATIONS_LOADED, stations));
     },
     [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, stations) => {
         commit(MutationTypes.STATIONS, stations);
-        return state.stateManager().refresh();
+        return state.services.legacy().refresh();
     },
     [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
-        return state
+        return state.services
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))
             .then(station => dispatch(ActionTypes.LOAD));
@@ -244,7 +240,7 @@ const actions = {
         { commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState },
         error: StationPortalError
     ) => {
-        return state
+        return state.services
             .db()
             .setStationPortalError({ id: error.id }, error.error)
             .then(station => dispatch(ActionTypes.LOAD));
@@ -253,7 +249,7 @@ const actions = {
         { commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState },
         reply: StationPortalReply
     ) => {
-        return state
+        return state.services
             .db()
             .setStationPortalId(reply)
             .then(station => dispatch(ActionTypes.LOAD));
@@ -261,13 +257,8 @@ const actions = {
 };
 
 const mutations = {
-    [MutationTypes.SERVICES]: (state: StationsState, services: any) => {
-        state.db = function () {
-            return services().Database();
-        };
-        state.stateManager = function () {
-            return services().StateManager();
-        };
+    [MutationTypes.SERVICES]: (state: StationsState, services: Services) => {
+        state.services = new ServiceRef(services);
     },
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {
         state.all = _.cloneDeep(stations);

@@ -25,7 +25,7 @@ describe("Store", () => {
         await services.CreateDb().initialize();
         store = services.Store();
 
-        store.commit(MutationTypes.SERVICES, () => services);
+        store.commit(MutationTypes.SERVICES, services);
     });
 
     afterEach(() => {});
