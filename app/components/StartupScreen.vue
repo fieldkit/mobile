@@ -52,6 +52,9 @@ function initializeApplication(services) {
                     return Services.Store()
                         .dispatch(ActionTypes.LOAD)
                         .then(() => {
+                            // Enable geolocation and start refreshing our location.
+                            Services.PhoneLocation().enableAndGetLocation();
+
                             return Promise.all([
                                 services.StateManager().start(),
                                 services.PortalUpdater().start(),

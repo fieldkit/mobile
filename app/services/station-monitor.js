@@ -34,15 +34,8 @@ export default class StationMonitor extends BetterObservable {
     }
 
     start() {
-        // Get the phone's location right away and then subscribe to
-        // any updates to the phone's location and pass them over to
-        // update any stations that may need updating.
-        this.phoneLocation
-            .enableAndGetLocation()
-            .then(location => this.savePhoneLocation(location))
-            .then(() => this.phoneLocation.subscribe(location => this.savePhoneLocation(location)));
-
         return Promise.all([
+            this.phoneLocation.subscribe(location => this.savePhoneLocation(location)),
             // temporary method to clear out modules with no device ids (is this still necessary?)
             this.dbInterface
                 .removeNullIdModules()
