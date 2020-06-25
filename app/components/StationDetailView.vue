@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
-        <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'">
+        <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <ScreenHeader
@@ -23,7 +23,7 @@
                         <GridLayout row="0" col="0">
                             <FlexboxLayout flexDirection="column">
                                 <!-- station status details -->
-                                <StationStatusBox v-if="currentStation" order="1" @deployTapped="goToDeploy" :station="currentStation" />
+                                <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
                                 <!-- field notes section -->
                                 <GridLayout
                                     order="2"
@@ -44,7 +44,7 @@
                                     />
                                 </GridLayout>
                                 <!-- module list with current readings -->
-                                <ModuleListView v-if="currentStation" order="3" :station="currentStation" @moduleTapped="goToModule" />
+                                <ModuleListView order="3" :station="currentStation" @moduleTapped="goToModule" />
                             </FlexboxLayout>
                         </GridLayout>
                         <!-- end background elements -->
@@ -208,7 +208,7 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    station: this.currentStation,
+                    stationId: this.currentStation.id,
                 },
             });
         },
@@ -229,15 +229,11 @@ export default {
 
             this.user = this.$portalInterface.getCurrentUser();
 
+            // NOTE these are now hidden by the v-if initially.
             this.loadingBlue = this.page.getViewById("loading-circle-blue");
             this.loadingWhite = this.page.getViewById("loading-circle-white");
             this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
 
-            if (this.station) {
-                this.currentStation = this.station;
-                this.stationId = Number(this.currentStation.id);
-                this.completeSetup();
-            }
             if (this.currentStation) {
                 this.stationId = Number(this.currentStation.id);
                 this.completeSetup();
@@ -248,10 +244,6 @@ export default {
 
         onUnloaded() {
             this.stopProcesses();
-        },
-
-        updateModules() {
-            // this.$refs.moduleList.updateModules(this.currentStation.modules);
         },
 
         completeSetup() {
@@ -271,8 +263,6 @@ export default {
                 }
             }
 
-            // this.$refs.statusBox.updateStation(this.currentStation);
-            // this.$refs.moduleList.updateModules(this.currentStation.modules);
             this.currentStation.origName = this.currentStation.name;
         },
 
@@ -287,14 +277,16 @@ export default {
         },
 
         showLoadingAnimation() {
-            this.loadingWhite
-                .animate({
-                    rotate: 360,
-                    duration: 975,
-                })
-                .then(() => {
-                    this.loadingWhite.rotate = 0;
-                });
+            if (this.loadingWhite) {
+                this.loadingWhite
+                    .animate({
+                        rotate: 360,
+                        duration: 975,
+                    })
+                    .then(() => {
+                        this.loadingWhite.rotate = 0;
+                    });
+            }
         },
     },
 };

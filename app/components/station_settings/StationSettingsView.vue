@@ -132,7 +132,7 @@ export default {
 
             this.$navigateTo(routes.stationDetail, {
                 props: {
-                    station: this.station,
+                    stationId: this.station.id,
                 },
                 transition: {
                     name: "slideRight",
