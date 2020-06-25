@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import { screen } from "tns-core-modules/platform/platform";
 import { isIOS } from "tns-core-modules/platform";
 import routes from "../routes";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
@@ -35,85 +37,106 @@ export default {
         return {
             ios: isIOS,
             mapboxToken: MAPBOX_ACCESS_TOKEN,
+            mapHeight: screen.mainScreen.heightDIPs - 20,
         };
     },
-    props: ["bounds", "stationMarkers", "mapHeight"],
+    props: {},
+    computed: {
+        ...mapGetters({ stations: "availableStations", mapCenter: "mapCenter", hasCenter: "hasCenter" }),
+    },
+    watch: {
+        hasCenter(newValue, oldValue) {
+            console.log("hasCenter", newValue, oldValue);
+            this.showStations();
+        },
+    },
     methods: {
         onMapReady(args) {
             this.map = args.map;
-            // re-define event listeners
-            this.stationMarkers.forEach(s => {
-                s.onTap = this.onMarkerTap;
-                s.onCalloutTap = this.onCalloutTap;
+            this.showStations();
+        },
+        showStations() {
+            if (!this.map) {
+                console.log("refresh map, no map");
+                return;
+            }
+
+            const state = this.$store.state.map;
+            const center = this.$store.getters.mapCenter;
+            if (!center) {
+                console.log("refresh map, no center");
+                return;
+            }
+
+            console.log("refresh map");
+
+            const markers = Object.values(state.stations).map(mappedStation => {
+                return {
+                    id: mappedStation.deviceId,
+                    lat: mappedStation.location.latitude,
+                    lng: mappedStation.location.longitude,
+                    title: mappedStation.name,
+                    subtitle: this.getDeployStatus(mappedStation),
+                    iconPath: mappedStation.connected ? "images/Icon_Map_Dot.png" : "images/Icon_Map_Dot_unconnected.png",
+                    onTap: () => this.onMarkerTap(mappedStation),
+                    onCalloutTap: () => this.onCalloutTap(mappedStation),
+                };
             });
 
-            if (this.stationMarkers.length == 1 && this.map) {
-                this.map.setZoomLevel({
-                    level: 14,
-                    animated: false,
-                });
-                this.map.setCenter({
-                    lat: this.stationMarkers[0].lat,
-                    lng: this.stationMarkers[0].lng,
-                    animated: false,
-                });
-            } else if (this.bounds.latMax == this.bounds.latMin && this.bounds.longMax == this.bounds.longMin && this.map) {
-                // prevent error when setting viewport with identical min max
-                this.map.setZoomLevel({
-                    level: 14,
-                    animated: false,
-                });
-                this.map.setCenter({
-                    lat: this.bounds.latMax,
-                    lng: this.bounds.longMax,
-                    animated: false,
-                });
-            } else if (this.stationMarkers.length > 1 && this.map) {
-                const smallLatMargin = (this.bounds.latMax - this.bounds.latMin) / 10;
-                // const smallLongMargin = (longMax - longMin) / 10;
-                this.map.setViewport({
-                    bounds: {
-                        // zoom north out a little to fit marker
-                        north: this.bounds.latMax + smallLatMargin,
-                        east: this.bounds.longMax,
-                        south: this.bounds.latMin,
-                        west: this.bounds.longMin,
-                    },
-                });
-            }
+            this.map.removeMarkers();
+            this.map.addMarkers(markers);
 
-            if (this.map) {
-                // remove first to keep them from stacking up
-                this.map.removeMarkers();
-                this.map.addMarkers(this.stationMarkers);
-            }
+            this.map.setZoomLevel({
+                level: center.zoom,
+                animated: false,
+            });
+
+            this.map.setCenter({
+                lat: center.location.latitude,
+                lng: center.location.longitude,
+                animated: false,
+            });
+
+            const min = center.bounds.min;
+            const max = center.bounds.max;
+            this.map.setViewport({
+                bounds: {
+                    north: max.latitude,
+                    east: max.longitude,
+                    south: min.latitude,
+                    west: min.longitude,
+                },
+                animated: false,
+            });
         },
-
-        onMarkerTap(marker) {
+        getDeployStatus(station /*: AvailableStation*/) {
+            if (!station.deployStartTime) {
+                return _L("readyToDeploy");
+            }
+            const start = station.deployStartTime;
+            const month = start.getMonth() + 1;
+            const day = start.getDate();
+            const year = start.getFullYear();
+            return _L("deployed") + ": " + month + "/" + day + "/" + year; // TODO i18n interpolate
+        },
+        onMarkerTap(station) {
+            this.map.setCenter({
+                lat: station.location.latitude,
+                lng: station.location.longitude,
+                animated: false,
+            });
             this.map.setZoomLevel({
                 level: 14,
                 animated: false,
             });
-            this.map.setCenter({
-                lat: marker.lat,
-                lng: marker.lng,
-                animated: false,
-            });
         },
-
-        onCalloutTap(marker) {
-            // TODO: show spinner?
-
-            // remove the "marker-" prefix
-            let id = marker.id.split("marker-")[1];
-            this.$navigateTo(routes.stationDetail, {
+        onCalloutTap(station) {
+            console.log("STATION", station);
+            return this.$navigateTo(routes.stationDetail, {
                 props: {
-                    stationId: id,
+                    stationId: station.id,
                 },
-            });
-            setTimeout(() => {
-                this.$modal.close();
-            }, 100);
+            }).then(() => this.$modal.close());
         },
     },
 };

@@ -3,7 +3,13 @@ import { Station, Location, PhoneLocation } from "../types";
 import * as MutationTypes from "../mutations";
 
 export class MappedStation {
-    constructor(public readonly deviceId: string, public readonly name: string, public readonly location: Location) {}
+    constructor(
+        public readonly id: number,
+        public readonly deviceId: string,
+        public readonly name: string,
+        public readonly location: Location,
+        public readonly deployStartTime: Date | null
+    ) {}
 }
 
 export class BoundingRectangle {
@@ -81,8 +87,14 @@ const mutations = {
         const newStations = {};
         stations.forEach(station => {
             const location = station.location();
-            if (location) {
-                newStations[station.deviceId] = new MappedStation(station.deviceId, station.name, location);
+            if (location && station.id) {
+                newStations[station.deviceId] = new MappedStation(
+                    station.id,
+                    station.deviceId,
+                    station.name,
+                    location,
+                    station.deployStartTime
+                );
             }
         });
         state.stations = newStations;

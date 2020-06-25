@@ -109,16 +109,9 @@ export default {
             this.showStations();
         },
         openModal(event) {
-            /*
-            const options = {
-                props: {
-                    bounds: this.bounds,
-                    mapHeight: screen.mainScreen.heightDIPs - 20,
-                },
+            return this.$showModal(MapModal, {
                 fullscreen: true,
-            };
-            return this.$showModal(MapModal, options);
-			*/
+            });
         },
         goToAddStation() {
             return this.$navigateTo(routes.connectStation);
