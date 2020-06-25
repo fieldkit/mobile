@@ -81,6 +81,14 @@ interface SensorCapabilities {
     unitOfMeasure: string;
 }
 
+interface HttpSchedule {
+    interval: number;
+}
+
+interface HttpSchedules {
+    readings: HttpSchedule;
+}
+
 interface HttpStatusStatus {
     identity: any;
     gps: any;
@@ -93,6 +101,7 @@ interface HttpStatusReply {
     status: HttpStatusStatus;
     modules: ModuleCapabilities[];
     liveReadings: LiveReadings[];
+    schedules: HttpSchedules;
     serialized: string;
 }
 
@@ -168,6 +177,7 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
         totalMemory: statusReply.status.memory.dataMemoryInstalled,
         deployStartTime: deployStartTime,
         serializedStatus: statusReply.serialized,
+        interval: statusReply.schedules.readings.interval,
         longitude: longitude,
         latitude: latitude,
         lastSeen: new Date(),

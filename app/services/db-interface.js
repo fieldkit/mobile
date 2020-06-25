@@ -375,7 +375,7 @@ export default class DatabaseInterface {
             station.batteryLevel,
             station.consumedMemory,
             station.totalMemory,
-            station.consumedMemoryPercent,
+            station.consumedMemoryPercent, // TODO remove
             station.interval,
             JSON.stringify(station.statusJson),
             station.longitude,
@@ -583,13 +583,13 @@ export default class DatabaseInterface {
                         newStation.deviceId,
                         newStation.generationId,
                         newStation.name,
-                        newStation.url,
+                        newStation.url, // TODO remove
                         newStation.status,
                         newStation.deployStartTime,
                         newStation.batteryLevel,
                         newStation.consumedMemory,
                         newStation.totalMemory,
-                        newStation.consumedMemoryPercent,
+                        newStation.consumedMemoryPercent, // TODO remove
                         newStation.interval,
                         JSON.stringify(statusJson),
                         newStation.longitude,

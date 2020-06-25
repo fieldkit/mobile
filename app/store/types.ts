@@ -54,6 +54,7 @@ export interface StationCreationFields {
     batteryLevel: number | null;
     consumedMemory: number | null;
     totalMemory: number | null;
+    interval: number | null; // TODO rename
     longitude: number | null;
     latitude: number | null;
     deployStartTime: Date | null;
@@ -71,6 +72,7 @@ export class Station implements StationCreationFields {
     public readonly batteryLevel: number | null;
     public readonly consumedMemory: number | null;
     public readonly totalMemory: number | null;
+    public readonly interval: number | null;
     public readonly longitude: number | null;
     public readonly latitude: number | null;
     public readonly deployStartTime: Date | null;
@@ -88,6 +90,7 @@ export class Station implements StationCreationFields {
         this.batteryLevel = o.batteryLevel;
         this.consumedMemory = o.consumedMemory;
         this.totalMemory = o.totalMemory;
+        this.interval = o.interval;
         this.latitude = o.latitude;
         this.longitude = o.longitude;
         this.deployStartTime = o.deployStartTime;
