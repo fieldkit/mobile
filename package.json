@@ -48,6 +48,8 @@
         "protobufjs": "^6.9.0",
         "tns-core-modules": "^6.5.6",
         "tns-i18n": "0.0.10",
+        "vue-class-component": "^7.2.3",
+        "vue-property-decorator": "^9.0.0",
         "vuex": "^3.4.0"
     },
     "devDependencies": {

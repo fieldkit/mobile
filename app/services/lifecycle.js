@@ -31,9 +31,9 @@ export default function () {
 
     on(launchEvent, args => {
         if (args.android) {
-            console.log("Launched Android application with the following intent: " + args.android + ".");
+            console.log("lifecycle: launched android: " + args.android + ".");
         } else if (args.ios !== undefined) {
-            console.log("Launched iOS application with options: " + args.ios);
+            console.log("lifecycle: launched ios: " + args.ios);
         }
 
         onLaunchOrResume(services);
@@ -43,9 +43,9 @@ export default function () {
 
     on(suspendEvent, args => {
         if (args.android) {
-            console.log("Suspend Activity: " + args.android);
+            console.log("lifecycle: suspend: " + args.android);
         } else if (args.ios) {
-            console.log("Suspend UIApplication: " + args.ios);
+            console.log("lifecycle: suspend: " + args.ios);
         }
 
         services.DiscoverStation().stopServiceDiscovery();
@@ -55,9 +55,9 @@ export default function () {
 
     on(resumeEvent, args => {
         if (args.android) {
-            console.log("Resume Activity: " + args.android);
+            console.log("lifecycle: resume: " + args.android);
         } else if (args.ios) {
-            console.log("Resume UIApplication: " + args.ios);
+            console.log("lifecycle: resume: " + args.ios);
         }
 
         const sd = services.DiscoverStation();
@@ -71,38 +71,38 @@ export default function () {
     });
 
     on(displayedEvent, args => {
-        console.log("DisplayedEvent");
+        console.log("lifecycle: displayedEvent");
     });
 
     on(orientationChangedEvent, args => {
-        console.log("orientationChangedEvent", args.newValue);
+        console.log("lifecycle: orientationChangedEvent", args.newValue);
     });
 
     on(exitEvent, args => {
         if (args.android) {
             if (args.android.isFinishing()) {
-                console.log("Exit Activity: " + args.android + " is exiting");
+                console.log("lifecycle: exit: " + args.android + " is exiting");
             } else {
-                console.log("Exit Activity: " + args.android + " is restarting");
+                console.log("lifecycle: exit: " + args.android + " is restarting");
             }
         } else if (args.ios) {
-            console.log("Exit UIApplication: " + args.ios);
+            console.log("lifecycle: exit: " + args.ios);
         }
     });
 
     on(lowMemoryEvent, args => {
         if (args.android) {
-            console.log("LowMemory Activity: " + args.android);
+            console.log("lifecycle: lowMemory: " + args.android);
         } else if (args.ios) {
-            console.log("LowMemory UIApplication: " + args.ios);
+            console.log("lifecycle: lowMemory: " + args.ios);
         }
     });
 
     on(uncaughtErrorEvent, args => {
-        console.log("Uncaught Error: " + args.error);
+        console.log("lifecycle: error: " + args.error);
     });
 
     on(discardedErrorEvent, args => {
-        console.log("Discarded Error: " + args);
+        console.log("lifecycle: discarded: " + args);
     });
 }
