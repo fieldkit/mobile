@@ -30,7 +30,7 @@ export default class Fixtures {
         station.longitude = -122.65397644042969;
         station.latitude = 45.500099182128906;
         station.deployStartTime = "";
-        return this.dbInterface.insertStation(station).then(id => {
+        return this.dbInterface._insertStation(station).then(id => {
             station.id = id;
             station.modules.map(m => {
                 m.stationId = station.id;
@@ -52,7 +52,7 @@ export default class Fixtures {
     }
 
     _insertModule(module) {
-        return this.dbInterface.insertModule(module).then(id => {
+        return this.dbInterface._insertModule(module).then(id => {
             // module.id = id;
             module.sensors.map(s => {
                 s.moduleId = module.deviceId;
@@ -84,7 +84,7 @@ export default class Fixtures {
                 const withModule = _.extend(sensor, {
                     moduleId: id[0].id,
                 });
-                return this.dbInterface.insertSensor(withModule);
+                return this.dbInterface._insertSensor(withModule);
             });
     }
 

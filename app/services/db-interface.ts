@@ -5,18 +5,11 @@ import { sqliteToJs } from "../utilities";
 
 const log = Config.logger("DbInterface");
 
-// thirty seconds
-const minInterval = 30;
-// two weeks (in seconds)
-const maxInterval = 1209600;
-
 export default class DatabaseInterface {
+    services: any;
+
     constructor(services) {
         this.services = services;
-    }
-
-    toJSON() {
-        return "<DB>";
     }
 
     checkConfig() {
@@ -350,7 +343,7 @@ export default class DatabaseInterface {
         );
     }
 
-    updateStation(station) {
+    _updateStation(station) {
         if (!station.id) {
             return Promise.reject(new Error(`no station id in update station`));
         }
@@ -388,7 +381,11 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then(db =>
                 db.execute(
-                    "UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?, deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?, interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ? WHERE id = ?",
+                    `
+					UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?,
+						   deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?,
+						   interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
+					WHERE id = ?`,
                     values
                 )
             )
@@ -454,7 +451,7 @@ export default class DatabaseInterface {
         return Promise.resolve(deviceId);
     }
 
-    insertSensor(sensor) {
+    _insertSensor(sensor) {
         return this.getDatabase().then(db =>
             this._getModulePrimaryKey(sensor.moduleId).then(modulePrimaryKey =>
                 db
@@ -470,7 +467,7 @@ export default class DatabaseInterface {
         );
     }
 
-    insertModule(module) {
+    _insertModule(module) {
         // Note: device_id is the module's unique hardware id (not the station's)
         return this.getDatabase().then(db =>
             db
@@ -498,7 +495,7 @@ export default class DatabaseInterface {
 
         return Promise.all([
             Promise.all(
-                adding.map(name => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
+                adding.map(name => this._insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
             ),
             Promise.all(removed.map(name => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
             Promise.all(
@@ -538,7 +535,7 @@ export default class DatabaseInterface {
         return Promise.all([
             Promise.all(
                 adding.map(moduleId =>
-                    this.insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
+                    this._insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
                         this._synchronizeSensors(db, moduleId, incoming[moduleId], [])
                     )
                 )
@@ -564,9 +561,9 @@ export default class DatabaseInterface {
             return this.getStationIdByDeviceId(station.deviceId)
                 .then(id => {
                     if (id === null) {
-                        return this.insertStation(station);
+                        return this._insertStation(station, null);
                     }
-                    return this.updateStation(_.merge({}, station, { id: id }));
+                    return this._updateStation(_.merge({}, station, { id: id }));
                 })
                 .then(() => this.getStationIdByDeviceId(station.deviceId))
                 .then(stationId => {
@@ -584,17 +581,22 @@ export default class DatabaseInterface {
         });
     }
 
-    insertStation(station, statusJson) {
-        const newStation = new Station(station);
+    private _insertStation(newStation, statusJson) {
         return this.getDatabase().then(db =>
             db
                 .execute(
-                    `INSERT INTO stations (device_id, generation_id, name, url, status, deploy_start_time, battery_level, consumed_memory, total_memory, consumed_memory_percent, interval, status_json, longitude, latitude, serialized_status, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    `
+					INSERT INTO stations (device_id,
+						generation_id, name, url, status,
+						deploy_start_time, battery_level, consumed_memory, total_memory,
+						consumed_memory_percent, interval, status_json,
+						longitude, latitude, serialized_status, updated)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         newStation.deviceId,
                         newStation.generationId,
                         newStation.name,
-                        newStation.url, // TODO remove
+                        "", // TODO remove
                         newStation.status,
                         newStation.deployStartTime,
                         newStation.batteryLevel,
@@ -840,7 +842,7 @@ export default class DatabaseInterface {
         });
     }
 
-    _updateStreamFromPortal(station, status, type, index) {
+    private _updateStreamFromPortal(station, status, type, index) {
         return this.getDatabase()
             .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
             .then(streamId => {
@@ -856,7 +858,7 @@ export default class DatabaseInterface {
             });
     }
 
-    _updateStreamFromStation(station, status, type, index) {
+    private _updateStreamFromStation(station, status, type, index) {
         if (!status) {
             return Promise.reject(new Error(`_updateStreamFromStation: no status`));
         }
@@ -924,25 +926,5 @@ export default class DatabaseInterface {
     addEvent(event) {
         const values = [event.createdAt, event.type, JSON.stringify(event.body)];
         return this.getDatabase().then(db => db.query("INSERT INTO event_history (created_at, type, body) VALUES (? , ?, ?)", values));
-    }
-}
-
-class Station {
-    constructor(_station) {
-        // created_at, and updated_at will be generated
-        this.deviceId = _station.deviceId;
-        this.generationId = _station.generationId;
-        this.name = _station.name;
-        this.url = _station.url ? _station.url : "no_url";
-        this.status = _station.status;
-        this.deployStartTime = _station.deployStartTime;
-        this.batteryLevel = _station.batteryLevel;
-        this.consumedMemoryPercent = _station.consumedMemoryPercent;
-        this.consumedMemory = _station.consumedMemory;
-        this.totalMemory = _station.totalMemory;
-        this.interval = _station.interval ? _station.interval : Math.round(Math.random() * maxInterval + minInterval);
-        this.longitude = _station.longitude;
-        this.latitude = _station.latitude;
-        this.serializedStatus = _station.serializedStatus;
     }
 }

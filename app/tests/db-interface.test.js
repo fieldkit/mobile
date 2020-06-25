@@ -195,7 +195,7 @@ describe("DatabaseInterface", () => {
             latitude: 45.62,
             serializedStatus: "2342ur982uru2",
         };
-        const change = await dbInterface.updateStation(stationParams);
+        const change = await dbInterface._updateStation(stationParams);
         const newData = await dbInterface.getStation(1);
         expect(newData[0]).toEqual(expect.objectContaining(stationParams));
     });
