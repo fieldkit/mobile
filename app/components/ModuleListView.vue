@@ -32,9 +32,9 @@
                         <!-- keep arrows, reading, and unit on same line -->
                         <FlexboxLayout>
                             <!-- trend arrow -->
-                            <Image width="7" verticalAlignment="bottom" :src="s.icon" class="trend-icon"></Image>
+                            <Image width="7" verticalAlignment="bottom" :src="getDisplayIcon(s)" class="trend-icon"></Image>
                             <!-- reading -->
-                            <Label flexShrink="0.25" :text="s.displayReading" verticalAlignment="bottom" class="size-24 m-l-2" />
+                            <Label flexShrink="0.25" :text="getDisplayReading(s)" verticalAlignment="bottom" class="size-24 m-l-2" />
                             <!-- unit -->
                             <Label :text="s.unit" verticalAlignment="bottom" class="unit size-12 m-t-10" />
                         </FlexboxLayout>
@@ -74,61 +74,23 @@ export default {
     props: { station: { required: true } },
     methods: {
         getDisplayReading(s) {
-            return s.currentReading || s.currentReading === 0 ? s.currentReading.toFixed(1) : "--";
+            if (s.reading === null) {
+                return "--";
+            }
+            return s.reading.toFixed(1);
         },
-        onPageLoaded(args) {
-            this.updateModules();
+        getDisplayIcon(s) {
+            if (s.trend > 0) {
+                return "~/images/Icon_Increase.png";
+            }
+            if (s.trend < 0) {
+                return "~/images/Icon_Decrease.png";
+            }
+            return "~/images/Icon_Neutral.png";
         },
+        onPageLoaded(args) {},
+
         onUnloaded() {},
-        updateModules() {
-            this.station.modules.forEach((m, i) => {
-                m.sensors.forEach(s => {
-                    s.displayReading = s.currentReading || s.currentReading === 0 ? s.currentReading.toFixed(1) : "--";
-                    s.icon = "~/images/Icon_Neutral.png";
-                });
-            });
-        },
-
-        updateReadings(data) {
-            const liveReadings = data;
-            if (!data) {
-                return;
-            }
-            if (data.positions) {
-                this.station.modules.forEach(m => {
-                    m.position = data.positions[m.name];
-                });
-                this.modules = this.modules.sort((a, b) => {
-                    return b.position < a.position ? 1 : b.position > a.position ? -1 : 0;
-                });
-            }
-
-            /*
-            this.station.modules.forEach((m, i) => {
-                let sensors = [];
-                m.sensors.forEach(s => {
-                    let trendIcon = "Icon_Neutral.png";
-                    if (liveReadings && (liveReadings[m.name + s.name] || liveReadings[m.name + s.name] === 0)) {
-                        let prevReading = s.currentReading ? +s.currentReading.toFixed(1) : 0;
-                        let newReading = +liveReadings[m.name + s.name].toFixed(1);
-                        s.currentReading = newReading;
-                        s.displayReading = newReading;
-                        // dbInterface.setCurrentReading(s);
-
-                        if (newReading < prevReading) {
-                            trendIcon = "Icon_Decrease.png";
-                        } else if (newReading > prevReading) {
-                            trendIcon = "Icon_Increase.png";
-                        }
-                    }
-                    s.icon = "~/images/" + trendIcon;
-                    sensors.push(s);
-                });
-                // vue isn't rendering these dynamically, so set them
-                this.$set(m, "sensors", sensors);
-            });
-*/
-        },
 
         lastSeen() {
             if (!this.station || !this.station.updated) {

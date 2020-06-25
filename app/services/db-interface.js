@@ -504,13 +504,24 @@ export default class DatabaseInterface {
             Promise.all(
                 keeping
                     .map(name => {
+                        const previous = existing[name].currentReading;
+                        const current = incoming[name].reading;
+                        // console.log("COMPARE", previous, current);
+                        const trend = current == previous ? 0 : current > previous ? 1 : -1;
                         return {
                             id: existing[name].id,
                             reading: incoming[name].reading,
+                            trend: trend,
                         };
                     })
                     .filter(update => update.reading != null)
-                    .map(update => db.query("UPDATE sensors SET current_reading = ? WHERE id = ?", [update.reading, update.id]))
+                    .map(update =>
+                        db.query("UPDATE sensors SET current_reading = ?, trend = ? WHERE id = ?", [
+                            update.reading,
+                            update.trend,
+                            update.id,
+                        ])
+                    )
             ),
         ]);
     }

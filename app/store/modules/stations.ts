@@ -122,6 +122,7 @@ interface SensorTableRow {
     name: string;
     unit: string;
     currentReading: number | null;
+    trend: number | null;
     moduleId: number | null;
 }
 
@@ -134,7 +135,7 @@ function makeModulesFromStatus(statusReply: HttpStatusReply): Module[] {
                         const sensors = _(moduleReply.readings)
                             .map(
                                 sensorReply =>
-                                    new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value)
+                                    new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value, null)
                             )
                             .value();
                         return new Module(null, moduleReply.module.name, moduleReply.module.position, moduleReply.module.deviceId, sensors);
@@ -147,7 +148,7 @@ function makeModulesFromStatus(statusReply: HttpStatusReply): Module[] {
     return _(statusReply.modules)
         .map(moduleReply => {
             const sensors = _(moduleReply.sensors)
-                .map(sensorReply => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null))
+                .map(sensorReply => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null, null))
                 .value();
             return new Module(null, moduleReply.name, moduleReply.position, moduleReply.deviceId, sensors);
         })
@@ -177,7 +178,7 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
         totalMemory: statusReply.status.memory.dataMemoryInstalled,
         deployStartTime: deployStartTime,
         serializedStatus: statusReply.serialized,
-        interval: statusReply.schedules.readings.interval,
+        interval: statusReply?.schedules?.readings?.interval || 0,
         longitude: longitude,
         latitude: latitude,
         lastSeen: new Date(),
@@ -211,7 +212,10 @@ function loadStationsFromDatabase(db) {
                         .map(moduleRow => {
                             const sensorRows = tables.sensors[moduleRow.id] || [];
                             const sensors = _(sensorRows)
-                                .map(sensorRow => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading))
+                                .map(
+                                    sensorRow =>
+                                        new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading, sensorRow.trend)
+                                )
                                 .value();
                             return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, sensors);
                         })

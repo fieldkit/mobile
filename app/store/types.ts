@@ -32,7 +32,8 @@ export class Sensor {
         public readonly id: number | null,
         public readonly name: string,
         public readonly unitOfMeasure: string,
-        public readonly reading: number | null
+        public readonly reading: number | null,
+        public readonly trend: number | null
     ) {}
 }
 

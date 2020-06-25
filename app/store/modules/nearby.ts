@@ -9,6 +9,7 @@ import { RouteState } from "../../routes/navigate";
 export class NearbyState {
     services: ServiceRef = new ServiceRef();
     stations: { [index: string]: NearbyStation } = {};
+    readings: { [index: number]: boolean } = {};
 }
 
 const actions = {
@@ -24,7 +25,7 @@ const actions = {
         commit(MutationTypes.QUERIED, info);
         return state.services
             .queryStation()
-            .getStatus(info.url)
+            .takeReadings(info.url)
             .then(
                 statusReply => {
                     commit(MutationTypes.TRIED, info);
@@ -90,7 +91,14 @@ const mutations = {
             state.stations[info.deviceId].tried = new Date();
         }
     },
-    [MutationTypes.NAVIGATION]: (state: NearbyState, route: RouteState) => {},
+    [MutationTypes.NAVIGATION]: (state: NearbyState, route: RouteState) => {
+        const id = route?.props?.stationId;
+        if (id) {
+            state.readings = { ...state.readings, [id]: true };
+        } else {
+            state.readings = {};
+        }
+    },
 };
 
 const state = () => new NearbyState();
