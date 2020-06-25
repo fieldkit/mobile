@@ -265,8 +265,13 @@ const actions = {
     ) => {
         return state.services
             .db()
-            .setStationPortalId(reply)
-            .then(station => dispatch(ActionTypes.LOAD));
+            .setStationPortalError({ id: reply.id }, null)
+            .then(() =>
+                state.services
+                    .db()
+                    .setStationPortalId(reply)
+                    .then(station => dispatch(ActionTypes.LOAD))
+            );
     },
 };
 
