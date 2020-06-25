@@ -18,8 +18,16 @@ function customizeLogger() {
             if (mutation.type == MutationTypes.TICK) {
                 return false;
             }
+            if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {
+                console.log("mutation:", mutation.type, mutation.payload);
+                return false;
+            }
+            if (mutation.type == MutationTypes.TRIED || mutation.type == MutationTypes.QUERIED) {
+                console.log("mutation:", mutation.type, mutation.payload);
+                return false;
+            }
             if (mutation.type == MutationTypes.NAVIGATION) {
-                console.log("mutation: navigation", mutation.payload);
+                console.log("mutation:", mutation.type, mutation.payload);
                 return false;
             }
             if (mutation.type == MutationTypes.PHONE_LOCATION) {
