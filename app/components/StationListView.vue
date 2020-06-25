@@ -81,6 +81,7 @@ import ScreenFooter from "./ScreenFooter";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 import MapModal from "./MapModal";
 import routes from "../routes";
+import * as animations from "./animations";
 
 export default {
     computed: {
@@ -199,20 +200,14 @@ export default {
             });
         },
         goToDetail(ev, station) {
-            // Change background color when pressed
-            /*
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-			*/
-
-            return this.$navigateTo(routes.stationDetail, {
-                props: {
-                    stationId: station.id,
-                },
-            });
+            return Promise.all([
+                animations.pressed(ev.object),
+                this.$navigateTo(routes.stationDetail, {
+                    props: {
+                        stationId: station.id,
+                    },
+                }),
+            ]);
         },
         showDev() {
             return dialogs
