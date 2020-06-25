@@ -196,28 +196,20 @@ export default {
 
         deployStation(event) {
             event.object.text = _L("processing");
-            let savingStation = this.station;
-            savingStation.status = "recording";
-            dbInterface.setStationDeployStatus(savingStation);
 
-            savingStation.deployStartTime = new Date();
-            dbInterface.setStationDeployStartTime(savingStation);
-
-            savingStation.percentComplete = this.percentComplete;
-            dbInterface.setStationPercentComplete(savingStation);
-
-            queryStation
+            return queryStation
                 .startDataRecording(this.station.url)
-                .then(() => {
-                    return Services.StationMonitor().recordingStatusChange(this.station.url, "started");
-                })
                 .then(() => {
                     return this.$navigateTo(routes.stationDetail, {
                         props: {
                             stationId: this.station.id,
-                            redirectedFromDeploy: "true",
+                            redirectedFromDeploy: true,
                         },
                     });
+                })
+                .then(() => {
+                    this.station.percentComplete = this.percentComplete;
+                    return dbInterface.setStationPercentComplete(this.station);
                 });
         },
     },

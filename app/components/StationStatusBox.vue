@@ -8,21 +8,21 @@
         <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">
             <!-- recording status -->
             <StackLayout row="0" col="0" class="m-t-10">
-                <Label class="text-center size-16" :text="station.status == 'recording' ? _L('recordingData') : _L('notRecording')"></Label>
+                <Label class="text-center size-16" :text="station.deployed ? _L('recordingData') : _L('notRecording')"></Label>
             </StackLayout>
             <!-- battery level -->
             <StackLayout v-if="station.connected" row="0" col="1" class="m-t-10">
                 <FlexboxLayout class="m-r-10" justifyContent="flex-end">
-                    <Label class="m-r-5 size-12 lighter" :text="getBatteryLevel()"></Label>
-                    <Image width="25" :src="station.batteryImage"></Image>
+                    <Label class="m-r-5 size-12 lighter" :text="batteryLevel"></Label>
+                    <Image width="25" :src="batteryImage"></Image>
                 </FlexboxLayout>
             </StackLayout>
             <!-- recording time -->
             <GridLayout row="1" col="0" rows="auto" columns="*" class="m-t-10">
                 <StackLayout row="0" id="outer-circle" />
                 <StackLayout row="0" id="inner-circle">
-                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="elapsedRecTime"></Label>
-                    <Label class="size-12 rec-time" :text="elapsedTimeLabel"></Label>
+                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="recording.time"></Label>
+                    <Label class="size-12 rec-time" :text="recording.label"></Label>
                 </StackLayout>
             </GridLayout>
             <!-- connected status and available memory -->
@@ -48,7 +48,7 @@
                         row="1"
                         col="1"
                         class="m-l-10 m-t-2 m-b-5 size-12"
-                        :text="lastSeen()"
+                        :text="lastSeen"
                         v-if="!syncing && !station.connected"
                     ></Label>
                     <Label row="0" col="1" class="m-10 size-14" :text="dataSyncMessage" v-if="syncing"></Label>
@@ -72,7 +72,7 @@
             <!-- deploy button -->
             <StackLayout row="2" colSpan="2" class="m-l-10 m-r-10">
                 <Button
-                    v-if="station.status != 'recording'"
+                    v-if="!station.deployed"
                     :isEnabled="station.connected"
                     class="btn btn-primary"
                     :text="_L('deploy')"
@@ -80,7 +80,7 @@
                     @tap="emitDeployTap"
                 ></Button>
                 <!-- placeholder if no deploy button -->
-                <StackLayout height="20" v-if="station.status == 'recording'" />
+                <StackLayout height="20" v-if="station.deployed" />
             </StackLayout>
         </GridLayout>
     </StackLayout>
@@ -96,14 +96,93 @@ export default {
     data: () => {
         return {
             loading: true,
-            elapsedRecTime: "--:--:--",
-            elapsedTimeLabel: _L("hrsMinSec"),
             syncing: false,
             dataSyncingIcon: "~/images/Icon_Syncing_blue.png",
             dataSyncMessage: "",
-            displayConsumedMemory: 0,
-            displayTotalMemory: 0,
         };
+    },
+    computed: {
+        displayConsumedMemory() {
+            return convertBytesToLabel(this.station.consumedMemory);
+        },
+        displayTotalMemory() {
+            return convertBytesToLabel(this.station.totalMemory);
+        },
+        recording() {
+            if (this.station.deployStartTime) {
+                const now = new Date();
+                const elapsed = (now.getTime() - this.station.deployStartTime.getTime()) / 1000;
+                const seconds = Math.floor(elapsed % 60);
+                const minutes = Math.floor((elapsed / 60) % 60);
+                const hours = Math.floor((elapsed / (60 * 60)) % 24);
+                const days = Math.floor(elapsed / (60 * 60 * 24));
+
+                if (seconds % 2 == 0 && this.outer) {
+                    this.outer
+                        .animate({
+                            scale: { x: 1, y: 1 },
+                            duration: 750,
+                            curve: AnimationCurve.easeOut,
+                        })
+                        .then(() => {
+                            return this.outer.animate({
+                                scale: { x: 0.96, y: 0.96 },
+                                duration: 500,
+                                curve: AnimationCurve.easeIn,
+                            });
+                        });
+                }
+
+                const secondsStr = seconds < 10 ? "0" + seconds : seconds;
+                const minutesStr = minutes < 10 ? "0" + minutes : minutes;
+                const hoursStr = hours < 10 ? "0" + hours : hours;
+
+                if (days > 1) {
+                    return {
+                        time: days + ":" + hoursStr + ":" + minutesStr,
+                        label: _L("daysHrsMin"),
+                    };
+                } else {
+                    return {
+                        time: hoursStr + ":" + minutesStr + ":" + secondsStr,
+                        label: _L("hrsMinSec"),
+                    };
+                }
+            } else {
+                return {
+                    time: "00:00:00",
+                    label: "",
+                };
+            }
+        },
+        batteryImage() {
+            const battery = this.station.batteryLevel;
+            if (battery == 0) {
+                return "~/images/Icon_Battery_0.png";
+            } else if (battery <= 20) {
+                return "~/images/Icon_Battery_20.png";
+            } else if (battery <= 40) {
+                return "~/images/Icon_Battery_40.png";
+            } else if (battery <= 60) {
+                return "~/images/Icon_Battery_60.png";
+            } else if (battery <= 80) {
+                return "~/images/Icon_Battery_80.png";
+            } else {
+                return "~/images/Icon_Battery_100.png";
+            }
+        },
+        batteryLevel() {
+            if (this.station.batteryLevel != 0 && !this.station.batteryLevel) {
+                return "Unknown";
+            }
+            return this.station.batteryLevel + "%";
+        },
+        lastSeen() {
+            if (!this.station.updated) {
+                return "";
+            }
+            return "Since " + getLastSeen(this.station.updated);
+        },
     },
     props: {
         station: {
@@ -128,15 +207,12 @@ export default {
 
             this.updateStation(this.station);
         },
-
         onUnloaded() {
             this.stopProcesses();
         },
-
         emitDeployTap() {
             this.$emit("deployTapped");
         },
-
         updateStation(station) {
             this.loading = false;
             if (this.station.deployStartTime) {
@@ -144,112 +220,23 @@ export default {
                 this.inner = this.page.getViewById("inner-circle");
                 this.outer.className = this.outer.className + " active";
                 this.inner.className = this.inner.className + " active";
-                this.intervalTimer = setInterval(this.displayElapsedTime, 1000);
-            } else {
-                this.elapsedRecTime = "00:00:00";
             }
-            this.setBatteryImage();
-            this.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
-            this.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
             if (this.station.consumedMemoryPercent) {
                 this.page.addCss("#station-memory-bar {width: " + this.station.consumedMemoryPercent + "%;}");
             }
         },
-
         updateStatus(data) {
-            this.station.batteryLevel = data.batteryLevel;
-            this.setBatteryImage();
-            this.displayConsumedMemory = convertBytesToLabel(this.station.consumedMemory);
-            this.displayTotalMemory = convertBytesToLabel(this.station.totalMemory);
             if (data.consumedMemoryPercent) {
                 this.page.addCss("#station-memory-bar {width: " + data.consumedMemoryPercent + "%;}");
             }
         },
-
-        getBatteryLevel() {
-            if (this.station.batteryLevel != 0 && !this.station.batteryLevel) {
-                return "Unknown";
-            }
-            return this.station.batteryLevel + "%";
-        },
-
-        setBatteryImage() {
-            let image = "~/images/Icon_Battery";
-            let battery = this.station.batteryLevel;
-            if (battery == 0) {
-                image += "_0.png";
-            } else if (battery <= 20) {
-                image += "_20.png";
-            } else if (battery <= 40) {
-                image += "_40.png";
-            } else if (battery <= 60) {
-                image += "_60.png";
-            } else if (battery <= 80) {
-                image += "_80.png";
-            } else {
-                image += "_100.png";
-            }
-            this.station.batteryImage = image;
-        },
-
-        lastSeen() {
-            if (!this.station.updated) {
-                return "";
-            }
-            return "Since " + getLastSeen(this.station.updated);
-        },
-
-        displayElapsedTime() {
-            if (!this.station.deployStartTime) {
-                this.elapsedRecTime = "00:00:00";
-                return;
-            }
-            let now = new Date();
-            let elapsedMillis = now - this.station.deployStartTime;
-
-            let seconds = Math.floor((elapsedMillis / 1000) % 60);
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-            let minutes = Math.floor((elapsedMillis / (1000 * 60)) % 60);
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            let hours = Math.floor((elapsedMillis / (1000 * 60 * 60)) % 24);
-            hours = hours < 10 ? "0" + hours : hours;
-            let days = Math.floor(elapsedMillis / (1000 * 60 * 60 * 24));
-            if (days > 1) {
-                this.elapsedRecTime = days + ":" + hours + ":" + minutes;
-                this.elapsedTimeLabel = _L("daysHrsMin");
-            } else {
-                this.elapsedRecTime = hours + ":" + minutes + ":" + seconds;
-                this.elapsedTimeLabel = _L("hrsMinSec");
-            }
-
-            if (parseInt(seconds) % 2 == 0) {
-                this.outer
-                    .animate({
-                        scale: { x: 1, y: 1 },
-                        duration: 750,
-                        curve: AnimationCurve.easeOut,
-                    })
-                    .then(() => {
-                        return this.outer.animate({
-                            scale: { x: 0.96, y: 0.96 },
-                            duration: 500,
-                            curve: AnimationCurve.easeIn,
-                        });
-                    });
-            }
-        },
-
         rotateSyncingIcon() {
             this.dataSyncingIcon =
                 this.dataSyncingIcon == "~/images/Icon_Syncing_blue.png"
                     ? "~/images/Icon_Syncing2_blue.png"
                     : "~/images/Icon_Syncing_blue.png";
         },
-
         stopProcesses() {
-            if (this.intervalTimer) {
-                clearInterval(this.intervalTimer);
-            }
             if (this.syncIconIntervalTimer) {
                 clearInterval(this.syncIconIntervalTimer);
             }

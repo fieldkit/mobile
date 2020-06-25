@@ -118,14 +118,7 @@ export default {
             return this.$navigateTo(routes.connectStation);
         },
         getDeployStatus(station /*: AvailableStation*/) {
-            if (!station.deployStartTime) {
-                return _L("readyToDeploy");
-            }
-            const start = station.deployStartTime;
-            const month = start.getMonth() + 1;
-            const day = start.getDate();
-            const year = start.getFullYear();
-            return _L("deployed") + ": " + month + "/" + day + "/" + year; // TODO i18n interpolate
+            return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
         showStations() {
             if (!this.map) {

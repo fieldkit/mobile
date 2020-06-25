@@ -132,6 +132,10 @@ export class LegacyStation extends Station {
         }
         return this.decodedStatus;
     }
+
+    get deployed(): boolean {
+        return this.deployStartTime != null;
+    }
 }
 
 export interface ServiceInfo {

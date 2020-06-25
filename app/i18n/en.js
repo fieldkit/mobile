@@ -326,7 +326,7 @@ module.exports = {
     settings: "Settings",
     // ScreenHeader.vue
     // StationDetailView.vue
-    stationDeployed: "Station Deployed",
+    stationDeployed: "Station Deployed %s",
     readyToDeploy: "Ready to deploy",
     deployed: "Deployed",
     // StationListView.vue

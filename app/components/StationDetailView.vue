@@ -91,16 +91,15 @@ export default {
     data() {
         return {
             loading: true,
-            deviceId: null,
-            isDeployed: false,
-            deployedStatus: "",
             percentComplete: 0,
-            modules: [],
             newlyDeployed: false,
             notificationCodes: [],
         };
     },
     computed: {
+        isDeployed() {
+            return this.currentStation.deployStartTime != null;
+        },
         currentStation() {
             if (!this.$store.getters.legacyStations) {
                 throw new Error(`missing legacyStations`);
@@ -267,13 +266,7 @@ export default {
         },
 
         getDeployedStatus() {
-            if (!this.currentStation.deployStartTime) {
-                return _L("readyToDeploy");
-            }
-            const month = this.currentStation.deployStartTime.getMonth() + 1;
-            const day = this.currentStation.deployStartTime.getDate();
-            const year = this.currentStation.deployStartTime.getFullYear();
-            return _L("deployed") + " (" + month + "/" + day + "/" + year + ")";
+            return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
 
         showLoadingAnimation() {
