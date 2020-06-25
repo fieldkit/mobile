@@ -14,7 +14,7 @@
                     <StackLayout col="0" class="top-line"></StackLayout>
                 </GridLayout>
                 <StackLayout class="text-center disconnect-warning" v-if="!station.connected">
-                    <Label text="Station disconnected." />
+                    <Label :text="_L('stationDisconnected')" />
                 </StackLayout>
             </StackLayout>
 
@@ -91,7 +91,7 @@
                     <!-- end: Name your location -->
 
                     <!-- Data capture interval -->
-                    <ConfigureCaptureInterval :station="station" />
+                    <ConfigureCaptureInterval :station="station" ref="configCaptureInterval" />
                     <!-- end: Data capture interval -->
                     <TextView id="hidden-field" />
                 </FlexboxLayout>
@@ -181,11 +181,13 @@ export default {
         goToNext(event) {
             this.saveLocationName();
 
-            this.$navigateTo(routes.deployNotes, {
-                props: {
-                    station: this.station,
-                },
-            });
+            if (this.$refs.configCaptureInterval.checkAllIntervals()) {
+                this.$navigateTo(routes.deployNotes, {
+                    props: {
+                        station: this.station,
+                    },
+                });
+            }
         },
 
         onNavCancel(event) {

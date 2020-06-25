@@ -10,21 +10,25 @@
 <script>
 import Config from "../config";
 import NotificationModal from "./NotificationModal";
+import * as i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
 
 const noteContent = {
     1: {
-        heading: "Problem with Portal connection",
-        text: "We encountered an error when connecting to the Portal.",
+        heading: _L("portalProblemHeading"),
+        text: _L("encounteredAPortalError"),
         error: true,
     },
     403: {
-        heading: "Unable to update Portal",
-        text: "We do not have permission to update the Portal for this station. It may belong to another user.",
+        heading: _L("unableToUpdateHeading"),
+        text: _L("doNotHavePortalPermission"),
         error: true,
     },
     401: {
-        heading: "Unable to access Portal",
-        text: "We are currently not authorized to update the Portal. Are you logged in?",
+        heading: _L("unableToAccessHeading"),
+        text: _L("notAuthorizedToUpdatePortal"),
         error: true,
     },
     // TODO: handle 400 errors?

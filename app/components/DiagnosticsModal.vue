@@ -4,7 +4,7 @@
             <StackLayout verticalAlign="center" class="bar-container">
                 <Label :text="progress.message" textWrap="true" v-if="!done && progress" />
 
-                <Label text="Success! Please include this phrase in your bug report:" textWrap="true" v-if="phrase" />
+                <Label :text="_L('includeThisPhrase')" textWrap="true" v-if="phrase" />
                 <Label :text="phrase" textWrap="true" class="phrase" v-if="phrase" />
 
                 <Button @tap="close" v-if="done" class="btn btn-primary btn-padded">OK</Button>

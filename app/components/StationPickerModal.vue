@@ -5,7 +5,7 @@
                 <Image width="21" src="~/images/Icon_Close.png" />
             </StackLayout>
             <StackLayout row="1">
-                <Label text="Tap the station you want to recalibrate:" textWrap="true" class="m-20 size-20" />
+                <Label :text="_L('tapStationToRecalibrate')" textWrap="true" class="m-20 size-20" />
                 <StackLayout
                     v-for="(s, index) in stations"
                     :key="s.sortedIndex"

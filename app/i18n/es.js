@@ -213,6 +213,13 @@ module.exports = {
     saveStartTime: "Guardar Hora de Inicio",
     saveEndTime: "Guardar Tiempo Final",
     // DataSyncView.vue
+    dataSync: "Sincronización de datos",
+    totalDownAndUploaded: "El total de las lecturas hacia abajo y cargado",
+    totalDownloaded: "Lecturas totales descargados",
+    totalUploaded: "Lecturas totales subidas",
+    lastDownUpload: "Última abajo / carga",
+    lastDownload: "Ultima descarga",
+    lastUpload: "Última carga",
     downloading: "Descarga",
     notConnectedToStation: "No conectado a la estación",
     checkingDownload: "Comprobación de datos para la descarga ...",
@@ -227,6 +234,7 @@ module.exports = {
     yes: "Sí",
     notNow: "No ahora",
     // DeployMapView.vue
+    stationDisconnected: "Estación desconectado.",
     nameYourLocation: "El nombre de su ubicación",
     locationRequired: "La ubicación es un campo obligatorio.",
     locationOver255: "La ubicación debe ser inferior a 256 caracteres.",
@@ -234,6 +242,10 @@ module.exports = {
     continue: "Continuar",
     deployment: "Implementación",
     // DeployNotesView.vue
+    fieldNote: "Nota de campo",
+    fieldNotes: "Notas de campo",
+    photoDescription: "Descripción de la foto",
+    describePhoto: "Describir lo que está en la foto",
     complete: "Complete",
     provideDetails: "Ayude a su comunidad a comprender mejor su entorno. Las notas de campo pueden mejorar la comunicación, la resolución de problemas y el conocimiento de los datos.",
     photosRequired: "Fotos (1 requiere)",
@@ -266,6 +278,9 @@ module.exports = {
     deploymentReview: "Revisión de la implementación",
     processing: "Transformando ...",
     // FieldNoteForm.vue
+    title: "Título",
+    tapToAddTitle: "Toque para añadir un título",
+    note: "Nota",
     jan: "Ene",
     feb: "Feb",
     mar: "Mar",
@@ -283,6 +298,22 @@ module.exports = {
     // DeveloperMenuView.vue
     viewStations: "Ver estaciones",
     authenticated: "Usted ha autenticado correctamente",
+    currentEnvironment: "El entorno actual es",
+    resetCalibration: "Calibración de reposición",
+    resetOnboarding: "Restablecer Onboarding",
+    uploadDiagnostics: "Subir Diagnóstico",
+    deleteDB: "DB borrado",
+    deleteFiles: "Borrar archivos",
+    crash: "Choque",
+    manualCrash: "Manual de Crash",
+    devOptions: "Opciones de desarrollo",
+    noStationsFound: "No se encontraron estaciones",
+    resetDoneGoToOnboarding: "Reset completo! ¿Le gustaría ir a Onboarding?",
+    no: "No",
+    dbDeleted: "Base de datos eliminados",
+    errorRemovingFiles: "Error al eliminar archivos!",
+    filesRemoved: "Archivos eliminado!",
+    includeThisPhrase: "¡Éxito! Por favor, incluya esta frase en su informe de error:",
     // LoginView.vue
     name: "Nombre",
     email: "Email",
@@ -316,8 +347,15 @@ module.exports = {
     select: "Seleccionar ...",
     // ModuleListView.vue
     viewGraph: "Ver Gráfico",
+    lastReading: "Última lectura",
     // NotificationFooter.vue
     notifications: "Notificaciones",
+    portalProblemHeading: "Problema con la conexión Portal",
+    encounteredAPortalError: "Se ha detectado un error al conectar con el Portal.",
+    unableToUpdateHeading: "No se puede actualizar Portal",
+    doNotHavePortalPermission: "No tenemos permiso para actualizar el Portal para esta estación. Se puede pertenecer a otro usuario.",
+    unableToAccessHeading: "No se puede acceder Portal",
+    notAuthorizedToUpdatePortal: "En este momento no estamos autorizados para actualizar el Portal. ¿Está registrado?",
     // NotificationView.vue
     dismiss: "Descartar",
     // ScreenFooter.vue
@@ -331,6 +369,12 @@ module.exports = {
     deployed: "Implementado",
     // StationListView.vue
     lookingForStations: "Buscando estaciones ...",
+    connectAStation: "Conectar una estación",
+    addStation: "Adición de un satélite",
+    addStationInstruction: "No tiene estaciones. Añadir una estación para comenzar a recoger datos.",
+    confirmViewDevMenu: "¿Quieres ver las opciones de desarrollo?",
+    // StationPickerModal.vue
+    tapStationToRecalibrate: "Toque la emisora ​​que desea volver a calibrar:",
     // StationSettingsView.vue
     nameOver40: "Nombre tiene un máximo de 40 caracteres.",
     nameNotPrintable: "El nombre debe ser imprimible.",
@@ -351,6 +395,8 @@ module.exports = {
     submit: "Enviar",
     logOut: "Cerrar sesión",
     // StationStatusBox.vue
+    unknown: "Desconocido",
+    since: "Ya que",
     recordingData: "Registro de datos",
     notRecording: "No Grabación",
     connected: "Conectado",

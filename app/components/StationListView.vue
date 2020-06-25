@@ -35,14 +35,9 @@
                     </GridLayout>
 
                     <GridLayout rows="*,*,*" v-if="stations.length == 0" class="m-t-20">
-                        <Label row="0" text="Connect a Station" class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20" />
-                        <Label
-                            row="1"
-                            text="You have no stations. Add a station to start collecting data."
-                            class="text-center size-18 instruction"
-                            textWrap="true"
-                        />
-                        <Button row="2" class="btn btn-primary btn-padded m-y-20" text="Add a Station" @tap="goToAddStation"></Button>
+                        <Label row="0" :text="_L('connectAStation')" class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20" />
+                        <Label row="1" :text="_L('addStationInstruction')" class="text-center size-18 instruction" textWrap="true" />
+                        <Button row="2" class="btn btn-primary btn-padded m-y-20" :text="_L('addStation')" @tap="goToAddStation"></Button>
                     </GridLayout>
 
                     <GridLayout
@@ -205,7 +200,7 @@ export default {
         showDev() {
             return dialogs
                 .confirm({
-                    title: "Do you want to view development options?",
+                    title: _L("confirmViewDevMenu"),
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel"),
                 })

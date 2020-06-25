@@ -38,9 +38,9 @@
         <WrapLayout row="1" orientation="horizontal" v-if="!fieldNote.image">
             <!-- title option for additional notes -->
             <GridLayout rows="auto,auto,auto" columns="*" class="m-b-2" v-if="fieldNote.field == 'additional'">
-                <Label row="0" text="Title" class="m-x-20 m-b-2 size-14" />
-                <TextView row="1" class="size-14 p-x-20 large-text-field" hint="Tap to add a title" v-model="fieldNote.title"></TextView>
-                <Label row="2" text="Note" class="m-x-20 m-t-10 size-14" />
+                <Label row="0" :text="_L('title')" class="m-x-20 m-b-2 size-14" />
+                <TextView row="1" class="size-14 p-x-20 large-text-field" :hint="_L('tapToAddTitle')" v-model="fieldNote.title"></TextView>
+                <Label row="2" :text="_L('note')" class="m-x-20 m-t-10 size-14" />
             </GridLayout>
             <!-- main text input section -->
             <Label

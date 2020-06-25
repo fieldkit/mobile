@@ -213,6 +213,13 @@ module.exports = {
     saveStartTime: "Save Start Time",
     saveEndTime: "Save End Time",
     // DataSyncView.vue
+    dataSync: "Data Sync",
+    totalDownAndUploaded: "total readings down & uploaded",
+    totalDownloaded: "total readings downloaded",
+    totalUploaded: "total readings uploaded",
+    lastDownUpload: "Last down/upload",
+    lastDownload: "Last download",
+    lastUpload: "Last upload",
     downloading: "Downloading",
     notConnectedToStation: "Not connected to station",
     checkingDownload: "Checking for data to download...",
@@ -227,6 +234,7 @@ module.exports = {
     yes: "Yes",
     notNow: "Not Now",
     // DeployMapView.vue
+    stationDisconnected: "Station disconnected.",
     nameYourLocation: "Name your location",
     locationRequired: "Location is a required field.",
     locationOver255: "Location must be less than 256 characters.",
@@ -234,6 +242,10 @@ module.exports = {
     continue: "Continue",
     deployment: "Deployment",
     // DeployNotesView.vue
+    fieldNote: "Field Note",
+    fieldNotes: "Field Notes",
+    photoDescription: "Photo Description",
+    describePhoto: "Describe what is in the photo",
     complete: "Complete",
     provideDetails: "Help your community better understand their environment. Field notes can improve communication, troubleshooting and data insights.",
     photosRequired: "Photos (1 required)",
@@ -266,6 +278,9 @@ module.exports = {
     deploymentReview: "Deployment Review",
     processing: "Processing...",
     // FieldNoteForm.vue
+    title: "Title",
+    tapToAddTitle: "Tap to add a title",
+    note: "Note",
     jan: "Jan",
     feb: "Feb",
     mar: "Mar",
@@ -283,6 +298,22 @@ module.exports = {
     // DeveloperMenuView.vue
     viewStations: "View Stations",
     authenticated: "You have successfully authenticated.",
+    currentEnvironment: "The current environment is",
+    resetCalibration: "Reset Calibration",
+    resetOnboarding: "Reset Onboarding",
+    uploadDiagnostics: "Upload Diagnostics",
+    deleteDB: "Delete DB",
+    deleteFiles: "Delete Files",
+    crash: "Crash",
+    manualCrash: "Manual Crash",
+    devOptions: "Development Options",
+    noStationsFound: "No stations found",
+    resetDoneGoToOnboarding: "Reset complete! Would you like to go to Onboarding?",
+    no: "No",
+    dbDeleted: "Database Deleted",
+    errorRemovingFiles: "Error removing files!",
+    filesRemoved: "Files removed!",
+    includeThisPhrase: "Success! Please include this phrase in your bug report:",
     // LoginView.vue
     name: "Name",
     email: "Email",
@@ -316,8 +347,15 @@ module.exports = {
     select: "Select...",
     // ModuleListView.vue
     viewGraph: "View Graph",
+    lastReading: "Last reading",
     // NotificationFooter.vue
     notifications: "Notifications",
+    portalProblemHeading: "Problem with Portal connection",
+    encounteredAPortalError: "We encountered an error when connecting to the Portal.",
+    unableToUpdateHeading: "Unable to update Portal",
+    doNotHavePortalPermission: "We do not have permission to update the Portal for this station. It may belong to another user.",
+    unableToAccessHeading: "Unable to access Portal",
+    notAuthorizedToUpdatePortal: "We are currently not authorized to update the Portal. Are you logged in?",
     // NotificationView.vue
     dismiss: "Dismiss",
     // ScreenFooter.vue
@@ -331,6 +369,12 @@ module.exports = {
     deployed: "Deployed",
     // StationListView.vue
     lookingForStations: "Looking for stations ...",
+    connectAStation: "Connect a Station",
+    addStation: "Add a Station",
+    addStationInstruction: "You have no stations. Add a station to start collecting data.",
+    confirmViewDevMenu: "Do you want to view development options?",
+    // StationPickerModal.vue
+    tapStationToRecalibrate: "Tap the station you want to recalibrate:",
     // StationSettingsView.vue
     nameOver40: "Name has a 40-character maximum.",
     nameNotPrintable: "Name must be printable.",
@@ -351,6 +395,8 @@ module.exports = {
     submit: "Submit",
     logOut: "Log Out",
     // StationStatusBox.vue
+    unknown: "Unknown",
+    since: "Since",
     recordingData: "Recording Data",
     notRecording: "Not Recording",
     connected: "Connected",

@@ -6,7 +6,7 @@
                 <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
                 <StackLayout class="spacer m-t-30"></StackLayout>
                 <StackLayout class="m-x-20 m-b-20">
-                    <Label class="m-y-10" textWrap="true" :text="'The current environment is: ' + environmentLabels[currentEnv]" />
+                    <Label class="m-y-10" textWrap="true" :text="_L('currentEnvironment') + ': ' + environmentLabels[currentEnv]" />
                     <GridLayout rows="auto" columns="200" horizontalAlignment="center">
                         <DropDown
                             row="0"
@@ -30,13 +30,13 @@
                         />
                     </GridLayout>
                 </StackLayout>
-                <Button class="btn btn-primary btn-padded" text="Reset Calibration" @tap="resetCalibration"></Button>
-                <Button class="btn btn-primary btn-padded" text="Reset Onboarding" @tap="resetOnboarding"></Button>
-                <Button class="btn btn-primary btn-padded" text="Upload Diagnostics" @tap="uploadDiagnostics"></Button>
-                <Button class="btn btn-primary btn-padded" text="Delete DB" @tap="deleteDB"></Button>
-                <Button class="btn btn-primary btn-padded" text="Delete Files" @tap="deleteFiles"></Button>
-                <Button class="btn btn-primary btn-padded" text="Crash" @tap="crash"></Button>
-                <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('resetCalibration')" @tap="resetCalibration"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('manualCrash')" @tap="manualCrash"></Button>
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -60,7 +60,7 @@ import StationPicker from "./StationPickerModal";
 export default {
     data() {
         return {
-            message: "Development Options",
+            message: _L("devOptions"),
             loggedIn: this.$portalInterface.isLoggedIn(),
             currentEnv: 0,
             environments: [
@@ -138,9 +138,9 @@ export default {
             const stations = this.$store.stations.all;
             if (stations.length == 0) {
                 alert({
-                    title: "Reset Calibration",
-                    message: "No stations found",
-                    okButtonText: "OK",
+                    title: _L("resetCalibration"),
+                    message: _L("noStationsFound"),
+                    okButtonText: _L("ok"),
                 });
             } else {
                 const options = {
@@ -167,9 +167,9 @@ export default {
             appSettings.remove("skipCount");
             dialogs
                 .confirm({
-                    title: "Reset complete! Would you like to go to Onboarding?",
+                    title: _L("resetDoneGoToOnboarding"),
                     okButtonText: _L("yes"),
-                    cancelButtonText: "No",
+                    cancelButtonText: _L("no"),
                 })
                 .then(result => {
                     if (result) {
@@ -188,9 +188,9 @@ export default {
                 .initialize(true)
                 .then(() => {
                     alert({
-                        title: "Developer",
-                        message: "Database Deleted",
-                        okButtonText: "OK",
+                        title: _L("devOptions"),
+                        message: _L("dbDeleted"),
+                        okButtonText: _L("ok"),
                     });
                 });
         },
@@ -205,9 +205,9 @@ export default {
                     console.log("error removing files", err.stack, res);
 
                     alert({
-                        title: "Developer",
-                        message: "Error removing files!",
-                        okButtonText: "OK",
+                        title: _L("devOptions"),
+                        message: _L("errorRemovingFiles"),
+                        okButtonText: _L("ok"),
                     });
                 })
                 .then(res => {
@@ -222,9 +222,9 @@ export default {
                     );
 
                     alert({
-                        title: "Developer",
-                        message: "Files removed!",
-                        okButtonText: "OK",
+                        title: _L("devOptions"),
+                        message: _L("filesRemoved"),
+                        okButtonText: _L("ok"),
                     });
                 });
         },

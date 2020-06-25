@@ -3,7 +3,7 @@
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <GridLayout rows="60,*" automationText="dataSyncLayout">
-                    <ScreenHeader row="0" class="p-t-10" title="Data Sync" :canNavigateBack="false" :canNavigateSettings="false" />
+                    <ScreenHeader row="0" class="p-t-10" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
                     <StackLayout row="1" class="sync-panel-container">
                         <StackLayout v-for="s in recentSyncs" :key="s.deviceId" class="station-container">
                             <Label :text="s.name" textWrap="true" class="station-name"></Label>
@@ -146,13 +146,13 @@ export default {
             if (result.length > 0) {
                 const downloadRecord = result[0];
                 if (downloadRecord.uploaded) {
-                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} total readings down & uploaded`;
-                    recent.lastDownloadTime = "Last down/upload: " + this.getFormattedDateTime(downloadRecord.uploaded);
+                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} ` + _L("totalDownAndUploaded");
+                    recent.lastDownloadTime = _L("lastDownUpload") + ": " + this.getFormattedDateTime(downloadRecord.uploaded);
                     recent.totalUploads = "";
                     recent.lastUploadTime = "";
                 } else {
-                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} + total readings downloaded`;
-                    recent.lastDownloadTime = "Last download: " + this.getFormattedDateTime(downloadRecord.timestamp);
+                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} ` + _L("totalDownloaded");
+                    recent.lastDownloadTime = _L("lastDownload") + ": " + this.getFormattedDateTime(downloadRecord.timestamp);
 
                     dbInterface.getMostRecentUploadByDeviceId(recent.deviceId).then(uploadResult => {
                         this.updateUploadHistory(uploadResult, recent);
@@ -164,8 +164,8 @@ export default {
         updateUploadHistory(uploadResult, recent) {
             if (uploadResult.length > 0) {
                 const uploadRecord = uploadResult[0];
-                recent.totalUploads = `${uploadRecord.lastBlock - 1} + total readings uploaded`;
-                recent.lastUploadTime = "Last upload: " + this.getFormattedDateTime(uploadRecord.uploaded);
+                recent.totalUploads = `${uploadRecord.lastBlock - 1} ` + _L("totalUploaded");
+                recent.lastUploadTime = _L("lastUpload") + ": " + this.getFormattedDateTime(uploadRecord.uploaded);
             }
         },
 
