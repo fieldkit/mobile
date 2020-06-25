@@ -1,7 +1,5 @@
 import _ from "lodash";
 import { BetterObservable } from "./rx";
-
-import * as MutationTypes from "../store/mutations";
 import DownloadManager from "./download-manager";
 import UploadManager from "./upload-manager";
 import Config from "../config";
@@ -9,6 +7,12 @@ import Config from "../config";
 const log = Config.logger("StateManager");
 
 export default class StateManager extends BetterObservable {
+    private databaseInterface: any;
+    private queryStation: any;
+    private portalInterface: any;
+    private downloadManager: DownloadManager;
+    private uploadManager: UploadManager;
+
     constructor(services) {
         super();
         this.databaseInterface = services.Database();
@@ -45,7 +49,7 @@ export default class StateManager extends BetterObservable {
     }
 
     getStatus() {
-        return Promise.all([this.downloadManager.getStatus(), this.uploadManager.getStatus()]).then(all => {
+        return Promise.all([this.downloadManager.getStatus(false), this.uploadManager.getStatus()]).then(all => {
             return {
                 station: all[0],
                 portal: all[1],
@@ -53,7 +57,7 @@ export default class StateManager extends BetterObservable {
         });
     }
 
-    getValue() {
+    getValue(): Promise<any> {
         return this.getStatus();
     }
 

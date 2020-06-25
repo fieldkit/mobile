@@ -1,4 +1,5 @@
 import { decodeAndPrepare } from "../services/query-station";
+import { GlobalState } from "./modules/global";
 
 export interface HasLocation {
     readonly latitude: number | null;
@@ -189,9 +190,15 @@ export class AvailableStation {
     }
 }
 
+interface GlobalGetters {
+    legacyStations: { [index: number]: LegacyStation };
+}
+
 export interface Store {
     commit(type: string, mutation: any): void;
     dispatch(type: string, action: any): Promise<any>;
+    readonly state: GlobalState;
+    readonly getters: GlobalGetters;
 }
 
 export class PhoneLocation {

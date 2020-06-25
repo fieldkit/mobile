@@ -1,4 +1,6 @@
 export class EventHistory {
+    db: any;
+
     constructor(db) {
         this.db = db;
     }

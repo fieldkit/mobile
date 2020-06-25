@@ -20,16 +20,16 @@ class Observable {
         this._observers = {};
     }
 
-    on(eventNames, callback, thisArg) {
+    on(eventNames, callback, thisArg: any = null) {
         return this.addEventListener(eventNames, callback, thisArg);
     }
 
-    once(event, callback, thisArg) {
+    once(event, callback, thisArg: any = null) {
         const list = this._getEventList(event, true);
         list.push({ callback: callback, thisArg: thisArg, once: true });
     }
 
-    off(eventNames, callback, thisArg) {
+    off(eventNames, callback, thisArg: any = null) {
         return this.removeEventListener(eventNames, callback, thisArg);
     }
 
@@ -232,7 +232,7 @@ export class BetterObservable extends Observable {
     }
 }
 
-export function every(time, value) {
+export function every(time: number, value: any = null): Observable {
     const observable = new Observable();
     observable.notifyPropertyChange(HiddenProperty, value);
     setInterval(() => {

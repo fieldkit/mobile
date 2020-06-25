@@ -16,13 +16,16 @@ function transformProgress(callback, fn) {
 }
 
 export default class StationUpgrade {
+    private services: any;
+    public check: () => Promise<any>;
+
     constructor(services) {
         this.services = services;
         this.check = onlyAllowEvery(
             60,
             () => {
                 console.log("firmware check: allowed");
-                return this.downloadFirmware().catch(error => {
+                return this.downloadFirmware(() => {}, false).catch(error => {
                     console.log("firmware error", error);
                 });
             },

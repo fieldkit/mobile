@@ -1,16 +1,20 @@
 import _ from "lodash";
-import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
+import { knownFolders } from "tns-core-modules/file-system";
+import { LegacyStation, Store } from "../store/types";
 
 import Services from "./services";
 import { Mutex } from "./mutexes";
 
-import { keysToCamel, getPathTimestamp } from "../utilities";
+import { CalculatedSize } from "./query-station";
+import { getPathTimestamp } from "../utilities";
 import Constants from "../constants";
 import Config from "../config";
 
 const log = Config.logger("DownloadManager");
 
-class DownloadStatus {
+export class DownloadStatus {
+    stations: any;
+
     constructor(stations) {
         this.stations = stations;
     }
@@ -23,12 +27,15 @@ class DownloadStatus {
 }
 
 export default class DownloadManager {
+    private databaseInterface: any;
+    private store: Store;
+    private progressService: any;
+    private _mutex: Mutex = new Mutex();
+
     constructor(services) {
         this.databaseInterface = services.Database();
-        this.queryStation = services.QueryStation();
         this.store = services.Store();
         this.progressService = services.ProgressService();
-        this._mutex = new Mutex();
     }
 
     getStatus(connectedOnly) {
@@ -62,17 +69,17 @@ export default class DownloadManager {
 
             return {
                 meta: {
-                    lastBlock: stationMeta.last().lastBlock,
+                    lastBlock: stationMeta.last()?.lastBlock || 0,
                     size: stationMeta.map(s => s.size).sum(),
                 },
                 data: {
-                    lastBlock: stationData.last().lastBlock,
+                    lastBlock: stationData.last()?.lastBlock || 0,
                     size: stationData.map(s => s.size).sum(),
                 },
             };
         }
 
-        const stations = Object.values(this.store.getters.legacyStations).filter(s => {
+        const stations = Object.values(this.store.getters.legacyStations).filter((s: LegacyStation) => {
             if (connectedOnly === true) {
                 return s.connected;
             }
@@ -216,7 +223,7 @@ export default class DownloadManager {
                 })
                 .flat()
         ).then(sizes => {
-            return _(sizes)
+            return _(<DownloadSize[]>sizes)
                 .groupBy(s => s.deviceId)
                 .map((group, key) => {
                     return {
@@ -234,7 +241,7 @@ export default class DownloadManager {
         });
     }
 
-    _calculateSize(url) {
+    _calculateSize(url): Promise<CalculatedSize> {
         return Services.QueryStation().calculateDownloadSize(url);
     }
 
@@ -367,4 +374,10 @@ export default class DownloadManager {
     _getNewDownloadFolder(station) {
         return this._getStationFolder(station).getFolder(getPathTimestamp());
     }
+}
+
+export interface DownloadSize {
+    deviceId: string;
+    key: string;
+    size: number;
 }

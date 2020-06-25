@@ -1,6 +1,5 @@
 import Promise from "bluebird";
 import * as ConnectivityModule from "tns-core-modules/connectivity";
-import { promiseAfter } from "../utilities";
 import axios from "axios";
 
 import Config from "../config";
@@ -8,12 +7,14 @@ import Config from "../config";
 const log = Config.logger("DiscoverStation");
 
 export default class OnlineStatus {
+    private _online: boolean;
+    private _url: string;
+
     constructor(services) {
-        this._services = services;
         this._online = false;
         this._url = "https://api.fieldkit.org/status";
 
-        ConnectivityModule.startMonitoring((newType) => {
+        ConnectivityModule.startMonitoring(newType => {
             try {
                 switch (newType) {
                     case ConnectivityModule.connectionType.none:
@@ -46,14 +47,14 @@ export default class OnlineStatus {
         console.log("OnlineStatus: checking");
 
         return axios({ url: this._url })
-            .then((r) => {
+            .then(r => {
                 if (this._online != true) {
                     console.log("OnlineStatus: online");
                     this._online = true;
                 }
                 return Promise.resolve(this._online);
             })
-            .catch((e) => {
+            .catch(e => {
                 if (this._online != false) {
                     console.log("OnlineStatus: offline");
                     this._online = false;

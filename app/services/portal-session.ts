@@ -1,7 +1,5 @@
 export default class PortalSession {
-    constructor(services) {
-        this.services = services;
-    }
+    constructor(private readonly services) {}
 
     portal() {
         return this.services.PortalInterface();

@@ -1,6 +1,5 @@
 import _ from "lodash";
-import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
-import { keysToCamel, serializePromiseChain } from "../utilities";
+import { serializePromiseChain } from "../utilities";
 import Services from "./services";
 import Config from "../config";
 import { Mutex } from "./mutexes";
@@ -8,12 +7,17 @@ import { Mutex } from "./mutexes";
 const log = Config.logger("UploadManager");
 
 export default class UploadManager {
+    private databaseInterface: any;
+    private portalInterface: any;
+    private progressService: any;
+    private fileSystem: any;
+    private _mutex = new Mutex();
+
     constructor(services) {
         this.databaseInterface = services.Database();
         this.portalInterface = services.PortalInterface();
         this.progressService = services.ProgressService();
         this.fileSystem = services.FileSystem();
-        this._mutex = new Mutex();
     }
 
     getUri() {
@@ -104,8 +108,8 @@ export default class UploadManager {
                         .map(f => {
                             return {
                                 deviceId: key,
-                                key: path,
-                                path: path,
+                                key: f.path,
+                                path: f.path,
                             };
                         })
                         .keyBy(r => r.key)

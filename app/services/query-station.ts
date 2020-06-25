@@ -6,11 +6,15 @@ import { EventHistory } from "./event-history";
 import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors";
 import Config from "../config";
 
+export class CalculatedSize {
+    constructor(public readonly size: number) {}
+}
+
 const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
-const HttpQuery = appRoot.lookupType("fk_app.HttpQuery");
-const HttpReply = appRoot.lookupType("fk_app.HttpReply");
-const QueryType = appRoot.lookup("fk_app.QueryType");
-const ReplyType = appRoot.lookup("fk_app.ReplyType");
+const HttpQuery: any = appRoot.lookupType("fk_app.HttpQuery");
+const HttpReply: any = appRoot.lookupType("fk_app.HttpReply");
+const QueryType: any = appRoot.lookup("fk_app.QueryType");
+const ReplyType: any = appRoot.lookup("fk_app.ReplyType");
 
 const log = Config.logger("QueryStation");
 
@@ -46,13 +50,13 @@ export function prepareReply(reply) {
 
     // NOTE deepmerge ruins deviceId.
     if (reply.status && reply.status.identity) {
-        reply.status.identity.deviceId = new Buffer.from(reply.status.identity.deviceId).toString("hex");
-        reply.status.identity.generationId = new Buffer.from(reply.status.identity.generation).toString("hex");
+        reply.status.identity.deviceId = Buffer.from(reply.status.identity.deviceId).toString("hex");
+        reply.status.identity.generationId = Buffer.from(reply.status.identity.generation).toString("hex");
         reply.status.identity.generation = null;
     }
     if (reply.modules && Array.isArray(reply.modules)) {
         reply.modules.map(m => {
-            m.deviceId = new Buffer.from(m.id).toString("hex");
+            m.deviceId = Buffer.from(m.id).toString("hex");
             m.id = null;
         });
     }
@@ -61,7 +65,7 @@ export function prepareReply(reply) {
             lr.modules
                 .filter(m => m.module && m.module.id)
                 .map(m => {
-                    m.module.deviceId = new Buffer.from(m.module.id).toString("hex");
+                    m.module.deviceId = Buffer.from(m.module.id).toString("hex");
                     m.module.id = null;
                 });
         });
@@ -77,12 +81,15 @@ export function prepareReply(reply) {
 }
 
 export default class QueryStation {
+    _conservify: any;
+    _history: any;
+    _openQueries: any = {};
+    _lastQueries: any = {};
+    _lastQueryTried: any = {};
+
     constructor(services) {
         this._conservify = services.Conservify();
         this._history = new EventHistory(services.Database());
-        this._openQueries = {};
-        this._lastQueries = {};
-        this._lastQueryTried = {};
     }
 
     getStatus(address, locate) {
@@ -200,7 +207,7 @@ export default class QueryStation {
         });
     }
 
-    calculateDownloadSize(url) {
+    calculateDownloadSize(url): Promise<CalculatedSize> {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject(new StationQueryError("ignored"));
         }
@@ -217,9 +224,7 @@ export default class QueryStation {
                             return Promise.reject(new HttpError("status", response));
                         }
                         const size = Number(response.headers["content-length"]);
-                        return {
-                            size,
-                        };
+                        return new CalculatedSize(size);
                     },
                     err => {
                         log.error(url, "query error", err);
@@ -254,7 +259,7 @@ export default class QueryStation {
                     method: "GET",
                     url: url,
                     path: path,
-                    progress: prgoress,
+                    progress: progress,
                 })
                 .then(response => {
                     log.info("headers", response.headers);
