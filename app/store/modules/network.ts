@@ -1,5 +1,4 @@
-// import * as MutationTypes from "../mutations";
-// import * as ActionTypes from "../actions";
+import * as ActionTypes from "../actions";
 
 export class NetworkState {
     online: boolean = false;
@@ -9,7 +8,9 @@ export class NetworkState {
 
 const getters = {};
 
-const actions = {};
+const actions = {
+    [ActionTypes.AUTHENTICATED]: () => {},
+};
 
 const mutations = {};
 

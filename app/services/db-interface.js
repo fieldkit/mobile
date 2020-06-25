@@ -709,7 +709,6 @@ export default class DatabaseInterface {
                     firmware.buildTime,
                     firmware.buildNumber,
                 ];
-                log.info("inserting", firmware);
                 return this.getDatabase().then(db =>
                     db.query(
                         `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

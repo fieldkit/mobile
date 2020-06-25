@@ -280,8 +280,7 @@ export default {
 
         submit() {
             if (!this.user.email || !this.user.password) {
-                this.alert(_L("provideBoth"));
-                return;
+                return this.alert(_L("provideBoth"));
             }
 
             this.processing = true;
@@ -306,28 +305,27 @@ export default {
                 .catch(error => {
                     this.processing = false;
                     if (!this.navigatedAway) {
-                        this.alert(_L("loginFailed"));
+                        return this.alert(_L("loginFailed"));
                     }
                 });
         },
 
         register() {
             if (this.user.password != this.user.confirmPassword) {
-                this.alert(_L("noMatch"));
                 this.processing = false;
-                return;
+                return this.alert(_L("noMatch"));
             }
 
             return Services.PortalSession()
                 .register(this.user)
                 .then(() => {
                     this.processing = false;
-                    this.alert(_L("accountCreated"));
                     this.isLoggingIn = true;
+                    return this.alert(_L("accountCreated"));
                 })
                 .catch(() => {
                     this.processing = false;
-                    this.alert(_L("accountCreateFailed"));
+                    return this.alert(_L("accountCreateFailed"));
                 });
         },
 
@@ -344,10 +342,10 @@ export default {
                     return Services.PortalSession()
                         .resetPassword(data.text.trim())
                         .then(() => {
-                            this.alert(_L("passwordResetSucceeded"));
+                            return this.alert(_L("passwordResetSucceeded"));
                         })
                         .catch(() => {
-                            this.alert(_L("passwordResetFailed"));
+                            return this.alert(_L("passwordResetFailed"));
                         });
                 }
             });
