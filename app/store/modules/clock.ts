@@ -1,7 +1,11 @@
 import * as MutationTypes from "../mutations";
 
-export class ClockState {
+export class Clock {
     public now: Date = new Date();
+}
+
+export class ClockState {
+    public wall: Clock = new Clock();
 }
 
 const getters = {};
@@ -10,7 +14,7 @@ const actions = {};
 
 const mutations = {
     [MutationTypes.TICK]: (state: ClockState) => {
-        state.now = new Date();
+        state.wall = new Clock();
     },
 };
 

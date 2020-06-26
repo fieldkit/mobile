@@ -14,20 +14,32 @@ export class StationsState {
 }
 
 const getters = {
-    availableStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): AvailableStation[] => {
+    availableStations: (state: StationsState, getters, rootState: GlobalState): AvailableStation[] => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
             .keyBy(a => a.deviceId)
             .value();
         const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
-        return _(deviceIds)
-            .map(deviceId => new AvailableStation(rootState.clock.now, deviceId, nearby[deviceId], stations[deviceId]))
+        const available = _(deviceIds)
+            .map(deviceId => new AvailableStation(rootState.clock.wall.now, deviceId, nearby[deviceId], stations[deviceId]))
             .sortBy(available => {
                 return [available.name];
             })
             .value();
+        if (false)
+            console.log(
+                "available",
+                _.map(available, s => {
+                    return {
+                        name: s.name,
+                        connected: s.connected,
+                        nearby: nearby[s.deviceId],
+                    };
+                })
+            );
+        return available;
     },
-    legacyStations: (state: StationsState, getters, rootState: GlobalState, rootGetters): { [index: number]: LegacyStation } => {
+    legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
             .keyBy(a => a.deviceId)
@@ -36,13 +48,24 @@ const getters = {
         const legacy = _(deviceIds)
             .map(deviceId => {
                 const station = stations[deviceId];
-                const available = new AvailableStation(rootState.clock.now, deviceId, nearby[deviceId], station);
+                const available = new AvailableStation(rootState.clock.wall.now, deviceId, nearby[deviceId], station);
                 return new LegacyStation(station, station.modules, available);
             })
             .sortBy(ls => {
                 return [ls.name];
             })
             .value();
+        if (false)
+            console.log(
+                "legacy",
+                _.map(legacy, s => {
+                    return {
+                        name: s.name,
+                        connected: s.connected,
+                        nearby: nearby[s.deviceId],
+                    };
+                })
+            );
         return _.keyBy(legacy, s => s.id);
     },
 };
