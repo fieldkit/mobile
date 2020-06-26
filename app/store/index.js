@@ -16,6 +16,7 @@ function customizeLogger() {
     return createLogger({
         filter(mutation, stateBefore, stateAfter) {
             if (mutation.type == MutationTypes.TICK) {
+                console.log("mutation:", mutation.type);
                 return false;
             }
             if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {

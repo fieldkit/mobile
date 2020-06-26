@@ -3,6 +3,7 @@ import * as MutationTypes from "../mutations";
 
 export class Clock {
     public now: Date = new Date();
+    public unix: number = Math.round(new Date().getTime() / 1000);
 }
 
 export class ClockState {
