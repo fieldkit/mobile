@@ -105,7 +105,7 @@ describe("Store", () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
 
-            expect.assertions(3);
+            expect.assertions(4);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
@@ -114,6 +114,7 @@ describe("Store", () => {
             expect(mockStation.mock.calls.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(1);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
+            expect(store.state.stations.all[0].streams.length).toBe(2);
         });
 
         it("should query skip previously queried", async () => {
@@ -130,12 +131,12 @@ describe("Store", () => {
             expect(mockStation.mock.calls.length).toBe(1);
         });
 
-        it("should query again after delay", async () => {
+        it.only("should query again after delay", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
             mockStation.queueStatusReply(station);
 
-            expect.assertions(2);
+            expect.assertions(3);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
@@ -146,6 +147,8 @@ describe("Store", () => {
             expect(mockStation.mock.calls.length).toBe(1);
             await store.dispatch(ActionTypes.QUERY_NECESSARY);
             expect(mockStation.mock.calls.length).toBe(2);
+
+            expect(store.state.stations.all[0].streams.length).toBe(2);
         });
     });
 

@@ -1,5 +1,7 @@
 import { decodeAndPrepare } from "../services/query-station";
 import { GlobalState } from "./modules/global";
+import { HttpStatusReply, ReplyStream } from "./http_reply";
+import { StreamTableRow } from "./row-types";
 
 export interface HasLocation {
     readonly latitude: number | null;
@@ -48,6 +50,74 @@ export class Module {
     ) {}
 }
 
+export class Stream {
+    id: number | null = null;
+    stationId: number | null = null;
+    // deviceId: string;
+    // type: string;
+    // deviceSize: number;
+    // deviceFirstBlock: number;
+    // deviceLastBlock: number;
+    downloadSize: number | null = null;
+    downloadFirstBlock: number | null = null;
+    downloadLastBlock: number | null = null;
+    portalSize: number | null = null;
+    portalFirstBlock: number | null = null;
+    portalLastBlock: number | null = null;
+    updated: Date = new Date();
+
+    constructor(
+        public deviceId: string,
+        public type: string,
+        public deviceSize: number,
+        public deviceFirstBlock: number,
+        public deviceLastBlock: number
+    ) {}
+
+    static fromRow(o: StreamTableRow): Stream {
+        const s = new Stream(o.deviceId, o.type, o.deviceSize, o.deviceFirstBlock, o.deviceLastBlock);
+        s.id = o.id;
+        s.stationId = o.stationId;
+        s.downloadSize = o.downloadSize;
+        s.downloadFirstBlock = o.downloadFirstBlock;
+        s.downloadLastBlock = o.downloadLastBlock;
+        s.portalSize = o.portalSize;
+        s.portalFirstBlock = o.portalFirstBlock;
+        s.portalLastBlock = o.portalLastBlock;
+        s.updated = o.updated;
+        return s;
+    }
+
+    static fromReply(reply: HttpStatusReply, o: ReplyStream): Stream {
+        const s = new Stream(reply.status.identity.deviceId, o.name.replace(".fkpb", ""), o.size, 0, o.block);
+        s.id = null;
+        s.stationId = null;
+        s.downloadSize = null;
+        s.downloadFirstBlock = null;
+        s.downloadLastBlock = null;
+        s.portalSize = null;
+        s.portalFirstBlock = null;
+        s.portalLastBlock = null;
+        s.updated = new Date();
+        return s;
+    }
+
+    keepingFrom(o: Stream | null) {
+        if (!o) {
+            return this;
+        }
+        this.id = o.id;
+        this.stationId = o.stationId;
+        this.downloadSize = o.downloadSize;
+        this.downloadFirstBlock = o.downloadFirstBlock;
+        this.downloadLastBlock = o.downloadLastBlock;
+        this.portalSize = o.portalSize;
+        this.portalFirstBlock = o.portalFirstBlock;
+        this.portalLastBlock = o.portalLastBlock;
+        return this;
+    }
+}
+
 export interface StationCreationFields {
     id: number | null;
     deviceId: string;
@@ -83,8 +153,9 @@ export class Station implements StationCreationFields {
     public readonly portalId: number | null;
     public readonly portalError: string | null;
     public readonly modules: Module[] = [];
+    public readonly streams: Stream[] = [];
 
-    constructor(o: StationCreationFields, modules: Module[] = []) {
+    constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = []) {
         this.id = o.id;
         this.deviceId = o.deviceId;
         this.generationId = o.generationId;
@@ -101,6 +172,7 @@ export class Station implements StationCreationFields {
         this.portalId = o.portalId;
         this.portalError = o.portalError;
         this.modules = modules;
+        this.streams = streams;
     }
 
     public location(): Location | null {

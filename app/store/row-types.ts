@@ -1,0 +1,51 @@
+export interface StationTableRow {
+    id: number;
+    deviceId: string;
+    generationId: string;
+    name: string;
+    batteryLevel: number | null;
+    consumedMemory: number | null;
+    totalMemory: number | null;
+    interval: number | null; // TODO rename
+    longitude: number | null;
+    latitude: number | null;
+    deployStartTime: string | null;
+    serializedStatus: string;
+    lastSeen: Date;
+    portalId: number | null;
+    portalError: string | null;
+}
+
+export interface ModuleTableRow {
+    id: number;
+    name: string;
+    position: number;
+    moduleId: string;
+    stationId: number | null;
+}
+
+export interface StreamTableRow {
+    id: number;
+    stationId: number;
+    deviceId: string;
+    type: string;
+    deviceSize: number;
+    deviceFirstBlock: number;
+    deviceLastBlock: number;
+    downloadSize: number | null;
+    downloadFirstBlock: number | null;
+    downloadLastBlock: number | null;
+    portalSize: number | null;
+    portalFirstBlock: number | null;
+    portalLastBlock: number | null;
+    updated: Date;
+}
+
+export interface SensorTableRow {
+    id: number;
+    name: string;
+    unit: string;
+    currentReading: number | null;
+    trend: number | null;
+    moduleId: number | null;
+}

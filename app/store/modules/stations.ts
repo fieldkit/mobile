@@ -1,7 +1,9 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor, LegacyStation } from "../types";
+import { StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor, LegacyStation, Stream } from "../types";
+import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow } from "../row-types";
+import { HttpStatusReply } from "../http_reply";
 import { GlobalState } from "./global";
 import { Services, ServiceRef } from "./utilities";
 
@@ -54,92 +56,6 @@ function getLocationFrom(o: HasLocation): HasLocation {
     };
 }
 
-interface LiveSensorReading {
-    sensor: SensorCapabilities;
-    value: number;
-}
-
-interface LiveModuleReadings {
-    module: ModuleCapabilities;
-    readings: LiveSensorReading[];
-}
-
-interface LiveReadings {
-    time: number;
-    modules: LiveModuleReadings[];
-}
-
-interface ModuleCapabilities {
-    name: string;
-    deviceId: string;
-    position: number;
-    sensors: SensorCapabilities[];
-}
-
-interface SensorCapabilities {
-    name: string;
-    unitOfMeasure: string;
-}
-
-interface HttpSchedule {
-    interval: number;
-}
-
-interface HttpSchedules {
-    readings: HttpSchedule;
-}
-
-interface HttpStatusStatus {
-    identity: any;
-    gps: any;
-    recording: any;
-    memory: any;
-    power: any;
-}
-
-interface HttpStatusReply {
-    status: HttpStatusStatus;
-    modules: ModuleCapabilities[];
-    liveReadings: LiveReadings[];
-    schedules: HttpSchedules;
-    serialized: string;
-}
-
-interface StationTableRow {
-    id: number;
-    deviceId: string;
-    generationId: string;
-    name: string;
-    batteryLevel: number | null;
-    consumedMemory: number | null;
-    totalMemory: number | null;
-    interval: number | null; // TODO rename
-    longitude: number | null;
-    latitude: number | null;
-    deployStartTime: string | null;
-    serializedStatus: string;
-    lastSeen: Date;
-    portalId: number | null;
-    portalError: string | null;
-}
-
-interface ModuleTableRow {
-    id: number;
-    name: string;
-    position: number;
-    moduleId: string;
-    stationId: number | null;
-}
-
-interface SensorTableRow {
-    id: number;
-    name: string;
-    unit: string;
-    currentReading: number | null;
-    trend: number | null;
-    moduleId: number | null;
-}
-
 class StationStatusFactory {
     constructor(private readonly statusReply: HttpStatusReply) {}
 
@@ -158,6 +74,7 @@ class StationStatusFactory {
             ? new Date(this.statusReply.status.recording.startedTime * 1000)
             : null;
         const modules = this.makeModules(this.statusReply);
+        const streams = this.makeStreams(this.statusReply);
         const fields: StationCreationFields = {
             id: null,
             deviceId: this.statusReply.status.identity.deviceId,
@@ -168,14 +85,20 @@ class StationStatusFactory {
             totalMemory: this.statusReply.status.memory.dataMemoryInstalled,
             deployStartTime: deployStartTime,
             serializedStatus: this.statusReply.serialized,
-            interval: this.statusReply?.schedules?.readings?.interval || 0,
+            interval: this.statusReply?.schedules?.readings?.interval || 60,
             longitude: longitude,
             latitude: latitude,
             lastSeen: new Date(),
             portalId: null,
             portalError: null,
         };
-        return new Station(fields, modules);
+        return new Station(fields, modules, streams);
+    }
+
+    private makeStreams(statusReply: HttpStatusReply): Stream[] {
+        return statusReply.streams.map(stream => {
+            return Stream.fromReply(statusReply, stream);
+        });
     }
 
     private makeModules(statusReply: HttpStatusReply): Module[] {
@@ -218,7 +141,8 @@ class StationDatabaseFactory {
     constructor(
         public readonly stationRow: StationTableRow,
         public readonly modules: { [index: number]: ModuleTableRow[] },
-        public readonly sensors: { [index: number]: SensorTableRow[] }
+        public readonly sensors: { [index: number]: SensorTableRow[] },
+        public readonly streams: { [index: number]: StreamTableRow[] }
     ) {}
 
     create(): Station {
@@ -232,7 +156,10 @@ class StationDatabaseFactory {
                 return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, sensors);
             })
             .value();
-        return new Station(this.getCreationFields(this.stationRow), modules);
+
+        const streamRows = this.streams[this.stationRow.id] || [];
+        const streams = streamRows.map(streamRow => Stream.fromRow(streamRow));
+        return new Station(this.getCreationFields(this.stationRow), modules, streams);
     }
 
     private getCreationFields(stationRow: StationTableRow): StationCreationFields {
@@ -262,12 +189,13 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
 }
 
 function loadStationsFromDatabase(db): Promise<Station[]> {
-    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll()]).then((values: any[]) => {
+    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll()]).then((values: any[]) => {
         const stations: StationTableRow[] = values[0];
         const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], m => m.stationId);
         const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], s => s.moduleId);
+        const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], s => s.stationId);
         return stations.map(stationRow => {
-            const factory = new StationDatabaseFactory(stationRow, modules, sensors);
+            const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams);
             return factory.create();
         });
     });

@@ -74,12 +74,18 @@ export class MockStationReplies {
             },
             streams: [
                 {
+                    time: 0,
                     size: 100,
                     block: 1,
+                    name: "data.fkpb",
+                    path: "/fk/v1/download/data",
                 },
                 {
-                    size: 100,
-                    block: 1,
+                    time: 0,
+                    size: 64239,
+                    block: 34,
+                    name: "meta.fkpb",
+                    path: "/fk/v1/download/meta",
                 },
             ],
             schedules: {
@@ -131,12 +137,18 @@ export class MockStationReplies {
             },
             streams: [
                 {
-                    size: 100,
-                    block: 1,
+                    time: 0,
+                    size: 100 * this.now,
+                    block: 1 * this.now,
+                    name: "data.fkpb",
+                    path: "/fk/v1/download/data",
                 },
                 {
-                    size: 100,
-                    block: 1,
+                    time: 0,
+                    size: 64239 * this.now,
+                    block: 34 * this.now,
+                    name: "meta.fkpb",
+                    path: "/fk/v1/download/meta",
                 },
             ],
             schedules: {

@@ -7,14 +7,18 @@ class DatabaseWrapper {
     }
 
     query(sql, params) {
-        return this.db.all(sql, params).then(rows => {
-            return rows;
-        });
+        return this.db.all(sql, params).then(
+            rows => rows,
+            err => {
+                console.log("SQL error", sql, params, err, err.stack);
+                return Promise.reject(err);
+            }
+        );
     }
 
     execute(sql, params) {
-        return this.db.execSQL(sql, params).then(result => {
-            return result ? result : this;
+        return this.db.execSQL(sql, params).then(res => {
+            return res ? res : this;
         });
     }
 
@@ -32,7 +36,8 @@ class DatabaseWrapper {
                     })
                 )
                 .catch(err => {
-                    console.log("SQL error", sql, err);
+                    console.log("SQL error", sql, err, err.stack);
+                    return Promise.reject(err);
                 });
         }, Promise.resolve([]));
     }

@@ -68,6 +68,12 @@ export default class DatabaseInterface {
             .then(rows => sqliteToJs(rows));
     }
 
+    getStreamAll() {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM streams ORDER BY station_id"))
+            .then(rows => sqliteToJs(rows));
+    }
+
     getStation(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM stations WHERE id = ?", [stationId]))
@@ -556,6 +562,81 @@ export default class DatabaseInterface {
         ]);
     }
 
+    _insertStream(db, stationId, stream) {
+        // NOTE We're always created for the first time from a status
+        // reply and these are the values we're guaranteed to get from
+        // those, to avoid inserting NULLs, which the Android SQLITE
+        // library seems to handle poorly?!
+        const values = [
+            stationId,
+            stream.deviceId,
+            stream.type,
+            stream.deviceSize,
+            stream.deviceFirstBlock,
+            stream.deviceLastBlock,
+            new Date(),
+        ];
+        return db.query(
+            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            values
+        );
+    }
+
+    _updateStream(db, streamId, stream) {
+        const updates: Promise<any>[] = [];
+
+        if (stream.deviceSize && stream.deviceFirstBlock && stream.deviceLastBlock) {
+            updates.push(
+                db.query(`UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ? WHERE id = ?`, [
+                    stream.deviceSize,
+                    stream.deviceFirstBlock,
+                    stream.deviceLastBlock,
+                    stream.updated,
+                    streamId,
+                ])
+            );
+        }
+
+        if (stream.downloadSize && stream.downloadFirstBlock && stream.downloadLastBlock) {
+            updates.push(
+                db.query(
+                    `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ? WHERE id = ?`,
+                    [stream.downloadSize, stream.downloadFirstBlock, stream.downloadLastBlock, stream.updated, streamId]
+                )
+            );
+        }
+
+        if (stream.portalSize && stream.portalFirstBlock && stream.portalLastBlock) {
+            updates.push(
+                db.query(`UPDATE streams SET  portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ? WHERE id = ?`, [
+                    stream.portalSize,
+                    stream.portalFirstBlock,
+                    stream.portalLastBlock,
+                    stream.updated,
+                    streamId,
+                ])
+            );
+        }
+
+        return Promise.all(updates);
+    }
+
+    _synchronizeStreams(db, stationId, station, streamRows) {
+        const incoming = _.keyBy(station.streams, m => m.type);
+        const existing = _.keyBy(streamRows, m => m.type);
+        const adding = _.difference(_.keys(incoming), _.keys(existing));
+        const removed = _.difference(_.keys(existing), _.keys(incoming));
+        const keeping = _.intersection(_.keys(existing), _.keys(incoming));
+
+        log.verbose("synchronize streams", stationId, adding, removed, keeping);
+
+        return Promise.all([
+            Promise.all(adding.map(name => this._insertStream(db, stationId, incoming[name]))),
+            Promise.all(removed.map(name => db.query("DELETE FROM streams WHERE id = ?", [existing[name].id]))),
+            Promise.all(keeping.map(name => this._updateStream(db, existing[name].id, incoming[name].keepingFrom(existing[name])))),
+        ]);
+    }
+
     addOrUpdateStation(station) {
         return this.getDatabase().then(db => {
             return this.getStationIdByDeviceId(station.deviceId)
@@ -572,10 +653,14 @@ export default class DatabaseInterface {
                         db
                             .query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId])
                             .then(r => sqliteToJs(r)),
+                        db.query("SELECT * FROM streams WHERE station_id = ?", [stationId]).then(r => sqliteToJs(r)),
                     ]).then(all => {
                         const moduleRows = all[0];
                         const sensorRows = all[1];
-                        return this._synchronizeModules(db, stationId, station, moduleRows, sensorRows);
+                        const streamRows = all[2];
+                        return this._synchronizeModules(db, stationId, station, moduleRows, sensorRows).then(() => {
+                            return this._synchronizeStreams(db, stationId, station, streamRows);
+                        });
                     });
                 });
         });
