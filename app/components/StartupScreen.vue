@@ -11,7 +11,6 @@ import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import { promiseAfter } from "../utilities";
 import routes from "../routes";
-import Config from "../config";
 
 function initializeFirebase(services): Promise<any> {
     return Firebase.init({
