@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { knownFolders } from "tns-core-modules/file-system";
 import { LegacyStation, Store } from "../store/types";
 
 import Services from "./services";
@@ -30,11 +29,13 @@ export default class DownloadManager {
     private databaseInterface: any;
     private store: Store;
     private progressService: any;
+    private fs: any;
     private _mutex: Mutex = new Mutex();
 
     constructor(services) {
         this.databaseInterface = services.Database();
         this.store = services.Store();
+        this.fs = services.FileSystem();
         this.progressService = services.ProgressService();
     }
 
@@ -368,7 +369,7 @@ export default class DownloadManager {
     }
 
     _getStationFolder(station) {
-        return knownFolders.documents().getFolder("FieldKitData").getFolder(station.deviceId);
+        return this.fs.getFolder("FieldKitData/" + station.deviceId);
     }
 
     _getNewDownloadFolder(station) {

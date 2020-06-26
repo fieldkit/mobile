@@ -24,7 +24,7 @@ export default class CreateDB {
     initialize(userInvokedDelete: boolean | null, path: string | null) {
         return this._open(path)
             .then(() => {
-                if (Config.dropTables || userInvokedDelete) {
+                if (!path && (Config.dropTables || userInvokedDelete)) {
                     return this.dropTables();
                 }
                 return Promise.resolve(this.database);
@@ -42,6 +42,9 @@ export default class CreateDB {
     getDatabaseName(path: string | null) {
         const globalAny: any = global;
         if (globalAny.TNS_ENV === "test") {
+            if (path) {
+                return path;
+            }
             return ":memory:";
         }
         return "fieldkit.sqlite3";
