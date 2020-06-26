@@ -6,9 +6,7 @@ import { MockStationReplies } from "./utilities";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
-
 import { PhoneLocation, CommonLocations } from "../store/types";
-// import { MapCenter } from "../store/modules/map";
 
 describe("Store", () => {
     let services;

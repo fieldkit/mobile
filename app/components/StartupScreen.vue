@@ -31,9 +31,10 @@ function updateStore(store): null {
             }
             return store.dispatch(ActionTypes.REFRESH);
         })
-        .finally(() => {
-            return updateStore(store);
-        });
+        .catch(error => {
+            console.log("refresh error", err, err.stack);
+        })
+        .finally(() => updateStore(store));
     return null;
 }
 
