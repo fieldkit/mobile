@@ -31,6 +31,6 @@ export class EventHistory {
 
     _record(event) {
         console.log("recording", event.type);
-        return this.db.addEvent(event);
+        return Promise.resolve(event);
     }
 }
