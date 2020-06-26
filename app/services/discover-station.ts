@@ -166,7 +166,7 @@ export default class DiscoverStation {
     onLostService(info: LostService): Promise<any> {
         const key = this.makeKey(info);
 
-        log.info("lost service(pending):", info.type, info.name, Config.lossBufferDelay);
+        log.info("lose service (pending):", info.type, info.name, Config.lossBufferDelay);
 
         if (this._pending[key]) {
             this._pending[key].cancel();
@@ -174,7 +174,7 @@ export default class DiscoverStation {
         }
 
         return (this._pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
-            log.info("lost service(final):", info.type, info.name);
+            log.info("lose service (final):", info.type, info.name);
 
             delete this._pending[key];
 

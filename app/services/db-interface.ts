@@ -1,6 +1,5 @@
 import _ from "lodash";
 import Config from "../config";
-import Constants from "../constants";
 import { sqliteToJs } from "../utilities";
 
 const log = Config.logger("DbInterface");
@@ -30,14 +29,6 @@ export default class DatabaseInterface {
     getStationConfigs(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM stations_config WHERE station_id = ?", [stationId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
-    }
-
-    getModuleConfigs(moduleId) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM modules_config WHERE module_id = ?", [moduleId]))
             .then(rows => {
                 return sqliteToJs(rows);
             });
@@ -99,37 +90,23 @@ export default class DatabaseInterface {
     }
 
     getModule(moduleId) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM modules WHERE id = ?", [moduleId]))
-            .then(rows => {
-                return sqliteToJs(rows);
-            });
+        throw new Error("deprecated");
     }
 
     getModuleByDeviceId(deviceId) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM modules WHERE device_id = ?", [deviceId]))
-            .then(rows => sqliteToJs(rows));
+        throw new Error("deprecated");
     }
 
     getModules(stationId) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]))
-            .then(rows => sqliteToJs(rows));
+        throw new Error("deprecated");
     }
 
     removeModule(moduleId) {
-        return this.getDatabase().then(db => db.query("DELETE FROM modules WHERE device_id = ?", [moduleId]));
+        throw new Error("deprecated");
     }
 
     removeNullIdModules() {
         return this.getDatabase().then(db => db.query("DELETE FROM modules WHERE device_id IS NULL"));
-    }
-
-    getSensorsByStationId(stationId) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId]))
-            .then(rows => sqliteToJs(rows));
     }
 
     getSensors(moduleDeviceId) {
@@ -142,18 +119,6 @@ export default class DatabaseInterface {
                 )
             )
             .then(rows => sqliteToJs(rows));
-    }
-
-    removeSensor(sensorId) {
-        return this.getDatabase().then(db => db.query("DELETE FROM sensors WHERE id = ?", [sensorId]));
-    }
-
-    removeSensors(moduleId) {
-        return this.getDatabase().then(db =>
-            this._getModulePrimaryKey(moduleId)
-                .then(modulePrimaryKey => db.query("DELETE FROM sensors WHERE module_id = ?", [modulePrimaryKey]))
-                .catch(err => Promise.reject(new Error(`error removing sensor: ${err}`)))
-        );
     }
 
     getFieldNotes(stationId) {
@@ -209,22 +174,10 @@ export default class DatabaseInterface {
         );
     }
 
-    setStationUrl(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET url = ?, updated = ? WHERE id = ?", [station.url, new Date(), station.id])
-        );
-    }
-
     setStationPortalId(station) {
         return this.getDatabase()
             .then(db => db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id]))
             .catch(error => `error setting portal id ${error}`);
-    }
-
-    setStationBatteryLevel(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET battery_level = ?, updated = ? WHERE id = ?", [station.batteryLevel, new Date(), station.id])
-        );
     }
 
     setStationLocationCoordinates(station) {
@@ -241,12 +194,6 @@ export default class DatabaseInterface {
     setStationLocationName(station) {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET location_name = ?, updated = ? WHERE id = ?", [station.locationName, new Date(), station.id])
-        );
-    }
-
-    setStationInterval(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET interval = ?, updated = ? WHERE id = ?", [station.interval, new Date(), station.id])
         );
     }
 
@@ -286,22 +233,6 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db =>
             db.query("UPDATE stations SET percent_complete = ?, updated = ? WHERE id = ?", [
                 station.percentComplete,
-                new Date(),
-                station.id,
-            ])
-        );
-    }
-
-    setStationDeployStatus(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET status = ?, updated = ? WHERE id = ?", [station.status, new Date(), station.id])
-        );
-    }
-
-    setStationDeployStartTime(station) {
-        return this.getDatabase().then(db =>
-            db.query("UPDATE stations SET deploy_start_time = ?, updated = ? WHERE id = ?", [
-                station.deployStartTime,
                 new Date(),
                 station.id,
             ])
@@ -384,25 +315,16 @@ export default class DatabaseInterface {
             station.lastSeen,
             station.id,
         ];
-        return this.getDatabase()
-            .then(db =>
-                db.execute(
-                    `
+        return this.getDatabase().then(db =>
+            db.execute(
+                `
 					UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?,
 						   deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?,
 						   interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
 					WHERE id = ?`,
-                    values
-                )
+                values
             )
-            .then(value => {
-                if (station.statusJson) {
-                    return this._updateStreamFromStation(station, station.statusJson, Constants.MetaStreamType, 1).then(() => {
-                        return this._updateStreamFromStation(station, station.statusJson, Constants.DataStreamType, 0);
-                    });
-                }
-                return Promise.resolve();
-            });
+        );
     }
 
     recordStationConfigChange(config) {
@@ -576,7 +498,7 @@ export default class DatabaseInterface {
             stream.deviceLastBlock,
             new Date(),
         ];
-        return db.query(
+        return db.execute(
             `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
             values
         );
@@ -608,7 +530,7 @@ export default class DatabaseInterface {
 
         if (stream.portalSize && stream.portalFirstBlock && stream.portalLastBlock) {
             updates.push(
-                db.query(`UPDATE streams SET  portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ? WHERE id = ?`, [
+                db.query(`UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ? WHERE id = ?`, [
                     stream.portalSize,
                     stream.portalFirstBlock,
                     stream.portalLastBlock,
@@ -797,7 +719,7 @@ export default class DatabaseInterface {
                     firmware.buildNumber,
                 ];
                 return this.getDatabase().then(db =>
-                    db.query(
+                    db.execute(
                         `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                         values
                     )
@@ -912,80 +834,6 @@ export default class DatabaseInterface {
             });
     }
 
-    getStreamsByStation(station) {
-        return this.getStreamsByStationId(station.id);
-    }
-
-    updateStationFromPortal(station, status) {
-        if (!station.id) {
-            return Promise.reject(new Error(`updateStationsFromPortal: invalid arg`));
-        }
-        return this._updateStreamFromPortal(station, status, Constants.MetaStreamType, 1).then(() => {
-            return this._updateStreamFromPortal(station, status, Constants.DataStreamType, 0).then(() => {
-                return this.getStreamsByStation(station);
-            });
-        });
-    }
-
-    private _updateStreamFromPortal(station, status, type, index) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
-            .then(streamId => {
-                if (streamId.length == 0) {
-                    return Promise.reject(new Error(`unable to find stream: ${station.id}`));
-                }
-                log.info("updating stream", station.id, type, streamId);
-                const provision = _(status.provisions).orderBy("updated").last();
-                const values = [provision[type].size, provision[type].first, provision[type].last, streamId[0].id];
-                return this.getDatabase().then(db =>
-                    db.query(`UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ? WHERE id = ?`, values)
-                );
-            });
-    }
-
-    private _updateStreamFromStation(station, status, type, index) {
-        if (!status) {
-            return Promise.reject(new Error(`_updateStreamFromStation: no status`));
-        }
-        if (!status.streams) {
-            return Promise.reject(new Error(`_updateStreamFromStation: no streams`));
-        }
-        return this.getDatabase()
-            .then(db => db.query("SELECT id FROM streams WHERE station_id = ? AND type = ?", [station.id, type]))
-            .then(streamId => {
-                if (streamId.length > 0) {
-                    const values = [status.streams[index].size, status.streams[index].block, new Date(), streamId[0]];
-                    return this.getDatabase().then(db =>
-                        db.query(`UPDATE streams SET device_size = ?, device_last_block = ?, updated = ? WHERE id = ?`, values)
-                    );
-                } else {
-                    const values = [
-                        station.id,
-                        station.deviceId,
-                        type,
-                        status.streams[index].size,
-                        0,
-                        status.streams[index].block,
-                        new Date(),
-                    ];
-                    return this.getDatabase().then(db =>
-                        db.query(
-                            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                            values
-                        )
-                    );
-                }
-            });
-    }
-
-    getStationStatusByDeviceId(deviceId) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT status_json FROM stations WHERE device_id = ?", [deviceId]))
-            .then(rows => {
-                return JSON.parse(rows[0].status_json);
-            });
-    }
-
     getStationIdByDeviceId(deviceId) {
         if (!deviceId) {
             return Promise.reject(new Error(`invalid device id`));
@@ -997,14 +845,6 @@ export default class DatabaseInterface {
                     return null;
                 }
                 return rows[0].id;
-            });
-    }
-
-    getStationStatusById(id) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT status_json FROM stations WHERE id = ?", [id]))
-            .then(rows => {
-                return JSON.parse(rows[0].status_json);
             });
     }
 

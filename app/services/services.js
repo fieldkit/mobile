@@ -7,19 +7,19 @@ class DiscoveryEvents {
     }
 
     onFoundService(info) {
-        console.log("onServiceFound", info);
+        // console.log("onServiceFound", info);
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onFoundService(info);
         }
-        console.log("onServiceFound (done)");
+        // console.log("onServiceFound (done)");
     }
 
     onLostService(info) {
-        console.log("onServiceLost", info);
+        // console.log("onServiceLost", info);
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onLostService(info);
         }
-        console.log("onServiceLost (done)");
+        // console.log("onServiceLost (done)");
     }
 
     add(listener) {
