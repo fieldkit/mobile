@@ -45,9 +45,7 @@ class NetworkMonitor {
                 .Conservify()
                 .findConnectedNetwork()
                 .then(status => {
-                    if (Config.env.jacob) {
-                        this._store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi);
-                    }
+                    this._store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi);
                 });
         }, 10000);
 

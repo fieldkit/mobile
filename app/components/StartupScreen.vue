@@ -68,11 +68,7 @@ function initializeApplication(services): Promise<any> {
                                 return services.DiscoverStation().startServiceDiscovery();
                             })
                             .then(() => {
-                                if (Config.env.jacob) {
-                                    return updateStore(Services.Store());
-                                } else {
-                                    return services.StationMonitor().start();
-                                }
+                                return updateStore(Services.Store());
                             });
                     })
                     .catch(err => {

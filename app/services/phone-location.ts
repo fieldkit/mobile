@@ -48,9 +48,7 @@ export default class PhoneLocationWatcher extends BetterObservable {
                 return this.getLocation();
             })
             .then(location => {
-                if (Config.env.jacob) {
-                    this._store.commit(MutationTypes.PHONE_LOCATION, location);
-                }
+                this._store.commit(MutationTypes.PHONE_LOCATION, location);
                 return location;
             })
             .then(location => (<HasPublish>(<unknown>this)).publish(location))
