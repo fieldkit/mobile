@@ -26,7 +26,7 @@ const getters = {
                 return [available.name];
             })
             .value();
-        if (true)
+        if (true) {
             console.log(
                 "available",
                 _.map(available, s => {
@@ -37,6 +37,7 @@ const getters = {
                     };
                 })
             );
+        }
         return available;
     },
     legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
@@ -55,7 +56,7 @@ const getters = {
                 return [ls.name];
             })
             .value();
-        if (true)
+        if (true) {
             console.log(
                 "legacy",
                 _.map(legacy, s => {
@@ -66,6 +67,7 @@ const getters = {
                     };
                 })
             );
+        }
         return _.keyBy(legacy, s => s.id);
     },
 };

@@ -1,3 +1,4 @@
+import Vue from "../../wrappers/vue";
 import * as MutationTypes from "../mutations";
 
 export class Clock {
@@ -14,7 +15,7 @@ const actions = {};
 
 const mutations = {
     [MutationTypes.TICK]: (state: ClockState) => {
-        state.wall = new Clock();
+        Vue.set(state, "wall", new Clock());
     },
 };
 
