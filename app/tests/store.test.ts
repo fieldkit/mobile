@@ -131,7 +131,7 @@ describe("Store", () => {
             expect(mockStation.mock.calls.length).toBe(1);
         });
 
-        it.only("should query again after delay", async () => {
+        it("should query again after delay", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);
             mockStation.queueStatusReply(station);

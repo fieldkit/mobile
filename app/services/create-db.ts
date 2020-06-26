@@ -5,6 +5,11 @@ import Sqlite from "../wrappers/sqlite";
 import Migrating from "./migrating";
 
 export default class CreateDB {
+    sqlite: any;
+    promisedDatabase: Promise<any>;
+    resolveDatabase: any | null = null;
+    database: any | null = null;
+
     constructor() {
         this.sqlite = new Sqlite();
         this.promisedDatabase = new Promise(resolve => {
@@ -16,8 +21,8 @@ export default class CreateDB {
         return this.promisedDatabase;
     }
 
-    initialize(userInvokedDelete) {
-        return this._open()
+    initialize(userInvokedDelete: boolean | null, path: string | null) {
+        return this._open(path)
             .then(() => {
                 if (Config.dropTables || userInvokedDelete) {
                     return this.dropTables();
@@ -34,8 +39,9 @@ export default class CreateDB {
             });
     }
 
-    getDatabaseName() {
-        if (TNS_ENV === "test") {
+    getDatabaseName(path: string | null) {
+        const globalAny: any = global;
+        if (globalAny.TNS_ENV === "test") {
             return ":memory:";
         }
         return "fieldkit.sqlite3";
@@ -65,8 +71,8 @@ export default class CreateDB {
         });
     }
 
-    _open() {
-        return this.sqlite.open(this.getDatabaseName()).then(db => {
+    _open(path: string | null) {
+        return this.sqlite.open(this.getDatabaseName(path)).then(db => {
             // foreign keys are disabled by default in sqlite
             // enable them here
             db.query(`PRAGMA foreign_keys = ON;`);
