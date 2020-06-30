@@ -1,7 +1,8 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationCreationFields, Station, HasLocation, AvailableStation, Module, Sensor, LegacyStation, Stream } from "../types";
+import { StationCreationFields, Station, AvailableStation, Module, Sensor, LegacyStation, Stream } from "../types";
+import { HasLocation } from "../map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow } from "../row-types";
 import { HttpStatusReply } from "../http_reply";
 import { GlobalState } from "./global";

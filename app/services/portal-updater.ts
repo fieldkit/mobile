@@ -11,15 +11,19 @@ export default class PortalUpdater {
     }
 
     start() {
+        console.log("PortalUpdater", "started");
         setInterval(() => this.addOrUpdateStations(), 60000);
         return Promise.resolve();
     }
 
     addOrUpdateStations() {
+        console.log("PortalUpdater", "try");
         return this.portalInterface.isAvailable().then(yes => {
             if (!yes && this.portalInterface.isLoggedIn()) {
+                console.log("PortalUpdater", "unavailable");
                 return Promise.resolve();
             }
+            console.log("PortalUpdater", "updating stations", this.store.state.stations.all.length);
             return Promise.all(
                 this.store.state.stations.all.map(station => {
                     const params = {
