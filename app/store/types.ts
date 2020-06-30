@@ -2,33 +2,7 @@ import { decodeAndPrepare } from "../services/query-station";
 import { GlobalState } from "./modules/global";
 import { HttpStatusReply, ReplyStream } from "./http_reply";
 import { StreamTableRow } from "./row-types";
-
-export interface HasLocation {
-    readonly latitude: number | null;
-    readonly longitude: number | null;
-}
-
-export class Location implements HasLocation {
-    constructor(public readonly latitude: number, public readonly longitude) {}
-
-    maximum(other: Location): Location {
-        return new Location(
-            other.latitude > this.latitude ? other.latitude : this.latitude,
-            other.longitude > this.longitude ? other.longitude : this.longitude
-        );
-    }
-
-    minimum(other: Location): Location {
-        return new Location(
-            other.latitude < this.latitude ? other.latitude : this.latitude,
-            other.longitude < this.longitude ? other.longitude : this.longitude
-        );
-    }
-
-    clone(): Location {
-        return new Location(this.latitude, this.longitude);
-    }
-}
+import { Location } from "./map-types";
 
 export class Sensor {
     constructor(
