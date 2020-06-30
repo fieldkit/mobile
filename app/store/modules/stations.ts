@@ -266,7 +266,7 @@ const actions = {
     ) => {
         return state.services
             .db()
-            .setStationPortalError({ id: reply.id }, null)
+            .setStationPortalError({ id: reply.id }, "" /* I really dislike this */)
             .then(() =>
                 state.services
                     .db()
