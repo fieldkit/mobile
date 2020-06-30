@@ -24,9 +24,11 @@ export default class PortalUpdater {
                 this.store.state.stations.all.map(station => {
                     const params = {
                         name: station.name,
+                        deviceId: station.deviceId,
                         device_id: station.deviceId,
-                        status_json: station,
+                        statusPb: station.serializedStatus,
                         status_pb: station.serializedStatus,
+                        status_json: {},
                     };
                     // update or add station
                     if (station.portalId) {
