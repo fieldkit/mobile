@@ -23,6 +23,10 @@ export interface DownloadTableRow {
     lastBlock: number;
 }
 
+export class TransferProgress {
+    constructor(public readonly total: number, public readonly copied: number) {}
+}
+
 export class FileDownload {
     constructor(
         public readonly fileType: FileType,
@@ -30,7 +34,8 @@ export class FileDownload {
         public readonly path: string,
         public readonly firstBlock: number,
         public readonly lastBlock: number,
-        public readonly bytes: number
+        public readonly bytes: number,
+        public readonly progress: TransferProgress | null = null
     ) {}
 
     get blocks(): number {
@@ -38,7 +43,7 @@ export class FileDownload {
     }
 }
 
-export class StationDownloads {
+export class StationSyncStatus {
     constructor(
         public readonly id: number,
         public readonly deviceId: string,
@@ -80,7 +85,7 @@ export class StationDownloads {
 
 export class SyncingState {
     services: ServiceRef = new ServiceRef();
-    downloads: StationDownloads[] = [];
+    syncs: StationSyncStatus[] = [];
 }
 
 const actions = {
@@ -88,16 +93,13 @@ const actions = {
         { commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState },
         fake: boolean = false
     ) => {
-        return Promise.all(state.downloads.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
+        return Promise.all(state.syncs.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
     },
     [CALCULATE_SIZE]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState }, file: FileDownload) => {
         // calculate size
     },
-    [DOWNLOAD_COMPLETED]: (
-        { commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState },
-        downloads: StationDownloads
-    ) => {
-        return Promise.all(downloads.makeRowsFromPending().map(row => state.services.db().insertDownload(row))).then(() =>
+    [DOWNLOAD_COMPLETED]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState }, sync: StationSyncStatus) => {
+        return Promise.all(sync.makeRowsFromPending().map(row => state.services.db().insertDownload(row))).then(() =>
             state.services
                 .db()
                 .getAllDownloads()
@@ -115,7 +117,7 @@ const mutations = {
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
         const now = new Date();
 
-        state.downloads = stations.map(station => {
+        state.syncs = stations.map(station => {
             const files = station.streams
                 .map(stream => {
                     const firstBlock = stream.downloadLastBlock || 0;
@@ -124,7 +126,8 @@ const mutations = {
                     const typeName = FileTypeUtils.toString(stream.fileType());
                     const path = [station.deviceId, getPathTimestamp(now), typeName + ".fkpb"].join("/");
                     const url = "/fk/v1/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
-                    return new FileDownload(stream.fileType(), url, path, firstBlock, lastBlock, estimatedBytes);
+                    const progress: number | null = null;
+                    return new FileDownload(stream.fileType(), url, path, firstBlock, lastBlock, estimatedBytes, progress);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
@@ -134,7 +137,7 @@ const mutations = {
             if (!station.id) {
                 throw new Error("unexpected null station.id: " + station.name);
             }
-            return new StationDownloads(station.id, station.deviceId, station.generationId, station.name, false, false, now, true, files);
+            return new StationSyncStatus(station.id, station.deviceId, station.generationId, station.name, false, false, now, true, files);
         });
     },
 };
