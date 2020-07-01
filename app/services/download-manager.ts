@@ -95,7 +95,7 @@ export default class DownloadManager {
         return Promise.all(
             stations.map(station => {
                 if (!station.statusJson()) {
-                    console.log("no status json");
+                    console.log(station.name, "no status json");
                     return {
                         station: station,
                         streams: {

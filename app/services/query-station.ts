@@ -227,7 +227,7 @@ export default class QueryStation {
                         return new CalculatedSize(size);
                     },
                     err => {
-                        log.error(url, "query error", err);
+                        console.log(url, "query error", err, err ? err.stack : null);
                         return Promise.reject(err);
                     }
                 );
@@ -245,7 +245,7 @@ export default class QueryStation {
                         return response.body;
                     },
                     err => {
-                        log.error(url, "query error", err);
+                        console.log(url, "query error", err, err ? err.stack : null);
                         return Promise.reject(err);
                     }
                 );
@@ -378,7 +378,7 @@ export default class QueryStation {
                 .then(
                     response => response,
                     err => {
-                        log.error(url, "query error");
+                        console.log(url, "query error", err, err ? err.stack : null);
                         return Promise.reject(err);
                     }
                 );

@@ -174,8 +174,13 @@ export class LegacyStation extends Station {
 
     statusJson(): any {
         if (this.decodedStatus == null) {
-            if (this.serializedStatus !== null) {
-                this.decodedStatus = decodeAndPrepare(Buffer.from(this.serializedStatus, "base64"));
+            if (this.serializedStatus !== null && this.serializedStatus.length > 0) {
+                try {
+                    this.decodedStatus = decodeAndPrepare(Buffer.from(this.serializedStatus, "base64"));
+                } catch (error) {
+                    console.log("error decoding status json:", error, error ? error.stack : null);
+                    console.log("error", this.serializedStatus);
+                }
             }
         }
         return this.decodedStatus;
