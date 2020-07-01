@@ -17,3 +17,7 @@ export interface GlobalState {
     readonly network: NetworkState;
     readonly synicng: SyncingState;
 }
+
+export interface GlobalGetters {
+    //
+}

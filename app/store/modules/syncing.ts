@@ -1,8 +1,10 @@
 import _ from "lodash";
+import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Station, FileType, FileTypeUtils } from "../types";
 import { Services, ServiceRef } from "./utilities";
+import { GlobalGetters } from "./global";
 import { getPathTimestamp } from "../../utilities";
 
 export const CALCULATE_SIZE = "CALCULATE_SIZE";
@@ -85,15 +87,16 @@ export class StationSyncStatus {
 
 export class SyncingState {
     services: ServiceRef = new ServiceRef();
-    syncs: StationSyncStatus[] = [];
+    stations: Station[] = [];
+    clock: Date = new Date();
 }
 
 const actions = {
     [ActionTypes.DOWNLOAD_ALL]: (
         { commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState },
-        fake: boolean = false
+        syncs: StationSyncStatus[] = []
     ) => {
-        return Promise.all(state.syncs.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
+        return Promise.all(syncs.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
     },
     [CALCULATE_SIZE]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState }, file: FileDownload) => {
         // calculate size
@@ -108,23 +111,18 @@ const actions = {
     },
 };
 
-const getters = {};
-
-const mutations = {
-    [MutationTypes.SERVICES]: (state: SyncingState, services: () => Services) => {
-        state.services = new ServiceRef(services);
-    },
-    [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
-        const now = new Date();
-
-        state.syncs = stations.map(station => {
+const getters = {
+    syncs: (state: SyncingState, _getters: never, rootState: never, rootGetters: GlobalGetters): StationSyncStatus[] => {
+        return state.stations.map(station => {
+            const connected = false;
+            const busy = false;
             const files = station.streams
                 .map(stream => {
                     const firstBlock = stream.downloadLastBlock || 0;
                     const lastBlock = stream.deviceLastBlock;
                     const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
                     const typeName = FileTypeUtils.toString(stream.fileType());
-                    const path = [station.deviceId, getPathTimestamp(now), typeName + ".fkpb"].join("/");
+                    const path = [station.deviceId, getPathTimestamp(state.clock), typeName + ".fkpb"].join("/");
                     const url = "/fk/v1/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
                     const progress: number | null = null;
                     return new FileDownload(stream.fileType(), url, path, firstBlock, lastBlock, estimatedBytes, progress);
@@ -137,8 +135,28 @@ const mutations = {
             if (!station.id) {
                 throw new Error("unexpected null station.id: " + station.name);
             }
-            return new StationSyncStatus(station.id, station.deviceId, station.generationId, station.name, false, false, now, true, files);
+            return new StationSyncStatus(
+                station.id,
+                station.deviceId,
+                station.generationId,
+                station.name,
+                connected,
+                busy,
+                state.clock,
+                true,
+                files
+            );
         });
+    },
+};
+
+const mutations = {
+    [MutationTypes.SERVICES]: (state: SyncingState, services: () => Services) => {
+        Vue.set(state, "services", new ServiceRef(services));
+    },
+    [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
+        Vue.set(state, "clock", new Date());
+        Vue.set(state, "stations", stations);
     },
 };
 
