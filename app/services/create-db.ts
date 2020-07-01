@@ -22,6 +22,7 @@ export default class CreateDB {
     }
 
     initialize(userInvokedDelete: boolean | null, path: string | null) {
+        console.log("opening", userInvokedDelete);
         return this._open(path)
             .then(() => {
                 if (!path && (Config.dropTables || userInvokedDelete)) {
@@ -51,6 +52,7 @@ export default class CreateDB {
     }
 
     dropTables() {
+        console.log("dropping tables");
         return this.database.query("SELECT name FROM sqlite_master WHERE type = 'table'").then(tables => {
             const dropping = _(tables)
                 .map(table => table.name)

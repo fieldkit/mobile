@@ -184,9 +184,11 @@ export default {
             });
         },
         deleteDB() {
-            Services.CreateDb()
+            console.log("deleting database");
+            return Services.CreateDb()
                 .initialize(true)
                 .then(() => {
+                    console.log("database deleted");
                     alert({
                         title: _L("devOptions"),
                         message: _L("dbDeleted"),
