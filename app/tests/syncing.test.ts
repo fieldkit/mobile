@@ -18,7 +18,7 @@ describe("Syncing", () => {
     let mockStation;
 
     beforeEach(async () => {
-        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
+        clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
         clock.tick(10);
 
         services = new Services();

@@ -597,8 +597,8 @@ export default class DatabaseInterface {
 						generation_id, name, url, status,
 						deploy_start_time, battery_level, consumed_memory, total_memory,
 						consumed_memory_percent, interval, status_json,
-						longitude, latitude, serialized_status, updated)
-					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+						longitude, latitude, serialized_status, updated, last_seen)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         newStation.deviceId,
                         newStation.generationId,
@@ -616,6 +616,7 @@ export default class DatabaseInterface {
                         newStation.latitude,
                         newStation.serializedStatus,
                         new Date(),
+                        newStation.lastSeen,
                     ]
                 )
                 .catch(err => Promise.reject(new Error(`error inserting station: ${err}`)))

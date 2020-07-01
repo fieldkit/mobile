@@ -202,7 +202,7 @@ class StationDatabaseFactory {
             interval: stationRow.interval,
             longitude: stationRow.longitude,
             latitude: stationRow.latitude,
-            lastSeen: stationRow.lastSeen,
+            lastSeen: new Date(stationRow.lastSeen),
             portalId: stationRow.portalId,
             portalError: stationRow.portalError,
         };

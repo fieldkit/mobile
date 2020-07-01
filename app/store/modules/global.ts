@@ -7,6 +7,8 @@ import { PhoneState } from "./phone";
 import { NetworkState } from "./network";
 import { SyncingState } from "./syncing";
 
+import { AvailableStation } from "../types";
+
 export interface GlobalState {
     readonly nearby: NearbyState;
     readonly stations: StationsState;
@@ -19,5 +21,5 @@ export interface GlobalState {
 }
 
 export interface GlobalGetters {
-    //
+    readonly availableStations: AvailableStation[];
 }

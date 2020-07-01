@@ -49,10 +49,10 @@ export class StationSyncStatus {
     constructor(
         public readonly id: number,
         public readonly deviceId: string,
-        public readonly generation: string,
+        public readonly generationId: string,
         public readonly name: string,
         public readonly connected: boolean,
-        public readonly since: Date,
+        public readonly lastSeen: Date,
         public readonly time: Date,
         public readonly pending: boolean,
         public readonly files: FileDownload[]
@@ -71,7 +71,7 @@ export class StationSyncStatus {
             return {
                 stationId: this.id,
                 deviceId: this.deviceId,
-                generation: this.generation,
+                generation: this.generationId,
                 path: f.path,
                 type: FileTypeUtils.toString(f.fileType),
                 timestamp: this.time.getTime(),
@@ -114,8 +114,12 @@ const actions = {
 const getters = {
     syncs: (state: SyncingState, _getters: never, rootState: never, rootGetters: GlobalGetters): StationSyncStatus[] => {
         return state.stations.map(station => {
-            const connected = false;
-            const since = new Date();
+            const available = rootGetters.availableStations.find(s => s.deviceId == station.deviceId);
+            if (!available) {
+                throw new Error("expected available station, missing");
+            }
+            const connected = available.connected;
+            const lastSeen = station.lastSeen;
             const files = station.streams
                 .map(stream => {
                     const firstBlock = stream.downloadLastBlock || 0;
@@ -141,7 +145,7 @@ const getters = {
                 station.generationId,
                 station.name,
                 connected,
-                since,
+                lastSeen,
                 state.clock,
                 true,
                 files

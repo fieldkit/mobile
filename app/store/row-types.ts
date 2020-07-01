@@ -11,7 +11,7 @@ export interface StationTableRow {
     latitude: number | null;
     deployStartTime: string | null;
     serializedStatus: string;
-    lastSeen: Date;
+    lastSeen: number;
     portalId: number | null;
     portalError: string | null;
 }
@@ -38,7 +38,7 @@ export interface StreamTableRow {
     portalSize: number | null;
     portalFirstBlock: number | null;
     portalLastBlock: number | null;
-    updated: Date;
+    updated: number;
 }
 
 export interface SensorTableRow {

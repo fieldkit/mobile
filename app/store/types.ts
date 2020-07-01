@@ -70,7 +70,7 @@ export class Stream {
         s.portalSize = o.portalSize;
         s.portalFirstBlock = o.portalFirstBlock;
         s.portalLastBlock = o.portalLastBlock;
-        s.updated = o.updated;
+        s.updated = new Date(o.updated);
         return s;
     }
 
