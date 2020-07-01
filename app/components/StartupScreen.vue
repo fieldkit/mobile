@@ -27,12 +27,12 @@ function updateStore(store): null {
             try {
                 store.commit(MutationTypes.TICK);
             } catch (err) {
-                console.log("tick error", err, err.stack);
+                console.log("tick error", err, err ? err.stack : null);
             }
             return store.dispatch(ActionTypes.REFRESH);
         })
         .catch(err => {
-            console.log("refresh error", err, err.stack);
+            console.log("refresh error", err, err ? err.stack : null);
         })
         .finally(() => updateStore(store));
     return null;
@@ -76,8 +76,7 @@ function initializeApplication(services): Promise<any> {
                             });
                     })
                     .catch(err => {
-                        console.log("error", err.message);
-                        console.log("error", err.stack);
+                        console.log("error:", err, err ? err.stack : null);
                     })
                     .then(() => {
                         console.log("started!");

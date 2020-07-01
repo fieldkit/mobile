@@ -71,7 +71,7 @@ export default class StateManager extends BetterObservable {
                     });
                 })
                 .catch(error => {
-                    log.error("error", error, error.stack);
+                    log.error("error", error, error ? error.stack : null);
                 });
         }
         return Promise.reject();

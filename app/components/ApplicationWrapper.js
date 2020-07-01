@@ -22,7 +22,7 @@ export default {
         console.log(`wrapped unmounted`);
     },
     errorCaptured(err, vm, info) {
-        console.log(`error: ${err.toString()} info: ${info}`, err.stack);
+        console.log(`error: ${err.toString()} info: ${info}`, err ? err.stack : null);
         return false;
     },
     methods: {

@@ -27,8 +27,7 @@ export default class Migrating {
                 });
             })
             .catch(err => {
-                log.error("ERROR", err.message);
-                log.error("ERROR", err.stack);
+                log.error("error:", err, err ? err.stack : null);
                 return Promise.reject(err);
             });
     }

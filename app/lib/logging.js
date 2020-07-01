@@ -123,9 +123,7 @@ function configureGlobalErrorHandling() {
     try {
         traceModule.setErrorHandler({
             handleError(err) {
-                console.log("ERROR:");
-                console.log(err);
-                console.log(err.stack);
+                console.log("error", err, err ? err.stack : null);
             },
         });
 
@@ -135,7 +133,7 @@ function configureGlobalErrorHandling() {
             if (reason instanceof AuthenticationError) {
                 console.log("onPossiblyUnhandledRejection", reason);
             } else {
-                console.log("onPossiblyUnhandledRejection", reason, reason.stack);
+                console.log("onPossiblyUnhandledRejection", reason, reason ? reason.stack : null);
             }
         });
 
@@ -147,14 +145,14 @@ function configureGlobalErrorHandling() {
         // vm: component in which error occured
         // info: Vue specific error information such as lifecycle hooks, events etc.
         Vue.config.errorHandler = (err, vm, info) => {
-            console.log("vuejs error:", err, err.stack);
+            console.log("vuejs error:", err, err ? err.stack : null);
         };
 
         Vue.config.warnHandler = (msg, vm, info) => {
             console.log("vuejs warning:", msg);
         };
     } catch (e) {
-        console.log("startup error", e, e.stack);
+        console.log("startup error", e, e ? e.stack : null);
     }
 
     return Promise.resolve();

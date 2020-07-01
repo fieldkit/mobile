@@ -223,7 +223,7 @@ export class BetterObservable extends Observable {
                 return value;
             })
             .catch(error => {
-                console.log(this.constructor.name, "error", error, error.stack);
+                console.log(this.constructor.name, "error", error, error ? error.stack : null);
             });
     }
 

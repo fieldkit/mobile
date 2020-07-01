@@ -10,7 +10,7 @@ class DatabaseWrapper {
         return this.db.all(sql, params).then(
             rows => rows,
             err => {
-                console.log("SQL error", sql, params, err, err.stack);
+                console.log("SQL error", sql, params, err, err ? err.stack : null);
                 return Promise.reject(err);
             }
         );
@@ -36,7 +36,7 @@ class DatabaseWrapper {
                     })
                 )
                 .catch(err => {
-                    console.log("SQL error", sql, err, err.stack);
+                    console.log("SQL error", sql, err, err ? err.stack : null);
                     return Promise.reject(err);
                 });
         }, Promise.resolve([]));

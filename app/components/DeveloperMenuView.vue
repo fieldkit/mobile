@@ -204,7 +204,7 @@ export default {
 
             return Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), dataFolder.clear()])
                 .catch(res => {
-                    console.log("error removing files", err.stack, res);
+                    console.log("error removing files", res, res ? res.stack : null);
 
                     alert({
                         title: _L("devOptions"),

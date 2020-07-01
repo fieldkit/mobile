@@ -185,7 +185,7 @@ export default class DownloadManager {
                         return operation.complete();
                     })
                     .catch(error => {
-                        console.log("error", error.message, error.stack);
+                        console.log("error", error.message, error ? error.stack : null);
                         return operation.cancel(error);
                     });
             });
