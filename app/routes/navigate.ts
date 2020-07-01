@@ -1,4 +1,4 @@
-mport _ from "lodash";
+import _ from "lodash";
 import { Store } from "../store/types";
 import * as MutationTypes from "../store/mutations";
 
