@@ -37,8 +37,8 @@ export function sqliteToJs(o) {
     return keysToCamel(o);
 }
 
-export function getPathTimestamp() {
-    return moment().utc().format("YYYYMMDD_hhmmss");
+export function getPathTimestamp(ts) {
+    return moment(ts).utc().format("YYYYMMDD_hhmmss");
 }
 
 export function serializePromiseChain(all, fn) {

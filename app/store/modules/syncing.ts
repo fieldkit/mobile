@@ -3,6 +3,7 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Station, FileType, FileTypeUtils } from "../types";
 import { Services, ServiceRef } from "./utilities";
+import { getPathTimestamp } from "../../utilities";
 
 export const CALCULATE_SIZE = "CALCULATE_SIZE";
 export const DOWNLOAD_COMPLETED = "DOWNLOAD_COMPLETED";
@@ -112,14 +113,17 @@ const mutations = {
         state.services = new ServiceRef(services);
     },
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
+        const now = new Date();
+
         state.downloads = stations.map(station => {
             const files = station.streams
                 .map(stream => {
-                    const url = "";
-                    const path = "";
                     const firstBlock = stream.downloadLastBlock || 0;
                     const lastBlock = stream.deviceLastBlock;
                     const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
+                    const typeName = FileTypeUtils.toString(stream.fileType());
+                    const path = [station.deviceId, getPathTimestamp(now), typeName + ".fkpb"].join("/");
+                    const url = "/fk/v1/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
                     return new FileDownload(stream.fileType(), url, path, firstBlock, lastBlock, estimatedBytes);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
@@ -130,17 +134,7 @@ const mutations = {
             if (!station.id) {
                 throw new Error("unexpected null station.id: " + station.name);
             }
-            return new StationDownloads(
-                station.id,
-                station.deviceId,
-                station.generationId,
-                station.name,
-                false,
-                false,
-                new Date(),
-                true,
-                files
-            );
+            return new StationDownloads(station.id, station.deviceId, station.generationId, station.name, false, false, now, true, files);
         });
     },
 };
