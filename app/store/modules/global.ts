@@ -5,6 +5,7 @@ import { MapState } from "./map";
 import { NavigationState } from "./nav";
 import { PhoneState } from "./phone";
 import { NetworkState } from "./network";
+import { SyncingState } from "./syncing";
 
 export interface GlobalState {
     readonly nearby: NearbyState;
@@ -14,4 +15,5 @@ export interface GlobalState {
     readonly nav: NavigationState;
     readonly phone: PhoneState;
     readonly network: NetworkState;
+    readonly synicng: SyncingState;
 }

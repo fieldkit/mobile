@@ -220,6 +220,7 @@ function loadStationsFromDatabase(db): Promise<Station[]> {
         const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], m => m.stationId);
         const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], s => s.moduleId);
         const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], s => s.stationId);
+        // TODO Handle generation changes.
         return stations.map(stationRow => {
             const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams);
             return factory.create();

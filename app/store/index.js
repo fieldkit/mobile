@@ -7,6 +7,7 @@ import { nav } from "./modules/nav";
 import { network } from "./modules/network";
 import { map } from "./modules/map";
 import { clock } from "./modules/clock";
+import { syncing } from "./modules/syncing";
 import createLogger from "./logger";
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
@@ -67,7 +68,7 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            const { clock, nearby, stations, phone, map, network, nav } = state;
+            const { clock, nearby, stations, phone, map, network, nav, syncing } = state;
             return {
                 clock,
                 nav,
@@ -75,6 +76,7 @@ function customizeLogger() {
                 nearby,
                 map,
                 network,
+                syncing,
                 stations: {
                     deviceIds: _(stations.all)
                         .keyBy(s => s.deviceId)
@@ -109,6 +111,7 @@ export default function () {
             nav,
             network,
             map,
+            syncing,
         },
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",

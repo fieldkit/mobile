@@ -24,6 +24,18 @@ export class Module {
     ) {}
 }
 
+export enum FileType {
+    Meta,
+    Data,
+    Unknown,
+}
+
+export class FileTypeUtils {
+    public static toString(ft: FileType) {
+        return FileType[ft].toLowerCase();
+    }
+}
+
 export class Stream {
     id: number | null = null;
     stationId: number | null = null;
@@ -74,6 +86,16 @@ export class Stream {
         s.portalLastBlock = null;
         s.updated = new Date();
         return s;
+    }
+
+    fileType(): FileType {
+        if (/meta/.test(this.type)) {
+            return FileType.Meta;
+        }
+        if (/data/.test(this.type)) {
+            return FileType.Data;
+        }
+        return FileType.Unknown;
     }
 
     keepingFrom(o: Stream | null) {

@@ -507,7 +507,7 @@ export default class DatabaseInterface {
     _updateStream(db, streamId, stream) {
         const updates: Promise<any>[] = [];
 
-        if (stream.deviceSize && stream.deviceFirstBlock && stream.deviceLastBlock) {
+        if (stream.deviceSize !== null && stream.deviceFirstBlock !== null && stream.deviceLastBlock !== null) {
             updates.push(
                 db.query(`UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ? WHERE id = ?`, [
                     stream.deviceSize,
@@ -519,7 +519,7 @@ export default class DatabaseInterface {
             );
         }
 
-        if (stream.downloadSize && stream.downloadFirstBlock && stream.downloadLastBlock) {
+        if (stream.downloadSize !== null && stream.downloadFirstBlock !== null && stream.downloadLastBlock !== null) {
             updates.push(
                 db.query(
                     `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ? WHERE id = ?`,
@@ -528,7 +528,7 @@ export default class DatabaseInterface {
             );
         }
 
-        if (stream.portalSize && stream.portalFirstBlock && stream.portalLastBlock) {
+        if (stream.portalSize !== null && stream.portalFirstBlock !== null && stream.portalLastBlock !== null) {
             updates.push(
                 db.query(`UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ? WHERE id = ?`, [
                     stream.portalSize,
@@ -763,7 +763,7 @@ export default class DatabaseInterface {
 
     getAllDownloads() {
         return this.getDatabase()
-            .then(db => db.query("SELECT * FROM downloads"))
+            .then(db => db.query("SELECT * FROM downloads ORDER BY station_id, timestamp"))
             .then(rows => sqliteToJs(rows));
     }
 
