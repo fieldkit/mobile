@@ -52,7 +52,7 @@ export class StationSyncStatus {
         public readonly generation: string,
         public readonly name: string,
         public readonly connected: boolean,
-        public readonly busy: boolean,
+        public readonly since: Date,
         public readonly time: Date,
         public readonly pending: boolean,
         public readonly files: FileDownload[]
@@ -115,7 +115,7 @@ const getters = {
     syncs: (state: SyncingState, _getters: never, rootState: never, rootGetters: GlobalGetters): StationSyncStatus[] => {
         return state.stations.map(station => {
             const connected = false;
-            const busy = false;
+            const since = new Date();
             const files = station.streams
                 .map(stream => {
                     const firstBlock = stream.downloadLastBlock || 0;
@@ -141,7 +141,7 @@ const getters = {
                 station.generationId,
                 station.name,
                 connected,
-                busy,
+                since,
                 state.clock,
                 true,
                 files
