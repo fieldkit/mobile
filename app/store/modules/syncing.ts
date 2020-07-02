@@ -7,10 +7,6 @@ import { Services, ServiceRef } from "./utilities";
 import { GlobalGetters } from "./global";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
 
-export const CALCULATE_SIZE = "CALCULATE_SIZE";
-export const DOWNLOAD_COMPLETED = "DOWNLOAD_COMPLETED";
-export const DOWNLOADS_LOADED = "DOWNLOADS_LOADED";
-
 export interface DownloadTableRow {
     stationId: number;
     deviceId: string;
@@ -42,6 +38,30 @@ export class TransferProgress {
     }
 }
 
+export class FileUpload {
+    constructor(
+        public readonly path: string,
+        public readonly firstBlock: number,
+        public readonly lastBlock: number,
+        public readonly bytes: number,
+        public readonly progress: TransferProgress | null = null
+    ) {}
+
+    get blocks(): number {
+        return this.lastBlock - this.firstBlock;
+    }
+
+    get fileType(): FileType {
+        if (/meta/.test(this.path)) {
+            return FileType.Meta;
+        }
+        if (/data/.test(this.path)) {
+            return FileType.Data;
+        }
+        return FileType.Unknown;
+    }
+}
+
 export class FileDownload {
     constructor(
         public readonly fileType: FileType,
@@ -66,22 +86,23 @@ export class StationSyncStatus {
     constructor(
         public readonly id: number,
         public readonly deviceId: string,
-        public readonly generationId: string,
+        private readonly generationId: string,
         public readonly name: string,
         public readonly connected: boolean,
         public readonly lastSeen: Date,
         public readonly time: Date,
-        public readonly pending: FileDownload[] = [],
-        public readonly downloaded = 0
+        private readonly downloaded,
+        public readonly downloads: FileDownload[] = [],
+        public readonly uploads: FileUpload[] = []
     ) {}
 
     private get data(): FileDownload[] {
-        return this.pending.filter(file => file.fileType == FileType.Data);
+        return this.downloads.filter(file => file.fileType == FileType.Data);
     }
 
     get progress(): TransferProgress | null {
         return (
-            this.pending
+            this.downloads
                 .filter(p => p.progress)
                 .map(p => p.progress)
                 .find(p => true) || null
@@ -98,6 +119,18 @@ export class StationSyncStatus {
 
     readingsHave(): number {
         return this.downloaded;
+    }
+
+    showReady(): boolean {
+        return false;
+    }
+
+    showCopying(): boolean {
+        return false;
+    }
+
+    showHave(): boolean {
+        return false;
     }
 
     makeRow(file: FileDownload): DownloadTableRow {
@@ -128,13 +161,13 @@ type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
 
 const actions = {
     [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
-        return Promise.all([sync].map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
+        return Promise.all([sync].map(dl => dispatch(ActionTypes.DOWNLOAD_COMPLETED, dl)));
     },
     [ActionTypes.DOWNLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
-        return Promise.all(syncs.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
+        return Promise.all(syncs.map(dl => dispatch(ActionTypes.DOWNLOAD_COMPLETED, dl)));
     },
-    [DOWNLOAD_COMPLETED]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
-        return serializePromiseChain(sync.pending, file => {
+    [ActionTypes.DOWNLOAD_COMPLETED]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+        return serializePromiseChain(sync.downloads, file => {
             if (true) {
                 return state.services
                     .queryStation()
@@ -171,7 +204,7 @@ const getters = {
             const lastSeen = station.lastSeen;
             const baseUrl = available.url || "";
 
-            const pending = station.streams
+            const downloads = station.streams
                 .map(stream => {
                     const firstBlock = stream.downloadLastBlock || 0;
                     const lastBlock = stream.deviceLastBlock;
@@ -190,6 +223,8 @@ const getters = {
                     return a.fileType < b.fileType ? -1 : 1;
                 });
 
+            const uploads = [];
+
             const downloaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.downloadLastBlock));
 
             return new StationSyncStatus(
@@ -200,8 +235,9 @@ const getters = {
                 connected,
                 lastSeen,
                 state.clock,
-                pending,
-                downloaded || 0
+                downloaded || 0,
+                downloads,
+                uploads
             );
         });
     },
