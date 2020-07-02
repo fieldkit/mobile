@@ -5,7 +5,7 @@ import * as MutationTypes from "../mutations";
 import { Station, FileType, FileTypeUtils } from "../types";
 import { Services, ServiceRef } from "./utilities";
 import { GlobalGetters } from "./global";
-import { getPathTimestamp } from "../../utilities";
+import { serializePromiseChain, getPathTimestamp } from "../../utilities";
 
 export const CALCULATE_SIZE = "CALCULATE_SIZE";
 export const DOWNLOAD_COMPLETED = "DOWNLOAD_COMPLETED";
@@ -43,6 +43,10 @@ export class FileDownload {
     get blocks(): number {
         return this.lastBlock - this.firstBlock;
     }
+
+    name(): string {
+        return FileTypeUtils.toString(this.fileType) + ".fkpb";
+    }
 }
 
 export class StationSyncStatus {
@@ -74,22 +78,20 @@ export class StationSyncStatus {
         return this.downloaded;
     }
 
-    makeRowsFromPending(): DownloadTableRow[] {
-        return this.pending.map(f => {
-            return {
-                stationId: this.id,
-                deviceId: this.deviceId,
-                generation: this.generationId,
-                path: f.path,
-                type: FileTypeUtils.toString(f.fileType),
-                timestamp: this.time.getTime(),
-                url: f.url,
-                size: f.bytes,
-                blocks: [f.firstBlock, f.lastBlock].join(","),
-                firstBlock: f.firstBlock,
-                lastBlock: f.lastBlock,
-            };
-        });
+    makeRow(file: FileDownload): DownloadTableRow {
+        return {
+            stationId: this.id,
+            deviceId: this.deviceId,
+            generation: this.generationId,
+            path: file.path,
+            type: FileTypeUtils.toString(file.fileType),
+            timestamp: this.time.getTime(),
+            url: file.url,
+            size: file.bytes,
+            blocks: [file.firstBlock, file.lastBlock].join(","),
+            firstBlock: file.firstBlock,
+            lastBlock: file.lastBlock,
+        };
     }
 }
 
@@ -99,21 +101,30 @@ export class SyncingState {
     clock: Date = new Date();
 }
 
+type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
+
 const actions = {
-    [ActionTypes.DOWNLOAD_STATION]: (
-        { commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState },
-        sync: StationSyncStatus
-    ) => {
+    [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
         return Promise.all([sync].map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
     },
-    [ActionTypes.DOWNLOAD_ALL]: (
-        { commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState },
-        syncs: StationSyncStatus[]
-    ) => {
+    [ActionTypes.DOWNLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
         return Promise.all(syncs.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
     },
-    [DOWNLOAD_COMPLETED]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState }, sync: StationSyncStatus) => {
-        return Promise.all(sync.makeRowsFromPending().map(row => state.services.db().insertDownload(row))).then(() =>
+    [DOWNLOAD_COMPLETED]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+        return serializePromiseChain(sync.pending, file => {
+            if (true) {
+                return state.services
+                    .queryStation()
+                    .download(file.url, file.path, (total, copied, info) => {
+                        console.log("progress", new TransferProgress(total, copied));
+                    })
+                    .then(() => state.services.db().insertDownload(sync.makeRow(file)))
+                    .catch(error => {
+                        console.log("error downloading", error, error ? error.stack : null);
+                    });
+            }
+            return true;
+        }).then(() =>
             state.services
                 .db()
                 .getAllDownloads()
@@ -135,6 +146,7 @@ const getters = {
             }
             const connected = available.connected;
             const lastSeen = station.lastSeen;
+            const baseUrl = available.url || "";
 
             const pending = station.streams
                 .map(stream => {
@@ -142,11 +154,12 @@ const getters = {
                     const lastBlock = stream.deviceLastBlock;
                     const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
                     const typeName = FileTypeUtils.toString(stream.fileType());
-                    const path = [station.deviceId, getPathTimestamp(state.clock), typeName + ".fkpb"].join("/");
-                    const url = "/fk/v1/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
+                    const path = ["downloads", station.deviceId, getPathTimestamp(state.clock)].join("/");
+                    const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
                     const progress: number | null = null;
-                    console.log("refresh sync", stream.downloadLastBlock);
-                    return new FileDownload(stream.fileType(), url, path, firstBlock, lastBlock, estimatedBytes, progress);
+                    const folder = state.services.fs().getFolder(path);
+                    const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
+                    return new FileDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes, progress);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)

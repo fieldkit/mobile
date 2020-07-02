@@ -15,17 +15,38 @@ export class MockStationReplies {
     services: any;
     now: number;
     call: any;
+    download: any;
     mock: any;
+    downloadMock: any;
 
     constructor(services) {
         this.services = services;
         this.now = 0;
+
         this.call = jest.fn(() => {
             console.log("TESTS: no more mocked replies");
             return Promise.reject(new Error("TESTS: no more mocked replies"));
         });
         this.mock = this.call.mock;
         services.Conservify().protobuf = this.call;
+
+        this.download = jest.fn(() => {
+            console.log("TESTS: no more mocked downloads");
+            return Promise.reject(new Error("TESTS: no more mocked downloads"));
+        });
+        this.downloadMock = this.download.mock;
+        services.Conservify().download = this.download;
+    }
+
+    queueDownload(status, headers) {
+        const response = {
+            statusCode: status,
+            headers: headers,
+        };
+
+        this.download.mockReturnValueOnce(Promise.resolve(response));
+
+        return this;
     }
 
     queueBody(body) {
@@ -232,7 +253,6 @@ export class MockStationReplies {
 
     queueResponse(response) {
         this.call.mockReturnValueOnce(Promise.resolve(response));
-
         return this;
     }
 }

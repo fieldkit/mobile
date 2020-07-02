@@ -8,7 +8,7 @@ import * as MutationTypes from "../store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
-import { FileType } from "../store/types";
+import { FileTypeUtils, FileType } from "../store/types";
 import { StationSyncStatus, FileDownload } from "../store/modules/syncing";
 
 describe("Syncing", () => {
@@ -40,8 +40,8 @@ describe("Syncing", () => {
         });
     });
 
-    function makePath(deviceId, time, typeName) {
-        return [deviceId, getPathTimestamp(time), typeName + ".fkpb"].join("/");
+    function makePath(deviceId, time, fileType) {
+        return ["downloads", deviceId, getPathTimestamp(time), FileTypeUtils.toString(fileType) + ".fkpb"].join("/");
     }
 
     describe("one station", () => {
@@ -58,15 +58,48 @@ describe("Syncing", () => {
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), [
-                    new FileDownload(FileType.Meta, "/fk/v1/download/meta", makePath(saved.deviceId, new Date(), "meta"), 0, 1, 126),
-                    new FileDownload(FileType.Data, "/fk/v1/download/data", makePath(saved.deviceId, new Date(), "data"), 0, 100, 68900),
+                    new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
+                    new FileDownload(FileType.Data, "/download/data", makePath(saved.deviceId, new Date(), FileType.Data), 0, 100, 68900),
                 ]),
             ]);
+
+            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, {});
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), [], 100),
+            ]);
+        });
+
+        it("first sync, fails", async () => {
+            expect.assertions(2);
+
+            const fake = mockStation.newFakeStation();
+
+            const streams1 = mockStation.newStreams(1, 100);
+            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+
+            const saved = store.state.stations.all[0];
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), [
+                    new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
+                    new FileDownload(FileType.Data, "/download/data", makePath(saved.deviceId, new Date(), FileType.Data), 0, 100, 68900),
+                ]),
+            ]);
+
+            mockStation.queueDownload(500, {});
+
+            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), [
+                    new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
+                    new FileDownload(FileType.Data, "/download/data", makePath(saved.deviceId, new Date(), FileType.Data), 0, 100, 68900),
+                ]),
             ]);
         });
 
@@ -83,10 +116,13 @@ describe("Syncing", () => {
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), [
-                    new FileDownload(FileType.Meta, "/fk/v1/download/meta", makePath(saved.deviceId, new Date(), "meta"), 0, 1, 126),
-                    new FileDownload(FileType.Data, "/fk/v1/download/data", makePath(saved.deviceId, new Date(), "data"), 0, 100, 68900),
+                    new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
+                    new FileDownload(FileType.Data, "/download/data", makePath(saved.deviceId, new Date(), FileType.Data), 0, 100, 68900),
                 ]),
             ]);
+
+            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, {});
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -110,10 +146,13 @@ describe("Syncing", () => {
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), [
-                    new FileDownload(FileType.Meta, "/fk/v1/download/meta", makePath(saved.deviceId, new Date(), "meta"), 0, 1, 126),
-                    new FileDownload(FileType.Data, "/fk/v1/download/data", makePath(saved.deviceId, new Date(), "data"), 0, 100, 68900),
+                    new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
+                    new FileDownload(FileType.Data, "/download/data", makePath(saved.deviceId, new Date(), FileType.Data), 0, 100, 68900),
                 ]),
             ]);
+
+            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, {});
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -139,8 +178,8 @@ describe("Syncing", () => {
                     [
                         new FileDownload(
                             FileType.Data,
-                            "/fk/v1/download/data?first=100",
-                            makePath(saved.deviceId, new Date(), "data"),
+                            "/download/data?first=100",
+                            makePath(saved.deviceId, new Date(), FileType.Data),
                             100,
                             200,
                             68900
@@ -164,10 +203,13 @@ describe("Syncing", () => {
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), [
-                    new FileDownload(FileType.Meta, "/fk/v1/download/meta", makePath(saved.deviceId, new Date(), "meta"), 0, 1, 126),
-                    new FileDownload(FileType.Data, "/fk/v1/download/data", makePath(saved.deviceId, new Date(), "data"), 0, 100, 68900),
+                    new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
+                    new FileDownload(FileType.Data, "/download/data", makePath(saved.deviceId, new Date(), FileType.Data), 0, 100, 68900),
                 ]),
             ]);
+
+            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, {});
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -193,16 +235,16 @@ describe("Syncing", () => {
                     [
                         new FileDownload(
                             FileType.Meta,
-                            "/fk/v1/download/meta?first=1",
-                            makePath(saved.deviceId, new Date(), "meta"),
+                            "/download/meta?first=1",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
                             1,
                             5,
                             504
                         ),
                         new FileDownload(
                             FileType.Data,
-                            "/fk/v1/download/data?first=100",
-                            makePath(saved.deviceId, new Date(), "data"),
+                            "/download/data?first=100",
+                            makePath(saved.deviceId, new Date(), FileType.Data),
                             100,
                             200,
                             68900
@@ -211,6 +253,9 @@ describe("Syncing", () => {
                     100
                 ),
             ]);
+
+            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, {});
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 

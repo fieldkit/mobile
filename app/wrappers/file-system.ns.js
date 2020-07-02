@@ -1,4 +1,4 @@
-import { Folder, path, File, knownFolders, path as FilePaths } from "tns-core-modules/file-system";
+import { Folder, File, knownFolders, path as FilePaths } from "tns-core-modules/file-system";
 
 class FileWrapper {
     constructor(path) {
