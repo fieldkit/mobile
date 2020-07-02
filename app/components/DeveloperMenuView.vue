@@ -205,9 +205,10 @@ export default {
             const rootFolder = knownFolders.documents();
             const diagnosticsFolder = rootFolder.getFolder("diagnostics");
             const firmwareFolder = rootFolder.getFolder("firmware");
-            const dataFolder = rootFolder.getFolder("FieldKitData");
+            const oldDataFolder = rootFolder.getFolder("FieldKitData");
+            const downloadsFolder = rootFolder.getFolder("downloads");
 
-            return Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), dataFolder.clear()])
+            return Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), downloadsFolder.clear(), oldDataFolder.clear()])
                 .catch(res => {
                     console.log("error removing files", res, res ? res.stack : null);
 
