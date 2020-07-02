@@ -65,6 +65,12 @@ export default class DatabaseInterface {
             .then(rows => sqliteToJs(rows));
     }
 
+    getDownloadAll() {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM downloads ORDER BY station_id"))
+            .then(rows => sqliteToJs(rows));
+    }
+
     getStation(stationId) {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM stations WHERE id = ?", [stationId]))

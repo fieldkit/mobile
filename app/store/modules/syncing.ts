@@ -6,20 +6,7 @@ import { Station, FileType, FileTypeUtils } from "../types";
 import { Services, ServiceRef } from "./utilities";
 import { GlobalGetters } from "./global";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
-
-export interface DownloadTableRow {
-    stationId: number;
-    deviceId: string;
-    generation: string;
-    path: string;
-    type: string;
-    timestamp: number;
-    url: string;
-    size: number;
-    blocks: string;
-    firstBlock: number;
-    lastBlock: number;
-}
+import { DownloadTableRow } from "../row-types";
 
 export class TransferProgress {
     constructor(
@@ -40,7 +27,7 @@ export class TransferProgress {
 
 export class FileUpload {
     constructor(
-        public readonly path: string,
+        public readonly fileType: FileType,
         public readonly firstBlock: number,
         public readonly lastBlock: number,
         public readonly bytes: number,
@@ -49,16 +36,6 @@ export class FileUpload {
 
     get blocks(): number {
         return this.lastBlock - this.firstBlock;
-    }
-
-    get fileType(): FileType {
-        if (/meta/.test(this.path)) {
-            return FileType.Meta;
-        }
-        if (/data/.test(this.path)) {
-            return FileType.Data;
-        }
-        return FileType.Unknown;
     }
 }
 
@@ -135,6 +112,7 @@ export class StationSyncStatus {
 
     makeRow(file: FileDownload): DownloadTableRow {
         return {
+            id: 0,
             stationId: this.id,
             deviceId: this.deviceId,
             generation: this.generationId,
@@ -180,12 +158,7 @@ const actions = {
                     });
             }
             return true;
-        }).then(() =>
-            state.services
-                .db()
-                .getAllDownloads()
-                .then(all => dispatch(ActionTypes.LOAD))
-        );
+        }).then(() => dispatch(ActionTypes.LOAD));
     },
 };
 
@@ -223,7 +196,18 @@ const getters = {
                     return a.fileType < b.fileType ? -1 : 1;
                 });
 
-            const uploads = [];
+            const uploads = station.streams
+                .map(stream => {
+                    const firstBlock = stream.portalLastBlock || 0;
+                    const lastBlock = stream.downloadLastBlock || 0;
+                    const estimatedBytes = (stream.downloadSize || 0) - (stream.portalSize || 0);
+                    return new FileUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, null);
+                })
+                .filter(dl => dl.firstBlock != dl.lastBlock)
+                .filter(dl => dl.fileType != FileType.Unknown)
+                .sort((a, b) => {
+                    return a.fileType < b.fileType ? -1 : 1;
+                });
 
             const downloaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.downloadLastBlock));
 

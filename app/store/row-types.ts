@@ -49,3 +49,18 @@ export interface SensorTableRow {
     trend: number | null;
     moduleId: number | null;
 }
+
+export interface DownloadTableRow {
+    id: number;
+    stationId: number;
+    deviceId: string;
+    generation: string;
+    path: string;
+    type: string;
+    timestamp: number;
+    url: string;
+    size: number;
+    blocks: string;
+    firstBlock: number;
+    lastBlock: number;
+}

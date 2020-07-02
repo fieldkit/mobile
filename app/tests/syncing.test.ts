@@ -9,7 +9,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
 import { FileTypeUtils, FileType } from "../store/types";
-import { StationSyncStatus, FileDownload } from "../store/modules/syncing";
+import { StationSyncStatus, FileDownload, FileUpload } from "../store/modules/syncing";
 
 describe("Syncing", () => {
     let services;
@@ -87,7 +87,18 @@ describe("Syncing", () => {
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
-                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), 100, [], []),
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    100,
+                    [],
+                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                ),
             ]);
         });
 
@@ -201,7 +212,18 @@ describe("Syncing", () => {
             await store.dispatch(ActionTypes.STATION_REPLY, reply1);
 
             expect(store.getters.syncs).toStrictEqual([
-                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), 100, [], []),
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    100,
+                    [],
+                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                ),
             ]);
         });
 
@@ -247,7 +269,18 @@ describe("Syncing", () => {
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
-                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), 100, [], []),
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    100,
+                    [],
+                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                ),
             ]);
 
             clock.tick(60000);
@@ -276,7 +309,7 @@ describe("Syncing", () => {
                             68900
                         ),
                     ],
-                    []
+                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
                 ),
             ]);
         });
@@ -323,7 +356,18 @@ describe("Syncing", () => {
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
-                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), 100, [], []),
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    100,
+                    [],
+                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                ),
             ]);
 
             clock.tick(60000);
@@ -360,7 +404,7 @@ describe("Syncing", () => {
                             68900
                         ),
                     ],
-                    []
+                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
                 ),
             ]);
 
@@ -370,7 +414,18 @@ describe("Syncing", () => {
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
-                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), 200, [], []),
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    200,
+                    [],
+                    [new FileUpload(FileType.Meta, 0, 5, 630), new FileUpload(FileType.Data, 0, 200, 2 * 68900)]
+                ),
             ]);
         });
     });

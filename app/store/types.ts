@@ -1,7 +1,7 @@
 import { decodeAndPrepare } from "../services/query-station";
 import { GlobalState } from "./modules/global";
 import { HttpStatusReply, ReplyStream } from "./http_reply";
-import { StreamTableRow } from "./row-types";
+import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
 
 export class Sensor {
@@ -33,6 +33,35 @@ export enum FileType {
 export class FileTypeUtils {
     public static toString(ft: FileType) {
         return FileType[ft].toLowerCase();
+    }
+
+    public static fromString(s: string) {
+        if (/meta/.test(s)) {
+            return FileType.Meta;
+        }
+        if (/data/.test(s)) {
+            return FileType.Data;
+        }
+        return FileType.Unknown;
+    }
+}
+
+export class Download {
+    constructor(
+        public id: number,
+        public deviceId: string,
+        public generationId: string,
+        public fileType: FileType,
+        public size: number,
+        public path: string,
+        public time: Date,
+        public firstBlock: number,
+        public lastBlock: number
+    ) {}
+
+    static fromRow(d: DownloadTableRow): Download {
+        const fileType = FileTypeUtils.fromString(d.type);
+        return new Download(d.id, d.deviceId, d.generation, fileType, d.size, d.path, new Date(d.timestamp), d.firstBlock, d.lastBlock);
     }
 }
 
@@ -89,13 +118,7 @@ export class Stream {
     }
 
     fileType(): FileType {
-        if (/meta/.test(this.type)) {
-            return FileType.Meta;
-        }
-        if (/data/.test(this.type)) {
-            return FileType.Data;
-        }
-        return FileType.Unknown;
+        return FileTypeUtils.fromString(this.type);
     }
 
     keepingFrom(o: Stream | null) {
@@ -150,8 +173,9 @@ export class Station implements StationCreationFields {
     public readonly portalError: string | null;
     public readonly modules: Module[] = [];
     public readonly streams: Stream[] = [];
+    public readonly downloads: Download[] = [];
 
-    constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = []) {
+    constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = [], downloads: Download[] = []) {
         this.id = o.id;
         this.deviceId = o.deviceId;
         this.generationId = o.generationId;
@@ -169,6 +193,7 @@ export class Station implements StationCreationFields {
         this.portalError = o.portalError;
         this.modules = modules;
         this.streams = streams;
+        this.downloads = downloads;
     }
 
     public location(): Location | null {

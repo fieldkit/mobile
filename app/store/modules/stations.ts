@@ -1,9 +1,9 @@
 import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationCreationFields, Station, AvailableStation, Module, Sensor, LegacyStation, Stream } from "../types";
+import { StationCreationFields, Station, AvailableStation, Module, Sensor, LegacyStation, Stream, Download } from "../types";
 import { HasLocation } from "../map-types";
-import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow } from "../row-types";
+import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "../row-types";
 import { HttpStatusReply } from "../http_reply";
 import { GlobalState } from "./global";
 import { Services, ServiceRef } from "./utilities";
@@ -168,7 +168,8 @@ class StationDatabaseFactory {
         public readonly stationRow: StationTableRow,
         public readonly modules: { [index: number]: ModuleTableRow[] },
         public readonly sensors: { [index: number]: SensorTableRow[] },
-        public readonly streams: { [index: number]: StreamTableRow[] }
+        public readonly streams: { [index: number]: StreamTableRow[] },
+        public readonly downloads: { [index: number]: DownloadTableRow[] }
     ) {}
 
     create(): Station {
@@ -185,7 +186,9 @@ class StationDatabaseFactory {
 
         const streamRows = this.streams[this.stationRow.id] || [];
         const streams = streamRows.map(streamRow => Stream.fromRow(streamRow));
-        return new Station(this.getCreationFields(this.stationRow), modules, streams);
+        const downloadRows = this.downloads[this.stationRow.id] || [];
+        const downloads = downloadRows.map(downloadRow => Download.fromRow(downloadRow));
+        return new Station(this.getCreationFields(this.stationRow), modules, streams, downloads);
     }
 
     private getCreationFields(stationRow: StationTableRow): StationCreationFields {
@@ -215,17 +218,20 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
 }
 
 function loadStationsFromDatabase(db): Promise<Station[]> {
-    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll()]).then((values: any[]) => {
-        const stations: StationTableRow[] = values[0];
-        const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], m => m.stationId);
-        const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], s => s.moduleId);
-        const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], s => s.stationId);
-        // TODO Handle generation changes.
-        return stations.map(stationRow => {
-            const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams);
-            return factory.create();
-        });
-    });
+    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
+        (values: any[]) => {
+            const stations: StationTableRow[] = values[0];
+            const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], m => m.stationId);
+            const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], s => s.moduleId);
+            const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], s => s.stationId);
+            const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(values[4], s => s.stationId);
+            // TODO Handle generation changes.
+            return stations.map(stationRow => {
+                const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
+                return factory.create();
+            });
+        }
+    );
 }
 
 interface StationPortalReply {
