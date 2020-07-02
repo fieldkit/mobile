@@ -27,7 +27,7 @@ const getters = {
                 return [available.name];
             })
             .value();
-        if (true) {
+        if (false) {
             console.log(
                 "available",
                 _.map(available, s => {
@@ -57,7 +57,7 @@ const getters = {
                 return [ls.name];
             })
             .value();
-        if (true) {
+        if (false) {
             console.log(
                 "legacy",
                 _.map(legacy, s => {

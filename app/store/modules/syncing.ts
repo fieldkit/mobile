@@ -37,7 +37,6 @@ export class FileDownload {
         public readonly firstBlock: number,
         public readonly lastBlock: number,
         public readonly bytes: number,
-        public readonly lastDownloadedBlock: number | null = null,
         public readonly progress: TransferProgress | null = null
     ) {}
 
@@ -55,12 +54,12 @@ export class StationSyncStatus {
         public readonly connected: boolean,
         public readonly lastSeen: Date,
         public readonly time: Date,
-        public readonly pending: boolean,
-        public readonly files: FileDownload[]
+        public readonly pending: FileDownload[] = [],
+        public readonly downloaded = 0
     ) {}
 
     get data(): FileDownload[] {
-        return this.files.filter(file => file.fileType == FileType.Data);
+        return this.pending.filter(file => file.fileType == FileType.Data);
     }
 
     readingsReady(): number {
@@ -68,15 +67,15 @@ export class StationSyncStatus {
     }
 
     readingsCopying(): number {
-        return _.sum(this.data.map(f => f.blocks)) || 0;
+        return this.readingsReady();
     }
 
     readingsHave(): number {
-        return _.max(this.data.map(f => f.lastDownloadedBlock)) || 0;
+        return this.downloaded;
     }
 
     makeRowsFromPending(): DownloadTableRow[] {
-        return this.files.map(f => {
+        return this.pending.map(f => {
             return {
                 stationId: this.id,
                 deviceId: this.deviceId,
@@ -101,9 +100,15 @@ export class SyncingState {
 }
 
 const actions = {
+    [ActionTypes.DOWNLOAD_STATION]: (
+        { commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState },
+        sync: StationSyncStatus
+    ) => {
+        return Promise.all([sync].map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
+    },
     [ActionTypes.DOWNLOAD_ALL]: (
         { commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState },
-        syncs: StationSyncStatus[] = []
+        syncs: StationSyncStatus[]
     ) => {
         return Promise.all(syncs.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
     },
@@ -120,13 +125,18 @@ const actions = {
 const getters = {
     syncs: (state: SyncingState, _getters: never, rootState: never, rootGetters: GlobalGetters): StationSyncStatus[] => {
         return state.stations.map(station => {
+            if (!station.id) {
+                throw new Error("unexpected null station.id: " + station.name);
+            }
+
             const available = rootGetters.availableStations.find(s => s.deviceId == station.deviceId);
             if (!available) {
                 throw new Error("expected available station, missing");
             }
             const connected = available.connected;
             const lastSeen = station.lastSeen;
-            const files = station.streams
+
+            const pending = station.streams
                 .map(stream => {
                     const firstBlock = stream.downloadLastBlock || 0;
                     const lastBlock = stream.deviceLastBlock;
@@ -135,25 +145,17 @@ const getters = {
                     const path = [station.deviceId, getPathTimestamp(state.clock), typeName + ".fkpb"].join("/");
                     const url = "/fk/v1/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
                     const progress: number | null = null;
-                    return new FileDownload(
-                        stream.fileType(),
-                        url,
-                        path,
-                        firstBlock,
-                        lastBlock,
-                        estimatedBytes,
-                        stream.downloadLastBlock,
-                        progress
-                    );
+                    console.log("refresh sync", stream.downloadLastBlock);
+                    return new FileDownload(stream.fileType(), url, path, firstBlock, lastBlock, estimatedBytes, progress);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
                 .sort((a, b) => {
                     return a.fileType < b.fileType ? -1 : 1;
                 });
-            if (!station.id) {
-                throw new Error("unexpected null station.id: " + station.name);
-            }
+
+            const downloaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.downloadLastBlock));
+
             return new StationSyncStatus(
                 station.id,
                 station.deviceId,
@@ -162,8 +164,8 @@ const getters = {
                 connected,
                 lastSeen,
                 state.clock,
-                true,
-                files
+                pending,
+                downloaded || 0
             );
         });
     },

@@ -35,7 +35,7 @@
                                     <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onDownload(sync)""></Image>
                                 </StackLayout>
                             </GridLayout>
                             <GridLayout rows="auto" columns="80*, 20*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
@@ -67,6 +67,7 @@
 
 <script>
 import _ from "lodash";
+import * as ActionTypes from "../store/actions";
 import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
@@ -100,7 +101,11 @@ export default {
         onPageUnloaded(args) {},
         onToggle(deviceId) {
             this.opened[deviceId] = !this.opened[deviceId];
-        },
+		},
+		onDownload(sync) {
+			console.log("download", sync)
+			return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
+		},
     },
 };
 </script>
