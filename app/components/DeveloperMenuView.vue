@@ -56,6 +56,7 @@ import Recalibrate from "./onboarding/Recalibrate";
 import AppSettings from "../wrappers/app-settings";
 import DiagnosticsModal from "./DiagnosticsModal";
 import StationPicker from "./StationPickerModal";
+import * as ActionTypes from "../store/actions";
 
 export default {
     data() {
@@ -189,11 +190,15 @@ export default {
                 .initialize(true)
                 .then(() => {
                     console.log("database deleted");
-                    return alert({
-                        title: _L("devOptions"),
-                        message: _L("dbDeleted"),
-                        okButtonText: _L("ok"),
-                    });
+                    return Services.Store()
+                        .dispatch(ActionTypes.LOAD)
+                        .then(() => {
+                            return alert({
+                                title: _L("devOptions"),
+                                message: _L("dbDeleted"),
+                                okButtonText: _L("ok"),
+                            });
+                        });
                 });
         },
         deleteFiles() {
