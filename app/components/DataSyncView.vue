@@ -26,11 +26,16 @@
                                     </template>
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onToggle(sync.deviceId)"></Image>
+                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onToggle(sync)"></Image>
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isDownloadReady">
+                            <GridLayout
+                                rows="auto"
+                                columns="70*, 30*"
+                                class="transfer-container"
+                                v-if="opened(sync) && sync.isDownloadReady"
+                            >
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
@@ -41,7 +46,7 @@
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isDownloaded">
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isDownloaded">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
@@ -52,7 +57,7 @@
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isCopying">
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isCopying">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-busy">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
@@ -65,7 +70,7 @@
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isUploadReady">
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isUploadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
@@ -76,7 +81,7 @@
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isComplete">
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isComplete">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
                                     <Label
                                         :text="sync.readingsUploaded + ' Readings'"
@@ -122,8 +127,6 @@ const log = Config.logger("DataSyncView");
 export default {
     data() {
         return {
-            allOpened: true,
-            opened: {},
             closed: {},
         };
     },
@@ -139,14 +142,24 @@ export default {
     methods: {
         onPageLoaded(args) {},
         onPageUnloaded(args) {},
-        onToggle(deviceId) {
-            this.opened[deviceId] = !this.opened[deviceId];
+        onToggle(sync) {
+            this.closed[sync.deviceId] = this.opened(sync);
+            console.log("toggle", sync.name, this.closed[sync.deviceId]);
         },
         onDownload(sync) {
             return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
         },
         onUpload(sync) {
             return this.$store.dispatch(ActionTypes.UPLOAD_STATION, sync);
+        },
+        opened(sync) {
+            if (this.closed[sync.deviceId] === true) {
+                return false;
+            }
+            if (this.closed[sync.deviceId] === false) {
+                return true;
+            }
+            return sync.connected;
         },
         prettyDate(date) {
             if (!date) {
