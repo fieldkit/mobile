@@ -17,12 +17,30 @@ export class TransferProgress {
         public readonly total: number,
         public readonly copied: number
     ) {}
+}
+
+export class StationProgress {
+    constructor(
+        public readonly deviceId: string,
+        public readonly downloading: boolean,
+        public readonly totalBytes: number,
+        private readonly active: { [index: string]: number } = {}
+    ) {}
+
+    public include(progress: TransferProgress): StationProgress {
+        this.active[progress.path] = progress.copied;
+        return new StationProgress(this.deviceId, this.downloading, this.totalBytes, this.active);
+    }
+
+    private get copiedBytes(): number {
+        return _.sum(Object.values(this.active));
+    }
 
     public get decimal(): number {
-        if (this.total == 0) {
+        if (this.totalBytes == 0) {
             return 0;
         }
-        return this.copied / this.total;
+        return this.copiedBytes / this.totalBytes;
     }
 
     public get percentage(): string {
@@ -40,8 +58,7 @@ export class PendingUpload {
         public readonly firstBlock: number,
         public readonly lastBlock: number,
         public readonly bytes: number,
-        public readonly files: LocalFile[] = [],
-        public readonly progress: TransferProgress | null = null
+        public readonly files: LocalFile[] = []
     ) {}
 
     get blocks(): number {
@@ -56,8 +73,7 @@ export class PendingDownload {
         public readonly path: string,
         public readonly firstBlock: number,
         public readonly lastBlock: number,
-        public readonly bytes: number,
-        public readonly progress: TransferProgress | null = null
+        public readonly bytes: number
     ) {}
 
     get blocks(): number {
@@ -86,21 +102,16 @@ export class StationSyncStatus {
         private readonly downloaded: number,
         private readonly uploaded: number,
         public readonly downloads: PendingDownload[] = [],
-        public readonly uploads: PendingUpload[] = []
+        public readonly uploads: PendingUpload[] = [],
+        public readonly progress: StationProgress | null = null
     ) {}
 
-    public get progress(): TransferProgress | null {
-        const u = this.downloads.map(f => f.progress);
-        const d = this.uploads.map(f => f.progress);
-        return _(u).concat(d).compact().first() || null;
-    }
-
     public get isDownloading(): boolean {
-        return this.downloads.filter(f => f.progress).length > 0;
+        return this.progress ? this.progress.downloading : false;
     }
 
     public get isUploading(): boolean {
-        return this.uploads.filter(f => f.progress).length > 0;
+        return this.progress ? !this.progress.downloading : false;
     }
 
     // State
@@ -203,8 +214,12 @@ export class SyncingState {
     services: ServiceRef = new ServiceRef();
     stations: Station[] = [];
     clock: Date = new Date();
-    progress: { [index: string]: TransferProgress } = {};
+    progress: { [index: string]: StationProgress } = {};
     downloads: { [index: string]: Download } = {};
+}
+
+class OpenProgressPayload {
+    constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number) {}
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
@@ -217,6 +232,9 @@ const actions = {
         if (!sync.connected) {
             throw new Error("refusing to download from disconnected station");
         }
+
+        commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
+
         return serializePromiseChain(sync.downloads, file => {
             return state.services
                 .queryStation()
@@ -228,7 +246,11 @@ const actions = {
                     console.log("error downloading", error, error ? error.stack : null);
                     return Promise.reject(error);
                 });
-        }).then(() => dispatch(ActionTypes.LOAD));
+        })
+            .then(() => dispatch(ActionTypes.LOAD))
+            .finally(() => {
+                commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+            });
     },
     [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
         return Promise.all(syncs.map(dl => dispatch(ActionTypes.UPLOAD_STATION, dl)));
@@ -239,6 +261,12 @@ const actions = {
         if (downloads.length != paths.length) {
             throw new Error("download missing");
         }
+
+        const totalBytes = _(downloads)
+            .map(d => d.size)
+            .sum();
+
+        commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
 
         return serializePromiseChain(downloads, download => {
             return state.services
@@ -251,7 +279,11 @@ const actions = {
                     console.log("error uploading", error, error ? error.stack : null);
                     return Promise.reject(error);
                 });
-        }).then(() => dispatch(ActionTypes.LOAD));
+        })
+            .then(() => dispatch(ActionTypes.LOAD))
+            .finally(() => {
+                commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+            });
     },
 };
 
@@ -280,8 +312,7 @@ const getters = {
                     const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
                     const folder = state.services.fs().getFolder(path);
                     const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
-                    const progress = state.progress[file.path];
-                    const pending = new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes, progress);
+                    const pending = new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes);
                     return pending;
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
@@ -299,7 +330,7 @@ const getters = {
                         .filter(d => d.fileType == stream.fileType())
                         .filter(d => !d.uploaded)
                         .map(d => new LocalFile(d.path, d.size));
-                    const pending = new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files, null);
+                    const pending = new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files);
                     return pending;
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
@@ -310,6 +341,7 @@ const getters = {
 
             const downloaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.downloadLastBlock));
             const uploaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.portalLastBlock));
+            const progress = state.progress[station.deviceId];
 
             return new StationSyncStatus(
                 station.id,
@@ -322,7 +354,8 @@ const getters = {
                 downloaded || 0,
                 uploaded || 0,
                 downloads,
-                uploads
+                uploads,
+                progress
             );
         });
     },
@@ -345,8 +378,15 @@ const mutations = {
                 .value()
         );
     },
+    [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressPayload) => {
+        Vue.set(state.progress, payload.deviceId, new StationProgress(payload.deviceId, payload.downloading, payload.totalBytes));
+    },
     [MutationTypes.TRANSFER_PROGRESS]: (state: SyncingState, progress: TransferProgress) => {
-        Vue.set(state.progress, progress.path, progress);
+        const before = state.progress[progress.deviceId];
+        Vue.set(state.progress, progress.deviceId, before.include(progress));
+    },
+    [MutationTypes.TRANSFER_CLOSE]: (state: SyncingState, deviceId: string) => {
+        delete state.progress[deviceId];
     },
 };
 
