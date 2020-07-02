@@ -63,4 +63,5 @@ export interface DownloadTableRow {
     blocks: string;
     firstBlock: number;
     lastBlock: number;
+    uploaded: number | null;
 }

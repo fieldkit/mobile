@@ -56,12 +56,24 @@ export class Download {
         public path: string,
         public time: Date,
         public firstBlock: number,
-        public lastBlock: number
+        public lastBlock: number,
+        public uploaded: Date | null
     ) {}
 
     static fromRow(d: DownloadTableRow): Download {
         const fileType = FileTypeUtils.fromString(d.type);
-        return new Download(d.id, d.deviceId, d.generation, fileType, d.size, d.path, new Date(d.timestamp), d.firstBlock, d.lastBlock);
+        return new Download(
+            d.id,
+            d.deviceId,
+            d.generation,
+            fileType,
+            d.size,
+            d.path,
+            new Date(d.timestamp),
+            d.firstBlock,
+            d.lastBlock,
+            d.uploaded ? new Date(d.uploaded) : null
+        );
     }
 }
 
