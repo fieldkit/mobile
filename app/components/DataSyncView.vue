@@ -48,8 +48,16 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isDownloaded">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
-                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
+                                    <Label
+                                        :text="sync.readingsDownloaded + ' Readings'"
+                                        class="readings-label"
+                                        v-if="sync.readingsDownloaded > 1"
+                                    />
+                                    <Label
+                                        :text="sync.readingsDownloaded + ' Reading'"
+                                        class="readings-label"
+                                        v-if="sync.readingsDownloaded == 1"
+                                    />
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
