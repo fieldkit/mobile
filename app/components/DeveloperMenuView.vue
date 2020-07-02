@@ -189,7 +189,7 @@ export default {
                 .initialize(true)
                 .then(() => {
                     console.log("database deleted");
-                    alert({
+                    return alert({
                         title: _L("devOptions"),
                         message: _L("dbDeleted"),
                         okButtonText: _L("ok"),
@@ -223,7 +223,7 @@ export default {
                             .value()
                     );
 
-                    alert({
+                    return alert({
                         title: _L("devOptions"),
                         message: _L("filesRemoved"),
                         okButtonText: _L("ok"),
