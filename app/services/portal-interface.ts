@@ -348,6 +348,11 @@ export default class PortalInterface {
     }
 
     public uploadPreviouslyDownloaded(deviceName: string, download: Download, progress: ProgressFunc) {
+        const token = this.getCurrentToken();
+        if (!token) {
+            return Promise.reject(new Error("no token"));
+        }
+
         const headers = {
             "Fk-Blocks": download.blocks,
             "Fk-Generation": download.generationId,
@@ -368,7 +373,7 @@ export default class PortalInterface {
 
         const defaultHeaders = {
             "Content-Type": "application/octet-stream",
-            Authorization: this.getCurrentToken(),
+            Authorization: token,
             "Fk-DeviceId": download.deviceId,
             "Fk-DeviceName": deviceName,
         };
