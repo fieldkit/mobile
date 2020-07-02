@@ -15,3 +15,4 @@ export const PHONE_LOCATION = "PHONE_LOCATION";
 export const NAVIGATION = "NAVIGATION";
 
 export const TICK = "TICK";
+export const TRANSFER_PROGRESS = "TRANSFER_PROGRESS";

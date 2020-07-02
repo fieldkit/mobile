@@ -20,6 +20,10 @@ function customizeLogger() {
                 console.log("mutation:", mutation.type);
                 return false;
             }
+            if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
+                console.log("mutation:", mutation.type);
+                return false;
+            }
             if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {
                 console.log("mutation:", mutation.type, mutation.payload);
                 return false;

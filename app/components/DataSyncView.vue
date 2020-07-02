@@ -6,7 +6,7 @@
                     <ScreenHeader row="0" class="p-t-10" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
                     <StackLayout row="1" class="sync-panel-container">
                         <StackLayout v-for="sync in syncs" :key="sync.deviceId" class="station-container">
-                            <GridLayout rows="auto" columns="80*, 20*">
+                            <GridLayout rows="auto" columns="70*, 30*">
                                 <StackLayout row="0" col="0">
                                     <Label :text="sync.name" textWrap="true" class="station-name"></Label>
                                     <Label v-if="sync.location" :text="sync.location" textWrap="true" class="station-location"></Label>
@@ -15,7 +15,7 @@
                                         <StackLayout class="station-connection station-disconnected" orientation="horizontal">
                                             <Image width="20" src="~/images/Icon_not_Connected.png"></Image>
                                             <Label text="Not Connected" class="connected-label" />
-                                            <Label :text="'Since ' + '12/20/2019'" class="connected-since" />
+                                            <Label :text="'Since ' + prettyDate(sync.lastSeen)" class="connected-since" />
                                         </StackLayout>
                                     </template>
                                     <template v-else>
@@ -29,25 +29,26 @@
                                     <Image width="20" src="~/images/Icon_Connected.png" @tap="onToggle(sync.deviceId)"></Image>
                                 </StackLayout>
                             </GridLayout>
-                            <GridLayout rows="auto" columns="80*, 20*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady() + ' Readings'" class="readings-label" />
                                     <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
-                                <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onDownload(sync)""></Image>
+                                <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
+                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onTransfer(sync)""></Image>
                                 </StackLayout>
                             </GridLayout>
-                            <GridLayout rows="auto" columns="80*, 20*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-busy">
                                     <Label :text="sync.readingsCopying() + ' Readings'" class="readings-label" />
                                     <Label text="Downloading" class="transfer-label" />
                                 </StackLayout>
-                                <StackLayout row="0" col="1" class="container-icon">
+                                <StackLayout row="0" col="1" class="container-icon" orientation="horizontal">
+									<Label :text="sync.progress.percentage" class="transfer-progress" v-if="sync.progress" />
                                     <Image width="20" src="~/images/Icon_Connected.png"></Image>
                                 </StackLayout>
                             </GridLayout>
-                            <GridLayout rows="auto" columns="80*, 20*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
                                     <Label :text="sync.readingsHave() + ' Readings'" class="readings-label" />
                                     <Label text="Downloaded" class="transfer-label" />
@@ -68,6 +69,7 @@
 <script>
 import _ from "lodash";
 import * as ActionTypes from "../store/actions";
+import moment from 'moment';
 import Services from "../services/services";
 import Config from "../config";
 import routes from "../routes";
@@ -102,10 +104,16 @@ export default {
         onToggle(deviceId) {
             this.opened[deviceId] = !this.opened[deviceId];
 		},
-		onDownload(sync) {
+		onTransfer(sync) {
 			console.log("download", sync)
 			return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
 		},
+		prettyDate(date) {
+			if (!date) {
+				return "N/A";
+			}
+			return moment(date).format("MM/DD/YYYY");
+		}
     },
 };
 </script>
@@ -127,6 +135,12 @@ export default {
     border-top-color: $fk-gray-lighter;
     border-top-width: 1;
 }
+.connected-since {
+	padding-left: 5;
+    font-size: 10;
+    color: $fk-gray-text;
+	vertical-align: center;
+}
 .transfer-details {
 }
 .station-name {
@@ -142,6 +156,7 @@ export default {
 .station-connection .connected-label {
     vertical-align: middle;
     padding-left: 10;
+	font-size: 12;
 }
 .station-connected {
 }
@@ -149,5 +164,14 @@ export default {
 }
 .container-icon {
     vertical-align: middle;
+	/* background-color: #ffefaa; */
+	horizontal-align:right;
+	margin-right: 10;
+}
+.transfer-progress {
+    vertical-align: middle;
+    font-size: 14;
+    color: $fk-gray-text;
+	padding-right: 10;
 }
 </style>

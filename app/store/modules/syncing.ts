@@ -26,7 +26,20 @@ export interface DownloadTableRow {
 }
 
 export class TransferProgress {
-    constructor(public readonly total: number, public readonly copied: number) {}
+    constructor(
+        public readonly deviceId: string,
+        public readonly path: string,
+        public readonly total: number,
+        public readonly copied: number
+    ) {}
+
+    get decimal(): number {
+        return this.copied / this.total;
+    }
+
+    get percentage(): string {
+        return (this.decimal * 100.0).toFixed(0) + "%";
+    }
 }
 
 export class FileDownload {
@@ -62,8 +75,17 @@ export class StationSyncStatus {
         public readonly downloaded = 0
     ) {}
 
-    get data(): FileDownload[] {
+    private get data(): FileDownload[] {
         return this.pending.filter(file => file.fileType == FileType.Data);
+    }
+
+    get progress(): TransferProgress | null {
+        return (
+            this.pending
+                .filter(p => p.progress)
+                .map(p => p.progress)
+                .find(p => true) || null
+        );
     }
 
     readingsReady(): number {
@@ -99,6 +121,7 @@ export class SyncingState {
     services: ServiceRef = new ServiceRef();
     stations: Station[] = [];
     clock: Date = new Date();
+    progress: { [index: string]: TransferProgress } = {};
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
@@ -116,7 +139,7 @@ const actions = {
                 return state.services
                     .queryStation()
                     .download(file.url, file.path, (total, copied, info) => {
-                        console.log("progress", new TransferProgress(total, copied));
+                        commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                     })
                     .then(() => state.services.db().insertDownload(sync.makeRow(file)))
                     .catch(error => {
@@ -156,9 +179,9 @@ const getters = {
                     const typeName = FileTypeUtils.toString(stream.fileType());
                     const path = ["downloads", station.deviceId, getPathTimestamp(state.clock)].join("/");
                     const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
-                    const progress: number | null = null;
                     const folder = state.services.fs().getFolder(path);
                     const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
+                    const progress = state.progress[file.path];
                     return new FileDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes, progress);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
@@ -191,6 +214,9 @@ const mutations = {
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
         Vue.set(state, "clock", new Date());
         Vue.set(state, "stations", stations);
+    },
+    [MutationTypes.TRANSFER_PROGRESS]: (state: SyncingState, progress: TransferProgress) => {
+        Vue.set(state.progress, progress.path, progress);
     },
 };
 
