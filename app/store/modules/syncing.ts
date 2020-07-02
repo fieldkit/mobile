@@ -18,11 +18,14 @@ export class TransferProgress {
         public readonly copied: number
     ) {}
 
-    get decimal(): number {
+    public get decimal(): number {
+        if (this.total == 0) {
+            return 0;
+        }
         return this.copied / this.total;
     }
 
-    get percentage(): string {
+    public get percentage(): string {
         return (this.decimal * 100.0).toFixed(0) + "%";
     }
 }
@@ -60,10 +63,15 @@ export class PendingDownload {
     get blocks(): number {
         return this.lastBlock - this.firstBlock;
     }
+}
 
-    name(): string {
-        return FileTypeUtils.toString(this.fileType) + ".fkpb";
-    }
+export enum SyncState {
+    DownloadReady,
+    UploadReady,
+    UploadReadyOffline,
+    Downloaded,
+    Copying,
+    Complete,
 }
 
 export class StationSyncStatus {
@@ -81,52 +89,87 @@ export class StationSyncStatus {
         public readonly uploads: PendingUpload[] = []
     ) {}
 
-    private get data(): PendingDownload[] {
-        return this.downloads.filter(file => file.fileType == FileType.Data);
+    public get progress(): TransferProgress | null {
+        const u = this.downloads.map(f => f.progress);
+        const d = this.uploads.map(f => f.progress);
+        return _(u).concat(d).compact().first() || null;
     }
 
-    get progress(): TransferProgress | null {
-        return (
-            this.downloads
-                .filter(p => p.progress)
-                .map(p => p.progress)
-                .find(p => true) || null
-        );
-    }
-
-    readingsReady(): number {
-        return _.sum(this.data.map(f => f.blocks)) || 0;
-    }
-
-    readingsCopying(): number {
-        return this.readingsReady();
-    }
-
-    readingsDownloaded(): number {
-        return this.downloaded;
-    }
-
-    readingsUploaded(): number {
-        return this.uploaded;
-    }
-
-    showReady(): boolean {
-        return false;
-    }
-
-    showDownloading(): boolean {
+    public get isDownloading(): boolean {
         return this.downloads.filter(f => f.progress).length > 0;
     }
 
-    showUploading(): boolean {
+    public get isUploading(): boolean {
         return this.uploads.filter(f => f.progress).length > 0;
     }
 
-    showHave(): boolean {
-        return false;
+    // State
+
+    public get state(): SyncState {
+        if (this.isDownloading || this.isUploading) {
+            return SyncState.Copying;
+        }
+        if (this.readingsIncoming > 0) {
+            if (this.connected) {
+                return SyncState.DownloadReady;
+            }
+        }
+        if (this.readingsOutgoing > 0) {
+            if (this.onAP) {
+                return SyncState.Downloaded;
+            }
+            return SyncState.UploadReady;
+        }
+        return SyncState.Complete;
     }
 
-    getPathsToUpload(): string[] {
+    public get onAP(): boolean {
+        return this.connected;
+    }
+
+    public get isCopying(): boolean {
+        return this.state == SyncState.Copying;
+    }
+
+    public get isDownloadReady(): boolean {
+        return this.state == SyncState.DownloadReady;
+    }
+
+    public get isDownloaded(): boolean {
+        return this.state == SyncState.Downloaded;
+    }
+
+    public get isUploadReady(): boolean {
+        return this.state == SyncState.UploadReady;
+    }
+
+    public get isComplete(): boolean {
+        return this.state == SyncState.Complete;
+    }
+
+    // Number of readings
+
+    public get readingsDownloaded(): number {
+        return this.downloaded;
+    }
+
+    public get readingsUploaded(): number {
+        return this.uploaded;
+    }
+
+    public get readingsIncoming(): number {
+        return _.sum(this.downloads.filter(file => file.fileType == FileType.Data).map(f => f.blocks)) || 0;
+    }
+
+    public get readingsOutgoing(): number {
+        return _.sum(this.uploads.filter(file => file.fileType == FileType.Data).map(f => f.blocks)) || 0;
+    }
+
+    public get readingsReady(): number {
+        return this.readingsIncoming || this.readingsOutgoing;
+    }
+
+    public getPathsToUpload(): string[] {
         return _(this.uploads)
             .map(u => u.files)
             .flatten()
@@ -134,7 +177,7 @@ export class StationSyncStatus {
             .value();
     }
 
-    makeRow(file: PendingDownload, headers: HttpHeaders): DownloadTableRow {
+    public makeRow(file: PendingDownload, headers: HttpHeaders): DownloadTableRow {
         delete headers["connection"];
         const { range, firstBlock, lastBlock } = parseBlocks(headers["fk-blocks"]);
 
@@ -171,20 +214,20 @@ const actions = {
         return Promise.all(syncs.map(dl => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
     },
     [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+        if (!sync.connected) {
+            throw new Error("refusing to download from disconnected station");
+        }
         return serializePromiseChain(sync.downloads, file => {
-            if (true) {
-                return state.services
-                    .queryStation()
-                    .download(file.url, file.path, (total, copied, info) => {
-                        commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
-                    })
-                    .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
-                    .catch(error => {
-                        console.log("error downloading", error, error ? error.stack : null);
-                        return Promise.reject(error);
-                    });
-            }
-            return true;
+            return state.services
+                .queryStation()
+                .download(file.url, file.path, (total, copied, info) => {
+                    commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
+                })
+                .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
+                .catch(error => {
+                    console.log("error downloading", error, error ? error.stack : null);
+                    return Promise.reject(error);
+                });
         }).then(() => dispatch(ActionTypes.LOAD));
     },
     [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
@@ -238,7 +281,8 @@ const getters = {
                     const folder = state.services.fs().getFolder(path);
                     const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
                     const progress = state.progress[file.path];
-                    return new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes, progress);
+                    const pending = new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes, progress);
+                    return pending;
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
@@ -255,7 +299,8 @@ const getters = {
                         .filter(d => d.fileType == stream.fileType())
                         .filter(d => !d.uploaded)
                         .map(d => new LocalFile(d.path, d.size));
-                    return new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files, null);
+                    const pending = new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files, null);
+                    return pending;
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
