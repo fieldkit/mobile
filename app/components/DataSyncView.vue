@@ -1,72 +1,61 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onLoaded" @unloaded="onUnloaded">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onPageUnloaded">
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <GridLayout rows="60,*" automationText="dataSyncLayout">
                     <ScreenHeader row="0" class="p-t-10" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
                     <StackLayout row="1" class="sync-panel-container">
-                        <StackLayout v-for="s in recentSyncs" :key="s.deviceId" class="station-container">
-                            <Label :text="s.name" textWrap="true" class="station-name"></Label>
-                            <GridLayout rows="auto,auto,auto,auto" columns="*" class="m-l-10">
-                                <Label row="0" class="history-label" v-if="s.totalDownloads" :text="s.totalDownloads" />
-                                <Label row="1" class="m-l-20" v-if="s.lastDownloadTime" :text="s.lastDownloadTime" />
-                                <Label row="2" class="history-label" v-if="s.totalUploads" :text="s.totalUploads" />
-                                <Label row="3" class="m-l-20" v-if="s.lastUploadTime" :text="s.lastUploadTime" />
+                        <StackLayout v-for="sync in syncs" :key="sync.deviceId" class="station-container">
+                            <GridLayout rows="auto" columns="80*, 20*">
+                                <StackLayout row="0" col="0">
+                                    <Label :text="sync.name" textWrap="true" class="station-name"></Label>
+                                    <Label v-if="sync.location" :text="sync.location" textWrap="true" class="station-location"></Label>
+                                    <Label v-if="!sync.location" text="Unknown Location" class="station-location"></Label>
+                                    <template v-if="!sync.connected">
+                                        <StackLayout class="station-connection station-disconnected" orientation="horizontal">
+                                            <Image width="20" src="~/images/Icon_not_Connected.png"></Image>
+                                            <Label text="Not Connected" class="connected-label" />
+                                            <Label :text="'Since ' + '12/20/2019'" class="connected-since" />
+                                        </StackLayout>
+                                    </template>
+                                    <template v-else>
+                                        <StackLayout class="station-connection station-connected" orientation="horizontal">
+                                            <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                            <Label text="Station Connected" class="connected-label" />
+                                        </StackLayout>
+                                    </template>
+                                </StackLayout>
+                                <StackLayout row="0" col="1" class="container-icon">
+                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onToggle(sync.deviceId)"></Image>
+                                </StackLayout>
                             </GridLayout>
-                            <template v-if="s.canDownload">
-                                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
-                                    <Image rowSpan="2" col="0" width="25" src="~/images/Icon_Datafile.png" verticalAlignment="top"></Image>
-                                    <Label row="0" col="1" :text="s.downloadReadingsLabel" textWrap="true" class="status"></Label>
-                                    <Label row="1" col="1" :text="_L('downloading')" class="lighter" textWrap="true"></Label>
-                                    <Image
-                                        rowSpan="2"
-                                        col="2"
-                                        width="25"
-                                        src="~/images/Icon_Download.png"
-                                        v-if="!downloading[s.deviceId]"
-                                        :dataDeviceId="s.deviceId"
-                                        @tap="onDownloadTap"
-                                    ></Image>
-                                    <Image rowSpan="2" col="2" width="25" :src="downloadingIcon" v-if="downloading[s.deviceId]"></Image>
-                                    <StackLayout row="2" colSpan="3" class="bottom-border"></StackLayout>
-                                </GridLayout>
-                            </template>
-                            <template v-else-if="!s.connected">
-                                <StackLayout class="m-20">
-                                    <Label :text="_L('notConnectedToStation')" />
+                            <GridLayout rows="auto" columns="80*, 20*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
+                                <StackLayout row="0" col="0" class="transfer-details transfer-ready">
+                                    <Label :text="sync.readingsReady() + ' Readings'" class="readings-label" />
+                                    <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
-                            </template>
-                            <template v-else>
-                                <StackLayout class="m-20">
-                                    <Label :text="_L('checkingDownload')" />
+                                <StackLayout row="0" col="1" class="container-icon">
+                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
                                 </StackLayout>
-                            </template>
-
-                            <template v-if="s.canUpload">
-                                <GridLayout rows="*,*,*" columns="15*,70*,15*" class="m-t-20">
-                                    <Image rowSpan="2" col="0" width="25" src="~/images/Icon_Datafile.png" verticalAlignment="top"></Image>
-                                    <Label row="0" col="1" :text="s.uploadStatus" textWrap="true" class="status"></Label>
-                                    <Label row="1" col="1" :text="s.uploadProgressLabel" class="lighter" textWrap="true"></Label>
-                                    <Image
-                                        rowSpan="2"
-                                        col="2"
-                                        width="25"
-                                        src="~/images/Icon_Pending_Clock.png"
-                                        v-if="s.uploadState == 'waiting'"
-                                        :dataDeviceId="s.deviceId"
-                                        @tap="onUploadTap"
-                                    ></Image>
-                                    <Image rowSpan="2" col="2" width="25" :src="uploadingIcon" v-if="s.uploadState == 'uploading'"></Image>
-                                    <Image
-                                        rowSpan="2"
-                                        col="2"
-                                        width="25"
-                                        src="~/images/Icon_Success.png"
-                                        v-if="s.uploadState == 'success'"
-                                    ></Image>
-                                    <StackLayout row="2" colSpan="3" class="bottom-border"></StackLayout>
-                                </GridLayout>
-                            </template>
+                            </GridLayout>
+                            <GridLayout rows="auto" columns="80*, 20*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
+                                <StackLayout row="0" col="0" class="transfer-pending transfer-busy">
+                                    <Label :text="sync.readingsCopying() + ' Readings'" class="readings-label" />
+                                    <Label text="Downloading" class="transfer-label" />
+                                </StackLayout>
+                                <StackLayout row="0" col="1" class="container-icon">
+                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                </StackLayout>
+                            </GridLayout>
+                            <GridLayout rows="auto" columns="80*, 20*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
+                                <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
+                                    <Label :text="sync.readingsHave() + ' Readings'" class="readings-label" />
+                                    <Label text="Downloaded" class="transfer-label" />
+                                </StackLayout>
+                                <StackLayout row="0" col="1" class="container-icon">
+                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                </StackLayout>
+                            </GridLayout>
                         </StackLayout>
                     </StackLayout>
                 </GridLayout>
@@ -93,418 +82,67 @@ const log = Config.logger("DataSyncView");
 export default {
     data() {
         return {
-            recentSyncs: [],
-            downloadingIcon: "~/images/Icon_Syncing_blue.png",
-            uploadingIcon: "~/images/Icon_Syncing_blue.png",
-            downloading: {},
-            uploading: {},
-            uploadInProgress: false,
+            allOpened: true,
+            opened: {},
         };
     },
     components: {
         ScreenHeader,
         ScreenFooter,
     },
+    computed: {
+        syncs() {
+            return this.$store.getters.syncs;
+        },
+    },
     methods: {
-        onLoaded(args) {
-            log.info("loaded");
-
-            this.recentSyncs = [];
-
-            log.info("subscribing to stateManager");
-
-            Services.StateManager().subscribe(status => {
-                log.info(
-                    "received stations",
-                    _.map(status.station.stations, s => s.station.name)
-                );
-                this.manageRecentSyncs(status);
-            });
-
-            log.info("subscribing to progress");
-
-            Services.ProgressService().subscribe(data => {
-                if (data.message && data.message == "Uploading") {
-                    this.uploadInProgress = true;
-                    this.handleUploadProgress(data);
-                }
-            });
-        },
-
-        onUnloaded(args) {
-            // TODO: unsubscribe from stateManager and ProgressService updates
-            this.clearIntervals();
-        },
-
-        updateHistory(recent) {
-            dbInterface.getMostRecentDownloadByDeviceId(recent.deviceId).then(result => {
-                this.updateDownloadHistory(result, recent);
-            });
-        },
-
-        updateDownloadHistory(result, recent) {
-            if (result.length > 0) {
-                const downloadRecord = result[0];
-                if (downloadRecord.uploaded) {
-                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} ` + _L("totalDownAndUploaded");
-                    recent.lastDownloadTime = _L("lastDownUpload") + ": " + this.getFormattedDateTime(downloadRecord.uploaded);
-                    recent.totalUploads = "";
-                    recent.lastUploadTime = "";
-                } else {
-                    recent.totalDownloads = `${downloadRecord.lastBlock - 1} ` + _L("totalDownloaded");
-                    recent.lastDownloadTime = _L("lastDownload") + ": " + this.getFormattedDateTime(downloadRecord.timestamp);
-
-                    dbInterface.getMostRecentUploadByDeviceId(recent.deviceId).then(uploadResult => {
-                        this.updateUploadHistory(uploadResult, recent);
-                    });
-                }
-            }
-        },
-
-        updateUploadHistory(uploadResult, recent) {
-            if (uploadResult.length > 0) {
-                const uploadRecord = uploadResult[0];
-                recent.totalUploads = `${uploadRecord.lastBlock - 1} ` + _L("totalUploaded");
-                recent.lastUploadTime = _L("lastUpload") + ": " + this.getFormattedDateTime(uploadRecord.uploaded);
-            }
-        },
-
-        manageRecentSyncs(status) {
-            // manage downloads
-            status.station.stations.forEach(s => {
-                const station = s;
-                let recent = this.recentSyncs.find(r => {
-                    return r.deviceId == station.station.deviceId;
-                });
-                if (recent) {
-                    this.updateRecent(recent, station, status);
-                } else {
-                    recent = this.createRecent(station);
-                }
-                this.updateHistory(recent);
-            });
-
-            // manage uploads
-            status.portal.forEach(u => {
-                let recent = this.recentSyncs.find(r => {
-                    return r.deviceId == u.deviceId;
-                });
-                if (!recent) {
-                    recent = this.createRecent(u);
-                }
-                this.handleDeviceUpload(recent, u);
-                this.updateHistory(recent);
-            });
-
-            this.sortSyncs();
-        },
-
-        updateRecent(recent, station, status) {
-            recent.readings = station.pending.records;
-            recent.downloadReadingsLabel = recent.readings + " " + _L("readings");
-            // need higher limit than 0, or get stuck in loop
-            recent.canDownload = station.station.connected && recent.readings > 3;
-
-            if (Config.syncMode == "manual") {
-                // in manual mode
-                if (!recent.canDownload) {
-                    delete this.downloading[recent.deviceId];
-                    const inProgress = Object.keys(this.downloading);
-                    if (inProgress.length == 0) {
-                        clearInterval(this.downloadIntervalTimer);
-                        this.downloadIntervalTimer = null;
-                    }
-                }
-            } else {
-                // automatically download data if not already in progress
-                if (recent.canDownload && !this.downloading[recent.deviceId]) {
-                    this.downloadData(recent.deviceId);
-                } else {
-                    if (!recent.readings || recent.readings < 3) {
-                        delete this.downloading[recent.deviceId];
-                        const inProgress = Object.keys(this.downloading);
-                        if (inProgress.length == 0) {
-                            clearInterval(this.downloadIntervalTimer);
-                            this.downloadIntervalTimer = null;
-                        }
-                    }
-                }
-            }
-        },
-
-        createRecent(station) {
-            let newSync = {
-                readings: 0,
-                downloadReadingsLabel: "",
-                canDownload: false,
-                totalDownloads: "",
-                totalUploads: "",
-                lastDownloadTime: "",
-                lastUploadTime: "",
-                uploadProgressLabel: _L("waitingToUpload"),
-                uploadState: "waiting",
-                connected: false,
-            };
-            if (station.station) {
-                newSync.name = station.station.name;
-                newSync.deviceId = station.station.deviceId;
-                newSync.readings = station.pending.records;
-                newSync.downloadReadingsLabel = station.pending.records + " " + _L("readings");
-                newSync.canDownload = station.pending.records > 0;
-                newSync.connected = station.station.connected;
-                console.log("connected", newSync.connected);
-            } else {
-                throw new Error("malformed station data");
-                // newSync.name = station.name;
-                // newSync.deviceId = station.deviceId;
-            }
-            this.recentSyncs.push(newSync);
-            if (Config.syncMode != "manual") {
-                // automatically download data
-                if (newSync.canDownload) {
-                    this.downloadData(newSync.deviceId);
-                }
-            }
-            return newSync;
-        },
-
-        sortSyncs() {
-            // sort by alpha first
-            this.recentSyncs = _.sortBy(this.recentSyncs, s => {
-                return s.name.toUpperCase();
-            });
-            // then by connection status
-            this.recentSyncs = _.sortBy(this.recentSyncs, s => {
-                return !s.connected;
-            });
-        },
-
-        handleDeviceUpload(recent, deviceUpload) {
-            if (deviceUpload) {
-                recent.canUpload = true;
-                recent.uploadSize = convertBytesToLabel(deviceUpload.size);
-                recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
-                if (recent.uploadSize == "0 KB") {
-                    recent.canUpload = false;
-                }
-
-                if (Config.syncMode != "manual") {
-                    // automatically start uploading if none in progress
-                    if (!this.uploadInProgress) {
-                        this.uploadData().catch(e => {
-                            // If we're busy we're already uploading, so skip.
-                            if (e.busy === true) {
-                                return;
-                            }
-                            console.log("This is why app reports 'Unable to upload':", e);
-                            recent.uploadProgressLabel = _L("failedCheckConnection");
-                            recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
-                            recent.uploadState = "waiting";
-                            const inProgress = Object.keys(this.uploading);
-                            if (inProgress.length == 0) {
-                                clearInterval(this.uploadIntervalTimer);
-                                this.uploadIntervalTimer = null;
-                            }
-                        });
-                    }
-                }
-            }
-        },
-
-        handleUploadProgress(data) {
-            this.recentSyncs.forEach(s => {
-                if (data[s.deviceId]) {
-                    let recent = s;
-                    let uploadInfo = data[s.deviceId];
-                    recent.canUpload = true;
-                    if (recent.uploadSize == "0 KB") {
-                        recent.canUpload = false;
-                    }
-                    if (uploadInfo.progress == 100) {
-                        delete this.uploading[recent.deviceId];
-                        recent.uploadStatus = _L("uploadSuccessful");
-                        recent.uploadProgressLabel = recent.uploadSize + " " + _L("uploaded");
-                        recent.uploadState = "success";
-                    } else {
-                        this.$set(this.uploading, recent.deviceId, true);
-                        recent.uploadProgressLabel = _L("uploading");
-                        recent.uploadState = "uploading";
-                    }
-                    const inProgress = Object.keys(this.uploading);
-                    if (inProgress.length == 0) {
-                        this.uploadInProgress = false;
-                        clearInterval(this.uploadIntervalTimer);
-                        this.uploadIntervalTimer = null;
-                    }
-                }
-            });
-        },
-
-        onDownloadTap(event) {
-            if (Config.syncMode != "manual") {
-                return;
-            }
-            const deviceId = event.object.dataDeviceId;
-            this.downloadData(deviceId);
-        },
-
-        downloadData(deviceId) {
-            this.$set(this.downloading, deviceId, true);
-            if (!this.downloadIntervalTimer) {
-                this.downloadIntervalTimer = setInterval(this.rotateDownloadingIcon, 500);
-            }
-            return Services.StateManager()
-                .synchronizeStation(deviceId)
-                .catch(error => {
-                    if (error.busy === true) {
-                        console.log("busy, ignored");
-                    } else {
-                        console.log("ERROR SYNC STATION", JSON.stringify(error));
-                        console.log("ERROR SYNC STATION", error.message, error);
-                        console.error("ERROR SYNC STATION", error.message, error);
-                    }
-                });
-        },
-
-        onUploadTap(event) {
-            if (Config.syncMode != "manual") {
-                return;
-            }
-            const deviceId = event.object.dataDeviceId;
-            let recent = this.recentSyncs.find(r => {
-                return r.deviceId == deviceId;
-            });
-
-            if (!this.uploadInProgress) {
-                this.uploadData().catch(e => {
-                    // not parsing error message for now,
-                    // unsure about iOS side, seems to be breaking
-                    // if (
-                    //     e.toString().indexOf("Unable to resolve host") > -1
-                    // ) {
-                    //     recent.uploadProgressLabel =
-                    //         "Unable to upload. Are you connected to the internet?";
-                    // }
-                    recent.uploadProgressLabel = _L("failedCheckConnection");
-                    recent.uploadStatus = recent.uploadSize + " " + _L("toUpload");
-                    recent.uploadState = "waiting";
-                    const inProgress = Object.keys(this.uploading);
-                    if (inProgress.length == 0) {
-                        clearInterval(this.uploadIntervalTimer);
-                        this.uploadIntervalTimer = null;
-                    }
-                });
-            }
-        },
-
-        uploadData() {
-            if (!this.uploadIntervalTimer) {
-                this.uploadIntervalTimer = setInterval(this.rotateUploadingIcon, 500);
-            }
-
-            return Services.StateManager()
-                .synchronizePortal()
-                .catch(error => {
-                    if (error.busy === true) {
-                        console.log("busy, ignored");
-                    } else {
-                        console.error("ERROR SYNC PORTAL", error);
-                        if (error.notLoggedIn && !this.askedOnce) {
-                            this.askedOnce = true;
-                            return confirm({
-                                title: "FieldKit",
-                                message: _L("loginPrompt"),
-                                okButtonText: _L("yes"),
-                                cancelButtonText: _L("notNow"),
-                            }).then(res => {
-                                if (res) {
-                                    this.$navigateTo(routes.login, {});
-                                }
-                            });
-                        }
-                        throw new Error(error);
-                    }
-                });
-        },
-
-        getFormattedDateTime(date) {
-            if (date && typeof date == "string") {
-                date = new Date(date);
-            }
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-            const year = date.getFullYear();
-            const origHour = date.getHours();
-            const suffix = origHour < 12 ? " AM" : " PM";
-            let hour = origHour % 12 == 0 ? 12 : origHour % 12;
-            hour = hour < 10 ? "0" + hour : hour;
-            let origMinutes = date.getMinutes();
-            const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
-            return month + "/" + day + "/" + year + " " + hour + ":" + minutes + suffix;
-        },
-
-        clearIntervals() {
-            if (this.downloadIntervalTimer) {
-                clearInterval(this.downloadIntervalTimer);
-                this.downloadIntervalTimer = null;
-            }
-            if (this.uploadIntervalTimer) {
-                clearInterval(this.uploadIntervalTimer);
-                this.uploadIntervalTimer = null;
-            }
-        },
-
-        rotateDownloadingIcon() {
-            this.downloadingIcon =
-                this.downloadingIcon == "~/images/Icon_Syncing_blue.png"
-                    ? "~/images/Icon_Syncing2_blue.png"
-                    : "~/images/Icon_Syncing_blue.png";
-        },
-
-        rotateUploadingIcon() {
-            this.uploadingIcon =
-                this.uploadingIcon == "~/images/Icon_Syncing_blue.png"
-                    ? "~/images/Icon_Syncing2_blue.png"
-                    : "~/images/Icon_Syncing_blue.png";
+        onPageLoaded(args) {},
+        onPageUnloaded(args) {},
+        onToggle(deviceId) {
+            this.opened[deviceId] = !this.opened[deviceId];
         },
     },
 };
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "../app-variables";
-// End custom common variables
-// Custom styles
 
 .station-container {
-    margin: 20;
+    margin: 15;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+    border-radius: 4;
+    padding: 10;
+}
+.transfer-container {
+    margin-top: 10;
+    padding-top: 15;
+    padding-bottom: 10;
+    border-top-color: $fk-gray-lighter;
+    border-top-width: 1;
+}
+.transfer-details {
 }
 .station-name {
-    background-color: $fk-primary-blue;
-    clip-path: polygon(0 0, 92% 0%, 98% 100%, 0% 100%);
-    border-radius: 2;
-    color: white;
-    padding: 10 20;
     font-size: 18;
 }
-.bottom-border {
-    margin-left: 15%;
-    margin-right: 2%;
-    margin-top: 10;
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 1;
-}
-.status {
-    font-size: 18;
-    color: $fk-primary-black;
-}
-.lighter {
-    font-size: 14;
+.station-location {
+    font-size: 16;
     color: $fk-gray-text;
 }
-.history-label {
-    font-weight: bold;
-    margin-top: 10;
+.station-connection {
+    vertical-align: middle;
+}
+.station-connection .connected-label {
+    vertical-align: middle;
+    padding-left: 10;
+}
+.station-connected {
+}
+.station-disconnected {
+}
+.container-icon {
+    vertical-align: middle;
 }
 </style>

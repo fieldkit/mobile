@@ -37,6 +37,7 @@ export class FileDownload {
         public readonly firstBlock: number,
         public readonly lastBlock: number,
         public readonly bytes: number,
+        public readonly lastDownloadedBlock: number | null = null,
         public readonly progress: TransferProgress | null = null
     ) {}
 
@@ -58,12 +59,20 @@ export class StationSyncStatus {
         public readonly files: FileDownload[]
     ) {}
 
-    get readings(): number {
-        return 0;
+    get data(): FileDownload[] {
+        return this.files.filter(file => file.fileType == FileType.Data);
     }
 
-    get bytes(): number {
-        return 0;
+    readingsReady(): number {
+        return _.sum(this.data.map(f => f.blocks)) || 0;
+    }
+
+    readingsCopying(): number {
+        return _.sum(this.data.map(f => f.blocks)) || 0;
+    }
+
+    readingsHave(): number {
+        return _.max(this.data.map(f => f.lastDownloadedBlock)) || 0;
     }
 
     makeRowsFromPending(): DownloadTableRow[] {
@@ -98,9 +107,6 @@ const actions = {
     ) => {
         return Promise.all(syncs.map(dl => dispatch(DOWNLOAD_COMPLETED, dl)));
     },
-    [CALCULATE_SIZE]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState }, file: FileDownload) => {
-        // calculate size
-    },
     [DOWNLOAD_COMPLETED]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: SyncingState }, sync: StationSyncStatus) => {
         return Promise.all(sync.makeRowsFromPending().map(row => state.services.db().insertDownload(row))).then(() =>
             state.services
@@ -129,7 +135,16 @@ const getters = {
                     const path = [station.deviceId, getPathTimestamp(state.clock), typeName + ".fkpb"].join("/");
                     const url = "/fk/v1/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
                     const progress: number | null = null;
-                    return new FileDownload(stream.fileType(), url, path, firstBlock, lastBlock, estimatedBytes, progress);
+                    return new FileDownload(
+                        stream.fileType(),
+                        url,
+                        path,
+                        firstBlock,
+                        lastBlock,
+                        estimatedBytes,
+                        stream.downloadLastBlock,
+                        progress
+                    );
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
