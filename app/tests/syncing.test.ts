@@ -9,7 +9,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
 import { FileTypeUtils, FileType } from "../store/types";
-import { StationSyncStatus, FileDownload, FileUpload, LocalFile } from "../store/modules/syncing";
+import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile } from "../store/modules/syncing";
 
 describe("Syncing", () => {
     let services;
@@ -68,8 +68,15 @@ describe("Syncing", () => {
                     0,
                     0,
                     [
-                        new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
-                        new FileDownload(
+                        new PendingDownload(
+                            FileType.Meta,
+                            "/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -99,8 +106,10 @@ describe("Syncing", () => {
                     0,
                     [],
                     [
-                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
-                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                        new PendingUpload(FileType.Meta, 0, 1, 126, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126),
+                        ]),
+                        new PendingUpload(FileType.Data, 0, 100, 68900, [
                             new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
                         ]),
                     ]
@@ -131,8 +140,15 @@ describe("Syncing", () => {
                     0,
                     0,
                     [
-                        new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
-                        new FileDownload(
+                        new PendingDownload(
+                            FileType.Meta,
+                            "/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -164,8 +180,15 @@ describe("Syncing", () => {
                     0,
                     0,
                     [
-                        new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
-                        new FileDownload(
+                        new PendingDownload(
+                            FileType.Meta,
+                            "/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -202,8 +225,15 @@ describe("Syncing", () => {
                     0,
                     0,
                     [
-                        new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
-                        new FileDownload(
+                        new PendingDownload(
+                            FileType.Meta,
+                            "/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -233,8 +263,10 @@ describe("Syncing", () => {
                     0,
                     [],
                     [
-                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
-                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                        new PendingUpload(FileType.Meta, 0, 1, 126, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126),
+                        ]),
+                        new PendingUpload(FileType.Data, 0, 100, 68900, [
                             new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
                         ]),
                     ]
@@ -265,8 +297,15 @@ describe("Syncing", () => {
                     0,
                     0,
                     [
-                        new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
-                        new FileDownload(
+                        new PendingDownload(
+                            FileType.Meta,
+                            "/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -296,8 +335,10 @@ describe("Syncing", () => {
                     0,
                     [],
                     [
-                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
-                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                        new PendingUpload(FileType.Meta, 0, 1, 126, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126),
+                        ]),
+                        new PendingUpload(FileType.Data, 0, 100, 68900, [
                             new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
                         ]),
                     ]
@@ -324,7 +365,7 @@ describe("Syncing", () => {
                     100,
                     0,
                     [
-                        new FileDownload(
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data?first=100",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -334,10 +375,10 @@ describe("Syncing", () => {
                         ),
                     ],
                     [
-                        new FileUpload(FileType.Meta, 0, 1, 126, [
+                        new PendingUpload(FileType.Meta, 0, 1, 126, [
                             new LocalFile(makePath(saved.deviceId, downloadTime, FileType.Meta), 126),
                         ]),
-                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                        new PendingUpload(FileType.Data, 0, 100, 68900, [
                             new LocalFile(makePath(saved.deviceId, downloadTime, FileType.Data), 68900),
                         ]),
                     ]
@@ -368,8 +409,15 @@ describe("Syncing", () => {
                     0,
                     0,
                     [
-                        new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
-                        new FileDownload(
+                        new PendingDownload(
+                            FileType.Meta,
+                            "/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -399,8 +447,10 @@ describe("Syncing", () => {
                     0,
                     [],
                     [
-                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
-                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                        new PendingUpload(FileType.Meta, 0, 1, 126, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126),
+                        ]),
+                        new PendingUpload(FileType.Data, 0, 100, 68900, [
                             new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
                         ]),
                     ]
@@ -427,7 +477,7 @@ describe("Syncing", () => {
                     100,
                     0,
                     [
-                        new FileDownload(
+                        new PendingDownload(
                             FileType.Meta,
                             "/download/meta?first=1",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
@@ -435,7 +485,7 @@ describe("Syncing", () => {
                             5,
                             504
                         ),
-                        new FileDownload(
+                        new PendingDownload(
                             FileType.Data,
                             "/download/data?first=100",
                             makePath(saved.deviceId, new Date(), FileType.Data),
@@ -445,10 +495,10 @@ describe("Syncing", () => {
                         ),
                     ],
                     [
-                        new FileUpload(FileType.Meta, 0, 1, 126, [
+                        new PendingUpload(FileType.Meta, 0, 1, 126, [
                             new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Meta), 126),
                         ]),
-                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                        new PendingUpload(FileType.Data, 0, 100, 68900, [
                             new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Data), 68900),
                         ]),
                     ]
@@ -472,11 +522,11 @@ describe("Syncing", () => {
                     0,
                     [],
                     [
-                        new FileUpload(FileType.Meta, 0, 5, 630, [
+                        new PendingUpload(FileType.Meta, 0, 5, 630, [
                             new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Meta), 126),
                             new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 504),
                         ]),
-                        new FileUpload(FileType.Data, 0, 200, 2 * 68900, [
+                        new PendingUpload(FileType.Data, 0, 200, 2 * 68900, [
                             new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Data), 68900),
                             new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
                         ]),

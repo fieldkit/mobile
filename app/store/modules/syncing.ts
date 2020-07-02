@@ -31,7 +31,7 @@ export class LocalFile {
     constructor(public readonly path: string, public readonly size: number) {}
 }
 
-export class FileUpload {
+export class PendingUpload {
     constructor(
         public readonly fileType: FileType,
         public readonly firstBlock: number,
@@ -46,7 +46,7 @@ export class FileUpload {
     }
 }
 
-export class FileDownload {
+export class PendingDownload {
     constructor(
         public readonly fileType: FileType,
         public readonly url: string,
@@ -77,11 +77,11 @@ export class StationSyncStatus {
         public readonly time: Date,
         private readonly downloaded: number,
         private readonly uploaded: number,
-        public readonly downloads: FileDownload[] = [],
-        public readonly uploads: FileUpload[] = []
+        public readonly downloads: PendingDownload[] = [],
+        public readonly uploads: PendingUpload[] = []
     ) {}
 
-    private get data(): FileDownload[] {
+    private get data(): PendingDownload[] {
         return this.downloads.filter(file => file.fileType == FileType.Data);
     }
 
@@ -114,8 +114,12 @@ export class StationSyncStatus {
         return false;
     }
 
-    showCopying(): boolean {
-        return false;
+    showDownloading(): boolean {
+        return this.downloads.filter(f => f.progress).length > 0;
+    }
+
+    showUploading(): boolean {
+        return this.uploads.filter(f => f.progress).length > 0;
     }
 
     showHave(): boolean {
@@ -130,7 +134,7 @@ export class StationSyncStatus {
             .value();
     }
 
-    makeRow(file: FileDownload, headers: HttpHeaders): DownloadTableRow {
+    makeRow(file: PendingDownload, headers: HttpHeaders): DownloadTableRow {
         delete headers["connection"];
         const { range, firstBlock, lastBlock } = parseBlocks(headers["fk-blocks"]);
 
@@ -234,7 +238,7 @@ const getters = {
                     const folder = state.services.fs().getFolder(path);
                     const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
                     const progress = state.progress[file.path];
-                    return new FileDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes, progress);
+                    return new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes, progress);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
@@ -251,7 +255,7 @@ const getters = {
                         .filter(d => d.fileType == stream.fileType())
                         .filter(d => !d.uploaded)
                         .map(d => new LocalFile(d.path, d.size));
-                    return new FileUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files, null);
+                    return new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files, null);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
