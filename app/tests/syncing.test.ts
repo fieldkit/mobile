@@ -634,5 +634,77 @@ describe("Syncing", () => {
                 ),
             ]);
         });
+
+        it("downloading and getting more readings than was asked for", async () => {
+            expect.assertions(2);
+
+            const fake = mockStation.newFakeStation();
+
+            const streams1 = mockStation.newStreams(1, 100);
+            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+
+            const saved = store.state.stations.all[0];
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    0,
+                    0,
+                    [
+                        new PendingDownload(
+                            FileType.Meta,
+                            "/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
+                            FileType.Data,
+                            "/download/data",
+                            makePath(saved.deviceId, new Date(), FileType.Data),
+                            0,
+                            100,
+                            68900
+                        ),
+                    ],
+                    []
+                ),
+            ]);
+
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,110" });
+            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    110,
+                    0,
+                    [],
+                    [
+                        new PendingUpload(FileType.Meta, 0, 1, 126, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126),
+                        ]),
+                        new PendingUpload(FileType.Data, 0, 110, 68900, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
+                        ]),
+                    ]
+                ),
+            ]);
+        });
     });
 });

@@ -752,11 +752,19 @@ export default class DatabaseInterface {
                     ]
                 )
                 .then(() => {
-                    const values = [download.size, download.firstBlock, download.lastBlock, download.stationId, download.type];
+                    const values = [
+                        download.size,
+                        download.firstBlock,
+                        download.lastBlock,
+                        download.lastBlock,
+                        download.stationId,
+                        download.type,
+                    ];
                     return db.execute(
                         `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
 							                download_first_block = MIN(COALESCE(download_first_block, 0xffffffff), ?),
-							                download_last_block = MAX(COALESCE(download_last_block, 0), ?)
+							                download_last_block = MAX(COALESCE(download_last_block, 0), ?),
+							                device_last_block = MAX(COALESCE(device_last_block, 0), ?)
 						 WHERE station_id = ? AND type = ?`,
                         values
                     );
