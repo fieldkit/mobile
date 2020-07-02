@@ -666,10 +666,6 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("DELETE FROM fieldmedia WHERE id = ?", [mediaId]));
     }
 
-    insertDownload(download) {
-        return this.insertDownloads([download]);
-    }
-
     getAllFirmware() {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM firmware ORDER BY time DESC"))
@@ -735,37 +731,37 @@ export default class DatabaseInterface {
             });
     }
 
-    insertDownloads(downloads) {
+    insertDownload(download) {
         return this.getDatabase().then(db => {
-            return Promise.all(
-                downloads.map(download => {
-                    return db
-                        .execute(
-                            `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                            [
-                                download.stationId,
-                                download.deviceId,
-                                download.generation,
-                                download.path,
-                                download.type,
-                                download.timestamp,
-                                download.url,
-                                download.size,
-                                download.blocks,
-                                download.firstBlock,
-                                download.lastBlock,
-                            ]
-                        )
-                        .then(() => {
-                            const values = [download.size, download.firstBlock, download.lastBlock, download.stationId, download.type];
-                            return db.execute(
-                                `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?, download_first_block = ?, download_last_block = ? WHERE station_id = ? AND type = ?`,
-                                values
-                            );
-                        })
-                        .catch(err => Promise.reject(new Error(`error inserting download: ${err}`)));
+            return db
+                .execute(
+                    `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
+					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [
+                        download.stationId,
+                        download.deviceId,
+                        download.generation,
+                        download.path,
+                        download.type,
+                        download.timestamp,
+                        download.url,
+                        download.size,
+                        download.blocks,
+                        download.firstBlock,
+                        download.lastBlock,
+                    ]
+                )
+                .then(() => {
+                    const values = [download.size, download.firstBlock, download.lastBlock, download.stationId, download.type];
+                    return db.execute(
+                        `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
+							                download_first_block = MIN(COALESCE(download_first_block, 0xffffffff), ?),
+							                download_last_block = MAX(COALESCE(download_last_block, 0), ?)
+						 WHERE station_id = ? AND type = ?`,
+                        values
+                    );
                 })
-            );
+                .catch(err => Promise.reject(new Error(`error inserting download: ${err}`)));
         });
     }
 
@@ -785,9 +781,9 @@ export default class DatabaseInterface {
                 ];
                 return db.execute(
                     `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
-							                portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
-							                portal_last_block = MAX(COALESCE(portal_last_block, 0), ?)
-						 WHERE station_id = ? AND type = ?`,
+							            portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
+							            portal_last_block = MAX(COALESCE(portal_last_block, 0), ?)
+					 WHERE station_id = ? AND type = ?`,
                     values
                 );
             });
