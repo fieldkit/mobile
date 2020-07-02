@@ -110,6 +110,7 @@
 
 <script>
 import _ from "lodash";
+import Vue from "../wrappers/vue";
 import * as ActionTypes from "../store/actions";
 import moment from "moment";
 import Services from "../services/services";
@@ -143,7 +144,7 @@ export default {
         onPageLoaded(args) {},
         onPageUnloaded(args) {},
         onToggle(sync) {
-            this.closed[sync.deviceId] = this.opened(sync);
+            Vue.set(this.closed, sync.deviceId, this.opened(sync));
             console.log("toggle", sync.name, this.closed[sync.deviceId]);
         },
         onDownload(sync) {

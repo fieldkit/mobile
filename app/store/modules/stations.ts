@@ -1,4 +1,5 @@
 import _ from "lodash";
+import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { StationCreationFields, Station, AvailableStation, Module, Sensor, LegacyStation, Stream, Download } from "../types";
@@ -285,14 +286,14 @@ const actions = {
 
 const mutations = {
     [MutationTypes.SERVICES]: (state: StationsState, services: () => Services) => {
-        state.services = new ServiceRef(services);
+        Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {
-        state.all = _.cloneDeep(stations);
-        state.error = false;
+        Vue.set(state, "all", stations);
+        Vue.set(state, "error", false);
     },
     [MutationTypes.ERROR]: (state: StationsState, error: string) => {
-        state.error = error;
+        Vue.set(state, "error", error);
     },
 };
 
