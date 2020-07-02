@@ -8,6 +8,8 @@ export default class PortalInterface {
     constructor(services) {
         this._services = services;
         this._dbInterface = services.Database();
+        this._fs = services.FileSystem();
+        this._conservify = services.Conservify();
 
         this._handleTokenResponse = this._handleTokenResponse.bind(this);
         this._handleStandardResponse = this._handleStandardResponse.bind(this);
@@ -17,7 +19,7 @@ export default class PortalInterface {
     }
 
     getUri() {
-        return this._dbInterface.getConfig().then((config) => {
+        return this._dbInterface.getConfig().then(config => {
             if (config.length == 0) {
                 console.log("PortalInterface did not get config from db. Using config.js", Config.baseUri);
                 return Config.baseUri;
@@ -33,7 +35,7 @@ export default class PortalInterface {
             authenticated: true,
             method: "GET",
             url: "/user",
-        }).then((data) => {
+        }).then(data => {
             this._currentUser.name = data.name;
             this._currentUser.portalId = data.id;
             return data;
@@ -41,10 +43,10 @@ export default class PortalInterface {
     }
 
     isAvailable() {
-        return this.getUri().then((baseUri) =>
+        return this.getUri().then(baseUri =>
             axios({ url: baseUri + "/status" })
-                .then((r) => true)
-                .catch((e) => false)
+                .then(r => true)
+                .catch(e => false)
         );
     }
 
@@ -61,7 +63,7 @@ export default class PortalInterface {
     }
 
     login(user) {
-        return this.getUri().then((baseUri) =>
+        return this.getUri().then(baseUri =>
             axios({
                 method: "POST",
                 url: baseUri + "/login",
@@ -156,7 +158,7 @@ export default class PortalInterface {
         if (!this.isLoggedIn()) {
             return Promise.reject(new AuthenticationError("unauthenticated"));
         }
-        return this.isAvailable().then((yes) => {
+        return this.isAvailable().then(yes => {
             if (!yes) {
                 return Promise.reject(new AuthenticationError("unauthenticated"));
             }
@@ -168,7 +170,7 @@ export default class PortalInterface {
         const headers = {
             Authorization: this._appSettings.getString("accessToken"),
         };
-        return this.getUri().then((baseUri) =>
+        return this.getUri().then(baseUri =>
             this._services
                 .Conservify()
                 .download({
@@ -177,7 +179,7 @@ export default class PortalInterface {
                     headers: { ...headers },
                     progress: progress,
                 })
-                .then((e) => {
+                .then(e => {
                     // Our library uses statusCode, axios uses status
                     if (e.statusCode != 200) {
                         return this._services
@@ -211,7 +213,7 @@ export default class PortalInterface {
                     // Do nothing.
                 },
             })
-            .then((e) => {
+            .then(e => {
                 // Our library uses statusCode, axios uses status
                 return {
                     data: e.body,
@@ -268,13 +270,13 @@ export default class PortalInterface {
 
     _query(req) {
         console.log("portal query", req.method || "GET", req.url);
-        return this._getHeaders(req).then((headers) => {
-            return this.getUri().then((baseUri) => {
+        return this._getHeaders(req).then(headers => {
+            return this.getUri().then(baseUri => {
                 req.headers = headers;
                 req.url = baseUri + req.url;
                 return axios(req)
-                    .then((response) => response.data)
-                    .catch((error) => {
+                    .then(response => response.data)
+                    .catch(error => {
                         if (error.response.status === 401) {
                             return this._tryRefreshToken(req);
                         }
@@ -296,7 +298,7 @@ export default class PortalInterface {
 
         if (original.refreshed === true) {
             console.log("refresh failed, clear token");
-            return this.logout().then((_) => {
+            return this.logout().then(_ => {
                 return Promise.reject(new AuthenticationError("refresh token failed"));
             });
         }
@@ -307,20 +309,20 @@ export default class PortalInterface {
 
         console.log("refreshing token", requestBody);
 
-        return this.getUri().then((baseUri) =>
+        return this.getUri().then(baseUri =>
             axios({
                 method: "POST",
                 url: baseUri + "/refresh",
                 data: requestBody,
             })
-                .then((response) => {
+                .then(response => {
                     return this._handleTokenResponse(response).then(() => {
                         return this._query(_.extend({ refreshed: true }, original));
                     });
                 })
-                .catch((error) => {
+                .catch(error => {
                     console.log("refresh failed", error);
-                    return this.logout().then((_) => {
+                    return this.logout().then(_ => {
                         return Promise.reject(error);
                     });
                 })
@@ -340,5 +342,50 @@ export default class PortalInterface {
 
     _handleError(error) {
         throw error;
+    }
+
+    uploadPreviouslyDownloaded(deviceName, download, progress) {
+        const headers = {
+            "Fk-Blocks": download.blocks,
+            "Fk-Generation": download.generation,
+            "Fk-Type": download.type,
+        };
+
+        console.log("uploading", download.path, headers);
+
+        const local = this._fs.getFile(download.path);
+        if (!local.exists || local.size == 0) {
+            console.log("skipping", local.exists, local.size);
+            return Promise.resolve();
+        }
+
+        console.log("local", local.exists, local.size);
+
+        const defaultHeaders = {
+            "Content-Type": "application/octet-stream",
+            Authorization: this.getCurrentToken(),
+            "Fk-DeviceId": download.deviceId,
+            "Fk-DeviceName": deviceName,
+        };
+
+        delete headers["connection"];
+        delete headers["content-length"];
+
+        return this.getUri().then(url =>
+            this._conservify
+                .upload({
+                    method: "POST",
+                    url: url,
+                    path: database.path,
+                    headers: { ...headers, ...defaultHeaders },
+                    progress: progress,
+                })
+                .then(response => {
+                    if (response.statusCode != 200) {
+                        return Promise.reject(response);
+                    }
+                    return response;
+                })
+        );
     }
 }

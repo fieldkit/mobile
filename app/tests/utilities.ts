@@ -15,9 +15,11 @@ export class MockStationReplies {
     services: any;
     now: number;
     call: any;
-    download: any;
     mock: any;
+    download: any;
     downloadMock: any;
+    upload: any;
+    uploadMock: any;
 
     constructor(services) {
         this.services = services;
@@ -36,6 +38,24 @@ export class MockStationReplies {
         });
         this.downloadMock = this.download.mock;
         services.Conservify().download = this.download;
+
+        this.upload = jest.fn(() => {
+            console.log("TESTS: no more mocked uploads");
+            return Promise.reject(new Error("TESTS: no more mocked uploads"));
+        });
+        this.uploadMock = this.upload.mock;
+        services.PortalInterface().uploadPreviouslyDownloaded = this.upload;
+    }
+
+    queueUpload(status, headers) {
+        const response = {
+            statusCode: status,
+            headers: headers,
+        };
+
+        this.upload.mockReturnValueOnce(Promise.resolve(response));
+
+        return this;
     }
 
     queueDownload(status, headers) {
