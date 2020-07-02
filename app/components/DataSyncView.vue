@@ -26,42 +26,30 @@
                                     </template>
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onToggle(sync)"></Image>
+                                    <Image width="25" src="~/images/Icon_Cheveron_Up.png" @tap="onToggle(sync)" v-show="opened(sync)"></Image>
+                                    <Image width="25" src="~/images/Icon_Cheveron_Down.png" @tap="onToggle(sync)" v-show="!opened(sync)"></Image>
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout
-                                rows="auto"
-                                columns="70*, 30*"
-                                class="transfer-container"
-                                v-if="opened(sync) && sync.isDownloadReady"
-                            >
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isDownloadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
                                     <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
-                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onDownload(sync)"></Image>
+                                    <Image width="20" src="~/images/Icon_Download.png" @tap="onDownload(sync)"></Image>
                                 </StackLayout>
                             </GridLayout>
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isDownloaded">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label
-                                        :text="sync.readingsDownloaded + ' Readings'"
-                                        class="readings-label"
-                                        v-if="sync.readingsDownloaded > 1"
-                                    />
-                                    <Label
-                                        :text="sync.readingsDownloaded + ' Reading'"
-                                        class="readings-label"
-                                        v-if="sync.readingsDownloaded == 1"
-                                    />
+                                    <Label :text="sync.readingsDownloaded + ' Readings'" class="readings-label" v-if="sync.readingsDownloaded > 1" />
+                                    <Label :text="sync.readingsDownloaded + ' Reading'" class="readings-label" v-if="sync.readingsDownloaded == 1" />
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
-                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                    <Image width="20" src="~/images/Icon_Save.png"></Image>
                                 </StackLayout>
                             </GridLayout>
 
@@ -74,7 +62,7 @@
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" orientation="horizontal">
                                     <Label :text="sync.progress.percentage" class="transfer-progress" v-if="sync.progress" />
-                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                    <Image width="20" src="~/images/Icon_Syncing.png"></Image>
                                 </StackLayout>
                             </GridLayout>
 
@@ -85,26 +73,18 @@
                                     <Label text="Ready to upload" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Connected.png" @tap="onUpload(sync)"></Image>
+                                    <Image width="20" src="~/images/Icon_Download.png" @tap="onUpload(sync)"></Image>
                                 </StackLayout>
                             </GridLayout>
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isComplete">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
-                                    <Label
-                                        :text="sync.readingsUploaded + ' Readings'"
-                                        class="readings-label"
-                                        v-if="sync.readingsUploaded > 1"
-                                    />
-                                    <Label
-                                        :text="sync.readingsUploaded + ' Reading'"
-                                        class="readings-label"
-                                        v-if="sync.readingsUploaded == 1"
-                                    />
+                                    <Label :text="sync.readingsUploaded + ' Readings'" class="readings-label" v-if="sync.readingsUploaded > 1" />
+                                    <Label :text="sync.readingsUploaded + ' Reading'" class="readings-label" v-if="sync.readingsUploaded == 1" />
                                     <Label text="Synced" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                    <Image width="20" src="~/images/Icon_Success.png"></Image>
                                 </StackLayout>
                             </GridLayout>
                         </StackLayout>
