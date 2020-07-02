@@ -1,3 +1,5 @@
+export const INITIALIZE = "INITIALIZE";
+
 export const LOAD = "LOAD";
 export const SAVE = "SAVE";
 export const UPDATE = "SAVE";

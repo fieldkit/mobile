@@ -294,9 +294,9 @@ export default {
         login() {
             return Services.PortalSession()
                 .login(this.user)
-                .then(() => {
+                .then(token => {
                     this.processing = false;
-                    return this.$store.dispatch(ActionTypes.AUTHENTICATED).then(() => {
+                    return this.$store.dispatch(ActionTypes.AUTHENTICATED, token).then(() => {
                         return this.$navigateTo(routes.assembleStation, {
                             clearHistory: true,
                         });

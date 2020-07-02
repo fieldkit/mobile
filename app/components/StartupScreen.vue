@@ -56,19 +56,24 @@ function initializeApplication(services): Promise<any> {
                     .then(() => {
                         // This uses a function so that the services object doesn't get spammed into the logs.
                         Services.Store().commit(MutationTypes.SERVICES, () => Services);
-                        return Services.Store()
-                            .dispatch(ActionTypes.LOAD)
-                            .then(() => {
-                                // Enable geolocation and start refreshing our location.
-                                Services.PhoneLocation().enableAndGetLocation();
 
-                                return Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]);
-                            })
+                        return Services.Store()
+                            .dispatch(ActionTypes.INITIALIZE)
                             .then(() => {
-                                return services.DiscoverStation().startServiceDiscovery();
-                            })
-                            .then(() => {
-                                return updateStore(Services.Store());
+                                return Services.Store()
+                                    .dispatch(ActionTypes.LOAD)
+                                    .then(() => {
+                                        // Enable geolocation and start refreshing our location.
+                                        Services.PhoneLocation().enableAndGetLocation();
+
+                                        return Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]);
+                                    })
+                                    .then(() => {
+                                        return services.DiscoverStation().startServiceDiscovery();
+                                    })
+                                    .then(() => {
+                                        return updateStore(Services.Store());
+                                    });
                             });
                     })
                     .catch(err => {

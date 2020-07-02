@@ -16,3 +16,6 @@ export const NAVIGATION = "NAVIGATION";
 
 export const TICK = "TICK";
 export const TRANSFER_PROGRESS = "TRANSFER_PROGRESS";
+
+export const LOGIN = "LOGIN";
+export const LOGOUT = "LOGOUT";
