@@ -103,7 +103,7 @@ describe("Syncing", () => {
         });
 
         it("first sync, fails", async () => {
-            expect.assertions(2);
+            expect.assertions(3);
 
             const fake = mockStation.newFakeStation();
 
@@ -140,7 +140,11 @@ describe("Syncing", () => {
 
             mockStation.queueDownload(500, {});
 
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            try {
+                await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            } catch (error) {
+                expect(error).toBeDefined();
+            }
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(

@@ -155,6 +155,7 @@ const actions = {
                     .then(() => state.services.db().insertDownload(sync.makeRow(file)))
                     .catch(error => {
                         console.log("error downloading", error, error ? error.stack : null);
+                        return Promise.reject(error);
                     });
             }
             return true;
