@@ -66,6 +66,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     0,
+                    0,
                     [
                         new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
                         new FileDownload(
@@ -83,7 +84,6 @@ describe("Syncing", () => {
 
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
@@ -96,6 +96,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     100,
+                    0,
                     [],
                     [
                         new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
@@ -128,6 +129,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     0,
+                    0,
                     [
                         new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
                         new FileDownload(
@@ -144,7 +146,6 @@ describe("Syncing", () => {
             ]);
 
             mockStation.queueDownload(500, {});
-
             try {
                 await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
             } catch (error) {
@@ -160,6 +161,7 @@ describe("Syncing", () => {
                     false,
                     new Date(),
                     new Date(),
+                    0,
                     0,
                     [
                         new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
@@ -198,6 +200,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     0,
+                    0,
                     [
                         new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
                         new FileDownload(
@@ -215,10 +218,7 @@ describe("Syncing", () => {
 
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
-
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -230,6 +230,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     100,
+                    0,
                     [],
                     [
                         new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
@@ -262,6 +263,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     0,
+                    0,
                     [
                         new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
                         new FileDownload(
@@ -279,7 +281,6 @@ describe("Syncing", () => {
 
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
@@ -292,6 +293,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     100,
+                    0,
                     [],
                     [
                         new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
@@ -320,6 +322,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     100,
+                    0,
                     [
                         new FileDownload(
                             FileType.Data,
@@ -363,6 +366,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     0,
+                    0,
                     [
                         new FileDownload(FileType.Meta, "/download/meta", makePath(saved.deviceId, new Date(), FileType.Meta), 0, 1, 126),
                         new FileDownload(
@@ -380,7 +384,6 @@ describe("Syncing", () => {
 
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
@@ -393,6 +396,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     100,
+                    0,
                     [],
                     [
                         new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
@@ -421,6 +425,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     100,
+                    0,
                     [
                         new FileDownload(
                             FileType.Meta,
@@ -452,7 +457,6 @@ describe("Syncing", () => {
 
             mockStation.queueDownload(200, { "fk-blocks": "1,5" });
             mockStation.queueDownload(200, { "fk-blocks": "100,200" });
-
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
@@ -465,6 +469,7 @@ describe("Syncing", () => {
                     new Date(),
                     new Date(),
                     200,
+                    0,
                     [],
                     [
                         new FileUpload(FileType.Meta, 0, 5, 630, [
@@ -480,7 +485,7 @@ describe("Syncing", () => {
             ]);
         });
 
-        it("first sync, after downloading and then uploading", async () => {
+        it("one synchronization cycle", async () => {
             expect.assertions(7);
 
             const fake = mockStation.newFakeStation();
@@ -497,7 +502,6 @@ describe("Syncing", () => {
 
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs.length).toStrictEqual(1);
@@ -506,11 +510,78 @@ describe("Syncing", () => {
 
             mockStation.queueUpload(200, {});
             mockStation.queueUpload(200, {});
-
             await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
 
             expect(store.getters.syncs).toStrictEqual([
-                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), 100, [], []),
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    100,
+                    100,
+                    [],
+                    []
+                ),
+            ]);
+        });
+
+        it("two synchronization cycles", async () => {
+            expect.assertions(7);
+
+            const fake = mockStation.newFakeStation();
+
+            const streams1 = mockStation.newStreams(1, 100);
+            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+
+            const saved = store.state.stations.all[0];
+
+            expect(store.getters.syncs.length).toStrictEqual(1);
+            expect(store.getters.syncs[0].downloads.length).toStrictEqual(2);
+            expect(store.getters.syncs[0].uploads.length).toStrictEqual(0);
+
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,100" });
+            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+
+            expect(store.getters.syncs.length).toStrictEqual(1);
+            expect(store.getters.syncs[0].downloads.length).toStrictEqual(0);
+            expect(store.getters.syncs[0].uploads.length).toStrictEqual(2);
+
+            mockStation.queueUpload(200, {});
+            mockStation.queueUpload(200, {});
+            await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
+
+            const streams2 = mockStation.newStreams(5, 200);
+            const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
+            await store.dispatch(ActionTypes.STATION_REPLY, reply2);
+
+            mockStation.queueDownload(200, { "fk-blocks": "1,5" });
+            mockStation.queueDownload(200, { "fk-blocks": "100,200" });
+            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+
+            mockStation.queueUpload(200, {});
+            mockStation.queueUpload(200, {});
+            await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    false,
+                    new Date(),
+                    new Date(),
+                    200,
+                    200,
+                    [],
+                    []
+                ),
             ]);
         });
     });

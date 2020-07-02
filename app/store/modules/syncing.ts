@@ -75,7 +75,8 @@ export class StationSyncStatus {
         public readonly connected: boolean,
         public readonly lastSeen: Date,
         public readonly time: Date,
-        private readonly downloaded,
+        private readonly downloaded: number,
+        private readonly uploaded: number,
         public readonly downloads: FileDownload[] = [],
         public readonly uploads: FileUpload[] = []
     ) {}
@@ -101,8 +102,12 @@ export class StationSyncStatus {
         return this.readingsReady();
     }
 
-    readingsHave(): number {
+    readingsDownloaded(): number {
         return this.downloaded;
+    }
+
+    readingsUploaded(): number {
+        return this.uploaded;
     }
 
     showReady(): boolean {
@@ -255,6 +260,7 @@ const getters = {
                 });
 
             const downloaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.downloadLastBlock));
+            const uploaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.portalLastBlock));
 
             return new StationSyncStatus(
                 station.id,
@@ -265,6 +271,7 @@ const getters = {
                 lastSeen,
                 state.clock,
                 downloaded || 0,
+                uploaded || 0,
                 downloads,
                 uploads
             );

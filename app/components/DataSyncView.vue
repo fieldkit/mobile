@@ -50,7 +50,7 @@
                             </GridLayout>
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="allOpened || opened[sync.deviceId]">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
-                                    <Label :text="sync.readingsHave() + ' Readings'" class="readings-label" />
+                                    <Label :text="sync.readingsDownloaded() + ' Readings'" class="readings-label" />
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
