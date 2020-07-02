@@ -74,12 +74,16 @@ const mutations = {
         state.services = new ServiceRef(services);
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
-        state.stations = { ...state.stations, [info.deviceId]: new NearbyStation(info) };
+        if (!state.stations[info.deviceId]) {
+            state.stations = { ...state.stations, [info.deviceId]: new NearbyStation(info) };
+        }
     },
     [MutationTypes.LOSE]: (state: NearbyState, info: ServiceInfo) => {
-        const clone = { ...state.stations };
-        delete clone[info.deviceId];
-        state.stations = clone;
+        if (state.stations[info.deviceId]) {
+            const clone = { ...state.stations };
+            delete clone[info.deviceId];
+            state.stations = clone;
+        }
     },
     [MutationTypes.QUERIED]: (state: NearbyState, info: ServiceInfo) => {
         if (state.stations[info.deviceId]) {
