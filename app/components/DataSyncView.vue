@@ -32,7 +32,8 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isDownloadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" />
+                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
+                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
                                     <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
@@ -42,7 +43,8 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isDownloaded">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" />
+                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
+                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
@@ -52,7 +54,8 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isCopying">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-busy">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" />
+                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
+                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
                                     <Label text="Downloading" class="transfer-label" v-if="sync.isDownloading" />
                                     <Label text="Uploading" class="transfer-label" v-if="sync.isUploading" />
                                 </StackLayout>
@@ -64,7 +67,8 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isUploadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" />
+                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
+                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
                                     <Label text="Ready to upload" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
@@ -74,7 +78,16 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="sync.isComplete">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
-                                    <Label :text="sync.readingsUploaded + ' Readings'" class="readings-label" />
+                                    <Label
+                                        :text="sync.readingsUploaded + ' Readings'"
+                                        class="readings-label"
+                                        v-if="sync.readingsUploaded > 1"
+                                    />
+                                    <Label
+                                        :text="sync.readingsUploaded + ' Reading'"
+                                        class="readings-label"
+                                        v-if="sync.readingsUploaded == 1"
+                                    />
                                     <Label text="Synced" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">

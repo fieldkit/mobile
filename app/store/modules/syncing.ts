@@ -366,7 +366,7 @@ function parseBlocks(blocks) {
     }
 
     if (!_.isString(blocks)) {
-        throw new Error("Invalid fk-blocks header: " + blocks);
+        throw new Error("invalid fk-blocks header: " + blocks);
     }
 
     const parts = blocks
@@ -374,7 +374,7 @@ function parseBlocks(blocks) {
         .map(s => s.trim())
         .map(s => Number(s));
     if (parts.length != 2) {
-        throw new Error("Invalid fk-blocks header: " + blocks);
+        throw new Error("invalid fk-blocks header: " + blocks);
     }
 
     return {
