@@ -27,7 +27,6 @@ export default class PortalInterface {
     getUri() {
         return this._dbInterface.getConfig().then(config => {
             if (config.length == 0) {
-                console.log("PortalInterface did not get config from db. Using config.js", Config.baseUri);
                 return Config.baseUri;
             } else {
                 return config[0].baseUri;
@@ -338,7 +337,17 @@ export default class PortalInterface {
         throw error;
     }
 
-    uploadPreviouslyDownloaded(deviceName: string, download: Download, progress: ProgressFunc) {
+    private getIngestionUri() {
+        return this._dbInterface.getConfig().then(config => {
+            if (config.length == 0) {
+                return Config.ingestionUri;
+            } else {
+                return config[0].ingestionUri;
+            }
+        });
+    }
+
+    public uploadPreviouslyDownloaded(deviceName: string, download: Download, progress: ProgressFunc) {
         const headers = {
             "Fk-Blocks": download.blocks,
             "Fk-Generation": download.generationId,
@@ -369,7 +378,7 @@ export default class PortalInterface {
         delete headers["connection"];
         delete headers["content-length"];
 
-        return this.getUri().then(url =>
+        return this.getIngestionUri().then(url =>
             this._conservify
                 .upload({
                     method: "POST",
