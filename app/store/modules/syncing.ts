@@ -197,7 +197,7 @@ const actions = {
             return state.services
                 .portal()
                 .uploadPreviouslyDownloaded(sync.name, download, (total, copied, info) => {
-                    console.log("progress");
+                    commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                 })
                 .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
                 .catch(error => {

@@ -5,15 +5,18 @@ import AppSettings from "../wrappers/app-settings";
 import Config from "../config";
 
 export default class PortalInterface {
+    _services: any;
+    _dbInterface: any;
+    _fs: any;
+    _conservify: any;
+    _currentUser: any;
+    _appSettings: any;
+
     constructor(services) {
         this._services = services;
         this._dbInterface = services.Database();
         this._fs = services.FileSystem();
         this._conservify = services.Conservify();
-
-        this._handleTokenResponse = this._handleTokenResponse.bind(this);
-        this._handleStandardResponse = this._handleStandardResponse.bind(this);
-        this._handleError = this._handleError.bind(this);
         this._currentUser = {};
         this._appSettings = new AppSettings();
     }
@@ -70,8 +73,8 @@ export default class PortalInterface {
                 headers: { "Content-Type": "application/json" },
                 data: user,
             })
-                .then(this._handleTokenResponse)
-                .catch(this._handleError)
+                .then(response => this._handleTokenResponse(response))
+                .catch(error => this._handleError(error))
         );
     }
 
@@ -222,18 +225,6 @@ export default class PortalInterface {
             });
     }
 
-    _handleStandardResponse(response) {
-        if (response.status === 200) {
-            return response.data;
-        }
-
-        if (response.status === 204) {
-            return {};
-        }
-
-        throw new Error("query failed");
-    }
-
     _handleTokenResponse(response) {
         if (response.status !== 204) {
             throw new Error("authentication failed");
@@ -376,7 +367,7 @@ export default class PortalInterface {
                 .upload({
                     method: "POST",
                     url: url,
-                    path: database.path,
+                    path: download.path,
                     headers: { ...headers, ...defaultHeaders },
                     progress: progress,
                 })
