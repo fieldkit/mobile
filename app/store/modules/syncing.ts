@@ -11,12 +11,7 @@ import { DownloadTableRow } from "../row-types";
 export type HttpHeaders = { [index: string]: string };
 
 export class TransferProgress {
-    constructor(
-        public readonly deviceId: string,
-        public readonly path: string,
-        public readonly total: number,
-        public readonly copied: number
-    ) {}
+    constructor(public readonly deviceId: string, public readonly path: string, public readonly total: number, public readonly copied: number) {}
 }
 
 export class StationProgress {
@@ -375,6 +370,9 @@ const getters = {
 };
 
 const mutations = {
+    [MutationTypes.RESET]: (state: SyncingState, error: string) => {
+        Object.assign(state, new SyncingState());
+    },
     [MutationTypes.SERVICES]: (state: SyncingState, services: () => Services) => {
         Vue.set(state, "services", new ServiceRef(services));
     },

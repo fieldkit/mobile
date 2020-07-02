@@ -27,6 +27,9 @@ const actions = {
 };
 
 const mutations = {
+    [MutationTypes.RESET]: (state: NetworkState, error: string) => {
+        Object.assign(state, new NetworkState());
+    },
     [MutationTypes.LOGIN]: (state: NetworkState, token: string) => {
         Vue.set(state, "authenticated", true);
     },

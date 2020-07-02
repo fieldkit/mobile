@@ -2,6 +2,7 @@ export const SERVICES = "SERVICES";
 export const SUCCESS = `SUCCESS`;
 export const ERROR = `ERROR`;
 
+export const RESET = "RESET";
 export const FIND = "FIND";
 export const LOSE = "LOSE";
 export const QUERIED = "QUERIED";

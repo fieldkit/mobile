@@ -57,6 +57,7 @@ import AppSettings from "../wrappers/app-settings";
 import DiagnosticsModal from "./DiagnosticsModal";
 import StationPicker from "./StationPickerModal";
 import * as ActionTypes from "../store/actions";
+import * as MutationTypes from "../store/mutations";
 
 export default {
     data() {
@@ -186,19 +187,23 @@ export default {
         },
         deleteDB() {
             console.log("deleting database");
+
             return Services.CreateDb()
                 .initialize(true)
                 .then(() => {
+                    const store = Services.Store();
+
                     console.log("database deleted");
-                    return Services.Store()
-                        .dispatch(ActionTypes.LOAD)
-                        .then(() => {
-                            return alert({
-                                title: _L("devOptions"),
-                                message: _L("dbDeleted"),
-                                okButtonText: _L("ok"),
-                            });
+
+                    store.commit(MutationTypes.RESET);
+
+                    return store.dispatch(ActionTypes.LOAD).then(() => {
+                        return alert({
+                            title: _L("devOptions"),
+                            message: _L("dbDeleted"),
+                            okButtonText: _L("ok"),
                         });
+                    });
                 });
         },
         deleteFiles() {

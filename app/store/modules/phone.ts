@@ -12,6 +12,9 @@ const getters = {};
 const actions = {};
 
 const mutations = {
+    [MutationTypes.RESET]: (state: PhoneState, error: string) => {
+        Object.assign(state, new PhoneState());
+    },
     [MutationTypes.PHONE_LOCATION]: (state: PhoneState, location: PhoneLocation) => {
         // state.location = location;
     },

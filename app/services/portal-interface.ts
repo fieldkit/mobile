@@ -363,10 +363,10 @@ export default class PortalInterface {
 
         const local = this._fs.getFile(download.path);
         if (!local.exists) {
-            return Promise.reject(new Error("missing file"));
+            return Promise.reject(new Error(`missing file: ${download.path}`));
         }
         if (!local.size) {
-            return Promise.reject(new Error("empty file"));
+            return Promise.reject(new Error(`empty file: ${download.path}`));
         }
 
         console.log("uploading", download.path, local.exists, local.size);

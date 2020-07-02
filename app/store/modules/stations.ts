@@ -97,9 +97,7 @@ class StationStatusFactory {
         }
 
         const { latitude, longitude } = getLocationFrom(this.statusReply.status.gps);
-        const deployStartTime = this.statusReply.status.recording.startedTime
-            ? new Date(this.statusReply.status.recording.startedTime * 1000)
-            : null;
+        const deployStartTime = this.statusReply.status.recording.startedTime ? new Date(this.statusReply.status.recording.startedTime * 1000) : null;
         const modules = this.makeModules(this.statusReply);
         const streams = this.makeStreams(this.statusReply);
         const fields: StationCreationFields = {
@@ -135,18 +133,9 @@ class StationStatusFactory {
                     _(lr.modules)
                         .map(moduleReply => {
                             const sensors = _(moduleReply.readings)
-                                .map(
-                                    sensorReply =>
-                                        new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value, null)
-                                )
+                                .map(sensorReply => new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value, null))
                                 .value();
-                            return new Module(
-                                null,
-                                moduleReply.module.name,
-                                moduleReply.module.position,
-                                moduleReply.module.deviceId,
-                                sensors
-                            );
+                            return new Module(null, moduleReply.module.name, moduleReply.module.position, moduleReply.module.deviceId, sensors);
                         })
                         .value()
                 )
@@ -219,20 +208,18 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
 }
 
 function loadStationsFromDatabase(db): Promise<Station[]> {
-    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
-        (values: any[]) => {
-            const stations: StationTableRow[] = values[0];
-            const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], m => m.stationId);
-            const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], s => s.moduleId);
-            const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], s => s.stationId);
-            const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(values[4], s => s.stationId);
-            // TODO Handle generation changes.
-            return stations.map(stationRow => {
-                const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
-                return factory.create();
-            });
-        }
-    );
+    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then((values: any[]) => {
+        const stations: StationTableRow[] = values[0];
+        const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], m => m.stationId);
+        const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], s => s.moduleId);
+        const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], s => s.stationId);
+        const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(values[4], s => s.stationId);
+        // TODO Handle generation changes.
+        return stations.map(stationRow => {
+            const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
+            return factory.create();
+        });
+    });
 }
 
 interface StationPortalReply {
@@ -259,19 +246,13 @@ const actions = {
             .addOrUpdateStation(makeStationFromStatus(statusReply))
             .then(station => dispatch(ActionTypes.LOAD));
     },
-    [ActionTypes.STATION_PORTAL_ERROR]: (
-        { commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState },
-        error: StationPortalError
-    ) => {
+    [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, error: StationPortalError) => {
         return state.services
             .db()
             .setStationPortalError({ id: error.id }, error.error)
             .then(station => dispatch(ActionTypes.LOAD));
     },
-    [ActionTypes.STATION_PORTAL_REPLY]: (
-        { commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState },
-        reply: StationPortalReply
-    ) => {
+    [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, reply: StationPortalReply) => {
         return state.services
             .db()
             .setStationPortalError({ id: reply.id }, "" /* I really dislike this */)
@@ -285,6 +266,9 @@ const actions = {
 };
 
 const mutations = {
+    [MutationTypes.RESET]: (state: StationsState, error: string) => {
+        Object.assign(state, new StationsState());
+    },
     [MutationTypes.SERVICES]: (state: StationsState, services: () => Services) => {
         Vue.set(state, "services", new ServiceRef(services));
     },

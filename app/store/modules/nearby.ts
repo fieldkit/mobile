@@ -70,6 +70,9 @@ const getters = {
 };
 
 const mutations = {
+    [MutationTypes.RESET]: (state: NearbyState, error: string) => {
+        Object.assign(state, new NearbyState());
+    },
     [MutationTypes.SERVICES]: (state: NearbyState, services: () => Services) => {
         state.services = new ServiceRef(services);
     },

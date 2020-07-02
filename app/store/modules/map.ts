@@ -35,18 +35,15 @@ const getters = {
 const actions = {};
 
 const mutations = {
+    [MutationTypes.RESET]: (state: MapState, error: string) => {
+        Object.assign(state, new MapState());
+    },
     [MutationTypes.STATIONS]: (state: MapState, stations: Station[]) => {
         const newStations = {};
         stations.forEach(station => {
             const location = station.location();
             if (location && station.id) {
-                newStations[station.deviceId] = new MappedStation(
-                    station.id,
-                    station.deviceId,
-                    station.name,
-                    location,
-                    station.deployStartTime
-                );
+                newStations[station.deviceId] = new MappedStation(station.id, station.deviceId, station.name, location, station.deployStartTime);
             }
         });
         state.stations = newStations;
