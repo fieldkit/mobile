@@ -197,13 +197,17 @@ export default {
 
                     store.commit(MutationTypes.RESET);
 
-                    return store.dispatch(ActionTypes.LOAD).then(() => {
-                        return alert({
-                            title: _L("devOptions"),
-                            message: _L("dbDeleted"),
-                            okButtonText: _L("ok"),
+                    return Services.Store()
+                        .dispatch(ActionTypes.INITIALIZE)
+                        .then(() => {
+                            return store.dispatch(ActionTypes.LOAD).then(() => {
+                                return alert({
+                                    title: _L("devOptions"),
+                                    message: _L("dbDeleted"),
+                                    okButtonText: _L("ok"),
+                                });
+                            });
                         });
-                    });
                 });
         },
         deleteFiles() {
