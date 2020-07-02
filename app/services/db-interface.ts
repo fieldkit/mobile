@@ -2,6 +2,7 @@ import _ from "lodash";
 import Config from "../config";
 import { sqliteToJs } from "../utilities";
 import { Download, FileTypeUtils } from "../store/types";
+import { DownloadTableRow } from "../store/row-types";
 
 const log = Config.logger("DbInterface");
 
@@ -731,7 +732,7 @@ export default class DatabaseInterface {
             });
     }
 
-    insertDownload(download) {
+    insertDownload(download: DownloadTableRow) {
         return this.getDatabase().then(db => {
             return db
                 .execute(

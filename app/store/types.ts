@@ -77,6 +77,10 @@ export class Download {
             d.uploaded ? new Date(d.uploaded) : null
         );
     }
+
+    public get blocks(): string {
+        return this.firstBlock + "," + this.lastBlock;
+    }
 }
 
 export class Stream {

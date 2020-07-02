@@ -1,8 +1,11 @@
 import _ from "lodash";
 import axios from "axios";
-import { AuthenticationError } from "../lib/errors";
 import AppSettings from "../wrappers/app-settings";
+import { Download, FileTypeUtils } from "../store/types";
+import { AuthenticationError } from "../lib/errors";
 import Config from "../config";
+
+type ProgressFunc = (total: number, copied: number, info: object) => void;
 
 export default class PortalInterface {
     _services: any;
@@ -335,11 +338,11 @@ export default class PortalInterface {
         throw error;
     }
 
-    uploadPreviouslyDownloaded(deviceName, download, progress) {
+    uploadPreviouslyDownloaded(deviceName: string, download: Download, progress: ProgressFunc) {
         const headers = {
             "Fk-Blocks": download.blocks,
-            "Fk-Generation": download.generation,
-            "Fk-Type": download.type,
+            "Fk-Generation": download.generationId,
+            "Fk-Type": FileTypeUtils.toString(download.fileType),
         };
 
         console.log("uploading", download.path, headers);
@@ -352,7 +355,7 @@ export default class PortalInterface {
             return Promise.reject(new Error("empty file"));
         }
 
-        console.log("local", local.exists, local.size);
+        console.log("uploading", download.path, local.exists, local.size);
 
         const defaultHeaders = {
             "Content-Type": "application/octet-stream",
@@ -360,6 +363,8 @@ export default class PortalInterface {
             "Fk-DeviceId": download.deviceId,
             "Fk-DeviceName": deviceName,
         };
+
+        console.log("uploading", { ...headers, ...defaultHeaders });
 
         delete headers["connection"];
         delete headers["content-length"];
