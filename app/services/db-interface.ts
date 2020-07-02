@@ -758,7 +758,7 @@ export default class DatabaseInterface {
                         .then(() => {
                             const values = [download.size, download.firstBlock, download.lastBlock, download.stationId, download.type];
                             return db.execute(
-                                `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ? WHERE station_id = ? AND type = ?`,
+                                `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?, download_first_block = ?, download_last_block = ? WHERE station_id = ? AND type = ?`,
                                 values
                             );
                         })
