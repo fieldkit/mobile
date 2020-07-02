@@ -24,23 +24,36 @@ export class StationProgress {
         public readonly deviceId: string,
         public readonly downloading: boolean,
         public readonly totalBytes: number,
-        private readonly active: { [index: string]: number } = {}
+        private readonly transfers: { [index: string]: TransferProgress } = {}
     ) {}
 
     public include(progress: TransferProgress): StationProgress {
-        this.active[progress.path] = progress.copied;
-        return new StationProgress(this.deviceId, this.downloading, this.totalBytes, this.active);
+        return new StationProgress(this.deviceId, this.downloading, this.totalBytes, {
+            ...this.transfers,
+            ...{ [progress.path]: progress },
+        });
+    }
+
+    private incomplete(): TransferProgress[] {
+        return Object.values(this.transfers).filter(t => t.copied < t.total);
     }
 
     private get copiedBytes(): number {
-        return _.sum(Object.values(this.active));
+        return _.sum(Object.values(this.transfers).map(t => t.copied));
     }
 
     public get decimal(): number {
-        if (this.totalBytes == 0) {
+        if (this.totalBytes > 0) {
+            return this.copiedBytes / this.totalBytes;
+        }
+
+        const incomplete = this.incomplete();
+        const total = _.sum(incomplete.map(i => i.total));
+        const copied = _.sum(incomplete.map(i => i.copied));
+        if (total == 0) {
             return 0;
         }
-        return this.copiedBytes / this.totalBytes;
+        return copied / total;
     }
 
     public get percentage(): string {
