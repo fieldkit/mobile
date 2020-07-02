@@ -9,7 +9,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
 import { FileTypeUtils, FileType } from "../store/types";
-import { StationSyncStatus, FileDownload, FileUpload } from "../store/modules/syncing";
+import { StationSyncStatus, FileDownload, FileUpload, LocalFile } from "../store/modules/syncing";
 
 describe("Syncing", () => {
     let services;
@@ -81,8 +81,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
-            mockStation.queueDownload(200, {});
-            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,100" });
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -97,7 +97,12 @@ describe("Syncing", () => {
                     new Date(),
                     100,
                     [],
-                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                    [
+                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
+                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
+                        ]),
+                    ]
                 ),
             ]);
         });
@@ -208,8 +213,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
-            mockStation.queueDownload(200, {});
-            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,100" });
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -226,7 +231,12 @@ describe("Syncing", () => {
                     new Date(),
                     100,
                     [],
-                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                    [
+                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
+                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
+                        ]),
+                    ]
                 ),
             ]);
         });
@@ -267,8 +277,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
-            mockStation.queueDownload(200, {});
-            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,100" });
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -283,9 +293,16 @@ describe("Syncing", () => {
                     new Date(),
                     100,
                     [],
-                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                    [
+                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
+                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
+                        ]),
+                    ]
                 ),
             ]);
+
+            const downloadTime = new Date();
 
             clock.tick(60000);
 
@@ -313,7 +330,14 @@ describe("Syncing", () => {
                             68900
                         ),
                     ],
-                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                    [
+                        new FileUpload(FileType.Meta, 0, 1, 126, [
+                            new LocalFile(makePath(saved.deviceId, downloadTime, FileType.Meta), 126),
+                        ]),
+                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                            new LocalFile(makePath(saved.deviceId, downloadTime, FileType.Data), 68900),
+                        ]),
+                    ]
                 ),
             ]);
         });
@@ -354,8 +378,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
-            mockStation.queueDownload(200, {});
-            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,100" });
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -370,9 +394,16 @@ describe("Syncing", () => {
                     new Date(),
                     100,
                     [],
-                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                    [
+                        new FileUpload(FileType.Meta, 0, 1, 126, [new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 126)]),
+                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
+                        ]),
+                    ]
                 ),
             ]);
+
+            const firstDownloadTime = new Date();
 
             clock.tick(60000);
 
@@ -408,12 +439,19 @@ describe("Syncing", () => {
                             68900
                         ),
                     ],
-                    [new FileUpload(FileType.Meta, 0, 1, 126), new FileUpload(FileType.Data, 0, 100, 68900)]
+                    [
+                        new FileUpload(FileType.Meta, 0, 1, 126, [
+                            new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Meta), 126),
+                        ]),
+                        new FileUpload(FileType.Data, 0, 100, 68900, [
+                            new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Data), 68900),
+                        ]),
+                    ]
                 ),
             ]);
 
-            mockStation.queueDownload(200, {});
-            mockStation.queueDownload(200, {});
+            mockStation.queueDownload(200, { "fk-blocks": "1,5" });
+            mockStation.queueDownload(200, { "fk-blocks": "100,200" });
 
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
 
@@ -428,8 +466,51 @@ describe("Syncing", () => {
                     new Date(),
                     200,
                     [],
-                    [new FileUpload(FileType.Meta, 0, 5, 630), new FileUpload(FileType.Data, 0, 200, 2 * 68900)]
+                    [
+                        new FileUpload(FileType.Meta, 0, 5, 630, [
+                            new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Meta), 126),
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Meta), 504),
+                        ]),
+                        new FileUpload(FileType.Data, 0, 200, 2 * 68900, [
+                            new LocalFile(makePath(saved.deviceId, firstDownloadTime, FileType.Data), 68900),
+                            new LocalFile(makePath(saved.deviceId, new Date(), FileType.Data), 68900),
+                        ]),
+                    ]
                 ),
+            ]);
+        });
+
+        it("first sync, after downloading and then uploading", async () => {
+            expect.assertions(7);
+
+            const fake = mockStation.newFakeStation();
+
+            const streams1 = mockStation.newStreams(1, 100);
+            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+
+            const saved = store.state.stations.all[0];
+
+            expect(store.getters.syncs.length).toStrictEqual(1);
+            expect(store.getters.syncs[0].downloads.length).toStrictEqual(2);
+            expect(store.getters.syncs[0].uploads.length).toStrictEqual(0);
+
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,100" });
+
+            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+
+            expect(store.getters.syncs.length).toStrictEqual(1);
+            expect(store.getters.syncs[0].downloads.length).toStrictEqual(0);
+            expect(store.getters.syncs[0].uploads.length).toStrictEqual(2);
+
+            mockStation.queueUpload(200, {});
+            mockStation.queueUpload(200, {});
+
+            await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(saved.id, saved.deviceId, saved.generationId, saved.name, false, new Date(), new Date(), 100, [], []),
             ]);
         });
     });

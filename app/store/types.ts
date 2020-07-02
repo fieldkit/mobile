@@ -49,6 +49,7 @@ export class FileTypeUtils {
 export class Download {
     constructor(
         public id: number,
+        public stationId: number,
         public deviceId: string,
         public generationId: string,
         public fileType: FileType,
@@ -64,6 +65,7 @@ export class Download {
         const fileType = FileTypeUtils.fromString(d.type);
         return new Download(
             d.id,
+            d.stationId,
             d.deviceId,
             d.generation,
             fileType,

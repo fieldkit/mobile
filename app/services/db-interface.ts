@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Config from "../config";
 import { sqliteToJs } from "../utilities";
+import { Download, FileTypeUtils } from "../store/types";
 
 const log = Config.logger("DbInterface");
 
@@ -768,6 +769,32 @@ export default class DatabaseInterface {
         });
     }
 
+    markDownloadAsUploaded(download: Download) {
+        if (download.stationId === null || download.fileType === null) {
+            console.log("malformed download row", download.stationId, download.fileType, download);
+            throw new Error("malformed download row");
+        }
+        return this.getDatabase().then(db => {
+            return db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]).then(() => {
+                const values = [
+                    download.size,
+                    download.firstBlock,
+                    download.lastBlock,
+                    download.stationId,
+                    FileTypeUtils.toString(download.fileType),
+                ];
+                return db.execute(
+                    `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
+							                portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
+							                portal_last_block = MAX(COALESCE(portal_last_block, 0), ?)
+						 WHERE station_id = ? AND type = ?`,
+                    values
+                );
+            });
+        });
+    }
+
+    /*
     getAllDownloads() {
         return this.getDatabase()
             .then(db => db.query("SELECT * FROM downloads ORDER BY station_id, timestamp"))
@@ -813,10 +840,6 @@ export default class DatabaseInterface {
             .then(rows => sqliteToJs(rows));
     }
 
-    markDownloadAsUploaded(download) {
-        return this.getDatabase().then(db => db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]));
-    }
-
     getStreams() {
         return this.getDatabase()
             .then(db => db.query(`SELECT * FROM streams`))
@@ -840,6 +863,7 @@ export default class DatabaseInterface {
                 return sqliteToJs(rows);
             });
     }
+	*/
 
     getStationIdByDeviceId(deviceId) {
         if (!deviceId) {

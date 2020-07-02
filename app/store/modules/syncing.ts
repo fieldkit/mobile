@@ -2,11 +2,13 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Station, FileType, FileTypeUtils } from "../types";
+import { Station, Download, FileType, FileTypeUtils } from "../types";
 import { Services, ServiceRef } from "./utilities";
 import { GlobalGetters } from "./global";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
+
+export type HttpHeaders = { [index: string]: string };
 
 export class TransferProgress {
     constructor(
@@ -25,12 +27,17 @@ export class TransferProgress {
     }
 }
 
+export class LocalFile {
+    constructor(public readonly path: string, public readonly size: number) {}
+}
+
 export class FileUpload {
     constructor(
         public readonly fileType: FileType,
         public readonly firstBlock: number,
         public readonly lastBlock: number,
         public readonly bytes: number,
+        public readonly files: LocalFile[] = [],
         public readonly progress: TransferProgress | null = null
     ) {}
 
@@ -110,7 +117,18 @@ export class StationSyncStatus {
         return false;
     }
 
-    makeRow(file: FileDownload): DownloadTableRow {
+    getPathsToUpload(): string[] {
+        return _(this.uploads)
+            .map(u => u.files)
+            .flatten()
+            .map(f => f.path)
+            .value();
+    }
+
+    makeRow(file: FileDownload, headers: HttpHeaders): DownloadTableRow {
+        delete headers["connection"];
+        const { range, firstBlock, lastBlock } = parseBlocks(headers["fk-blocks"]);
+
         return {
             id: 0,
             stationId: this.id,
@@ -121,9 +139,10 @@ export class StationSyncStatus {
             timestamp: this.time.getTime(),
             url: file.url,
             size: file.bytes,
-            blocks: [file.firstBlock, file.lastBlock].join(","),
-            firstBlock: file.firstBlock,
-            lastBlock: file.lastBlock,
+            blocks: range,
+            firstBlock: firstBlock,
+            lastBlock: lastBlock,
+            uploaded: null,
         };
     }
 }
@@ -133,18 +152,16 @@ export class SyncingState {
     stations: Station[] = [];
     clock: Date = new Date();
     progress: { [index: string]: TransferProgress } = {};
+    downloads: { [index: string]: Download } = {};
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
 
 const actions = {
-    [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
-        return Promise.all([sync].map(dl => dispatch(ActionTypes.DOWNLOAD_COMPLETED, dl)));
-    },
     [ActionTypes.DOWNLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
-        return Promise.all(syncs.map(dl => dispatch(ActionTypes.DOWNLOAD_COMPLETED, dl)));
+        return Promise.all(syncs.map(dl => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
     },
-    [ActionTypes.DOWNLOAD_COMPLETED]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+    [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
         return serializePromiseChain(sync.downloads, file => {
             if (true) {
                 return state.services
@@ -152,13 +169,36 @@ const actions = {
                     .download(file.url, file.path, (total, copied, info) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                     })
-                    .then(() => state.services.db().insertDownload(sync.makeRow(file)))
+                    .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
                     .catch(error => {
                         console.log("error downloading", error, error ? error.stack : null);
                         return Promise.reject(error);
                     });
             }
             return true;
+        }).then(() => dispatch(ActionTypes.LOAD));
+    },
+    [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
+        return Promise.all(syncs.map(dl => dispatch(ActionTypes.UPLOAD_STATION, dl)));
+    },
+    [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+        const paths = sync.getPathsToUpload();
+        const downloads = paths.map(path => state.downloads[path]).filter(d => d != null);
+        if (downloads.length != paths.length) {
+            throw new Error("download missing");
+        }
+
+        return serializePromiseChain(downloads, download => {
+            return state.services
+                .portal()
+                .uploadPreviouslyDownloaded(sync.name, download, (total, copied, info) => {
+                    console.log("progress");
+                })
+                .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
+                .catch(error => {
+                    console.log("error uploading", error, error ? error.stack : null);
+                    return Promise.reject(error);
+                });
         }).then(() => dispatch(ActionTypes.LOAD));
     },
 };
@@ -202,7 +242,11 @@ const getters = {
                     const firstBlock = stream.portalLastBlock || 0;
                     const lastBlock = stream.downloadLastBlock || 0;
                     const estimatedBytes = (stream.downloadSize || 0) - (stream.portalSize || 0);
-                    return new FileUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, null);
+                    const files = station.downloads
+                        .filter(d => d.fileType == stream.fileType())
+                        .filter(d => !d.uploaded)
+                        .map(d => new LocalFile(d.path, d.size));
+                    return new FileUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files, null);
                 })
                 .filter(dl => dl.firstBlock != dl.lastBlock)
                 .filter(dl => dl.fileType != FileType.Unknown)
@@ -235,6 +279,15 @@ const mutations = {
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
         Vue.set(state, "clock", new Date());
         Vue.set(state, "stations", stations);
+        Vue.set(
+            state,
+            "downloads",
+            _(stations)
+                .map(s => s.downloads)
+                .flatten()
+                .keyBy(d => d.path)
+                .value()
+        );
     },
     [MutationTypes.TRANSFER_PROGRESS]: (state: SyncingState, progress: TransferProgress) => {
         Vue.set(state.progress, progress.path, progress);
@@ -250,3 +303,27 @@ export const syncing = {
     actions,
     mutations,
 };
+
+function parseBlocks(blocks) {
+    if (Array.isArray(blocks)) {
+        blocks = blocks[0];
+    }
+
+    if (!_.isString(blocks)) {
+        throw new Error("Invalid fk-blocks header: " + blocks);
+    }
+
+    const parts = blocks
+        .split(",")
+        .map(s => s.trim())
+        .map(s => Number(s));
+    if (parts.length != 2) {
+        throw new Error("Invalid fk-blocks header: " + blocks);
+    }
+
+    return {
+        range: parts.join(","),
+        firstBlock: parts[0],
+        lastBlock: parts[1],
+    };
+}

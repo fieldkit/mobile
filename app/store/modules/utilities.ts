@@ -3,6 +3,7 @@ export interface Services {
     QueryStation(): any;
     LegacyHooks(): any;
     FileSystem(): any;
+    PortalInterface(): any;
 }
 
 export type ServicesFactory = () => Services;
@@ -24,6 +25,10 @@ export class ServiceRef {
 
     fs(): any {
         return this.verify().FileSystem();
+    }
+
+    portal(): any {
+        return this.verify().PortalInterface();
     }
 
     private verify(): Services {

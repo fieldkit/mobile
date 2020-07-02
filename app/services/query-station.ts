@@ -262,8 +262,8 @@ export default class QueryStation {
                     progress: progress,
                 })
                 .then(response => {
-                    log.info("headers", response.headers);
-                    log.info("status", response.statusCode);
+                    // log.info("headers", response.headers);
+                    // log.info("status", response.statusCode);
                     if (response.statusCode != 200) {
                         return Promise.reject(response);
                     }
