@@ -49,10 +49,9 @@ describe("Syncing", () => {
             expect.assertions(2);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -62,7 +61,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     0,
@@ -70,7 +69,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta",
+                            "http://127.0.0.1/download/meta",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             0,
                             1,
@@ -78,7 +77,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data",
+                            "http://127.0.0.1/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             0,
                             100,
@@ -99,7 +98,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     100,
@@ -121,10 +120,9 @@ describe("Syncing", () => {
             expect.assertions(3);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -134,7 +132,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     0,
@@ -142,7 +140,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta",
+                            "http://127.0.0.1/download/meta",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             0,
                             1,
@@ -150,7 +148,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data",
+                            "http://127.0.0.1/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             0,
                             100,
@@ -174,7 +172,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     0,
@@ -182,7 +180,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta",
+                            "http://127.0.0.1/download/meta",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             0,
                             1,
@@ -190,7 +188,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data",
+                            "http://127.0.0.1/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             0,
                             100,
@@ -206,10 +204,9 @@ describe("Syncing", () => {
             expect.assertions(2);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -219,7 +216,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     0,
@@ -227,7 +224,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta",
+                            "http://127.0.0.1/download/meta",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             0,
                             1,
@@ -235,7 +232,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data",
+                            "http://127.0.0.1/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             0,
                             100,
@@ -256,7 +253,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     100,
@@ -278,10 +275,9 @@ describe("Syncing", () => {
             expect.assertions(3);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -291,7 +287,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     0,
@@ -299,7 +295,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta",
+                            "http://127.0.0.1/download/meta",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             0,
                             1,
@@ -307,7 +303,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data",
+                            "http://127.0.0.1/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             0,
                             100,
@@ -328,7 +324,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     100,
@@ -359,7 +355,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     100,
@@ -367,7 +363,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data?first=100",
+                            "http://127.0.0.1/download/data?first=100",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             100,
                             200,
@@ -390,10 +386,9 @@ describe("Syncing", () => {
             expect.assertions(4);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -403,7 +398,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     0,
@@ -411,7 +406,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta",
+                            "http://127.0.0.1/download/meta",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             0,
                             1,
@@ -419,7 +414,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data",
+                            "http://127.0.0.1/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             0,
                             100,
@@ -440,7 +435,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     100,
@@ -471,7 +466,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     100,
@@ -479,7 +474,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta?first=1",
+                            "http://127.0.0.1/download/meta?first=1",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             1,
                             5,
@@ -487,7 +482,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data?first=100",
+                            "http://127.0.0.1/download/data?first=100",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             100,
                             200,
@@ -515,7 +510,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     200,
@@ -539,10 +534,9 @@ describe("Syncing", () => {
             expect.assertions(7);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -568,7 +562,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     100,
@@ -583,10 +577,9 @@ describe("Syncing", () => {
             expect.assertions(7);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -624,7 +617,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     200,
@@ -639,10 +632,9 @@ describe("Syncing", () => {
             expect.assertions(2);
 
             const fake = mockStation.newFakeStation();
-
             const streams1 = mockStation.newStreams(1, 100);
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams1));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
+            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
 
@@ -652,7 +644,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     0,
@@ -660,7 +652,7 @@ describe("Syncing", () => {
                     [
                         new PendingDownload(
                             FileType.Meta,
-                            "/download/meta",
+                            "http://127.0.0.1/download/meta",
                             makePath(saved.deviceId, new Date(), FileType.Meta),
                             0,
                             1,
@@ -668,7 +660,7 @@ describe("Syncing", () => {
                         ),
                         new PendingDownload(
                             FileType.Data,
-                            "/download/data",
+                            "http://127.0.0.1/download/data",
                             makePath(saved.deviceId, new Date(), FileType.Data),
                             0,
                             100,
@@ -689,7 +681,7 @@ describe("Syncing", () => {
                     saved.deviceId,
                     saved.generationId,
                     saved.name,
-                    false,
+                    true,
                     new Date(),
                     new Date(),
                     110,
