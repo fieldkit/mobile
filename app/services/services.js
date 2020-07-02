@@ -67,25 +67,10 @@ export class Services {
         return this.queryStation;
     }
 
-    StateManager() {
-        if (!this.stateManager) {
-            const StateManager = require("./state-manager").default;
-            this.stateManager = new StateManager(this);
-        }
-        return this.stateManager;
-    }
-
     LegacyHooks() {
-        if (Config.env.test) {
-            return {
-                refresh: () => {
-                    return Promise.resolve();
-                },
-            };
-        }
         return {
             refresh: () => {
-                return this.StateManager().refresh();
+                return Promise.resolve();
             },
         };
     }
@@ -120,14 +105,6 @@ export class Services {
             this.portalUpdater = new PortalUpdater(this.Database(), this.PortalInterface(), this.Store());
         }
         return this.portalUpdater;
-    }
-
-    ProgressService() {
-        if (!this.progressService) {
-            const ProgressService = require("./progress-service").default;
-            this.progressService = new ProgressService();
-        }
-        return this.progressService;
     }
 
     Conservify() {

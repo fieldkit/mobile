@@ -62,11 +62,7 @@ function initializeApplication(services): Promise<any> {
                                 // Enable geolocation and start refreshing our location.
                                 Services.PhoneLocation().enableAndGetLocation();
 
-                                return Promise.all([
-                                    services.StateManager().start(),
-                                    services.PortalUpdater().start(),
-                                    services.OnlineStatus().start(),
-                                ]);
+                                return Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]);
                             })
                             .then(() => {
                                 return services.DiscoverStation().startServiceDiscovery();

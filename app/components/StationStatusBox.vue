@@ -193,18 +193,6 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            Services.ProgressService().subscribe(data => {
-                if (data.message) {
-                    this.syncing = true;
-                    this.dataSyncMessage = data.message;
-                    if (!this.syncIconIntervalTimer) {
-                        this.syncIconIntervalTimer = setInterval(this.rotateSyncingIcon, 500);
-                    }
-                } else {
-                    this.syncing = false;
-                }
-            });
-
             this.updateStation(this.station);
         },
         onUnloaded() {
