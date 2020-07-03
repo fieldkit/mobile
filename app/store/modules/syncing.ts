@@ -2,7 +2,7 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Station, Download, FileType, FileTypeUtils } from "../types";
+import { Station, Download, FileType, FileTypeUtils, OpenProgressPayload } from "../types";
 import { Services, ServiceRef } from "./utilities";
 import { GlobalGetters } from "./global";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
@@ -224,10 +224,6 @@ export class SyncingState {
     clock: Date = new Date();
     progress: { [index: string]: StationProgress } = {};
     downloads: { [index: string]: Download } = {};
-}
-
-class OpenProgressPayload {
-    constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number) {}
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };

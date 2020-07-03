@@ -2,7 +2,7 @@ import _ from "lodash";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyStation } from "../types";
+import { ServiceInfo, NearbyStation, OpenProgressPayload } from "../types";
 import { Services, ServiceRef } from "./utilities";
 import { RouteState } from "../../routes/navigate";
 

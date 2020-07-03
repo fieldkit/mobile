@@ -342,3 +342,7 @@ export class CommonLocations {
 export class PhoneNetwork {
     constructor(public readonly ssid: string | null = null) {}
 }
+
+export class OpenProgressPayload {
+    constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number) {}
+}
