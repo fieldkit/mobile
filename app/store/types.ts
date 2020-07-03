@@ -167,6 +167,10 @@ export interface StationCreationFields {
     portalError: string | null;
 }
 
+export class FirmwareInfo {
+    constructor(public readonly version: string, public readonly build: string, public readonly simpleNumber: number, public readonly time: number, public readonly hash: string) {}
+}
+
 export class Station implements StationCreationFields {
     public readonly id: number | null;
     public readonly deviceId: string;
@@ -214,24 +218,10 @@ export class Station implements StationCreationFields {
         }
         return null;
     }
-}
 
-export class LegacyStation extends Station {
     private decodedStatus: object | null = null;
 
-    id: number;
-    connected: boolean;
-    url: string | null;
-
-    constructor(fields: StationCreationFields, modules: Module[], available: AvailableStation) {
-        super(fields, modules);
-        if (!available.id) throw new Error(`AvailableStation missing id`);
-        this.id = available.id;
-        this.connected = available.connected;
-        this.url = available.url;
-    }
-
-    statusJson(): any {
+    protected decodeStatusReply(): any {
         if (this.decodedStatus == null) {
             if (this.serializedStatus !== null && this.serializedStatus.length > 0) {
                 try {
@@ -245,8 +235,36 @@ export class LegacyStation extends Station {
         return this.decodedStatus;
     }
 
-    get deployed(): boolean {
+    public firmwareInfo(): FirmwareInfo | null {
+        const statusReply = this.decodeStatusReply();
+        const fw = statusReply?.status?.firmware || null;
+        if (!fw) {
+            console.log("malformed status reply", statusReply);
+            return null;
+        }
+        return new FirmwareInfo(fw.version, fw.build, fw.number, fw.timestamp, fw.hash);
+    }
+}
+
+export class LegacyStation extends Station {
+    id: number;
+    connected: boolean;
+    url: string | null;
+
+    constructor(fields: StationCreationFields, modules: Module[], available: AvailableStation) {
+        super(fields, modules);
+        if (!available.id) throw new Error(`AvailableStation missing id`);
+        this.id = available.id;
+        this.connected = available.connected;
+        this.url = available.url;
+    }
+
+    public get deployed(): boolean {
         return this.deployStartTime != null;
+    }
+
+    public statusJson(): any {
+        return this.decodeStatusReply();
     }
 }
 

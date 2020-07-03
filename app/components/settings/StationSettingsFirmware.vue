@@ -7,9 +7,11 @@
 
                     <StackLayout class="m-t-10 m-b-30">
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
-                        <Label :text="_L('firmwareNumber') + ': ' + versions.firmwareNumber" class="size-15 m-x-15 m-b-20" textWrap="true" />
+                        <Label :text="_L('firmwareNumber') + ': ' + stationFirmware.simpleNumber" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="stationFirmware" />
+                        <Label :text="_L('firmwareNumber') + ': --'" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="!stationFirmware" />
                         <Label :text="_L('appFirmwareVersion')" class="size-20 m-x-15" />
-                        <Label :text="_L('firmwareNumber') + ': ' + appDownloaded" class="size-15 m-x-15 m-b-20" textWrap="true" />
+                        <Label :text="_L('firmwareNumber') + ': ' + availableFirmware.simpleNumber" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="availableFirmware" />
+                        <Label :text="_L('firmwareNumber') + ': --'" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="!availableFirmware" />
 
                         <Button
                             v-if="updateAvailable"
@@ -18,15 +20,13 @@
                             @tap="upgradeFirmware"
                             class="btn btn-primary btn-padded"
                         ></Button>
-                        <Label v-else :text="_L('upToDate')" class="size-20 m-x-15 bottom-border" />
+                        <Label v-else :text="_L('upToDate')" class="size-20 m-x-15" />
                         <ConnectionNote v-if="updateAvailable" :station="station" />
                     </StackLayout>
 
                     <WrapLayout orientation="horizontal" class="m-10 m-b-20">
                         <Label :text="_L('additionalInfo')" class="size-16 full-width" textWrap="true" />
-                        <Label :text="_L('firmware') + ': ' + versions.firmware" class="size-14 full-width m-t-10" textWrap="true" />
-                        <Label :text="_L('firmwareBuild') + ': ' + versions.firmwareBuild" class="size-14 full-width" textWrap="true" />
-                        <Label :text="_L('deviceId') + ': ' + versions.device" class="size-14 full-width" textWrap="true" />
+                        <Label :text="_L('deviceId') + ': ' + station.deviceId" class="size-14 full-width" textWrap="true" />
                     </WrapLayout>
                 </FlexboxLayout>
             </ScrollView>
@@ -53,60 +53,33 @@ export default {
         ConnectionNote,
     },
     data() {
-        return {
-            versions: {
-                firmware: "1.0",
-                firmwareBuild: "1.0",
-                firmwareNumber: "--",
-                device: "1.0",
-            },
-            updateAvailable: true,
-            appDownloaded: "--",
-        };
+        return {};
     },
     props: {
         stationId: {
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
-    components: {
-        ScreenHeader,
-        ScreenFooter,
-        ConnectionNote,
+    computed: {
+        station() {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
+        stationFirmware() {
+            return this.$store.state.firmware.stations[this.stationId];
+        },
+        availableFirmware() {
+            return this.$store.state.firmware.available;
+        },
+        updateAvailable() {
+            if (this.$store.state.firmware.stations[this.stationId] && this.$store.state.firmware.available) {
+                return this.$store.state.firmware.available > this.$store.state.firmware.stations[this.stationId];
+            }
+            return true;
+        },
     },
     methods: {
-        onPageLoaded(args) {
-            this.page = args.object;
-
-            let deviceStatus = this.station.statusJson;
-            if (deviceStatus && deviceStatus.status.identity) {
-                if (deviceStatus.status.identity.deviceId) {
-                    this.versions.device = hexStringToByteWiseString(deviceStatus.status.identity.deviceId);
-                }
-                if (deviceStatus.status.firmware) {
-                    // newer firmware
-                    this.versions.firmware = hexStringToByteWiseString(deviceStatus.status.firmware.hash);
-                    this.versions.firmwareBuild = deviceStatus.status.firmware.build;
-                    this.versions.firmwareNumber = deviceStatus.status.firmware.number;
-                } else if (deviceStatus.status.identity.firmware) {
-                    this.versions.firmware = hexStringToByteWiseString(deviceStatus.status.identity.firmware);
-                    let chunks = deviceStatus.status.identity.build.split("_");
-                    this.versions.firmwareBuild = chunks[chunks.length - 2] + "_" + chunks[chunks.length - 1];
-                }
-                // compare downloaded version
-                dbInterface.getLatestFirmware().then(latest => {
-                    this.appDownloaded = latest.buildNumber;
-                    this.updateAvailable = latest.buildTime > deviceStatus.status.firmware.timestamp;
-                });
-            }
-            this.deviceStatus = deviceStatus;
-        },
-
+        onPageLoaded(args) {},
         downloadFirmware(args) {
             const options = {
                 props: {
@@ -115,9 +88,8 @@ export default {
                 },
                 fullscreen: true,
             };
-            this.$showModal(UpgradeFirmwareModal, options);
+            return this.$showModal(UpgradeFirmwareModal, options);
         },
-
         upgradeFirmware(args) {
             const options = {
                 props: {
@@ -126,9 +98,8 @@ export default {
                 },
                 fullscreen: true,
             };
-            this.$showModal(UpgradeFirmwareModal, options);
+            return this.$showModal(UpgradeFirmwareModal, options);
         },
-
         goBack(event) {
             // Change background color when pressed
             let cn = event.object.className;
@@ -137,9 +108,10 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stationSettings, {
+            return this.$navigateTo(routes.stationSettings, {
                 props: {
                     station: this.station,
+                    stationId: this.station.id,
                 },
                 transition: {
                     name: "slideRight",

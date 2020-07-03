@@ -4,6 +4,7 @@ export interface Services {
     LegacyHooks(): any;
     FileSystem(): any;
     PortalInterface(): any;
+    StationFirmware(): any;
 }
 
 export type ServicesFactory = () => Services;
@@ -11,24 +12,28 @@ export type ServicesFactory = () => Services;
 export class ServiceRef {
     constructor(private readonly services: ServicesFactory | null = null) {}
 
-    db(): any {
+    public db(): any {
         return this.verify().Database();
     }
 
-    queryStation(): any {
+    public queryStation(): any {
         return this.verify().QueryStation();
     }
 
-    legacy(): any {
+    public legacy(): any {
         return this.verify().LegacyHooks();
     }
 
-    fs(): any {
+    public fs(): any {
         return this.verify().FileSystem();
     }
 
-    portal(): any {
+    public portal(): any {
         return this.verify().PortalInterface();
+    }
+
+    public firmware(): any {
+        return this.verify().StationFirmware();
     }
 
     private verify(): Services {

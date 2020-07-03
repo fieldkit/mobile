@@ -15,7 +15,7 @@ function transformProgress(callback, fn) {
     return () => {};
 }
 
-export default class StationUpgrade {
+export default class StationFirmware {
     private services: any;
     public check: () => Promise<any>;
 
