@@ -361,12 +361,28 @@ export default class PortalInterface {
 
         console.log("uploading", download.path, headers);
 
+        /**
+         * Alright let's talk about this. I've got old data in the
+         * wild that is encountering this situation and this seems
+         * like the no consequences way of just purging that
+         * data. What can be more noop than uploading nothing?
+         */
         const local = this._fs.getFile(download.path);
         if (!local.exists) {
-            return Promise.reject(new Error(`missing file: ${download.path}`));
+            // return Promise.reject(new Error(`missing file: ${download.path}`));
+            console.log(`missing file: ${download.path} faking success`);
+            return Promise.resolve({
+                statusCode: 200,
+                headers: headers,
+            });
         }
         if (!local.size) {
-            return Promise.reject(new Error(`empty file: ${download.path}`));
+            // return Promise.reject(new Error());
+            console.log(`empty file: ${download.path} faking success`);
+            return Promise.resolve({
+                statusCode: 200,
+                headers: headers,
+            });
         }
 
         console.log("uploading", download.path, local.exists, local.size);
