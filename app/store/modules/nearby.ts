@@ -47,6 +47,10 @@ const actions = {
                     if (!station.tried) {
                         return true;
                     }
+                    if (station.transferring) {
+                        console.log("skip nearby transferring station");
+                        return false;
+                    }
                     const now = new Date();
                     const elapsed = now.getTime() - station.tried.getTime();
                     const querying = elapsed > 10 * 1000;
