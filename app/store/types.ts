@@ -295,7 +295,7 @@ function isConnected(now: Date, nearby: NearbyStation | null): boolean {
         return false;
     }
     if (nearby.transferring) {
-        return false;
+        return true;
     }
     const elapsed = Math.abs(now.getTime() - nearby.tried.getTime());
     return elapsed < 60 * 1000;
