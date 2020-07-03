@@ -37,8 +37,6 @@ const getters = {
             ])
             .value();
 
-        console.log(_.map(available, a => a.name));
-
         if (false) {
             console.log(
                 "available",
