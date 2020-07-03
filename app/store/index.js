@@ -81,7 +81,10 @@ function customizeLogger() {
                 nearby,
                 map,
                 network,
-                // syncing,
+                syncing: {
+                    downloads: syncing.downloads,
+                    progress: syncing.progress,
+                },
                 firmware,
                 stations: {
                     deviceIds: _(stations.all)

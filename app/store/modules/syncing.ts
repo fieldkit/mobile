@@ -343,6 +343,10 @@ const getters = {
             const uploaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.portalLastBlock));
             const progress = state.progress[station.deviceId];
 
+            if (true) {
+                console.log(station.id, connected, downloads, uploads);
+            }
+
             return new StationSyncStatus(
                 station.id,
                 station.deviceId,
