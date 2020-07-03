@@ -2,17 +2,13 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Station, Download, FileType, FileTypeUtils, OpenProgressPayload } from "../types";
+import { Station, Download, FileType, FileTypeUtils, OpenProgressPayload, TransferProgress } from "../types";
 import { Services, ServiceRef } from "./utilities";
 import { GlobalGetters } from "./global";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
 
 export type HttpHeaders = { [index: string]: string };
-
-export class TransferProgress {
-    constructor(public readonly deviceId: string, public readonly path: string, public readonly total: number, public readonly copied: number) {}
-}
 
 export class StationProgress {
     constructor(

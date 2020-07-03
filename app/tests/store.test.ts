@@ -51,20 +51,31 @@ describe("Store", () => {
 
         it("should lose stations after inactivity", async () => {
             const station = mockStation.newFakeStation();
-            mockStation.queueStatusReply(station);
 
-            expect.assertions(4);
+            expect.assertions(5);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
             expect(_.size(store.state.nearby.stations)).toEqual(0);
 
+            mockStation.queueStatusReply(station);
             await store.dispatch(ActionTypes.FOUND, info);
+
+            const s0 = _(store.getters.availableStations)
+                .filter(s => s.connected)
+                .size();
+            expect(s0).toEqual(1);
 
             expect(_.size(store.state.nearby.stations)).toEqual(1);
 
             clock.tick(10005);
-            await store.commit(MutationTypes.TICK);
+
+            mockStation.queueNoReply();
+            try {
+                await store.dispatch(ActionTypes.REFRESH);
+            } catch (e) {
+                console.log("ignored, expected", e);
+            }
 
             const s1 = _(store.getters.availableStations)
                 .filter(s => s.connected)
@@ -72,7 +83,8 @@ describe("Store", () => {
             expect(s1).toEqual(1);
 
             clock.tick(50000);
-            await store.commit(MutationTypes.TICK);
+
+            await store.dispatch(ActionTypes.REFRESH);
 
             const s2 = _(store.getters.availableStations)
                 .filter(s => s.connected)
@@ -82,14 +94,16 @@ describe("Store", () => {
 
         it("should remove stations when they're lost", async () => {
             const station = mockStation.newFakeStation();
-            mockStation.queueStatusReply(station);
 
             expect.assertions(3);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
             expect(_.size(store.state.nearby.stations)).toEqual(0);
+
+            mockStation.queueStatusReply(station);
             await store.dispatch(ActionTypes.FOUND, info);
+
             await store.dispatch(ActionTypes.LOST, info);
             expect(_.size(store.state.nearby.stations)).toEqual(0);
 

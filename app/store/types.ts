@@ -276,11 +276,22 @@ export interface ServiceInfo {
 export class NearbyStation {
     url: string;
     queried: Date = new Date();
-    tried: Date | null = null;
+    activity: Date = new Date();
     transferring = false;
 
     constructor(public readonly info: ServiceInfo) {
         this.url = info.url;
+    }
+
+    old(now: Date): boolean {
+        // We update activity during transfers so this should be unnecessary.
+        /*
+        if (this.transferring) {
+            return false;
+        }
+		*/
+        const elapsed = Math.abs(now.getTime() - this.activity.getTime());
+        return elapsed > 60 * 1000;
     }
 }
 
@@ -288,17 +299,6 @@ export enum StationStatus {
     Unknown,
     Ready,
     Recording,
-}
-
-function isConnected(now: Date, nearby: NearbyStation | null): boolean {
-    if (!nearby || !nearby.tried) {
-        return false;
-    }
-    if (nearby.transferring) {
-        return true;
-    }
-    const elapsed = Math.abs(now.getTime() - nearby.tried.getTime());
-    return elapsed < 60 * 1000;
 }
 
 export class AvailableStation {
@@ -315,7 +315,7 @@ export class AvailableStation {
     readonly location: Location | null;
     readonly lastSeen: Date | null;
 
-    constructor(now: Date, deviceId: string, nearby: NearbyStation | null, station: Station | null) {
+    constructor(deviceId: string, nearby: NearbyStation | null, station: Station | null) {
         if (!nearby && !station) {
             throw new Error(`AvailableStation invalid args`);
         }
@@ -327,9 +327,9 @@ export class AvailableStation {
         this.url = nearby?.url || null;
         this.lastSeen = station?.lastSeen || null;
         this.location = station?.location() || null;
-        this.connected = isConnected(now, nearby);
         this.streams = station?.streams || [];
         this.downloads = station?.downloads || [];
+        this.connected = nearby != null;
     }
 }
 
@@ -370,4 +370,8 @@ export class PhoneNetwork {
 
 export class OpenProgressPayload {
     constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number) {}
+}
+
+export class TransferProgress {
+    constructor(public readonly deviceId: string, public readonly path: string, public readonly total: number, public readonly copied: number) {}
 }

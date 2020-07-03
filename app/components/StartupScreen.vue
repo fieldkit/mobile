@@ -23,14 +23,7 @@ function initializeFirebase(services): Promise<any> {
 
 function updateStore(store): null {
     promiseAfter(1000)
-        .then(() => {
-            try {
-                store.commit(MutationTypes.TICK);
-            } catch (err) {
-                console.log("tick error", err, err ? err.stack : null);
-            }
-            return store.dispatch(ActionTypes.REFRESH);
-        })
+        .then(() => store.dispatch(ActionTypes.REFRESH))
         .catch(err => {
             console.log("refresh error", err, err ? err.stack : null);
         })

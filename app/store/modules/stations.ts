@@ -23,7 +23,7 @@ const getters = {
             .value();
         const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
         const available = _(deviceIds)
-            .map(deviceId => new AvailableStation(rootState.clock.wall.now, deviceId, nearby[deviceId], stations[deviceId]))
+            .map(deviceId => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
             .orderBy([
                 available => {
                     if (!available.lastSeen) {
@@ -61,7 +61,7 @@ const getters = {
         const legacy = _(deviceIds)
             .map(deviceId => {
                 const station = stations[deviceId];
-                const available = new AvailableStation(rootState.clock.wall.now, deviceId, nearby[deviceId], station);
+                const available = new AvailableStation(deviceId, nearby[deviceId], station);
                 return new LegacyStation(station, station.modules, available);
             })
             .sortBy(ls => {

@@ -299,6 +299,11 @@ export class MockStationReplies {
         return this.queueBody(this.newFakeReadingsReply(station));
     }
 
+    queueNoReply() {
+        this.call.mockReturnValueOnce(Promise.reject(new Error("fake connection error")));
+        return this;
+    }
+
     queueResponse(response) {
         this.call.mockReturnValueOnce(Promise.resolve(response));
         return this;
