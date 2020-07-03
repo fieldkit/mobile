@@ -49,6 +49,7 @@ const getters = {
                 })
             );
         }
+
         return available;
     },
     legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
@@ -67,6 +68,7 @@ const getters = {
                 return [ls.name];
             })
             .value();
+
         if (false) {
             console.log(
                 "legacy",
@@ -79,6 +81,7 @@ const getters = {
                 })
             );
         }
+
         return _.keyBy(legacy, s => s.id);
     },
 };
@@ -241,27 +244,29 @@ interface StationPortalError {
     error: string;
 }
 
+type ActionParameters = { commit: any; dispatch: any; state: StationsState };
+
 const actions = {
-    [ActionTypes.LOAD]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }) => {
+    [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
         return loadStationsFromDatabase(state.services.db()).then(stations => dispatch(ActionTypes.STATIONS_LOADED, stations));
     },
-    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, stations) => {
+    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations) => {
         commit(MutationTypes.STATIONS, stations);
         return state.services.legacy().refresh();
     },
-    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, statusReply) => {
+    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply) => {
         return state.services
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))
             .then(station => dispatch(ActionTypes.LOAD));
     },
-    [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, error: StationPortalError) => {
+    [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, error: StationPortalError) => {
         return state.services
             .db()
             .setStationPortalError({ id: error.id }, error.error)
             .then(station => dispatch(ActionTypes.LOAD));
     },
-    [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: { commit: any; dispatch: any; state: StationsState }, reply: StationPortalReply) => {
+    [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, reply: StationPortalReply) => {
         return state.services
             .db()
             .setStationPortalError({ id: reply.id }, "" /* I really dislike this */)

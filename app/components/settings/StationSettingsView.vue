@@ -108,7 +108,6 @@ export default {
             return this.$navigateTo(Firmware, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },

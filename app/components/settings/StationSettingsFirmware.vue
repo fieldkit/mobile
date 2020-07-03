@@ -46,9 +46,12 @@ import ScreenFooter from "../ScreenFooter";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal";
 import ConnectionNote from "./StationSettingsConnectionNote";
 
-const dbInterface = Services.Database();
-
 export default {
+    components: {
+        ScreenHeader,
+        ScreenFooter,
+        ConnectionNote,
+    },
     data() {
         return {
             versions: {

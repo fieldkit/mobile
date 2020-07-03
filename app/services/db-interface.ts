@@ -590,68 +590,6 @@ export default class DatabaseInterface {
         return this.getDatabase().then(db => db.query("DELETE FROM fieldmedia WHERE id = ?", [mediaId]));
     }
 
-    public getAllFirmware() {
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM firmware ORDER BY time DESC"))
-            .then(rows => sqliteToJs(rows));
-    }
-
-    public getLatestFirmware() {
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM firmware ORDER BY time DESC LIMIT 1"))
-            .then(rows => sqliteToJs(rows))
-            .then(all => {
-                if (all.length == 0) {
-                    return null;
-                }
-                return all[0];
-            });
-    }
-
-    public deleteFirmwareById(id) {
-        return this.getDatabase().then(db => db.query("DELETE FROM firmware WHERE id = ?", [id]));
-    }
-
-    public deleteAllFirmwareExceptIds(ids) {
-        const values = _.range(ids.length)
-            .map(() => "?")
-            .join(",");
-        return this.getDatabase()
-            .then(db => db.query("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids))
-            .then(data => {
-                return this.getDatabase()
-                    .then(db => db.query("DELETE FROM firmware WHERE id NOT IN (" + values + ")", ids))
-                    .then(() => {
-                        return data;
-                    });
-            });
-    }
-
-    public addOrUpdateFirmware(firmware) {
-        return this.getDatabase()
-            .then(db => db.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]))
-            .then(id => {
-                if (id.length === 1) {
-                    return Promise.resolve(id[0]);
-                }
-                const values = [
-                    firmware.id,
-                    firmware.time,
-                    firmware.url,
-                    firmware.module,
-                    firmware.profile,
-                    firmware.etag,
-                    firmware.path,
-                    firmware.meta,
-                    firmware.buildTime,
-                    firmware.buildNumber,
-                ];
-                return this.getDatabase().then(db =>
-                    db.execute(`INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, values)
-                );
-            });
-    }
-
     public insertDownload(download: DownloadTableRow) {
         return this.getDatabase().then(db => {
             return db
@@ -723,5 +661,65 @@ export default class DatabaseInterface {
     public addEvent(event) {
         const values = [event.createdAt, event.type, JSON.stringify(event.body)];
         return this.getDatabase().then(db => db.query("INSERT INTO event_history (created_at, type, body) VALUES (? , ?, ?)", values));
+    }
+
+    // Firwmare
+
+    public getAllFirmware() {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM firmware ORDER BY time DESC"))
+            .then(rows => sqliteToJs(rows));
+    }
+
+    public getLatestFirmware() {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM firmware ORDER BY time DESC LIMIT 1"))
+            .then(rows => sqliteToJs(rows))
+            .then(all => {
+                if (all.length == 0) {
+                    return null;
+                }
+                return all[0];
+            });
+    }
+
+    public deleteAllFirmwareExceptIds(ids) {
+        const values = _.range(ids.length)
+            .map(() => "?")
+            .join(",");
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids))
+            .then(data => {
+                return this.getDatabase()
+                    .then(db => db.query("DELETE FROM firmware WHERE id NOT IN (" + values + ")", ids))
+                    .then(() => {
+                        return data;
+                    });
+            });
+    }
+
+    public addOrUpdateFirmware(firmware) {
+        return this.getDatabase()
+            .then(db => db.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]))
+            .then(id => {
+                if (id.length === 1) {
+                    return Promise.resolve(id[0]);
+                }
+                const values = [
+                    firmware.id,
+                    firmware.time,
+                    firmware.url,
+                    firmware.module,
+                    firmware.profile,
+                    firmware.etag,
+                    firmware.path,
+                    firmware.meta,
+                    firmware.buildTime,
+                    firmware.buildNumber,
+                ];
+                return this.getDatabase().then(db =>
+                    db.execute(`INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, values)
+                );
+            });
     }
 }

@@ -3,13 +3,7 @@
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <ScreenHeader
-                        order="1"
-                        :title="currentStation.name"
-                        :subtitle="getDeployedStatus()"
-                        :onBack="goBack"
-                        :onSettings="goToSettings"
-                    />
+                    <ScreenHeader order="1" :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
 
                     <!-- loading animation -->
                     <GridLayout order="2" rows="auto" columns="*" v-if="loading" class="text-center">
@@ -25,14 +19,7 @@
                                 <!-- station status details -->
                                 <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
                                 <!-- field notes section -->
-                                <GridLayout
-                                    order="2"
-                                    rows="auto"
-                                    columns="10*,55*,35*"
-                                    v-if="isDeployed"
-                                    class="m-t-5 m-b-10 m-x-10 p-10 bordered-container"
-                                    @tap="goToFieldNotes"
-                                >
+                                <GridLayout order="2" rows="auto" columns="10*,55*,35*" v-if="isDeployed" class="m-t-5 m-b-10 m-x-10 p-10 bordered-container" @tap="goToFieldNotes">
                                     <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
                                     <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
                                     <Label
@@ -134,8 +121,9 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stations, {
+            return this.$navigateTo(routes.stations, {
                 props: {
+                    stationId: this.currentStation.id,
                     station: this.currentStation,
                 },
                 transition: {
@@ -147,16 +135,18 @@ export default {
         },
 
         goToDeploy(event) {
-            this.$navigateTo(routes.deployMap, {
+            return this.$navigateTo(routes.deployMap, {
                 props: {
+                    stationId: this.currentStation.id,
                     station: this.currentStation,
                 },
             });
         },
 
         goToFieldNotes() {
-            this.$navigateTo(routes.deployNotes, {
+            return this.$navigateTo(routes.deployNotes, {
                 props: {
+                    stationId: this.currentStation.id,
                     station: this.currentStation,
                     linkedFromStation: true,
                 },
@@ -170,9 +160,10 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.module, {
+            return this.$navigateTo(routes.module, {
                 props: {
                     // remove the "m_id-" prefix
+                    stationId: this.currentStation.id,
                     moduleId: event.object.id.split("m_id-")[1],
                     station: this.currentStation,
                 },
@@ -191,8 +182,9 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stationSettings, {
+            return this.$navigateTo(routes.stationSettings, {
                 props: {
+                    stationId: this.currentStation.id,
                     station: this.currentStation,
                 },
             });
@@ -205,7 +197,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stationDetail, {
+            return this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: this.currentStation.id,
                 },
