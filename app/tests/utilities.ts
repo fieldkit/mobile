@@ -211,7 +211,7 @@ export class MockStationReplies {
                     version: "version",
                     build: "build",
                     timestamp: 0,
-                    number: 120,
+                    number: "120",
                     has: "hash",
                 },
             },
