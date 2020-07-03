@@ -99,13 +99,7 @@ export class Stream {
     portalLastBlock: number | null = null;
     updated: Date = new Date();
 
-    constructor(
-        public deviceId: string,
-        public type: string,
-        public deviceSize: number,
-        public deviceFirstBlock: number,
-        public deviceLastBlock: number
-    ) {}
+    constructor(public deviceId: string, public type: string, public deviceSize: number, public deviceFirstBlock: number, public deviceLastBlock: number) {}
 
     static fromRow(o: StreamTableRow): Stream {
         const s = new Stream(o.deviceId, o.type, o.deviceSize, o.deviceFirstBlock, o.deviceLastBlock);
@@ -263,13 +257,12 @@ export interface ServiceInfo {
 
 export class NearbyStation {
     url: string;
-    queried: Date;
-    tried: Date | null;
+    queried: Date = new Date();
+    tried: Date | null = null;
+    transferring = false;
 
     constructor(public readonly info: ServiceInfo) {
         this.url = info.url;
-        this.queried = new Date();
-        this.tried = null;
     }
 }
 
@@ -281,6 +274,9 @@ export enum StationStatus {
 
 function isConnected(now: Date, nearby: NearbyStation | null): boolean {
     if (!nearby || !nearby.tried) {
+        return false;
+    }
+    if (nearby.transferring) {
         return false;
     }
     const elapsed = Math.abs(now.getTime() - nearby.tried.getTime());

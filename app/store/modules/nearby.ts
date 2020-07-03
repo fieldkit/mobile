@@ -106,6 +106,18 @@ const mutations = {
             state.readings = {};
         }
     },
+    [MutationTypes.TRANSFER_OPEN]: (state: NearbyState, payload: OpenProgressPayload) => {
+        if (payload.downloading) {
+            if (state.stations[payload.deviceId]) {
+                state.stations[payload.deviceId].transferring = true;
+            }
+        }
+    },
+    [MutationTypes.TRANSFER_CLOSE]: (state: NearbyState, deviceId: string) => {
+        if (state.stations[deviceId]) {
+            state.stations[deviceId].transferring = false;
+        }
+    },
 };
 
 const state = () => new NearbyState();
