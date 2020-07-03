@@ -19,13 +19,7 @@
 
                         <StackLayout v-if="editingLora">
                             <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
-                                <Label
-                                    row="0"
-                                    col="0"
-                                    :text="_L('appEUI') + ': '"
-                                    verticalAlignment="middle"
-                                    class="text-right m-y-10"
-                                ></Label>
+                                <Label row="0" col="0" :text="_L('appEUI') + ': '" verticalAlignment="middle" class="text-right m-y-10"></Label>
                                 <TextField
                                     row="0"
                                     col="1"
@@ -43,13 +37,7 @@
                                     textWrap="true"
                                     :visibility="invalidEui ? 'visible' : 'collapsed'"
                                 ></Label>
-                                <Label
-                                    row="2"
-                                    col="0"
-                                    :text="_L('appKey') + ': '"
-                                    verticalAlignment="middle"
-                                    class="text-right m-y-10"
-                                ></Label>
+                                <Label row="2" col="0" :text="_L('appKey') + ': '" verticalAlignment="middle" class="text-right m-y-10"></Label>
                                 <TextField
                                     row="2"
                                     col="1"
@@ -69,12 +57,7 @@
                                 ></Label>
                             </GridLayout>
                             <StackLayout class="p-b-20"></StackLayout>
-                            <Button
-                                class="btn btn-primary btn-padded"
-                                :text="_L('save')"
-                                :isEnabled="station.connected"
-                                @tap="editLora"
-                            ></Button>
+                            <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="editLora"></Button>
                             <ConnectionNote :station="station" />
                             <StackLayout class="p-b-20"></StackLayout>
                         </StackLayout>
@@ -107,7 +90,16 @@ export default {
             editingLora: false,
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

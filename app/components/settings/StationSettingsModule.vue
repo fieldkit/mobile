@@ -45,7 +45,20 @@ export default {
             calibrationText: "",
         };
     },
-    props: ["station", "module"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+        module: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

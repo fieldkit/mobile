@@ -38,7 +38,16 @@ export default {
             menuOptions: [_L("network"), _L("uploadSchedule")],
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

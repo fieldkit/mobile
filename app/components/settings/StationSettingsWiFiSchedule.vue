@@ -12,12 +12,7 @@
                         <TextField
                             row="1"
                             col="0"
-                            :class="
-                                'interval-field ' +
-                                (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber
-                                    ? 'interval-input'
-                                    : 'no-border')
-                            "
+                            :class="'interval-field ' + (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber ? 'interval-input' : 'no-border')"
                             verticalAligment="bottom"
                             keyboardType="name"
                             autocorrect="false"
@@ -74,12 +69,7 @@
                         </StackLayout>
                     </GridLayout>
                     <StackLayout class="p-b-20"></StackLayout>
-                    <Button
-                        class="btn btn-primary btn-padded"
-                        :text="_L('save')"
-                        :isEnabled="station.connected"
-                        @tap="saveUploadInterval"
-                    />
+                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="saveUploadInterval" />
                     <ConnectionNote :station="station" />
                 </StackLayout>
             </ScrollView>
@@ -110,7 +100,16 @@ export default {
             timeUnits: [_L("minutes"), _L("hours"), _L("days"), _L("weeks"), _L("months"), _L("years")],
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

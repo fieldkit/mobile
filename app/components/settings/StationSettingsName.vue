@@ -23,20 +23,8 @@
                             <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png"></Image>
                         </GridLayout>
                         <!-- station name validation errors -->
-                        <Label
-                            class="validation-error"
-                            id="no-name"
-                            :text="_L('nameRequired')"
-                            textWrap="true"
-                            :visibility="noName ? 'visible' : 'collapsed'"
-                        ></Label>
-                        <Label
-                            class="validation-error"
-                            id="name-too-long"
-                            :text="_L('nameOver40')"
-                            textWrap="true"
-                            :visibility="nameTooLong ? 'visible' : 'collapsed'"
-                        ></Label>
+                        <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" :visibility="noName ? 'visible' : 'collapsed'"></Label>
+                        <Label class="validation-error" id="name-too-long" :text="_L('nameOver40')" textWrap="true" :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="name-not-printable"
@@ -47,12 +35,7 @@
 
                         <StackLayout class="m-30"></StackLayout>
 
-                        <Button
-                            class="btn btn-primary btn-padded"
-                            :text="_L('saveName')"
-                            :isEnabled="station.connected"
-                            @tap="saveStationName"
-                        />
+                        <Button class="btn btn-primary btn-padded" :text="_L('saveName')" :isEnabled="station.connected" @tap="saveStationName" />
                         <ConnectionNote :station="station" />
                     </StackLayout>
                 </GridLayout>
@@ -81,7 +64,16 @@ export default {
             nameNotPrintable: false,
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

@@ -39,7 +39,16 @@ export default {
             menuOptions: [_L("stationName"), _L("dataCaptureSchedule")],
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

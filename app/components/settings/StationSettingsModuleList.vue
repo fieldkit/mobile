@@ -12,14 +12,7 @@
                                 <!-- module icon -->
                                 <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
                                 <!-- module name -->
-                                <Label
-                                    row="0"
-                                    col="1"
-                                    :text="getModuleName(m)"
-                                    verticalAlignment="middle"
-                                    class="size-18"
-                                    textWrap="true"
-                                />
+                                <Label row="0" col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-18" textWrap="true" />
                             </GridLayout>
                         </StackLayout>
                     </GridLayout>
@@ -46,7 +39,16 @@ export default {
             modules: [],
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

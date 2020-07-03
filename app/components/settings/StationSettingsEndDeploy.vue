@@ -10,12 +10,7 @@
                             <StackLayout class="m-x-20 m-t-20" v-if="station.status == 'recording'">
                                 <Label :text="_L('mustBeConnectedToStop')" class="size-18 m-y-5" lineHeight="4" textWrap="true" />
                                 <StackLayout class="m-t-10" />
-                                <Button
-                                    class="btn btn-primary btn-padded full-width"
-                                    :text="_L('stopRecording')"
-                                    :isEnabled="station.connected"
-                                    @tap="stopRecording"
-                                ></Button>
+                                <Button class="btn btn-primary btn-padded full-width" :text="_L('stopRecording')" :isEnabled="station.connected" @tap="stopRecording"></Button>
                             </StackLayout>
                             <StackLayout v-else class="m-20">
                                 <Label :text="station.name + ' ' + _L('notCurrentlyRecording')" textWrap="true" />
@@ -45,7 +40,16 @@ export default {
     data() {
         return {};
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

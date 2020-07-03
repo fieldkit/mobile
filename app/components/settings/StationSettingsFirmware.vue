@@ -7,11 +7,7 @@
 
                     <StackLayout class="m-t-10 m-b-30">
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
-                        <Label
-                            :text="_L('firmwareNumber') + ': ' + versions.firmwareNumber"
-                            class="size-15 m-x-15 m-b-20"
-                            textWrap="true"
-                        />
+                        <Label :text="_L('firmwareNumber') + ': ' + versions.firmwareNumber" class="size-15 m-x-15 m-b-20" textWrap="true" />
                         <Label :text="_L('appFirmwareVersion')" class="size-20 m-x-15" />
                         <Label :text="_L('firmwareNumber') + ': ' + appDownloaded" class="size-15 m-x-15 m-b-20" textWrap="true" />
 
@@ -65,7 +61,16 @@ export default {
             appDownloaded: "--",
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

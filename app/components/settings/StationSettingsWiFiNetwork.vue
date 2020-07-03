@@ -28,14 +28,7 @@
                                     @checkedChange="$event.value !== n.selected && toggleChoice(n)"
                                 /> -->
                                 <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid"></Label>
-                                <Image
-                                    row="0"
-                                    col="2"
-                                    src="~/images/Icon_Close.png"
-                                    width="17"
-                                    :dataSsid="n.ssid"
-                                    @tap="removeNetwork"
-                                ></Image>
+                                <Image row="0" col="2" src="~/images/Icon_Close.png" width="17" :dataSsid="n.ssid" @tap="removeNetwork"></Image>
                             </GridLayout>
                             <!-- end radio buttons -->
                         </WrapLayout>
@@ -67,21 +60,8 @@
 
                             <!-- password -->
                             <GridLayout rows="auto" columns="*,42" class="input m-t-20">
-                                <Label
-                                    row="0"
-                                    colSpan="2"
-                                    :text="_L('networkPasswordHint')"
-                                    class="size-18 hint"
-                                    :opacity="newNetwork.password.length == 0 ? 1 : 0"
-                                />
-                                <TextField
-                                    row="0"
-                                    col="0"
-                                    class="size-18 no-border-input"
-                                    :secure="hidePassword"
-                                    ref="password"
-                                    v-model="newNetwork.password"
-                                ></TextField>
+                                <Label row="0" colSpan="2" :text="_L('networkPasswordHint')" class="size-18 hint" :opacity="newNetwork.password.length == 0 ? 1 : 0" />
+                                <TextField row="0" col="0" class="size-18 no-border-input" :secure="hidePassword" ref="password" v-model="newNetwork.password"></TextField>
                                 <Label
                                     row="0"
                                     col="1"
@@ -95,24 +75,13 @@
                         </StackLayout>
                         <StackLayout class="p-b-20"></StackLayout>
                         <!-- make this visible all the time again when radio buttons are reactivated -->
-                        <Button
-                            v-show="addingNetwork"
-                            class="btn btn-primary btn-padded"
-                            :text="_L('save')"
-                            :isEnabled="station.connected"
-                            @tap="addNetwork"
-                        ></Button>
+                        <Button v-show="addingNetwork" class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="addNetwork"></Button>
 
                         <ConnectionNote :station="station" />
 
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
-                            <Button
-                                class="btn btn-primary btn-padded"
-                                :text="wifiUploadButton"
-                                :isEnabled="station.connected"
-                                @tap="uploadOverWifi"
-                            />
+                            <Button class="btn btn-primary btn-padded" :text="wifiUploadButton" :isEnabled="station.connected" @tap="uploadOverWifi" />
                         </StackLayout>
 
                         <StackLayout class="p-b-20"></StackLayout>
@@ -153,7 +122,16 @@ export default {
             wifiUploadButton: "",
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,

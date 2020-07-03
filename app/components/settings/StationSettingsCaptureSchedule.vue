@@ -4,12 +4,7 @@
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
                     <StackLayout>
-                        <ScreenHeader
-                            :title="_L('dataCaptureSchedule')"
-                            :subtitle="station.name"
-                            :onBack="goBack"
-                            :canNavigateSettings="false"
-                        />
+                        <ScreenHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                         <StackLayout class="p-b-10"></StackLayout>
                     </StackLayout>
 
@@ -40,7 +35,16 @@ export default {
     data() {
         return {};
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ConfigureCaptureInterval,
         ScreenHeader,

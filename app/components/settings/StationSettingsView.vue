@@ -45,7 +45,16 @@ export default {
             menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
         };
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     components: {
         ScreenHeader,
         ScreenFooter,
@@ -65,58 +74,58 @@ export default {
 
             switch (event.object.text) {
                 case _L("general"):
-                    this.goToGeneral();
-                    break;
+                    return this.goToGeneral();
                 case _L("networks"):
-                    this.goToNetworks();
-                    break;
+                    return this.goToNetworks();
                 case _L("firmware"):
-                    this.goToFirmware();
-                    break;
+                    return this.goToFirmware();
                 case _L("modulesTitle"):
-                    this.goToModules();
-                    break;
+                    return this.goToModules();
                 case _L("endDeployment"):
-                    this.goToEndDeploy();
-                    break;
+                    return this.goToEndDeploy();
             }
         },
 
         goToGeneral() {
-            this.$navigateTo(General, {
+            return this.$navigateTo(General, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
         },
 
         goToNetworks() {
-            this.$navigateTo(Networks, {
+            return this.$navigateTo(Networks, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
         },
 
         goToFirmware() {
-            this.$navigateTo(Firmware, {
+            return this.$navigateTo(Firmware, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
         },
 
         goToModules() {
-            this.$navigateTo(Modules, {
+            return this.$navigateTo(Modules, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
         },
 
         goToEndDeploy() {
-            this.$navigateTo(EndDeploy, {
+            return this.$navigateTo(EndDeploy, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
@@ -130,7 +139,7 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stationDetail, {
+            return this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: this.station.id,
                 },

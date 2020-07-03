@@ -9,7 +9,16 @@ export default {
     data() {
         return {};
     },
-    props: ["station"],
+    props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
+        station: {
+            required: true,
+            type: Object,
+        },
+    },
     methods: {},
 };
 </script>
