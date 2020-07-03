@@ -287,24 +287,31 @@ export class AvailableStation {
     readonly id: number | null;
     readonly deviceId: string;
     readonly connected: boolean;
-    readonly status: StationStatus;
+    readonly url: string | null;
+    readonly streams: Stream[] = [];
+    readonly downloads: Download[] = [];
+
     readonly name: string | null;
+    readonly generationId: string | null;
     readonly deployStartTime: Date | null;
     readonly location: Location | null;
-    readonly url: string | null;
+    readonly lastSeen: Date | null;
 
     constructor(now: Date, deviceId: string, nearby: NearbyStation | null, station: Station | null) {
         if (!nearby && !station) {
             throw new Error(`AvailableStation invalid args`);
         }
         this.deviceId = deviceId;
-        this.status = StationStatus.Unknown;
+        this.generationId = station?.generationId || null;
         this.id = station?.id || null;
         this.name = station?.name || null;
         this.deployStartTime = station?.deployStartTime || null;
         this.url = nearby?.url || null;
+        this.lastSeen = station?.lastSeen || null;
         this.location = station?.location() || null;
         this.connected = isConnected(now, nearby);
+        this.streams = station?.streams || [];
+        this.downloads = station?.downloads || [];
     }
 }
 

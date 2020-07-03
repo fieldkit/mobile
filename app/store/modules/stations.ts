@@ -24,10 +24,21 @@ const getters = {
         const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
         const available = _(deviceIds)
             .map(deviceId => new AvailableStation(rootState.clock.wall.now, deviceId, nearby[deviceId], stations[deviceId]))
-            .sortBy(available => {
-                return [available.name];
-            })
+            .orderBy([
+                available => {
+                    if (!available.lastSeen) {
+                        return 0;
+                    }
+                    const FiveMinutesSecs = 300;
+                    const seen = available.lastSeen.getTime() / 1000;
+                    const rounded = Math.floor(seen / FiveMinutesSecs) * FiveMinutesSecs;
+                    return -rounded;
+                },
+            ])
             .value();
+
+        console.log(_.map(available, a => a.name));
+
         if (false) {
             console.log(
                 "available",

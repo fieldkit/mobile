@@ -293,18 +293,14 @@ const actions = {
 
 const getters = {
     syncs: (state: SyncingState, _getters: never, rootState: never, rootGetters: GlobalGetters): StationSyncStatus[] => {
-        return state.stations.map(station => {
-            if (!station.id) {
-                throw new Error("unexpected null station.id: " + station.name);
+        return rootGetters.availableStations.map(station => {
+            if (!station.id || !station.generationId || !station.name || !station.lastSeen) {
+                throw new Error("id, generationId, and name are required");
             }
 
-            const available = rootGetters.availableStations.find(s => s.deviceId == station.deviceId);
-            if (!available) {
-                throw new Error("expected available station, missing");
-            }
-            const connected = available.connected;
+            const connected = station.connected;
             const lastSeen = station.lastSeen;
-            const baseUrl = available.url || "";
+            const baseUrl = station.url || "https://www.fieldkit.org/off-line-bug";
 
             const downloads = station.streams
                 .map(stream => {
