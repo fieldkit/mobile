@@ -23,13 +23,7 @@
                             ></TextField>
                             <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong"></StackLayout>
                             <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName"></Label>
-                            <Label
-                                class="validation-error"
-                                id="name-too-long"
-                                :text="_L('nameOver255')"
-                                textWrap="true"
-                                v-show="nameTooLong"
-                            ></Label>
+                            <Label class="validation-error" id="name-too-long" :text="_L('nameOver255')" textWrap="true" v-show="nameTooLong"></Label>
                         </StackLayout>
 
                         <StackLayout row="1" class="input-field">
@@ -52,30 +46,11 @@
                                     @returnPress="focusPassword"
                                     @blur="checkEmail"
                                 ></TextField>
-                                <Image
-                                    row="0"
-                                    width="25"
-                                    class="bottom-pad"
-                                    horizontalAlignment="right"
-                                    v-show="isLoggingIn"
-                                    src="~/images/Icon_Email_login.png"
-                                ></Image>
+                                <Image row="0" width="25" class="bottom-pad" horizontalAlignment="right" v-show="isLoggingIn" src="~/images/Icon_Email_login.png"></Image>
                             </GridLayout>
                             <StackLayout class="spacer-top" id="email-field-spacer" v-show="!noEmail && !emailNotValid"></StackLayout>
-                            <Label
-                                class="validation-error"
-                                id="no-email"
-                                :text="_L('emailRequired')"
-                                textWrap="true"
-                                v-show="noEmail"
-                            ></Label>
-                            <Label
-                                class="validation-error"
-                                id="email-not-valid"
-                                :text="_L('emailNotValid')"
-                                textWrap="true"
-                                v-show="emailNotValid"
-                            ></Label>
+                            <Label class="validation-error" id="no-email" :text="_L('emailRequired')" textWrap="true" v-show="noEmail"></Label>
+                            <Label class="validation-error" id="email-not-valid" :text="_L('emailNotValid')" textWrap="true" v-show="emailNotValid"></Label>
                         </StackLayout>
 
                         <StackLayout row="2" class="input-field">
@@ -95,41 +70,12 @@
                                     @returnPress="focusConfirmPassword"
                                     @blur="checkPassword"
                                 ></TextField>
-                                <Image
-                                    row="0"
-                                    width="25"
-                                    class="bottom-pad"
-                                    horizontalAlignment="right"
-                                    v-show="isLoggingIn"
-                                    src="~/images/Icon_Password_login.png"
-                                ></Image>
+                                <Image row="0" width="25" class="bottom-pad" horizontalAlignment="right" v-show="isLoggingIn" src="~/images/Icon_Password_login.png"></Image>
                             </GridLayout>
-                            <StackLayout
-                                class="spacer-top"
-                                id="password-field-spacer"
-                                v-show="!noPassword && !passwordTooShort"
-                            ></StackLayout>
-                            <Label
-                                class="validation-error"
-                                id="no-password"
-                                :text="_L('passwordRequired')"
-                                textWrap="true"
-                                v-show="noPassword"
-                            ></Label>
-                            <Label
-                                class="validation-error"
-                                id="password-too-short"
-                                :text="_L('passwordTooShort')"
-                                textWrap="true"
-                                v-show="passwordTooShort"
-                            ></Label>
-                            <Label
-                                class="m-t-5"
-                                horizontalAlignment="right"
-                                v-show="isLoggingIn"
-                                :text="_L('forgotLink')"
-                                @tap="forgotPassword()"
-                            ></Label>
+                            <StackLayout class="spacer-top" id="password-field-spacer" v-show="!noPassword && !passwordTooShort"></StackLayout>
+                            <Label class="validation-error" id="no-password" :text="_L('passwordRequired')" textWrap="true" v-show="noPassword"></Label>
+                            <Label class="validation-error" id="password-too-short" :text="_L('passwordTooShort')" textWrap="true" v-show="passwordTooShort"></Label>
+                            <Label class="m-t-5" horizontalAlignment="right" v-show="isLoggingIn" :text="_L('forgotLink')" @tap="forgotPassword()"></Label>
                         </StackLayout>
 
                         <StackLayout row="3" v-show="!isLoggingIn" class="input-field">
@@ -147,24 +93,13 @@
                                 @blur="checkConfirmPassword"
                             ></TextField>
                             <StackLayout class="spacer-top" id="confirm-password-field-spacer" v-show="!passwordsNotMatch"></StackLayout>
-                            <Label
-                                class="validation-error"
-                                id="passwords-not-match"
-                                :text="_L('noMatch')"
-                                textWrap="true"
-                                v-show="passwordsNotMatch"
-                            ></Label>
+                            <Label class="validation-error" id="passwords-not-match" :text="_L('noMatch')" textWrap="true" v-show="passwordsNotMatch"></Label>
                         </StackLayout>
 
                         <ActivityIndicator rowSpan="4" :busy="processing"></ActivityIndicator>
                     </GridLayout>
 
-                    <Button
-                        class="btn btn-primary btn-padded m-t-20"
-                        :text="isLoggingIn ? _L('logIn') : _L('signUp')"
-                        :isEnabled="!processing"
-                        @tap="submit"
-                    ></Button>
+                    <Button class="btn btn-primary btn-padded m-t-20" :text="isLoggingIn ? _L('logIn') : _L('signUp')" :isEnabled="!processing" @tap="submit"></Button>
 
                     <Button class="btn btn-primary btn-padded m-t-20" :text="_L('continueOffline')" @tap="continueOffline"></Button>
                 </StackLayout>
@@ -292,7 +227,7 @@ export default {
         },
 
         login() {
-            return Services.PortalSession()
+            return Services.PortalInterface()
                 .login(this.user)
                 .then(token => {
                     this.processing = false;
@@ -316,7 +251,7 @@ export default {
                 return this.alert(_L("noMatch"));
             }
 
-            return Services.PortalSession()
+            return Services.PortalInterface()
                 .register(this.user)
                 .then(() => {
                     this.processing = false;
@@ -339,8 +274,8 @@ export default {
                 cancelButtonText: _L("cancel"),
             }).then(data => {
                 if (data.result) {
-                    return Services.PortalSession()
-                        .resetPassword(data.text.trim())
+                    return Services.PortalInterface()
+                        .logout(data.text.trim())
                         .then(() => {
                             return this.alert(_L("passwordResetSucceeded"));
                         })

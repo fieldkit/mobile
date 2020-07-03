@@ -83,14 +83,6 @@ export class Services {
         return this.createDb;
     }
 
-    PortalSession() {
-        if (!this.portalSession) {
-            const PortalSession = require("./portal-session").default;
-            this.portalSession = new PortalSession(this);
-        }
-        return this.portalSession;
-    }
-
     PortalInterface() {
         if (!this.portalInterface) {
             const PortalInterface = require("./portal-interface").default;
