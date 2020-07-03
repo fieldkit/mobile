@@ -44,8 +44,17 @@ export const AVAILABLE_FIRMWARE = "AVAILABLE_FIRMWARE";
 const getters = {};
 
 const actions = {
-    [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
-        return dispatch(RELOAD_FIRMWARE);
+    [ActionTypes.INITIALIZE]: ({ commit, dispatch, state }: ActionParameters) => {
+        return dispatch(ActionTypes.FIRMWARE_REFRESH);
+    },
+    [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
+        return dispatch(ActionTypes.FIRMWARE_REFRESH);
+    },
+    [ActionTypes.FIRMWARE_REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
+        return state.services
+            .firmware()
+            .downloadFirmware()
+            .then(() => dispatch(RELOAD_FIRMWARE));
     },
     [RELOAD_FIRMWARE]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
@@ -53,12 +62,6 @@ const actions = {
             .getAllFirmware()
             .then(all => all.map(row => Firmware.fromRow(row)))
             .then(all => commit(AVAILABLE_FIRMWARE, all));
-    },
-    [ActionTypes.FIRMWARE_REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
-        return state.services
-            .firmware()
-            .downloadFirmware()
-            .then(() => dispatch(RELOAD_FIRMWARE));
     },
 };
 
