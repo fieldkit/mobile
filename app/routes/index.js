@@ -12,7 +12,7 @@ import Login from "../components/LoginView";
 import Module from "../components/ModuleDetailView";
 import StationDetail from "../components/StationDetailView";
 import StationListView from "../components/StationListView";
-import StationSettings from "../components/station_settings/StationSettingsView";
+import StationSettings from "../components/settings/StationSettingsView";
 
 import { Route, RouteState } from "./navigate";
 
