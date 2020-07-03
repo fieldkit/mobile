@@ -2,9 +2,8 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Station, Download, FileType, FileTypeUtils, OpenProgressPayload, TransferProgress } from "../types";
+import { Station, Download, FileType, FileTypeUtils, OpenProgressPayload, TransferProgress, ServiceInfo } from "../types";
 import { Services, ServiceRef } from "./utilities";
-import { GlobalGetters } from "./global";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
 
@@ -220,6 +219,7 @@ export class SyncingState {
     clock: Date = new Date();
     progress: { [index: string]: StationProgress } = {};
     downloads: { [index: string]: Download } = {};
+    connected: { [index: string]: ServiceInfo } = {};
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
@@ -288,15 +288,15 @@ const actions = {
 };
 
 const getters = {
-    syncs: (state: SyncingState, _getters: never, rootState: never, rootGetters: GlobalGetters): StationSyncStatus[] => {
-        return rootGetters.availableStations.map(station => {
+    syncs: (state: SyncingState): StationSyncStatus[] => {
+        return state.stations.map(station => {
             if (!station.id || !station.generationId || !station.name || !station.lastSeen) {
                 throw new Error("id, generationId, and name are required");
             }
 
-            const connected = station.connected;
+            const connected = state.connected[station.deviceId];
             const lastSeen = station.lastSeen;
-            const baseUrl = station.url || "https://www.fieldkit.org/off-line-bug";
+            const baseUrl = connected.url || "https://www.fieldkit.org/off-line-bug";
 
             const downloads = station.streams
                 .map(stream => {
@@ -339,16 +339,12 @@ const getters = {
             const uploaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.portalLastBlock));
             const progress = state.progress[station.deviceId];
 
-            if (true) {
-                console.log(station.id, connected, downloads, uploads);
-            }
-
             return new StationSyncStatus(
                 station.id,
                 station.deviceId,
                 station.generationId,
                 station.name,
-                connected,
+                connected !== null,
                 lastSeen,
                 state.clock,
                 downloaded || 0,
@@ -380,6 +376,12 @@ const mutations = {
                 .keyBy(d => d.path)
                 .value()
         );
+    },
+    [MutationTypes.FIND]: (state: SyncingState, info: ServiceInfo) => {
+        Vue.set(state.connected, info.deviceId, info);
+    },
+    [MutationTypes.LOSE]: (state: SyncingState, info: ServiceInfo) => {
+        Vue.set(state.connected, info.deviceId, null);
     },
     [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressPayload) => {
         Vue.set(state.progress, payload.deviceId, new StationProgress(payload.deviceId, payload.downloading, payload.totalBytes));

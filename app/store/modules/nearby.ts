@@ -90,7 +90,6 @@ const mutations = {
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
         if (!state.stations[info.deviceId]) {
-            // state.stations = { ...state.stations, [info.deviceId]: new NearbyStation(info) };
             Vue.set(state.stations, info.deviceId, new NearbyStation(info));
         }
     },
