@@ -15,7 +15,7 @@ export interface GlobalState {
     readonly nav: NavigationState;
     readonly phone: PhoneState;
     readonly network: NetworkState;
-    readonly synicng: SyncingState;
+    readonly syncing: SyncingState;
 }
 
 export interface GlobalGetters {

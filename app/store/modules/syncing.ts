@@ -109,6 +109,23 @@ export class StationSyncStatus {
         public readonly progress: StationProgress | null = null
     ) {}
 
+    public withProgress(progress: StationProgress | null): StationSyncStatus {
+        return new StationSyncStatus(
+            this.id,
+            this.deviceId,
+            this.generationId,
+            this.name,
+            this.connected,
+            this.lastSeen,
+            this.time,
+            this.downloaded,
+            this.uploaded,
+            this.downloads,
+            this.uploads,
+            progress
+        );
+    }
+
     public get isDownloading(): boolean {
         return this.progress ? this.progress.downloading : false;
     }
@@ -215,8 +232,7 @@ export class StationSyncStatus {
 
 export class SyncingState {
     services: ServiceRef = new ServiceRef();
-    stations: Station[] = [];
-    clock: Date = new Date();
+    syncs: StationSyncStatus[] = [];
     progress: { [index: string]: StationProgress } = {};
     pending: { [index: string]: Download } = {};
     connected: { [index: string]: ServiceInfo } = {};
@@ -289,14 +305,29 @@ const actions = {
 
 const getters = {
     syncs: (state: SyncingState): StationSyncStatus[] => {
-        return state.stations.map(station => {
+        return state.syncs.map(sync => {
+            return sync.withProgress(state.progress[sync.deviceId]);
+        });
+    },
+};
+
+const mutations = {
+    [MutationTypes.RESET]: (state: SyncingState, error: string) => {
+        Object.assign(state, new SyncingState());
+    },
+    [MutationTypes.SERVICES]: (state: SyncingState, services: () => Services) => {
+        Vue.set(state, "services", new ServiceRef(services));
+    },
+    [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
+        const now = new Date();
+        const syncs = stations.map(station => {
             if (!station.id || !station.generationId || !station.name || !station.lastSeen) {
                 throw new Error("id, generationId, and name are required");
             }
 
             const connected = state.connected[station.deviceId];
             const lastSeen = station.lastSeen;
-            const baseUrl = connected.url || "https://www.fieldkit.org/off-line-bug";
+            const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
 
             const downloads = station.streams
                 .map(stream => {
@@ -304,7 +335,7 @@ const getters = {
                     const lastBlock = stream.deviceLastBlock;
                     const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
                     const typeName = FileTypeUtils.toString(stream.fileType());
-                    const path = ["downloads", station.deviceId, getPathTimestamp(state.clock)].join("/");
+                    const path = ["downloads", station.deviceId, getPathTimestamp(now)].join("/");
                     const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
                     const folder = state.services.fs().getFolder(path);
                     const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
@@ -337,7 +368,6 @@ const getters = {
 
             const downloaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.downloadLastBlock));
             const uploaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.portalLastBlock));
-            const progress = state.progress[station.deviceId];
 
             return new StationSyncStatus(
                 station.id,
@@ -346,37 +376,25 @@ const getters = {
                 station.name,
                 connected !== null,
                 lastSeen,
-                state.clock,
+                now,
                 downloaded || 0,
                 uploaded || 0,
                 downloads,
                 uploads,
-                progress
+                null
             );
         });
-    },
-};
 
-const mutations = {
-    [MutationTypes.RESET]: (state: SyncingState, error: string) => {
-        Object.assign(state, new SyncingState());
-    },
-    [MutationTypes.SERVICES]: (state: SyncingState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
-    },
-    [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
-        Vue.set(state, "clock", new Date());
-        Vue.set(state, "stations", stations);
-        Vue.set(
-            state,
-            "pending",
-            _(stations)
-                .map(s => s.downloads)
-                .flatten()
-                .filter(d => d.uploaded === null)
-                .keyBy(d => d.path)
-                .value()
-        );
+        Vue.set(state, "syncs", syncs);
+
+        const pending = _(stations)
+            .map(s => s.downloads)
+            .flatten()
+            .filter(d => d.uploaded === null)
+            .keyBy(d => d.path)
+            .value();
+
+        Vue.set(state, "pending", pending);
     },
     [MutationTypes.FIND]: (state: SyncingState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, info);
