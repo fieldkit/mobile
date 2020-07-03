@@ -218,7 +218,7 @@ export class SyncingState {
     stations: Station[] = [];
     clock: Date = new Date();
     progress: { [index: string]: StationProgress } = {};
-    downloads: { [index: string]: Download } = {};
+    pending: { [index: string]: Download } = {};
     connected: { [index: string]: ServiceInfo } = {};
 }
 
@@ -257,7 +257,7 @@ const actions = {
     },
     [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
         const paths = sync.getPathsToUpload();
-        const downloads = paths.map(path => state.downloads[path]).filter(d => d != null);
+        const downloads = paths.map(path => state.pending[path]).filter(d => d != null);
         if (downloads.length != paths.length) {
             throw new Error("download missing");
         }
@@ -369,10 +369,11 @@ const mutations = {
         Vue.set(state, "stations", stations);
         Vue.set(
             state,
-            "downloads",
+            "pending",
             _(stations)
                 .map(s => s.downloads)
                 .flatten()
+                .filter(d => d.uploaded === null)
                 .keyBy(d => d.path)
                 .value()
         );
