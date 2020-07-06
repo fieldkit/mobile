@@ -124,6 +124,8 @@ import Services from "../../services/services";
 import ConnectStationCheck from "./ConnectStationCheck";
 import ConnectStationModules from "./ConnectStationModules";
 
+import * as ActionTypes from "../../store/actions";
+
 export default {
     props: ["stepParam", "station"],
     data() {
@@ -241,6 +243,7 @@ export default {
             let valid = this.checkName();
             if (valid && this.origName != this.stationName) {
                 this.station.name = this.stationName;
+                /*
                 return Services.StateManager()
                     .renameStation(this.station, this.stationName)
                     .then(() => {
@@ -249,8 +252,14 @@ export default {
                     .catch(error => {
                         console.error("error saving station name", error);
                     });
+				*/
+                return Services.Store()
+                    .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.station.deviceId, name: this.stationName })
+                    .then(() => {
+                        this.origName = this.stationName;
+                    });
             } else {
-                return Promise.reject();
+                return Promise.resolve();
             }
         },
 
@@ -281,8 +290,8 @@ export default {
                 this.networks.push(network);
             }
 
-            return Services.QueryStation()
-                .sendNetworkSettings(this.station.url, this.networks)
+            return Services.Store()
+                .dispatch(ActionTypes.CONFIGURE_STATION_NETWORKS, { deviceId: this.station.deviceId, networks: this.networks })
                 .then(result => {
                     this.networks = result.networkSettings.networks.map(n => {
                         n.selected = n.ssid == this.network.ssid;

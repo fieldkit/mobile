@@ -140,23 +140,16 @@ export default {
         },
 
         fetchModules() {
-            return dbInterface.getModules(this.station.id);
-        },
-
-        getSensors(moduleObject) {
-            return dbInterface.getSensors(moduleObject.deviceId).then(sensors => {
-                moduleObject.sensorObjects = sensors;
-            });
+            return Promise.resolve(this.$store.getters.legacyStations[this.station.id].modules);
         },
 
         setupModules(modules) {
             this.station.moduleObjects = modules;
-            return Promise.all(this.station.moduleObjects.map(this.getSensors));
         },
 
         completeSetup() {
             if (this.modules.length == 0) {
-                this.updateModules(this.station.moduleObjects);
+                this.updateModules(this.station.modules);
             }
         },
 
@@ -211,13 +204,13 @@ export default {
 
             this.sensorsChecked = 0;
             this.totalSensors = _.sumBy(this.modules, m => {
-                return m.sensorObjects.length;
+                return m.sensors.length;
             });
             this.modules.forEach((m, i) => {
                 m.calibratedLabel = null;
                 m.calibratedClass = "gray-text";
                 m.calibratedImage = "";
-                m.sensorObjects.forEach(s => {
+                m.sensors.forEach(s => {
                     this.checkCalibrationStatus(m, i, s);
                 });
             });
