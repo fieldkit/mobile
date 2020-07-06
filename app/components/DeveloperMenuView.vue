@@ -31,6 +31,7 @@
                     </GridLayout>
                 </StackLayout>
                 <Button class="btn btn-primary btn-padded" :text="_L('resetCalibration')" @tap="resetCalibration"></Button>
+                <Button class="btn btn-primary btn-padded" :text="'Onboarding'" @tap="goOnboarding"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB"></Button>
@@ -162,6 +163,9 @@ export default {
                     }
                 });
             }
+        },
+        goOnboarding() {
+            return this.$navigateTo(routes.assembleStation);
         },
         resetOnboarding() {
             const appSettings = new AppSettings();
