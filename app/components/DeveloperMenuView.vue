@@ -197,6 +197,8 @@ export default {
 
                     store.commit(MutationTypes.RESET);
 
+                    store.commit(MutationTypes.SERVICES, () => Services);
+
                     return Services.Store()
                         .dispatch(ActionTypes.INITIALIZE)
                         .then(() => {
