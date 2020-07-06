@@ -14,14 +14,7 @@
                     <!-- connection steps -->
                     <StackLayout row="0" v-if="step.regularFormat">
                         <Label class="title text-center m-b-20" :text="step.title" textWrap="true"></Label>
-                        <Label
-                            v-for="instruction in step.instructions"
-                            :key="instruction"
-                            class="instruction"
-                            :text="instruction"
-                            lineHeight="4"
-                            textWrap="true"
-                        ></Label>
+                        <Label v-for="instruction in step.instructions" :key="instruction" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
                         <GridLayout rows="*" columns="*">
                             <Image width="75%" verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
                         </GridLayout>
@@ -34,23 +27,10 @@
                             <StackLayout row="0" verticalAlignment="middle">
                                 <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
-                                <Label
-                                    v-for="instruction in step.instructions"
-                                    :key="instruction"
-                                    class="instruction"
-                                    :text="instruction"
-                                    lineHeight="4"
-                                    textWrap="true"
-                                ></Label>
+                                <Label v-for="instruction in step.instructions" :key="instruction" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
 
                                 <!-- radio buttons and info -->
-                                <GridLayout
-                                    rows="auto,auto"
-                                    columns="30,*"
-                                    v-for="option in step.options"
-                                    :key="step.id"
-                                    class="option-container"
-                                >
+                                <GridLayout rows="auto,auto" columns="30,*" v-for="option in step.options" :key="step.id" class="option-container">
                                     <check-box
                                         row="0"
                                         col="0"
@@ -64,14 +44,7 @@
                                         @checkedChange="$event.value !== option.selected && toggleChoice(option)"
                                     />
                                     <Label row="0" col="1" class="m-t-5 m-l-5" :text="option.text"></Label>
-                                    <Label
-                                        row="1"
-                                        colSpan="2"
-                                        class="radio-info size-15"
-                                        lineHeight="4"
-                                        :text="option.info"
-                                        textWrap="true"
-                                    ></Label>
+                                    <Label row="1" colSpan="2" class="radio-info size-15" lineHeight="4" :text="option.info" textWrap="true"></Label>
                                 </GridLayout>
                                 <!-- end radio buttons -->
                             </StackLayout>
@@ -83,12 +56,7 @@
 
             <!-- sticky next button -->
             <StackLayout :row="step.hasBackButton ? 2 : 1" verticalAlignment="bottom" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="step.button"
-                    :isEnabled="!step.buttonDisabled"
-                    @tap="goNext"
-                ></Button>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="step.button" :isEnabled="!step.buttonDisabled" @tap="goNext"></Button>
                 <Label :text="step.altOption" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
@@ -127,9 +95,6 @@ export default {
             on(suspendEvent, args => {
                 this.leftOffOn = this.step.name;
             });
-
-            //on(resumeEvent, (args) => {
-            //});
 
             if (this.stationParam) {
                 this.station = this.stationParam;

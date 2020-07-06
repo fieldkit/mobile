@@ -8,14 +8,7 @@
                             <StackLayout row="0" verticalAlignment="middle">
                                 <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
-                                <Label
-                                    v-for="instruction in step.instructions"
-                                    :key="instruction"
-                                    class="instruction"
-                                    :text="instruction"
-                                    lineHeight="4"
-                                    textWrap="true"
-                                ></Label>
+                                <Label v-for="instruction in step.instructions" :key="instruction" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
 
                                 <!-- stations list -->
                                 <StackLayout class="m-t-10"></StackLayout>
@@ -42,12 +35,7 @@
 
             <!-- sticky next button -->
             <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="step.button"
-                    :isEnabled="!step.buttonDisabled"
-                    @tap="goNext"
-                ></Button>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="step.button" :isEnabled="!step.buttonDisabled" @tap="goNext"></Button>
                 <Label :text="step.altOption" class="skip" @tap="tryAgain" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->

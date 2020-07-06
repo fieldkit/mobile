@@ -19,14 +19,7 @@
             <ScrollView row="1">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <Label
-                            v-for="instruction in step.instructions"
-                            :key="instruction"
-                            class="instruction"
-                            :text="instruction"
-                            lineHeight="4"
-                            textWrap="true"
-                        ></Label>
+                        <Label v-for="instruction in step.instructions" :key="instruction" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
 
                         <!-- module list -->
                         <StackLayout class="m-t-10"></StackLayout>
@@ -59,12 +52,7 @@
 
             <!-- sticky next button -->
             <StackLayout row="2" verticalAlignment="bottom" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="step.button"
-                    :isEnabled="!step.buttonDisabled"
-                    @tap="goToStations"
-                ></Button>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="step.button" :isEnabled="!step.buttonDisabled" @tap="goToStations"></Button>
                 <Label :text="step.altOption" class="skip" @tap="goToStations" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
@@ -123,9 +111,7 @@ export default {
 
             if (this.stationParam) {
                 this.station = this.stationParam;
-                this.fetchModules()
-                    .then(this.setupModules)
-                    .then(this.completeSetup);
+                this.fetchModules().then(this.setupModules).then(this.completeSetup);
             }
         },
 
@@ -238,12 +224,7 @@ export default {
         },
 
         checkCalibrationStatus(m, i, s) {
-            if (
-                (m.position || m.position == 0) &&
-                this.station.url &&
-                !this.pending[m.position] &&
-                sensorsThatCalibrate.indexOf(s.name) > -1
-            ) {
+            if ((m.position || m.position == 0) && this.station.url && !this.pending[m.position] && sensorsThatCalibrate.indexOf(s.name) > -1) {
                 m.calibrateSensor = s.name;
                 // keep track so many requests aren't sent at once
                 this.pending[m.position] = true;

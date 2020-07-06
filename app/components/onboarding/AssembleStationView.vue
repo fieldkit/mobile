@@ -29,26 +29,14 @@
                     <!-- conditional list needs to be wrapped in StackLayout or else
                         error occurs about reference node has a different parent -->
                     <Gridlayout rows="auto,auto,auto,auto,auto,auto" columns="40*,40*" class="checklist" v-if="step == 1">
-                        <Label
-                            v-for="item in checklist"
-                            class="checklist-item"
-                            :key="item.id"
-                            :row="item.row"
-                            :col="item.col"
-                            :text="item.text"
-                        />
+                        <Label v-for="item in checklist" class="checklist-item" :key="item.id" :row="item.row" :col="item.col" :text="item.text" />
                         <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" :text="'*' + _L('notIncluded')" />
                     </Gridlayout>
                 </StackLayout>
 
                 <GridLayout order="4" rows="*" columns="*">
                     <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
-                    <Label
-                        verticalAlignment="middle"
-                        v-if="!displayFrame && noImageText"
-                        class="m-y-30 m-x-20 text-center size-20"
-                        :text="noImageText"
-                    />
+                    <Label verticalAlignment="middle" v-if="!displayFrame && noImageText" class="m-y-30 m-x-20 text-center size-20" :text="noImageText" />
                 </GridLayout>
             </StackLayout>
             <!-- end assembly steps section -->
@@ -70,7 +58,7 @@
 
             <!-- intro screen -->
             <!-- needs to be "on top of" assembly steps section -->
-            <FlexboxLayout rowSpan="3" v-if="step == 0" flexDirection="column" justifyContent="center" class=" m-b-10">
+            <FlexboxLayout rowSpan="3" v-if="step == 0" flexDirection="column" justifyContent="center" class="m-b-10">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
                 <Image class="illo" src="~/images/FieldKit_welcome_image.jpg"></Image>
                 <StackLayout class="welcome-text-container">

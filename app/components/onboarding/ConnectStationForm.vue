@@ -6,14 +6,7 @@
                     <StackLayout row="0" verticalAlignment="middle">
                         <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
-                        <Label
-                            v-for="instruction in step.instructions"
-                            :key="instruction"
-                            class="instruction"
-                            :text="instruction"
-                            lineHeight="4"
-                            textWrap="true"
-                        ></Label>
+                        <Label v-for="instruction in step.instructions" :key="instruction" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
 
                         <Label :text="label" class="m-y-20 size-16 text-center" textWrap="true" width="100%" />
 
@@ -35,13 +28,7 @@
 
                         <!-- or edit ssid -->
                         <GridLayout rows="auto,auto" columns="*" class="p-x-20">
-                            <Label
-                                row="0"
-                                id="hidden-ssid-instruction"
-                                :text="step.hint"
-                                class="size-12"
-                                :visibility="typing && editingSsid ? 'visible' : 'collapsed'"
-                            />
+                            <Label row="0" id="hidden-ssid-instruction" :text="step.hint" class="size-12" :visibility="typing && editingSsid ? 'visible' : 'collapsed'" />
                             <TextField
                                 row="1"
                                 :class="'size-18 input ' + lineStatus"
@@ -79,31 +66,12 @@
                                 @textChange="showPasswordInstruction"
                                 @blur="deactivateLine"
                             ></TextField>
-                            <Label
-                                row="1"
-                                col="1"
-                                :text="passwordVisibility"
-                                class="size-16"
-                                verticalAlignment="middle"
-                                @tap="togglePassword"
-                            />
+                            <Label row="1" col="1" :text="passwordVisibility" class="size-16" verticalAlignment="middle" @tap="togglePassword" />
                         </GridLayout>
 
                         <!-- station name validation errors -->
-                        <Label
-                            class="validation-error"
-                            id="no-name"
-                            :text="_L('nameRequired')"
-                            textWrap="true"
-                            :visibility="noName ? 'visible' : 'collapsed'"
-                        ></Label>
-                        <Label
-                            class="validation-error"
-                            id="name-too-long"
-                            :text="_L('nameOver40')"
-                            textWrap="true"
-                            :visibility="nameTooLong ? 'visible' : 'collapsed'"
-                        ></Label>
+                        <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" :visibility="noName ? 'visible' : 'collapsed'"></Label>
+                        <Label class="validation-error" id="name-too-long" :text="_L('nameOver40')" textWrap="true" :visibility="nameTooLong ? 'visible' : 'collapsed'"></Label>
                         <Label
                             class="validation-error"
                             id="name-not-printable"
@@ -140,12 +108,7 @@
 
             <!-- sticky next button -->
             <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="step.button"
-                    :isEnabled="!step.buttonDisabled"
-                    @tap="goNext"
-                ></Button>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="step.button" :isEnabled="!step.buttonDisabled" @tap="goNext"></Button>
                 <Label :text="step.altOption" class="skip" @tap="goToModules" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->

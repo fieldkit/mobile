@@ -9,14 +9,7 @@
                                 <Image width="60" class="m-b-20" src="~/images/Icon_Soft_error.png" />
                                 <Label class="title m-t-20 m-b-10 text-center" :text="step.title" textWrap="true"></Label>
 
-                                <Label
-                                    v-for="instruction in step.instructions"
-                                    :key="instruction"
-                                    class="instruction"
-                                    :text="instruction"
-                                    lineHeight="4"
-                                    textWrap="true"
-                                ></Label>
+                                <Label v-for="instruction in step.instructions" :key="instruction" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
                             </StackLayout>
                         </GridLayout>
                     </StackLayout>
@@ -25,12 +18,7 @@
 
             <!-- sticky next button -->
             <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="step.button"
-                    :isEnabled="!step.buttonDisabled"
-                    @tap="goNext"
-                ></Button>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="step.button" :isEnabled="!step.buttonDisabled" @tap="goNext"></Button>
                 <Label :text="step.altOption" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
