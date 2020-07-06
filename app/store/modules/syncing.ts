@@ -325,7 +325,7 @@ const mutations = {
                 throw new Error("id, generationId, and name are required");
             }
 
-            const connected = state.connected[station.deviceId];
+            const connected = state.connected[station.deviceId] || null;
             const lastSeen = station.lastSeen;
             const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
 

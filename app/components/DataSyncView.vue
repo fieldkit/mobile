@@ -48,7 +48,7 @@
                                     <Label :text="sync.readingsDownloaded + ' Reading'" class="readings-label" v-if="sync.readingsDownloaded == 1" />
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
-                                <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
+                                <StackLayout row="0" col="1" class="container-icon">
                                     <Image width="20" src="~/images/Icon_Save.png"></Image>
                                 </StackLayout>
                             </GridLayout>
@@ -107,10 +107,6 @@ import routes from "../routes";
 import ScreenFooter from "./ScreenFooter";
 import ScreenHeader from "./ScreenHeader";
 
-import { convertBytesToLabel } from "../utilities";
-
-const dbInterface = Services.Database();
-
 const log = Config.logger("DataSyncView");
 
 export default {
@@ -133,12 +129,14 @@ export default {
         onPageUnloaded(args) {},
         onToggle(sync) {
             Vue.set(this.closed, sync.deviceId, this.opened(sync));
-            console.log("toggle", sync.name, this.closed[sync.deviceId]);
+            log.info("toggle", sync.name, this.closed[sync.deviceId]);
         },
         onDownload(sync) {
+            log.info("download", sync);
             return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
         },
         onUpload(sync) {
+            log.info("upload", sync);
             return this.$store.dispatch(ActionTypes.UPLOAD_STATION, sync);
         },
         opened(sync) {
