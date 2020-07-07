@@ -15,12 +15,7 @@
                     <TextField
                         row="1"
                         col="0"
-                        :class="
-                            'interval-field ' +
-                            (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber
-                                ? 'interval-input'
-                                : 'no-border')
-                        "
+                        :class="'interval-field ' + (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber ? 'interval-input' : 'no-border')"
                         verticalAligment="bottom"
                         keyboardType="name"
                         autocorrect="false"
@@ -113,12 +108,7 @@
                         <!-- start and end only show if not basic -->
                         <StackLayout order="1" v-if="!basic" class="m-b-20">
                             <GridLayout rows="auto,auto,auto,auto" columns="50*,50*">
-                                <Label
-                                    row="0"
-                                    colSpan="2"
-                                    class="size-18 m-t-15 m-b-10"
-                                    :text="_L('captureTime') + ' ' + (index + 1)"
-                                ></Label>
+                                <Label row="0" colSpan="2" class="size-18 m-t-15 m-b-10" :text="_L('captureTime') + ' ' + (index + 1)"></Label>
                                 <!-- start time -->
                                 <Label row="1" col="0" :text="_L('start')" class="size-12 m-b-5" />
                                 <Label
@@ -171,12 +161,7 @@
                             <TextField
                                 row="1"
                                 col="0"
-                                :class="
-                                    'interval-field ' +
-                                    (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber
-                                        ? 'interval-input'
-                                        : 'no-border')
-                                "
+                                :class="'interval-field ' + (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber ? 'interval-input' : 'no-border')"
                                 verticalAligment="bottom"
                                 keyboardType="name"
                                 autocorrect="false"
@@ -272,9 +257,6 @@ export default {
     methods: {
         onLoaded(args) {
             this.page = args.object;
-
-            let user = this.$portalInterface.getCurrentUser();
-            this.userName = user.name;
 
             this.intervals = [];
             let converted = this.convertFromSeconds(this.station.interval);
