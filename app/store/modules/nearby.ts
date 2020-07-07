@@ -123,6 +123,9 @@ const getters = {
     anyNearbyStations: (state: NearbyState): boolean => {
         return Object.values(state.stations).length > 0;
     },
+    numberOfNearbyStations: (state: NearbyState): number => {
+        return Object.values(state.stations).length;
+    },
 };
 
 const mutations = {

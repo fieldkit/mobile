@@ -14,6 +14,14 @@ import StationDetail from "../components/StationDetailView";
 import StationListView from "../components/StationListView";
 import StationSettings from "../components/settings/StationSettingsView";
 
+import OnboardingStartView from "../components/onboarding/Start";
+import OnboardingSearchingView from "../components/onboarding/Searching";
+import OnboardingNearbyStationsView from "../components/onboarding/NearbyStations";
+import SearchFailedView from "../components/onboarding/SearchFailed";
+import OnboardingNetwork from "../components/onboarding/Network";
+import RenameStation from "../components/onboarding/RenameStation";
+import OnboardingReconnecting from "../components/onboarding/Reconnecting";
+
 import { Route, RouteState } from "./navigate";
 
 const routes = {
@@ -32,6 +40,15 @@ const routes = {
     stations: new Route(StationListView, { listing: true }),
     stationDetail: new Route(StationDetail, { reading: true, station: true }),
     stationSettings: new Route(StationSettings, {}),
+    onboarding: {
+        start: new Route(OnboardingStartView, {}),
+        searching: new Route(OnboardingSearchingView, {}),
+        nearby: new Route(OnboardingNearbyStationsView, {}),
+        searchFailed: new Route(SearchFailedView, {}),
+        network: new Route(OnboardingNetwork, {}),
+        rename: new Route(RenameStation, {}),
+        reconnecting: new Route(OnboardingReconnecting, {}),
+    },
 };
 
 export default routes;
