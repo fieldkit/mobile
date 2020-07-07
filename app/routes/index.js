@@ -49,6 +49,10 @@ const routes = {
         rename: new Route(RenameStation, {}),
         reconnecting: new Route(OnboardingReconnecting, {}),
     },
+    deploy: {
+        start: new Route(DeployMap, { connected: true }),
+        notes: new Route(DeployNotes, { connected: true }),
+    },
 };
 
 export default routes;

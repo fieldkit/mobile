@@ -11,6 +11,7 @@ import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import { promiseAfter } from "../utilities";
 import routes from "../routes";
+import Config from "../config";
 
 function initializeFirebase(services): Promise<any> {
     return Firebase.init({
@@ -94,6 +95,14 @@ export default class StartupScreen extends Vue {
     onPageLoaded(args): Promise<any> {
         console.log("startup loaded");
         return initializeApplication(Services).then(() => {
+            if (Config.env.jacob) {
+                return this.$navigateTo(routes.deploy.start, {
+                    props: {
+                        stationId: 1,
+                    },
+                });
+            }
+
             return this.$navigateTo(getFirstRoute(), {
                 clearHistory: true,
             });
