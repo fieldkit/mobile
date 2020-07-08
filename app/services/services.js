@@ -162,6 +162,14 @@ export class Services {
         }
         return this.audioInterface;
     }
+
+    Images() {
+        if (!this.images) {
+            const ImagesSaver = require("./images-saver").default;
+            this.images = new ImagesSaver(this);
+        }
+        return this.images;
+    }
 }
 
 const services = new Services();
