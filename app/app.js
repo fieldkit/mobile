@@ -3,6 +3,7 @@ import * as i18n from "tns-i18n";
 // and this default language initialization does not override that
 i18n("en");
 
+import moment from "moment";
 import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
@@ -31,6 +32,31 @@ function configureVueJs(services) {
         },
     });
 
+    Vue.filter("prettyTime", value => {
+        if (!value) {
+            return "N/A";
+        }
+        return moment(value).format("MM/DD/YYYY hh:mm:ss");
+    });
+
+    Vue.filter("prettyDate", value => {
+        if (!value) {
+            return "N/A";
+        }
+        return moment(value).format("MM/DD/YYYY");
+    });
+
+    Vue.filter("prettyDuration", value => {
+        return moment.duration(value / 1000, "seconds").humanize();
+    });
+
+    const ServicesPlugin = {
+        install(Vue) {
+            Vue.prototype.$services = Services;
+        },
+    };
+
+    Vue.use(ServicesPlugin);
     Vue.use(Vuex);
     Vue.use(RadChart);
     Vue.use(RadGauge);

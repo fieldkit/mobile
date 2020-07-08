@@ -21,6 +21,7 @@
                         autocorrect="false"
                         autocapitalizationType="none"
                         v-model="interval.display"
+                        @change="saveInterval"
                         @blur="saveInterval"
                     ></TextField>
                     <StackLayout row="1" col="1">
@@ -239,9 +240,6 @@ import * as TimePicker from "tns-core-modules/ui/time-picker";
 import Services from "../services/services";
 import TimePickerModal from "./TimePickerModal";
 
-const queryStation = Services.QueryStation();
-const dbInterface = Services.Database();
-
 export default {
     data() {
         return {
@@ -253,18 +251,23 @@ export default {
             temporaryView: true,
         };
     },
-    props: ["station"],
+    props: {
+        value: {
+            type: Number,
+            required: true,
+        },
+    },
     methods: {
         onLoaded(args) {
             this.page = args.object;
 
             this.intervals = [];
-            let converted = this.convertFromSeconds(this.station.interval);
+            let converted = this.convertFromSeconds(this.value);
             let interval = {
                 id: Date.now(),
-                origValue: this.station.interval,
+                origValue: this.value,
                 origUnit: converted.unit,
-                value: this.station.interval,
+                value: this.value,
                 display: converted.display,
                 unit: converted.unit,
                 noInterval: false,
@@ -280,12 +283,12 @@ export default {
         },
 
         addTime() {
-            let converted = this.convertFromSeconds(this.station.interval);
+            let converted = this.convertFromSeconds(this.value);
             let interval = {
                 id: Date.now(),
-                origValue: this.station.interval,
+                origValue: this.value,
                 origUnit: converted.unit,
-                value: this.station.interval,
+                value: this.value,
                 display: converted.display,
                 unit: converted.unit,
                 noInterval: false,
@@ -388,17 +391,15 @@ export default {
                         // *** TEMP ***
                         // because firmware doesn't support multiple intervals yet
                         // just send each one, the last one will be it for now
-                        this.station.interval = interval.value;
-                        queryStation.setStationInterval(this.station).then(result => {
-                            // console.log("sent interval and received", result);
-                        });
+                        // this.station.interval = interval.value;
+
+                        this.$emit("input", interval.value);
 
                         // save to database
 
                         // *** TEMP ***
                         // database also doesn't support multiple intervals yet
                         // just keep in sync with station for now
-                        dbInterface.setStationInterval(this.station);
                         interval.origValue = interval.value;
                         interval.origUnit = interval.unit;
                     }

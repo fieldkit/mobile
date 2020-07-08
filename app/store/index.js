@@ -8,6 +8,8 @@ import { network } from "./modules/network";
 import { map } from "./modules/map";
 import { syncing } from "./modules/syncing";
 import { firmware } from "./modules/firmware";
+import { media } from "./modules/media";
+import { notes } from "./modules/notes";
 import createLogger from "./logger";
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
@@ -29,7 +31,7 @@ function customizeLogger() {
                 return false;
             }
             if (mutation.type == MutationTypes.NAVIGATION) {
-                console.log("mutation:", mutation.type, mutation.payload);
+                console.log("mutation:", mutation.type, mutation.payload, stateAfter.notes);
                 return false;
             }
             if (mutation.type == MutationTypes.PHONE_LOCATION) {
@@ -70,7 +72,7 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            const { nearby, stations, phone, map, network, nav, syncing, firmware } = state;
+            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes } = state;
             return {
                 nav,
                 phone,
@@ -82,6 +84,8 @@ function customizeLogger() {
                     progress: syncing.progress,
                 },
                 firmware,
+                media,
+                notes,
                 stations: {
                     deviceIds: _(stations.all)
                         .keyBy(s => s.deviceId)
@@ -117,6 +121,8 @@ export default function () {
             map,
             syncing,
             firmware,
+            media,
+            notes,
         },
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",
