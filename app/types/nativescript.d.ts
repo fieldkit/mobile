@@ -5,3 +5,7 @@ declare module "vue/types/vue" {
         $navigateTo(where: any, options: any = {}): Promise<any>;
     }
 }
+
+declare global {
+    function _L(key: string): string;
+}
