@@ -154,6 +154,14 @@ export class Services {
         }
         return this.onlineStatus;
     }
+
+    Audio() {
+        if (!this.audioInterface) {
+            const AudioInterface = require("./audio-interface").default;
+            this.audioInterface = new AudioInterface(this);
+        }
+        return this.audioInterface;
+    }
 }
 
 const services = new Services();

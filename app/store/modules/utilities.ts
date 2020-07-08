@@ -5,6 +5,7 @@ export interface Services {
     FileSystem(): any;
     PortalInterface(): any;
     StationFirmware(): any;
+    Audio(): any;
 }
 
 export type ServicesFactory = () => Services;
@@ -30,6 +31,10 @@ export class ServiceRef {
 
     public portal(): any {
         return this.verify().PortalInterface();
+    }
+
+    public audio(): any {
+        return this.verify().Audio();
     }
 
     public firmware(): any {
