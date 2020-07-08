@@ -65,6 +65,10 @@ export class Notes {
     public location: string = "";
     public form: NotesForm = new NotesForm();
 
+    public get completed(): number {
+        return 0;
+    }
+
     constructor(public readonly stationId: number) {}
 }
 

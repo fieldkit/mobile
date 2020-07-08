@@ -33,7 +33,7 @@
                     <StackLayout class="m-x-20" v-if="!editing">
                         <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
                             <Label row="0" col="0" :text="_L('fieldNotes')" class="size-18 bold"></Label>
-                            <Label row="0" col="1" :text="80 + '% ' + _L('complete')" class="size-14 bold blue" verticalAlignment="bottom"></Label>
+                            <Label row="0" col="1" :text="notes.completed + '% ' + _L('complete')" class="size-14 bold blue" verticalAlignment="bottom"></Label>
                             <Label row="1" colSpan="2" :text="_L('provideDetails')" textWrap="true" lineHeight="3" class="lighter size-14 m-t-5"></Label>
                         </GridLayout>
 
