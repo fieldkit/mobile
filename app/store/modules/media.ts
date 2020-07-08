@@ -6,6 +6,9 @@ import * as MutationTypes from "../mutations";
 import { Services, ServiceRef } from "./utilities";
 import { IncomingImage } from "../../services/types";
 
+export const AUDIO_RECORDING_PROGRESS = "AUDIO_RECORDING_PROGRESS";
+export const CACHE_PHOTO = "CACHE_PHOTO";
+
 export class LocalAudio {
     constructor(public readonly path: string) {}
 }
@@ -48,11 +51,10 @@ export class MediaState {
     public audios: LocalAudio[] = [];
     public photos: LocalPhoto[] = [];
     public recording: ActiveRecording | null = null;
+    public photoCache: { [index: string]: any } = {};
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: MediaState };
-
-export const AUDIO_RECORDING_PROGRESS = "AUDIO_RECORDING_PROGRESS";
 
 const getters = {};
 
@@ -115,7 +117,13 @@ const actions = {
             });
     },
     [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { source: any }) => {
-        return state.services.images().saveImage(new IncomingImage(payload.source));
+        return state.services
+            .images()
+            .saveImage(new IncomingImage(payload.source))
+            .then(saved => {
+                commit(CACHE_PHOTO, { path: saved.path, source: saved.source });
+                return saved;
+            });
     },
 };
 
@@ -128,6 +136,9 @@ const mutations = {
     },
     [AUDIO_RECORDING_PROGRESS]: (state: MediaState, payload: ActiveRecording) => {
         Vue.set(state, "recording", payload);
+    },
+    [CACHE_PHOTO]: (state: MediaState, payload: { path: string; source: any }) => {
+        Vue.set(state.photoCache, payload.path, payload.source);
     },
 };
 

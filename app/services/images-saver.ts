@@ -11,7 +11,7 @@ export default class ImagesSaver {
             if (!imageSource.saveToFile(destination, "jpg")) {
                 throw new Error("save failed");
             }
-            return new SavedImage(destination, null);
+            return new SavedImage(destination, incoming.source);
         });
     }
 }

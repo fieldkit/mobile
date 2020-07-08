@@ -47,8 +47,8 @@
                             <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
                             <WrapLayout orientation="horizontal">
                                 <StackLayout v-for="(photo, index) in notes.form.photos" :key="photo.path" class="photo-display">
-                                    <StackLayout v-if="photosCache[photo.path]">
-                                        <Image :src="photosCache[photo.path]" stretch="aspectFit" />
+                                    <StackLayout v-if="photoCache[photo.path]">
+                                        <Image :src="photoCache[photo.path]" stretch="aspectFit" />
                                     </StackLayout>
                                     <!- Loading Image... -->
                                 </StackLayout>
@@ -138,7 +138,6 @@ export default {
     },
     data() {
         return {
-            photosCache: {},
             editing: null,
         };
     },
@@ -148,6 +147,9 @@ export default {
         },
         currentStation() {
             return this.$store.getters.legacyStations[this.stationId];
+        },
+        photoCache() {
+            return this.$store.state.media.photoCache;
         },
     },
     props: {
@@ -169,7 +171,7 @@ export default {
             // TODO Make a proper mutation.
             this.editing.body = form.body;
             this.editing = null;
-            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
         },
         onAttachNoteMedia(note, media) {
             // TODO Make a proper mutation.
@@ -178,32 +180,28 @@ export default {
             } else {
                 note.photos.push(media);
             }
-            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
         },
         onRemoveAudio(note, media) {
             // TODO Make a proper mutation.
             note.audio = note.audio.filter(m => m.path != media.path);
-            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
         },
         takePicture() {
             return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then(savedImage => {
                 console.log("saved image", savedImage);
-                // this.photosCache[savedImage.path] = savedImage.source;
-                this.photosCache[savedImage.path] = ImageSource.fromFileSync(savedImage.path);
                 return Promise.delay(100).then(() => {
-                    this.form.photos.push(new NoteMedia(savedImage.path));
-                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+                    this.notes.form.photos.push(new NoteMedia(savedImage.path));
+                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
                 });
             });
         },
         selectPicture() {
             return this.$store.dispatch(ActionTypes.FIND_PICTURE).then(savedImage => {
                 console.log("saved image", savedImage);
-                // this.photosCache[savedImage.path] = savedImage.source;
-                this.photosCache[savedImage.path] = ImageSource.fromFileSync(savedImage.path);
                 return Promise.delay(100).then(() => {
-                    this.form.photos.push(new NoteMedia(savedImage.path));
-                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+                    this.notes.form.photos.push(new NoteMedia(savedImage.path));
+                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
                 });
             });
         },

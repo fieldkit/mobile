@@ -52,7 +52,9 @@
                         <Label :text="_L('photosRequired')" class="size-12"></Label>
                         <WrapLayout orientation="horizontal">
                             <StackLayout v-for="photo in notes.form.photos" :key="photo.path" class="photo-display">
-                                <Image :src="photo.src" stretch="aspectFit" />
+                                <StackLayout v-if="photoCache[photo.path]">
+                                    <Image :src="photoCache[photo.path]" stretch="aspectFit" />
+                                </StackLayout>
                             </StackLayout>
                         </WrapLayout>
                     </StackLayout>
@@ -116,6 +118,9 @@ export default {
         },
         currentStation() {
             return this.$store.getters.legacyStations[this.stationId];
+        },
+        photoCache() {
+            return this.$store.state.media.photoCache;
         },
     },
     methods: {
