@@ -5,7 +5,7 @@
         <Label row="1" col="0" :text="note.body" class="size-14 m-b-10 darker" v-if="note.body && note.body.length > 0" />
         <Label row="1" col="0" :text="note.help.instructions" class="size-14 m-b-10 lighter" v-if="!note.body || note.body.length == 0" />
 
-        <Image rowSpan="2" col="1" v-if="note.audios.length > 0" src="~/images/Icon_Mic.png" width="17" />
+        <Image rowSpan="2" col="1" v-if="note.audio.length > 0" src="~/images/Icon_Mic.png" width="17" />
     </GridLayout>
 </template>
 <script>

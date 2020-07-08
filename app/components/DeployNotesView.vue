@@ -46,10 +46,13 @@
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
                             <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
                             <WrapLayout orientation="horizontal">
-                                <StackLayout v-for="(photo, index) in form.photos" :key="index" class="photo-display">
-                                    <Image :src="photo.src" stretch="aspectFit" :automationText="'deployPhoto' + index" />
+                                <StackLayout v-for="(photo, index) in form.photos" :key="photo.path" class="photo-display">
+                                    <StackLayout v-if="photosCache[photo.path]">
+                                        <Image :src="photosCache[photo.path]" stretch="aspectFit" />
+                                    </StackLayout>
+                                    <!- Loading Image... -->
                                 </StackLayout>
-                                <StackLayout class="photo-btn" automationText="addPhoto" @tap="onPhotoTap">
+                                <StackLayout class="photo-btn" @tap="onPhotoTap">
                                     <Image src="~/images/Icon_Add_Button.png" width="20" opacity="0.25" class="photo-btn-img" />
                                 </StackLayout>
                             </WrapLayout>
@@ -97,7 +100,7 @@
 
             <template v-if="editing">
                 <StackLayout rowSpan="3">
-                    <FieldNoteForm :note="editing" v-if="editing" @save="(...args) => onSaveNote(...args)" @cancel="(...args) => onCancelEditing(...args)" />
+                    <FieldNoteForm :note="editing" v-if="editing" @save="onSaveNote" @cancel="onCancelEditing" @attach-media="onAttachNoteMedia" @remove-audio="onRemoveAudio" />
                 </StackLayout>
             </template>
         </GridLayout>
@@ -105,6 +108,7 @@
 </template>
 
 <script>
+import { ImageSource } from "tns-core-modules/image-source";
 import routes from "../routes";
 
 import ScreenHeader from "./ScreenHeader";
@@ -117,7 +121,7 @@ import * as MutationTypes from "../store/mutations";
 import * as ActionTypes from "../store/actions";
 import * as animations from "./animations";
 
-import { NotesForm } from "./deploy";
+import { NotesForm, NoteMedia } from "../store/modules/notes";
 
 export default {
     components: {
@@ -127,6 +131,7 @@ export default {
     },
     data() {
         return {
+            photosCache: {},
             editing: null,
         };
     },
@@ -154,10 +159,46 @@ export default {
             this.editing = note;
         },
         onSaveNote({ form }) {
-            // TODO Media
+            // TODO Make a proper mutation.
             this.editing.body = form.body;
             this.editing = null;
             return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+        },
+        onAttachNoteMedia(note, media) {
+            // TODO Make a proper mutation.
+            if (NoteMedia.isAudio(media)) {
+                note.audio.push(media);
+            } else {
+                note.photos.push(media);
+            }
+            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+        },
+        onRemoveAudio(note, media) {
+            // TODO Make a proper mutation.
+            note.audio = note.audio.filter(m => m.path != media.path);
+            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+        },
+        takePicture() {
+            return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then(savedImage => {
+                console.log("saved image", savedImage);
+                // this.photosCache[savedImage.path] = savedImage.source;
+                this.photosCache[savedImage.path] = ImageSource.fromFileSync(savedImage.path);
+                return Promise.delay(100).then(() => {
+                    this.form.photos.push(new NoteMedia(savedImage.path));
+                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+                });
+            });
+        },
+        selectPicture() {
+            return this.$store.dispatch(ActionTypes.FIND_PICTURE).then(savedImage => {
+                console.log("saved image", savedImage);
+                // this.photosCache[savedImage.path] = savedImage.source;
+                this.photosCache[savedImage.path] = ImageSource.fromFileSync(savedImage.path);
+                return Promise.delay(100).then(() => {
+                    this.form.photos.push(new NoteMedia(savedImage.path));
+                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
+                });
+            });
         },
         onCancelEditing() {
             this.editing = null;
@@ -214,16 +255,6 @@ export default {
                         }
                     }),
             ]);
-        },
-        takePicture() {
-            return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then(picture => {
-                console.log("picture", picture);
-            });
-        },
-        selectPicture() {
-            return this.$store.dispatch(ActionTypes.FIND_PICTURE).then(picture => {
-                console.log("picture", picture);
-            });
         },
     },
 };

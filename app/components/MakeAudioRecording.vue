@@ -41,8 +41,8 @@ export default {
             return this.$store.dispatch(ActionTypes.AUDIO_PAUSE);
         },
         stop() {
-            return this.$store.dispatch(ActionTypes.AUDIO_STOP).then(() => {
-                return this.$emit("stop");
+            return this.$store.dispatch(ActionTypes.AUDIO_STOP).then(recording => {
+                return this.$emit("stop", recording);
             });
         },
         cancel() {

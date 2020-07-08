@@ -7,7 +7,7 @@ export class IncomingImage {
 }
 
 export class SavedImage {
-    constructor(public readonly path: string, public readonly source: any) {}
+    constructor(public readonly path: string, public readonly source: any | null) {}
 }
 
 export default class ImagesSaver {
@@ -18,7 +18,7 @@ export default class ImagesSaver {
             if (!imageSource.saveToFile(destination, "jpg")) {
                 throw new Error("save failed");
             }
-            return new SavedImage(destination, incoming.source);
+            return new SavedImage(destination, null);
         });
     }
 }

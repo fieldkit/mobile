@@ -1,10 +1,10 @@
 <template>
     <StackLayout>
         <GridLayout rows="auto" columns="10*,80*,10*" v-for="r in recordings" :key="r.id" class="link-style recording-box">
-            <Image col="0" width="20" class="small-round" :data="recording" src="~/images/Icon_Play.png" v-if="isPlaying != recording" @tap="playAudio" />
-            <Image col="0" width="20" class="small-round" :data="recording" src="~/images/Icon_Stop.png" v-if="isPlaying == recording" @tap="stopPlaying" />
-            <Label col="1" :text="recording" :data="recording" textWrap="true" @tap="playAudio" />
-            <Image col="2" width="20" class="small-round" :data="recording" src="~/images/Icon_Delete.png" @tap="removeRecording" />
+            <Image col="0" width="20" class="small-round" src="~/images/Icon_Play.png" v-if="playing != r" @tap="ev => playAudio(ev, r)" />
+            <Image col="0" width="20" class="small-round" src="~/images/Icon_Stop.png" v-if="playing == r" @tap="ev => stopPlaying(ev, r)" />
+            <Label col="1" :text="getFileName(r)" :data="getFileName(r)" textWrap="true" @tap="playAudio" />
+            <Image col="2" width="20" class="small-round" src="~/images/Icon_Delete.png" @tap="ev => removeRecording(ev, r)" />
         </GridLayout>
     </StackLayout>
 </template>
@@ -17,12 +17,24 @@ export default {
         },
     },
     data() {
-        return {};
+        return {
+            playing: null,
+        };
     },
     methods: {
-        playAudio() {},
-        stopPlaying() {},
-        removeRecording() {},
+        getFileName(media) {
+            const parts = media.path.split("/");
+            return parts[parts.length - 1];
+        },
+        playAudio(ev, media) {
+            return this.$services.Audio().playRecordedFile(media.path);
+        },
+        stopPlaying(media) {
+            return this.$services.Audio().pausePlayer();
+        },
+        removeRecording(ev, media) {
+            return this.$emit("remove-audio", media);
+        },
     },
 };
 </script>

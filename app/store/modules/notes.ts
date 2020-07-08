@@ -6,12 +6,32 @@ import { Services, ServiceRef } from "./utilities";
 import { RouteState } from "../../routes/navigate";
 import { Station } from "../types";
 
+export class NoteMedia {
+    constructor(public readonly path: string) {}
+
+    public static onlyAudio(media: NoteMedia[]): NoteMedia[] {
+        return media.filter(NoteMedia.isAudio);
+    }
+
+    public static onlyPhotos(media: NoteMedia[]): NoteMedia[] {
+        return media.filter(NoteMedia.isPhoto);
+    }
+
+    public static isPhoto(nm: NoteMedia): boolean {
+        return !NoteMedia.isAudio(nm);
+    }
+
+    public static isAudio(nm: NoteMedia): boolean {
+        return /(m4a|caf)$/.test(nm.path.toLowerCase());
+    }
+}
+
 export class NoteHelp {
     constructor(public readonly title: string, public readonly instructions: string) {}
 }
 
 export class NoteForm {
-    constructor(public readonly help: NoteHelp, public readonly body: string = "", public audios: NoteAudio[] = [], public photos: NotePhoto[] = []) {}
+    constructor(public readonly help: NoteHelp, public readonly body: string = "", public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
 }
 
 export class NotesForm {
@@ -20,7 +40,7 @@ export class NotesForm {
     public readonly siteCriteria: NoteForm = new NoteForm(new NoteHelp(_L("siteCriteria"), _L("siteCriteriaInstruction")));
     public readonly siteDescription: NoteForm = new NoteForm(new NoteHelp(_L("siteDescription"), _L("siteDescriptionInstruction")));
 
-    constructor(public readonly photos: NotePhoto[] = []) {}
+    constructor(public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
 }
 
 export class NotesState {
@@ -35,14 +55,6 @@ export class NotesState {
         return this.stations[id];
     }
 }
-
-export class NoteMedia {
-    constructor(public id: number, public path: string) {}
-}
-
-export class NoteAudio extends NoteMedia {}
-
-export class NotePhoto extends NoteMedia {}
 
 export class Note {
     constructor(public readonly id: number, public readonly body: string, public readonly createdAt: Date, public readonly media: NoteMedia[] = []) {}
@@ -102,7 +114,7 @@ const mutations = {
         state.station(payload.stationId).location = payload.location;
     },
     [MutationTypes.STATION_NOTES]: (state: NotesState, payload: { stationId: number; form: NotesForm }) => {
-        state.station(payload.stationId).form = payload.form;
+        state.station(payload.stationId).form = _.cloneDeep(payload.form);
     },
 };
 

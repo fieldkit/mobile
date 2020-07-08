@@ -17,8 +17,9 @@
                 <Label :text="note.help.instructions" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
                 <TextView textWrap="true" width="100%" class="size-14 p-x-20 large-text-field" :hint="note.help.instructions" v-model="form.body"></TextView>
 
+                <AudioRecordings :recordings="note.audio" @remove-audio="raiseRemoveAudio" />
+
                 <MakeAudioRecording v-if="audioReady" @cancel="onAudioTap" @stop="onAudioDone" />
-                <AudioRecordings :recordings="[]" />
             </WrapLayout>
             <GridLayout row="1" rows="auto,auto,auto" columns="*" v-if="note.image" class="container">
                 <TextView row="1" class="labeled-text-field input" v-model="form.body" autocorrect="false" autocapitalizationType="none" :hint="note.help.instructions" />
@@ -34,7 +35,7 @@
 <script>
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import { AnimationCurve } from "tns-core-modules/ui/enums";
-import { NoteForm } from "./deploy";
+import { NoteMedia, NoteForm } from "../store/modules/notes";
 
 import LabeledTextView from "./LabeledTextView";
 import MakeAudioRecording from "./MakeAudioRecording";
@@ -73,7 +74,10 @@ export default {
             this.audioReady = !this.audioReady;
         },
         onAudioDone(...args) {
-            console.log("audio done", args);
+            this.$emit("attach-media", this.note, ...args);
+        },
+        raiseRemoveAudio(...args) {
+            this.$emit("remove-audio", this.note, ...args);
         },
     },
 };
