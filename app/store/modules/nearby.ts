@@ -73,15 +73,15 @@ const actions = {
     [ActionTypes.QUERY_ALL]: ({ commit, dispatch, state }: ActionParameters) => {
         return Promise.all(Object.values(state.stations).map(station => dispatch(ActionTypes.QUERY_STATION, station.info)));
     },
-    [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, params: { deviceId: string; name: string }) => {
-        const info = state.stations[params.deviceId];
-        if (!info) {
-            throw new Error("no nearby info");
-        }
+    [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; name: string }) => {
+        if (!payload?.deviceId) throw new Error("no nearby info");
+        const info = state.stations[payload.deviceId];
+        if (!info) throw new Error("no nearby info");
+
         commit(MutationTypes.STATION_QUERIED, info);
         return state.services
             .queryStation()
-            .configureName(info.url, params.name)
+            .configureName(info.url, payload.name)
             .then(
                 statusReply => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
@@ -95,15 +95,35 @@ const actions = {
                 }
             );
     },
-    [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, params: { deviceId: string; networks: any }) => {
-        const info = state.stations[params.deviceId];
-        if (!info) {
-            throw new Error("no nearby info");
-        }
+    [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; networks: any }) => {
+        if (!payload?.deviceId) throw new Error("no nearby info");
+        const info = state.stations[payload.deviceId];
+        if (!info) throw new Error("no nearby info");
         commit(MutationTypes.STATION_QUERIED, info);
         return state.services
             .queryStation()
-            .sendNetworkSettings(info.url, params.networks)
+            .sendNetworkSettings(info.url, payload.networks)
+            .then(
+                statusReply => {
+                    commit(MutationTypes.STATION_ACTIVITY, info);
+                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                },
+                error => {
+                    if (error instanceof QueryThrottledError) {
+                        return error;
+                    }
+                    return Promise.reject(error);
+                }
+            );
+    },
+    [ActionTypes.DEPLOY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        if (!payload?.deviceId) throw new Error("no nearby info");
+        const info = state.stations[payload.deviceId];
+        if (!info) throw new Error("no nearby info");
+        commit(MutationTypes.STATION_QUERIED, info);
+        return state.services
+            .queryStation()
+            .startDataRecording(info.url)
             .then(
                 statusReply => {
                     commit(MutationTypes.STATION_ACTIVITY, info);

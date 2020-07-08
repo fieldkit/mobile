@@ -24,10 +24,10 @@
                                     <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
                                     <Label
                                         col="2"
-                                        :text="percentComplete + '% ' + _L('complete')"
+                                        :text="notes.completed + '% ' + _L('complete')"
                                         class="size-16 blue"
                                         verticalAlignment="middle"
-                                        v-if="percentComplete && percentComplete > 0"
+                                        v-if="notes.completed && notes.completed > 0"
                                     />
                                 </GridLayout>
                                 <!-- module list with current readings -->
@@ -36,9 +36,7 @@
                         </GridLayout>
                         <!-- end background elements -->
 
-                        <!-- foreground elements -->
                         <AbsoluteLayout row="0" col="0" class="text-center" v-if="newlyDeployed">
-                            <!-- center dialog with grid layout -->
                             <GridLayout top="75" width="100%">
                                 <StackLayout class="deployed-dialog-container">
                                     <Image width="60" src="~/images/Icon_Success.png"></Image>
@@ -69,16 +67,21 @@ import ModuleListView from "./ModuleListView";
 import NotificationFooter from "./NotificationFooter";
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
-
-const log = Config.logger("StationDetailView");
-
-const dbInterface = Services.Database();
+import * as animations from "./animations";
 
 export default {
+    props: {
+        stationId: {
+            type: Number,
+        },
+        redirectedFromDeploy: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             loading: true,
-            percentComplete: 0,
             newlyDeployed: false,
             notificationCodes: [],
         };
@@ -86,6 +89,9 @@ export default {
     computed: {
         isDeployed() {
             return this.currentStation.deployStartTime != null;
+        },
+        notes() {
+            return this.$store.state.notes.stations[this.stationId];
         },
         currentStation() {
             if (!this.$store.getters.legacyStations) {
@@ -101,109 +107,85 @@ export default {
         NotificationFooter,
         ScreenFooter,
     },
-    props: {
-        stationId: {
-            type: Number,
-        },
-        station: {
-            type: Object,
-        },
-        redirectedFromDeploy: {
-            type: String,
-        },
-    },
     methods: {
-        goBack(event) {
-            // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
+        onPageLoaded(args) {
+            console.log("loading station detail");
 
-            return this.$navigateTo(routes.stations, {
-                props: {
-                    stationId: this.currentStation.id,
-                    station: this.currentStation,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+            this.page = args.object;
+
+            // NOTE these are now hidden by the v-if initially.
+            this.loadingBlue = this.page.getViewById("loading-circle-blue");
+            this.loadingWhite = this.page.getViewById("loading-circle-white");
+            this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
+
+            this.completeSetup();
+
+            console.log("loaded station detail", this.stationId);
         },
-
-        goToDeploy(event) {
+        goBack(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stations, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear",
+                    },
+                }),
+            ]);
+        },
+        goToDeploy(ev) {
             return this.$navigateTo(routes.deployMap, {
                 props: {
-                    stationId: this.currentStation.id,
-                    station: this.currentStation,
+                    stationId: this.stationId,
                 },
             });
         },
-
         goToFieldNotes() {
             return this.$navigateTo(routes.deployNotes, {
                 props: {
-                    stationId: this.currentStation.id,
-                    station: this.currentStation,
+                    stationId: this.stationId,
                     linkedFromStation: true,
                 },
             });
         },
-
-        goToModule(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            return this.$navigateTo(routes.module, {
-                props: {
-                    // remove the "m_id-" prefix
-                    stationId: this.currentStation.id,
-                    moduleId: event.object.id.split("m_id-")[1],
-                    station: this.currentStation,
-                },
-            });
+        goToModule(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.module, {
+                    props: {
+                        // remove the "m_id-" prefix
+                        stationId: this.currentStation.id,
+                        moduleId: event.object.id.split("m_id-")[1],
+                        station: this.currentStation,
+                    },
+                }),
+            ]);
         },
-
-        goToSettings(event) {
-            // prevent taps before page finishes loading
-            if (!this.currentStation || this.currentStation.id == 0) {
-                return;
-            }
-
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            return this.$navigateTo(routes.stationSettings, {
-                props: {
-                    stationId: this.currentStation.id,
-                    station: this.currentStation,
-                },
-            });
+        goToSettings(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationSettings, {
+                    props: {
+                        stationId: this.currentStation.id,
+                        station: this.currentStation,
+                    },
+                }),
+            ]);
         },
-
-        goToDetail(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            return this.$navigateTo(routes.stationDetail, {
-                props: {
-                    stationId: this.currentStation.id,
-                },
-            });
+        goToDetail(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationDetail, {
+                    props: {
+                        stationId: this.currentStation.id,
+                    },
+                }),
+            ]);
         },
-
         stopProcesses() {
             if (this.intervalTimer) {
                 clearInterval(this.intervalTimer);
@@ -212,58 +194,27 @@ export default {
                 this.$refs.statusBox.stopProcesses();
             }
         },
-
-        onPageLoaded(args) {
-            console.log("loading station detail");
-
-            this.page = args.object;
-
-            this.user = this.$portalInterface.getCurrentUser();
-
-            // NOTE these are now hidden by the v-if initially.
-            this.loadingBlue = this.page.getViewById("loading-circle-blue");
-            this.loadingWhite = this.page.getViewById("loading-circle-white");
-            this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
-
-            if (this.currentStation) {
-                this.stationId = Number(this.currentStation.id);
-                this.completeSetup();
-            }
-
-            console.log("loaded station detail", this.stationId);
-        },
-
         onUnloaded() {
             this.stopProcesses();
         },
-
         completeSetup() {
             this.loading = false;
-            clearInterval(this.intervalTimer);
 
             if (this.redirectedFromDeploy) {
                 this.newlyDeployed = true;
-                setTimeout(() => {
+                return Promise.delay(3000).then(() => {
                     this.newlyDeployed = false;
-                }, 3000);
+                });
             }
 
-            if (this.currentStation.portalError) {
-                if (this.notificationCodes.indexOf(this.currentStation.portalError) == -1) {
-                    this.notificationCodes.push(this.currentStation.portalError);
-                }
-            }
-
-            this.currentStation.origName = this.currentStation.name;
+            return Promise.resolve();
         },
-
         getDeployedStatus() {
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
-
         showLoadingAnimation() {
             if (this.loadingWhite) {
-                this.loadingWhite
+                return this.loadingWhite
                     .animate({
                         rotate: 360,
                         duration: 975,
@@ -278,11 +229,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "../app-variables";
-// End custom common variables
 
-// Custom styles
 #loading-circle-blue,
 #loading-circle-white {
     width: 90;

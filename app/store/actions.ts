@@ -41,3 +41,5 @@ export const AUDIO_STOP = "AUDIO_STOP";
 export const TAKE_PICTURE = "TAKE_PICTURE";
 export const FIND_PICTURE = "FIND_PICTURE";
 export const SAVE_PICTURE = "SAVE_PICTURE";
+
+export const DEPLOY_STATION = "DEPLOY_STATION";

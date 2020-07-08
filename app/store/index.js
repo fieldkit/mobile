@@ -31,7 +31,7 @@ function customizeLogger() {
                 return false;
             }
             if (mutation.type == MutationTypes.NAVIGATION) {
-                console.log("mutation:", mutation.type, mutation.payload, stateAfter.notes);
+                console.log("mutation:", mutation.type, mutation.payload);
                 return false;
             }
             if (mutation.type == MutationTypes.PHONE_LOCATION) {
