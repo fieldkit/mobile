@@ -37,16 +37,16 @@
                             <Label row="1" colSpan="2" :text="_L('provideDetails')" textWrap="true" lineHeight="3" class="lighter size-14 m-t-5"></Label>
                         </GridLayout>
 
-                        <NoteDisplay :note="form.studyObjective" @open="ev => openNote(ev, form.studyObjective)" />
-                        <NoteDisplay :note="form.sitePurpose" @open="ev => openNote(ev, form.sitePurpose)" />
-                        <NoteDisplay :note="form.siteCriteria" @open="ev => openNote(ev, form.siteCriteria)" />
-                        <NoteDisplay :note="form.siteDescription" @open="ev => openNote(ev, form.siteDescription)" />
+                        <NoteDisplay :note="notes.form.studyObjective" @open="ev => openNote(ev, notes.form.studyObjective)" />
+                        <NoteDisplay :note="notes.form.sitePurpose" @open="ev => openNote(ev, notes.form.sitePurpose)" />
+                        <NoteDisplay :note="notes.form.siteCriteria" @open="ev => openNote(ev, notes.form.siteCriteria)" />
+                        <NoteDisplay :note="notes.form.siteDescription" @open="ev => openNote(ev, notes.form.siteDescription)" />
 
                         <StackLayout class="m-t-20">
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
                             <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
                             <WrapLayout orientation="horizontal">
-                                <StackLayout v-for="(photo, index) in form.photos" :key="photo.path" class="photo-display">
+                                <StackLayout v-for="(photo, index) in notes.form.photos" :key="photo.path" class="photo-display">
                                     <StackLayout v-if="photosCache[photo.path]">
                                         <Image :src="photosCache[photo.path]" stretch="aspectFit" />
                                     </StackLayout>
@@ -95,7 +95,14 @@
             </ScrollView>
 
             <StackLayout row="2" v-if="!linkedFromStation">
-                <Button class="btn btn-primary btn-padded m-b-10" :text="_L('continue')" automationText="nextButton" :isEnabled="form.valid" @tap="goToReview" v-if="!editing" />
+                <Button
+                    class="btn btn-primary btn-padded m-b-10"
+                    :text="_L('continue')"
+                    automationText="nextButton"
+                    :isEnabled="notes.form.valid"
+                    @tap="goToReview"
+                    v-if="!editing"
+                />
             </StackLayout>
 
             <template v-if="editing">
@@ -136,8 +143,8 @@ export default {
         };
     },
     computed: {
-        form() {
-            return this.$store.state.notes.stations[this.stationId].form;
+        notes() {
+            return this.$store.state.notes.stations[this.stationId];
         },
         currentStation() {
             return this.$store.getters.legacyStations[this.stationId];
