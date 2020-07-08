@@ -91,11 +91,11 @@
 </template>
 
 <script>
-import routes from "../routes";
-import * as ActionTypes from "../store/actions";
-import * as animations from "./animations";
+import routes from "../../routes";
+import * as ActionTypes from "../../store/actions";
+import * as animations from "../animations";
 
-import ScreenHeader from "./ScreenHeader";
+import ScreenHeader from "../ScreenHeader";
 
 export default {
     components: {
@@ -172,7 +172,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "../../app-variables";
 
 .top-line-bkgd {
     background-color: $fk-gray-lighter;

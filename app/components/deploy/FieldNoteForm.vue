@@ -35,9 +35,9 @@
 <script>
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import { AnimationCurve } from "tns-core-modules/ui/enums";
-import { NoteMedia, NoteForm } from "../store/modules/notes";
+import { NoteMedia, NoteForm } from "../../store/modules/notes";
 
-import LabeledTextView from "./LabeledTextView";
+import LabeledTextView from "../LabeledTextView";
 import MakeAudioRecording from "./MakeAudioRecording";
 import AudioRecordings from "./AudioRecordings";
 
@@ -84,7 +84,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "../../app-variables";
 
 .bottom-border {
     margin-bottom: 40;

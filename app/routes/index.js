@@ -4,9 +4,6 @@ import Calibration from "../components/CalibrationView";
 import ConfigureModule from "../components/unused/ConfigureModuleView";
 import ConnectStation from "../components/onboarding/ConnectStationView";
 import DataSync from "../components/DataSyncView";
-import DeployMap from "../components/DeployMapView";
-import DeployNotes from "../components/DeployNotesView";
-import DeployReview from "../components/DeployReviewView";
 import DeveloperMenu from "../components/DeveloperMenuView";
 import Login from "../components/LoginView";
 import Module from "../components/ModuleDetailView";
@@ -21,6 +18,10 @@ import SearchFailedView from "../components/onboarding/SearchFailed";
 import OnboardingNetwork from "../components/onboarding/Network";
 import RenameStation from "../components/onboarding/RenameStation";
 import OnboardingReconnecting from "../components/onboarding/Reconnecting";
+
+import DeployMap from "../components/deploy/DeployMapView";
+import DeployNotes from "../components/deploy/DeployNotesView";
+import DeployReview from "../components/deploy/DeployReviewView";
 
 import { Route, RouteState } from "./navigate";
 

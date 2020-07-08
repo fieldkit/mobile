@@ -80,15 +80,15 @@
 
 <script>
 import { isIOS } from "tns-core-modules/platform";
-import { MAPBOX_ACCESS_TOKEN } from "../secrets";
-import Services from "../services/services";
-import routes from "../routes";
-import * as ActionTypes from "../store/actions";
+import { MAPBOX_ACCESS_TOKEN } from "../../secrets";
+import Services from "../../services/services";
+import routes from "../../routes";
+import * as ActionTypes from "../../store/actions";
 
-import LabeledTextField from "./LabeledTextField";
-import ScreenHeader from "./ScreenHeader";
-import ConfigureCaptureInterval from "./ConfigureCaptureInterval";
-import * as animations from "./animations";
+import LabeledTextField from "../LabeledTextField";
+import ScreenHeader from "../ScreenHeader";
+import ConfigureCaptureInterval from "../ConfigureCaptureInterval";
+import * as animations from "../animations";
 
 export default {
     components: {
@@ -229,7 +229,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "../../app-variables";
 
 .top-line-bkgd {
     background-color: $fk-gray-lighter;

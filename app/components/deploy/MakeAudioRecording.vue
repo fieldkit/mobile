@@ -11,8 +11,8 @@
 
 <script>
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import * as ActionTypes from "../store/actions";
-import { ActiveRecording } from "../store/modules/media";
+import * as ActionTypes from "../../store/actions";
+import { ActiveRecording } from "../../store/modules/media";
 
 export default {
     data() {
@@ -25,12 +25,8 @@ export default {
         },
     },
     methods: {
-        onPageLoaded(args) {
-            //
-        },
-        onUnloaded() {
-            //
-        },
+        onPageLoaded(args) {},
+        onUnloaded() {},
         startOrResume() {
             if (this.recording) {
                 return this.$store.dispatch(ActionTypes.AUDIO_RESUME);
@@ -58,7 +54,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "../../app-variables";
 
 .bottom-border {
     margin-bottom: 40;

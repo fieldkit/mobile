@@ -116,19 +116,19 @@
 
 <script>
 import { ImageSource } from "tns-core-modules/image-source";
-import routes from "../routes";
+import routes from "../../routes";
 
-import ScreenHeader from "./ScreenHeader";
-import LabeledTextField from "./LabeledTextField";
+import ScreenHeader from "../ScreenHeader";
+import LabeledTextField from "../LabeledTextField";
 import FieldNoteForm from "./FieldNoteForm";
 import NoteDisplay from "./NoteDisplay";
 
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import * as MutationTypes from "../store/mutations";
-import * as ActionTypes from "../store/actions";
-import * as animations from "./animations";
+import * as MutationTypes from "../../store/mutations";
+import * as ActionTypes from "../../store/actions";
+import * as animations from "../animations";
 
-import { NotesForm, NoteMedia } from "../store/modules/notes";
+import { NotesForm, NoteMedia } from "../../store/modules/notes";
 
 export default {
     components: {
@@ -278,7 +278,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "../../app-variables";
 
 .alternate-header {
     padding-bottom: 10;
