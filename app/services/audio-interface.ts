@@ -66,16 +66,15 @@ export default class AudioInterface {
         return this.recorder.stop();
     }
 
-    playRecordedFile(filename, callback) {
+    playRecordedFile(filename) {
         const playerOptions: AudioPlayerOptions = {
-            audioFile: path.join(this.folder.path, filename + this.extension),
+            audioFile: filename,
             loop: false,
             completeCallback: async (...args) => {
                 console.log("audio: complete", filename, args);
                 if (!playerOptions.loop) {
                     await this.player.dispose();
                 }
-                callback();
             },
             errorCallback: errorObject => {
                 console.log("audio: error", errorObject);
