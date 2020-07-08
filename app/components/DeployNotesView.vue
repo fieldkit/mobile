@@ -23,7 +23,7 @@
                 <StackLayout row="0" col="0" colSpan="2" verticalAlignment="middle" v-if="!editing">
                     <Label class="title text-center" :text="_L('fieldNotes')"></Label>
                 </StackLayout>
-                <StackLayout row="0" col="1" class="round-bkgd m-r-10" verticalAlignment="top" @tap="onEditDone" v-if="!editing">
+                <StackLayout row="0" col="1" class="round-bkgd m-r-10" verticalAlignment="top" @tap="onBackToDetail" v-if="!editing">
                     <Image width="21" src="~/images/Icon_Close.png"></Image>
                 </StackLayout>
             </GridLayout>
@@ -239,6 +239,16 @@ export default {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.deployReview, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                }),
+            ]);
+        },
+        onBackToDetail(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationDetail, {
                     props: {
                         stationId: this.stationId,
                     },
