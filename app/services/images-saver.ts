@@ -1,14 +1,7 @@
 import { path, knownFolders } from "tns-core-modules/file-system";
 import { getPathTimestamp } from "../utilities";
 import { ImageSource } from "tns-core-modules/image-source";
-
-export class IncomingImage {
-    constructor(public readonly source: any) {}
-}
-
-export class SavedImage {
-    constructor(public readonly path: string, public readonly source: any | null) {}
-}
+import { IncomingImage, SavedImage } from "./types";
 
 export default class ImagesSaver {
     public saveImage(incoming: IncomingImage): Promise<SavedImage> {

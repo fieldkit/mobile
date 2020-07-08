@@ -20,4 +20,8 @@ Vue.use(Vuex);
 
 window["__extends"] = _.extend;
 
+window._L = function (key) {
+    return "unknown";
+};
+
 jest.mock("axios");

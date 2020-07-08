@@ -4,7 +4,7 @@ import Camera from "../../wrappers/camera";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Services, ServiceRef } from "./utilities";
-import { IncomingImage } from "../../services/images-saver";
+import { IncomingImage } from "../../services/types";
 
 export class LocalAudio {
     constructor(public readonly path: string) {}
