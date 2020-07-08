@@ -51,7 +51,12 @@ import * as i18n from "tns-i18n";
 import * as ActionTypes from "../../store/actions";
 i18n("en");
 
+import LabeledTextField from "../LabeledTextField";
+
 export default {
+    components: {
+        LabeledTextField,
+    },
     props: {
         stationId: {
             type: Number,
