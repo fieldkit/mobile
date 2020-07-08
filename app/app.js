@@ -47,7 +47,8 @@ function configureVueJs(services) {
     });
 
     Vue.filter("prettyDuration", value => {
-        return moment.duration(value / 1000, "seconds").humanize();
+        const duration = moment.duration(value / 1000, "seconds");
+        return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
     });
 
     const ServicesPlugin = {

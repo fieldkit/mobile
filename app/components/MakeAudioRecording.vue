@@ -32,6 +32,9 @@ export default {
             //
         },
         startOrResume() {
+            if (this.recording) {
+                return this.$store.dispatch(ActionTypes.AUDIO_RESUME);
+            }
             return this.$store.dispatch(ActionTypes.AUDIO_RECORD);
         },
         pause() {
