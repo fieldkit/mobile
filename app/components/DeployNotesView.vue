@@ -46,7 +46,7 @@
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
                             <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
                             <WrapLayout orientation="horizontal">
-                                <StackLayout v-for="(photo, index) in photos" :key="index" class="photo-display">
+                                <StackLayout v-for="(photo, index) in form.photos" :key="index" class="photo-display">
                                     <Image :src="photo.src" stretch="aspectFit" :automationText="'deployPhoto' + index" />
                                 </StackLayout>
                                 <StackLayout class="photo-btn" automationText="addPhoto" @tap="onPhotoTap">
@@ -113,6 +113,7 @@ import FieldNoteForm from "./FieldNoteForm";
 import NoteDisplay from "./NoteDisplay";
 
 import * as dialogs from "tns-core-modules/ui/dialogs";
+import * as MutationTypes from "../store/mutations";
 import * as ActionTypes from "../store/actions";
 import * as animations from "./animations";
 
@@ -126,38 +127,37 @@ export default {
     },
     data() {
         return {
-            form: new NotesForm(),
             editing: null,
-            photos: [],
         };
     },
     computed: {
+        form() {
+            return this.$store.state.notes.stations[this.stationId].form;
+        },
         currentStation() {
             return this.$store.getters.legacyStations[this.stationId];
         },
     },
     props: {
-        linkedFromStation: {
-            type: Boolean,
-            default: false,
-        },
         stationId: {
             type: Number,
             required: true,
+        },
+        linkedFromStation: {
+            type: Boolean,
+            default: false,
         },
     },
     methods: {
         onPageLoaded(args) {},
         openNote(ev, note) {
             this.editing = note;
-            console.log("open: ", this.editing);
         },
         onSaveNote({ form }) {
             // TODO Media
-            console.log("save: ", this.editing, form);
             this.editing.body = form.body;
-            console.log("save: ", this.editing, form);
             this.editing = null;
+            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.form });
         },
         onCancelEditing() {
             this.editing = null;

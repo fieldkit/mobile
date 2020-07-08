@@ -5,7 +5,7 @@ export class NoteHelp {
 }
 
 export class NoteForm {
-    constructor(public readonly help: NoteHelp, public readonly body: string = "", public audios: NoteAudio[] = [], public images: NotePhoto[] = []) {}
+    constructor(public readonly help: NoteHelp, public readonly body: string = "", public audios: NoteAudio[] = [], public photos: NotePhoto[] = []) {}
 }
 
 export class NotesForm {
@@ -13,4 +13,6 @@ export class NotesForm {
     public readonly sitePurpose: NoteForm = new NoteForm(new NoteHelp(_L("siteLocation"), _L("siteLocationInstruction")));
     public readonly siteCriteria: NoteForm = new NoteForm(new NoteHelp(_L("siteCriteria"), _L("siteCriteriaInstruction")));
     public readonly siteDescription: NoteForm = new NoteForm(new NoteHelp(_L("siteDescription"), _L("siteDescriptionInstruction")));
+
+    constructor(public readonly id: Number, public readonly photos: NotePhoto[] = []) {}
 }

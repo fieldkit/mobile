@@ -122,12 +122,17 @@ export default {
         },
     },
     computed: {
+        currentNotes() {
+            return this.$store.state.notes.stations[this.stationId];
+        },
         currentStation() {
             return this.$store.getters.legacyStations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(args) {},
+        onPageLoaded(args) {
+            this.form.location = this.currentNotes.location || "";
+        },
         onMapReady(args) {
             this.map = args.map;
             this.displayStation();

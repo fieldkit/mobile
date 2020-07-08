@@ -85,7 +85,10 @@ function customizeLogger() {
                 },
                 firmware,
                 media,
-                notes,
+                notes: {
+                    activeStationId: notes.activeStationId,
+                    stations: _.size(stations),
+                },
                 stations: {
                     deviceIds: _(stations.all)
                         .keyBy(s => s.deviceId)
