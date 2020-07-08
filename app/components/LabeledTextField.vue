@@ -5,6 +5,7 @@
             row="1"
             :class="fieldClass"
             :hint="label"
+            :text="value"
             :keyboardType="keyboardType"
             autocorrect="false"
             autocapitalizationType="none"

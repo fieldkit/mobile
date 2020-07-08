@@ -34,7 +34,7 @@
                             disableScroll="false"
                             disableTilt="false"
                             @mapReady="onMapReady"
-                        ></Mapbox>
+                        />
                     </StackLayout>
 
                     <GridLayout rows="*" columns="*" class="m-t-30 m-b-20 m-x-10">
@@ -209,7 +209,7 @@ export default {
             return !this.form.v.any;
         },
         onIntervalChange(interval) {
-            console.log(interval);
+            console.log("interval", interval);
         },
         saveForm() {
             if (!this.checkLocationName()) {
