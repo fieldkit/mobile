@@ -4,6 +4,7 @@ import Camera from "../../wrappers/camera";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Services, ServiceRef } from "./utilities";
+import { IncomingImage } from "../../services/images-saver";
 
 export class LocalAudio {
     constructor(public readonly path: string) {}
@@ -72,7 +73,7 @@ const actions = {
             .pauseAudioRecording(state.recording)
             .then(() => {
                 if (!state.recording) throw new Error("no recording");
-                commit(AUDIO_RECORDING_PROGRESS, state.recording.pause());
+                return commit(AUDIO_RECORDING_PROGRESS, state.recording.pause());
             });
     },
     [ActionTypes.AUDIO_RESUME]: ({ commit, dispatch, state }: ActionParameters) => {
@@ -92,7 +93,9 @@ const actions = {
             .stopAudioRecording(state.recording)
             .then(() => {
                 if (!state.recording) throw new Error("no recording");
+                const recording = state.recording;
                 commit(AUDIO_RECORDING_PROGRESS, null);
+                return recording;
             });
     },
     [ActionTypes.TAKE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
@@ -100,10 +103,19 @@ const actions = {
             keepAspectRatio: true,
             saveToGallery: true,
             allowsEditing: false,
+        }).then(source => {
+            return dispatch(ActionTypes.SAVE_PICTURE, { source: source });
         });
     },
     [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
-        return Camera.findPicture(options);
+        return Camera.findPicture(options)
+            .then(selection => selection[0])
+            .then(source => {
+                return dispatch(ActionTypes.SAVE_PICTURE, { source: source });
+            });
+    },
+    [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { source: any }) => {
+        return state.services.images().saveImage(new IncomingImage(payload.source));
     },
 };
 
