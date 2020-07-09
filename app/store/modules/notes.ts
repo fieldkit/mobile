@@ -3,8 +3,8 @@ import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Services, ServiceRef } from "./utilities";
-import { RouteState } from "../../routes/navigate";
 import { Station } from "../types";
+import { NotesTableRow } from "../row-types";
 
 export class NoteMedia {
     constructor(public readonly path: string) {}
@@ -45,7 +45,6 @@ export class NotesForm {
 
 export class NotesState {
     public services: ServiceRef = new ServiceRef();
-    public activeStationId: number | null = null;
     public stations: { [index: number]: Notes } = {};
 
     public station(id: number): Notes {
@@ -70,24 +69,42 @@ export class Notes {
     }
 
     constructor(public readonly stationId: number) {}
+
+    public static fromRow(row: NotesTableRow): Notes {
+        const n = new Notes(row.stationId);
+        Object.assign(n, row.notesObject);
+        return n;
+    }
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: NotesState };
 
+export const LOAD_NOTES_ALL = "LOAD_NOTES_ALL";
+export const NOTES_LOCATION = "NOTES_LOCATION";
+export const NOTES_FORM = "NOTES_FORM";
+
 const getters = {};
 
 const actions = {
-    [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
-        return;
+    [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
+        return state.services
+            .db()
+            .getAllNotes()
+            .then(all => all.map(row => Notes.fromRow(row)))
+            .then(all => commit(LOAD_NOTES_ALL, all));
     },
-    [ActionTypes.CONFIGURE_STATION_SCHEDUES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
-        return;
-    },
-    [ActionTypes.CONFIGURE_STATION_SCHEDUES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
-        return;
-    },
+    [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
+    [ActionTypes.CONFIGURE_STATION_SCHEDUES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
+    [ActionTypes.CONFIGURE_STATION_SCHEDUES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
     [ActionTypes.STATION_LOCATION]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number; location: string }) => {
-        return commit(MutationTypes.STATION_LOCATION, payload);
+        commit(NOTES_LOCATION, payload);
+
+        return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
+    },
+    [ActionTypes.UPDATE_NOTES_FORM]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number; form: NotesForm }) => {
+        commit(NOTES_FORM, payload);
+
+        return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
     },
 };
 
@@ -106,19 +123,14 @@ const mutations = {
             return state.station(station.id);
         });
     },
-    [MutationTypes.NAVIGATION]: (state: NotesState, route: RouteState) => {
-        const stationId = route?.props?.stationId;
-        if (stationId) {
-            Vue.set(state, "activeStationId", route.props.stationId);
-        } else {
-            Vue.set(state, "activeStationId", null);
-        }
-    },
-    [MutationTypes.STATION_LOCATION]: (state: NotesState, payload: { stationId: number; location: string }) => {
+    [NOTES_LOCATION]: (state: NotesState, payload: { stationId: number; location: string }) => {
         state.station(payload.stationId).location = payload.location;
     },
-    [MutationTypes.STATION_NOTES]: (state: NotesState, payload: { stationId: number; form: NotesForm }) => {
+    [NOTES_FORM]: (state: NotesState, payload: { stationId: number; form: NotesForm }) => {
         state.station(payload.stationId).form = _.cloneDeep(payload.form);
+    },
+    [LOAD_NOTES_ALL]: (state: NotesState, notes: Notes[]) => {
+        return notes.map(notes => Vue.set(state.stations, notes.stationId, notes));
     },
 };
 

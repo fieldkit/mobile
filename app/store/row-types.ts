@@ -65,3 +65,12 @@ export interface DownloadTableRow {
     lastBlock: number;
     uploaded: number | null;
 }
+
+export interface NotesTableRow {
+    id: number;
+    stationId: number;
+    createdAt: number;
+    updatedAt: number;
+    notes: string;
+    notesObject: object | null;
+}

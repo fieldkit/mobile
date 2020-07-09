@@ -2,7 +2,7 @@ import _ from "lodash";
 import Config from "../config";
 import { sqliteToJs } from "../utilities";
 import { Download, FileTypeUtils } from "../store/types";
-import { DownloadTableRow } from "../store/row-types";
+import { DownloadTableRow, NotesTableRow } from "../store/row-types";
 
 const log = Config.logger("DbInterface");
 
@@ -721,5 +721,48 @@ export default class DatabaseInterface {
                     db.execute(`INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, values)
                 );
             });
+    }
+
+    public addOrUpdateNotes(notes: any): Promise<NotesTableRow> {
+        function serializeNotesJson(notes) {
+            try {
+                return JSON.stringify(notes);
+            } catch (err) {
+                log.error(`error serializing notes JSON: ${err}`);
+                throw new Error(`error serializing notes JSON: ${err}`);
+            }
+        }
+        return this.getDatabase()
+            .then(db =>
+                db.query(`SELECT id FROM notes WHERE station_id = ?`, [notes.stationId]).then(maybeId => {
+                    const json = serializeNotesJson(notes);
+                    if (maybeId.length == 0) {
+                        const values = [notes.stationId, new Date(), new Date(), json];
+                        return db.execute(`INSERT INTO notes (station_id, created_at, updated_at, notes) VALUES (?, ?, ?, ?)`, values);
+                    }
+                    const values = [new Date(), json, maybeId[0].id];
+                    return db.execute(`UPDATE notes SET updated_at = ?, notes = ? WHERE id = ?`, values);
+                })
+            )
+            .catch(err => Promise.reject(new Error(`error fetching notes: ${err}`)));
+    }
+
+    public getAllNotes(): Promise<NotesTableRow[]> {
+        return this.getDatabase()
+            .then(db => db.query("SELECT * FROM notes"))
+            .then(rows => sqliteToJs(rows))
+            .then(rows =>
+                rows.map(row => {
+                    try {
+                        row.notesObject = JSON.parse(row.notes);
+                        return row;
+                    } catch (err) {
+                        log.error(`error deserializing notes JSON: ${err}`);
+                        log.error(`JSON: ${row.notes}`);
+                    }
+                    return row;
+                })
+            )
+            .catch(err => Promise.reject(new Error(`error fetching notes: ${err}`)));
     }
 }

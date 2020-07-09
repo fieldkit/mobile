@@ -5,3 +5,4 @@ export * from "./20200513_105555_add_portal_http_error.js";
 export * from "./20200513_150731_add_event_history_table.js";
 export * from "./20200611_140139_add_station_last_seen.js";
 export * from "./20200624_193105_add_sensor_trend.js";
+export * from "./20200708_162023_add_notes_table.js";

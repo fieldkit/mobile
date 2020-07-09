@@ -171,7 +171,7 @@ export default {
             // TODO Make a proper mutation.
             this.editing.body = form.body;
             this.editing = null;
-            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
+            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
         },
         onAttachNoteMedia(note, media) {
             // TODO Make a proper mutation.
@@ -180,19 +180,20 @@ export default {
             } else {
                 note.photos.push(media);
             }
-            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
+            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
         },
         onRemoveAudio(note, media) {
             // TODO Make a proper mutation.
             note.audio = note.audio.filter(m => m.path != media.path);
-            return this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
+            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
         },
         takePicture() {
             return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then(savedImage => {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
                     this.notes.form.photos.push(new NoteMedia(savedImage.path));
-                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
+                    // TODO Make a proper mutation.
+                    return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
                 });
             });
         },
@@ -201,7 +202,8 @@ export default {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
                     this.notes.form.photos.push(new NoteMedia(savedImage.path));
-                    this.$store.commit(MutationTypes.STATION_NOTES, { stationId: this.stationId, form: this.notes.form });
+                    // TODO Make a proper mutation.
+                    return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
                 });
             });
         },

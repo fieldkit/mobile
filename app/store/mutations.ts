@@ -26,8 +26,3 @@ export const LOGOUT = "LOGOUT";
 
 export const STATION_QUERIED = "STATION_QUERIED";
 export const STATION_ACTIVITY = "STATION_ACTIVITY";
-
-// Data
-
-export const STATION_LOCATION = "STATION_LOCATION";
-export const STATION_NOTES = "STATION_NOTES";
