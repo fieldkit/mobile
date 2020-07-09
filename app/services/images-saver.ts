@@ -14,4 +14,10 @@ export default class ImagesSaver {
             return new SavedImage(destination, incoming.source);
         });
     }
+
+    public fromFile(path: string): Promise<SavedImage> {
+        return ImageSource.fromFile(path).then(source => {
+            return new SavedImage(path, source);
+        });
+    }
 }

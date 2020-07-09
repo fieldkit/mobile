@@ -163,7 +163,10 @@ export default {
         },
     },
     methods: {
-        onPageLoaded(args) {},
+        onPageLoaded(args) {
+            const paths = this.$store.state.notes.stations[this.stationId].form.photos.map(p => p.path);
+            return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
+        },
         openNote(ev, note) {
             this.editing = note;
         },

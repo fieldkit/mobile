@@ -5,17 +5,10 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Services, ServiceRef } from "./utilities";
 import { IncomingImage } from "../../services/types";
+import { serializePromiseChain } from "../../utilities";
 
 export const AUDIO_RECORDING_PROGRESS = "AUDIO_RECORDING_PROGRESS";
 export const CACHE_PHOTO = "CACHE_PHOTO";
-
-export class LocalAudio {
-    constructor(public readonly path: string) {}
-}
-
-export class LocalPhoto {
-    constructor(public readonly path: string) {}
-}
 
 export class ActiveRecording {
     private readonly started: Date = new Date();
@@ -48,8 +41,6 @@ export class ActiveRecording {
 
 export class MediaState {
     public services: ServiceRef = new ServiceRef();
-    public audios: LocalAudio[] = [];
-    public photos: LocalPhoto[] = [];
     public recording: ActiveRecording | null = null;
     public photoCache: { [index: string]: any } = {};
 }
@@ -124,6 +115,17 @@ const actions = {
                 commit(CACHE_PHOTO, { path: saved.path, source: saved.source });
                 return saved;
             });
+    },
+    [ActionTypes.LOAD_PICTURES]: ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
+        return serializePromiseChain(payload.paths, path =>
+            state.services
+                .images()
+                .fromFile(path)
+                .then(saved => {
+                    commit(CACHE_PHOTO, { path: saved.path, source: saved.source });
+                    return {};
+                })
+        );
     },
 };
 
