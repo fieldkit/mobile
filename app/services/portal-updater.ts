@@ -16,7 +16,8 @@ export default class PortalUpdater {
 
     public start() {
         console.log("PortalUpdater", "started");
-        setInterval(() => this.addOrUpdateStations(), 10000);
+        const OneMinute = 60 * 1000;
+        setInterval(() => this.addOrUpdateStations(), OneMinute * 5);
         return Promise.resolve();
     }
 
