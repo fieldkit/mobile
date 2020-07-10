@@ -56,11 +56,13 @@ export default class SynchronizeNotes {
                 return [localByKey[key].path, portalByKey[key].id];
             }
             const path = localByKey[key].path;
-            const contentType = "image/jpeg"; // application/octet-stream  TODO Detect.
+            const contentType = "application/octet-stream";
             return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((uploaded) => {
-                return [path, uploaded.id];
+                console.log("upload done", uploaded);
+                return [path, uploaded.data.id];
             });
         }).then((pathAndId) => {
+            console.log("media paths and ids", pathAndId);
             return _.fromPairs(pathAndId);
         });
     }
@@ -115,11 +117,16 @@ export default class SynchronizeNotes {
 }
 
 export class ExistingFieldNote {
-    constructor(public readonly id: number, public readonly key: string, public readonly body: string, public readonly media: number[]) {}
+    constructor(
+        public readonly id: number,
+        public readonly key: string,
+        public readonly body: string,
+        public readonly mediaIds: number[]
+    ) {}
 }
 
 export class NewFieldNote {
-    constructor(public readonly key: string, public readonly body: string, public readonly media: number[]) {}
+    constructor(public readonly key: string, public readonly body: string, public readonly mediaIds: number[]) {}
 }
 
 export class Ids {
