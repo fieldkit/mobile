@@ -432,4 +432,34 @@ export default class PortalInterface {
             data: { notes: payload },
         });
     }
+
+    public uploadStationMedia(stationId: number, key: string, contentType: string, path: string) {
+        const headers = {
+            Authorization: this._appSettings.getString("accessToken"),
+            "Content-Type": contentType,
+        };
+        return this.getUri().then((baseUri) => {
+            return this._services
+                .Conservify()
+                .upload({
+                    url: baseUri + "/stations/" + stationId + "/media?key=" + key,
+                    method: "POST",
+                    path: path,
+                    headers: { ...headers },
+                    progress: (total, copied, info) => {
+                        // Do nothing.
+                    },
+                })
+                .then(
+                    (response) => {
+                        // Our library uses statusCode, axios uses status
+                        return {
+                            data: response.body,
+                            status: response.statusCode,
+                        };
+                    },
+                    (err) => Promise.reject(err)
+                );
+        });
+    }
 }

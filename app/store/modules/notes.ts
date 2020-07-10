@@ -31,7 +31,12 @@ export class NoteHelp {
 }
 
 export class NoteForm {
-    constructor(public readonly help: NoteHelp, public readonly body: string = "", public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
+    constructor(
+        public readonly help: NoteHelp,
+        public readonly body: string = "",
+        public photos: NoteMedia[] = [],
+        public audio: NoteMedia[] = []
+    ) {}
 }
 
 export class NotesForm {
@@ -56,7 +61,12 @@ export class NotesState {
 }
 
 export class Note {
-    constructor(public readonly id: number, public readonly body: string, public readonly createdAt: Date, public readonly media: NoteMedia[] = []) {}
+    constructor(
+        public readonly id: number,
+        public readonly body: string,
+        public readonly createdAt: Date,
+        public readonly media: NoteMedia[] = []
+    ) {}
 }
 
 export class Notes {
@@ -66,6 +76,14 @@ export class Notes {
 
     public get completed(): number {
         return 0;
+    }
+
+    public allMedia(): NoteMedia[] {
+        const allNotes = [this.form.studyObjective, this.form.sitePurpose, this.form.siteCriteria, this.form.siteDescription];
+
+        const notesAudio = _.flatten(allNotes.map((n) => n.audio));
+        const notesPhotos = _.flatten(allNotes.map((n) => n.photos));
+        return [...this.form.photos, ...notesPhotos, ...notesAudio];
     }
 
     constructor(public readonly stationId: number) {}
@@ -90,8 +108,8 @@ const actions = {
         return state.services
             .db()
             .getAllNotes()
-            .then(all => all.map(row => Notes.fromRow(row)))
-            .then(all => commit(LOAD_NOTES_ALL, all));
+            .then((all) => all.map((row) => Notes.fromRow(row)))
+            .then((all) => commit(LOAD_NOTES_ALL, all));
     },
     [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
     [ActionTypes.CONFIGURE_STATION_SCHEDUES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
@@ -116,7 +134,7 @@ const mutations = {
         Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.STATIONS]: (state: NotesState, stations: Station[]) => {
-        return stations.map(station => {
+        return stations.map((station) => {
             if (!station.id) {
                 throw new Error("station missing id");
             }
@@ -130,7 +148,7 @@ const mutations = {
         state.station(payload.stationId).form = _.cloneDeep(payload.form);
     },
     [LOAD_NOTES_ALL]: (state: NotesState, notes: Notes[]) => {
-        return notes.map(notes => Vue.set(state.stations, notes.stationId, notes));
+        return notes.map((notes) => Vue.set(state.stations, notes.stationId, notes));
     },
 };
 

@@ -1,8 +1,8 @@
 import _ from "lodash";
-// import * as ActionTypes from "../store/actions";
 import { Store } from "../store/types";
 import PortalInterface from "./portal-interface";
 import { Notes } from "../store/modules/notes";
+import { serializePromiseChain } from "../utilities";
 
 export default class SynchronizeNotes {
     private portal: PortalInterface;
@@ -19,19 +19,53 @@ export default class SynchronizeNotes {
                 stations.map((ids) => {
                     return this.portal.getStationNotes(ids.portal).then((portalNotes: PortalStationNotesReply) => {
                         const mobileNotes = this.store.state.notes.stations[ids.mobile];
-                        const payload = this.merge(portalNotes, mobileNotes);
 
-                        console.log("payload", ids, payload);
+                        return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
+                            console.log("uploaded", resolvedMedia);
 
-                        return this.portal.updateStationNotes(ids.portal, payload);
+                            const payload = this.merge(portalNotes, mobileNotes, resolvedMedia);
+
+                            console.log("payload", ids, payload);
+
+                            return this.portal.updateStationNotes(ids.portal, payload);
+                        });
                     });
                 }),
             ]);
         });
-        return Promise.resolve();
     }
 
-    private merge(portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
+    private getFileName(path: string): string {
+        const name = _.last(path.split("/"));
+        if (!name) {
+            throw new Error(`error getting file name: ${path}`);
+        }
+        return name;
+    }
+
+    public media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
+        const allMedia = mobileNotes.allMedia();
+
+        const portalByKey = _.keyBy(portalNotes.media, (m) => m.key);
+        const localByKey = _.keyBy(allMedia, (m) => this.getFileName(m.path));
+
+        console.log("media", portalByKey, localByKey);
+
+        return serializePromiseChain(_.keys(localByKey), (key) => {
+            if (portalByKey[key]) {
+                return [localByKey[key].path, portalByKey[key].id];
+            }
+            const path = localByKey[key].path;
+            const contentType = "image/jpeg"; // application/octet-stream  TODO Detect.
+            return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((uploaded) => {
+                return [path, uploaded.id];
+            });
+        }).then((pathAndId) => {
+            return _.fromPairs(pathAndId);
+        });
+    }
+
+    private merge(portalNotes: PortalStationNotesReply, mobileNotes: Notes, media: { [index: string]: number }) {
         const portalExisting = _.keyBy(portalNotes.notes, (n) => n.key);
         const localByKey = {
             studyObjective: mobileNotes.form.studyObjective,
@@ -42,14 +76,18 @@ export default class SynchronizeNotes {
 
         const modifications = _(localByKey)
             .mapValues((value, key) => {
+                const photoIds = value.photos.map((m) => media[m.path]).filter((v) => v);
+                const audioIds = value.audio.map((m) => media[m.path]).filter((v) => v);
+                const mediaIds = [...photoIds, ...audioIds];
+
                 if (portalExisting[key]) {
                     return {
                         creating: null,
-                        updating: new ExistingFieldNote(portalExisting[key].id, key, value.body, null),
+                        updating: new ExistingFieldNote(portalExisting[key].id, key, value.body, mediaIds),
                     };
                 }
                 return {
-                    creating: new NewFieldNote(key, value.body, null),
+                    creating: new NewFieldNote(key, value.body, mediaIds),
                     updating: null,
                 };
             })
@@ -62,7 +100,7 @@ export default class SynchronizeNotes {
         return new PatchPortalNote(creating, updating);
     }
 
-    private getPortalStations() {
+    private getPortalStations(): Promise<Ids[]> {
         return Promise.resolve(
             this.store.state.stations.all
                 .map((station) => {
@@ -71,24 +109,17 @@ export default class SynchronizeNotes {
                     }
                     return null;
                 })
-                .filter((ids) => ids)
+                .filter((ids) => ids) as Ids[]
         );
     }
-
-    //private stop() {}
 }
 
 export class ExistingFieldNote {
-    constructor(
-        public readonly id: number,
-        public readonly key: string,
-        public readonly body: string,
-        public readonly mediaId: number | null
-    ) {}
+    constructor(public readonly id: number, public readonly key: string, public readonly body: string, public readonly media: number[]) {}
 }
 
 export class NewFieldNote {
-    constructor(public readonly key: string, public readonly body: string, public readonly mediaId: number | null) {}
+    constructor(public readonly key: string, public readonly body: string, public readonly media: number[]) {}
 }
 
 export class Ids {
@@ -104,7 +135,15 @@ export interface PortalStationNotes {
     mediaId: number;
 }
 
+export interface PortalNoteMedia {
+    id: number;
+    contentType: string;
+    url: string;
+    key: string;
+}
+
 export interface PortalStationNotesReply {
+    media: PortalNoteMedia[];
     notes: PortalStationNotes[];
 }
 
