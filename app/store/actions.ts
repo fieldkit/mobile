@@ -49,3 +49,7 @@ export const STATION_LOCATION = "STATION_LOCATION";
 
 export const UPDATE_NOTES_FORM = "UPDATE_NOTES_FORM";
 export const DEPLOY_STATION = "DEPLOY_STATION";
+
+// Portal
+
+export const UPDATE_PORTAL = "UPDATE_PORTAL";

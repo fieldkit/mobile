@@ -10,6 +10,7 @@ import { syncing } from "./modules/syncing";
 import { firmware } from "./modules/firmware";
 import { media } from "./modules/media";
 import { notes } from "./modules/notes";
+import { portal } from "./modules/portal";
 import createLogger from "./logger";
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
@@ -47,7 +48,7 @@ function customizeLogger() {
                     "mutation: ",
                     mutation.type,
                     _(mutation.payload)
-                        .map(s => s.name)
+                        .map((s) => s.name)
                         .value()
                 );
                 return false;
@@ -72,7 +73,7 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes } = state;
+            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes, portal } = state;
             return {
                 nav,
                 phone,
@@ -89,10 +90,11 @@ function customizeLogger() {
                     activeStationId: notes.activeStationId,
                     stations: _.size(stations),
                 },
+                portal,
                 stations: {
                     deviceIds: _(stations.all)
-                        .keyBy(s => s.deviceId)
-                        .mapValues(s => {
+                        .keyBy((s) => s.deviceId)
+                        .mapValues((s) => {
                             return {
                                 name: s.name,
                             };
@@ -126,6 +128,7 @@ export default function () {
             firmware,
             media,
             notes,
+            portal,
         },
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",

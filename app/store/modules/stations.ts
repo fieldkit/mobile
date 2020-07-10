@@ -277,6 +277,7 @@ const actions = {
                     .then(station => dispatch(ActionTypes.LOAD))
             );
     },
+    [ActionTypes.UPDATE_PORTAL]: ({ commit }: ActionParameters) => {},
 };
 
 const mutations = {
