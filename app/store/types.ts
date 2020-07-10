@@ -99,7 +99,13 @@ export class Stream {
     portalLastBlock: number | null = null;
     updated: Date = new Date();
 
-    constructor(public deviceId: string, public type: string, public deviceSize: number, public deviceFirstBlock: number, public deviceLastBlock: number) {}
+    constructor(
+        public deviceId: string,
+        public type: string,
+        public deviceSize: number,
+        public deviceFirstBlock: number,
+        public deviceLastBlock: number
+    ) {}
 
     static fromRow(o: StreamTableRow): Stream {
         const s = new Stream(o.deviceId, o.type, o.deviceSize, o.deviceFirstBlock, o.deviceLastBlock);
@@ -168,11 +174,17 @@ export interface StationCreationFields {
 }
 
 export class FirmwareInfo {
-    constructor(public readonly version: string, public readonly build: string, public readonly simpleNumber: number, public readonly time: number, public readonly hash: string) {}
+    constructor(
+        public readonly version: string,
+        public readonly build: string,
+        public readonly simpleNumber: number,
+        public readonly time: number,
+        public readonly hash: string
+    ) {}
 }
 
 export class Station implements StationCreationFields {
-    public readonly id: number | null;
+    public readonly id: number;
     public readonly deviceId: string;
     public readonly generationId: string;
     public readonly name: string;
@@ -192,6 +204,9 @@ export class Station implements StationCreationFields {
     public readonly downloads: Download[] = [];
 
     constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = [], downloads: Download[] = []) {
+        if (!o.id) {
+            throw new Error("station id is required");
+        }
         this.id = o.id;
         this.deviceId = o.deviceId;
         this.generationId = o.generationId;
@@ -373,5 +388,10 @@ export class OpenProgressPayload {
 }
 
 export class TransferProgress {
-    constructor(public readonly deviceId: string, public readonly path: string, public readonly total: number, public readonly copied: number) {}
+    constructor(
+        public readonly deviceId: string,
+        public readonly path: string,
+        public readonly total: number,
+        public readonly copied: number
+    ) {}
 }

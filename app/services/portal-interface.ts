@@ -24,8 +24,8 @@ export default class PortalInterface {
         this._appSettings = new AppSettings();
     }
 
-    getUri() {
-        return this._dbInterface.getConfig().then(config => {
+    private getUri() {
+        return this._dbInterface.getConfig().then((config) => {
             if (config.length == 0) {
                 return Config.baseUri;
             } else {
@@ -34,59 +34,59 @@ export default class PortalInterface {
         });
     }
 
-    storeCurrentUser(refreshed) {
-        return this._query({
+    private storeCurrentUser(refreshed) {
+        return this.query({
             refreshed: refreshed || false,
             authenticated: true,
             method: "GET",
             url: "/user",
-        }).then(data => {
+        }).then((data) => {
             this._currentUser.name = data.name;
             this._currentUser.portalId = data.id;
             return data;
         });
     }
 
-    isAvailable() {
-        return this.getUri().then(baseUri =>
+    public isAvailable() {
+        return this.getUri().then((baseUri) =>
             axios({ url: baseUri + "/status" })
-                .then(r => true)
-                .catch(e => false)
+                .then((r) => true)
+                .catch((e) => false)
         );
     }
 
-    getCurrentUser() {
+    public getCurrentUser() {
         return this._currentUser;
     }
 
-    isLoggedIn() {
+    public isLoggedIn() {
         return this._appSettings.getString("accessToken") ? true : false;
     }
 
-    getCurrentToken() {
+    public getCurrentToken() {
         return this._appSettings.getString("accessToken");
     }
 
-    login(user) {
-        return this.getUri().then(baseUri =>
+    public login(user) {
+        return this.getUri().then((baseUri) =>
             axios({
                 method: "POST",
                 url: baseUri + "/login",
                 headers: { "Content-Type": "application/json" },
                 data: user,
             })
-                .then(response => this._handleTokenResponse(response))
-                .catch(error => this._handleError(error))
+                .then((response) => this.handleTokenResponse(response))
+                .catch((error) => this.handleError(error))
         );
     }
 
-    logout() {
+    public logout() {
         this._appSettings.remove("accessToken");
         return Promise.resolve(true);
     }
 
-    register(user) {
-        return this._query({
+    public register(user) {
+        return this.query({
             method: "POST",
             url: "/users",
             data: user,
@@ -98,15 +98,15 @@ export default class PortalInterface {
 
     resetPassword(email) {}
 
-    getTransmissionToken() {
-        return this._query({
+    public getTransmissionToken() {
+        return this.query({
             authenticated: true,
             url: "/user/transmission-token",
         });
     }
 
-    addStation(data) {
-        return this._query({
+    public addStation(data) {
+        return this.query({
             authenticated: true,
             method: "POST",
             url: "/stations",
@@ -114,8 +114,8 @@ export default class PortalInterface {
         });
     }
 
-    updateStation(data, portalId) {
-        return this._query({
+    public updateStation(data, portalId) {
+        return this.query({
             authenticated: true,
             method: "PATCH",
             url: "/stations/" + portalId,
@@ -123,29 +123,29 @@ export default class PortalInterface {
         });
     }
 
-    getStationSyncState(deviceId) {
-        return this._query({
+    public getStationSyncState(deviceId) {
+        return this.query({
             authenticated: true,
             url: "/data/devices/" + deviceId + "/summary",
         });
     }
 
-    getStations() {
-        return this._query({
+    public getStations() {
+        return this.query({
             authenticated: true,
             url: "/stations",
         });
     }
 
-    getStationById(id) {
-        return this._query({
+    public getStationById(id) {
+        return this.query({
             authenticated: true,
             url: "/stations/@/" + id,
         });
     }
 
-    addFieldNote(data) {
-        return this._query({
+    public addFieldNote(data) {
+        return this.query({
             authenticated: true,
             method: "POST",
             url: "/stations/" + data.stationId + "/field-notes",
@@ -153,17 +153,17 @@ export default class PortalInterface {
         });
     }
 
-    listFirmware(module) {
-        return this._query({
+    public listFirmware(module) {
+        return this.query({
             url: "/firmware" + (module ? "?module=" + module : ""),
         });
     }
 
-    onlyIfAuthenticated() {
+    public onlyIfAuthenticated() {
         if (!this.isLoggedIn()) {
             return Promise.reject(new AuthenticationError("unauthenticated"));
         }
-        return this.isAvailable().then(yes => {
+        return this.isAvailable().then((yes) => {
             if (!yes) {
                 return Promise.reject(new AuthenticationError("unauthenticated"));
             }
@@ -171,11 +171,11 @@ export default class PortalInterface {
         });
     }
 
-    downloadFirmware(url, local, progress) {
+    public downloadFirmware(url, local, progress) {
         const headers = {
             Authorization: this._appSettings.getString("accessToken"),
         };
-        return this.getUri().then(baseUri =>
+        return this.getUri().then((baseUri) =>
             this._services
                 .Conservify()
                 .download({
@@ -184,7 +184,7 @@ export default class PortalInterface {
                     headers: { ...headers },
                     progress: progress,
                 })
-                .then(e => {
+                .then((e) => {
                     // Our library uses statusCode, axios uses status
                     if (e.statusCode != 200) {
                         return this._services
@@ -203,7 +203,7 @@ export default class PortalInterface {
         );
     }
 
-    addFieldNoteMedia(data) {
+    public addFieldNoteMedia(data) {
         const headers = {
             Authorization: this._appSettings.getString("accessToken"),
         };
@@ -218,7 +218,7 @@ export default class PortalInterface {
                     // Do nothing.
                 },
             })
-            .then(e => {
+            .then((e) => {
                 // Our library uses statusCode, axios uses status
                 return {
                     data: e.body,
@@ -227,7 +227,7 @@ export default class PortalInterface {
             });
     }
 
-    _handleTokenResponse(response) {
+    private handleTokenResponse(response) {
         if (response.status !== 204) {
             throw new Error("authentication failed");
         }
@@ -242,7 +242,7 @@ export default class PortalInterface {
         });
     }
 
-    _getHeaders(req) {
+    private getHeaders(req) {
         const token = this._appSettings.getString("accessToken");
         if (token && token.length > 0) {
             return Promise.resolve(
@@ -261,17 +261,17 @@ export default class PortalInterface {
         return Promise.resolve(req.headers);
     }
 
-    _query(req) {
-        console.log("portal query", req.method || "GET", req.url);
-        return this._getHeaders(req).then(headers => {
-            return this.getUri().then(baseUri => {
+    private query(req) {
+        return this.getHeaders(req).then((headers) => {
+            return this.getUri().then((baseUri) => {
+                console.log("portal query", req.method || "GET", baseUri + req.url);
                 req.headers = headers;
                 req.url = baseUri + req.url;
                 return axios(req)
-                    .then(response => response.data)
-                    .catch(error => {
+                    .then((response) => response.data)
+                    .catch((error) => {
                         if (error.response.status === 401) {
-                            return this._tryRefreshToken(req);
+                            return this.tryRefreshToken(req);
                         }
 
                         console.log(req.url, "portal error", error.response.status, error.response.data);
@@ -283,15 +283,15 @@ export default class PortalInterface {
         });
     }
 
-    _tryRefreshToken(original) {
-        const token = this._parseToken(this._appSettings.getString("accessToken"));
+    private tryRefreshToken(original) {
+        const token = this.parseToken(this._appSettings.getString("accessToken"));
         if (token == null) {
             return Promise.reject(new AuthenticationError("no token"));
         }
 
         if (original.refreshed === true) {
             console.log("refresh failed, clear token");
-            return this.logout().then(_ => {
+            return this.logout().then((_) => {
                 return Promise.reject(new AuthenticationError("refresh token failed"));
             });
         }
@@ -302,27 +302,27 @@ export default class PortalInterface {
 
         console.log("refreshing token", requestBody);
 
-        return this.getUri().then(baseUri =>
+        return this.getUri().then((baseUri) =>
             axios({
                 method: "POST",
                 url: baseUri + "/refresh",
                 data: requestBody,
             })
-                .then(response => {
-                    return this._handleTokenResponse(response).then(() => {
-                        return this._query(_.extend({ refreshed: true }, original));
+                .then((response) => {
+                    return this.handleTokenResponse(response).then(() => {
+                        return this.query(_.extend({ refreshed: true }, original));
                     });
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.log("refresh failed", error);
-                    return this.logout().then(_ => {
+                    return this.logout().then((_) => {
                         return Promise.reject(error);
                     });
                 })
         );
     }
 
-    _parseToken(token) {
+    private parseToken(token) {
         try {
             const encoded = token.split(".")[1];
             const decoded = Buffer.from(encoded, "base64").toString();
@@ -333,12 +333,12 @@ export default class PortalInterface {
         }
     }
 
-    _handleError(error) {
+    private handleError(error) {
         throw error;
     }
 
     private getIngestionUri() {
-        return this._dbInterface.getConfig().then(config => {
+        return this._dbInterface.getConfig().then((config) => {
             if (config.length == 0) {
                 return Config.ingestionUri;
             } else {
@@ -399,7 +399,7 @@ export default class PortalInterface {
         delete headers["connection"];
         delete headers["content-length"];
 
-        return this.getIngestionUri().then(url =>
+        return this.getIngestionUri().then((url) =>
             this._conservify
                 .upload({
                     method: "POST",
@@ -408,12 +408,28 @@ export default class PortalInterface {
                     headers: { ...headers, ...defaultHeaders },
                     progress: progress,
                 })
-                .then(response => {
+                .then((response) => {
                     if (response.statusCode != 200) {
                         return Promise.reject(response);
                     }
                     return response;
                 })
         );
+    }
+
+    public getStationNotes(id: number): Promise<any> {
+        return this.query({
+            authenticated: true,
+            url: "/stations/" + id + "/notes",
+        });
+    }
+
+    public updateStationNotes(id: number, payload: any): Promise<any> {
+        return this.query({
+            method: "PATCH",
+            authenticated: true,
+            url: "/stations/" + id + "/notes",
+            data: { notes: payload },
+        });
     }
 }
