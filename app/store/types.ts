@@ -184,7 +184,7 @@ export class FirmwareInfo {
 }
 
 export class Station implements StationCreationFields {
-    public readonly id: number;
+    public readonly id: number | null;
     public readonly deviceId: string;
     public readonly generationId: string;
     public readonly name: string;
@@ -205,7 +205,7 @@ export class Station implements StationCreationFields {
 
     constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = [], downloads: Download[] = []) {
         if (!o.id) {
-            throw new Error("station id is required");
+            // throw new Error("station id is required");
         }
         this.id = o.id;
         this.deviceId = o.deviceId;

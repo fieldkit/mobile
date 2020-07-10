@@ -33,6 +33,9 @@ export default class PortalUpdater {
                 console.log("PortalUpdater", "updating stations", this.store.state.stations.all.length);
                 return Promise.all(
                     this.store.state.stations.all.map((station: Station) => {
+                        if (!station.id) {
+                            throw new Error("station id is required");
+                        }
                         const notes = this.store.state.notes.stations[station.id];
                         const params = {
                             name: station.name,
