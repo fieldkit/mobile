@@ -9,8 +9,8 @@ const isObject = function (o) {
 const isArray = function (a) {
     return Array.isArray(a);
 };
-const toCamel = s => {
-    return s.replace(/([-_][a-z])/gi, $1 => {
+const toCamel = (s) => {
+    return s.replace(/([-_][a-z])/gi, ($1) => {
         return $1.toUpperCase().replace("-", "").replace("_", "");
     });
 };
@@ -18,13 +18,13 @@ export function keysToCamel(o) {
     if (isObject(o)) {
         const n = {};
 
-        Object.keys(o).forEach(k => {
+        Object.keys(o).forEach((k) => {
             n[toCamel(k)] = keysToCamel(o[k]);
         });
 
         return n;
     } else if (isArray(o)) {
-        return o.map(i => {
+        return o.map((i) => {
             return keysToCamel(i);
         });
     }
@@ -43,8 +43,8 @@ export function getPathTimestamp(ts) {
 
 export function serializePromiseChain(all, fn) {
     return all.reduce((accum, value, index) => {
-        return accum.then(allValues => {
-            return fn(value, index).then(singleValue => {
+        return accum.then((allValues) => {
+            return Promise.resolve(fn(value, index)).then((singleValue) => {
                 allValues.push(singleValue);
                 return allValues;
             });
@@ -55,7 +55,7 @@ export function serializePromiseChain(all, fn) {
 export function promiseAfter(t, v) {
     if (t == 0) {
         return {
-            then: cb => {
+            then: (cb) => {
                 return cb();
             },
         };
