@@ -13,25 +13,18 @@ export default class SynchronizeNotes {
         this.store = store;
     }
 
-    public synchronize() {
-        return this.getPortalStations().then((stations: Ids[]) => {
-            return Promise.all([
-                stations.map((ids) => {
-                    return this.portal.getStationNotes(ids.portal).then((portalNotes: PortalStationNotesReply) => {
-                        const mobileNotes = this.store.state.notes.stations[ids.mobile];
+    public synchronize(ids: Ids) {
+        return this.portal.getStationNotes(ids.portal).then((portalNotes: PortalStationNotesReply) => {
+            const mobileNotes = this.store.state.notes.stations[ids.mobile];
 
-                        return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
-                            console.log("uploaded", resolvedMedia);
+            return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
+                console.log("uploaded", resolvedMedia);
 
-                            const payload = this.merge(portalNotes, mobileNotes, resolvedMedia);
+                const payload = this.merge(portalNotes, mobileNotes, resolvedMedia);
+                console.log("payload", ids, payload);
 
-                            console.log("payload", ids, payload);
-
-                            return this.portal.updateStationNotes(ids.portal, payload);
-                        });
-                    });
-                }),
-            ]);
+                return this.portal.updateStationNotes(ids.portal, payload);
+            });
         });
     }
 
@@ -44,12 +37,15 @@ export default class SynchronizeNotes {
     }
 
     public media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
-        const allMedia = mobileNotes.allMedia();
+        const allPortalMedia = [...portalNotes.media, ..._.flatten(portalNotes.notes.map((n) => n.media))];
+        const portalByKey = _.keyBy(allPortalMedia, (m) => m.key);
 
-        const portalByKey = _.keyBy(portalNotes.media, (m) => m.key);
-        const localByKey = _.keyBy(allMedia, (m) => this.getFileName(m.path));
+        const allLocalMedia = mobileNotes.allMedia();
+        const localByKey = _.keyBy(allLocalMedia, (m) => this.getFileName(m.path));
 
-        console.log("media", portalByKey, localByKey);
+        console.log("ids", ids);
+        console.log("portal", portalByKey);
+        console.log("local", localByKey);
 
         return serializePromiseChain(_.keys(localByKey), (key) => {
             if (portalByKey[key]) {
@@ -104,19 +100,6 @@ export default class SynchronizeNotes {
 
         return new PatchPortalNote(creating, updating);
     }
-
-    private getPortalStations(): Promise<Ids[]> {
-        return Promise.resolve(
-            this.store.state.stations.all
-                .map((station) => {
-                    if (station.id && station.portalId) {
-                        return new Ids(station.id, station.portalId);
-                    }
-                    return null;
-                })
-                .filter((ids) => ids) as Ids[]
-        );
-    }
 }
 
 export class ExistingFieldNote {
@@ -142,7 +125,7 @@ export interface PortalStationNotes {
     author: { id: number; name: number };
     key: string;
     body: string;
-    mediaId: number;
+    media: { id: number; key: string; url: string; contentType: string }[];
 }
 
 export interface PortalNoteMedia {
