@@ -23,6 +23,10 @@ export default class SynchronizeNotes {
                 const payload = this.merge(portalNotes, mobileNotes, resolvedMedia);
                 console.log("payload", ids, payload);
 
+                if (payload.creating.length == 0 && payload.notes.length == 0) {
+                    return [];
+                }
+
                 return this.portal.updateStationNotes(ids.portal, payload);
             });
         });
