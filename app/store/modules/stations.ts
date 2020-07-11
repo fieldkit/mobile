@@ -2,16 +2,27 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { StationCreationFields, Station, AvailableStation, Module, Sensor, LegacyStation, Stream, Download } from "../types";
+import {
+    StationCreationFields,
+    Station,
+    AvailableStation,
+    Module,
+    Sensor,
+    LegacyStation,
+    Stream,
+    Download,
+    StationPortalStatus,
+} from "../types";
 import { HasLocation } from "../map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "../row-types";
 import { HttpStatusReply } from "../http_reply";
 import { GlobalState } from "./global";
 import { Services, ServiceRef } from "./utilities";
 
+export const STATION_PORTAL_STATUS = "STATION_PORTAL_STATUS";
+
 export class StationsState {
     services: ServiceRef = new ServiceRef();
-    error: string | boolean = false;
     all: Station[] = [];
 }
 
@@ -19,13 +30,13 @@ const getters = {
     availableStations: (state: StationsState, getters, rootState: GlobalState): AvailableStation[] => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
-            .keyBy(a => a.deviceId)
+            .keyBy((a) => a.deviceId)
             .value();
         const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
         const available = _(deviceIds)
-            .map(deviceId => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
+            .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
             .orderBy([
-                available => {
+                (available) => {
                     if (!available.lastSeen) {
                         return 0;
                     }
@@ -40,7 +51,7 @@ const getters = {
         if (false) {
             console.log(
                 "available",
-                _.map(available, s => {
+                _.map(available, (s) => {
                     return {
                         name: s.name,
                         connected: s.connected,
@@ -55,16 +66,16 @@ const getters = {
     legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
-            .keyBy(a => a.deviceId)
+            .keyBy((a) => a.deviceId)
             .value();
         const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
         const legacy = _(deviceIds)
-            .map(deviceId => {
+            .map((deviceId) => {
                 const station = stations[deviceId];
                 const available = new AvailableStation(deviceId, nearby[deviceId], station);
                 return new LegacyStation(station, station.modules, available);
             })
-            .sortBy(ls => {
+            .sortBy((ls) => {
                 return [ls.name];
             })
             .value();
@@ -72,7 +83,7 @@ const getters = {
         if (false) {
             console.log(
                 "legacy",
-                _.map(legacy, s => {
+                _.map(legacy, (s) => {
                     return {
                         name: s.name,
                         connected: s.connected,
@@ -82,7 +93,7 @@ const getters = {
             );
         }
 
-        return _.keyBy(legacy, s => s.id);
+        return _.keyBy(legacy, (s) => s.id);
     },
 };
 
@@ -109,7 +120,9 @@ class StationStatusFactory {
         }
 
         const { latitude, longitude } = getLocationFrom(this.statusReply.status.gps);
-        const deployStartTime = this.statusReply.status.recording.startedTime ? new Date(this.statusReply.status.recording.startedTime * 1000) : null;
+        const deployStartTime = this.statusReply.status.recording.startedTime
+            ? new Date(this.statusReply.status.recording.startedTime * 1000)
+            : null;
         const modules = this.makeModules(this.statusReply);
         const streams = this.makeStreams(this.statusReply);
         const fields: StationCreationFields = {
@@ -133,7 +146,7 @@ class StationStatusFactory {
     }
 
     private makeStreams(statusReply: HttpStatusReply): Stream[] {
-        return statusReply.streams.map(stream => {
+        return statusReply.streams.map((stream) => {
             return Stream.fromReply(statusReply, stream);
         });
     }
@@ -141,13 +154,22 @@ class StationStatusFactory {
     private makeModules(statusReply: HttpStatusReply): Module[] {
         if (statusReply.liveReadings && statusReply.liveReadings.length > 0) {
             const modules = _(statusReply.liveReadings)
-                .map(lr =>
+                .map((lr) =>
                     _(lr.modules)
-                        .map(moduleReply => {
+                        .map((moduleReply) => {
                             const sensors = _(moduleReply.readings)
-                                .map(sensorReply => new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value, null))
+                                .map(
+                                    (sensorReply) =>
+                                        new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value, null)
+                                )
                                 .value();
-                            return new Module(null, moduleReply.module.name, moduleReply.module.position, moduleReply.module.deviceId, sensors);
+                            return new Module(
+                                null,
+                                moduleReply.module.name,
+                                moduleReply.module.position,
+                                moduleReply.module.deviceId,
+                                sensors
+                            );
                         })
                         .value()
                 )
@@ -155,9 +177,9 @@ class StationStatusFactory {
             return modules || [];
         }
         return _(statusReply.modules)
-            .map(moduleReply => {
+            .map((moduleReply) => {
                 const sensors = _(moduleReply.sensors)
-                    .map(sensorReply => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null, null))
+                    .map((sensorReply) => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null, null))
                     .value();
                 return new Module(null, moduleReply.name, moduleReply.position, moduleReply.deviceId, sensors);
             })
@@ -177,19 +199,19 @@ class StationDatabaseFactory {
     create(): Station {
         const moduleRows = this.modules[this.stationRow.id] || [];
         const modules = _(moduleRows)
-            .map(moduleRow => {
+            .map((moduleRow) => {
                 const sensorRows = this.sensors[moduleRow.id] || [];
                 const sensors = _(sensorRows)
-                    .map(sensorRow => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading, sensorRow.trend))
+                    .map((sensorRow) => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading, sensorRow.trend))
                     .value();
                 return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, sensors);
             })
             .value();
 
         const streamRows = this.streams[this.stationRow.id] || [];
-        const streams = streamRows.map(streamRow => Stream.fromRow(streamRow));
+        const streams = streamRows.map((streamRow) => Stream.fromRow(streamRow));
         const downloadRows = this.downloads[this.stationRow.id] || [];
-        const downloads = downloadRows.map(downloadRow => Download.fromRow(downloadRow));
+        const downloads = downloadRows.map((downloadRow) => Download.fromRow(downloadRow));
         return new Station(this.getCreationFields(this.stationRow), modules, streams, downloads);
     }
 
@@ -220,35 +242,27 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
 }
 
 function loadStationsFromDatabase(db): Promise<Station[]> {
-    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then((values: any[]) => {
-        const stations: StationTableRow[] = values[0];
-        const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], m => m.stationId);
-        const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], s => s.moduleId);
-        const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], s => s.stationId);
-        const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(values[4], s => s.stationId);
-        // TODO Handle generation changes.
-        return stations.map(stationRow => {
-            const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
-            return factory.create();
-        });
-    });
-}
-
-interface StationPortalReply {
-    id: number;
-    portalId: number;
-}
-
-interface StationPortalError {
-    id: number;
-    error: string;
+    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
+        (values: any[]) => {
+            const stations: StationTableRow[] = values[0];
+            const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], (m) => m.stationId);
+            const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], (s) => s.moduleId);
+            const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], (s) => s.stationId);
+            const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(values[4], (s) => s.stationId);
+            // TODO Handle generation changes.
+            return stations.map((stationRow) => {
+                const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
+                return factory.create();
+            });
+        }
+    );
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: StationsState };
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
-        return loadStationsFromDatabase(state.services.db()).then(stations => dispatch(ActionTypes.STATIONS_LOADED, stations));
+        return loadStationsFromDatabase(state.services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
     },
     [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations) => {
         commit(MutationTypes.STATIONS, stations);
@@ -258,23 +272,23 @@ const actions = {
         return state.services
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))
-            .then(station => dispatch(ActionTypes.LOAD));
+            .then((station) => dispatch(ActionTypes.LOAD));
     },
-    [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, error: StationPortalError) => {
+    [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
         return state.services
             .db()
-            .setStationPortalError({ id: error.id }, error.error)
-            .then(station => dispatch(ActionTypes.LOAD));
+            .setStationPortalError({ id: status.id }, status.error)
+            .then((station) => commit(STATION_PORTAL_STATUS, status));
     },
-    [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, reply: StationPortalReply) => {
+    [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
         return state.services
             .db()
-            .setStationPortalError({ id: reply.id }, "" /* I really dislike this */)
+            .setStationPortalError({ id: status.id }, "" /* I really dislike this */)
             .then(() =>
                 state.services
                     .db()
-                    .setStationPortalId(reply)
-                    .then(station => dispatch(ActionTypes.LOAD))
+                    .setStationPortalId(status)
+                    .then((station) => commit(STATION_PORTAL_STATUS, status))
             );
     },
     [ActionTypes.UPDATE_PORTAL]: ({ commit }: ActionParameters) => {},
@@ -289,10 +303,11 @@ const mutations = {
     },
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {
         Vue.set(state, "all", stations);
-        Vue.set(state, "error", false);
     },
-    [MutationTypes.ERROR]: (state: StationsState, error: string) => {
-        Vue.set(state, "error", error);
+    [STATION_PORTAL_STATUS]: (state: StationsState, status: StationPortalStatus) => {
+        const station = _.first(state.all.filter((s) => s.id == status.id));
+        if (!station) throw new Error("missing station");
+        station.updatePortalStatus(status);
     },
 };
 

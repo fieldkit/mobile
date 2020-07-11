@@ -183,6 +183,12 @@ export class FirmwareInfo {
     ) {}
 }
 
+export interface StationPortalStatus {
+    id: number;
+    portalId: number | null;
+    error: string | null;
+}
+
 export class Station implements StationCreationFields {
     public readonly id: number | null;
     public readonly deviceId: string;
@@ -197,11 +203,26 @@ export class Station implements StationCreationFields {
     public readonly deployStartTime: Date | null;
     public readonly serializedStatus: string;
     public readonly lastSeen: Date;
-    public readonly portalId: number | null;
-    public readonly portalError: string | null;
+    private _portalId: number | null;
+    private _portalError: string | null;
     public readonly modules: Module[] = [];
     public readonly streams: Stream[] = [];
     public readonly downloads: Download[] = [];
+
+    public get portalId(): number | null {
+        return this._portalId;
+    }
+
+    public get portalError(): string | null {
+        return this._portalError;
+    }
+
+    public updatePortalStatus(status: StationPortalStatus) {
+        if (status.portalId) {
+            this._portalId = status.portalId;
+        }
+        this._portalError = status.error;
+    }
 
     constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = [], downloads: Download[] = []) {
         if (!o.id) {
@@ -220,8 +241,8 @@ export class Station implements StationCreationFields {
         this.deployStartTime = o.deployStartTime;
         this.serializedStatus = o.serializedStatus;
         this.lastSeen = o.lastSeen;
-        this.portalId = o.portalId;
-        this.portalError = o.portalError;
+        this._portalId = o.portalId;
+        this._portalError = o.portalError;
         this.modules = modules;
         this.streams = streams;
         this.downloads = downloads;
