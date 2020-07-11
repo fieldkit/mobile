@@ -42,12 +42,8 @@ export default class PortalUpdater {
         const params = {
             name: station.name,
             deviceId: station.deviceId,
-            device_id: station.deviceId,
             statusPb: station.serializedStatus,
-            status_pb: station.serializedStatus,
-            status_json: {},
             locationName: notes.location,
-            location_name: notes.location,
         };
 
         return this.portal.addStation(params).then(
