@@ -57,9 +57,12 @@ export default class SynchronizeNotes {
             }
             const path = localByKey[key].path;
             const contentType = "application/octet-stream";
-            return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((uploaded) => {
-                console.log("upload done", uploaded);
-                return [path, uploaded.data.id];
+            return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((response) => {
+                if (response.status != 200) {
+                    return Promise.reject(new Error("error uploading media"));
+                }
+                console.log("upload done", response);
+                return [path, response.data.id];
             });
         }).then((pathAndId) => {
             console.log("media paths and ids", pathAndId);
