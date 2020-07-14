@@ -25,11 +25,11 @@ export class StationProgress {
     }
 
     private incomplete(): TransferProgress[] {
-        return Object.values(this.transfers).filter(t => t.copied < t.total);
+        return Object.values(this.transfers).filter((t) => t.copied < t.total);
     }
 
     private get copiedBytes(): number {
-        return _.sum(Object.values(this.transfers).map(t => t.copied));
+        return _.sum(Object.values(this.transfers).map((t) => t.copied));
     }
 
     public get decimal(): number {
@@ -38,8 +38,8 @@ export class StationProgress {
         }
 
         const incomplete = this.incomplete();
-        const total = _.sum(incomplete.map(i => i.total));
-        const copied = _.sum(incomplete.map(i => i.copied));
+        const total = _.sum(incomplete.map((i) => i.total));
+        const copied = _.sum(incomplete.map((i) => i.copied));
         if (total == 0) {
             return 0;
         }
@@ -189,22 +189,22 @@ export class StationSyncStatus {
     }
 
     public get readingsIncoming(): number {
-        return _.sum(this.downloads.filter(file => file.fileType == FileType.Data).map(f => f.blocks)) || 0;
+        return _.sum(this.downloads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
     }
 
     public get readingsOutgoing(): number {
-        return _.sum(this.uploads.filter(file => file.fileType == FileType.Data).map(f => f.blocks)) || 0;
+        return _.sum(this.uploads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
     }
 
     public get readingsReady(): number {
-        return this.readingsIncoming || this.readingsOutgoing;
+        return (this.readingsIncoming || this.readingsOutgoing || 1) - 1;
     }
 
     public getPathsToUpload(): string[] {
         return _(this.uploads)
-            .map(u => u.files)
+            .map((u) => u.files)
             .flatten()
-            .map(f => f.path)
+            .map((f) => f.path)
             .value();
     }
 
@@ -242,7 +242,7 @@ type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
 
 const actions = {
     [ActionTypes.DOWNLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
-        return Promise.all(syncs.map(dl => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
+        return Promise.all(syncs.map((dl) => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
     },
     [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
         if (!sync.connected) {
@@ -251,14 +251,14 @@ const actions = {
 
         commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
 
-        return serializePromiseChain(sync.downloads, file => {
+        return serializePromiseChain(sync.downloads, (file) => {
             return state.services
                 .queryStation()
                 .download(file.url, file.path, (total, copied, info) => {
                     commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                 })
                 .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
-                .catch(error => {
+                .catch((error) => {
                     console.log("error downloading", error, error ? error.stack : null);
                     return Promise.reject(error);
                 });
@@ -269,29 +269,29 @@ const actions = {
             });
     },
     [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
-        return Promise.all(syncs.map(dl => dispatch(ActionTypes.UPLOAD_STATION, dl)));
+        return Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
     },
     [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
         const paths = sync.getPathsToUpload();
-        const downloads = paths.map(path => state.pending[path]).filter(d => d != null);
+        const downloads = paths.map((path) => state.pending[path]).filter((d) => d != null);
         if (downloads.length != paths.length) {
             throw new Error("download missing");
         }
 
         const totalBytes = _(downloads)
-            .map(d => d.size)
+            .map((d) => d.size)
             .sum();
 
         commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
 
-        return serializePromiseChain(downloads, download => {
+        return serializePromiseChain(downloads, (download) => {
             return state.services
                 .portal()
                 .uploadPreviouslyDownloaded(sync.name, download, (total, copied, info) => {
                     commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                 })
                 .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
-                .catch(error => {
+                .catch((error) => {
                     console.log("error uploading", error, error ? error.stack : null);
                     return Promise.reject(error);
                 });
@@ -305,7 +305,7 @@ const actions = {
 
 const getters = {
     syncs: (state: SyncingState): StationSyncStatus[] => {
-        return state.syncs.map(sync => {
+        return state.syncs.map((sync) => {
             return sync.withProgress(state.progress[sync.deviceId]);
         });
     },
@@ -320,7 +320,7 @@ const mutations = {
     },
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
         const now = new Date();
-        const syncs = stations.map(station => {
+        const syncs = stations.map((station) => {
             if (!station.id || !station.generationId || !station.name || !station.lastSeen) {
                 throw new Error("id, generationId, and name are required");
             }
@@ -330,7 +330,7 @@ const mutations = {
             const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
 
             const downloads = station.streams
-                .map(stream => {
+                .map((stream) => {
                     const firstBlock = stream.downloadLastBlock || 0;
                     const lastBlock = stream.deviceLastBlock;
                     const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
@@ -342,32 +342,32 @@ const mutations = {
                     const pending = new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes);
                     return pending;
                 })
-                .filter(dl => dl.firstBlock != dl.lastBlock)
-                .filter(dl => dl.fileType != FileType.Unknown)
+                .filter((dl) => dl.firstBlock != dl.lastBlock)
+                .filter((dl) => dl.fileType != FileType.Unknown)
                 .sort((a, b) => {
                     return a.fileType < b.fileType ? -1 : 1;
                 });
 
             const uploads = station.streams
-                .map(stream => {
+                .map((stream) => {
                     const firstBlock = stream.portalLastBlock || 0;
                     const lastBlock = stream.downloadLastBlock || 0;
                     const estimatedBytes = (stream.downloadSize || 0) - (stream.portalSize || 0);
                     const files = station.downloads
-                        .filter(d => d.fileType == stream.fileType())
-                        .filter(d => !d.uploaded)
-                        .map(d => new LocalFile(d.path, d.size));
+                        .filter((d) => d.fileType == stream.fileType())
+                        .filter((d) => !d.uploaded)
+                        .map((d) => new LocalFile(d.path, d.size));
                     const pending = new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files);
                     return pending;
                 })
-                .filter(dl => dl.firstBlock != dl.lastBlock)
-                .filter(dl => dl.fileType != FileType.Unknown)
+                .filter((dl) => dl.firstBlock != dl.lastBlock)
+                .filter((dl) => dl.fileType != FileType.Unknown)
                 .sort((a, b) => {
                     return a.fileType < b.fileType ? -1 : 1;
                 });
 
-            const downloaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.downloadLastBlock));
-            const uploaded = _.sum(station.streams.filter(s => s.fileType() == FileType.Data).map(s => s.portalLastBlock));
+            const downloaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
+            const uploaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
 
             return new StationSyncStatus(
                 station.id,
@@ -388,10 +388,10 @@ const mutations = {
         Vue.set(state, "syncs", syncs);
 
         const pending = _(stations)
-            .map(s => s.downloads)
+            .map((s) => s.downloads)
             .flatten()
-            .filter(d => d.uploaded === null)
-            .keyBy(d => d.path)
+            .filter((d) => d.uploaded === null)
+            .keyBy((d) => d.path)
             .value();
 
         Vue.set(state, "pending", pending);
@@ -435,8 +435,8 @@ function parseBlocks(blocks) {
 
     const parts = blocks
         .split(",")
-        .map(s => s.trim())
-        .map(s => Number(s));
+        .map((s) => s.trim())
+        .map((s) => Number(s));
     if (parts.length != 2) {
         throw new Error("invalid fk-blocks header: " + blocks);
     }
