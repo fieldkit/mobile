@@ -12,6 +12,39 @@ function toJsHeaders(headers) {
     }
     return jsHeaders;
 }
+var OpenedFile = (function () {
+    function OpenedFile(cfy, file) {
+        this.cfy = cfy;
+        this.fs = cfy.fileSystem;
+        this.file = file;
+    }
+    OpenedFile.prototype.info = function () {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var token = _this.fs.newToken();
+            _this.file.readInfo(token);
+            _this.cfy.active[token] = {
+                resolve: resolve,
+                reject: reject,
+            };
+        });
+    };
+    OpenedFile.prototype.delimited = function (listener) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            var token = _this.fs.newToken();
+            var options = new org.conservify.data.ReadOptions();
+            options.setBatchSize(10);
+            _this.file.readDelimited(token, options);
+            _this.cfy.active[token] = {
+                listener: listener,
+                resolve: resolve,
+                reject: reject,
+            };
+        });
+    };
+    return OpenedFile;
+})();
 var Conservify = (function (_super) {
     __extends(Conservify, _super);
     function Conservify(discoveryEvents, logger) {
@@ -55,15 +88,15 @@ var Conservify = (function (_super) {
             },
             onNetworkStatus: function (status) {
                 if (owner.networkStatus) {
-                    function getConnectedWifi() {
+                    var getConnectedWifi = function () {
                         if (status.getConnectedWifi() == null || status.getConnectedWifi().getSsid() == null) {
                             return null;
                         }
                         return {
                             ssid: status.getConnectedWifi().getSsid().replace(/"/g, ""),
                         };
-                    }
-                    function getWifiNetworks() {
+                    };
+                    var getWifiNetworks = function () {
                         if (status.getWifiNetworks() == null) {
                             return null;
                         }
@@ -78,7 +111,7 @@ var Conservify = (function (_super) {
                             }
                         }
                         return found;
-                    }
+                    };
                     var jsObject = {
                         connected: status.getConnected(),
                         connectedWifi: getConnectedWifi(),
@@ -111,7 +144,7 @@ var Conservify = (function (_super) {
                 if (task) {
                     var info = task.info,
                         transfer_1 = task.transfer;
-                    function getBody() {
+                    var getBody = function () {
                         if (body) {
                             if (contentType.indexOf("application/json") >= 0) {
                                 return JSON.parse(body);
@@ -123,7 +156,7 @@ var Conservify = (function (_super) {
                             }
                         }
                         return null;
-                    }
+                    };
                     delete active[taskId];
                     task.resolve({
                         info: info,
@@ -167,7 +200,7 @@ var Conservify = (function (_super) {
                 if (task) {
                     var info = task.info,
                         transfer_2 = task.transfer;
-                    function getBody() {
+                    var getBody = function () {
                         if (body) {
                             if (contentType.indexOf("application/json") >= 0) {
                                 return JSON.parse(body);
@@ -179,7 +212,7 @@ var Conservify = (function (_super) {
                             }
                         }
                         return null;
-                    }
+                    };
                     delete active[taskId];
                     task.resolve({
                         info: info,
@@ -203,18 +236,37 @@ var Conservify = (function (_super) {
                 }
             },
         });
-        this.dataListener = new org.conservify.data.DataListener({
-            onFileInfo: function (path, info) {
-                owner.logger("fs:onFileInfo", path, info);
+        this.fsListener = new org.conservify.data.FileSystemListener({
+            onFileInfo: function (path, token, info) {
+                owner.logger("fs:onFileInfo", path, token, info);
+                var task = active[token];
+                if (task) {
+                    task.resolve({
+                        path: info.getFile(),
+                        size: info.getSize(),
+                    });
+                }
             },
-            onFileRecords: function (path, records) {
-                owner.logger("fs:onFileRecords", path, records);
+            onFileRecords: function (path, token, position, size, records) {
+                owner.logger("fs:onFileRecords", path, token, position, size, records != null ? records.size() : "");
+                var task = active[token];
+                if (task) {
+                    if (records) {
+                        task.listener(position, size, records);
+                    } else {
+                        task.resolve();
+                    }
+                }
             },
-            onFileAnalysis: function (path, analysis) {
-                owner.logger("fs:onFileAnalysis", path, analysis);
+            onFileError: function (path, token, message) {
+                owner.logger("fs:onFileError", path, token, message);
+                var task = active[token];
+                if (task) {
+                    task.reject(new conservify_common_1.FileSystemError(message, path));
+                }
             },
         });
-        this.fileSystem = new org.conservify.data.FileSystem(application_1.android.context, this.dataListener);
+        this.fileSystem = new org.conservify.data.FileSystem(application_1.android.context, this.fsListener);
         this.networking = new org.conservify.networking.Networking(
             application_1.android.context,
             this.networkingListener,
@@ -229,6 +281,13 @@ var Conservify = (function (_super) {
             _this.networking.getServiceDiscovery().start(serviceType);
             owner.logger("starting...");
         });
+    };
+    Conservify.prototype.writeSampleData = function () {
+        var sampleData = new org.conservify.data.SampleData();
+        return Promise.resolve(sampleData.write());
+    };
+    Conservify.prototype.open = function (path) {
+        return Promise.resolve(new OpenedFile(this, this.fileSystem.open(path)));
     };
     Conservify.prototype.text = function (info) {
         var _this = this;
@@ -347,6 +406,9 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.findConnectedNetwork = function () {
         var _this = this;
+        if (!this.networking) {
+            return Promise.reject(new Error("networking uninitialized"));
+        }
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
@@ -357,6 +419,9 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.scanNetworks = function () {
         var _this = this;
+        if (!this.networking) {
+            return Promise.reject(new Error("networking uninitialized"));
+        }
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,

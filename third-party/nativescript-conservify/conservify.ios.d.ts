@@ -1,4 +1,4 @@
-import { Common } from "./conservify.common";
+import { Common, PromiseCallbacks } from "./conservify.common";
 interface NetworkingListener {
     onStarted(): void;
     onDiscoveryFailed(): void;
@@ -47,6 +47,30 @@ declare class ServiceInfo extends NSObject {
     host: string;
     port: number;
 }
+declare class ReadOptions extends NSObject {
+    static alloc(): ReadOptions;
+    static new(): ReadOptions;
+    batchSize: number;
+}
+declare class PbFile {
+    readInfoWithToken(token: string): boolean;
+    readDelimitedWithTokenOptions(token: string, options: ReadOptions): boolean;
+}
+interface FileSystemListener {
+    onFileInfoWithPathTokenInfo(path: string, token: string, info: any): void;
+    onFileRecordsWithPathTokenPositionSizeRecords(path: string, token: string, position: number, size: number, records: any): void;
+    onFileErrorWithPathTokenError(path: string, token: string, error: string): void;
+}
+declare var FileSystemListener: {
+    prototype: FileSystemListener;
+};
+declare class FileSystem extends NSObject {
+    static alloc(): FileSystem;
+    static new(): FileSystem;
+    initWithListener(listener: FileSystemListener): FileSystem;
+    openWithPath(path: string): PbFile;
+    newToken(): string;
+}
 declare class ServiceDiscovery extends NSObject {
     startWithServiceType(serviceType: string): void;
 }
@@ -68,8 +92,8 @@ declare class Networking extends NSObject {
     wifi: WifiNetworksManager;
 }
 interface OtherPromises {
-    getStartedPromise(): Promise;
-    getNetworkStatusPromise(): Promise;
+    getStartedPromise(): PromiseCallbacks;
+    getNetworkStatusPromise(): PromiseCallbacks;
     getDiscoveryEvents(): any;
 }
 declare class MyNetworkingListener extends NSObject implements NetworkingListener {
@@ -90,6 +114,26 @@ interface ActiveTasks {
     getTask(id: string): any;
     removeTask(id: string): void;
 }
+declare class MyFileSystemListener extends NSObject implements FileSystemListener {
+    static ObjCProtocols: {
+        prototype: FileSystemListener;
+    }[];
+    logger: any;
+    tasks: ActiveTasks;
+    static alloc(): MyFileSystemListener;
+    initWithTasks(tasks: ActiveTasks, logger: any): MyFileSystemListener;
+    onFileInfoWithPathTokenInfo(path: string, token: string, info: any): void;
+    onFileRecordsWithPathTokenPositionSizeRecords(path: string, token: string, position: number, size: number, records: any): void;
+    onFileErrorWithPathTokenError(path: string, token: string, error: string): void;
+}
+declare class OpenedFile {
+    cfy: Conservify;
+    fs: FileSystem;
+    file: PbFile;
+    constructor(cfy: Conservify, file: PbFile);
+    info(): Promise<{}>;
+    delimited(listener: any): Promise<{}>;
+}
 export declare class Conservify extends Common implements ActiveTasks, OtherPromises {
     logger: any;
     active: {
@@ -97,23 +141,28 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
     };
     networkStatus: any;
     started: any;
+    scan: any;
     networking: Networking;
+    fileSystem: FileSystem;
     networkingListener: MyNetworkingListener;
     uploadListener: WebTransferListener;
     downloadListener: WebTransferListener;
+    fsListener: MyFileSystemListener;
     discoveryEvents: any;
     constructor(discoveryEvents: any, logger: any);
     getTask(id: string): any;
     removeTask(id: string): void;
     start(serviceType: string): Promise<{}>;
+    writeSampleData(): Promise<string>;
+    open(path: any): Promise<OpenedFile>;
     json(info: any): Promise<{}>;
     text(info: any): Promise<{}>;
     protobuf(info: any): Promise<{}>;
     download(info: any): Promise<{}>;
     upload(info: any): Promise<{}>;
     getDiscoveryEvents(): any;
-    getStartedPromise(): Promise;
-    getNetworkStatusPromise(): Promise;
+    getStartedPromise(): PromiseCallbacks;
+    getNetworkStatusPromise(): PromiseCallbacks;
     findConnectedNetwork(): Promise<{}>;
     scanNetworks(): Promise<{}>;
 }

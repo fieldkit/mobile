@@ -1,4 +1,12 @@
 import { Common } from "./conservify.common";
+declare class OpenedFile {
+    cfy: Conservify;
+    fs: any;
+    file: any;
+    constructor(cfy: Conservify, file: any);
+    info(): Promise<{}>;
+    delimited(listener: any): Promise<{}>;
+}
 export declare class Conservify extends Common {
     logger: any;
     discoveryEvents: any;
@@ -12,11 +20,13 @@ export declare class Conservify extends Common {
     networkingListener: org.conservify.networking.NetworkingListener;
     downloadListener: org.conservify.networking.WebTransferListener;
     uploadListener: org.conservify.networking.WebTransferListener;
+    fsListener: org.conservify.data.FileSystemListener;
     networking: org.conservify.networking.Networking;
-    dataListener: org.conservify.data.DataListener;
     fileSystem: org.conservify.data.FileSystem;
     constructor(discoveryEvents: any, logger: any);
     start(serviceType: string): Promise<{}>;
+    writeSampleData(): Promise<string>;
+    open(path: any): Promise<OpenedFile>;
     text(info: any): Promise<{}>;
     json(info: any): Promise<{}>;
     protobuf(info: any): Promise<{}>;
@@ -25,3 +35,4 @@ export declare class Conservify extends Common {
     findConnectedNetwork(): Promise<{}>;
     scanNetworks(): Promise<{}>;
 }
+export {};
