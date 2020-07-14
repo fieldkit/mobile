@@ -7,11 +7,31 @@
 
                     <StackLayout class="m-t-10 m-b-30">
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
-                        <Label :text="_L('firmwareNumber') + ': ' + stationFirmware.simpleNumber" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="stationFirmware" />
-                        <Label :text="_L('firmwareNumber') + ': --'" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="!stationFirmware" />
+                        <Label
+                            :text="_L('firmwareNumber') + ': ' + stationFirmware.simpleNumber"
+                            class="size-15 m-x-15 m-b-20"
+                            textWrap="true"
+                            v-if="stationFirmware"
+                        />
+                        <Label
+                            :text="_L('firmwareNumber') + ': --'"
+                            class="size-15 m-x-15 m-b-20"
+                            textWrap="true"
+                            v-if="!stationFirmware"
+                        />
                         <Label :text="_L('appFirmwareVersion')" class="size-20 m-x-15" />
-                        <Label :text="_L('firmwareNumber') + ': ' + availableFirmware.simpleNumber" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="availableFirmware" />
-                        <Label :text="_L('firmwareNumber') + ': --'" class="size-15 m-x-15 m-b-20" textWrap="true" v-if="!availableFirmware" />
+                        <Label
+                            :text="_L('firmwareNumber') + ': ' + availableFirmware.simpleNumber"
+                            class="size-15 m-x-15 m-b-20"
+                            textWrap="true"
+                            v-if="availableFirmware"
+                        />
+                        <Label
+                            :text="_L('firmwareNumber') + ': --'"
+                            class="size-15 m-x-15 m-b-20"
+                            textWrap="true"
+                            v-if="!availableFirmware"
+                        />
 
                         <Button
                             v-if="updateAvailable"
@@ -72,8 +92,11 @@ export default {
             return this.$store.state.firmware.available;
         },
         updateAvailable() {
-            if (this.$store.state.firmware.stations[this.stationId] && this.$store.state.firmware.available) {
-                return this.$store.state.firmware.available > this.$store.state.firmware.stations[this.stationId];
+            const station = this.$store.state.firmware.stations[this.stationId];
+            const locally = this.$store.state.firmware.available;
+            console.log("comparing", "station", station, "locally", locally);
+            if (station && locally) {
+                return Number(station) > Number(locally);
             }
             return true;
         },
