@@ -116,11 +116,7 @@ function customizeLogger() {
 
 export default function () {
     return new Vuex.Store({
-        plugins: Config.env.dev
-            ? [
-                  /*customizeLogger()*/
-              ]
-            : [],
+        plugins: Config.env.dev ? [customizeLogger()] : [],
         modules: {
             nearby,
             stations,
