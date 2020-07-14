@@ -86,6 +86,7 @@ export default {
 
             this.$navigateTo(Modules, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
                 transition: {
@@ -100,6 +101,7 @@ export default {
             // navigate to calibration
             this.$navigateTo(routes.calibration, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                     type: this.module.calibrateSensor,
                 },

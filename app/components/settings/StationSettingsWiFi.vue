@@ -78,6 +78,7 @@ export default {
         goToNetwork() {
             this.$navigateTo(WiFiNetwork, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
@@ -86,6 +87,7 @@ export default {
         goToSchedule() {
             this.$navigateTo(WiFiSchedule, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
@@ -101,6 +103,7 @@ export default {
 
             this.$navigateTo(Networks, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
                 transition: {

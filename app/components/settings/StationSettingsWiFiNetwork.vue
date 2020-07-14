@@ -28,7 +28,14 @@
                                     @checkedChange="$event.value !== n.selected && toggleChoice(n)"
                                 /> -->
                                 <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid"></Label>
-                                <Image row="0" col="2" src="~/images/Icon_Close.png" width="17" :dataSsid="n.ssid" @tap="removeNetwork"></Image>
+                                <Image
+                                    row="0"
+                                    col="2"
+                                    src="~/images/Icon_Close.png"
+                                    width="17"
+                                    :dataSsid="n.ssid"
+                                    @tap="removeNetwork"
+                                ></Image>
                             </GridLayout>
                             <!-- end radio buttons -->
                         </WrapLayout>
@@ -60,8 +67,21 @@
 
                             <!-- password -->
                             <GridLayout rows="auto" columns="*,42" class="input m-t-20">
-                                <Label row="0" colSpan="2" :text="_L('networkPasswordHint')" class="size-18 hint" :opacity="newNetwork.password.length == 0 ? 1 : 0" />
-                                <TextField row="0" col="0" class="size-18 no-border-input" :secure="hidePassword" ref="password" v-model="newNetwork.password"></TextField>
+                                <Label
+                                    row="0"
+                                    colSpan="2"
+                                    :text="_L('networkPasswordHint')"
+                                    class="size-18 hint"
+                                    :opacity="newNetwork.password.length == 0 ? 1 : 0"
+                                />
+                                <TextField
+                                    row="0"
+                                    col="0"
+                                    class="size-18 no-border-input"
+                                    :secure="hidePassword"
+                                    ref="password"
+                                    v-model="newNetwork.password"
+                                ></TextField>
                                 <Label
                                     row="0"
                                     col="1"
@@ -75,13 +95,24 @@
                         </StackLayout>
                         <StackLayout class="p-b-20"></StackLayout>
                         <!-- make this visible all the time again when radio buttons are reactivated -->
-                        <Button v-show="addingNetwork" class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="addNetwork"></Button>
+                        <Button
+                            v-show="addingNetwork"
+                            class="btn btn-primary btn-padded"
+                            :text="_L('save')"
+                            :isEnabled="station.connected"
+                            @tap="addNetwork"
+                        ></Button>
 
                         <ConnectionNote :station="station" />
 
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
-                            <Button class="btn btn-primary btn-padded" :text="wifiUploadButton" :isEnabled="station.connected" @tap="uploadOverWifi" />
+                            <Button
+                                class="btn btn-primary btn-padded"
+                                :text="wifiUploadButton"
+                                :isEnabled="station.connected"
+                                @tap="uploadOverWifi"
+                            />
                         </StackLayout>
 
                         <StackLayout class="p-b-20"></StackLayout>
@@ -142,13 +173,13 @@ export default {
         onPageLoaded(args) {
             this.page = args.object;
 
-            dbInterface.getConfig().then(config => {
+            dbInterface.getConfig().then((config) => {
                 this.transmissionUrl = config[0].ingestionUri;
             });
 
             let deviceStatus = this.station.statusJson;
             if (deviceStatus && deviceStatus.networkSettings) {
-                this.networks = deviceStatus.networkSettings.networks.map(n => {
+                this.networks = deviceStatus.networkSettings.networks.map((n) => {
                     n.selected = false;
                     return n;
                 });
@@ -177,6 +208,7 @@ export default {
 
             this.$navigateTo(WiFi, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
                 transition: {
@@ -189,7 +221,7 @@ export default {
 
         uploadOverWifi() {
             if (this.wifiUpload) {
-                queryStation.uploadViaApp(this.station.url).then(result => {
+                queryStation.uploadViaApp(this.station.url).then((result) => {
                     alert({
                         title: _L("done"),
                         message: _L("uploadConfigUpdated"),
@@ -200,8 +232,8 @@ export default {
             } else {
                 this.$portalInterface
                     .getTransmissionToken()
-                    .then(result => {
-                        queryStation.uploadOverWifi(this.station.url, this.transmissionUrl, result.token).then(result => {
+                    .then((result) => {
+                        queryStation.uploadOverWifi(this.station.url, this.transmissionUrl, result.token).then((result) => {
                             this.setWifiUploadStatus(result);
                             alert({
                                 title: _L("done"),
@@ -210,8 +242,8 @@ export default {
                             });
                         });
                     })
-                    .catch(e => {
-                        onlineStatus.isOnline().then(online => {
+                    .catch((e) => {
+                        onlineStatus.isOnline().then((online) => {
                             if (online) {
                                 alert({
                                     title: _L("unableToUpdate"),
@@ -256,7 +288,7 @@ export default {
                 ssid: this.newNetwork.ssid,
                 password: this.newNetwork.password,
             };
-            let index = this.networks.findIndex(n => {
+            let index = this.networks.findIndex((n) => {
                 return n.ssid == network.ssid;
             });
             if (index > -1) {
@@ -267,7 +299,7 @@ export default {
                 this.networks.push(network);
             }
 
-            queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
+            queryStation.sendNetworkSettings(this.station.url, this.networks).then((result) => {
                 this.networks = result.networkSettings.networks;
                 // in order to match in the interim, must edit station.statusJson
                 this.deviceStatus.networkSettings = result.networkSettings;
@@ -283,16 +315,16 @@ export default {
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel"),
                 })
-                .then(result => {
+                .then((result) => {
                     if (result) {
                         let ssid = event.object.dataSsid;
-                        let index = this.networks.findIndex(n => {
+                        let index = this.networks.findIndex((n) => {
                             return n.ssid == ssid;
                         });
                         if (index > -1) {
                             this.networks.splice(index, 1);
                         }
-                        queryStation.sendNetworkSettings(this.station.url, this.networks).then(result => {
+                        queryStation.sendNetworkSettings(this.station.url, this.networks).then((result) => {
                             this.networks = result.networkSettings.networks;
                             // in order to match in the interim, must edit station.statusJson
                             this.deviceStatus.networkSettings = result.networkSettings;
@@ -303,7 +335,7 @@ export default {
         },
 
         useNetwork(event) {
-            const network = this.networks.find(n => {
+            const network = this.networks.find((n) => {
                 return n.ssid == event.object.text;
             });
             this.newNetwork.ssid = network.ssid;
@@ -311,7 +343,7 @@ export default {
         },
 
         toggleChoice(radioOption) {
-            this.networks.forEach(n => {
+            this.networks.forEach((n) => {
                 n.selected = false;
                 if (n.ssid == radioOption.ssid) {
                     n.selected = true;

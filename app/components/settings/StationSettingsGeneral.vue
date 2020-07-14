@@ -59,7 +59,7 @@ export default {
         onPageLoaded(args) {},
 
         selectFromMenu(event) {
-            let cn = event.object.className;
+            const cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
                 event.object.className = cn;
@@ -67,25 +67,27 @@ export default {
 
             switch (event.object.text) {
                 case _L("stationName"):
-                    this.goToName();
+                    return this.goToName();
                     break;
                 case _L("dataCaptureSchedule"):
-                    this.goToSchedule();
+                    return this.goToSchedule();
                     break;
             }
         },
 
         goToName() {
-            this.$navigateTo(StationName, {
+            return this.$navigateTo(StationName, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
         },
 
         goToSchedule() {
-            this.$navigateTo(CaptureSchedule, {
+            return this.$navigateTo(CaptureSchedule, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
@@ -99,8 +101,9 @@ export default {
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stationSettings, {
+            return this.$navigateTo(routes.stationSettings, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
                 transition: {

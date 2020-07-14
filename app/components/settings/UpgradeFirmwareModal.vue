@@ -29,6 +29,10 @@ export default {
         };
     },
     props: {
+        stationId: {
+            required: true,
+            type: Number,
+        },
         station: {
             required: true,
             type: Object,
@@ -40,7 +44,7 @@ export default {
     },
     methods: {
         onLoaded() {
-            const updateProgress = progress => {
+            const updateProgress = (progress) => {
                 this.progress = progress.progress;
             };
 
@@ -51,7 +55,7 @@ export default {
                     .then(() => {
                         this.done = true;
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         this.done = true;
                         console.log("error", err, err.stack);
                     });
@@ -60,7 +64,7 @@ export default {
             console.log("checking for firmware");
             return Services.StationFirmware()
                 .haveFirmware()
-                .then(yes => {
+                .then((yes) => {
                     console.log("firmware check", yes);
 
                     if (!yes) {
@@ -75,7 +79,7 @@ export default {
                         .then(() => {
                             this.done = true;
                         })
-                        .catch(err => {
+                        .catch((err) => {
                             this.done = true;
                             console.log("error", err, err.stack);
                         });

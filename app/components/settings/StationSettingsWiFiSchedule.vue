@@ -12,7 +12,12 @@
                         <TextField
                             row="1"
                             col="0"
-                            :class="'interval-field ' + (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber ? 'interval-input' : 'no-border')"
+                            :class="
+                                'interval-field ' +
+                                (!interval.noInterval && !interval.intervalTooSmall && !interval.intervalNotNumber
+                                    ? 'interval-input'
+                                    : 'no-border')
+                            "
                             verticalAligment="bottom"
                             keyboardType="name"
                             autocorrect="false"
@@ -69,7 +74,12 @@
                         </StackLayout>
                     </GridLayout>
                     <StackLayout class="p-b-20"></StackLayout>
-                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="saveUploadInterval" />
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="_L('save')"
+                        :isEnabled="station.connected"
+                        @tap="saveUploadInterval"
+                    />
                     <ConnectionNote :station="station" />
                 </StackLayout>
             </ScrollView>
@@ -156,6 +166,7 @@ export default {
 
             this.$navigateTo(WiFi, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
                 transition: {
@@ -262,7 +273,7 @@ export default {
                     this.station.uploadSchedule = this.interval.value;
                     this.interval.origValue = this.interval.value;
                     this.interval.origUnit = this.interval.unit;
-                    queryStation.setStationUploadSchedule(this.station).then(result => {
+                    queryStation.setStationUploadSchedule(this.station).then((result) => {
                         // in order to match in the interim, must edit station.statusJson
                         this.deviceStatus.schedules = result.schedules;
                         this.station.statusJson = this.deviceStatus;

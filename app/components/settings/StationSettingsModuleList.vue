@@ -12,7 +12,14 @@
                                 <!-- module icon -->
                                 <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
                                 <!-- module name -->
-                                <Label row="0" col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-18" textWrap="true" />
+                                <Label
+                                    row="0"
+                                    col="1"
+                                    :text="getModuleName(m)"
+                                    verticalAlignment="middle"
+                                    class="size-18"
+                                    textWrap="true"
+                                />
                             </GridLayout>
                         </StackLayout>
                     </GridLayout>
@@ -60,7 +67,7 @@ export default {
             });
 
             this.modules.forEach((m, i) => {
-                m.sensorObjects.forEach(s => {
+                m.sensorObjects.forEach((s) => {
                     if (sensorsThatCalibrate.indexOf(s.name) > -1) {
                         m.calibrateSensor = s.name;
                     }
@@ -80,6 +87,7 @@ export default {
 
             this.$navigateTo(routes.stationSettings, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
                 transition: {
@@ -102,6 +110,7 @@ export default {
 
             this.$navigateTo(Module, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                     module: event.object.dataModule,
                 },

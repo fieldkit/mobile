@@ -76,6 +76,7 @@ export default {
         goToWiFi() {
             this.$navigateTo(WiFi, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
@@ -84,6 +85,7 @@ export default {
         goToLoRa() {
             this.$navigateTo(LoRa, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
             });
@@ -99,6 +101,7 @@ export default {
 
             this.$navigateTo(routes.stationSettings, {
                 props: {
+                    stationId: this.stationId,
                     station: this.station,
                 },
                 transition: {
