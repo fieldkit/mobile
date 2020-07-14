@@ -33,14 +33,27 @@
                     <StackLayout class="m-x-20" v-if="!editing">
                         <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
                             <Label row="0" col="0" :text="_L('fieldNotes')" class="size-18 bold"></Label>
-                            <Label row="0" col="1" :text="notes.completed + '% ' + _L('complete')" class="size-14 bold blue" verticalAlignment="bottom"></Label>
-                            <Label row="1" colSpan="2" :text="_L('provideDetails')" textWrap="true" lineHeight="3" class="lighter size-14 m-t-5"></Label>
+                            <Label
+                                row="0"
+                                col="1"
+                                :text="notes.completed + '% ' + _L('complete')"
+                                class="size-14 bold blue"
+                                verticalAlignment="bottom"
+                            ></Label>
+                            <Label
+                                row="1"
+                                colSpan="2"
+                                :text="_L('provideDetails')"
+                                textWrap="true"
+                                lineHeight="3"
+                                class="lighter size-14 m-t-5"
+                            ></Label>
                         </GridLayout>
 
-                        <NoteDisplay :note="notes.form.studyObjective" @open="ev => openNote(ev, notes.form.studyObjective)" />
-                        <NoteDisplay :note="notes.form.sitePurpose" @open="ev => openNote(ev, notes.form.sitePurpose)" />
-                        <NoteDisplay :note="notes.form.siteCriteria" @open="ev => openNote(ev, notes.form.siteCriteria)" />
-                        <NoteDisplay :note="notes.form.siteDescription" @open="ev => openNote(ev, notes.form.siteDescription)" />
+                        <NoteDisplay :note="notes.form.studyObjective" @open="(ev) => openNote(ev, 'studyObjective')" />
+                        <NoteDisplay :note="notes.form.sitePurpose" @open="(ev) => openNote(ev, 'sitePurpose')" />
+                        <NoteDisplay :note="notes.form.siteCriteria" @open="(ev) => openNote(ev, 'siteCriteria')" />
+                        <NoteDisplay :note="notes.form.siteDescription" @open="(ev) => openNote(ev, 'siteDescription')" />
 
                         <StackLayout class="m-t-20">
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
@@ -107,7 +120,14 @@
 
             <template v-if="editing">
                 <StackLayout rowSpan="3">
-                    <FieldNoteForm :note="editing" v-if="editing" @save="onSaveNote" @cancel="onCancelEditing" @attach-media="onAttachNoteMedia" @remove-audio="onRemoveAudio" />
+                    <FieldNoteForm
+                        :note="editing"
+                        v-if="editing"
+                        @save="onSaveNote"
+                        @cancel="onCancelEditing"
+                        @attach-media="onAttachNoteMedia"
+                        @remove-audio="onRemoveAudio"
+                    />
                 </StackLayout>
             </template>
         </GridLayout>
@@ -138,6 +158,7 @@ export default {
     },
     data() {
         return {
+            editingKey: null,
             editing: null,
         };
     },
@@ -164,17 +185,23 @@ export default {
     },
     methods: {
         onPageLoaded(args) {
-            const paths = this.$store.state.notes.stations[this.stationId].form.photos.map(p => p.path);
+            const paths = this.$store.state.notes.stations[this.stationId].form.photos.map((p) => p.path);
             return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
         },
-        openNote(ev, note) {
-            this.editing = note;
+        openNote(ev, key) {
+            this.editingKey = key;
+            this.editing = this.notes.form[key];
+            console.log("opening", key, this.editing);
         },
         onSaveNote({ form }) {
+            console.log("saving", this.editingKey, this.editing, form);
             // TODO Make a proper mutation.
-            this.editing.body = form.body;
-            this.editing = null;
-            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
+            this.notes.form[this.editingKey].body = form.body;
+            console.log("dispatching", this.notes.form);
+            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form }).then(() => {
+                this.editing = null;
+                this.editingKey = null;
+            });
         },
         onAttachNoteMedia(note, media) {
             // TODO Make a proper mutation.
@@ -187,11 +214,11 @@ export default {
         },
         onRemoveAudio(note, media) {
             // TODO Make a proper mutation.
-            note.audio = note.audio.filter(m => m.path != media.path);
+            note.audio = note.audio.filter((m) => m.path != media.path);
             return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
         },
         takePicture() {
-            return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then(savedImage => {
+            return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
                     this.notes.form.photos.push(new NoteMedia(savedImage.path));
@@ -201,7 +228,7 @@ export default {
             });
         },
         selectPicture() {
-            return this.$store.dispatch(ActionTypes.FIND_PICTURE).then(savedImage => {
+            return this.$store.dispatch(ActionTypes.FIND_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
                     this.notes.form.photos.push(new NoteMedia(savedImage.path));
@@ -267,7 +294,7 @@ export default {
                         cancelButtonText: _L("cancel"),
                         actions: [_L("takePicture"), _L("selectFromGallery")],
                     })
-                    .then(choice => {
+                    .then((choice) => {
                         if (choice == _L("takePicture")) {
                             return this.takePicture();
                         } else if (choice == _L("selectFromGallery")) {

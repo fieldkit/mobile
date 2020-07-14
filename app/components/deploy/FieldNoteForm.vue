@@ -15,20 +15,41 @@
         <ScrollView row="1">
             <WrapLayout orientation="horizontal" v-if="!note.image" class="container">
                 <Label :text="note.help.instructions" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
-                <TextView textWrap="true" width="100%" class="size-14 p-x-20 large-text-field" :hint="note.help.instructions" v-model="form.body"></TextView>
+                <TextView
+                    textWrap="true"
+                    width="100%"
+                    class="size-14 p-x-20 large-text-field"
+                    :hint="note.help.instructions"
+                    v-model="form.body"
+                ></TextView>
 
                 <AudioRecordings :recordings="note.audio" @remove-audio="raiseRemoveAudio" />
 
                 <MakeAudioRecording v-if="audioReady" @cancel="onAudioTap" @stop="onAudioDone" />
             </WrapLayout>
             <GridLayout row="1" rows="auto,auto,auto" columns="*" v-if="note.image" class="container">
-                <TextView row="1" class="labeled-text-field input" v-model="form.body" autocorrect="false" autocapitalizationType="none" :hint="note.help.instructions" />
+                <TextView
+                    row="1"
+                    class="labeled-text-field input"
+                    v-model="form.body"
+                    autocorrect="false"
+                    autocapitalizationType="none"
+                    :hint="note.help.instructions"
+                />
                 <Image row="2" height="300" :src="note.image" stretch="aspectFit" />
             </GridLayout>
         </ScrollView>
 
         <Label row="2" :text="new Date() | prettyTime" horizontalAlignment="left" class="m-t-15 m-l-10 m-b-10 size-14 lighter"></Label>
-        <Image row="2" width="40" src="~/images/Icon_Mic_Button.png" horizontalAlignment="right" class="m-10" v-if="!note.image" @tap="onAudioTap" />
+        <Image
+            row="2"
+            width="40"
+            src="~/images/Icon_Mic_Button.png"
+            horizontalAlignment="right"
+            class="m-10"
+            v-if="!note.image"
+            @tap="onAudioTap"
+        />
     </GridLayout>
 </template>
 
@@ -65,9 +86,11 @@ export default {
         onPageLoaded(args) {},
         onUnloaded() {},
         onCancel() {
+            console.log("note cancel", this.form);
             this.$emit("cancel");
         },
         onSave() {
+            console.log("note save", this.form);
             this.$emit("save", { form: this.form });
         },
         onAudioTap(ev) {
