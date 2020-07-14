@@ -65,7 +65,7 @@ export default class PortalUpdater {
                             if (error.response) {
                                 return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
                                     id: station.id,
-                                    error: error.response.status,
+                                    error: error.response.status || "unknown",
                                 });
                             }
                             return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
@@ -79,10 +79,13 @@ export default class PortalUpdater {
                 });
             },
             (error) => {
-                return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
-                    id: station.id,
-                    error: error.response.status,
-                });
+                if (error.response) {
+                    return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
+                        id: station.id,
+                        error: error.response.status || "unknown",
+                    });
+                }
+                return Promise.reject(error);
             }
         );
     }
