@@ -230,9 +230,9 @@ export default {
                 this.$store.dispatch(ActionTypes.STATION_LOCATION, { stationId: this.stationId, location: this.form.location }),
             ]).then(() => {
                 return Promise.all([
-                    this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDUES, {
+                    this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
                         stationId: this.stationId,
-                        interval: this.form.schedule.interval,
+                        schedule: this.form.schedule,
                     }),
                 ]);
             });
