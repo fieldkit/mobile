@@ -39,8 +39,7 @@ export default function navigatorFactory(store: Store, navigateTo: NavigateToFun
             store.commit(MutationTypes.NAVIGATION, pageOrRoute.combine(options));
             return navigateTo(pageOrRoute.page, options);
         }
-        const error = new Error();
-        console.log("nav: deprecated navigateTo", error.stack);
+        console.log("nav: deprecated navigateTo");
         return navigateTo(pageOrRoute, options);
     };
 }
