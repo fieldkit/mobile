@@ -226,12 +226,13 @@ export default {
             if (!this.checkLocationName()) {
                 return Promise.reject(new Error("validation error"));
             }
+            const station = this.$store.getters.legacyStations[this.stationId];
             return Promise.all([
                 this.$store.dispatch(ActionTypes.STATION_LOCATION, { stationId: this.stationId, location: this.form.location }),
             ]).then(() => {
                 return Promise.all([
                     this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
-                        stationId: this.stationId,
+                        deviceId: station.deviceId,
                         schedule: this.form.schedule,
                     }),
                 ]);
