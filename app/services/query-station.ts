@@ -4,6 +4,7 @@ import deepmerge from "deepmerge";
 import { unixNow, promiseAfter } from "../utilities";
 import { EventHistory } from "./event-history";
 import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors";
+import { PhoneLocation } from "../store/types";
 import Config from "../config";
 
 export class CalculatedSize {
@@ -92,43 +93,41 @@ export default class QueryStation {
         this._history = new EventHistory(services.Database());
     }
 
-    getStatus(address, locate) {
-        let message;
+    private buildLocateMessage(queryType: number, locate: PhoneLocation) {
         if (locate) {
-            message = HttpQuery.create({
-                type: QueryType.values.QUERY_STATUS,
+            return HttpQuery.create({
+                type: queryType,
                 time: unixNow(),
                 locate: {
                     modifying: true,
-                    longitude: locate.long,
-                    latitude: locate.lat,
+                    longitude: locate.longitude,
+                    latitude: locate.latitude,
                     time: locate.time,
                 },
             });
         } else {
-            message = HttpQuery.create({
-                type: QueryType.values.QUERY_STATUS,
+            return HttpQuery.create({
+                type: queryType,
                 time: unixNow(),
             });
         }
+    }
 
+    getStatus(address: string, locate: PhoneLocation) {
+        const message = this.buildLocateMessage(QueryType.values.QUERY_STATUS, locate);
         return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
 
-    takeReadings(address) {
-        const message = HttpQuery.create({
-            type: QueryType.values.QUERY_TAKE_READINGS,
-            time: unixNow(),
-        });
-
+    takeReadings(address: string, locate: PhoneLocation) {
+        const message = this.buildLocateMessage(QueryType.values.QUERY_TAKE_READINGS, locate);
         return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
 
-    startDataRecording(address) {
+    startDataRecording(address: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: true },

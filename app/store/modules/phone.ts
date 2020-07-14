@@ -1,6 +1,6 @@
+import Vue from "../../wrappers/vue";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import * as MutationTypes from "../mutations";
-// import * as ActionTypes from "../actions";
 
 export class PhoneState {
     network: PhoneNetwork = new PhoneNetwork();
@@ -16,10 +16,10 @@ const mutations = {
         Object.assign(state, new PhoneState());
     },
     [MutationTypes.PHONE_LOCATION]: (state: PhoneState, location: PhoneLocation) => {
-        // state.location = location;
+        Vue.set(state, "location", location);
     },
     [MutationTypes.PHONE_NETWORK]: (state: PhoneState, network: PhoneNetwork) => {
-        state.network = network;
+        Vue.set(state, "network", network);
     },
 };
 

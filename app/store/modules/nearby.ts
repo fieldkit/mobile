@@ -3,12 +3,13 @@ import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress } from "../types";
+import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import { Services, ServiceRef } from "./utilities";
 
 export class NearbyState {
     services: ServiceRef = new ServiceRef();
     stations: { [index: string]: NearbyStation } = {};
+    location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: NearbyState };
@@ -40,7 +41,7 @@ const actions = {
         commit(MutationTypes.STATION_QUERIED, info);
         return state.services
             .queryStation()
-            .takeReadings(info.url)
+            .takeReadings(info.url, state.location)
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
@@ -219,6 +220,9 @@ const mutations = {
             state.stations[deviceId].transferring = false;
             state.stations[deviceId].activity = new Date();
         }
+    },
+    [MutationTypes.PHONE_LOCATION]: (state: NearbyState, location: PhoneLocation) => {
+        Vue.set(state, "location", location);
     },
 };
 
