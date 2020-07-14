@@ -55,23 +55,23 @@ export function prepareReply(reply) {
         reply.status.identity.generation = null;
     }
     if (reply.modules && Array.isArray(reply.modules)) {
-        reply.modules.map(m => {
+        reply.modules.map((m) => {
             m.deviceId = Buffer.from(m.id).toString("hex");
             m.id = null;
         });
     }
     if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
-        reply.liveReadings.map(lr => {
+        reply.liveReadings.map((lr) => {
             lr.modules
-                .filter(m => m.module && m.module.id)
-                .map(m => {
+                .filter((m) => m.module && m.module.id)
+                .map((m) => {
                     m.module.deviceId = Buffer.from(m.module.id).toString("hex");
                     m.module.id = null;
                 });
         });
     }
     if (reply.streams && reply.streams.length > 0) {
-        reply.streams.forEach(s => {
+        reply.streams.forEach((s) => {
             s.block = s.block ? s.block : 0;
             s.size = s.size ? s.size : 0;
         });
@@ -112,7 +112,7 @@ export default class QueryStation {
             });
         }
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -123,7 +123,7 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -135,7 +135,7 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -146,7 +146,19 @@ export default class QueryStation {
             recording: { modifying: true, enabled: false },
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
+            return this._fixupStatus(reply);
+        });
+    }
+
+    configureSchedule(address, schedule) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_CONFIGURE,
+            schedules: { modifying: true, ...schedule },
+            time: unixNow(),
+        });
+
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -158,7 +170,7 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(station.url, message).then(reply => {
+        return this.stationQuery(station.url, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -170,7 +182,7 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(station.url, message).then(reply => {
+        return this.stationQuery(station.url, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -181,7 +193,7 @@ export default class QueryStation {
             networkSettings: { networks: networks },
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -191,7 +203,7 @@ export default class QueryStation {
             type: QueryType.values.QUERY_CONFIGURE,
             loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
         });
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -202,7 +214,7 @@ export default class QueryStation {
             identity: { name: name },
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -219,14 +231,14 @@ export default class QueryStation {
                     url: url,
                 })
                 .then(
-                    response => {
+                    (response) => {
                         if (response.statusCode != 204) {
                             return Promise.reject(new HttpError("status", response));
                         }
                         const size = Number(response.headers["content-length"]);
                         return new CalculatedSize(size);
                     },
-                    err => {
+                    (err) => {
                         console.log(url, "query error", err, err ? err.stack : null);
                         return Promise.reject(err);
                     }
@@ -241,10 +253,10 @@ export default class QueryStation {
                     url: url + "/download/logs",
                 })
                 .then(
-                    response => {
+                    (response) => {
                         return response.body;
                     },
-                    err => {
+                    (err) => {
                         console.log(url, "query error", err, err ? err.stack : null);
                         return Promise.reject(err);
                     }
@@ -261,7 +273,7 @@ export default class QueryStation {
                     path: path,
                     progress: progress,
                 })
-                .then(response => {
+                .then((response) => {
                     // log.info("headers", response.headers);
                     // log.info("status", response.statusCode);
                     if (response.statusCode != 200) {
@@ -281,7 +293,7 @@ export default class QueryStation {
                     path: path,
                     progress: progress,
                 })
-                .then(response => {
+                .then((response) => {
                     console.log(response);
                     return {};
                 });
@@ -300,7 +312,7 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -320,7 +332,7 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
@@ -343,12 +355,12 @@ export default class QueryStation {
         this._lastQueryTried[stationKey] = new Date();
 
         return factory().then(
-            value => {
+            (value) => {
                 this._openQueries[stationKey] = false;
                 this._lastQueries[stationKey] = new Date();
                 return value;
             },
-            error => {
+            (error) => {
                 this._openQueries[stationKey] = false;
                 return Promise.reject(error);
             }
@@ -376,13 +388,13 @@ export default class QueryStation {
                     body: binaryQuery,
                 })
                 .then(
-                    response => response,
-                    err => {
+                    (response) => response,
+                    (err) => {
                         console.log(url, "query error", err, err ? err.stack : null);
                         return Promise.reject(err);
                     }
                 );
-        }).then(response => {
+        }).then((response) => {
             if (response.body.length == 0) {
                 log.info(url, "query success", "<empty>");
                 return {};
@@ -390,7 +402,7 @@ export default class QueryStation {
 
             const decoded = this._getResponseBody(response);
             return this._history.onStationReply(decoded).then(() => {
-                return this._handlePotentialBusyReply(decoded, url, message).then(finalReply => {
+                return this._handlePotentialBusyReply(decoded, url, message).then((finalReply) => {
                     log.verbose(url, "query success", finalReply);
                     return finalReply;
                 });

@@ -182,7 +182,7 @@ module.exports = {
     haveYourConductivitySolution: "Make sure you have your conductivity solution.",
     placeInAndStabilizeWithTemp: "Place probe inside cup with solution and let the readings stabilize. Make sure water temperature is also inside solution.",
     // ConfigureCaptureInterval.vue
-    dataCaptureSchedule: "Data capture schedule",
+    dataCaptureSchedule: "Data Capture Schedule",
     dataCaptureNotice: "Frequent data capture drains the battery at a quicker rate",
     scheduled: "Scheduled",
     basic: "Basic",

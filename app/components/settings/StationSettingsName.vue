@@ -8,7 +8,6 @@
             <ScrollView row="1">
                 <GridLayout rows="*" columns="*" verticalAlignment="middle" class="p-t-10">
                     <StackLayout>
-                        <!-- edit station name -->
                         <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
                             <TextField
                                 col="0"
@@ -22,7 +21,6 @@
                             ></TextField>
                             <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png"></Image>
                         </GridLayout>
-                        <!-- station name validation errors -->
                         <Label
                             class="validation-error"
                             id="no-name"
@@ -53,7 +51,7 @@
                             :isEnabled="station.connected"
                             @tap="saveStationName"
                         />
-                        <ConnectionNote :station="station" />
+                        <ConnectionNote :station="station" :stationId="stationId" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -64,15 +62,15 @@
 </template>
 
 <script>
-import routes from "../../routes";
-import Services from "../../services/services";
+import Vue from "../../wrappers/vue";
+import * as ActionTypes from "../../store/actions";
 
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import General from "./StationSettingsGeneral";
 import ConnectionNote from "./StationSettingsConnectionNote";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             stationName: "",
@@ -86,10 +84,6 @@ export default {
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
     components: {
         ScreenHeader,
@@ -97,28 +91,33 @@ export default {
         General,
         ConnectionNote,
     },
+    computed: {
+        station() {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
+    },
     methods: {
+        getStation() {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
         onPageLoaded(args) {
             this.page = args.object;
-            let user = this.$portalInterface.getCurrentUser();
-            this.userName = user.name;
-            this.stationName = this.station.name;
-            this.origName = this.station.name;
+            this.stationName = this.getStation().name;
+            this.origName = this.stationName;
         },
-
         goBack(event) {
             if (event) {
-                let cn = event.object.className;
+                const cn = event.object.className;
                 event.object.className = cn + " pressed";
                 setTimeout(() => {
                     event.object.className = cn;
                 }, 500);
             }
 
-            this.$navigateTo(General, {
+            return this.$navigateTo(General, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
+                    station: this.getStation(),
                 },
                 transition: {
                     name: "slideRight",
@@ -127,53 +126,44 @@ export default {
                 },
             });
         },
-
         checkName() {
-            // reset these first
             this.noName = false;
             this.nameNotPrintable = false;
             this.nameTooLong = false;
-            // then check
             this.noName = !this.stationName || this.stationName.length == 0;
             if (this.noName) {
                 this.stationName = this.origName;
                 return false;
             }
-            let matches = this.stationName.match(/^[ \w~!@#$%^&*()-.']*$/);
+            const matches = this.stationName.match(/^[ \w~!@#$%^&*()-.']*$/);
             this.nameNotPrintable = !matches || matches.length == 0;
             this.nameTooLong = this.stationName.length > 40;
             return !this.nameTooLong && !this.nameNotPrintable;
         },
-
         saveStationName() {
-            let valid = this.checkName();
+            const valid = this.checkName();
             if (valid && this.origName != this.stationName) {
-                this.station.name = this.stationName;
-                Services.StateManager()
-                    .renameStation(this.station, this.station.name)
+                return this.$store
+                    .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.getStation().deviceId, name: this.stationName })
                     .then(() => {
-                        this.origName = this.stationName;
-                        this.goBack();
+                        return this.goBack();
                     })
                     .catch((error) => {
-                        console.error("unhandled error", error);
+                        this.error = true;
                     });
             }
         },
-
         clearName() {
             this.editingName = true;
             this.stationName = "";
         },
-
         cancelRename() {
             this.noName = false;
             this.nameNotPrintable = false;
             this.nameTooLong = false;
-            this.station.name = this.origName;
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

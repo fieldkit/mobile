@@ -2,18 +2,22 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="*,70">
             <ScrollView row="0">
-                <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
+                <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout>
-                        <ScreenHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+                        <ScreenHeader
+                            :title="_L('dataCaptureSchedule')"
+                            :subtitle="station.name"
+                            :onBack="goBack"
+                            :canNavigateSettings="false"
+                        />
                         <StackLayout class="p-b-10"></StackLayout>
                     </StackLayout>
 
-                    <!-- data capture schedule -->
-                    <ConfigureCaptureInterval :station="station" ref="configCaptureInterval" />
+                    <ConnectionNote :station="station" :stationId="stationId" />
 
-                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="goBack" />
-                    <StackLayout class="p-b-20"></StackLayout>
-                    <ConnectionNote :station="station" />
+                    <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
+
+                    <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
                 </FlexboxLayout>
             </ScrollView>
 
@@ -24,8 +28,9 @@
 
 <script>
 import routes from "../../routes";
+import * as ActionTypes from "../../store/actions";
 
-import ConfigureCaptureInterval from "../ConfigureCaptureInterval";
+import ScheduleEditor from "../ScheduleEditor.vue";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import General from "./StationSettingsGeneral";
@@ -33,58 +38,77 @@ import ConnectionNote from "./StationSettingsConnectionNote";
 
 export default {
     data() {
-        return {};
+        return {
+            form: {
+                schedule: null,
+            },
+        };
     },
     props: {
         stationId: {
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
     components: {
-        ConfigureCaptureInterval,
+        ScheduleEditor,
         ScreenHeader,
         ScreenFooter,
-        General,
         ConnectionNote,
     },
+    computed: {
+        station() {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
+    },
     methods: {
-        onPageLoaded(args) {},
-
+        getStation() {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
+        onPageLoaded(args) {
+            this.form.schedule = { interval: this.getStation().interval };
+        },
+        onScheduleChange(schedule) {
+            this.form.schedule = schedule;
+        },
+        onSaveSchedule() {
+            return Promise.all([
+                this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
+                    deviceId: this.getStation().deviceId,
+                    schedule: this.form.schedule,
+                }),
+            ])
+                .then(() => this.goBack())
+                .catch((error) => {
+                    console.log("error", error);
+                    return error;
+                });
+        },
         goBack(event) {
             if (event) {
-                let cn = event.object.className;
+                const cn = event.object.className;
                 event.object.className = cn + " pressed";
                 setTimeout(() => {
                     event.object.className = cn;
                 }, 500);
             }
 
-            if (this.$refs.configCaptureInterval.checkAllIntervals()) {
-                this.$navigateTo(General, {
-                    props: {
-                        station: this.station,
-                    },
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
-                    },
-                });
-            }
+            return this.$navigateTo(General, {
+                props: {
+                    stationId: this.stationId,
+                    station: this.station,
+                },
+                transition: {
+                    name: "slideRight",
+                    duration: 250,
+                    curve: "linear",
+                },
+            });
         },
     },
 };
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "../../app-variables";
-// End custom common variables
-
-// Custom styles
 </style>

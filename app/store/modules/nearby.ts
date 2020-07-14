@@ -17,7 +17,7 @@ const actions = {
     [ActionTypes.REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
         const now = new Date();
         return Promise.all(
-            Object.values(state.stations).map(nearby => {
+            Object.values(state.stations).map((nearby) => {
                 if (nearby.old(now)) {
                     console.log("station inactive, losing", nearby.info.deviceId, now, nearby.activity);
                     return dispatch(ActionTypes.LOST, nearby.info);
@@ -42,11 +42,11 @@ const actions = {
             .queryStation()
             .takeReadings(info.url)
             .then(
-                statusReply => {
+                (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
                     return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
                 },
-                error => {
+                (error) => {
                     if (error instanceof QueryThrottledError) {
                         return error;
                     }
@@ -71,7 +71,7 @@ const actions = {
         );
     },
     [ActionTypes.QUERY_ALL]: ({ commit, dispatch, state }: ActionParameters) => {
-        return Promise.all(Object.values(state.stations).map(station => dispatch(ActionTypes.QUERY_STATION, station.info)));
+        return Promise.all(Object.values(state.stations).map((station) => dispatch(ActionTypes.QUERY_STATION, station.info)));
     },
     [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; name: string }) => {
         if (!payload?.deviceId) throw new Error("no nearby info");
@@ -83,11 +83,11 @@ const actions = {
             .queryStation()
             .configureName(info.url, payload.name)
             .then(
-                statusReply => {
+                (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
                     return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
                 },
-                error => {
+                (error) => {
                     if (error instanceof QueryThrottledError) {
                         return error;
                     }
@@ -95,7 +95,7 @@ const actions = {
                 }
             );
     },
-    [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; networks: any }) => {
+    [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
         if (!payload?.deviceId) throw new Error("no nearby info");
         const info = state.stations[payload.deviceId];
         if (!info) throw new Error("no nearby info");
@@ -104,11 +104,35 @@ const actions = {
             .queryStation()
             .sendNetworkSettings(info.url, payload.networks)
             .then(
-                statusReply => {
+                (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
                     return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
                 },
-                error => {
+                (error) => {
+                    if (error instanceof QueryThrottledError) {
+                        return error;
+                    }
+                    return Promise.reject(error);
+                }
+            );
+    },
+    [ActionTypes.CONFIGURE_STATION_SCHEDULES]: (
+        { commit, dispatch, state }: ActionParameters,
+        payload: { deviceId: string; schedule: { interval: number } }
+    ) => {
+        if (!payload?.deviceId) throw new Error("no nearby info");
+        const info = state.stations[payload.deviceId];
+        if (!info) throw new Error("no nearby info");
+        commit(MutationTypes.STATION_QUERIED, info);
+        return state.services
+            .queryStation()
+            .configureSchedule(info.url, { readings: { interval: payload.schedule.interval } })
+            .then(
+                (statusReply) => {
+                    commit(MutationTypes.STATION_ACTIVITY, info);
+                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                },
+                (error) => {
                     if (error instanceof QueryThrottledError) {
                         return error;
                     }
@@ -125,11 +149,11 @@ const actions = {
             .queryStation()
             .startDataRecording(info.url)
             .then(
-                statusReply => {
+                (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
                     return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
                 },
-                error => {
+                (error) => {
                     if (error instanceof QueryThrottledError) {
                         return error;
                     }

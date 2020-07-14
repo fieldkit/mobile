@@ -67,12 +67,17 @@
                         </StackLayout>
                     </GridLayout>
 
-                    <ConfigureCaptureInterval v-model="form.interval" ref="configCaptureInterval" @input="onIntervalChange" />
+                    <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" />
                 </FlexboxLayout>
             </ScrollView>
 
             <StackLayout row="2">
-                <Button class="btn btn-primary btn-padded m-b-10" :text="_L('continue')" automationText="nextButton" @tap="goToNext"></Button>
+                <Button
+                    class="btn btn-primary btn-padded m-b-10"
+                    :text="_L('continue')"
+                    automationText="nextButton"
+                    @tap="goToNext"
+                ></Button>
             </StackLayout>
         </GridLayout>
     </Page>
@@ -87,13 +92,13 @@ import * as ActionTypes from "../../store/actions";
 
 import LabeledTextField from "../LabeledTextField";
 import ScreenHeader from "../ScreenHeader";
-import ConfigureCaptureInterval from "../ConfigureCaptureInterval";
+import ScheduleEditor from "../ScheduleEditor.vue";
 import * as animations from "../animations";
 
 export default {
     components: {
         ScreenHeader,
-        ConfigureCaptureInterval,
+        ScheduleEditor,
         LabeledTextField,
     },
     data() {
@@ -102,7 +107,9 @@ export default {
             mapboxToken: MAPBOX_ACCESS_TOKEN,
             form: {
                 location: "",
-                interval: 300,
+                schedule: {
+                    interval: 300,
+                },
                 v: {
                     any: false,
                     required: false,
@@ -153,16 +160,14 @@ export default {
             ]);
         },
         goToNext(event) {
-            if (this.$refs.configCaptureInterval.checkAllIntervals()) {
-                return this.saveForm().then(() => {
-                    return this.$navigateTo(routes.deployNotes, {
-                        props: {
-                            stationId: this.stationId,
-                            station: this.currentStation,
-                        },
-                    });
+            return this.saveForm().then(() => {
+                return this.$navigateTo(routes.deployNotes, {
+                    props: {
+                        stationId: this.stationId,
+                        station: this.currentStation,
+                    },
                 });
-            }
+            });
         },
         onNavCancel(ev) {
             return Promise.all([
@@ -213,15 +218,23 @@ export default {
             this.form.v.any = this.form.v.required || this.form.v.long || this.form.v.characters;
             return !this.form.v.any;
         },
-        onIntervalChange(interval) {
-            console.log("interval", interval);
+        onScheduleChange(schedule) {
+            console.log("schedule", schedule);
+            this.form.schedule = schedule;
         },
         saveForm() {
             if (!this.checkLocationName()) {
                 return Promise.reject(new Error("validation error"));
             }
-            return Promise.all([this.$store.dispatch(ActionTypes.STATION_LOCATION, { stationId: this.stationId, location: this.form.location })]).then(() => {
-                return Promise.all([this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDUES, { stationId: this.stationId, interval: this.form.interval })]);
+            return Promise.all([
+                this.$store.dispatch(ActionTypes.STATION_LOCATION, { stationId: this.stationId, location: this.form.location }),
+            ]).then(() => {
+                return Promise.all([
+                    this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDUES, {
+                        stationId: this.stationId,
+                        interval: this.form.schedule.interval,
+                    }),
+                ]);
             });
         },
     },

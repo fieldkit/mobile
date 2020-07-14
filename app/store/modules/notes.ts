@@ -112,8 +112,7 @@ const actions = {
             .then((all) => commit(LOAD_NOTES_ALL, all));
     },
     [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
-    [ActionTypes.CONFIGURE_STATION_SCHEDUES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
-    [ActionTypes.CONFIGURE_STATION_SCHEDUES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
+    [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
     [ActionTypes.STATION_LOCATION]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number; location: string }) => {
         commit(NOTES_LOCATION, payload);
 

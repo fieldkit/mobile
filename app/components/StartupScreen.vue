@@ -16,7 +16,7 @@ import Config from "../config";
 function initializeFirebase(services): Promise<any> {
     return Firebase.init({
         crashlyticsCollectionEnabled: true,
-    }).catch(error => {
+    }).catch((error) => {
         console.log("firebase error", error);
         return Promise.resolve();
     });
@@ -25,7 +25,7 @@ function initializeFirebase(services): Promise<any> {
 function updateStore(store): null {
     promiseAfter(1000)
         .then(() => store.dispatch(ActionTypes.REFRESH))
-        .catch(err => {
+        .catch((err) => {
             console.log("refresh error", err, err ? err.stack : null);
         })
         .finally(() => updateStore(store));
@@ -38,7 +38,7 @@ function initializeApplication(services): Promise<any> {
             .logEvent({
                 key: "app_open",
             })
-            .catch(message => {
+            .catch((message) => {
                 console.log("error", message);
                 return Promise.resolve(false);
             })
@@ -46,7 +46,7 @@ function initializeApplication(services): Promise<any> {
                 services
                     .CreateDb()
                     .initialize()
-                    .then(db => services.Database().checkConfig())
+                    .then((db) => services.Database().checkConfig())
                     .then(() => {
                         // This uses a function so that the services object doesn't get spammed into the logs.
                         Services.Store().commit(MutationTypes.SERVICES, () => Services);
@@ -70,7 +70,7 @@ function initializeApplication(services): Promise<any> {
                                     });
                             });
                     })
-                    .catch(err => {
+                    .catch((err) => {
                         console.log("error:", err, err ? err.stack : null);
                     })
                     .then(() => {
@@ -96,9 +96,10 @@ export default class StartupScreen extends Vue {
         console.log("startup loaded");
         return initializeApplication(Services).then(() => {
             if (Config.env.jacob) {
-                return this.$navigateTo(routes.deploy.notes, {
+                return this.$navigateTo(routes.stationSettings, {
                     props: {
                         stationId: 1,
+                        station: Services.Store().getters.legacyStations[1],
                     },
                 });
             }

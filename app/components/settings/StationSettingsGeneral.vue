@@ -68,10 +68,8 @@ export default {
             switch (event.object.text) {
                 case _L("stationName"):
                     return this.goToName();
-                    break;
                 case _L("dataCaptureSchedule"):
                     return this.goToSchedule();
-                    break;
             }
         },
 
