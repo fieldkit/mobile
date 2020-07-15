@@ -9,6 +9,7 @@ import { Services, ServiceRef } from "./utilities";
 export class NearbyState {
     services: ServiceRef = new ServiceRef();
     stations: { [index: string]: NearbyStation } = {};
+    expired: { [index: string]: NearbyStation } = {};
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 
@@ -203,11 +204,13 @@ const mutations = {
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
         if (!state.stations[info.deviceId]) {
+            Vue.set(state.expired, info.deviceId, null);
             Vue.set(state.stations, info.deviceId, new NearbyStation(info));
         }
     },
     [MutationTypes.LOSE]: (state: NearbyState, info: ServiceInfo) => {
         if (state.stations[info.deviceId]) {
+            Vue.set(state.expired, info.deviceId, state.stations[info.deviceId]);
             const clone = { ...state.stations };
             delete clone[info.deviceId];
             state.stations = clone;
@@ -225,6 +228,14 @@ const mutations = {
     },
     [MutationTypes.TRANSFER_OPEN]: (state: NearbyState, payload: OpenProgressPayload) => {
         if (payload.downloading) {
+            if (!state.stations[payload.deviceId]) {
+                console.log("warning: no nearby station in transfer open");
+                if (state.expired[payload.deviceId]) {
+                    Vue.set(state.stations, payload.deviceId, state.expired[payload.deviceId]);
+                } else {
+                    console.log("warning: no expired station in transfer open");
+                }
+            }
             if (state.stations[payload.deviceId]) {
                 state.stations[payload.deviceId].transferring = true;
                 state.stations[payload.deviceId].activity = new Date();
@@ -234,12 +245,16 @@ const mutations = {
     [MutationTypes.TRANSFER_PROGRESS]: (state: NearbyState, progress: TransferProgress) => {
         if (state.stations[progress.deviceId]) {
             state.stations[progress.deviceId].activity = new Date();
+        } else {
+            console.log("warning: no nearby station in transfer progress");
         }
     },
     [MutationTypes.TRANSFER_CLOSE]: (state: NearbyState, deviceId: string) => {
         if (state.stations[deviceId]) {
             state.stations[deviceId].transferring = false;
             state.stations[deviceId].activity = new Date();
+        } else {
+            console.log("warning: no nearby station in transfer close");
         }
     },
     [MutationTypes.PHONE_LOCATION]: (state: NearbyState, location: PhoneLocation) => {
