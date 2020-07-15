@@ -25,7 +25,7 @@ function customizeLogger() {
             }
             if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {
                 console.log("mutation:", mutation.type, mutation.payload);
-                return true;
+                return false;
             }
             if (mutation.type == MutationTypes.STATION_ACTIVITY || mutation.type == MutationTypes.STATION_QUERIED) {
                 console.log("mutation:", mutation.type, mutation.payload);
@@ -45,7 +45,7 @@ function customizeLogger() {
             }
             if (mutation.type == MutationTypes.STATIONS) {
                 console.log(
-                    "mutation: ",
+                    "mutation:",
                     mutation.type,
                     _(mutation.payload)
                         .map((s) => s.name)
@@ -53,7 +53,9 @@ function customizeLogger() {
                 );
                 return false;
             }
-            return true;
+
+            console.log("mutation:", mutation.type);
+            return false;
         },
         actionFilter(action, state) {
             if (action.type == ActionTypes.REFRESH) {
@@ -63,11 +65,11 @@ function customizeLogger() {
                 return false;
             }
             if (action.type == ActionTypes.STATION_REPLY) {
-                console.log("store: action", action.type, action.payload.status.identity.device);
+                console.log("action:", action.type, action.payload.status.identity.device);
                 return false;
             }
             if (action.type == ActionTypes.STATIONS_LOADED) {
-                console.log("store: action", action.type);
+                console.log("action:", action.type);
                 return false;
             }
             return true;

@@ -36,7 +36,6 @@ const actions = {
     },
     [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
         commit(MutationTypes.LOSE, info);
-        return state.services.legacy().refresh();
     },
     [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
         commit(MutationTypes.STATION_QUERIED, info);

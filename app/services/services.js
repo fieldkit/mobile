@@ -67,14 +67,6 @@ export class Services {
         return this.queryStation;
     }
 
-    LegacyHooks() {
-        return {
-            refresh: () => {
-                return Promise.resolve();
-            },
-        };
-    }
-
     CreateDb() {
         if (!this.createDb) {
             const CreateDb = require("./create-db").default;

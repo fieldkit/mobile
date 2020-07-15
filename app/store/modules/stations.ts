@@ -261,7 +261,6 @@ const actions = {
     },
     [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations) => {
         commit(MutationTypes.STATIONS, stations);
-        return state.services.legacy().refresh();
     },
     [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply) => {
         return state.services

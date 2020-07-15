@@ -22,10 +22,6 @@ export class ServiceRef {
         return this.verify().QueryStation();
     }
 
-    public legacy(): any {
-        return this.verify().LegacyHooks();
-    }
-
     public fs(): any {
         return this.verify().FileSystem();
     }
