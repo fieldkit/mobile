@@ -295,6 +295,12 @@ var Conservify = (function (_super) {
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setBody(info.body);
+        if (info.connectionTimeout) {
+            transfer.setConnectionTimeout(info.connectionTimeout);
+        }
+        if (info.defaultTimeout) {
+            transfer.setDefaultTimeout(info.defaultTimeout);
+        }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i],
                 key = _b[0],
@@ -317,6 +323,12 @@ var Conservify = (function (_super) {
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setBody(info.body);
+        if (info.connectionTimeout) {
+            transfer.setConnectionTimeout(info.connectionTimeout);
+        }
+        if (info.defaultTimeout) {
+            transfer.setDefaultTimeout(info.defaultTimeout);
+        }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i],
                 key = _b[0],
@@ -339,6 +351,12 @@ var Conservify = (function (_super) {
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setBase64EncodeResponseBody(true);
+        if (info.connectionTimeout) {
+            transfer.setConnectionTimeout(info.connectionTimeout);
+        }
+        if (info.defaultTimeout) {
+            transfer.setDefaultTimeout(info.defaultTimeout);
+        }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i],
                 key = _b[0],
@@ -366,6 +384,12 @@ var Conservify = (function (_super) {
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setPath(info.path);
+        if (info.connectionTimeout) {
+            transfer.setConnectionTimeout(info.connectionTimeout);
+        }
+        if (info.defaultTimeout) {
+            transfer.setDefaultTimeout(info.defaultTimeout);
+        }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i],
                 key = _b[0],
@@ -388,6 +412,12 @@ var Conservify = (function (_super) {
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
         transfer.setPath(info.path);
+        if (info.connectionTimeout) {
+            transfer.setConnectionTimeout(info.connectionTimeout);
+        }
+        if (info.defaultTimeout) {
+            transfer.setDefaultTimeout(info.defaultTimeout);
+        }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i],
                 key = _b[0],
