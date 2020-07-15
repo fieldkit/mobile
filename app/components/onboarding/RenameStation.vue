@@ -23,8 +23,20 @@
                             <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png"></Image>
                         </GridLayout>
 
-                        <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" :visibility="form.v.required ? 'visible' : 'collapsed'"></Label>
-                        <Label class="validation-error" id="name-too-long" :text="_L('nameOver40')" textWrap="true" :visibility="form.v.long ? 'visible' : 'collapsed'"></Label>
+                        <Label
+                            class="validation-error"
+                            id="no-name"
+                            :text="_L('nameRequired')"
+                            textWrap="true"
+                            :visibility="form.v.required ? 'visible' : 'collapsed'"
+                        ></Label>
+                        <Label
+                            class="validation-error"
+                            id="name-too-long"
+                            :text="_L('nameOver40')"
+                            textWrap="true"
+                            :visibility="form.v.long ? 'visible' : 'collapsed'"
+                        ></Label>
                         <Label
                             class="validation-error"
                             id="name-not-printable"
@@ -100,7 +112,7 @@ export default {
                         deviceId: this.currentStation().deviceId,
                     });
                 })
-                .catch(error => {
+                .catch((error) => {
                     this.error = true;
                 });
         },
@@ -112,6 +124,7 @@ export default {
                 any: false,
             };
 
+            this.form.name = this.form.name.trim();
             this.form.v.required = this.form.name.length == 0;
             const matches = this.form.name.match(/^[ \w~!@#$%^&*()-.']*$/);
             this.form.v.characters = !matches || matches.length == 0;

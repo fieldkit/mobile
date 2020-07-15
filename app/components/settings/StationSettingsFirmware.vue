@@ -39,7 +39,7 @@
                             :isEnabled="station.connected"
                             @tap="upgradeFirmware"
                             class="btn btn-primary btn-padded"
-                        ></Button>
+                        />
                         <Label v-else :text="_L('upToDate')" class="size-20 m-x-15" />
                         <ConnectionNote v-if="updateAvailable" :station="station" />
                     </StackLayout>
