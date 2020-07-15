@@ -127,6 +127,7 @@ export class StationSyncStatus {
         private readonly uploaded: number,
         public readonly downloads: PendingDownload[] = [],
         public readonly uploads: PendingUpload[] = [],
+        public readonly location: string | null = null,
         public readonly progress: StationProgress | null = null
     ) {}
 
@@ -143,6 +144,7 @@ export class StationSyncStatus {
             this.uploaded,
             this.downloads,
             this.uploads,
+            this.location,
             progress
         );
     }
@@ -354,6 +356,8 @@ const mutations = {
             const lastSeen = station.lastSeen;
             const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
 
+            console.log("LOCATION", station.location);
+
             const downloads = station.streams
                 .map((stream) => {
                     const firstBlock = stream.downloadLastBlock || 0;
@@ -406,6 +410,7 @@ const mutations = {
                 uploaded || 0,
                 downloads,
                 uploads,
+                station.locationString(),
                 null
             );
         });

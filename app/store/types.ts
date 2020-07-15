@@ -260,6 +260,14 @@ export class Station implements StationCreationFields {
         return null;
     }
 
+    public locationString(): string | null {
+        const coordinates = this.location();
+        if (coordinates == null) {
+            return null;
+        }
+        return [coordinates.latitude, coordinates.longitude].map((v) => v.toFixed(2)).join(", ");
+    }
+
     private decodedStatus: object | null = null;
 
     protected decodeStatusReply(): any {
