@@ -12,6 +12,7 @@ import {
     Stream,
     Download,
     StationPortalStatus,
+    SortableStationSorter,
 } from "../types";
 import { HasLocation } from "../map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "../row-types";
@@ -26,6 +27,10 @@ export class StationsState {
     all: Station[] = [];
 }
 
+export const AvailableStationsSorter = (available: AvailableStation[]): AvailableStation[] => {
+    return _.orderBy(available, [(available) => SortableStationSorter(available)]);
+};
+
 const getters = {
     availableStations: (state: StationsState, getters, rootState: GlobalState): AvailableStation[] => {
         const nearby = rootState.nearby.stations;
@@ -35,17 +40,6 @@ const getters = {
         const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
         const available = _(deviceIds)
             .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
-            .orderBy([
-                (available) => {
-                    if (!available.lastSeen) {
-                        return 0;
-                    }
-                    const FiveMinutesSecs = 300;
-                    const seen = available.lastSeen.getTime() / 1000;
-                    const rounded = Math.floor(seen / FiveMinutesSecs) * FiveMinutesSecs;
-                    return -rounded;
-                },
-            ])
             .value();
 
         if (false) {
@@ -61,7 +55,7 @@ const getters = {
             );
         }
 
-        return available;
+        return AvailableStationsSorter(available);
     },
     legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
         const nearby = rootState.nearby.stations;

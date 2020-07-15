@@ -304,6 +304,20 @@ export class LegacyStation extends Station {
     }
 }
 
+export interface SortableStation {
+    readonly lastSeen: Date | null;
+}
+
+export const SortableStationSorter = (station: SortableStation): number => {
+    if (!station.lastSeen) {
+        return 0;
+    }
+    const FiveMinutesSecs = 300;
+    const seen = station.lastSeen.getTime() / 1000;
+    const rounded = Math.floor(seen / FiveMinutesSecs) * FiveMinutesSecs;
+    return -rounded;
+};
+
 export interface ServiceInfo {
     readonly deviceId: string;
     readonly url: string;

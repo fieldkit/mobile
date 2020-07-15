@@ -2,7 +2,16 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Station, Download, FileType, FileTypeUtils, OpenProgressPayload, TransferProgress, ServiceInfo } from "../types";
+import {
+    Station,
+    Download,
+    FileType,
+    FileTypeUtils,
+    OpenProgressPayload,
+    TransferProgress,
+    ServiceInfo,
+    SortableStationSorter,
+} from "../types";
 import { Services, ServiceRef } from "./utilities";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
@@ -242,6 +251,10 @@ export class StationSyncStatus {
     }
 }
 
+export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatus[] => {
+    return _.orderBy(syncs, [(sync) => SortableStationSorter(sync)]);
+};
+
 export class SyncingState {
     services: ServiceRef = new ServiceRef();
     syncs: StationSyncStatus[] = [];
@@ -397,7 +410,7 @@ const mutations = {
             );
         });
 
-        Vue.set(state, "syncs", syncs);
+        Vue.set(state, "syncs", StationSyncsSorter(syncs));
 
         const pending = _(stations)
             .map((s) => s.downloads)
