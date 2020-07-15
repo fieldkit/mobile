@@ -69,6 +69,7 @@ import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import General from "./StationSettingsGeneral";
 import ConnectionNote from "./StationSettingsConnectionNote";
+import * as animations from "../animations";
 
 export default Vue.extend({
     data() {
@@ -105,28 +106,24 @@ export default Vue.extend({
             this.stationName = this.getStation().name;
             this.origName = this.stationName;
         },
-        goBack(event) {
-            if (event) {
-                const cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {
-                    event.object.className = cn;
-                }, 500);
-            }
-
-            return this.$navigateTo(General, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.getStation(),
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+        goBack(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(General, {
+                    props: {
+                        stationId: this.stationId,
+                        station: this.getStation(),
+                    },
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear",
+                    },
+                }),
+            ]);
         },
         checkName() {
+            this.stationName = this.stationName.trim();
             this.noName = false;
             this.nameNotPrintable = false;
             this.nameTooLong = false;

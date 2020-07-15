@@ -4,28 +4,34 @@
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
                     <ScreenHeader :title="_L('modulesTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
-                    <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in modules" :key="m.id" :dataModule="m" @tap="goToModule">
-                        <StackLayout :class="'bordered-container ' + (moduleIndex == modules.length - 1 ? 'bottom-border' : '')">
-                            <!-- top row of module list -->
-                            <GridLayout rows="auto" columns="15*,85*">
-                                <!-- module icon -->
-                                <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
-                                <!-- module name -->
-                                <Label
-                                    row="0"
-                                    col="1"
-                                    :text="getModuleName(m)"
-                                    verticalAlignment="middle"
-                                    class="size-18"
-                                    textWrap="true"
-                                />
-                            </GridLayout>
-                        </StackLayout>
+                    <GridLayout
+                        rows="auto"
+                        columns="*"
+                        v-for="(m, moduleIndex) in station.modules"
+                        :key="m.id"
+                        :dataModule="m"
+                        @tap="(ev) => goToModule(ev, m)"
+                    >
+                        <template v-if="!m.internal">
+                            <StackLayout
+                                :class="'bordered-container ' + (moduleIndex == station.modules.length - 1 ? 'bottom-border' : '')"
+                            >
+                                <GridLayout rows="auto" columns="15*,85*">
+                                    <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
+                                    <Label
+                                        row="0"
+                                        col="1"
+                                        :text="getModuleName(m)"
+                                        verticalAlignment="middle"
+                                        class="size-18"
+                                        textWrap="true"
+                                    />
+                                </GridLayout>
+                            </StackLayout>
+                        </template>
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
-
             <ScreenFooter row="1" :station="station" active="stations" />
         </GridLayout>
     </Page>
@@ -37,120 +43,85 @@ import { getLastSeen, _T, convertOldFirmwareResponse } from "../../utilities";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import Module from "./StationSettingsModule";
+import * as animations from "../animations";
 
 const sensorsThatCalibrate = ["ph", "do", "ec"];
 
 export default {
-    data() {
-        return {
-            modules: [],
-        };
+    components: {
+        ScreenHeader,
+        ScreenFooter,
     },
     props: {
         stationId: {
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
-    components: {
-        ScreenHeader,
-        ScreenFooter,
+    data() {
+        return {};
+    },
+    computed: {
+        station() {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
+        deployed() {
+            return this.$store.getters.legacyStations[this.stationId].deployStartTime !== null;
+        },
     },
     methods: {
-        onPageLoaded(args) {
-            this.modules = this.station.moduleObjects.sort((a, b) => {
-                return b.position < a.position ? 1 : b.position > a.position ? -1 : 0;
-            });
-
-            this.modules.forEach((m, i) => {
-                m.sensorObjects.forEach((s) => {
-                    if (sensorsThatCalibrate.indexOf(s.name) > -1) {
-                        m.calibrateSensor = s.name;
-                    }
-                });
-            });
+        onPageLoaded(args) {},
+        goBack(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationSettings, {
+                    props: {
+                        stationId: this.stationId,
+                        station: this.station,
+                    },
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear",
+                    },
+                }),
+            ]);
         },
-
-        goBack(event) {
-            if (event) {
-                // Change background color when pressed
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {
-                    event.object.className = cn;
-                }, 500);
-            }
-
-            this.$navigateTo(routes.stationSettings, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+        goToModule(ev, module) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(Module, {
+                    props: {
+                        stationId: this.stationId,
+                        station: this.station,
+                        module: module,
+                    },
+                }),
+            ]);
         },
-
-        goToModule(event) {
-            if (event) {
-                // Change background color when pressed
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {
-                    event.object.className = cn;
-                }, 500);
-            }
-
-            this.$navigateTo(Module, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                    module: event.object.dataModule,
-                },
-            });
-        },
-
         getModuleName(module) {
-            const newName = convertOldFirmwareResponse(module);
-            return _T(newName + ".name");
+            return _T(convertOldFirmwareResponse(module) + ".name");
         },
-
         getModuleImage(module) {
             switch (module.name) {
                 case "modules.distance":
                     return "~/images/Icon_Distance_Module.png";
-                    break;
                 case "modules.weather":
                     return "~/images/Icon_Weather_Module.png ";
-                    break;
                 case "modules.water.ec":
                     return "~/images/Icon_WaterConductivity_Module.png";
-                    break;
                 case "modules.water.ph":
                     return "~/images/Icon_WaterpH_Module.png";
-                    break;
                 case "modules.water.do":
                     return "~/images/Icon_DissolvedOxygen_Module.png";
-                    break;
                 case "modules.water.temp":
                     return "~/images/Icon_WaterTemp_Module.png";
-                    break;
                 case "modules.water.orp":
                     return "~/images/Icon_Water_Module.png";
-                    break;
                 case "modules.water.unknown":
                     return "~/images/Icon_Water_Module.png";
-                    break;
                 default:
                     return "~/images/Icon_Generic_Module.png";
-                    break;
             }
         },
     },
@@ -158,11 +129,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "../../app-variables";
-// End custom common variables
 
-// Custom styles
 .bordered-container {
     padding: 10;
     margin-left: 10;
