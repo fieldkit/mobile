@@ -173,19 +173,21 @@ export default class DiscoverStation {
             delete this._pending[key];
         }
 
-        return (this._pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
-            log.info("lose service (final):", info.type, info.name);
+        return this._store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name }).then(() => {
+            return (this._pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
+                log.info("lose service (final):", info.type, info.name);
 
-            delete this._pending[key];
+                delete this._pending[key];
 
-            // save the event in our history before we notify the rest of the application.
-            return this._history
-                .onLostStation(info)
-                .then(() => this._store.dispatch(ActionTypes.LOST, { deviceId: info.name }))
-                .then(() => {
-                    delete this._stations[key];
-                });
-        }));
+                // save the event in our history before we notify the rest of the application.
+                return this._history
+                    .onLostStation(info)
+                    .then(() => this._store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }))
+                    .then(() => {
+                        delete this._stations[key];
+                    });
+            }));
+        });
     }
 
     private makeKey(station) {

@@ -6,6 +6,8 @@ export const UPDATE = "SAVE";
 export const STATIONS_LOADED = "STATIONS_LOADED";
 
 export const FOUND = "FOUND";
+export const MAYBE_LOST = "MAYBE_LOST";
+export const PROBABLY_LOST = "PROBABLY_LOST";
 export const LOST = "LOST";
 
 export const QUERY_ALL = "QUERY_ALL";

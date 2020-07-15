@@ -55,6 +55,7 @@ function customizeLogger() {
             }
 
             console.log("mutation:", mutation.type);
+
             return false;
         },
         actionFilter(action, state) {

@@ -336,7 +336,8 @@ export default class QueryStation {
         });
     }
 
-    _urlToStationKey(url) {
+    _urlToStationKey(url: string) {
+        if (!url) throw new Error("no station url");
         // http://192.168.0.100:2380/fk/v1 -> http://192.168.0.100:2380/fk
         return url.replace(/\/v1.*/, "");
     }
@@ -385,6 +386,7 @@ export default class QueryStation {
                     method: "POST",
                     url: url,
                     body: binaryQuery,
+                    connectionTimeout: 3,
                 })
                 .then(
                     (response) => response,

@@ -348,12 +348,13 @@ export class NearbyStation {
     queried: Date = new Date();
     activity: Date = new Date();
     transferring = false;
+    failures = 0;
 
     constructor(public readonly info: ServiceInfo) {
         this.url = info.url;
     }
 
-    old(now: Date): boolean {
+    public old(now: Date): boolean {
         // We update activity during transfers so this should be unnecessary.
         /*
         if (this.transferring) {
@@ -362,6 +363,20 @@ export class NearbyStation {
 		*/
         const elapsed = Math.abs(now.getTime() - this.activity.getTime());
         return elapsed > 60 * 1000;
+    }
+
+    public success(): NearbyStation {
+        this.failures = 0;
+        return this;
+    }
+
+    public failure(): NearbyStation {
+        this.failures++;
+        return this;
+    }
+
+    public tooManyFailures(): boolean {
+        return this.failures >= 2;
     }
 }
 

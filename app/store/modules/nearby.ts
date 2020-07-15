@@ -20,7 +20,7 @@ const actions = {
         const now = new Date();
         return Promise.all(
             Object.values(state.stations).map((nearby) => {
-                if (nearby.old(now)) {
+                if (nearby.old(now) || nearby.tooManyFailures()) {
                     console.log("station inactive, losing", nearby.info.deviceId, now, nearby.activity);
                     return dispatch(ActionTypes.LOST, nearby.info);
                 }
@@ -34,8 +34,17 @@ const actions = {
         commit(MutationTypes.FIND, info);
         return dispatch(ActionTypes.QUERY_STATION, info);
     },
-    [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
-        commit(MutationTypes.LOSE, info);
+    [ActionTypes.MAYBE_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
+        if (info) {
+            return dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
+        }
+    },
+    [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        //
+    },
+    [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        commit(MutationTypes.LOSE, payload);
     },
     [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
         commit(MutationTypes.STATION_QUERIED, info);
@@ -68,7 +77,12 @@ const actions = {
                     const querying = elapsed > 10 * 1000;
                     return querying;
                 })
-                .map((nearby: NearbyStation) => dispatch(ActionTypes.QUERY_STATION, nearby.info))
+                .map((nearby: NearbyStation) =>
+                    dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
+                        (reply) => nearby.success(),
+                        (error) => nearby.failure()
+                    )
+                )
         );
     },
     [ActionTypes.QUERY_ALL]: ({ commit, dispatch, state }: ActionParameters) => {
@@ -207,7 +221,7 @@ const mutations = {
             Vue.set(state.stations, info.deviceId, new NearbyStation(info));
         }
     },
-    [MutationTypes.LOSE]: (state: NearbyState, info: ServiceInfo) => {
+    [MutationTypes.LOSE]: (state: NearbyState, info: { deviceId: string }) => {
         if (state.stations[info.deviceId]) {
             Vue.set(state.expired, info.deviceId, state.stations[info.deviceId]);
             const clone = { ...state.stations };
