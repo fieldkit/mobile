@@ -162,6 +162,27 @@ const actions = {
                 }
             );
     },
+    [ActionTypes.END_STATION_DEPLOYMENT]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        if (!payload?.deviceId) throw new Error("no nearby info");
+        const info = state.stations[payload.deviceId];
+        if (!info) throw new Error("no nearby info");
+        commit(MutationTypes.STATION_QUERIED, info);
+        return state.services
+            .queryStation()
+            .stopDataRecording(info.url)
+            .then(
+                (statusReply) => {
+                    commit(MutationTypes.STATION_ACTIVITY, info);
+                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                },
+                (error) => {
+                    if (error instanceof QueryThrottledError) {
+                        return error;
+                    }
+                    return Promise.reject(error);
+                }
+            );
+    },
 };
 
 const getters = {
