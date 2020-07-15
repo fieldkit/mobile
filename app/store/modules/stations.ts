@@ -162,6 +162,7 @@ class StationStatusFactory {
                                 moduleReply.module.name,
                                 moduleReply.module.position,
                                 moduleReply.module.deviceId,
+                                moduleReply.module.flags,
                                 sensors
                             );
                         })
@@ -175,7 +176,7 @@ class StationStatusFactory {
                 const sensors = _(moduleReply.sensors)
                     .map((sensorReply) => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null, null))
                     .value();
-                return new Module(null, moduleReply.name, moduleReply.position, moduleReply.deviceId, sensors);
+                return new Module(null, moduleReply.name, moduleReply.position, moduleReply.deviceId, moduleReply.flags, sensors);
             })
             .value();
     }
@@ -198,7 +199,7 @@ class StationDatabaseFactory {
                 const sensors = _(sensorRows)
                     .map((sensorRow) => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading, sensorRow.trend))
                     .value();
-                return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, sensors);
+                return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, moduleRow.flags, sensors);
             })
             .value();
 

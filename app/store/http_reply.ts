@@ -17,6 +17,7 @@ export interface ModuleCapabilities {
     name: string;
     deviceId: string;
     position: number;
+    flags: number;
     sensors: SensorCapabilities[];
 }
 

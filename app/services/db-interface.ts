@@ -393,14 +393,18 @@ export default class DatabaseInterface {
         // Note: device_id is the module's unique hardware id (not the station's)
         return this.getDatabase().then((db) =>
             db
-                .execute("INSERT INTO modules (module_id, device_id, name, interval, position, station_id) VALUES (?, ?, ?, ?, ?, ?)", [
-                    module.moduleId || module.deviceId,
-                    module.deviceId || module.moduleId,
-                    module.name,
-                    module.interval || 0,
-                    module.position,
-                    module.stationId,
-                ])
+                .execute(
+                    "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [
+                        module.moduleId || module.deviceId,
+                        module.deviceId || module.moduleId,
+                        module.name,
+                        module.interval || 0,
+                        module.position,
+                        module.stationId,
+                        module.flags || 0,
+                    ]
+                )
                 .catch((err) => Promise.reject(new Error(`error inserting module: ${err}`)))
         );
     }
@@ -471,8 +475,11 @@ export default class DatabaseInterface {
             ),
             Promise.all(
                 keeping.map((moduleId) => {
-                    const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
-                    return this._synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
+                    const values = [incoming[moduleId].flags || 0, existing[moduleId].id];
+                    return db.query("UPDATE modules SET flags = ? WHERE id = ?", values).then(() => {
+                        const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
+                        return this._synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
+                    });
                 })
             ),
         ]);

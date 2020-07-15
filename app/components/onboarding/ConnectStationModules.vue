@@ -19,31 +19,40 @@
             <ScrollView row="1">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <Label v-for="instruction in step.instructions" :key="instruction" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
+                        <Label
+                            v-for="instruction in step.instructions"
+                            :key="instruction"
+                            class="instruction"
+                            :text="instruction"
+                            lineHeight="4"
+                            textWrap="true"
+                        ></Label>
 
                         <!-- module list -->
                         <StackLayout class="m-t-10"></StackLayout>
                         <GridLayout rows="auto" columns="*" class="m-t-10 m-x-20" v-for="(m, moduleIndex) in modules" :key="m.id">
-                            <StackLayout class="bordered-container p-10" @tap="goToCalibration(m)">
-                                <GridLayout rows="auto, auto" columns="15*,70*,15*">
-                                    <!-- module icon -->
-                                    <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
-                                    <!-- module name -->
-                                    <Label
-                                        row="0"
-                                        col="1"
-                                        :rowSpan="m.calibratedLabel ? '1' : '2'"
-                                        :text="getModuleName(m)"
-                                        verticalAlignment="middle"
-                                        class="size-18"
-                                        textWrap="true"
-                                    />
-                                    <!-- calibration status -->
-                                    <Label row="1" col="1" :text="m.calibratedLabel" :class="'size-14 ' + m.calibratedClass" />
-                                    <!-- calibration check mark -->
-                                    <Image rowSpan="2" col="2" width="20" horizontalAlignment="right" :src="m.calibratedImage"></Image>
-                                </GridLayout>
-                            </StackLayout>
+                            <template v-if="!m.internal">
+                                <StackLayout class="bordered-container p-10" @tap="goToCalibration(m)">
+                                    <GridLayout rows="auto, auto" columns="15*,70*,15*">
+                                        <!-- module icon -->
+                                        <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
+                                        <!-- module name -->
+                                        <Label
+                                            row="0"
+                                            col="1"
+                                            :rowSpan="m.calibratedLabel ? '1' : '2'"
+                                            :text="getModuleName(m)"
+                                            verticalAlignment="middle"
+                                            class="size-18"
+                                            textWrap="true"
+                                        />
+                                        <!-- calibration status -->
+                                        <Label row="1" col="1" :text="m.calibratedLabel" :class="'size-14 ' + m.calibratedClass" />
+                                        <!-- calibration check mark -->
+                                        <Image rowSpan="2" col="2" width="20" horizontalAlignment="right" :src="m.calibratedImage"></Image>
+                                    </GridLayout>
+                                </StackLayout>
+                            </template>
                         </GridLayout>
                         <!-- end module list -->
                     </StackLayout>
@@ -52,7 +61,12 @@
 
             <!-- sticky next button -->
             <StackLayout row="2" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="step.button" :isEnabled="!step.buttonDisabled" @tap="goToStations"></Button>
+                <Button
+                    class="btn btn-primary btn-padded m-y-10"
+                    :text="step.button"
+                    :isEnabled="!step.buttonDisabled"
+                    @tap="goToStations"
+                ></Button>
                 <Label :text="step.altOption" class="skip" @tap="goToStations" textWrap="true" />
             </StackLayout>
             <!-- end sticky next button -->
@@ -154,7 +168,7 @@ export default {
         },
 
         assessCalibration() {
-            const toCalibrate = this.modules.filter(m => {
+            const toCalibrate = this.modules.filter((m) => {
                 return !m.calibratedLabel || m.calibratedLabel == _L("uncalibrated");
             });
             if (toCalibrate.length == 0) {
@@ -203,27 +217,32 @@ export default {
             }
 
             this.sensorsChecked = 0;
-            this.totalSensors = _.sumBy(this.modules, m => {
+            this.totalSensors = _.sumBy(this.modules, (m) => {
                 return m.sensors.length;
             });
             this.modules.forEach((m, i) => {
                 m.calibratedLabel = null;
                 m.calibratedClass = "gray-text";
                 m.calibratedImage = "";
-                m.sensors.forEach(s => {
+                m.sensors.forEach((s) => {
                     this.checkCalibrationStatus(m, i, s);
                 });
             });
         },
 
         checkCalibrationStatus(m, i, s) {
-            if ((m.position || m.position == 0) && this.station.url && !this.pending[m.position] && sensorsThatCalibrate.indexOf(s.name) > -1) {
+            if (
+                (m.position || m.position == 0) &&
+                this.station.url &&
+                !this.pending[m.position] &&
+                sensorsThatCalibrate.indexOf(s.name) > -1
+            ) {
                 m.calibrateSensor = s.name;
                 // keep track so many requests aren't sent at once
                 this.pending[m.position] = true;
                 const connectView = this;
                 setTimeout(() => {
-                    calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then(result => {
+                    calibrationService.getCalibrationStatus(this.station.url + "/module/" + m.position).then((result) => {
                         connectView.sensorsChecked += 1;
                         connectView.handleCalibrationResult(result, m, s.name);
                     });

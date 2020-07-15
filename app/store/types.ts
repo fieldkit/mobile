@@ -15,13 +15,18 @@ export class Sensor {
 }
 
 export class Module {
+    public readonly internal: boolean;
+
     constructor(
         public readonly id: number | null,
         public readonly name: string,
         public readonly position: number,
         public readonly moduleId: string,
+        public readonly flags: number,
         public readonly sensors: Sensor[]
-    ) {}
+    ) {
+        this.internal = flags > 0;
+    }
 }
 
 export enum FileType {
