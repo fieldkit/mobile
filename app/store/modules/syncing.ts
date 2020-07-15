@@ -220,7 +220,7 @@ export class StationSyncStatus {
     }
 
     public get readingsReady(): number {
-        return (this.readingsIncoming || this.readingsOutgoing || 1) - 1;
+        return this.readingsIncoming || this.readingsOutgoing;
     }
 
     public getPathsToUpload(): string[] {
@@ -355,8 +355,6 @@ const mutations = {
             const connected = state.connected[station.deviceId] || null;
             const lastSeen = station.lastSeen;
             const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
-
-            console.log("LOCATION", station.location);
 
             const downloads = station.streams
                 .map((stream) => {

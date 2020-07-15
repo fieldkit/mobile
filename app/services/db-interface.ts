@@ -689,6 +689,7 @@ export default class DatabaseInterface {
                         download.stationId,
                         download.type,
                     ];
+                    console.log("downloaded", download.firstBlock, download.lastBlock);
                     return db.execute(
                         `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
 							                download_first_block = MIN(COALESCE(download_first_block, 0xffffffff), ?),
