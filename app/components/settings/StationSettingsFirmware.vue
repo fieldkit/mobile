@@ -24,13 +24,13 @@
                             :text="_L('firmwareNumber') + ': ' + availableFirmware.simpleNumber"
                             class="size-15 m-x-15 m-b-20"
                             textWrap="true"
-                            v-if="availableFirmware"
+                            v-if="availableFirmware && availableFirmware.simpleNumber"
                         />
                         <Label
                             :text="_L('firmwareNumber') + ': --'"
                             class="size-15 m-x-15 m-b-20"
                             textWrap="true"
-                            v-if="!availableFirmware"
+                            v-if="!availableFirmware || !availableFirmware.simpleNumber"
                         />
 
                         <Button
