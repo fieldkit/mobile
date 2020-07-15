@@ -96,7 +96,7 @@ export default {
             const locally = this.$store.state.firmware.available;
             console.log("comparing", "station", station, "locally", locally);
             if (station && locally) {
-                return Number(station) > Number(locally);
+                return Number(locally) > Number(station);
             }
             return true;
         },
