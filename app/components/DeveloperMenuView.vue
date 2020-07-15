@@ -90,7 +90,7 @@ export default {
 
             Services.Database()
                 .getConfig()
-                .then(result => {
+                .then((result) => {
                     if (result.length == 0) {
                         console.log("DeveloperMenuView did not get config from db. Using config.js", Config);
                         this.config = Config;
@@ -98,7 +98,7 @@ export default {
                         this.config = result[0];
                     }
                     const baseUri = this.config.baseUri;
-                    this.currentEnv = this.environments.findIndex(env => {
+                    this.currentEnv = this.environments.findIndex((env) => {
                         return env.uri == baseUri;
                     });
                     if (this.currentEnv == -1) {
@@ -108,7 +108,7 @@ export default {
                         });
                         this.currentEnv = this.environments.length - 1;
                     }
-                    this.environmentLabels = this.environments.map(env => {
+                    this.environmentLabels = this.environments.map((env) => {
                         return env.label;
                     });
                 });
@@ -152,7 +152,7 @@ export default {
                     },
                     fullscreen: true,
                 };
-                this.$showModal(StationPicker, options).then(station => {
+                this.$showModal(StationPicker, options).then((station) => {
                     if (station) {
                         this.$navigateTo(Recalibrate, {
                             props: {
@@ -177,7 +177,7 @@ export default {
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("no"),
                 })
-                .then(result => {
+                .then((result) => {
                     if (result) {
                         // navigate to onboarding
                         this.$navigateTo(routes.assembleStation);
@@ -224,7 +224,7 @@ export default {
             const downloadsFolder = rootFolder.getFolder("downloads");
 
             return Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), downloadsFolder.clear(), oldDataFolder.clear()])
-                .catch(res => {
+                .catch((res) => {
                     console.log("error removing files", res, res ? res.stack : null);
 
                     alert({
@@ -233,14 +233,14 @@ export default {
                         okButtonText: _L("ok"),
                     });
                 })
-                .then(res => {
+                .then((res) => {
                     return listAllFiles(rootFolder);
                 })
-                .then(after => {
+                .then((after) => {
                     console.log(
                         "files deleted",
                         _(after)
-                            .map(f => f.path)
+                            .map((f) => f.path)
                             .value()
                     );
 
@@ -267,7 +267,7 @@ export default {
                     },
                 })
                 .then(
-                    result => {
+                    (result) => {
                         // console.log("--- scanned: " + result.text);
                         // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
                         setTimeout(() => {
@@ -278,7 +278,7 @@ export default {
                             });
                         }, 200);
                     },
-                    errorMessage => {
+                    (errorMessage) => {
                         // console.log("No scan. " + errorMessage);
                     }
                 );
