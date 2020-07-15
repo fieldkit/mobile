@@ -468,9 +468,9 @@ export default class DatabaseInterface {
             ),
             Promise.all(
                 removed.map((moduleId) =>
-                    db.query("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id]).then(() => {
-                        db.query("DELETE FROM modules WHERE id = ?", [existing[moduleId].id]);
-                    })
+                    db
+                        .query("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id])
+                        .then(() => db.query("DELETE FROM modules WHERE id = ?", [existing[moduleId].id]))
                 )
             ),
             Promise.all(
