@@ -44,12 +44,12 @@ class NetworkMonitor {
             return services
                 .Conservify()
                 .findConnectedNetwork()
-                .then(status => {
+                .then((status) => {
                     this._store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi);
                 });
         }, 10000);
 
-        Connectivity.startMonitoring(newType => {
+        Connectivity.startMonitoring((newType) => {
             try {
                 log.info(newType);
             } catch (e) {
@@ -64,7 +64,7 @@ class NetworkMonitor {
             .QueryStation()
             .getStatus("http://" + ip + "/fk/v1")
             .then(
-                status => {
+                (status) => {
                     console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
                     this._services.DiscoverStation().onFoundService({
                         type: "_fk._tcp",
@@ -125,8 +125,8 @@ export default class DiscoverStation {
 
     private watchFakePreconfiguredDiscoveries() {
         if (Config.discover && Config.discover.enabled) {
-            every(10000).on(BetterObservable.propertyChangeEvent, data => {
-                Config.discover.stations.forEach(fake => {
+            every(10000).on(BetterObservable.propertyChangeEvent, (data) => {
+                Config.discover.stations.forEach((fake) => {
                     this.onFoundService(new FoundService("_fk._tcp", fake.deviceId, fake.address, fake.port));
                 });
             });
