@@ -2,7 +2,12 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout :rows="currentStation.connected ? '78,*,80' : '105,*,80'">
             <StackLayout row="0">
-                <ScreenHeader :title="_L('deploymentReview')" :subtitle="currentStation.name" :onBack="goBack" :canNavigateSettings="false" />
+                <ScreenHeader
+                    :title="_L('deploymentReview')"
+                    :subtitle="currentStation.name"
+                    :onBack="goBack"
+                    :canNavigateSettings="false"
+                />
                 <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
@@ -32,13 +37,19 @@
                         <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
                         <Label :text="_L('basic')" />
                         <Label :text="_L('every')" class="m-t-20 m-b-5" />
-                        <Label :text="currentStation.interval | prettyDuration" />
+                        <Label :text="currentStation.interval | prettyDurationSeconds" />
                     </StackLayout>
 
                     <StackLayout class="review-section-no-border">
                         <GridLayout rows="auto" columns="30*,60*,10*" class="m-b-10">
                             <Label row="0" col="0" :text="_L('fieldNotes')" class="size-16 bold" />
-                            <Label row="0" col="1" :text="notes.completed + '% ' + _L('complete')" class="size-12 blue" verticalAlignment="bottom" />
+                            <Label
+                                row="0"
+                                col="1"
+                                :text="notes.completed + '% ' + _L('complete')"
+                                class="size-12 blue"
+                                verticalAlignment="bottom"
+                            />
                             <Image row="0" col="2" src="~/images/Icon_Edit.png" width="18" @tap="editNotes" />
                         </GridLayout>
                         <StackLayout v-for="(note, index) in notes.form.notes" :key="index">
@@ -85,7 +96,7 @@
                     :text="currentStation.connected ? _L('record') : _L('mustBeConnectedToRecord')"
                     :isEnabled="currentStation.connected"
                     textWrap="true"
-                    @tap="ev => deployStation(ev, currentStation)"
+                    @tap="(ev) => deployStation(ev, currentStation)"
                 />
             </StackLayout>
         </GridLayout>
@@ -126,6 +137,8 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
+
+            console.log("STATION", this.$store.getters.legacyStations[this.stationId]);
         },
         goBack(ev) {
             return Promise.all([

@@ -32,21 +32,26 @@ function configureVueJs(services) {
         },
     });
 
-    Vue.filter("prettyTime", value => {
+    Vue.filter("prettyTime", (value) => {
         if (!value) {
             return "N/A";
         }
         return moment(value).format("MM/DD/YYYY hh:mm:ss");
     });
 
-    Vue.filter("prettyDate", value => {
+    Vue.filter("prettyDate", (value) => {
         if (!value) {
             return "N/A";
         }
         return moment(value).format("MM/DD/YYYY");
     });
 
-    Vue.filter("prettyDuration", value => {
+    Vue.filter("prettyDurationSeconds", (value) => {
+        const duration = moment.duration(value, "seconds");
+        return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+    });
+
+    Vue.filter("prettyDuration", (value) => {
         const duration = moment.duration(value / 1000, "seconds");
         return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
     });
@@ -89,7 +94,7 @@ function startVueJs(services) {
 
     new Vue({
         store,
-        render: h => h(ApplicationWrapper),
+        render: (h) => h(ApplicationWrapper),
     }).$start();
 }
 
