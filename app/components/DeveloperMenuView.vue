@@ -135,7 +135,11 @@ export default {
                 ingestionUri: baseUri + "/ingestion",
                 id: this.config.id,
             };
-            Services.Database().updateConfigUris(params);
+            return Services.Database()
+                .updateConfigUris(params)
+                .then(() => {
+                    return Services.PortalInterface().logout();
+                });
         },
         resetCalibration() {
             const stations = this.$store.stations.all;
