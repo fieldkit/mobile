@@ -94,12 +94,24 @@ export enum SyncState {
 }
 
 export class StationSyncStatus {
+    public connecting: boolean = false;
+    public disconnected: boolean = false;
+
+    /**
+     * A little convulated and can be replaced later, just wanna be
+     * sure we're catching all the situations and seeing this broken down is
+     * nice.
+     */
+    public get connected(): boolean {
+        return (this.wasConnected || this.connecting) && !this.disconnected;
+    }
+
     constructor(
         public readonly id: number,
         public readonly deviceId: string,
         private readonly generationId: string,
         public readonly name: string,
-        public readonly connected: boolean,
+        public readonly wasConnected: boolean,
         public readonly lastSeen: Date,
         public readonly time: Date,
         private readonly downloaded: number,
@@ -398,9 +410,21 @@ const mutations = {
     },
     [MutationTypes.FIND]: (state: SyncingState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, info);
+        state.syncs
+            .filter((sync) => sync.deviceId === info.deviceId)
+            .forEach((sync) => {
+                sync.connecting = true;
+                sync.disconnected = false;
+            });
     },
     [MutationTypes.LOSE]: (state: SyncingState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, null);
+        state.syncs
+            .filter((sync) => sync.deviceId === info.deviceId)
+            .forEach((sync) => {
+                sync.connecting = false;
+                sync.disconnected = true;
+            });
     },
     [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressPayload) => {
         Vue.set(state.progress, payload.deviceId, new StationProgress(payload.deviceId, payload.downloading, payload.totalBytes));

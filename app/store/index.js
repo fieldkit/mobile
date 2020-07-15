@@ -25,7 +25,7 @@ function customizeLogger() {
             }
             if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {
                 console.log("mutation:", mutation.type, mutation.payload);
-                return false;
+                return true;
             }
             if (mutation.type == MutationTypes.STATION_ACTIVITY || mutation.type == MutationTypes.STATION_QUERIED) {
                 console.log("mutation:", mutation.type, mutation.payload);
@@ -80,10 +80,7 @@ function customizeLogger() {
                 nearby,
                 map,
                 network,
-                syncing: {
-                    downloads: syncing.downloads,
-                    progress: syncing.progress,
-                },
+                syncing: syncing,
                 firmware,
                 media,
                 notes: {
