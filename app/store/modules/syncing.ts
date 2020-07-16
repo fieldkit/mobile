@@ -102,6 +102,12 @@ export enum SyncState {
     Complete,
 }
 
+export enum TransferError {
+    None,
+    Authentication,
+    Other,
+}
+
 export class StationSyncStatus {
     public connecting: boolean = false;
     public disconnected: boolean = false;
@@ -128,6 +134,7 @@ export class StationSyncStatus {
         public readonly downloads: PendingDownload[] = [],
         public readonly uploads: PendingUpload[] = [],
         public readonly location: string | null = null,
+        public readonly error: TransferError = TransferError.None,
         public readonly progress: StationProgress | null = null
     ) {}
 
@@ -145,6 +152,7 @@ export class StationSyncStatus {
             this.downloads,
             this.uploads,
             this.location,
+            this.error,
             progress
         );
     }
@@ -175,6 +183,10 @@ export class StationSyncStatus {
             return SyncState.UploadReady;
         }
         return SyncState.Complete;
+    }
+
+    public get hasError(): boolean {
+        return this.error !== TransferError.None;
     }
 
     public get onAP(): boolean {
@@ -264,6 +276,7 @@ export class SyncingState {
     pending: { [index: string]: Download } = {};
     connected: { [index: string]: ServiceInfo } = {};
     stations: Station[] = [];
+    errors: { [index: string]: TransferError } = {};
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
@@ -287,6 +300,7 @@ const actions = {
                 })
                 .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
                 .catch((error) => {
+                    Vue.set(state.errors, sync.deviceId, TransferError.Other);
                     console.log("error downloading", error, error ? error.stack : null);
                     return Promise.reject(error);
                 });
@@ -320,6 +334,7 @@ const actions = {
                 })
                 .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
                 .catch((error) => {
+                    Vue.set(state.errors, sync.deviceId, TransferError.Other);
                     console.log("error uploading", error, error ? error.stack : null);
                     return Promise.reject(error);
                 });
@@ -403,6 +418,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
             downloads,
             uploads,
             station.locationString(),
+            state.errors[station.deviceId] || TransferError.None,
             null
         );
     });
@@ -449,6 +465,7 @@ const mutations = {
             });
     },
     [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressPayload) => {
+        Vue.set(state.errors, payload.deviceId, TransferError.None);
         Vue.set(state.progress, payload.deviceId, new StationProgress(payload.deviceId, payload.downloading, payload.totalBytes));
         Vue.set(state, "syncs", makeStationSyncs(state));
     },

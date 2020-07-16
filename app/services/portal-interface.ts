@@ -7,6 +7,12 @@ import Config from "../config";
 
 type ProgressFunc = (total: number, copied: number, info: object) => void;
 
+export class ApiUnexpectedStatus extends Error {
+    constructor(message) {
+        super(message);
+    }
+}
+
 export default class PortalInterface {
     _services: any;
     _dbInterface: any;
@@ -410,7 +416,7 @@ export default class PortalInterface {
                 })
                 .then((response) => {
                     if (response.statusCode != 200) {
-                        return Promise.reject(response);
+                        return Promise.reject(new ApiUnexpectedStatus(`unexpected status: ${response.statusCode}`));
                     }
                     return response;
                 })

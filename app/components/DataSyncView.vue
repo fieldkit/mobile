@@ -26,12 +26,27 @@
                                     </template>
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="25" src="~/images/Icon_Cheveron_Up.png" @tap="onToggle(sync)" v-show="opened(sync)"></Image>
-                                    <Image width="25" src="~/images/Icon_Cheveron_Down.png" @tap="onToggle(sync)" v-show="!opened(sync)"></Image>
+                                    <Image
+                                        width="25"
+                                        src="~/images/Icon_Cheveron_Up.png"
+                                        @tap="onToggle(sync)"
+                                        v-show="opened(sync)"
+                                    ></Image>
+                                    <Image
+                                        width="25"
+                                        src="~/images/Icon_Cheveron_Down.png"
+                                        @tap="onToggle(sync)"
+                                        v-show="!opened(sync)"
+                                    ></Image>
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isDownloadReady">
+                            <GridLayout
+                                rows="auto"
+                                columns="70*, 30*"
+                                class="transfer-container"
+                                v-if="opened(sync) && sync.isDownloadReady"
+                            >
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
@@ -44,8 +59,16 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isDownloaded">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label :text="sync.readingsDownloaded + ' Readings'" class="readings-label" v-if="sync.readingsDownloaded > 1" />
-                                    <Label :text="sync.readingsDownloaded + ' Reading'" class="readings-label" v-if="sync.readingsDownloaded == 1" />
+                                    <Label
+                                        :text="sync.readingsDownloaded + ' Readings'"
+                                        class="readings-label"
+                                        v-if="sync.readingsDownloaded > 1"
+                                    />
+                                    <Label
+                                        :text="sync.readingsDownloaded + ' Reading'"
+                                        class="readings-label"
+                                        v-if="sync.readingsDownloaded == 1"
+                                    />
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
@@ -79,12 +102,26 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isComplete">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
-                                    <Label :text="sync.readingsUploaded + ' Readings'" class="readings-label" v-if="sync.readingsUploaded > 1" />
-                                    <Label :text="sync.readingsUploaded + ' Reading'" class="readings-label" v-if="sync.readingsUploaded == 1" />
+                                    <Label
+                                        :text="sync.readingsUploaded + ' Readings'"
+                                        class="readings-label"
+                                        v-if="sync.readingsUploaded > 1"
+                                    />
+                                    <Label
+                                        :text="sync.readingsUploaded + ' Reading'"
+                                        class="readings-label"
+                                        v-if="sync.readingsUploaded == 1"
+                                    />
                                     <Label text="Synced" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
                                     <Image width="20" src="~/images/Icon_Success.png"></Image>
+                                </StackLayout>
+                            </GridLayout>
+
+                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.hasError">
+                                <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
+                                    <Label text="An error occurred! Oh no!" class="error-label" />
                                 </StackLayout>
                             </GridLayout>
                         </StackLayout>
@@ -213,5 +250,7 @@ export default {
     font-size: 14;
     color: $fk-gray-text;
     padding-right: 10;
+}
+.error-label {
 }
 </style>
