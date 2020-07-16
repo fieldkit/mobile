@@ -263,6 +263,7 @@ export class SyncingState {
     progress: { [index: string]: StationProgress } = {};
     pending: { [index: string]: Download } = {};
     connected: { [index: string]: ServiceInfo } = {};
+    stations: Station[] = [];
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
@@ -338,6 +339,77 @@ const getters = {
     },
 };
 
+function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
+    const now = new Date();
+    const syncs = state.stations.map((station) => {
+        if (!station.id || !station.generationId || !station.name || !station.lastSeen) {
+            throw new Error("id, generationId, and name are required");
+        }
+
+        const connected = state.connected[station.deviceId] || null;
+        const lastSeen = station.lastSeen;
+        const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
+
+        const downloads = station.streams
+            .map((stream) => {
+                const firstBlock = stream.downloadLastBlock || 0;
+                const lastBlock = stream.deviceLastBlock;
+                const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
+                const typeName = FileTypeUtils.toString(stream.fileType());
+                const path = ["downloads", station.deviceId, getPathTimestamp(now)].join("/");
+                const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
+                const folder = state.services.fs().getFolder(path);
+                const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
+                const pending = new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes);
+                return pending;
+            })
+            .filter((dl) => dl.firstBlock != dl.lastBlock)
+            .filter((dl) => dl.fileType != FileType.Unknown)
+            .sort((a, b) => {
+                return a.fileType < b.fileType ? -1 : 1;
+            });
+
+        const uploads = station.streams
+            .map((stream) => {
+                const firstBlock = stream.portalLastBlock || 0;
+                const lastBlock = stream.downloadLastBlock || 0;
+                const estimatedBytes = (stream.downloadSize || 0) - (stream.portalSize || 0);
+                const files = station.downloads
+                    .filter((d) => d.fileType == stream.fileType())
+                    .filter((d) => !d.uploaded)
+                    .map((d) => new LocalFile(d.path, d.size));
+                const pending = new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files);
+                return pending;
+            })
+            .filter((dl) => dl.firstBlock != dl.lastBlock)
+            .filter((dl) => dl.fileType != FileType.Unknown)
+            .sort((a, b) => {
+                return a.fileType < b.fileType ? -1 : 1;
+            });
+
+        const downloaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
+        const uploaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
+
+        return new StationSyncStatus(
+            station.id,
+            station.deviceId,
+            station.generationId,
+            station.name,
+            connected !== null,
+            lastSeen,
+            now,
+            downloaded || 0,
+            uploaded || 0,
+            downloads,
+            uploads,
+            station.locationString(),
+            null
+        );
+    });
+
+    return StationSyncsSorter(syncs);
+}
+
 const mutations = {
     [MutationTypes.RESET]: (state: SyncingState, error: string) => {
         Object.assign(state, new SyncingState());
@@ -346,74 +418,8 @@ const mutations = {
         Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
-        const now = new Date();
-        const syncs = stations.map((station) => {
-            if (!station.id || !station.generationId || !station.name || !station.lastSeen) {
-                throw new Error("id, generationId, and name are required");
-            }
-
-            const connected = state.connected[station.deviceId] || null;
-            const lastSeen = station.lastSeen;
-            const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
-
-            const downloads = station.streams
-                .map((stream) => {
-                    const firstBlock = stream.downloadLastBlock || 0;
-                    const lastBlock = stream.deviceLastBlock;
-                    const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
-                    const typeName = FileTypeUtils.toString(stream.fileType());
-                    const path = ["downloads", station.deviceId, getPathTimestamp(now)].join("/");
-                    const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
-                    const folder = state.services.fs().getFolder(path);
-                    const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
-                    const pending = new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes);
-                    return pending;
-                })
-                .filter((dl) => dl.firstBlock != dl.lastBlock)
-                .filter((dl) => dl.fileType != FileType.Unknown)
-                .sort((a, b) => {
-                    return a.fileType < b.fileType ? -1 : 1;
-                });
-
-            const uploads = station.streams
-                .map((stream) => {
-                    const firstBlock = stream.portalLastBlock || 0;
-                    const lastBlock = stream.downloadLastBlock || 0;
-                    const estimatedBytes = (stream.downloadSize || 0) - (stream.portalSize || 0);
-                    const files = station.downloads
-                        .filter((d) => d.fileType == stream.fileType())
-                        .filter((d) => !d.uploaded)
-                        .map((d) => new LocalFile(d.path, d.size));
-                    const pending = new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files);
-                    return pending;
-                })
-                .filter((dl) => dl.firstBlock != dl.lastBlock)
-                .filter((dl) => dl.fileType != FileType.Unknown)
-                .sort((a, b) => {
-                    return a.fileType < b.fileType ? -1 : 1;
-                });
-
-            const downloaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
-            const uploaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
-
-            return new StationSyncStatus(
-                station.id,
-                station.deviceId,
-                station.generationId,
-                station.name,
-                connected !== null,
-                lastSeen,
-                now,
-                downloaded || 0,
-                uploaded || 0,
-                downloads,
-                uploads,
-                station.locationString(),
-                null
-            );
-        });
-
-        Vue.set(state, "syncs", StationSyncsSorter(syncs));
+        Vue.set(state, "stations", stations);
+        Vue.set(state, "syncs", makeStationSyncs(state));
 
         const pending = _(stations)
             .map((s) => s.downloads)
@@ -444,13 +450,16 @@ const mutations = {
     },
     [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressPayload) => {
         Vue.set(state.progress, payload.deviceId, new StationProgress(payload.deviceId, payload.downloading, payload.totalBytes));
+        Vue.set(state, "syncs", makeStationSyncs(state));
     },
     [MutationTypes.TRANSFER_PROGRESS]: (state: SyncingState, progress: TransferProgress) => {
         const before = state.progress[progress.deviceId];
         Vue.set(state.progress, progress.deviceId, before.include(progress));
+        Vue.set(state, "syncs", makeStationSyncs(state));
     },
     [MutationTypes.TRANSFER_CLOSE]: (state: SyncingState, deviceId: string) => {
         delete state.progress[deviceId];
+        Vue.set(state, "syncs", makeStationSyncs(state));
     },
 };
 
