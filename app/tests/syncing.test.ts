@@ -9,7 +9,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
 import { FileTypeUtils, FileType } from "../store/types";
-import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile } from "../store/modules/syncing";
+import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError } from "../store/modules/syncing";
 
 describe("Syncing", () => {
     let services;
@@ -195,7 +195,9 @@ describe("Syncing", () => {
                             68900
                         ),
                     ],
-                    []
+                    [],
+                    null,
+                    TransferError.Other
                 ),
             ]);
         });
