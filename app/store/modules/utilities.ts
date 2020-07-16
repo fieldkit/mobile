@@ -1,9 +1,13 @@
+import PortalInterface from "../../services/portal-interface";
+import PortalUpdater from "../../services/portal-updater";
+
 export interface Services {
     Database(): any;
     QueryStation(): any;
     LegacyHooks(): any;
     FileSystem(): any;
-    PortalInterface(): any;
+    PortalInterface(): PortalInterface;
+    PortalUpdater(): PortalUpdater;
     StationFirmware(): any;
     Audio(): any;
     Images(): any;
@@ -28,6 +32,10 @@ export class ServiceRef {
 
     public portal(): any {
         return this.verify().PortalInterface();
+    }
+
+    public updater(): any {
+        return this.verify().PortalUpdater();
     }
 
     public audio(): any {

@@ -141,7 +141,19 @@ export default class DatabaseInterface {
     public getConfig() {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM config"))
-            .then((rows) => sqliteToJs(rows));
+            .then((rows) => sqliteToJs(rows))
+            .then((rows) => {
+                if (Config.env.jacob) {
+                    return [
+                        {
+                            baseUri: Config.baseUri,
+                            ingestionUri: Config.ingestionUri,
+                        },
+                    ];
+                }
+
+                return rows;
+            });
     }
 
     public updateConfigUris(config) {

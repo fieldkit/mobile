@@ -123,6 +123,15 @@ const actions = {
 
         return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
     },
+    [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
+        return state.services
+            .updater()
+            .addOrUpdateStations()
+            .catch((error) => {
+                // Don't let this error prevent authentication.
+                return {};
+            });
+    },
 };
 
 const mutations = {
