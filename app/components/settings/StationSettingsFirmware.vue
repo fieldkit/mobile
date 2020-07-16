@@ -65,6 +65,7 @@ import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal";
 import ConnectionNote from "./StationSettingsConnectionNote";
+import * as animations from "../animations";
 
 export default {
     components: {
@@ -126,25 +127,21 @@ export default {
             };
             return this.$showModal(UpgradeFirmwareModal, options);
         },
-        goBack(event) {
-            // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            return this.$navigateTo(routes.stationSettings, {
-                props: {
-                    station: this.station,
-                    stationId: this.station.id,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+        goBack(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationSettings, {
+                    props: {
+                        station: this.station,
+                        stationId: this.station.id,
+                    },
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear",
+                    },
+                }),
+            ]);
         },
     },
 };

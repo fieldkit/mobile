@@ -25,7 +25,7 @@ export default class StationFirmware {
             60,
             () => {
                 console.log("firmware check: allowed");
-                return this.downloadFirmware(() => {}, false).catch(error => {
+                return this.downloadFirmware(() => {}, false).catch((error) => {
                     console.log("firmware error", error);
                 });
             },
@@ -41,12 +41,12 @@ export default class StationFirmware {
         return this.services
             .PortalInterface()
             .listFirmware("fk-core")
-            .then(firmware => {
+            .then((firmware) => {
                 log.info(
                     "firmwares",
-                    _.map(firmware.firmwares, fw => fw.id)
+                    _.map(firmware.firmwares, (fw) => fw.id)
                 );
-                return firmware.firmwares.map(f => {
+                return firmware.firmwares.map((f) => {
                     const local = this.services
                         .FileSystem()
                         .getFolder("firmware")
@@ -57,13 +57,13 @@ export default class StationFirmware {
                     });
                 });
             })
-            .then(firmwares => {
+            .then((firmwares) => {
                 if (!firmwares || firmwares.length == 0) {
                     log.info("no firmware to download");
                     return;
                 }
 
-                return serializePromiseChain(firmwares, firmware => {
+                return serializePromiseChain(firmwares, (firmware) => {
                     return this.services.Database().addOrUpdateFirmware(firmware);
                 })
                     .then(() => {
@@ -71,12 +71,12 @@ export default class StationFirmware {
                         if (!local.exists || local.size == 0 || force === true) {
                             log.info("downloading", firmwares[0]);
 
-                            const downloadProgress = transformProgress(progressCallback, p => p);
+                            const downloadProgress = transformProgress(progressCallback, (p) => p);
 
                             return this.services
                                 .PortalInterface()
                                 .downloadFirmware(firmwares[0].url, firmwares[0].path, downloadProgress)
-                                .catch(err => {
+                                .catch((err) => {
                                     log.error("downloading error:", err);
                                 })
                                 .then(() => {
@@ -94,14 +94,14 @@ export default class StationFirmware {
                         return firmwares;
                     });
             })
-            .then(firmwares => {
+            .then((firmwares) => {
                 const ids = _(firmwares).map("id").value();
                 return this.services
                     .Database()
                     .deleteAllFirmwareExceptIds(ids)
-                    .then(deleted => {
+                    .then((deleted) => {
                         console.log("deleted", deleted);
-                        return Promise.all(deleted.map(fw => this._deleteFirmware(fw)));
+                        return Promise.all(deleted.map((fw) => this._deleteFirmware(fw)));
                     });
             });
     }
@@ -119,10 +119,10 @@ export default class StationFirmware {
         return this.services
             .Database()
             .getAllFirmware()
-            .then(firmware => {
+            .then((firmware) => {
                 return _(firmware)
                     .tail()
-                    .map(fw => this._deleteFirmware(fw))
+                    .map((fw) => this._deleteFirmware(fw))
                     .value();
             });
     }
@@ -130,24 +130,19 @@ export default class StationFirmware {
     upgradeStation(url, progressCallback) {
         log.info("upgrade", url);
 
-        return this.haveFirmware().then(yes => {
+        return this.haveFirmware().then((yes) => {
             if (!yes) {
                 return Promise.reject(new Error("missingFirmware"));
             }
             return this.services
-                .StationMonitor()
-                .getKnownStations()
-                .then(knownStations => {
-                    return this.services
-                        .Database()
-                        .getLatestFirmware()
-                        .then(firmware => {
-                            log.info("firmware", firmware);
+                .Database()
+                .getLatestFirmware()
+                .then((firmware) => {
+                    log.info("firmware", firmware);
 
-                            const uploadProgress = transformProgress(progressCallback, p => p);
+                    const uploadProgress = transformProgress(progressCallback, (p) => p);
 
-                            return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
-                        });
+                    return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
                 });
         });
     }
@@ -156,7 +151,7 @@ export default class StationFirmware {
         return this.services
             .Database()
             .getLatestFirmware()
-            .then(firmware => {
+            .then((firmware) => {
                 if (!firmware) {
                     return false;
                 }
