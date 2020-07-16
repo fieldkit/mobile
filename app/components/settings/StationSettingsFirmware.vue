@@ -92,13 +92,16 @@ export default {
             return this.$store.state.firmware.available;
         },
         updateAvailable() {
+            const local = this.$store.state.firmware.available;
             const station = this.$store.state.firmware.stations[this.stationId];
-            const locally = this.$store.state.firmware.available;
-            console.log("comparing", "station", station, "locally", locally);
-            if (station && locally) {
-                return Number(locally) > Number(station);
+            console.log("comparing", "station", station, "locally", local);
+            if (local && station) {
+                const localVersion = local?.simpleNumber || 0;
+                const stationVersion = station?.simpleNumber || 0;
+                console.log("comparing", "station", stationVersion, "locally", localVersion);
+                return Number(localVersion) > Number(stationVersion);
             }
-            return true;
+            return false;
         },
     },
     methods: {
