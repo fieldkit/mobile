@@ -67,13 +67,16 @@ export class Notes {
 
     constructor(public readonly stationId: number, public readonly createdAt: Date, public readonly updatedAt: Date) {}
 
-    public get completed(): number {
-        return 0;
+    public get completed(): string {
+        const notes = [this.form.studyObjective, this.form.sitePurpose, this.form.siteCriteria, this.form.siteDescription];
+        const total = notes.length + 1;
+        const done = notes.filter((n) => n.body.length > 0).length + this.form.photos.length > 0 ? 1 : 0;
+        const percentage = (done / total) * 100;
+        return percentage.toFixed(0);
     }
 
     public allMedia(): NoteMedia[] {
         const allNotes = [this.form.studyObjective, this.form.sitePurpose, this.form.siteCriteria, this.form.siteDescription];
-
         const notesAudio = _.flatten(allNotes.map((n) => n.audio));
         const notesPhotos = _.flatten(allNotes.map((n) => n.photos));
         return [...this.form.photos, ...notesPhotos, ...notesAudio];
