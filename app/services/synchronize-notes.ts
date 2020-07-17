@@ -1,35 +1,47 @@
 import _ from "lodash";
+import * as ActionTypes from "../store/actions";
 import { Store } from "../store/types";
 import PortalInterface from "./portal-interface";
 import { Notes } from "../store/modules/notes";
 import { serializePromiseChain } from "../utilities";
 
-export default class SynchronizeNotes {
-    private portal: PortalInterface;
-    private store: Store;
+class MergedNotes {
+    constructor(public readonly patch: PatchPortalNotes, public readonly mobile: Notes) {}
+}
 
-    constructor(portal, store) {
+export default class SynchronizeNotes {
+    constructor(private readonly portal: PortalInterface, private readonly store: Store) {
         this.portal = portal;
         this.store = store;
     }
 
     public synchronize(ids: Ids) {
         return this.portal.getStationNotes(ids.portal).then((portalNotes: PortalStationNotesReply) => {
-            const mobileNotes = this.store.state.notes.stations[ids.mobile];
+            const mobileNotes = this.store.state.notes.stations[ids.mobile] || new Notes(ids.mobile, new Date(), new Date());
 
             return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
                 console.log("uploaded", resolvedMedia);
 
-                const payload = this.merge(portalNotes, mobileNotes, resolvedMedia);
-                console.log("payload", ids, payload);
+                const merged = this.merge(portalNotes, mobileNotes, resolvedMedia);
+                const patch = merged.patch;
 
-                if (payload.creating.length == 0 && payload.notes.length == 0) {
-                    return [];
-                }
-
-                return this.portal.updateStationNotes(ids.portal, payload);
+                return this.patchPortal(ids, patch).then((reply) => {
+                    if (merged.mobile.modified) {
+                        console.log("mobile notes modified");
+                        return this.store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: ids.mobile, form: merged.mobile.form });
+                    }
+                    return Promise.resolve();
+                });
             });
         });
+    }
+
+    private patchPortal(ids: Ids, patch: PatchPortalNotes) {
+        console.log("patching", ids, patch);
+        if (patch.creating.length == 0 && patch.notes.length == 0) {
+            return Promise.resolve();
+        }
+        return this.portal.updateStationNotes(ids.portal, patch);
     }
 
     private getFileName(path: string): string {
@@ -40,7 +52,7 @@ export default class SynchronizeNotes {
         return name;
     }
 
-    public media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
+    private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
         const allPortalMedia = [...portalNotes.media, ..._.flatten(portalNotes.notes.map((n) => n.media))];
         const portalByKey = _.keyBy(allPortalMedia, (m) => m.key);
 
@@ -70,7 +82,7 @@ export default class SynchronizeNotes {
         });
     }
 
-    private merge(portalNotes: PortalStationNotesReply, mobileNotes: Notes, media: { [index: string]: number }) {
+    private merge(portalNotes: PortalStationNotesReply, mobileNotes: Notes, media: { [index: string]: number }): MergedNotes {
         const portalExisting = _.keyBy(portalNotes.notes, (n) => n.key);
         const localByKey = {
             studyObjective: mobileNotes.form.studyObjective,
@@ -86,6 +98,18 @@ export default class SynchronizeNotes {
                 const mediaIds = [...photoIds, ...audioIds];
 
                 if (portalExisting[key]) {
+                    const portalUpdatedAt = new Date(portalExisting[key].updatedAt);
+                    const localEmpty = value.body.length == 0;
+                    console.log("comparing", key, localEmpty, portalUpdatedAt, mobileNotes.updatedAt);
+                    if (localEmpty || portalUpdatedAt > mobileNotes.updatedAt) {
+                        mobileNotes.updateFromPortal(key, portalExisting[key].body);
+                        console.log("portal wins", key);
+                        return {
+                            creating: null,
+                            updating: null,
+                        };
+                    }
+                    console.log("mobile wins", key);
                     return {
                         creating: null,
                         updating: new ExistingFieldNote(portalExisting[key].id, key, value.body, mediaIds),
@@ -102,7 +126,7 @@ export default class SynchronizeNotes {
         const creating = modifications.map((v) => v.creating).filter((v) => v !== null && v.body.length > 0) as NewFieldNote[];
         const updating = modifications.map((v) => v.updating).filter((v) => v !== null) as ExistingFieldNote[];
 
-        return new PatchPortalNote(creating, updating);
+        return new MergedNotes(new PatchPortalNotes(creating, updating), mobileNotes);
     }
 }
 
@@ -126,6 +150,8 @@ export class Ids {
 export interface PortalStationNotes {
     id: number;
     createdAt: number;
+    updatedAt: number;
+    version: number;
     author: { id: number; name: number };
     key: string;
     body: string;
@@ -144,10 +170,10 @@ export interface PortalStationNotesReply {
     notes: PortalStationNotes[];
 }
 
-export class PatchPortalNote {
+export class PatchPortalNotes {
     constructor(public readonly creating: NewFieldNote[], public readonly notes: ExistingFieldNote[]) {}
 }
 
 export interface PortalPatchNotesPayload {
-    notes: PatchPortalNote[];
+    notes: PatchPortalNotes[];
 }

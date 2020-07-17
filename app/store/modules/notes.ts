@@ -40,10 +40,10 @@ export class NoteForm {
 }
 
 export class NotesForm {
-    public readonly studyObjective: NoteForm = new NoteForm(new NoteHelp(_L("studyObjective"), _L("studyObjectiveInstruction")));
-    public readonly sitePurpose: NoteForm = new NoteForm(new NoteHelp(_L("siteLocation"), _L("siteLocationInstruction")));
-    public readonly siteCriteria: NoteForm = new NoteForm(new NoteHelp(_L("siteCriteria"), _L("siteCriteriaInstruction")));
-    public readonly siteDescription: NoteForm = new NoteForm(new NoteHelp(_L("siteDescription"), _L("siteDescriptionInstruction")));
+    public studyObjective: NoteForm = new NoteForm(new NoteHelp(_L("studyObjective"), _L("studyObjectiveInstruction")));
+    public sitePurpose: NoteForm = new NoteForm(new NoteHelp(_L("siteLocation"), _L("siteLocationInstruction")));
+    public siteCriteria: NoteForm = new NoteForm(new NoteHelp(_L("siteCriteria"), _L("siteCriteriaInstruction")));
+    public siteDescription: NoteForm = new NoteForm(new NoteHelp(_L("siteDescription"), _L("siteDescriptionInstruction")));
 
     constructor(public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
 }
@@ -54,25 +54,18 @@ export class NotesState {
 
     public station(id: number): Notes {
         if (!this.stations[id]) {
-            Vue.set(this.stations, id, new Notes(id));
+            Vue.set(this.stations, id, new Notes(id, new Date(), new Date()));
         }
         return this.stations[id];
     }
 }
 
-export class Note {
-    constructor(
-        public readonly id: number,
-        public readonly body: string,
-        public readonly createdAt: Date,
-        public readonly media: NoteMedia[] = []
-    ) {}
-}
-
 export class Notes {
-    public readonly notes: Note[] = [];
+    public modified = false;
     public location: string = "";
     public form: NotesForm = new NotesForm();
+
+    constructor(public readonly stationId: number, public readonly createdAt: Date, public readonly updatedAt: Date) {}
 
     public get completed(): number {
         return 0;
@@ -86,10 +79,15 @@ export class Notes {
         return [...this.form.photos, ...notesPhotos, ...notesAudio];
     }
 
-    constructor(public readonly stationId: number) {}
+    public updateFromPortal(key: string, body: string) {
+        const oldNote: NoteForm = this.form[key];
+        const newNote = new NoteForm(oldNote.help, body, oldNote.photos, oldNote.audio);
+        this.form[key] = newNote;
+        this.modified = true;
+    }
 
     public static fromRow(row: NotesTableRow): Notes {
-        const n = new Notes(row.stationId);
+        const n = new Notes(row.stationId, new Date(row.createdAt), new Date(row.updatedAt));
         Object.assign(n, row.notesObject);
         return n;
     }

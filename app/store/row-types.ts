@@ -70,8 +70,8 @@ export interface DownloadTableRow {
 export interface NotesTableRow {
     id: number;
     stationId: number;
-    createdAt: number;
-    updatedAt: number;
+    createdAt: string;
+    updatedAt: string;
     notes: string;
     notesObject: object | null;
 }
