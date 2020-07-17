@@ -9,7 +9,12 @@
                             <GridLayout rows="auto" columns="70*, 30*">
                                 <StackLayout row="0" col="0">
                                     <Label :text="sync.name" textWrap="true" class="station-name"></Label>
-                                    <Label v-if="sync.location" :text="sync.location" textWrap="true" class="station-location"></Label>
+                                    <Label
+                                        v-if="sync.location"
+                                        :text="'Location: ' + sync.location"
+                                        textWrap="true"
+                                        class="station-location"
+                                    ></Label>
                                     <Label v-if="!sync.location" text="Unknown Location" class="station-location"></Label>
                                     <template v-if="!sync.connected">
                                         <StackLayout class="station-connection station-disconnected" orientation="horizontal">
