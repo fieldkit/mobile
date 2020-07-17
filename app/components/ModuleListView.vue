@@ -3,13 +3,9 @@
         <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in station.modules" :key="m.id">
             <template v-if="!m.internal">
                 <StackLayout class="bordered-container p-10 m-b-10">
-                    <!-- top row of module list -->
                     <GridLayout rows="auto" columns="15*,70*,15*">
-                        <!-- module icon -->
                         <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
-                        <!-- module name -->
                         <Label col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-18" textWrap="true" />
-                        <!-- toggle sensor container -->
                         <Image
                             col="2"
                             verticalAlignment="center"
@@ -20,7 +16,7 @@
                             @tap="toggleContainer"
                         ></Image>
                     </GridLayout>
-                    <!-- sensor container -->
+
                     <WrapLayout orientation="horizontal" class="m-t-5" v-if="closed.indexOf(m.id) < 0">
                         <Label :text="lastSeen()" width="100%" v-if="!station.connected" class="m-t-5 size-14 hint-color" />
                         <WrapLayout
@@ -30,28 +26,13 @@
                             class="sensor-block"
                             :opacity="station.connected ? 1 : 0.5"
                         >
-                            <!-- keep arrows, reading, and unit on same line -->
                             <FlexboxLayout>
-                                <!-- trend arrow -->
                                 <Image width="7" verticalAlignment="bottom" :src="getDisplayIcon(s)" class="trend-icon"></Image>
-                                <!-- reading -->
                                 <Label flexShrink="0.25" :text="getDisplayReading(s)" verticalAlignment="bottom" class="size-24 m-l-2" />
-                                <!-- unit -->
                                 <Label :text="s.unit" verticalAlignment="bottom" class="unit size-12 m-t-10" />
                             </FlexboxLayout>
-                            <!-- name -->
                             <Label :text="getSensorName(m, s)" textWrap="true" class="sensor-name size-14" />
                         </WrapLayout>
-                        <!-- view graph link -->
-                        <!-- <StackLayout class="link-container text-center">
-                        <Label
-                            :text="_L('viewGraph')"
-                            :id="'m_id-' + m.id"
-                            class="view-graph-link text-center"
-                            :automationText="'moduleLink' + moduleIndex"
-                            @tap="emitModuleTapped"
-                        />
-                    </StackLayout> -->
                     </WrapLayout>
                 </StackLayout>
             </template>
@@ -63,8 +44,6 @@
 import _ from "lodash";
 import routes from "../routes";
 import { getLastSeen, _T, convertOldFirmwareResponse } from "../utilities";
-import Services from "../services/services";
-const dbInterface = Services.Database();
 
 export default {
     name: "ModuleListView",

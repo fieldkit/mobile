@@ -2,24 +2,32 @@
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
-                <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <ScreenHeader order="1" :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
+                <StackLayout orientation="vertical">
+                    <ScreenHeader
+                        order="1"
+                        :title="currentStation.name"
+                        :subtitle="getDeployedStatus()"
+                        :onBack="goBack"
+                        :onSettings="goToSettings"
+                    />
 
-                    <!-- loading animation -->
                     <GridLayout order="2" rows="auto" columns="*" v-if="loading" class="text-center">
                         <StackLayout id="loading-circle-blue"></StackLayout>
                         <StackLayout id="loading-circle-white"></StackLayout>
                     </GridLayout>
 
-                    <!-- grid to allow overlapping elements -->
                     <GridLayout order="3" rows="*" columns="*">
-                        <!-- background elements -->
                         <GridLayout row="0" col="0">
-                            <FlexboxLayout flexDirection="column">
-                                <!-- station status details -->
+                            <StackLayout orientation="vertical">
                                 <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
-                                <!-- field notes section -->
-                                <GridLayout order="2" rows="auto" columns="10*,55*,35*" v-if="isDeployed" class="m-t-5 m-b-10 m-x-10 p-10 bordered-container" @tap="goToFieldNotes">
+                                <GridLayout
+                                    order="2"
+                                    rows="auto"
+                                    columns="10*,55*,35*"
+                                    v-if="isDeployed"
+                                    class="m-t-5 m-b-10 m-x-10 p-10 bordered-container"
+                                    @tap="goToFieldNotes"
+                                >
                                     <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
                                     <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
                                     <Label
@@ -30,11 +38,9 @@
                                         v-if="notes.completed && notes.completed > 0"
                                     />
                                 </GridLayout>
-                                <!-- module list with current readings -->
                                 <ModuleListView order="3" :station="currentStation" @moduleTapped="goToModule" />
-                            </FlexboxLayout>
+                            </StackLayout>
                         </GridLayout>
-                        <!-- end background elements -->
 
                         <AbsoluteLayout row="0" col="0" class="text-center" v-if="newlyDeployed">
                             <GridLayout top="75" width="100%">
@@ -44,14 +50,11 @@
                                 </StackLayout>
                             </GridLayout>
                         </AbsoluteLayout>
-                        <!-- end foreground elements -->
                     </GridLayout>
-                </FlexboxLayout>
+                </StackLayout>
             </ScrollView>
 
-            <!-- notifications -->
             <NotificationFooter row="1" :onClose="goToDetail" :notificationCodes="notificationCodes" v-if="notificationCodes.length > 0" />
-            <!-- footer -->
             <ScreenFooter :row="notificationCodes.length > 0 ? '2' : '1'" active="stations" />
         </GridLayout>
     </Page>
