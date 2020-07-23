@@ -15,47 +15,46 @@ import * as i18n from "tns-i18n";
 // and this default language initialization does not override that
 i18n("en");
 
-const noteContent = {
-    1: {
+const displayNotifications = {
+    unknown: {
         heading: _L("portalProblemHeading"),
         text: _L("encounteredAPortalError"),
         error: true,
     },
-    403: {
+    "station-owner-conflict": {
         heading: _L("unableToUpdateHeading"),
         text: _L("doNotHavePortalPermission"),
         error: true,
     },
-    401: {
+    authentication: {
         heading: _L("unableToAccessHeading"),
         text: _L("notAuthorizedToUpdatePortal"),
         error: true,
     },
-    // TODO: handle 400 errors?
 };
 
 export default {
     data() {
-        return {
-            notifications: [],
-        };
+        return {};
     },
-    props: ["notificationCodes"],
-    methods: {
-        onLoaded() {
-            this.notificationCodes.forEach((n, i) => {
-                let note = noteContent[n];
-                if (!note) {
-                    note = noteContent[1];
+    props: {
+        notificationCodes: {
+            type: Array,
+            required: true,
+        },
+    },
+    computed: {
+        notifications() {
+            return this.notificationCodes.map((code) => {
+                if (displayNotifications[code]) {
+                    return displayNotifications[code];
                 }
-                this.notifications.push({
-                    id: i,
-                    heading: note.heading,
-                    text: note.text,
-                    error: note.error,
-                });
+                return displayNotifications["unknown"];
             });
         },
+    },
+    methods: {
+        onLoaded() {},
         showNotifications() {
             const options = {
                 props: {
@@ -63,17 +62,15 @@ export default {
                 },
                 fullscreen: true,
             };
-            this.$showModal(NotificationModal, options);
+            return this.$showModal(NotificationModal, options);
         },
     },
 };
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "../app-variables";
-// End custom common variables
-// Custom styles
+
 .notify-footer {
     border-top-color: $fk-gray-lightest;
     border-top-width: 2;

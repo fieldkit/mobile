@@ -86,10 +86,17 @@ export default {
         return {
             loading: true,
             newlyDeployed: false,
-            notificationCodes: [],
         };
     },
     computed: {
+        notificationCodes() {
+            const codes = [];
+            const portal = this.currentStation.portalHttpError;
+            if (portal && portal.name) {
+                codes.push(portal.name);
+            }
+            return codes;
+        },
         isDeployed() {
             return this.currentStation.deployStartTime != null;
         },
