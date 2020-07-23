@@ -6,6 +6,13 @@ import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import { Services, ServiceRef } from "./utilities";
 
+export interface Schedule {
+    quantity: number;
+    duration: number;
+}
+
+export interface Networks {}
+
 export class NearbyState {
     services: ServiceRef = new ServiceRef();
     stations: { [index: string]: NearbyStation } = {};
@@ -110,7 +117,10 @@ const actions = {
                 }
             );
     },
-    [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
+    [ActionTypes.CONFIGURE_STATION_NETWORK]: (
+        { commit, dispatch, state }: ActionParameters,
+        payload: { deviceId: string; networks: Networks }
+    ) => {
         if (!payload?.deviceId) throw new Error("no nearby info");
         const info = state.stations[payload.deviceId];
         if (!info) throw new Error("no nearby info");
@@ -133,15 +143,18 @@ const actions = {
     },
     [ActionTypes.CONFIGURE_STATION_SCHEDULES]: (
         { commit, dispatch, state }: ActionParameters,
-        payload: { deviceId: string; schedule: { interval: number } }
+        payload: { deviceId: string; schedule: Schedule }
     ) => {
         if (!payload?.deviceId) throw new Error("no nearby info");
         const info = state.stations[payload.deviceId];
         if (!info) throw new Error("no nearby info");
+
+        const interval = payload.schedule.quantity * payload.schedule.duration;
+
         commit(MutationTypes.STATION_QUERIED, info);
         return state.services
             .queryStation()
-            .configureSchedule(info.url, { readings: { interval: payload.schedule.interval } })
+            .configureSchedule(info.url, { readings: { interval: interval } })
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
