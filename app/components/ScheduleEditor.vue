@@ -102,12 +102,17 @@ export default Vue.extend({
             }
 
             const interval = numeric * this.form.duration;
-            const schedule = { interval: interval };
+            const schedule = {
+                duration: this.form.duration,
+                quantity: numeric,
+                interval: interval,
+            };
             console.log("schedule-change", schedule);
             this.$emit("change", schedule);
         },
         onQuantityChange(this: any, ev, fireChange: boolean) {
-            if (ev && ev.value !== null) {
+            // value is undefined for onBlur
+            if (ev && ev.value) {
                 this.form.quantity = ev.value;
                 return this.onChange(fireChange);
             }
