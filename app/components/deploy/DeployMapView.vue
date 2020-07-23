@@ -67,7 +67,7 @@
                         </StackLayout>
                     </GridLayout>
 
-                    <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" />
+                    <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" v-if="form.schedule" />
                 </FlexboxLayout>
             </ScrollView>
 
@@ -107,9 +107,7 @@ export default {
             mapboxToken: MAPBOX_ACCESS_TOKEN,
             form: {
                 location: "",
-                schedule: {
-                    interval: 300,
-                },
+                schedule: null,
                 v: {
                     any: false,
                     required: false,
@@ -139,6 +137,8 @@ export default {
     methods: {
         onPageLoaded(args) {
             this.form.location = this.currentNotes.location || "";
+            this.form.schedule = { interval: this.currentStation.interval };
+            console.log("initialized", this.form.schedule);
         },
         onMapReady(args) {
             this.map = args.map;
