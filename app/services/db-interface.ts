@@ -248,8 +248,9 @@ export default class DatabaseInterface {
     public setStationPortalError(station, error) {
         return this.getDatabase()
             .then((db) =>
-                db.query("UPDATE stations SET portal_http_error = ?, updated = ? WHERE id = ?", [
+                db.query("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", [
                     JSON.stringify(error),
+                    new Date(),
                     new Date(),
                     station.id,
                 ])

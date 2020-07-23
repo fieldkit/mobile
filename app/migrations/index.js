@@ -7,3 +7,4 @@ export * from "./20200611_140139_add_station_last_seen.js";
 export * from "./20200624_193105_add_sensor_trend.js";
 export * from "./20200708_162023_add_notes_table.js";
 export * from "./20200715_075044_add_module_flags.js";
+export * from "./20200723_093924_add_portal_updated_time.js";
