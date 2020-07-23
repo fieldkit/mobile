@@ -439,9 +439,9 @@ export default class DatabaseInterface {
             Promise.all(
                 keeping
                     .map((name) => {
-                        const previous = existing[name].currentReading;
-                        const current = incoming[name].reading;
-                        // console.log("COMPARE", previous, current);
+                        const previous = Math.round(existing[name].currentReading * 10) / 10;
+                        const current = Math.round(incoming[name].reading * 10) / 10;
+                        console.log("comparing readings", existing[name].currentReading, incoming[name].reading, previous, current);
                         const trend = current == previous ? 0 : current > previous ? 1 : -1;
                         return {
                             id: existing[name].id,
