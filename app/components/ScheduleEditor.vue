@@ -53,7 +53,7 @@ export default Vue.extend({
             { display: "Hours", value: 60 * 60, duration: 60 * 60 },
         ];
         return {
-            focus: true,
+            focus: false,
             durations: durations,
             items: new ValueList(durations),
             form: {

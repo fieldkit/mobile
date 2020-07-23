@@ -19,7 +19,7 @@
             </StackLayout>
 
             <ScrollView row="1">
-                <FlexboxLayout flexDirection="column" justifyContent="space-between">
+                <FlexboxLayout flexDirection="column" justifyContent="flex-start">
                     <StackLayout>
                         <Mapbox
                             :accessToken="mapboxToken"

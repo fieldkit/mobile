@@ -24,7 +24,7 @@ export default {
     data() {
         return {
             typing: false,
-            focus: true,
+            focus: false,
         };
     },
     props: {
