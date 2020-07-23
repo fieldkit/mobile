@@ -1,15 +1,18 @@
 <template>
     <StackLayout verticalAlignment="top" class="schedule-editor">
+        <Label :text="_L('dataCaptureSchedule')" class="size-12 header" />
         <GridLayout rows="auto" columns="*,*" class="simple-interval-container">
             <StackLayout row="0" col="0">
                 <TextField
                     :text="form.quantity"
+                    :class="fieldClass"
                     verticalAligment="bottom"
                     keyboardType="number"
                     autocorrect="false"
                     autocapitalizationType="none"
-                    @textChange="(ev) => onQuantityChange(ev)"
-                    @blur="(ev) => onQuantityChange(ev)"
+                    @focus="onFocus"
+                    @textChange="onQuantityChange"
+                    @blur="onBlur"
                 />
                 <Label
                     v-if="errors.quantity.required"
@@ -50,6 +53,7 @@ export default Vue.extend({
             { display: "Hours", value: 60 * 60, duration: 60 * 60 },
         ];
         return {
+            focus: true,
             durations: durations,
             items: new ValueList(durations),
             form: {
@@ -68,6 +72,11 @@ export default Vue.extend({
         schedule: {
             type: Object,
             required: true,
+        },
+    },
+    computed: {
+        fieldClass(this: any) {
+            return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
     },
     mounted(this: any) {
@@ -110,6 +119,13 @@ export default Vue.extend({
             console.log("schedule-change", schedule);
             this.$emit("change", schedule);
         },
+        onFocus(this: any) {
+            this.focus = true;
+        },
+        onBlur(this: any) {
+            this.focus = false;
+            this.onQuantityChange(true);
+        },
         onQuantityChange(this: any, ev, fireChange: boolean) {
             // value is undefined for onBlur
             if (ev && ev.value) {
@@ -139,13 +155,22 @@ export default Vue.extend({
 .schedule-editor {
 }
 .simple-interval-container {
-    padding-left: 20px;
-    padding-right: 20px;
 }
 .validation-error {
     margin-right: 20;
     font-size: 12;
     color: $fk-tertiary-red;
     padding-top: 5;
+}
+.header {
+    color: $fk-gray-hint;
+}
+.inactive-line {
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
+}
+.active-line {
+    border-bottom-color: $fk-secondary-blue;
+    border-bottom-width: 2;
 }
 </style>

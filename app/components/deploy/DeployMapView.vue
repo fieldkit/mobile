@@ -37,7 +37,7 @@
                         />
                     </StackLayout>
 
-                    <GridLayout rows="*" columns="*" class="m-t-30 m-b-20 m-x-10">
+                    <GridLayout rows="auto,auto" columns="*" class="m-t-30 m-b-20 m-x-10">
                         <StackLayout row="0">
                             <LabeledTextField v-model="form.location" :label="_L('nameYourLocation')" @blur="checkLocationName" />
                             <Label
@@ -65,9 +65,8 @@
                                 :visibility="form.v.characters ? 'visible' : 'collapsed'"
                             />
                         </StackLayout>
+                        <ScheduleEditor row="1" :schedule="form.schedule" @change="onScheduleChange" v-if="form.schedule" />
                     </GridLayout>
-
-                    <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" v-if="form.schedule" />
                 </FlexboxLayout>
             </ScrollView>
 
