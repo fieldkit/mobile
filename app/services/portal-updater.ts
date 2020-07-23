@@ -65,7 +65,7 @@ export default class PortalUpdater {
                             if (error.response) {
                                 return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
                                     id: station.id,
-                                    error: error.response.status || "unknown",
+                                    error: error.response.data || {},
                                 });
                             }
                             return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
@@ -82,7 +82,7 @@ export default class PortalUpdater {
                 if (error.response) {
                     return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
                         id: station.id,
-                        error: error.response.status || "unknown",
+                        error: error.response.data || {},
                     });
                 }
                 return Promise.reject(error);

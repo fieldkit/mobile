@@ -134,7 +134,7 @@ class StationStatusFactory {
             latitude: latitude,
             lastSeen: new Date(),
             portalId: null,
-            portalError: null,
+            portalHttpError: null,
         };
         return new Station(fields, modules, streams);
     }
@@ -210,6 +210,17 @@ class StationDatabaseFactory {
         return new Station(this.getCreationFields(this.stationRow), modules, streams, downloads);
     }
 
+    private parseHttpError(column: string | null): object | null {
+        if (column && column.length > 0) {
+            try {
+                return JSON.parse(column);
+            } catch (e) {
+                console.log("malformed http error", column);
+            }
+        }
+        return null;
+    }
+
     private getCreationFields(stationRow: StationTableRow): StationCreationFields {
         return {
             id: stationRow.id,
@@ -226,7 +237,7 @@ class StationDatabaseFactory {
             latitude: stationRow.latitude,
             lastSeen: new Date(stationRow.lastSeen),
             portalId: stationRow.portalId,
-            portalError: stationRow.portalError,
+            portalHttpError: this.parseHttpError(stationRow.portalHttpError),
         };
     }
 }
@@ -277,7 +288,7 @@ const actions = {
     [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
         return state.services
             .db()
-            .setStationPortalError({ id: status.id }, "" /* I really dislike this */)
+            .setStationPortalError({ id: status.id }, {})
             .then(() =>
                 state.services
                     .db()

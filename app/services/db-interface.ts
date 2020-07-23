@@ -245,10 +245,14 @@ export default class DatabaseInterface {
         );
     }
 
-    public setStationPortalError(station, errorCode) {
+    public setStationPortalError(station, error) {
         return this.getDatabase()
             .then((db) =>
-                db.query("UPDATE stations SET portal_http_error = ?, updated = ? WHERE id = ?", [errorCode, new Date(), station.id])
+                db.query("UPDATE stations SET portal_http_error = ?, updated = ? WHERE id = ?", [
+                    JSON.stringify(error),
+                    new Date(),
+                    station.id,
+                ])
             )
             .catch((error) => `error setting portal error ${error}`);
     }

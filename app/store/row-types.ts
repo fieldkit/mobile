@@ -13,7 +13,7 @@ export interface StationTableRow {
     serializedStatus: string;
     lastSeen: number;
     portalId: number | null;
-    portalError: string | null;
+    portalHttpError: string | null;
 }
 
 export interface ModuleTableRow {
