@@ -356,7 +356,7 @@ export default class PortalInterface {
     public uploadPreviouslyDownloaded(deviceName: string, download: Download, progress: ProgressFunc) {
         const token = this.getCurrentToken();
         if (!token) {
-            return Promise.reject(new Error("no token"));
+            return Promise.reject(new AuthenticationError("no token"));
         }
 
         const headers = {

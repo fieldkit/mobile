@@ -126,7 +126,12 @@
 
                             <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.hasError">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
-                                    <Label text="An error occurred! Oh no!" class="error-label" />
+                                    <Label
+                                        text="You are logged out. Please open settings and Log In."
+                                        class="error-label"
+                                        v-if="sync.isAuthenticationError"
+                                    />
+                                    <Label text="An error occurred! Oh no!" class="error-label" v-if="sync.isOtherError" />
                                 </StackLayout>
                             </GridLayout>
                         </StackLayout>

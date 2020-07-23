@@ -15,6 +15,7 @@ import {
 import { Services, ServiceRef } from "./utilities";
 import { serializePromiseChain, getPathTimestamp } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
+import { AuthenticationError } from "../../lib/errors";
 
 export type HttpHeaders = { [index: string]: string };
 
@@ -189,6 +190,14 @@ export class StationSyncStatus {
         return this.error !== TransferError.None;
     }
 
+    public get isAuthenticationError(): boolean {
+        return this.error === TransferError.Authentication;
+    }
+
+    public get isOtherError(): boolean {
+        return this.error === TransferError.Other;
+    }
+
     public get onAP(): boolean {
         return this.connected;
     }
@@ -300,7 +309,11 @@ const actions = {
                 })
                 .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
                 .catch((error) => {
-                    Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                    if (error instanceof AuthenticationError) {
+                        Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                    } else {
+                        Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                    }
                     console.log("error downloading", error, error ? error.stack : null);
                     return Promise.reject(error);
                 });
@@ -334,8 +347,13 @@ const actions = {
                 })
                 .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
                 .catch((error) => {
-                    Vue.set(state.errors, sync.deviceId, TransferError.Other);
-                    console.log("error uploading", error, error ? error.stack : null);
+                    if (error instanceof AuthenticationError) {
+                        console.log("error uploading (auth)", error, error ? error.stack : null);
+                        Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                    } else {
+                        console.log("error uploading (other)", error, error ? error.stack : null);
+                        Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                    }
                     return Promise.reject(error);
                 });
         })
