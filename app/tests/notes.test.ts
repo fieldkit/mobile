@@ -2,19 +2,18 @@ import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { Services } from "../services/services";
 import FakeTimers from "@sinonjs/fake-timers";
-// import { MockStationReplies } from "./utilities";
 
 import SynchronizeNotes, { PatchPortalNotes, Ids } from "../services/synchronize-notes";
-// import * as ActionTypes from "../store/actions";
+
+import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 
-import { Notes, NoteForm, NoteHelp } from "../store/modules/notes";
+import { Notes } from "../store/modules/notes";
 
 describe("Notes", () => {
     let services;
     let store;
     let clock;
-    // let mockStation;
 
     beforeEach(async () => {
         clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
@@ -22,7 +21,6 @@ describe("Notes", () => {
 
         services = new Services();
         await services.CreateDb().initialize();
-        // mockStation = new MockStationReplies(services);
 
         store = services.Store();
 
@@ -75,7 +73,9 @@ describe("Notes", () => {
             expect.assertions(3);
 
             const patches = jest.fn();
-            const addOrUpdates = jest.fn();
+            const addOrUpdates = jest.fn(() => {
+                return Promise.resolve();
+            });
 
             services.Database().addOrUpdateNotes = addOrUpdates;
             services.PortalInterface().updateStationNotes = patches;
@@ -93,9 +93,9 @@ describe("Notes", () => {
             expect(patches.mock.calls.length).toBe(0);
             expect(addOrUpdates.mock.calls.length).toBe(1);
 
-            const [saved] = addOrUpdates.mock.calls[0];
+            const [saved] = (addOrUpdates.mock.calls[0] as unknown) as [Notes];
 
-            expect(saved.form.studyObjective.body).toBe("Portal Note");
+            expect(saved.studyObjective.body).toBe("Portal Note");
         });
     });
 
@@ -109,9 +109,11 @@ describe("Notes", () => {
                 return Promise.resolve();
             });
 
-            const mobileNotes = new Notes(ids.mobile, new Date(), new Date());
-            mobileNotes.form.studyObjective = new NoteForm(new NoteHelp("", ""), "Mobile Note");
-            store.state.notes.stations[ids.mobile] = mobileNotes;
+            store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: "studyObjective", update: { body: "Mobile Note" } });
+
+            await store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
+
+            addOrUpdates.mockClear();
 
             services.Database().addOrUpdateNotes = addOrUpdates;
             services.PortalInterface().updateStationNotes = patches;
@@ -133,7 +135,7 @@ describe("Notes", () => {
 
             const [saved] = (addOrUpdates.mock.calls[0] as unknown) as [Notes];
 
-            expect(saved.form.studyObjective.body).toBe("Portal Note");
+            expect(saved.studyObjective.body).toBe("Portal Note");
         });
     });
 
@@ -145,7 +147,9 @@ describe("Notes", () => {
             const patches = jest.fn(() => {
                 return Promise.resolve();
             });
-            const addOrUpdates = jest.fn();
+            const addOrUpdates = jest.fn(() => {
+                return Promise.resolve();
+            });
 
             services.Database().addOrUpdateNotes = addOrUpdates;
             services.PortalInterface().updateStationNotes = patches;
@@ -159,9 +163,11 @@ describe("Notes", () => {
 
             clock.tick(60000);
 
-            const mobileNotes = new Notes(ids.mobile, new Date(), new Date());
-            mobileNotes.form.studyObjective = new NoteForm(new NoteHelp("", ""), "Mobile Note");
-            store.state.notes.stations[ids.mobile] = mobileNotes;
+            store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: "studyObjective", update: { body: "Mobile Note" } });
+
+            await store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
+
+            addOrUpdates.mockClear();
 
             const synchronize = new SynchronizeNotes(services.PortalInterface(), store);
             await synchronize.synchronize(ids);

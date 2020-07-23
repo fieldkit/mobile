@@ -1,12 +1,13 @@
 import _ from "lodash";
 import * as ActionTypes from "../store/actions";
+import * as MutationTypes from "../store/mutations";
 import { Store } from "../store/types";
 import PortalInterface from "./portal-interface";
 import { Notes } from "../store/modules/notes";
 import { serializePromiseChain } from "../utilities";
 
 class MergedNotes {
-    constructor(public readonly patch: PatchPortalNotes, public readonly mobile: Notes) {}
+    constructor(public readonly patch: PatchPortalNotes, public readonly modified: boolean) {}
 }
 
 export default class SynchronizeNotes {
@@ -22,13 +23,13 @@ export default class SynchronizeNotes {
             return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
                 console.log("uploaded", resolvedMedia);
 
-                const merged = this.merge(portalNotes, mobileNotes, resolvedMedia);
+                const merged = this.merge(ids, portalNotes, mobileNotes, resolvedMedia);
                 const patch = merged.patch;
 
                 return this.patchPortal(ids, patch).then((reply) => {
-                    if (merged.mobile.modified) {
+                    if (merged.modified) {
                         console.log("mobile notes modified");
-                        return this.store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: ids.mobile, form: merged.mobile.form });
+                        return this.store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
                     }
                     return Promise.resolve();
                 });
@@ -82,13 +83,13 @@ export default class SynchronizeNotes {
         });
     }
 
-    private merge(portalNotes: PortalStationNotesReply, mobileNotes: Notes, media: { [index: string]: number }): MergedNotes {
+    private merge(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes, media: { [index: string]: number }): MergedNotes {
         const portalExisting = _.keyBy(portalNotes.notes, (n) => n.key);
         const localByKey = {
-            studyObjective: mobileNotes.form.studyObjective,
-            sitePurpose: mobileNotes.form.sitePurpose,
-            siteCriteria: mobileNotes.form.siteCriteria,
-            siteDescription: mobileNotes.form.siteDescription,
+            studyObjective: mobileNotes.studyObjective,
+            sitePurpose: mobileNotes.sitePurpose,
+            siteCriteria: mobileNotes.siteCriteria,
+            siteDescription: mobileNotes.siteDescription,
         };
 
         const modifications = _(localByKey)
@@ -102,8 +103,8 @@ export default class SynchronizeNotes {
                     const localEmpty = value.body.length == 0;
                     console.log("comparing", key, localEmpty, portalUpdatedAt, mobileNotes.updatedAt);
                     if (localEmpty || portalUpdatedAt > mobileNotes.updatedAt) {
-                        mobileNotes.updateFromPortal(key, portalExisting[key].body);
                         console.log("portal wins", key);
+                        this.store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: key, update: portalExisting[key] });
                         return {
                             creating: null,
                             updating: null,
@@ -125,8 +126,9 @@ export default class SynchronizeNotes {
 
         const creating = modifications.map((v) => v.creating).filter((v) => v !== null && v.body.length > 0) as NewFieldNote[];
         const updating = modifications.map((v) => v.updating).filter((v) => v !== null) as ExistingFieldNote[];
+        const modified = this.store.state.notes.stations[ids.mobile]?.modified || false;
 
-        return new MergedNotes(new PatchPortalNotes(creating, updating), mobileNotes);
+        return new MergedNotes(new PatchPortalNotes(creating, updating), modified);
     }
 }
 

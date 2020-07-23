@@ -50,16 +50,16 @@
                             ></Label>
                         </GridLayout>
 
-                        <NoteDisplay :note="notes.form.studyObjective" @open="(ev) => openNote(ev, 'studyObjective')" />
-                        <NoteDisplay :note="notes.form.sitePurpose" @open="(ev) => openNote(ev, 'sitePurpose')" />
-                        <NoteDisplay :note="notes.form.siteCriteria" @open="(ev) => openNote(ev, 'siteCriteria')" />
-                        <NoteDisplay :note="notes.form.siteDescription" @open="(ev) => openNote(ev, 'siteDescription')" />
+                        <NoteDisplay :note="notes.studyObjective" @open="(ev) => openNote(ev, 'studyObjective')" />
+                        <NoteDisplay :note="notes.sitePurpose" @open="(ev) => openNote(ev, 'sitePurpose')" />
+                        <NoteDisplay :note="notes.siteCriteria" @open="(ev) => openNote(ev, 'siteCriteria')" />
+                        <NoteDisplay :note="notes.siteDescription" @open="(ev) => openNote(ev, 'siteDescription')" />
 
                         <StackLayout class="m-t-20">
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
                             <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
                             <WrapLayout orientation="horizontal">
-                                <StackLayout v-for="(photo, index) in notes.form.photos" :key="photo.path" class="photo-display">
+                                <StackLayout v-for="(photo, index) in notes.photos" :key="photo.path" class="photo-display">
                                     <StackLayout v-if="photoCache[photo.path]">
                                         <Image :src="photoCache[photo.path]" stretch="aspectFit" />
                                     </StackLayout>
@@ -112,7 +112,7 @@
                     class="btn btn-primary btn-padded m-b-10"
                     :text="_L('continue')"
                     automationText="nextButton"
-                    :isEnabled="notes.form.valid"
+                    :isEnabled="notes.valid"
                     @tap="goToReview"
                     v-if="!editing"
                 />
@@ -121,7 +121,8 @@
             <template v-if="editing">
                 <StackLayout rowSpan="3">
                     <FieldNoteForm
-                        :note="editing"
+                        :help="editingHelp"
+                        :note="editingNote"
                         v-if="editing"
                         @save="onSaveNote"
                         @cancel="onCancelEditing"
@@ -148,7 +149,7 @@ import * as MutationTypes from "../../store/mutations";
 import * as ActionTypes from "../../store/actions";
 import * as animations from "../animations";
 
-import { NotesForm, NoteMedia } from "../../store/modules/notes";
+import { NoteData, NotesForm, NoteMedia } from "../../store/modules/notes";
 
 export default {
     components: {
@@ -159,7 +160,6 @@ export default {
     data() {
         return {
             editingKey: null,
-            editing: null,
         };
     },
     computed: {
@@ -171,6 +171,23 @@ export default {
         },
         photoCache() {
             return this.$store.state.media.photoCache;
+        },
+        editing() {
+            return this.editingKey !== null;
+        },
+        editingNote() {
+            if (this.editingKey) {
+                console.log("data", this.editingKey, this.notes);
+                return this.notes.notes[this.editingKey] || new NoteData();
+            }
+            return null;
+        },
+        editingHelp() {
+            if (this.editingKey) {
+                console.log("help", this.editingKey, this.notes);
+                return this.notes.help[this.editingKey];
+            }
+            return null;
         },
     },
     props: {
@@ -185,45 +202,44 @@ export default {
     },
     methods: {
         onPageLoaded(args) {
-            const paths = this.$store.state.notes.stations[this.stationId].form.photos.map((p) => p.path);
+            const paths = this.$store.state.notes.stations[this.stationId].photos.map((p) => p.path);
             return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
         },
         openNote(ev, key) {
+            console.log("opening", key);
             this.editingKey = key;
-            this.editing = this.notes.form[key];
-            console.log("opening", key, this.editing);
         },
         onSaveNote({ form }) {
-            console.log("saving", this.editingKey, this.editing, form);
-            // TODO Make a proper mutation.
-            this.notes.form[this.editingKey].body = form.body;
-            console.log("dispatching", this.notes.form);
-            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form }).then(() => {
-                this.editing = null;
+            console.log("saving", this.editingKey, form);
+
+            this.$store.commit(MutationTypes.UPDATE_NOTE, { stationId: this.stationId, key: this.editingKey, update: form });
+
+            this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId }).then(() => {
                 this.editingKey = null;
             });
         },
-        onAttachNoteMedia(note, media) {
-            // TODO Make a proper mutation.
+        onAttachNoteMedia(media) {
             if (NoteMedia.isAudio(media)) {
-                note.audio.push(media);
+                this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
             } else {
-                note.photos.push(media);
+                this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, photo: media });
             }
-            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
+            return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
         onRemoveAudio(note, media) {
-            // TODO Make a proper mutation.
-            note.audio = note.audio.filter((m) => m.path != media.path);
-            return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
+            this.$store.commit(MutationTypes.REMOVE_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
+            return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
         takePicture() {
             return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
-                    this.notes.form.photos.push(new NoteMedia(savedImage.path));
-                    // TODO Make a proper mutation.
-                    return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
+                    this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
+                        stationId: this.stationId,
+                        key: null,
+                        photo: new NoteMedia(savedImage.path),
+                    });
+                    return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
             });
         },
@@ -231,14 +247,17 @@ export default {
             return this.$store.dispatch(ActionTypes.FIND_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
-                    this.notes.form.photos.push(new NoteMedia(savedImage.path));
-                    // TODO Make a proper mutation.
-                    return this.$store.dispatch(ActionTypes.UPDATE_NOTES_FORM, { stationId: this.stationId, form: this.notes.form });
+                    this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
+                        stationId: this.stationId,
+                        key: null,
+                        photo: new NoteMedia(savedImage.path),
+                    });
+                    return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
             });
         },
         onCancelEditing() {
-            this.editing = null;
+            this.editingKey = null;
         },
         goBack(ev) {
             return Promise.all([

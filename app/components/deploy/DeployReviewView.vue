@@ -52,7 +52,7 @@
                             />
                             <Image row="0" col="2" src="~/images/Icon_Edit.png" width="18" @tap="editNotes" />
                         </GridLayout>
-                        <StackLayout v-for="(note, index) in notes.form.notes" :key="index">
+                        <StackLayout v-for="(note, index) in visibleNotes" :key="index">
                             <Label :text="note.help.title" class="size-14 m-t-10 m-b-5" />
                             <Label v-if="note.body" :text="note.body" class="size-12" textWrap="true" />
                             <Image v-if="note.audio.length > 0" src="~/images/Icon_Mic.png" width="17" horizontalAlignment="left" />
@@ -62,7 +62,7 @@
                     <StackLayout class="review-section-no-border">
                         <Label :text="_L('photosRequired')" class="size-12"></Label>
                         <WrapLayout orientation="horizontal">
-                            <StackLayout v-for="photo in notes.form.photos" :key="photo.path" class="photo-display">
+                            <StackLayout v-for="photo in notes.photos" :key="photo.path" class="photo-display">
                                 <StackLayout v-if="photoCache[photo.path]">
                                     <Image :src="photoCache[photo.path]" stretch="aspectFit" />
                                 </StackLayout>
@@ -133,12 +133,13 @@ export default {
         photoCache() {
             return this.$store.state.media.photoCache;
         },
+        visibleNotes() {
+            return [this.notes.studyObjective, this.notes.sitePurpose, this.notes.siteCriteria, this.notes.siteDescription];
+        },
     },
     methods: {
         onPageLoaded(args) {
             this.page = args.object;
-
-            console.log("STATION", this.$store.getters.legacyStations[this.stationId]);
         },
         goBack(ev) {
             return Promise.all([

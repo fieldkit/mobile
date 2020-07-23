@@ -6,8 +6,16 @@ import { Services, ServiceRef } from "./utilities";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
 
+export interface NoteUpdate {
+    body: string;
+}
+
 export class NoteMedia {
     constructor(public readonly path: string) {}
+
+    public static except(media: NoteMedia[], removing: NoteMedia): NoteMedia[] {
+        return media.filter((m) => m.path !== removing.path);
+    }
 
     public static onlyAudio(media: NoteMedia[]): NoteMedia[] {
         return media.filter(NoteMedia.isAudio);
@@ -39,54 +47,134 @@ export class NoteForm {
     ) {}
 }
 
-export class NotesForm {
-    public studyObjective: NoteForm = new NoteForm(new NoteHelp(_L("studyObjective"), _L("studyObjectiveInstruction")));
-    public sitePurpose: NoteForm = new NoteForm(new NoteHelp(_L("siteLocation"), _L("siteLocationInstruction")));
-    public siteCriteria: NoteForm = new NoteForm(new NoteHelp(_L("siteCriteria"), _L("siteCriteriaInstruction")));
-    public siteDescription: NoteForm = new NoteForm(new NoteHelp(_L("siteDescription"), _L("siteDescriptionInstruction")));
+export class NoteData {
+    constructor(public readonly body: string = "", public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
+}
 
-    constructor(public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
+export enum Keys {
+    StudyObjective = "studyObjective",
+    SitePurpose = "sitePurpose",
+    SiteCriteria = "siteCriteria",
+    SiteDescription = "siteDescription",
 }
 
 export class NotesState {
     public services: ServiceRef = new ServiceRef();
     public stations: { [index: number]: Notes } = {};
-
-    public station(id: number): Notes {
-        if (!this.stations[id]) {
-            Vue.set(this.stations, id, new Notes(id, new Date(), new Date()));
-        }
-        return this.stations[id];
-    }
 }
 
 export class Notes {
-    public modified = false;
-    public location: string = "";
-    public form: NotesForm = new NotesForm();
+    public readonly help = {
+        [Keys.StudyObjective]: new NoteHelp(_L("studyObjective"), _L("studyObjectiveInstruction")),
+        [Keys.SitePurpose]: new NoteHelp(_L("siteLocation"), _L("siteLocationInstruction")),
+        [Keys.SiteCriteria]: new NoteHelp(_L("siteCriteria"), _L("siteCriteriaInstruction")),
+        [Keys.SiteDescription]: new NoteHelp(_L("siteDescription"), _L("siteDescriptionInstruction")),
+    };
+    constructor(
+        public readonly stationId: number,
+        public readonly createdAt: Date,
+        public readonly updatedAt: Date,
+        public readonly modified = false,
+        public readonly location: string = "",
+        public readonly notes: { [index: string]: NoteData } = {},
+        public readonly photos: NoteMedia[] = [],
+        public readonly audio: NoteMedia[] = []
+    ) {}
 
-    constructor(public readonly stationId: number, public readonly createdAt: Date, public readonly updatedAt: Date) {}
+    public get studyObjective(): NoteForm {
+        const help = this.help[Keys.StudyObjective];
+        const data = this.notes[Keys.StudyObjective] || new NoteData();
+        return new NoteForm(help, data.body, data.photos, data.audio);
+    }
+
+    public get sitePurpose(): NoteForm {
+        const help = this.help[Keys.SitePurpose];
+        const data = this.notes[Keys.SitePurpose] || new NoteData();
+        return new NoteForm(help, data.body, data.photos, data.audio);
+    }
+
+    public get siteCriteria(): NoteForm {
+        const help = this.help[Keys.SiteCriteria];
+        const data = this.notes[Keys.SiteCriteria] || new NoteData();
+        return new NoteForm(help, data.body, data.photos, data.audio);
+    }
+
+    public get siteDescription(): NoteForm {
+        const help = this.help[Keys.SiteDescription];
+        const data = this.notes[Keys.SiteDescription] || new NoteData();
+        return new NoteForm(help, data.body, data.photos, data.audio);
+    }
 
     public get completed(): string {
-        const notes = [this.form.studyObjective, this.form.sitePurpose, this.form.siteCriteria, this.form.siteDescription];
+        const notes = [this.studyObjective, this.sitePurpose, this.siteCriteria, this.siteDescription];
         const total = notes.length + 1;
-        const done = notes.filter((n) => n.body.length > 0).length + this.form.photos.length > 0 ? 1 : 0;
+        const filled = notes.filter((n) => n.body.length > 0);
+        const done = filled.length + (this.photos.length > 0 ? 1 : 0);
         const percentage = (done / total) * 100;
         return percentage.toFixed(0);
     }
 
     public allMedia(): NoteMedia[] {
-        const allNotes = [this.form.studyObjective, this.form.sitePurpose, this.form.siteCriteria, this.form.siteDescription];
+        const allNotes = [this.studyObjective, this.sitePurpose, this.siteCriteria, this.siteDescription];
         const notesAudio = _.flatten(allNotes.map((n) => n.audio));
         const notesPhotos = _.flatten(allNotes.map((n) => n.photos));
-        return [...this.form.photos, ...notesPhotos, ...notesAudio];
+        return [...this.photos, ...notesPhotos, ...notesAudio];
     }
 
-    public updateFromPortal(key: string, body: string) {
-        const oldNote: NoteForm = this.form[key];
-        const newNote = new NoteForm(oldNote.help, body, oldNote.photos, oldNote.audio);
-        this.form[key] = newNote;
-        this.modified = true;
+    public changeLocation(newLocation: string): Notes {
+        return new Notes(this.stationId, this.createdAt, new Date(), true, newLocation, this.notes, this.photos, this.audio);
+    }
+
+    public removeMedia(key: string | null, media: NoteMedia): Notes {
+        if (!key) {
+            const newPhotos = NoteMedia.except(this.photos, media);
+            const newAudio = NoteMedia.except(this.audio, media);
+            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, newPhotos, newAudio);
+        }
+
+        const newNotes = { ...this.notes };
+        const old = this.notes[key] || new NoteData();
+        const newPhotos = NoteMedia.except(old.photos, media);
+        const newAudio = NoteMedia.except(old.audio, media);
+        newNotes[key] = new NoteData(old.body, newPhotos, newAudio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
+    }
+
+    public attachAudio(key: string | null, audio: NoteMedia): Notes {
+        if (!key) {
+            const newAudio = [...this.photos, audio];
+            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, this.photos, newAudio);
+        }
+
+        const newNotes = { ...this.notes };
+        const old = this.notes[key] || new NoteData();
+        const newAudio = [...old.audio, audio];
+        newNotes[key] = new NoteData(old.body, old.photos, newAudio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
+    }
+
+    public attachPhoto(key: string | null, photo: NoteMedia): Notes {
+        if (!key) {
+            const newPhoto = [...this.photos, photo];
+            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, newPhoto, this.audio);
+        }
+
+        const newNotes = { ...this.notes };
+        const old = this.notes[key] || new NoteData();
+        const newPhotos = [...old.photos, photo];
+        newNotes[key] = new NoteData(old.body, newPhotos, old.audio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
+    }
+
+    public saved(): Notes {
+        return new Notes(this.stationId, this.createdAt, this.updatedAt, false, this.location, this.notes, this.photos, this.audio);
+    }
+
+    public updateNote(key: string, update: NoteUpdate): Notes {
+        const newNotes = { ...this.notes };
+        const old = this.notes[key] || new NoteData();
+        newNotes[key] = new NoteData(update.body, old.photos, old.audio);
+        return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
     }
 
     public static fromRow(row: NotesTableRow): Notes {
@@ -100,7 +188,7 @@ type ActionParameters = { commit: any; dispatch: any; state: NotesState };
 
 export const LOAD_NOTES_ALL = "LOAD_NOTES_ALL";
 export const NOTES_LOCATION = "NOTES_LOCATION";
-export const NOTES_FORM = "NOTES_FORM";
+export const NOTES_SAVED = "NOTES_SAVED";
 
 const getters = {};
 
@@ -119,10 +207,13 @@ const actions = {
 
         return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
     },
-    [ActionTypes.UPDATE_NOTES_FORM]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number; form: NotesForm }) => {
-        commit(NOTES_FORM, payload);
-
-        return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
+    [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number }) => {
+        return state.services
+            .db()
+            .addOrUpdateNotes(state.stations[payload.stationId])
+            .then(() => {
+                commit(NOTES_SAVED, payload);
+            });
     },
     [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
@@ -144,20 +235,49 @@ const mutations = {
     },
     [MutationTypes.STATIONS]: (state: NotesState, stations: Station[]) => {
         return stations.map((station) => {
-            if (!station.id) {
-                throw new Error("station missing id");
+            if (!station.id) throw new Error("station missing id");
+            if (!state.stations[station.id]) {
+                Vue.set(state.stations, station.id, new Notes(station.id, new Date(), new Date()));
             }
-            return state.station(station.id);
+            return state.stations[station.id];
         });
     },
-    [NOTES_LOCATION]: (state: NotesState, payload: { stationId: number; location: string }) => {
-        state.station(payload.stationId).location = payload.location;
+    [MutationTypes.UPDATE_NOTE]: (state: NotesState, payload: { stationId: number; key: string; update: NoteUpdate }) => {
+        if (!payload.key) throw new Error("key is required");
+        if (!payload.update) throw new Error("update is required");
+        if (!state.stations[payload.stationId]) {
+            state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
+        }
+        state.stations[payload.stationId] = state.stations[payload.stationId].updateNote(payload.key, payload.update);
     },
-    [NOTES_FORM]: (state: NotesState, payload: { stationId: number; form: NotesForm }) => {
-        state.station(payload.stationId).form = _.cloneDeep(payload.form);
+    [MutationTypes.ATTACH_NOTE_MEDIA]: (
+        state: NotesState,
+        payload: { stationId: number; key: string | null; audio: NoteMedia; photo: NoteMedia }
+    ) => {
+        if (!state.stations[payload.stationId]) {
+            state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
+        }
+        if (payload.audio) {
+            state.stations[payload.stationId] = state.stations[payload.stationId].attachAudio(payload.key, payload.audio);
+        }
+        if (payload.photo) {
+            state.stations[payload.stationId] = state.stations[payload.stationId].attachPhoto(payload.key, payload.photo);
+        }
+    },
+    [MutationTypes.REMOVE_NOTE_MEDIA]: (state: NotesState, payload: { stationId: number; key: string | null; audio: NoteMedia }) => {
+        state.stations[payload.stationId] = state.stations[payload.stationId].removeMedia(payload.key, payload.audio);
+    },
+    [NOTES_LOCATION]: (state: NotesState, payload: { stationId: number; location: string }) => {
+        if (!state.stations[payload.stationId]) {
+            state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
+        }
+        state.stations[payload.stationId] = state.stations[payload.stationId].changeLocation(payload.location);
     },
     [LOAD_NOTES_ALL]: (state: NotesState, notes: Notes[]) => {
         return notes.map((notes) => Vue.set(state.stations, notes.stationId, notes));
+    },
+    [NOTES_SAVED]: (state: NotesState, payload: { stationId: number }) => {
+        state.stations[payload.stationId] = state.stations[payload.stationId].saved();
     },
 };
 

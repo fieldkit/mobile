@@ -5,7 +5,7 @@
                 <Image width="21" src="~/images/Icon_Close.png"></Image>
             </StackLayout>
             <StackLayout col="1" verticalAlignment="middle">
-                <Label class="title text-center" :text="note.help.title" textWrap="true"></Label>
+                <Label class="title text-center" :text="help.title" textWrap="true"></Label>
             </StackLayout>
             <StackLayout col="2" class="round-bkgd" @tap="onSave">
                 <Image width="25" src="~/images/Icon_Save.png"></Image>
@@ -14,14 +14,14 @@
 
         <ScrollView row="1">
             <GridLayout rows="auto,*,auto" v-if="!note.image" class="container">
-                <Label :text="note.help.instructions" row="0" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
+                <Label :text="help.instructions" row="0" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
                 <TextView
                     ref="noteBody"
                     row="1"
                     textWrap="true"
                     width="100%"
                     class="large-text-field"
-                    :hint="note.help.instructions"
+                    :hint="help.instructions"
                     v-model="form.body"
                 />
                 <StackLayout row="2" width="100%" class="audio-container">
@@ -59,6 +59,10 @@ export default {
             type: Object,
             required: true,
         },
+        help: {
+            type: Object,
+            required: true,
+        },
     },
     data() {
         return {
@@ -86,10 +90,10 @@ export default {
             this.audioReady = !this.audioReady;
         },
         onAudioDone(...args) {
-            this.$emit("attach-media", this.note, ...args);
+            this.$emit("attach-media", ...args);
         },
         raiseRemoveAudio(...args) {
-            this.$emit("remove-audio", this.note, ...args);
+            this.$emit("remove-audio", ...args);
         },
         maybeDismissKeyboard() {
             this.$refs.noteBody.nativeView.dismissSoftInput();
