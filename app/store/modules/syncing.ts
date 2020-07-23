@@ -466,21 +466,35 @@ const mutations = {
     },
     [MutationTypes.FIND]: (state: SyncingState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, info);
-        state.syncs
-            .filter((sync) => sync.deviceId === info.deviceId)
-            .forEach((sync) => {
-                sync.connecting = true;
-                sync.disconnected = false;
-            });
+        Vue.set(
+            state,
+            "syncs",
+            StationSyncsSorter(
+                state.syncs.map((sync) => {
+                    if (sync.deviceId === info.deviceId) {
+                        sync.connecting = true;
+                        sync.disconnected = false;
+                    }
+                    return sync;
+                })
+            )
+        );
     },
     [MutationTypes.LOSE]: (state: SyncingState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, null);
-        state.syncs
-            .filter((sync) => sync.deviceId === info.deviceId)
-            .forEach((sync) => {
-                sync.connecting = false;
-                sync.disconnected = true;
-            });
+        Vue.set(
+            state,
+            "syncs",
+            StationSyncsSorter(
+                state.syncs.map((sync) => {
+                    if (sync.deviceId === info.deviceId) {
+                        sync.connecting = false;
+                        sync.disconnected = true;
+                    }
+                    return sync;
+                })
+            )
+        );
     },
     [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressPayload) => {
         Vue.set(state.errors, payload.deviceId, TransferError.None);
