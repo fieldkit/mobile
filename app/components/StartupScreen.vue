@@ -16,10 +16,15 @@ import Config from "../config";
 function initializeFirebase(services): Promise<any> {
     return Firebase.init({
         crashlyticsCollectionEnabled: true,
-    }).catch((error) => {
-        console.log("firebase error", error);
-        return Promise.resolve();
-    });
+    })
+        .then((response) => {
+            console.log("firebase response", response);
+            return Promise.resolve(true);
+        })
+        .catch((error) => {
+            console.log("firebase error", error);
+            return Promise.resolve();
+        });
 }
 
 function updateStore(store): null {
@@ -38,8 +43,12 @@ function initializeApplication(services): Promise<any> {
             .logEvent({
                 key: "app_open",
             })
+            .then((response) => {
+                console.log("firebase response", response);
+                return Promise.resolve(true);
+            })
             .catch((message) => {
-                console.log("error", message);
+                console.log("firebase error", message);
                 return Promise.resolve(false);
             })
             .then(() =>
