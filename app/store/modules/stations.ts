@@ -31,6 +31,10 @@ export const AvailableStationsSorter = (available: AvailableStation[]): Availabl
     return _.orderBy(available, [(available) => SortableStationSorter(available)]);
 };
 
+function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+    return value !== null && value !== undefined;
+}
+
 const getters = {
     availableStations: (state: StationsState, getters, rootState: GlobalState): AvailableStation[] => {
         const nearby = rootState.nearby.stations;
@@ -66,9 +70,16 @@ const getters = {
         const legacy = _(deviceIds)
             .map((deviceId) => {
                 const station = stations[deviceId];
+                if (!station) {
+                    console.log("missing:", "station", stations);
+                    console.log("missing:", "device-ids", deviceIds);
+                    console.log("missing:", "device-id", deviceId);
+                    return null;
+                }
                 const available = new AvailableStation(deviceId, nearby[deviceId], station);
                 return new LegacyStation(station, station.modules, available);
             })
+            .filter(notEmpty)
             .sortBy((ls) => {
                 return [ls.name];
             })
