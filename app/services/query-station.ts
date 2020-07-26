@@ -7,6 +7,9 @@ import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors
 import { PhoneLocation } from "../store/types";
 import Config from "../config";
 
+const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
+const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
+
 export class CalculatedSize {
     constructor(public readonly size: number) {}
 }
@@ -49,6 +52,21 @@ export function decodeAndPrepare(reply) {
     return prepareReply(HttpReply.decodeDelimited(reply));
 }
 
+function prepareModule(m: any): any {
+    m.deviceId = Buffer.from(m.id).toString("hex");
+    m.id = null;
+    if (m.status && /*_.isArray(m.status) &&*/ m.status.length > 0) {
+        if (m.name === "modules.water.ph") {
+            const buffer = Buffer.from(m.status);
+            m.status = AtlasReply.decode(buffer);
+            console.log("module status:", JSON.stringify(m.status));
+        } else {
+            console.log("unknown module status", m);
+        }
+    }
+    return m;
+}
+
 export function prepareReply(reply) {
     if (reply.errors && reply.errors.length > 0) {
         return reply;
@@ -62,8 +80,7 @@ export function prepareReply(reply) {
     }
     if (reply.modules && Array.isArray(reply.modules)) {
         reply.modules.map((m) => {
-            m.deviceId = Buffer.from(m.id).toString("hex");
-            m.id = null;
+            return prepareModule(m);
         });
     }
     if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
@@ -71,8 +88,7 @@ export function prepareReply(reply) {
             lr.modules
                 .filter((m) => m.module && m.module.id)
                 .map((m) => {
-                    m.module.deviceId = Buffer.from(m.module.id).toString("hex");
-                    m.module.id = null;
+                    return prepareModule(m.module);
                 });
         });
     }
