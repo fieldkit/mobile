@@ -52,7 +52,7 @@ import * as i18n from "tns-i18n";
 i18n("en");
 import routes from "../../routes";
 import { _T } from "../../utilities";
-import { Timer } from "./timer";
+import { Timer } from "../../common/timer";
 
 export default {
     props: {},
