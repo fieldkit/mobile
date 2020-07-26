@@ -25,6 +25,8 @@ import DeployReview from "../components/deploy/DeployReviewView";
 
 import { Route, RouteState } from "./navigate";
 
+import CalibrateStart from "../calibration/Start";
+
 const routes = {
     appSettings: new Route(AppSettings, {}),
     calibration: new Route(Calibration, { reading: true, connected: true }),
@@ -53,6 +55,9 @@ const routes = {
     deploy: {
         start: new Route(DeployMap, { connected: true }),
         notes: new Route(DeployNotes, { connected: true }),
+    },
+    internal: {
+        calibrate: new Route(CalibrateStart, { connected: false }),
     },
 };
 
