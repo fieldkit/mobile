@@ -61,23 +61,19 @@ function initializeApplication(services): Promise<any> {
                         Services.Store().commit(MutationTypes.SERVICES, () => Services);
 
                         return Services.Store()
-                            .dispatch(ActionTypes.INITIALIZE)
-                            .then(() => {
-                                return Services.Store()
-                                    .dispatch(ActionTypes.LOAD)
+                            .dispatch(ActionTypes.LOAD)
+                            .then(() =>
+                                Promise.resolve()
                                     .then(() => {
                                         // Enable geolocation and start refreshing our location.
                                         Services.PhoneLocation().enableAndGetLocation();
 
                                         return Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]);
                                     })
-                                    .then(() => {
-                                        return services.DiscoverStation().startServiceDiscovery();
-                                    })
-                                    .then(() => {
-                                        return updateStore(Services.Store());
-                                    });
-                            });
+                                    .then(() => services.DiscoverStation().startServiceDiscovery())
+                                    .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
+                                    .then(() => updateStore(Services.Store()))
+                            );
                     })
                     .catch((err) => {
                         console.log("error:", err, err ? err.stack : null);
