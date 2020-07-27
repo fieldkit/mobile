@@ -53,7 +53,17 @@ function configureVueJs(services) {
 
     Vue.filter("prettyDuration", (value) => {
         const duration = moment.duration(value / 1000, "seconds");
-        return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+        if (value / 1000 > 3600) {
+            return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+        }
+        return moment.utc(duration.asMilliseconds()).format("mm:ss");
+    });
+
+    Vue.filter("prettyDurationLabel", (value) => {
+        if (value / 1000 > 3600) {
+            return "hour min sec";
+        }
+        return "min sec";
     });
 
     const ServicesPlugin = {

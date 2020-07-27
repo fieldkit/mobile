@@ -25,7 +25,6 @@ export class PrepareVisual extends CalibrationVisual implements PrepareInfo {
     public readonly title: string;
     public readonly subtitle: string;
     public readonly icon: string;
-
     public readonly heading: string;
     public readonly instructions: string;
     public readonly image: string;

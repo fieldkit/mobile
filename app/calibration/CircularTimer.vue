@@ -2,17 +2,27 @@
     <GridLayout row="1" rows="auto,auto" columns="*" class="timer-container">
         <GridLayout row="0" class="inner-circle">
             <FlexboxLayout verticalAlignment="middle" justifyContent="center" v-if="reading">
-                <Label :text="unitOfMeasure" verticalAlignment="bottom" class="m-r-5 m-t-5 size-14 calibration-unit" />
+                <Label
+                    :text="unitOfMeasure"
+                    verticalAlignment="bottom"
+                    class="m-r-5 m-t-5 size-14 calibration-unit"
+                    v-show="unitIsPrefix"
+                />
                 <Label flexShrink="0.25" :text="reading" verticalAlignment="bottom" class="size-26" />
-                <Label :text="unitOfMeasure" verticalAlignment="bottom" class="m-l-5 m-t-5 size-14 calibration-unit" />
+                <Label
+                    :text="unitOfMeasure"
+                    verticalAlignment="bottom"
+                    class="m-l-5 m-t-5 size-14 calibration-unit"
+                    v-show="!unitIsPrefix"
+                />
             </FlexboxLayout>
         </GridLayout>
         <StackLayout row="0">
             <CircularProgressBar size="200" :progress="progress" :animated="animated" class="flip" />
         </StackLayout>
         <StackLayout row="1">
-            <Label class="size-20 elapsed-time elapsed-time-top" :text="elapsed"></Label>
-            <Label class="size-14 elapsed-time" text="seconds"></Label>
+            <Label class="size-20 elapsed-time elapsed-time-top" :text="elapsedMs | prettyDuration"></Label>
+            <Label class="size-14 elapsed-time" :text="elapsedMs | prettyDurationLabel"></Label>
         </StackLayout>
     </GridLayout>
 </template>
@@ -50,6 +60,14 @@ export default Vue.extend({
     },
     data() {
         return {};
+    },
+    computed: {
+        elapsedMs(this: any) {
+            return this.elapsed * 1000;
+        },
+        unitIsPrefix(this: any) {
+            return this.unitOfMeasure.toLowerCase() == "ph";
+        },
     },
     methods: {},
 });

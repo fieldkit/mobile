@@ -1,9 +1,12 @@
 <template>
     <GridLayout rows="82,*,80">
         <Header row="0" :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <CircularTimer row="1" :progress="50" :animated="true" :elapsed="100" unitOfMeasure="m" />
+        <StackLayout row="1">
+            <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
+            <CircularTimer :progress="progress" :animated="true" :elapsed="elapsed" :unitOfMeasure="unitOfMeasure" :reading="reading" />
+        </StackLayout>
         <StackLayout row="2">
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done"></Button>
+            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="doneWaiting" />
         </StackLayout>
     </GridLayout>
 </template>
@@ -11,11 +14,14 @@
 <script lang="ts">
 import Vue from "../wrappers/vue";
 import { _T } from "../utilities";
+
 import { CalibrationWaitStep } from "./model";
-import { Timer } from "../common/timer";
+import { WaitVisual } from "./visuals";
 
 import Header from "./Header.vue";
 import CircularTimer from "./CircularTimer.vue";
+
+import { Timer } from "../common/timer";
 
 export default Vue.extend({
     name: "Wait",
@@ -29,7 +35,7 @@ export default Vue.extend({
             required: true,
         },
         visual: {
-            type: Object,
+            type: WaitVisual,
             required: true,
         },
     },
@@ -38,12 +44,19 @@ export default Vue.extend({
             timer: null,
             started: new Date(),
             now: new Date(),
+            reading: 6.78,
+            unitOfMeasure: "ph",
         };
     },
     computed: {
+        progress(this: any) {
+            return (this.elapsed / this.visual.seconds) * 100;
+        },
+        elapsed(this: any) {
+            return (this.now.getTime() - this.started.getTime()) / 1000;
+        },
         remaining(this: any) {
-            const elapsed = (this.now.getTime() - this.started.getTime()) / 1000;
-            return Math.max(this.step.seconds - elapsed, 0);
+            return Math.max(this.visual.seconds - this.elapsed, 0);
         },
         doneWaiting(this: any) {
             return this.remaining === 0;
@@ -75,4 +88,14 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "../app-variables";
+
+.instruction-heading {
+    color: $fk-primary-black;
+    text-align: center;
+    margin-right: 20;
+    margin-left: 20;
+}
+.instruction-heading {
+    font-size: 18;
+}
 </style>
