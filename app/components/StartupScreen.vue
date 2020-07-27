@@ -108,7 +108,8 @@ export default class StartupScreen extends Vue {
                 return this.$navigateTo(routes.internal.calibrate, {
                     props: {
                         stationId: 1,
-                        station: Services.Store().getters.legacyStations[1],
+                        moduleKey: "modules.water.ph",
+                        position: 1,
                     },
                 });
             }

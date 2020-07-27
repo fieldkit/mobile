@@ -45,14 +45,14 @@ export class VisualCalibrationStep extends EmptyCalibrationStep implements HasVi
     }
 }
 
-export class CalibrationMoveStep extends VisualCalibrationStep {
+export class CalibrationPrepareStep extends VisualCalibrationStep {
     constructor(visual: CalibrationVisual) {
         super(visual);
     }
 }
 
 export class CalibrationWaitStep extends VisualCalibrationStep {
-    constructor(visual: CalibrationVisual, public readonly seconds: number) {
+    constructor(visual: CalibrationVisual) {
         super(visual);
     }
 }
@@ -64,7 +64,7 @@ export class CalibrationConfirmStep extends VisualCalibrationStep {
 }
 
 type CalibrationPointVisuals = {
-    move: CalibrationVisual[];
+    prepare: CalibrationVisual[];
     wait: CalibrationVisual[];
     confirm: CalibrationVisual[];
 };
@@ -75,8 +75,8 @@ export class CalibrationPointStep extends CalibrationStep {
     constructor(public readonly value: CalibrationValue, public readonly visuals: CalibrationPointVisuals) {
         super();
         this.children = _.flatten([
-            this.visuals.move.map((v) => new CalibrationMoveStep(v)),
-            this.visuals.wait.map((v) => new CalibrationWaitStep(v, 120)),
+            this.visuals.prepare.map((v) => new CalibrationPrepareStep(v)),
+            this.visuals.wait.map((v) => new CalibrationWaitStep(v)),
             this.visuals.confirm.map((v) => new CalibrationConfirmStep(v)),
         ]);
     }
@@ -88,7 +88,12 @@ export class CalibrationPointStep extends CalibrationStep {
 }
 
 export class CalibrationStrategy extends CalibrationStep {
-    constructor(public readonly steps: CalibrationStep[]) {
+    constructor(
+        public readonly moduleKey: string,
+        public readonly heading: string,
+        public readonly help: string,
+        public readonly steps: CalibrationStep[]
+    ) {
         super();
     }
 
@@ -102,17 +107,11 @@ export class CalibrationStrategy extends CalibrationStep {
     }
 }
 
-import PhVisuals from "./PhVisuals";
-
-const Ph1 = new CalibrationStrategy([new CalibrationPointStep(new CalibrationValue(7), PhVisuals.middle)]);
-const Ph3 = new CalibrationStrategy([
-    new CalibrationPointStep(new CalibrationValue(7), PhVisuals.middle),
-    new CalibrationPointStep(new CalibrationValue(4), PhVisuals.low),
-    new CalibrationPointStep(new CalibrationValue(10), PhVisuals.high),
-]);
-
 export class CalibrationStrategies {
     constructor(public readonly strategies: CalibrationStrategy[]) {}
-}
 
-export default new CalibrationStrategies([Ph1, Ph3]);
+    public getModuleStrategies(moduleKey: string): CalibrationStrategy[] {
+        const byKey = _.groupBy(this.strategies, (s) => s.moduleKey);
+        return byKey[moduleKey] || [];
+    }
+}

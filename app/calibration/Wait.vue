@@ -1,10 +1,11 @@
 <template>
-    <StackLayout>
-        <Label>Waiting {{ remaining.toFixed(0) }} seconds</Label>
-
-        <Label @tap="done" v-if="doneWaiting">Continue</Label>
-        <Label @tap="skip" v-else>Skip</Label>
-    </StackLayout>
+    <GridLayout rows="82,*,80">
+        <Header row="0" :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
+        <CircularTimer row="1" :progress="50" :animated="true" :elapsed="100" unitOfMeasure="m" />
+        <StackLayout row="2">
+            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done"></Button>
+        </StackLayout>
+    </GridLayout>
 </template>
 
 <script lang="ts">
@@ -13,7 +14,15 @@ import { _T } from "../utilities";
 import { CalibrationWaitStep } from "./model";
 import { Timer } from "../common/timer";
 
+import Header from "./Header.vue";
+import CircularTimer from "./CircularTimer.vue";
+
 export default Vue.extend({
+    name: "Wait",
+    components: {
+        Header,
+        CircularTimer,
+    },
     props: {
         step: {
             type: CalibrationWaitStep,
@@ -53,6 +62,9 @@ export default Vue.extend({
     methods: {
         done(this: any) {
             this.$emit("done");
+        },
+        back(this: any) {
+            this.$emit("back");
         },
         skip(this: any) {
             this.$emit("done");
