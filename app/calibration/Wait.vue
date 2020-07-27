@@ -2,8 +2,15 @@
     <GridLayout rows="82,*,80">
         <Header row="0" :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
         <StackLayout row="1">
+            <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
             <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
-            <CircularTimer :progress="progress" :animated="true" :elapsed="elapsed" :unitOfMeasure="unitOfMeasure" :reading="reading" />
+            <CircularTimer
+                :progress="waitingProgress"
+                :animated="true"
+                :elapsed="elapsed"
+                :unitOfMeasure="sensor.unitOfMeasure"
+                :reading="sensor.reading"
+            />
         </StackLayout>
         <StackLayout row="2">
             <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="doneWaiting" />
@@ -12,13 +19,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "../wrappers/vue";
-import { _T } from "../utilities";
-
-import { CalibrationWaitStep } from "./model";
+import { CalibrationWaitStep, CalibratingSensor } from "./model";
 import { WaitVisual } from "./visuals";
 
+import { _T } from "../utilities";
+
+import Vue from "../wrappers/vue";
 import Header from "./Header.vue";
+import ProgressBarAndStatus from "./ProgressBarAndStatus.vue";
 import CircularTimer from "./CircularTimer.vue";
 
 import { Timer } from "../common/timer";
@@ -27,9 +35,14 @@ export default Vue.extend({
     name: "Wait",
     components: {
         Header,
+        ProgressBarAndStatus,
         CircularTimer,
     },
     props: {
+        sensor: {
+            type: CalibratingSensor,
+            required: true,
+        },
         step: {
             type: CalibrationWaitStep,
             required: true,
@@ -38,18 +51,20 @@ export default Vue.extend({
             type: WaitVisual,
             required: true,
         },
+        progress: {
+            type: Number,
+            required: true,
+        },
     },
     data() {
         return {
             timer: null,
             started: new Date(),
             now: new Date(),
-            reading: 6.78,
-            unitOfMeasure: "ph",
         };
     },
     computed: {
-        progress(this: any) {
+        waitingProgress(this: any) {
             return (this.elapsed / this.visual.seconds) * 100;
         },
         elapsed(this: any) {

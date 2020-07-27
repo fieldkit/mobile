@@ -9,6 +9,16 @@ export class Ids {
     }
 }
 
+export class CalibratingSensor {
+    constructor(
+        public readonly stationId: number,
+        public readonly connected: boolean,
+        public readonly position: number,
+        public readonly unitOfMeasure: string,
+        public readonly reading: number
+    ) {}
+}
+
 export class CalibrationValue {
     constructor(value: number) {}
 }

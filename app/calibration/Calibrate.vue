@@ -5,6 +5,8 @@
                 :is="activeVisual.component"
                 :step="activeStep"
                 :visual="activeVisual"
+                :progress="progress"
+                :sensor="sensor"
                 @done="(ev) => onDone(ev, activeStep)"
                 @back="(ev) => onBack(ev, activeStep)"
                 @cancel="(ev) => onCancel(ev, activeStep)"
@@ -16,13 +18,21 @@
 import _ from "lodash";
 import Vue from "../wrappers/vue";
 import { _T } from "../utilities";
-import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy } from "./model";
+import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { CalibrationVisual } from "./visuals";
 
 export default Vue.extend({
     name: "Calibrate",
     components: {},
     props: {
+        sensor: {
+            type: CalibratingSensor,
+            required: true,
+        },
+        position: {
+            type: Number,
+            required: true,
+        },
         strategy: {
             type: CalibrationStrategy,
             required: true,
@@ -34,6 +44,9 @@ export default Vue.extend({
         };
     },
     computed: {
+        sensor(this: any) {
+            return new CalibratingSensor(this.stationId, false, this.position, "ph", 6.87);
+        },
         activeStep(this: any): VisualCalibrationStep {
             const step = _.first(_.without(this.getAllVisualSteps(), ...this.completed));
             if (step instanceof VisualCalibrationStep) {
@@ -43,6 +56,9 @@ export default Vue.extend({
         },
         activeVisual(this: any): CalibrationVisual {
             return this.activeStep.visual;
+        },
+        progress(this: any) {
+            return (this.completed.length / this.getAllVisualSteps().length) * 100;
         },
     },
     methods: {

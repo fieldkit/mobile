@@ -75,7 +75,7 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 .timer-container {
-    margin-top: 140;
+    margin-top: 80;
     text-align: center;
 }
 .elapsed-time {

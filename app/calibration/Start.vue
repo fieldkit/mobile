@@ -45,7 +45,7 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(this: any, args) {
-            console.log("loaded", calibrationStrategies);
+            // console.log("loaded", calibrationStrategies);
         },
         choose(this: any, strategy: CalibrationStrategy) {
             console.log("strategy", strategy);
