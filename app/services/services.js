@@ -134,7 +134,7 @@ export class Services {
     CalibrationService() {
         if (!this.calibrationService) {
             const CalibrationService = require("./calibration-service").default;
-            this.calibrationService = new CalibrationService(this);
+            this.calibrationService = new CalibrationService(this.Conservify());
         }
         return this.calibrationService;
     }

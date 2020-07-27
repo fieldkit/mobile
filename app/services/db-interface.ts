@@ -446,7 +446,7 @@ export default class DatabaseInterface {
                     .map((name) => {
                         const previous = Math.round(existing[name].currentReading * 10) / 10;
                         const current = Math.round(incoming[name].reading * 10) / 10;
-                        console.log("comparing readings", existing[name].currentReading, incoming[name].reading, previous, current);
+                        console.log("comparing readings", name, existing[name].currentReading, incoming[name].reading, previous, current);
                         const trend = current == previous ? 0 : current > previous ? 1 : -1;
                         return {
                             id: existing[name].id,

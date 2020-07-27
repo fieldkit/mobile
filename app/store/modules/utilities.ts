@@ -8,6 +8,7 @@ export interface Services {
     FileSystem(): any;
     PortalInterface(): PortalInterface;
     PortalUpdater(): PortalUpdater;
+    Conservify(): any;
     StationFirmware(): any;
     Audio(): any;
     Images(): any;
@@ -36,6 +37,10 @@ export class ServiceRef {
 
     public updater(): any {
         return this.verify().PortalUpdater();
+    }
+
+    public conservify(): any {
+        return this.verify().Conservify();
     }
 
     public audio(): any {

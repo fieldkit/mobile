@@ -3,7 +3,7 @@ import protobuf from "protobufjs";
 import { promiseAfter } from "../utilities";
 import Config from "../config";
 
-const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
+const atlasRoot: any = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
 const AtlasQuery = atlasRoot.lookupType("fk_atlas.WireAtlasQuery");
 const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
 const ReplyType = atlasRoot.lookup("fk_atlas.ReplyType");
@@ -24,11 +24,9 @@ const EcCalibrationsCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
 const log = Config.logger("CalibrationService");
 
 export default class CalibrationService {
-    constructor(services) {
-        this.services = services;
-    }
+    constructor(private readonly conservify: any) {}
 
-    getCalibrationStatus(address) {
+    protected getCalibrationStatus(address) {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
             calibration: {
@@ -36,12 +34,12 @@ export default class CalibrationService {
             },
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupReply(reply);
         });
     }
 
-    clearCalibration(address) {
+    public clearCalibration(address) {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
             calibration: {
@@ -49,72 +47,72 @@ export default class CalibrationService {
             },
         });
 
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupReply(reply);
         });
     }
 
-    calibrateQuickPh(address, data) {
+    protected calibrateQuickPh(address, data) {
         data.which = PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE;
         data.refValue = this.getQuickPhRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateLowPh(address, data) {
+    protected calibrateLowPh(address, data) {
         data.which = PhCalibrationsCommand.values.CALIBRATE_PH_LOW;
         data.refValue = this.getLowPhRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateMidPh(address, data) {
+    protected calibrateMidPh(address, data) {
         data.which = PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE;
         data.refValue = this.getMidPhRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateHighPh(address, data) {
+    protected calibrateHighPh(address, data) {
         data.which = PhCalibrationsCommand.values.CALIBRATE_PH_HIGH;
         data.refValue = this.getHighPhRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateDryConductivity(address, data) {
+    protected calibrateDryConductivity(address, data) {
         data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DRY;
         data.refValue = this.getDryEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateSingleConductivity(address, data) {
+    protected calibrateSingleConductivity(address, data) {
         data.which = EcCalibrationsCommand.values.CALIBRATE_EC_SINGLE;
         data.refValue = this.getLowEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateDualLowConductivity(address, data) {
+    protected calibrateDualLowConductivity(address, data) {
         data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_LOW;
         data.refValue = this.getLowEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateDualHighConductivity(address, data) {
+    protected calibrateDualHighConductivity(address, data) {
         data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_HIGH;
         data.refValue = this.getHighEcRef(data.temp);
         return this.performCalibration(address, data);
     }
 
-    calibrateAtmosphereDissolvedOxygen(address, data) {
+    protected calibrateAtmosphereDissolvedOxygen(address, data) {
         data.which = DoCalibrationsCommand.values.CALIBRATE_DO_ATMOSPHERE;
         data.refValue = 0;
         return this.performCalibration(address, data);
     }
 
-    calibrateZeroDissolvedOxygen(address, data) {
+    protected calibrateZeroDissolvedOxygen(address, data) {
         data.which = DoCalibrationsCommand.values.CALIBRATE_DO_ZERO;
         data.refValue = 0;
         return this.performCalibration(address, data);
     }
 
-    performCalibration(address, data) {
+    protected performCalibration(address, data) {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
             calibration: {
@@ -126,16 +124,16 @@ export default class CalibrationService {
                 temperature: data.temp,
             },
         });
-        return this.stationQuery(address, message).then(reply => {
+        return this.stationQuery(address, message).then((reply) => {
             return this._fixupReply(reply);
         });
     }
 
-    getDryEcRef(temp) {
+    protected getDryEcRef(temp) {
         return 0;
     }
 
-    getLowEcRef(temp) {
+    protected getLowEcRef(temp) {
         let ref = 12880;
         if (temp <= 5) {
             ref = 8220;
@@ -161,7 +159,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    getHighEcRef(temp) {
+    protected getHighEcRef(temp) {
         let ref = 80000;
         if (temp <= 5) {
             ref = 53500;
@@ -187,7 +185,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    getQuickPhRef(temp) {
+    protected getQuickPhRef(temp) {
         let ref = 6.86;
         if (temp <= 10) {
             ref = 6.92;
@@ -203,7 +201,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    getLowPhRef(temp) {
+    protected getLowPhRef(temp) {
         let ref = 4;
         if (temp <= 5) {
             ref = 4;
@@ -229,7 +227,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    getMidPhRef(temp) {
+    protected getMidPhRef(temp) {
         let ref = 7;
         if (temp <= 5) {
             ref = 7.09;
@@ -255,7 +253,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    getHighPhRef(temp) {
+    protected getHighPhRef(temp) {
         let ref = 10;
         if (temp <= 5) {
             ref = 10.25;
@@ -286,48 +284,47 @@ export default class CalibrationService {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    stationQuery(url, message) {
+    private stationQuery(url, message) {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject("ignored");
         }
         const binaryQuery = AtlasQuery.encodeDelimited(message).finish();
         log.info(url, "calibration querying", message);
 
-        return this.services
-            .Conservify()
+        return this.conservify
             .protobuf({
                 method: "POST",
                 url: url,
                 body: binaryQuery,
             })
             .then(
-                response => {
+                (response) => {
                     if (response.body.length == 0) {
                         log.info(url, "calibration query success", "<empty>");
                         return {};
                     }
 
                     const decoded = this._getResponseBody(response);
-                    return this._handlePotentialRetryReply(decoded, url, message).then(finalReply => {
+                    return this._handlePotentialRetryReply(decoded, url, message).then((finalReply) => {
                         log.info(url, "calibration query success", finalReply);
                         return finalReply;
                     });
                 },
-                err => {
+                (err) => {
                     log.error(url, "calibration query error", err);
                     return Promise.reject(err);
                 }
             );
     }
 
-    _getResponseBody(response) {
+    private _getResponseBody(response) {
         if (Buffer.isBuffer(response.body)) {
             return AtlasReply.decodeDelimited(response.body);
         }
         return response.body;
     }
 
-    _fixupReply(reply) {
+    private _fixupReply(reply) {
         if (reply.errors && reply.errors.length > 0) {
             return reply;
         }
@@ -370,7 +367,7 @@ export default class CalibrationService {
         return reply;
     }
 
-    _handlePotentialRetryReply(reply, url, message) {
+    private _handlePotentialRetryReply(reply, url, message) {
         if (reply.type != ReplyType.values.REPLY_RETRY) {
             return Promise.resolve(reply);
         }
@@ -381,7 +378,7 @@ export default class CalibrationService {
         return this._retryAfter(delays, url, message);
     }
 
-    _retryAfter(delays, url, message) {
+    private _retryAfter(delays, url, message) {
         log.info(url, "retrying calibration query after", delays);
         return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);
