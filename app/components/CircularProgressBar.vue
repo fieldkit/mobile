@@ -27,7 +27,7 @@
     </GridLayout>
 </template>
 
-<script>
+<script lang="ts">
 export default {
     props: {
         animated: { default: true },
@@ -39,20 +39,20 @@ export default {
         fillBackgroundColor: { default: "#F4F5F7" }, // $fk-gray-lightest
     },
     computed: {
-        activeColor() {
+        activeColor(this: any) {
             // $fk-tertiary-green: #3F8530
             return this.value > 99 ? "#3F8530" : this.fillColor;
         },
-        height() {
+        height(this: any) {
             return Math.min(this.size, 250);
         },
-        value() {
+        value(this: any) {
             return Math.min(this.progress, 100);
         },
-        text() {
+        text(this: any) {
             return `${this.value.toFixed()}%`;
         },
-        textSize() {
+        textSize(this: any) {
             return;
             this.height / 3.5;
         },
