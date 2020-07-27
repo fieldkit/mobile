@@ -1,23 +1,15 @@
 import Vue from "../../wrappers/vue";
-import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 
 export class PortalState {
     authenticated: boolean = false;
 }
 
-type ActionParameters = { commit: any };
+// type ActionParameters = { commit: any };
 
 const getters = {};
 
-const actions = {
-    [ActionTypes.INITIALIZE]: ({ commit }: ActionParameters) => {
-        //
-    },
-    [ActionTypes.UPDATE_PORTAL]: ({ commit }: ActionParameters) => {
-        //
-    },
-};
+const actions = {};
 
 const mutations = {
     [MutationTypes.RESET]: (state: PortalState, error: string) => {

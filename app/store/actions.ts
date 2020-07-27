@@ -57,3 +57,8 @@ export const SAVE_NOTES = "SAVE_NOTES";
 // Portal
 
 export const UPDATE_PORTAL = "UPDATE_PORTAL";
+
+// Calibration
+
+export const CALIBRATE_SENSOR = "CALIBRATE_SENSOR";
+export const CLEAR_SENSOR_CALIBRATION = "CLEAR_SENSOR_CALIBRATION";
