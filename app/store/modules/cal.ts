@@ -2,7 +2,7 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { /*Station,*/ ServiceInfo } from "../types";
+import { Station, ServiceInfo } from "../types";
 import { HttpStatusReply } from "../http_reply";
 import { Services, ServiceRef } from "./utilities";
 import CalibrationService from "../../services/calibration-service";
@@ -40,8 +40,21 @@ const getters = {};
 type ActionParameters = { commit: any; dispatch: any; state: CalibrationState };
 
 const actions = {
-    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations) => {
-        commit(MutationTypes.STATIONS, stations);
+    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
+        const updating = _.fromPairs(
+            _.flatten(
+                stations.map((station) =>
+                    station.modules.map((m) => {
+                        if (m.status) {
+                            return [m.moduleId, m.status];
+                        }
+                        return [];
+                    })
+                )
+            )
+        );
+
+        return commit(CALIBRATION_REFRESH, updating);
     },
     [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply: HttpStatusReply) => {
         const updating = _.fromPairs(
