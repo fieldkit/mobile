@@ -46,7 +46,6 @@ import { NoteMedia, NoteForm } from "../../store/modules/notes";
 import LabeledTextView from "../LabeledTextView";
 import MakeAudioRecording from "./MakeAudioRecording";
 import AudioRecordings from "./AudioRecordings";
-import Keyboard from "nativescript-keyboardshowing";
 
 export default {
     components: {
@@ -73,10 +72,7 @@ export default {
         };
     },
     methods: {
-        onPageLoaded(args) {
-            console.log(Keyboard);
-            console.log(Keyboard.isShowing());
-        },
+        onPageLoaded(args) {},
         onUnloaded() {},
         onCancel() {
             console.log("note cancel", this.form);
