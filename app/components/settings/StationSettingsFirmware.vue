@@ -36,7 +36,7 @@
                         <Button
                             v-if="updateAvailable"
                             :text="_L('upgradeFirmware')"
-                            :isEnabled="station.connected"
+                            :isEnabled="station.connected && canUpgrade"
                             @tap="upgradeFirmware"
                             class="btn btn-primary btn-padded"
                         />
@@ -56,25 +56,27 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "../../wrappers/vue";
 import routes from "../../routes";
-import { hexStringToByteWiseString } from "../../utilities";
-import Services from "../../services/services";
+// import { hexStringToByteWiseString } from "../../utilities";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import UpgradeFirmwareModal from "./UpgradeFirmwareModal";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import ScreenHeader from "../ScreenHeader.vue";
+import ScreenFooter from "../ScreenFooter.vue";
+import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
 
-export default {
+export default Vue.extend({
     components: {
         ScreenHeader,
         ScreenFooter,
         ConnectionNote,
     },
     data() {
-        return {};
+        return {
+            canUpgrade: true,
+        };
     },
     props: {
         stationId: {
@@ -83,19 +85,19 @@ export default {
         },
     },
     computed: {
-        station() {
+        station(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        stationFirmware() {
+        stationFirmware(this: any) {
             return this.$store.state.firmware.stations[this.stationId];
         },
-        availableFirmware() {
+        availableFirmware(this: any) {
             return this.$store.state.firmware.available;
         },
-        updateAvailable() {
+        updateAvailable(this: any) {
             const local = this.$store.state.firmware.available;
             const station = this.$store.state.firmware.stations[this.stationId];
-            console.log("comparing", "station", station, "locally", local);
+            console.log("comparing", "station", this.stationId, station, "locally", local);
             if (local && station) {
                 const localVersion = local?.simpleNumber || 0;
                 const stationVersion = station?.simpleNumber || 0;
@@ -106,8 +108,10 @@ export default {
         },
     },
     methods: {
-        onPageLoaded(args) {},
-        downloadFirmware(args) {
+        onPageLoaded(this: any, args) {
+            //
+        },
+        downloadFirmware(this: any, args) {
             const options = {
                 props: {
                     station: this.station,
@@ -115,9 +119,12 @@ export default {
                 },
                 fullscreen: true,
             };
-            return this.$showModal(UpgradeFirmwareModal, options);
+            this.canUpgrade = false;
+            return this.$showModal(UpgradeFirmwareModal, options).then(() => {
+                // this.canUpgrade = true;
+            });
         },
-        upgradeFirmware(args) {
+        upgradeFirmware(this: any, args) {
             const options = {
                 props: {
                     station: this.station,
@@ -125,9 +132,12 @@ export default {
                 },
                 fullscreen: true,
             };
-            return this.$showModal(UpgradeFirmwareModal, options);
+            this.canUpgrade = false;
+            return this.$showModal(UpgradeFirmwareModal, options).then(() => {
+                // this.canUpgrade = true;
+            });
         },
-        goBack(ev) {
+        goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
@@ -144,7 +154,7 @@ export default {
             ]);
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
