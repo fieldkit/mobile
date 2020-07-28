@@ -33,6 +33,7 @@ import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { WaitVisual } from "./visuals";
 
 import { _T } from "../utilities";
+import Config from "../config";
 
 import Vue from "../wrappers/vue";
 import Header from "./Header.vue";
@@ -86,7 +87,7 @@ export default Vue.extend({
             return this.remaining === 0;
         },
         debugging() {
-            return false;
+            return Config.env.jacob;
         },
         expected(this: any) {
             return this.sensor.calibrationValue?.reference?.toFixed(2) || null;
