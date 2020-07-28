@@ -80,8 +80,9 @@ const actions = {
                         console.log("skip nearby transferring station");
                         return false;
                     }
+                    const mark = nearby.activity.getTime() > nearby.queried.getTime() ? nearby.activity : nearby.queried;
                     const now = new Date();
-                    const elapsed = now.getTime() - nearby.activity.getTime();
+                    const elapsed = now.getTime() - mark.getTime();
                     const querying = elapsed > 10 * 1000;
                     return querying;
                 })
