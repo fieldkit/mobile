@@ -103,9 +103,9 @@ export default class StartupScreen extends Vue {
             if (Config.env.jacob) {
                 return this.$navigateTo(routes.internal.calibrate, {
                     props: {
-                        stationId: 1,
-                        moduleKey: "modules.water.ph",
+                        stationId: 2,
                         position: 1,
+                        moduleKey: "modules.water.ph",
                     },
                 });
             }

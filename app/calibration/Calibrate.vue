@@ -3,10 +3,10 @@
         <StackLayout>
             <component
                 :is="activeVisual.component"
+                :sensor="sensor"
                 :step="activeStep"
                 :visual="activeVisual"
                 :progress="progress"
-                :sensor="sensor"
                 @done="(ev) => onDone(ev, activeStep)"
                 @back="(ev) => onBack(ev, activeStep)"
                 @cancel="(ev) => onCancel(ev, activeStep)"
@@ -20,17 +20,23 @@ import Vue from "../wrappers/vue";
 import { _T } from "../utilities";
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { CalibrationVisual } from "./visuals";
+import { ClearAtlasCalibration } from "../store/modules/cal";
+import Start from "./Start";
 
 export default Vue.extend({
     name: "Calibrate",
     components: {},
     props: {
-        sensor: {
-            type: CalibratingSensor,
+        stationId: {
+            type: Number,
             required: true,
         },
         position: {
             type: Number,
+            required: true,
+        },
+        moduleKey: {
+            type: String,
             required: true,
         },
         strategy: {
@@ -45,7 +51,10 @@ export default Vue.extend({
     },
     computed: {
         sensor(this: any) {
-            return new CalibratingSensor(this.stationId, false, this.position, "ph", 6.87);
+            return new CalibratingSensor(this.stationId, false, this.position, "ph", 6.87, {});
+        },
+        deviceId(this: any) {
+            return this.$store.getters.legacyStations[this.stationId].deviceId;
         },
         activeStep(this: any): VisualCalibrationStep {
             const step = _.first(_.without(this.getAllVisualSteps(), ...this.completed));
@@ -61,13 +70,19 @@ export default Vue.extend({
             return (this.completed.length / this.getAllVisualSteps().length) * 100;
         },
     },
+    mounted() {
+        const action = new ClearAtlasCalibration(this.deviceId, 1);
+        return this.$store.dispatch(action).then((cleared) => {
+            console.log("clear done", cleared);
+        });
+    },
     methods: {
+        onPageLoaded(this: any, args) {
+            // console.log("cal:", "strategy", this.strategy);
+        },
         getAllVisualSteps(this: any): VisualCalibrationStep[] {
             const steps: CalibrationStep[] = this.strategy.allChildren;
             return steps.filter((step: any): step is VisualCalibrationStep => step.visual !== undefined);
-        },
-        onPageLoaded(this: any, args) {
-            console.log("cal:", "strategy", this.strategy);
         },
         onDone(this: any, ev: any, step: CalibrationStep) {
             this.completed.push(step);
@@ -78,9 +93,16 @@ export default Vue.extend({
         },
         onBack(this: any, ev: any, step: CalibrationStep) {
             console.log("cal:", "back", step, "completed", this.completed.length);
-            if (this.completed.length > 0) {
-                this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
+            if (this.completed.length == 0) {
+                return this.$navigateTo(Start, {
+                    props: {
+                        stationId: this.stationId,
+                        position: this.position,
+                        moduleKey: this.moduleKey,
+                    },
+                });
             }
+            this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
         },
     },
 });

@@ -1,6 +1,7 @@
 import { CalibrationStrategy, CalibrationPointStep, CalibrationValue } from "./model";
-import { PrepareVisual, WaitVisual } from "./visuals";
+import { CheckVisual, PrepareVisual, WaitVisual } from "./visuals";
 
+import Check from "./Check.vue";
 import Prepare from "./Prepare.vue";
 import Wait from "./Wait.vue";
 
@@ -17,6 +18,14 @@ export const PhCommon = {
 
 const PhQuick = new CalibrationStrategy("modules.water.ph", _L("quickCalibration"), _L("quickCalibration"), [
     new CalibrationPointStep(new CalibrationValue(7), {
+        check: [
+            new CheckVisual(Check, {
+                ...PhCommon,
+                heading: _L("quickPhCalibration"),
+                done: _L("next"),
+                skip: _L("skip"),
+            }),
+        ],
         prepare: [
             new PrepareVisual(Prepare, {
                 ...PhCommon,
@@ -43,7 +52,6 @@ const PhQuick = new CalibrationStrategy("modules.water.ph", _L("quickCalibration
         wait: [
             new WaitVisual(Wait, {
                 ...PhCommon,
-                expected: new CalibrationValue(7),
                 seconds: 120,
                 heading: _L("quickPhCalibration"),
                 done: _L("calibrate"),
@@ -55,6 +63,14 @@ const PhQuick = new CalibrationStrategy("modules.water.ph", _L("quickCalibration
 
 const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibration"), _L("threePointCalibration"), [
     new CalibrationPointStep(new CalibrationValue(7), {
+        check: [
+            new CheckVisual(Check, {
+                ...PhCommon,
+                heading: _L("threePointCalibration"),
+                done: _L("next"),
+                skip: _L("skip"),
+            }),
+        ],
         prepare: [
             new PrepareVisual(Prepare, {
                 ...PhCommon,
@@ -81,7 +97,6 @@ const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibratio
         wait: [
             new WaitVisual(Wait, {
                 ...PhCommon,
-                expected: new CalibrationValue(7),
                 seconds: 120,
                 heading: _L("midPointCalibration"),
                 done: _L("calibrate"),
@@ -90,6 +105,7 @@ const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibratio
         confirm: [],
     }),
     new CalibrationPointStep(new CalibrationValue(4), {
+        check: [],
         prepare: [
             new PrepareVisual(Prepare, {
                 ...PhCommon,
@@ -109,7 +125,6 @@ const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibratio
         wait: [
             new WaitVisual(Wait, {
                 ...PhCommon,
-                expected: new CalibrationValue(4),
                 seconds: 120,
                 heading: _L("lowPointCalibration"),
                 done: _L("calibrate"),
@@ -118,6 +133,7 @@ const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibratio
         confirm: [],
     }),
     new CalibrationPointStep(new CalibrationValue(10), {
+        check: [],
         prepare: [
             new PrepareVisual(Prepare, {
                 ...PhCommon,
@@ -137,7 +153,6 @@ const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibratio
         wait: [
             new WaitVisual(Wait, {
                 ...PhCommon,
-                expected: new CalibrationValue(10),
                 seconds: 120,
                 heading: _L("highPointCalibration"),
                 done: _L("calibrate"),

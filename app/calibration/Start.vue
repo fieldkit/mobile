@@ -26,12 +26,12 @@ export default Vue.extend({
             type: Number,
             required: true,
         },
-        moduleKey: {
-            type: String,
-            required: true,
-        },
         position: {
             type: Number,
+            required: true,
+        },
+        moduleKey: {
+            type: String,
             required: true,
         },
     },
@@ -53,6 +53,7 @@ export default Vue.extend({
                 props: {
                     stationId: this.stationId,
                     position: this.position,
+                    moduleKey: this.moduleKey,
                     strategy: strategy,
                 },
             });

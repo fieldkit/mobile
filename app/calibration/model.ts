@@ -15,7 +15,8 @@ export class CalibratingSensor {
         public readonly connected: boolean,
         public readonly position: number,
         public readonly unitOfMeasure: string,
-        public readonly reading: number
+        public readonly reading: number,
+        public readonly sensors: { [index: string]: number }
     ) {}
 }
 
@@ -55,6 +56,12 @@ export class VisualCalibrationStep extends EmptyCalibrationStep implements HasVi
     }
 }
 
+export class CalibrationCheckStep extends VisualCalibrationStep {
+    constructor(visual: CalibrationVisual) {
+        super(visual);
+    }
+}
+
 export class CalibrationPrepareStep extends VisualCalibrationStep {
     constructor(visual: CalibrationVisual) {
         super(visual);
@@ -74,6 +81,7 @@ export class CalibrationConfirmStep extends VisualCalibrationStep {
 }
 
 type CalibrationPointVisuals = {
+    check: CalibrationVisual[];
     prepare: CalibrationVisual[];
     wait: CalibrationVisual[];
     confirm: CalibrationVisual[];
@@ -85,6 +93,7 @@ export class CalibrationPointStep extends CalibrationStep {
     constructor(public readonly value: CalibrationValue, public readonly visuals: CalibrationPointVisuals) {
         super();
         this.children = _.flatten([
+            this.visuals.check.map((v) => new CalibrationCheckStep(v)),
             this.visuals.prepare.map((v) => new CalibrationPrepareStep(v)),
             this.visuals.wait.map((v) => new CalibrationWaitStep(v)),
             this.visuals.confirm.map((v) => new CalibrationConfirmStep(v)),
