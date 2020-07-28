@@ -1,6 +1,8 @@
 import { CalibrationStrategy, CalibrationPointStep, CalibrationValue } from "./model";
 import { CheckVisual, PrepareVisual, WaitVisual } from "./visuals";
 
+import protobuf from "protobufjs";
+
 import Check from "./Check.vue";
 import Prepare from "./Prepare.vue";
 import Wait from "./Wait.vue";
@@ -16,8 +18,22 @@ export const PhCommon = {
     done: _L("next"),
 };
 
+// TODO Pull this along with calibrate-service boilerplate into a TS wrapper.
+const atlasRoot: any = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
+// const DoCalibrateCommand = atlasRoot.lookup("fk_atlas.DoCalibrateCommand");
+const PhCalibrateCommand = atlasRoot.lookup("fk_atlas.PhCalibrateCommand");
+// const EcCalibrateCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
+// const TempCalibrateCommand = atlasRoot.lookup("fk_atlas.TempCalibrateCommand");
+// const OrpCalibrateCommand = atlasRoot.lookup("fk_atlas.OrpCalibrateCommand");
+
+export class AtlasCalValue extends CalibrationValue {
+    constructor(public readonly reference: number, public readonly which: number) {
+        super();
+    }
+}
+
 const PhQuick = new CalibrationStrategy("modules.water.ph", _L("quickCalibration"), _L("quickCalibration"), [
-    new CalibrationPointStep(new CalibrationValue(7), {
+    new CalibrationPointStep(new AtlasCalValue(6.86, PhCalibrateCommand.values.CALIBRATE_PH_MIDDLE), {
         check: [
             new CheckVisual(Check, {
                 ...PhCommon,
@@ -62,7 +78,7 @@ const PhQuick = new CalibrationStrategy("modules.water.ph", _L("quickCalibration
 ]);
 
 const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibration"), _L("threePointCalibration"), [
-    new CalibrationPointStep(new CalibrationValue(7), {
+    new CalibrationPointStep(new AtlasCalValue(7, PhCalibrateCommand.values.CALIBRATE_PH_MIDDLE), {
         check: [
             new CheckVisual(Check, {
                 ...PhCommon,
@@ -104,7 +120,7 @@ const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibratio
         ],
         confirm: [],
     }),
-    new CalibrationPointStep(new CalibrationValue(4), {
+    new CalibrationPointStep(new AtlasCalValue(4, PhCalibrateCommand.values.CALIBRATE_PH_LOW), {
         check: [],
         prepare: [
             new PrepareVisual(Prepare, {
@@ -132,7 +148,7 @@ const Ph3 = new CalibrationStrategy("modules.water.ph", _L("threePointCalibratio
         ],
         confirm: [],
     }),
-    new CalibrationPointStep(new CalibrationValue(10), {
+    new CalibrationPointStep(new AtlasCalValue(10, PhCalibrateCommand.values.CALIBRATE_PH_HIGH), {
         check: [],
         prepare: [
             new PrepareVisual(Prepare, {

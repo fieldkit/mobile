@@ -7,6 +7,8 @@ import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors
 import { PhoneLocation } from "../store/types";
 import Config from "../config";
 
+import { fixupStatus } from "./calibration-service";
+
 const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
 const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
 
@@ -58,7 +60,7 @@ function prepareModule(m: any): any {
     if (m.status && /*_.isArray(m.status) &&*/ m.status.length > 0) {
         if (m.name.indexOf("modules.water.") == 0) {
             const buffer = Buffer.from(m.status);
-            m.status = AtlasReply.decode(buffer);
+            m.status = fixupStatus(AtlasReply.decode(buffer));
         } else {
             console.log("unknown module status", m);
         }

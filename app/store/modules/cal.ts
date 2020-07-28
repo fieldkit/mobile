@@ -2,24 +2,36 @@ import _ from "lodash";
 import Vue from "../../wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Station, ServiceInfo } from "../types";
+import { /*Station,*/ ServiceInfo } from "../types";
+import { HttpStatusReply } from "../http_reply";
 import { Services, ServiceRef } from "./utilities";
 import CalibrationService from "../../services/calibration-service";
+
+export const CALIBRATED = "CALIBRATED";
+export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
+export const CALIBRATION_REFRESH = "CALIBRATION_REFRESH";
 
 export class ClearAtlasCalibration {
     public readonly type: string = ActionTypes.CLEAR_SENSOR_CALIBRATION;
 
-    constructor(public readonly deviceId: string, public readonly position: number) {}
+    constructor(public readonly deviceId: string, public readonly moduleId: string, public readonly position: number) {}
 }
 
 export class CalibrateAtlas {
     public readonly type: string = ActionTypes.CALIBRATE_SENSOR;
 
-    constructor(public readonly deviceId: string, public readonly position: number, public readonly reference: number) {}
+    constructor(
+        public readonly deviceId: string,
+        public readonly moduleId: string,
+        public readonly position: number,
+        public readonly value: { which: number; reference: number },
+        public readonly compensations: { [index: string]: number }
+    ) {}
 }
 
 export class CalibrationState {
     services: ServiceRef = new ServiceRef();
+    status: { [index: string]: object | null } = {};
     connected: { [index: string]: ServiceInfo } = {};
 }
 
@@ -31,23 +43,46 @@ const actions = {
     [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations) => {
         commit(MutationTypes.STATIONS, stations);
     },
-    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply) => {
-        return true;
-    },
-    [ActionTypes.CALIBRATE_SENSOR]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
-        return true;
+    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply: HttpStatusReply) => {
+        const updating = _.fromPairs(
+            statusReply.modules.map((m) => {
+                if (m.status) {
+                    return [m.deviceId, m.status];
+                }
+                return [];
+            })
+        );
+
+        return commit(CALIBRATION_REFRESH, updating);
     },
     [ActionTypes.CLEAR_SENSOR_CALIBRATION]: ({ commit, dispatch, state }: ActionParameters, payload: ClearAtlasCalibration) => {
-        console.log("clearing", payload);
         const info = state.connected[payload.deviceId];
-        console.log("connected", state.connected, info);
         if (!info) {
             throw new Error(`no info for nearby station ${payload.deviceId}`);
         }
         const service = new CalibrationService(state.services.conservify());
         const url = info.url + "/modules/" + payload.position;
-        console.log("INFO", info, url);
-        return service.clearCalibration(url);
+        return service.clearCalibration(url).then((cleared) => {
+            console.log("cal:", "cleared", cleared);
+            return commit(CLEARED_CALIBRATION, { [payload.moduleId]: cleared });
+        });
+    },
+    [ActionTypes.CALIBRATE_SENSOR]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
+        const info = state.connected[payload.deviceId];
+        if (!info) {
+            throw new Error(`no info for nearby station ${payload.deviceId}`);
+        }
+        const service = new CalibrationService(state.services.conservify());
+        const url = info.url + "/modules/" + payload.position;
+        const params = {
+            which: payload.value.which,
+            reference: payload.value.reference,
+            compensations: payload.compensations,
+        };
+        return service.calibrateSensor(url, params).then((calibrated) => {
+            console.log("cal:", "calibrated", calibrated);
+            return commit(CALIBRATED, { [payload.moduleId]: calibrated });
+        });
     },
 };
 
@@ -66,8 +101,14 @@ const mutations = {
     [MutationTypes.SERVICES]: (state: CalibrationState, services: () => Services) => {
         Vue.set(state, "services", new ServiceRef(services));
     },
-    [MutationTypes.STATIONS]: (state: CalibrationState, stations: Station[]) => {
-        //
+    [CALIBRATED]: (state: CalibrationState, payload: { [index: string]: object | any }) => {
+        Vue.set(state, "status", { ...state.status, ...payload });
+    },
+    [CLEARED_CALIBRATION]: (state: CalibrationState, payload: { [index: string]: object | any }) => {
+        Vue.set(state, "status", { ...state.status, ...payload });
+    },
+    [CALIBRATION_REFRESH]: (state: CalibrationState, payload: { [index: string]: object | any }) => {
+        Vue.set(state, "status", { ...state.status, ...payload });
     },
 };
 

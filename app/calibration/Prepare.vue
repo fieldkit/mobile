@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { CalibrationPrepareStep, CalibratingSensor } from "./model";
+import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { PrepareVisual } from "./visuals";
 
 import { _T } from "../utilities";
@@ -35,7 +35,7 @@ export default Vue.extend({
             required: true,
         },
         step: {
-            type: CalibrationPrepareStep,
+            type: VisualCalibrationStep,
             required: true,
         },
         visual: {

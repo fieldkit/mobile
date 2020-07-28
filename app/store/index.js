@@ -54,6 +54,10 @@ function customizeLogger() {
                 );
                 return false;
             }
+            if (/CALIBRATION/.test(mutation.type)) {
+                console.log("mutation:", mutation.type, stateAfter.cal);
+                return false;
+            }
 
             console.log("mutation:", mutation.type);
 

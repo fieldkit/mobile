@@ -4,16 +4,50 @@
         <StackLayout row="1">
             <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
             <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
+
+            <Label
+                class="existing-calibration"
+                text="This sensor doesn't appear to have been calibrated."
+                textWrap="true"
+                v-if="existing.total == 0"
+            />
+            <Label
+                class="existing-calibration"
+                text="This sensor appears to have been calibrated using a 1-point strategy."
+                textWrap="true"
+                v-if="existing.total == 1"
+            />
+            <Label
+                class="existing-calibration"
+                text="This sensor appears to have been calibrated using a 2-point strategy."
+                textWrap="true"
+                v-if="existing.total == 2"
+            />
+            <Label
+                class="existing-calibration"
+                text="This sensor appears to have been calibrated using a 3-point strategy."
+                textWrap="true"
+                v-if="existing.total == 3"
+            />
+            <Label
+                class="existing-calibration"
+                text="This sensor appears to have been calibrated using a 4-point strategy."
+                textWrap="true"
+                v-if="existing.total == 4"
+            />
+
+            <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
+
+            <Button class="btn btn-padded" text="Clear" @tap="clear" />
         </StackLayout>
         <StackLayout row="2">
             <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
-            <Button class="btn btn-primary btn-padded" :text="visual.skip" @tap="skip" />
         </StackLayout>
     </GridLayout>
 </template>
 
 <script lang="ts">
-import { CalibrationCheckStep, CalibratingSensor } from "./model";
+import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { CheckVisual } from "./visuals";
 
 import { _T } from "../utilities";
@@ -34,7 +68,7 @@ export default Vue.extend({
             required: true,
         },
         step: {
-            type: CalibrationCheckStep,
+            type: VisualCalibrationStep,
             required: true,
         },
         visual: {
@@ -49,6 +83,11 @@ export default Vue.extend({
     data() {
         return {};
     },
+    computed: {
+        existing(this: any) {
+            return this.sensor.calibration;
+        },
+    },
     methods: {
         back(this: any) {
             this.$emit("back");
@@ -56,8 +95,8 @@ export default Vue.extend({
         done(this: any) {
             this.$emit("done");
         },
-        skip(this: any) {
-            this.$emit("skip");
+        clear(this: any) {
+            this.$emit("clear");
         },
     },
 });
@@ -74,5 +113,13 @@ export default Vue.extend({
 }
 .instruction-heading {
     font-size: 18;
+}
+
+.existing-calibration {
+    color: $fk-primary-black;
+    text-align: center;
+    margin-right: 20;
+    margin-left: 20;
+    font-size: 16;
 }
 </style>

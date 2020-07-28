@@ -12,16 +12,18 @@ export class Ids {
 export class CalibratingSensor {
     constructor(
         public readonly stationId: number,
+        public readonly moduleId: string,
         public readonly connected: boolean,
         public readonly position: number,
         public readonly unitOfMeasure: string,
         public readonly reading: number,
+        public readonly calibration: any | null,
         public readonly sensors: { [index: string]: number }
     ) {}
 }
 
-export class CalibrationValue {
-    constructor(value: number) {}
+export abstract class CalibrationValue {
+    constructor() {}
 }
 
 export abstract class CalibrationStep {
@@ -31,52 +33,20 @@ export abstract class CalibrationStep {
 
     abstract get children(): CalibrationStep[];
 
-    abstract get completed(): boolean;
-
     get allChildren(): CalibrationStep[] {
         return _.union(_.flatten(this.children.map((c) => c.allChildren)), [this]);
     }
 }
 
 export abstract class EmptyCalibrationStep extends CalibrationStep {
-    get children(): CalibrationStep[] {
+    public get children(): CalibrationStep[] {
         return [];
-    }
-
-    // The assumption here, is that the parent PointStep will have
-    // answered this question.
-    get completed(): boolean {
-        return false;
     }
 }
 
 export class VisualCalibrationStep extends EmptyCalibrationStep implements HasVisual {
     constructor(public readonly visual: CalibrationVisual) {
         super();
-    }
-}
-
-export class CalibrationCheckStep extends VisualCalibrationStep {
-    constructor(visual: CalibrationVisual) {
-        super(visual);
-    }
-}
-
-export class CalibrationPrepareStep extends VisualCalibrationStep {
-    constructor(visual: CalibrationVisual) {
-        super(visual);
-    }
-}
-
-export class CalibrationWaitStep extends VisualCalibrationStep {
-    constructor(visual: CalibrationVisual) {
-        super(visual);
-    }
-}
-
-export class CalibrationConfirmStep extends VisualCalibrationStep {
-    constructor(visual: CalibrationVisual) {
-        super(visual);
     }
 }
 
@@ -90,19 +60,14 @@ type CalibrationPointVisuals = {
 export class CalibrationPointStep extends CalibrationStep {
     public readonly children: CalibrationStep[];
 
-    constructor(public readonly value: CalibrationValue, public readonly visuals: CalibrationPointVisuals) {
+    constructor(public readonly value: CalibrationValue, visuals: CalibrationPointVisuals) {
         super();
         this.children = _.flatten([
-            this.visuals.check.map((v) => new CalibrationCheckStep(v)),
-            this.visuals.prepare.map((v) => new CalibrationPrepareStep(v)),
-            this.visuals.wait.map((v) => new CalibrationWaitStep(v)),
-            this.visuals.confirm.map((v) => new CalibrationConfirmStep(v)),
+            visuals.check.map((v) => new VisualCalibrationStep(v)),
+            visuals.prepare.map((v) => new VisualCalibrationStep(v)),
+            visuals.wait.map((v) => new VisualCalibrationStep(v)),
+            visuals.confirm.map((v) => new VisualCalibrationStep(v)),
         ]);
-    }
-
-    get completed(): boolean {
-        // TODO Check the calibration data of the module.
-        return false;
     }
 }
 
@@ -116,13 +81,21 @@ export class CalibrationStrategy extends CalibrationStep {
         super();
     }
 
-    get children(): CalibrationStep[] {
+    public get children(): CalibrationStep[] {
         return this.steps;
     }
 
-    get completed(): boolean {
-        // TODO Check the calibration data of the module.
-        return false;
+    public getStepCalibrationValue(step: CalibrationStep): CalibrationValue {
+        // NOTE Right now all our given step's instances will be grandchildren of us.
+        const containing = _.first(this.steps.filter((p) => p.children.includes(step)));
+
+        if (containing instanceof CalibrationPointStep) {
+            if (!containing.value) {
+                throw new Error("containing step has invalid calibration value");
+            }
+            return containing.value;
+        }
+        throw new Error("containing step has no calibration values");
     }
 }
 

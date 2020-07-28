@@ -23,6 +23,56 @@ const EcCalibrationsCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
 
 const log = Config.logger("CalibrationService");
 
+function numberOfOnes(n) {
+    n = n - ((n >> 1) & 0x55555555);
+    n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+    return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
+}
+
+export function fixupStatus(reply) {
+    switch (reply.calibration.type) {
+        case SensorType.values.SENSOR_PH:
+            reply.calibration.total = numberOfOnes(reply.calibration.ph);
+            reply.calibration.phStatus = {
+                low: reply.calibration.ph & PhCalibrations.values.PH_LOW,
+                middle: reply.calibration.ph & PhCalibrations.values.PH_MIDDLE,
+                high: reply.calibration.ph & PhCalibrations.values.PH_HIGH,
+            };
+            break;
+        case SensorType.values.SENSOR_TEMP:
+            reply.calibration.total = numberOfOnes(reply.calibration.temp);
+            reply.calibration.tempStatus = {};
+            break;
+        case SensorType.values.SENSOR_ORP:
+            reply.calibration.total = numberOfOnes(reply.calibration.orp);
+            reply.calibration.orpStatus = {};
+            break;
+        case SensorType.values.SENSOR_DO:
+            reply.calibration.total = numberOfOnes(reply.calibration.dissolvedOxygen);
+            reply.calibration.doStatus = {
+                atm: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ATMOSPHERE,
+                zero: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ZERO,
+            };
+            break;
+        case SensorType.values.SENSOR_EC:
+            reply.calibration.total = numberOfOnes(reply.calibration.ec);
+            reply.calibration.ecStatus = {
+                dry: reply.calibration.ec & EcCalibrations.values.EC_DRY,
+                single: reply.calibration.ec & EcCalibrations.values.EC_SINGLE,
+                low: reply.calibration.ec & EcCalibrations.values.EC_DUAL_LOW,
+                high: reply.calibration.ec & EcCalibrations.values.EC_DUAL_HIGH,
+            };
+            break;
+        case SensorType.values.SENSOR_NONE:
+            break;
+        default:
+            console.warn("unexpected calibration type");
+            break;
+    }
+
+    return reply;
+}
+
 export default class CalibrationService {
     constructor(private readonly conservify: any) {}
 
@@ -112,6 +162,23 @@ export default class CalibrationService {
         return this.performCalibration(address, data);
     }
 
+    public calibrateSensor(address, data) {
+        const message = AtlasQuery.create({
+            type: AtlasQueryType.values.QUERY_NONE,
+            calibration: {
+                operation: AtlasCalibrationOperation.values.CALIBRATION_SET,
+                which: data.which,
+                value: data.reference,
+            },
+            compensations: {
+                temperature: data.compensations.temp,
+            },
+        });
+        return this.stationQuery(address, message).then((reply) => {
+            return this._fixupReply(reply);
+        });
+    }
+
     protected performCalibration(address, data) {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
@@ -121,7 +188,7 @@ export default class CalibrationService {
                 value: data.refValue,
             },
             compensations: {
-                temperature: data.temp,
+                temperature: data.temperature,
             },
         });
         return this.stationQuery(address, message).then((reply) => {
@@ -319,7 +386,9 @@ export default class CalibrationService {
 
     private _getResponseBody(response) {
         if (Buffer.isBuffer(response.body)) {
-            return AtlasReply.decodeDelimited(response.body);
+            return AtlasReply.toObject(AtlasReply.decodeDelimited(response.body), {
+                enums: Number,
+            });
         }
         return response.body;
     }
@@ -332,37 +401,7 @@ export default class CalibrationService {
         reply.typeName = replyTypeLookup[reply.type];
         if (reply.calibration) {
             reply.calibration.typeName = sensorTypeLookup[reply.calibration.type];
-            switch (reply.calibration.type) {
-                case SensorType.values.SENSOR_NONE:
-                    break;
-                case SensorType.values.SENSOR_PH:
-                    reply.calibration.phStatus = {
-                        low: reply.calibration.ph & PhCalibrations.values.PH_LOW,
-                        middle: reply.calibration.ph & PhCalibrations.values.PH_MIDDLE,
-                        high: reply.calibration.ph & PhCalibrations.values.PH_HIGH,
-                    };
-                    break;
-                case SensorType.values.SENSOR_TEMP:
-                    break;
-                case SensorType.values.SENSOR_ORP:
-                    break;
-                case SensorType.values.SENSOR_DO:
-                    reply.calibration.doStatus = {
-                        atm: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ATMOSPHERE,
-                        zero: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ZERO,
-                    };
-                    break;
-                case SensorType.values.SENSOR_EC:
-                    reply.calibration.ecStatus = {
-                        dry: reply.calibration.ec & EcCalibrations.values.EC_DRY,
-                        single: reply.calibration.ec & EcCalibrations.values.EC_SINGLE,
-                        low: reply.calibration.ec & EcCalibrations.values.EC_DUAL_LOW,
-                        high: reply.calibration.ec & EcCalibrations.values.EC_DUAL_HIGH,
-                    };
-                    break;
-                default:
-                    break;
-            }
+            reply = fixupStatus(reply);
         }
         return reply;
     }

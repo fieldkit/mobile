@@ -13,13 +13,13 @@
             />
         </StackLayout>
         <StackLayout row="2">
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="doneWaiting" />
+            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="calibrate" :isEnabled="doneWaiting || debugging" />
         </StackLayout>
     </GridLayout>
 </template>
 
 <script lang="ts">
-import { CalibrationWaitStep, CalibratingSensor } from "./model";
+import { VisualCalibrationStep, CalibratingSensor } from "./model";
 import { WaitVisual } from "./visuals";
 
 import { _T } from "../utilities";
@@ -44,7 +44,7 @@ export default Vue.extend({
             required: true,
         },
         step: {
-            type: CalibrationWaitStep,
+            type: VisualCalibrationStep,
             required: true,
         },
         visual: {
@@ -76,6 +76,9 @@ export default Vue.extend({
         doneWaiting(this: any) {
             return this.remaining === 0;
         },
+        debugging() {
+            return true;
+        },
     },
     mounted(this: any) {
         console.log("cal:waiting:", "mounted", this.step, this.visual);
@@ -88,8 +91,8 @@ export default Vue.extend({
         this.timer.stop();
     },
     methods: {
-        done(this: any) {
-            this.$emit("done");
+        calibrate(this: any) {
+            this.$emit("calibrate");
         },
         back(this: any) {
             this.$emit("back");
