@@ -230,7 +230,7 @@ const EcDual = new CalibrationStrategy("modules.water.ec", _L("waterConductivity
             done: _L("calibrate"),
         }),
     ]),
-    new CalibrationPointStep(new AtlasCalValue(12880, EcCalibrateCommand.values.CALIBRATE_EC_MIDDLE), [
+    new CalibrationPointStep(new AtlasCalValue(12880, EcCalibrateCommand.values.CALIBRATE_EC_SINGLE), [
         new PrepareVisual(Prepare, {
             ...EcCommon,
             heading: _L("part2Wet"),
