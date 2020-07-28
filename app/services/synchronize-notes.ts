@@ -73,7 +73,7 @@ export default class SynchronizeNotes {
         const allLocalMedia = mobileNotes.allMedia();
         const localByKey = _.keyBy(allLocalMedia, (m) => this.getFileName(m.path));
 
-        const allKeys = _.union(_.flatten([Object.keys(allLocalMedia), Object.keys(portalByKey)]));
+        const allKeys = _.union(_.flatten([Object.keys(localByKey), Object.keys(portalByKey)]));
 
         console.log("ids", ids);
         console.log("portal", portalByKey);
