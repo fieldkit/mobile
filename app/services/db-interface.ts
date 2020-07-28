@@ -411,7 +411,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) =>
             db
                 .execute(
-                    "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         module.moduleId || module.deviceId,
                         module.deviceId || module.moduleId,
@@ -420,6 +420,7 @@ export default class DatabaseInterface {
                         module.position,
                         module.stationId,
                         module.flags || 0,
+                        module.status ? JSON.stringify(module.status) : "",
                     ]
                 )
                 .catch((err) => Promise.reject(new Error(`error inserting module: ${err}`)))
@@ -492,8 +493,9 @@ export default class DatabaseInterface {
             ),
             Promise.all(
                 keeping.map((moduleId) => {
-                    const values = [incoming[moduleId].flags || 0, existing[moduleId].id];
-                    return db.query("UPDATE modules SET flags = ? WHERE id = ?", values).then(() => {
+                    const status = incoming[moduleId].status ? JSON.stringify(incoming[moduleId]) : "";
+                    const values = [incoming[moduleId].flags || 0, status, existing[moduleId].id];
+                    return db.query("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
                         const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
                         return this._synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
                     });

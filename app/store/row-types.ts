@@ -23,6 +23,7 @@ export interface ModuleTableRow {
     moduleId: string;
     stationId: number | null;
     flags: number;
+    status: string | null;
 }
 
 export interface StreamTableRow {

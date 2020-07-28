@@ -1,6 +1,6 @@
 import { decodeAndPrepare } from "../services/query-station";
 import { GlobalState } from "./modules/global";
-import { HttpStatusReply, ReplyStream } from "./http_reply";
+import { HttpStatusReply, ReplyStream, AtlasStatus } from "./http_reply";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
 
@@ -23,6 +23,7 @@ export class Module {
         public readonly position: number,
         public readonly moduleId: string,
         public readonly flags: number,
+        public readonly status: AtlasStatus | null,
         public readonly sensors: Sensor[]
     ) {
         this.internal = flags > 0;

@@ -8,3 +8,4 @@ export * from "./20200624_193105_add_sensor_trend.js";
 export * from "./20200708_162023_add_notes_table.js";
 export * from "./20200715_075044_add_module_flags.js";
 export * from "./20200723_093924_add_portal_updated_time.js";
+export * from "./20200727_164448_add_module_status.js";

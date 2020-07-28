@@ -16,7 +16,7 @@ import {
 } from "../types";
 import { HasLocation } from "../map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "../row-types";
-import { HttpStatusReply } from "../http_reply";
+import { HttpStatusReply, AtlasStatus } from "../http_reply";
 import { GlobalState } from "./global";
 import { Services, ServiceRef } from "./utilities";
 
@@ -170,6 +170,7 @@ class StationStatusFactory {
                                 moduleReply.module.position,
                                 moduleReply.module.deviceId,
                                 moduleReply.module.flags,
+                                moduleReply.module.status,
                                 sensors
                             );
                         })
@@ -183,7 +184,15 @@ class StationStatusFactory {
                 const sensors = _(moduleReply.sensors)
                     .map((sensorReply) => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null, null))
                     .value();
-                return new Module(null, moduleReply.name, moduleReply.position, moduleReply.deviceId, moduleReply.flags, sensors);
+                return new Module(
+                    null,
+                    moduleReply.name,
+                    moduleReply.position,
+                    moduleReply.deviceId,
+                    moduleReply.flags,
+                    moduleReply.status,
+                    sensors
+                );
             })
             .value();
     }
@@ -206,7 +215,8 @@ class StationDatabaseFactory {
                 const sensors = _(sensorRows)
                     .map((sensorRow) => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading, sensorRow.trend))
                     .value();
-                return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, moduleRow.flags, sensors);
+                const status = this.parseModuleStatus(moduleRow.status);
+                return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, moduleRow.flags, status, sensors);
             })
             .value();
 
@@ -215,6 +225,18 @@ class StationDatabaseFactory {
         const downloadRows = this.downloads[this.stationRow.id] || [];
         const downloads = downloadRows.map((downloadRow) => Download.fromRow(downloadRow));
         return new Station(this.getCreationFields(this.stationRow), modules, streams, downloads);
+    }
+
+    private parseModuleStatus(column: string | null): AtlasStatus | null {
+        if (!column || column.length === 0) {
+            return null;
+        }
+        try {
+            return JSON.parse(column) as AtlasStatus;
+        } catch (e) {
+            console.log("malformed module status", column);
+        }
+        return null;
     }
 
     private parseHttpError(column: string | null): object | null {

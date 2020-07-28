@@ -56,10 +56,9 @@ function prepareModule(m: any): any {
     m.deviceId = Buffer.from(m.id).toString("hex");
     m.id = null;
     if (m.status && /*_.isArray(m.status) &&*/ m.status.length > 0) {
-        if (m.name === "modules.water.ph") {
+        if (m.name.indexOf("modules.water.") == 0) {
             const buffer = Buffer.from(m.status);
             m.status = AtlasReply.decode(buffer);
-            console.log("module status:", JSON.stringify(m.status));
         } else {
             console.log("unknown module status", m);
         }

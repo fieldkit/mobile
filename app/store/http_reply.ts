@@ -13,11 +13,17 @@ export interface LiveReadings {
     modules: LiveModuleReadings[];
 }
 
+export interface AtlasStatus {
+    type: string;
+    calibration: { type: string; ph: any; dissolvedOxygen: any; ec: any; orp: any; raw: number };
+}
+
 export interface ModuleCapabilities {
     name: string;
     deviceId: string;
     position: number;
     flags: number;
+    status: AtlasStatus | null;
     sensors: SensorCapabilities[];
 }
 
