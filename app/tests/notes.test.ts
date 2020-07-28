@@ -33,7 +33,7 @@ describe("Notes", () => {
         it("should fail", async () => {
             expect.assertions(1);
 
-            const synchronize = new SynchronizeNotes(services.PortalInterface(), store);
+            const synchronize = new SynchronizeNotes(services.PortalInterface(), store, services.FileSystem());
 
             try {
                 await synchronize.synchronize(new Ids(200, 100));
@@ -60,7 +60,7 @@ describe("Notes", () => {
                 });
             };
 
-            const synchronize = new SynchronizeNotes(services.PortalInterface(), store);
+            const synchronize = new SynchronizeNotes(services.PortalInterface(), store, services.FileSystem());
             await synchronize.synchronize(new Ids(200, 100));
 
             expect(patches.mock.calls.length).toBe(0);
@@ -87,7 +87,7 @@ describe("Notes", () => {
                 });
             };
 
-            const synchronize = new SynchronizeNotes(services.PortalInterface(), store);
+            const synchronize = new SynchronizeNotes(services.PortalInterface(), store, services.FileSystem());
             await synchronize.synchronize(new Ids(200, 100));
 
             expect(patches.mock.calls.length).toBe(0);
@@ -127,7 +127,7 @@ describe("Notes", () => {
                 });
             };
 
-            const synchronize = new SynchronizeNotes(services.PortalInterface(), store);
+            const synchronize = new SynchronizeNotes(services.PortalInterface(), store, services.FileSystem());
             await synchronize.synchronize(ids);
 
             expect(patches.mock.calls.length).toBe(0);
@@ -169,7 +169,7 @@ describe("Notes", () => {
 
             addOrUpdates.mockClear();
 
-            const synchronize = new SynchronizeNotes(services.PortalInterface(), store);
+            const synchronize = new SynchronizeNotes(services.PortalInterface(), store, services.FileSystem());
             await synchronize.synchronize(ids);
 
             expect(patches.mock.calls.length).toBe(1);
@@ -179,6 +179,60 @@ describe("Notes", () => {
 
             expect(id).toBe(ids.portal);
             expect(saved.notes[0].body).toBe("Mobile Note");
+        });
+    });
+
+    describe("notes everywhere and portal is newer and portal has media", () => {
+        it("should keep the portal notes and save them", async () => {
+            expect.assertions(4);
+
+            const ids = new Ids(200, 100);
+            const downloads = jest.fn(() => {
+                return Promise.resolve();
+            });
+            const patches = jest.fn();
+            const addOrUpdates = jest.fn(() => {
+                return Promise.resolve();
+            });
+
+            store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: "studyObjective", update: { body: "Mobile Note" } });
+
+            await store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
+
+            addOrUpdates.mockClear();
+
+            services.Database().addOrUpdateNotes = addOrUpdates;
+            services.PortalInterface().updateStationNotes = patches;
+            services.PortalInterface().downloadStationMedia = downloads;
+
+            clock.tick(60000);
+
+            services.PortalInterface().getStationNotes = () => {
+                return Promise.resolve({
+                    notes: [{ key: "studyObjective", createdAt: new Date(), updatedAt: new Date(), body: "Portal Note", media: [] }],
+                    media: [
+                        {
+                            id: 12,
+                            contentType: "image/jpeg",
+                            url: "file:///20200715_103218.jpg",
+                            key: "20200715_103218.jpg",
+                        },
+                    ],
+                });
+            };
+
+            const synchronize = new SynchronizeNotes(services.PortalInterface(), store, services.FileSystem());
+            await synchronize.synchronize(ids);
+
+            expect(patches.mock.calls.length).toBe(0);
+            expect(addOrUpdates.mock.calls.length).toBe(1);
+            expect(downloads.mock.calls.length).toBe(1);
+
+            const [saved] = (addOrUpdates.mock.calls[0] as unknown) as [Notes];
+
+            expect(saved.studyObjective.body).toBe("Portal Note");
+
+            console.log("saved ********", saved);
         });
     });
 });

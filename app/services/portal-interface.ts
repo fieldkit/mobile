@@ -468,4 +468,34 @@ export default class PortalInterface {
                 );
         });
     }
+
+    public downloadStationMedia(mediaId: number, path: string) {
+        const headers = {
+            Authorization: this._appSettings.getString("accessToken"),
+        };
+
+        return this.getUri().then((baseUri) => {
+            return this._services
+                .Conservify()
+                .download({
+                    url: baseUri + "/notes/media/" + mediaId,
+                    method: "GET",
+                    path: path,
+                    headers: { ...headers },
+                    progress: (total, copied, info) => {
+                        // Do nothing.
+                    },
+                })
+                .then(
+                    (response) => {
+                        // Our library uses statusCode, axios uses status
+                        return {
+                            data: response.body,
+                            status: response.statusCode,
+                        };
+                    },
+                    (err) => Promise.reject(err)
+                );
+        });
+    }
 }

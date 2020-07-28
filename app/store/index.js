@@ -58,6 +58,10 @@ function customizeLogger() {
                 console.log("mutation:", mutation.type, stateAfter.cal);
                 return false;
             }
+            if (mutation.type == MutationTypes.ATTACH_NOTE_MEDIA) {
+                console.log("mutation:", mutation, stateAfter.notes);
+                return false;
+            }
 
             console.log("mutation:", mutation.type);
 

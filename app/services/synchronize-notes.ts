@@ -1,27 +1,26 @@
 import _ from "lodash";
+import moment from "moment";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import { Store } from "../store/types";
 import PortalInterface from "./portal-interface";
+import FileSystem from "../wrappers/file-system";
 import { Notes } from "../store/modules/notes";
-import { serializePromiseChain } from "../utilities";
+import { getPathTimestamp, serializePromiseChain } from "../utilities";
 
 class MergedNotes {
     constructor(public readonly patch: PatchPortalNotes, public readonly modified: boolean) {}
 }
 
 export default class SynchronizeNotes {
-    constructor(private readonly portal: PortalInterface, private readonly store: Store) {
-        this.portal = portal;
-        this.store = store;
-    }
+    constructor(private readonly portal: PortalInterface, private readonly store: Store, private readonly fs: FileSystem) {}
 
     public synchronize(ids: Ids) {
         return this.portal.getStationNotes(ids.portal).then((portalNotes: PortalStationNotesReply) => {
             const mobileNotes = this.store.state.notes.stations[ids.mobile] || new Notes(ids.mobile, new Date(), new Date());
 
             return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
-                console.log("uploaded", resolvedMedia);
+                console.log("resolved-media", resolvedMedia);
 
                 const merged = this.merge(ids, portalNotes, mobileNotes, resolvedMedia);
                 const patch = merged.patch;
@@ -53,6 +52,20 @@ export default class SynchronizeNotes {
         return name;
     }
 
+    private makeFileNameForPortal(key: string, contentType: string): string {
+        const ts = getPathTimestamp(moment(key));
+        if (/jpeg/.test(contentType) || /jpg/.test(contentType)) {
+            return ts + ".jpg";
+        }
+        if (/png/.test(contentType)) {
+            return ts + ".png";
+        }
+        if (/gif/.test(contentType)) {
+            return ts + ".gif";
+        }
+        throw new Error(`unexpected contentType: ${contentType}`);
+    }
+
     private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
         const allPortalMedia = [...portalNotes.media, ..._.flatten(portalNotes.notes.map((n) => n.media))];
         const portalByKey = _.keyBy(allPortalMedia, (m) => m.key);
@@ -60,12 +73,47 @@ export default class SynchronizeNotes {
         const allLocalMedia = mobileNotes.allMedia();
         const localByKey = _.keyBy(allLocalMedia, (m) => this.getFileName(m.path));
 
+        const allKeys = _.union(_.flatten([Object.keys(allLocalMedia), Object.keys(portalByKey)]));
+
         console.log("ids", ids);
         console.log("portal", portalByKey);
         console.log("local", localByKey);
+        console.log("keys", allKeys);
 
-        return serializePromiseChain(_.keys(localByKey), (key) => {
+        return serializePromiseChain(allKeys, (key) => {
             if (portalByKey[key]) {
+                if (!localByKey[key]) {
+                    // Portal has the media and we gotta download.
+                    const isPhoto = (mime) => /^image/.test(mime);
+                    const getFolder = (mime) => (isPhoto(mime) ? "media/images" : "media/audio");
+                    const contentType = portalByKey[key].contentType;
+                    const photo = isPhoto(contentType);
+                    const folder = this.fs.getFolder(getFolder(contentType));
+                    const destination = folder.getFile(this.makeFileNameForPortal(key, contentType)).path;
+                    console.log("downloading portal media", destination, contentType, key);
+                    return this.portal.downloadStationMedia(portalByKey[key].id, destination).then(() => {
+                        if (photo) {
+                            this.store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
+                                stationId: ids.mobile,
+                                key: null,
+                                photo: {
+                                    key: key,
+                                    path: destination,
+                                },
+                            });
+                        } else {
+                            this.store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
+                                stationId: ids.mobile,
+                                key: null,
+                                audio: {
+                                    key: key,
+                                    path: destination,
+                                },
+                            });
+                        }
+                        return [destination, portalByKey[key].id];
+                    });
+                }
                 return [localByKey[key].path, portalByKey[key].id];
             }
             const path = localByKey[key].path;
@@ -97,6 +145,8 @@ export default class SynchronizeNotes {
                 const photoIds = value.photos.map((m) => media[m.path]).filter((v) => v);
                 const audioIds = value.audio.map((m) => media[m.path]).filter((v) => v);
                 const mediaIds = [...photoIds, ...audioIds];
+
+                console.log("media-ids", mediaIds);
 
                 if (portalExisting[key]) {
                     const portalUpdatedAt = new Date(portalExisting[key].updatedAt);

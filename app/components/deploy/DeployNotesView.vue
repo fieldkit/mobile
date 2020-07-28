@@ -202,6 +202,7 @@ export default {
     },
     methods: {
         onPageLoaded(args) {
+            console.log("notes", this.$store.state.notes.stations[this.stationId]);
             const paths = this.$store.state.notes.stations[this.stationId].photos.map((p) => p.path);
             return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
         },

@@ -1,6 +1,7 @@
 import * as ActionTypes from "../store/actions";
 import { Station, Store } from "../store/types";
 import PortalInterface from "./portal-interface";
+import FileSystem from "../wrappers/file-system";
 import SynchronizeNotes, { Ids } from "./synchronize-notes";
 import { serializePromiseChain } from "../utilities";
 
@@ -9,8 +10,8 @@ const OneMinute = 60 * 1000;
 export default class PortalUpdater {
     private synchronizeNotes: SynchronizeNotes;
 
-    constructor(private readonly portal: PortalInterface, private readonly store: Store) {
-        this.synchronizeNotes = new SynchronizeNotes(portal, store);
+    constructor(private readonly portal: PortalInterface, private readonly store: Store, fs: FileSystem) {
+        this.synchronizeNotes = new SynchronizeNotes(portal, store, fs);
     }
 
     public start() {

@@ -101,11 +101,16 @@ export default class StartupScreen extends Vue {
         console.log("startup loaded");
         return initializeApplication(Services).then(() => {
             if (Config.env.jacob) {
+                /*
                 return this.$navigateTo(routes.internal.calibrate, {
                     props: {
                         stationId: 2,
                         position: 0,
                     },
+                });
+				*/
+                return this.$navigateTo(routes.stations, {
+                    props: {},
                 });
             }
 
