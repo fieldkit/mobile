@@ -15,7 +15,7 @@ export interface LiveReadings {
 
 export interface AtlasStatus {
     type: string;
-    calibration: { type: string; ph: any; dissolvedOxygen: any; ec: any; orp: any; raw: number };
+    calibration: { type: string; ph: any; dissolvedOxygen: any; ec: any; orp: any; raw: number; total: number };
 }
 
 export interface ModuleCapabilities {

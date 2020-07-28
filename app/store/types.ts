@@ -16,6 +16,7 @@ export class Sensor {
 
 export class Module {
     public readonly internal: boolean;
+    public readonly image: string;
 
     constructor(
         public readonly id: number | null,
@@ -27,6 +28,21 @@ export class Module {
         public readonly sensors: Sensor[]
     ) {
         this.internal = flags > 0;
+        this.image = this.getImage(name);
+    }
+
+    private getImage(name: string): string {
+        const images = {
+            "modules.distance": "~/images/Icon_Distance_Module.png",
+            "modules.weather": "~/images/Icon_Weather_Module.png ",
+            "modules.water.ec": "~/images/Icon_WaterConductivity_Module.png",
+            "modules.water.ph": "~/images/Icon_WaterpH_Module.png",
+            "modules.water.do": "~/images/Icon_DissolvedOxygen_Module.png",
+            "modules.water.temp": "~/images/Icon_WaterTemp_Module.png",
+            "modules.water.orp": "~/images/Icon_Water_Module.png",
+            "modules.water.unknown": "~/images/Icon_Water_Module.png",
+        };
+        return images[name] || "~/images/Icon_Generic_Module.png";
     }
 }
 

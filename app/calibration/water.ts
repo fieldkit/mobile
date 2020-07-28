@@ -1,3 +1,8 @@
+import i18n from "tns-i18n";
+// Note: i18n detects the preferred language on the phone,
+// and this default language initialization does not override that
+i18n("en");
+
 import { CalibrationStrategy, CalibrationPointStep, CalibrationValue } from "./model";
 import { CheckVisual, PrepareVisual, WaitVisual } from "./visuals";
 
@@ -6,8 +11,6 @@ import protobuf from "protobufjs";
 import Check from "./Check.vue";
 import Prepare from "./Prepare.vue";
 import Wait from "./Wait.vue";
-
-import { _T } from "../utilities";
 
 export const PhCommon = {
     sensor: "ph",

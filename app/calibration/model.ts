@@ -1,5 +1,7 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
+import { Module } from "../store/types";
+import { _T, convertOldFirmwareResponse } from "../utilities";
 
 export class Ids {
     private static c = 0;
@@ -94,5 +96,23 @@ export class CalibrationStrategies {
     public getModuleStrategies(moduleKey: string): CalibrationStrategy[] {
         const byKey = _.groupBy(this.strategies, (s) => s.moduleKey);
         return byKey[moduleKey] || [];
+    }
+}
+
+export class ModuleCalibration {
+    name: string;
+    position: number;
+    image: string;
+    canCalibrate = false;
+    isCalibrated = false;
+    needsCalibration = false;
+
+    constructor(module: Module, haveStrategies: boolean) {
+        this.name = _T(convertOldFirmwareResponse(module) + ".name");
+        this.position = module.position || 0;
+        this.image = module.image;
+        this.canCalibrate = !!module.status?.calibration && haveStrategies;
+        this.isCalibrated = (module.status?.calibration?.total || 0) > 0;
+        this.needsCalibration = this.canCalibrate && !this.isCalibrated;
     }
 }
