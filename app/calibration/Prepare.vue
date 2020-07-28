@@ -38,10 +38,6 @@ export default Vue.extend({
             type: VisualCalibrationStep,
             required: true,
         },
-        visual: {
-            type: PrepareVisual,
-            required: true,
-        },
         progress: {
             type: Number,
             required: true,
@@ -49,6 +45,11 @@ export default Vue.extend({
     },
     data() {
         return {};
+    },
+    computed: {
+        visual(this: any): PrepareVisual {
+            return this.step.visual;
+        },
     },
     methods: {
         back(this: any) {

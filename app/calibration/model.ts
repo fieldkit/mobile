@@ -9,6 +9,10 @@ export class Ids {
     }
 }
 
+export abstract class CalibrationValue {
+    constructor() {}
+}
+
 export class CalibratingSensor {
     constructor(
         public readonly stationId: number,
@@ -17,13 +21,10 @@ export class CalibratingSensor {
         public readonly position: number,
         public readonly unitOfMeasure: string,
         public readonly reading: number,
-        public readonly calibration: any | null,
+        public readonly calibrationValue: CalibrationValue,
+        public readonly moduleCalibration: any | null,
         public readonly sensors: { [index: string]: number }
     ) {}
-}
-
-export abstract class CalibrationValue {
-    constructor() {}
 }
 
 export abstract class CalibrationStep {

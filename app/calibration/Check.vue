@@ -71,10 +71,6 @@ export default Vue.extend({
             type: VisualCalibrationStep,
             required: true,
         },
-        visual: {
-            type: CheckVisual,
-            required: true,
-        },
         progress: {
             type: Number,
             required: true,
@@ -84,8 +80,11 @@ export default Vue.extend({
         return {};
     },
     computed: {
+        visual(this: any): CheckVisual {
+            return this.step.visual;
+        },
         existing(this: any) {
-            return this.sensor.calibration;
+            return this.sensor.moduleCalibration;
         },
     },
     methods: {

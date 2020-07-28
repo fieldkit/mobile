@@ -3,7 +3,17 @@
         <Header row="0" :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
         <StackLayout row="1">
             <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
-            <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
+
+            <Label :class="'instruction-heading ' + (expected ? '' : 'm-b-20')" :text="visual.heading" lineHeight="4" textWrap="true" />
+
+            <Label
+                v-if="expected"
+                class="size-14 text-center"
+                :text="_L('expectedValue') + ': ' + expected"
+                lineHeight="4"
+                textWrap="true"
+            />
+
             <CircularTimer
                 :progress="waitingProgress"
                 :animated="true"
@@ -47,10 +57,6 @@ export default Vue.extend({
             type: VisualCalibrationStep,
             required: true,
         },
-        visual: {
-            type: WaitVisual,
-            required: true,
-        },
         progress: {
             type: Number,
             required: true,
@@ -64,6 +70,9 @@ export default Vue.extend({
         };
     },
     computed: {
+        visual(this: any): WaitVisual {
+            return this.step.visual;
+        },
         waitingProgress(this: any) {
             return (this.elapsed / this.visual.seconds) * 100;
         },
@@ -77,7 +86,10 @@ export default Vue.extend({
             return this.remaining === 0;
         },
         debugging() {
-            return true;
+            return false;
+        },
+        expected(this: any) {
+            return this.sensor.calibrationValue?.reference?.toFixed(2) || null;
         },
     },
     mounted(this: any) {

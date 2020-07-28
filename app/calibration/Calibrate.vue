@@ -5,10 +5,9 @@
             <Failure v-if="failure" />
             <template v-if="!(success || failure)">
                 <component
-                    :is="activeVisual.component"
+                    :is="activeStep.visual.component"
                     :sensor="sensor"
                     :step="activeStep"
-                    :visual="activeVisual"
                     :progress="progress"
                     @done="(ev) => onDone(ev, activeStep)"
                     @back="(ev) => onBack(ev, activeStep)"
@@ -31,7 +30,6 @@ import Success from "./Success";
 import Failure from "./Failure";
 
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
-import { CalibrationVisual } from "./visuals";
 import { ClearAtlasCalibration, CalibrateAtlas } from "../store/modules/cal";
 
 export default Vue.extend({
@@ -73,8 +71,8 @@ export default Vue.extend({
             const moduleId = module.moduleId;
             console.log("module-id", moduleId);
 
-            const calibration = this.$store.state.cal.status[moduleId]?.calibration || null;
-            console.log("module-status", calibration);
+            const moduleCalibration = this.$store.state.cal.status[moduleId]?.calibration || null;
+            console.log("module-status", moduleCalibration);
 
             const displaySensor = module.sensors[0];
             const stationSensors = _.fromPairs(
@@ -89,6 +87,10 @@ export default Vue.extend({
 
             console.log("station-sensors", stationSensors);
 
+            const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
+
+            console.log("cal-value", calibrationValue);
+
             return new CalibratingSensor(
                 this.stationId,
                 moduleId,
@@ -96,7 +98,8 @@ export default Vue.extend({
                 this.position,
                 displaySensor.unitOfMeasure,
                 displaySensor.reading,
-                calibration,
+                calibrationValue,
+                moduleCalibration,
                 stationSensors
             );
         },
@@ -110,9 +113,6 @@ export default Vue.extend({
             }
             // TODO Maybe remove, since this clutters logs on our exiting.
             throw new Error("no active step");
-        },
-        activeVisual(this: any): CalibrationVisual {
-            return this.activeStep.visual;
         },
         progress(this: any) {
             return (this.completed.length / this.getAllVisualSteps().length) * 100;
