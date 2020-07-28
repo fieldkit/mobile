@@ -65,6 +65,7 @@ const actions = {
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
+                        console.log("throttled");
                         return error;
                     }
                     return Promise.reject(error);
