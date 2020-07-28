@@ -6,14 +6,14 @@
                     :text="unitOfMeasure"
                     verticalAlignment="bottom"
                     class="m-r-5 m-t-5 size-14 calibration-unit"
-                    v-show="unitIsPrefix"
+                    v-show="unitOfMeasure && unitIsPrefix"
                 />
-                <Label flexShrink="0.25" :text="reading" verticalAlignment="bottom" class="size-26" />
+                <Label flexShrink="0.25" :text="reading | prettyReading" verticalAlignment="bottom" class="size-26" />
                 <Label
                     :text="unitOfMeasure"
                     verticalAlignment="bottom"
                     class="m-l-5 m-t-5 size-14 calibration-unit"
-                    v-show="!unitIsPrefix"
+                    v-show="unitOfMeasure && !unitIsPrefix"
                 />
             </FlexboxLayout>
         </GridLayout>
@@ -55,7 +55,7 @@ export default Vue.extend({
         },
         unitOfMeasure: {
             type: String,
-            required: true,
+            default: null,
         },
     },
     data() {

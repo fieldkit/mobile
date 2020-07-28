@@ -49,8 +49,31 @@ export default Vue.extend({
     },
     computed: {
         sensor(this: any) {
-            const station = this.$store.getters.stationsById[this.stationId];
-            return new CalibratingSensor(this.stationId, station.connected, this.position, "ph", 6.87, {});
+            const station = this.$store.getters.legacyStations[this.stationId];
+            if (!station) throw new Error(`station missing: ${this.stationId}`);
+            const module = station.modules[this.position];
+            if (!module) throw new Error(`module missing: ${this.stationId} ${this.position}`);
+            console.log("module", module);
+            const displaySensor = module.sensors[0];
+            const stationSensors = _.fromPairs(
+                _.flatten(
+                    station.modules.map((module) => {
+                        return module.sensors.map((sensor) => {
+                            return [module.name + "." + sensor.name, sensor.reading];
+                        });
+                    })
+                )
+            ) as { [index: string]: number };
+
+            console.log("station-sensors", stationSensors);
+            return new CalibratingSensor(
+                this.stationId,
+                station.connected,
+                this.position,
+                displaySensor.unitOfMeasure,
+                displaySensor.reading,
+                stationSensors
+            );
         },
         deviceId(this: any) {
             return this.$store.getters.legacyStations[this.stationId].deviceId;

@@ -32,6 +32,13 @@ function configureVueJs(services) {
         },
     });
 
+    Vue.filter("prettyReading", (value) => {
+        if (!value) {
+            return "--";
+        }
+        return value.toFixed(2);
+    });
+
     Vue.filter("prettyTime", (value) => {
         if (!value) {
             return "N/A";
