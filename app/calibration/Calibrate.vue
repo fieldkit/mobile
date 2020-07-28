@@ -25,6 +25,7 @@ import { _T } from "../utilities";
 import Promise from "bluebird";
 
 import Vue from "../wrappers/vue";
+import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import Start from "./Start";
 import Success from "./Success";
 import Failure from "./Failure";
@@ -138,10 +139,9 @@ export default Vue.extend({
 
             console.log("cal", "finished");
             return this.notifySuccess().then(() => {
-                return this.$navigateTo(Start, {
+                return this.$navigateTo(Recalibrate, {
                     props: {
                         stationId: this.stationId,
-                        position: this.position,
                     },
                 });
             });
@@ -168,7 +168,7 @@ export default Vue.extend({
             return this.$store.dispatch(action).then(
                 (cleared) => {
                     console.log("cal:", "cleared");
-                    return this.notifySuccess();
+                    return /*this.notifySuccess()*/ true;
                 },
                 () => this.notifyFailure()
             );

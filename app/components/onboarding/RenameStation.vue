@@ -4,9 +4,9 @@
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*" verticalAlignment="middle">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <Label class="title m-t-20 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true"></Label>
+                        <Label class="title m-t-20 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
 
-                        <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true"></Label>
+                        <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
 
                         <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
                             <TextField
@@ -19,8 +19,8 @@
                                 autocorrect="false"
                                 autocapitalizationType="none"
                                 @blur="validate"
-                            ></TextField>
-                            <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png"></Image>
+                            />
+                            <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
                         </GridLayout>
 
                         <Label
@@ -29,21 +29,21 @@
                             :text="_L('nameRequired')"
                             textWrap="true"
                             :visibility="form.v.required ? 'visible' : 'collapsed'"
-                        ></Label>
+                        />
                         <Label
                             class="validation-error"
                             id="name-too-long"
                             :text="_L('nameOver40')"
                             textWrap="true"
                             :visibility="form.v.long ? 'visible' : 'collapsed'"
-                        ></Label>
+                        />
                         <Label
                             class="validation-error"
                             id="name-not-printable"
                             :text="_L('nameNotPrintable')"
                             textWrap="true"
                             :visibility="form.v.characters ? 'visible' : 'collapsed'"
-                        ></Label>
+                        />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>

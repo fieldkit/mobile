@@ -77,6 +77,7 @@ export default Vue.extend({
         },
         back(this: any) {
             console.log("back");
+            this.$emit("back");
         },
     },
 });

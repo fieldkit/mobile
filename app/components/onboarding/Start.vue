@@ -64,6 +64,8 @@ export default {
     },
     methods: {
         onPageLoaded(args) {
+            console.log("onboarding/Start loaded");
+
             this.timer = new Timer(1000, () => {
                 this.frame += 1;
             });

@@ -29,14 +29,26 @@
                     <!-- conditional list needs to be wrapped in StackLayout or else
                         error occurs about reference node has a different parent -->
                     <Gridlayout rows="auto,auto,auto,auto,auto,auto" columns="40*,40*" class="checklist" v-if="step == 1">
-                        <Label v-for="item in checklist" class="checklist-item" :key="item.id" :row="item.row" :col="item.col" :text="item.text" />
+                        <Label
+                            v-for="item in checklist"
+                            class="checklist-item"
+                            :key="item.id"
+                            :row="item.row"
+                            :col="item.col"
+                            :text="item.text"
+                        />
                         <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" :text="'*' + _L('notIncluded')" />
                     </Gridlayout>
                 </StackLayout>
 
                 <GridLayout order="4" rows="*" columns="*">
                     <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
-                    <Label verticalAlignment="middle" v-if="!displayFrame && noImageText" class="m-y-30 m-x-20 text-center size-20" :text="noImageText" />
+                    <Label
+                        verticalAlignment="middle"
+                        v-if="!displayFrame && noImageText"
+                        class="m-y-30 m-x-20 text-center size-20"
+                        :text="noImageText"
+                    />
                 </GridLayout>
             </StackLayout>
             <!-- end assembly steps section -->
@@ -80,7 +92,9 @@ import routes from "../../routes";
 import AppSettings from "../../wrappers/app-settings";
 
 export default {
-    props: ["stepParam"],
+    props: {
+        stepParam: {},
+    },
     data() {
         return {
             step: 0,
@@ -107,11 +121,9 @@ export default {
                 this.animateFrameTimer = setInterval(this.animateFrames, 1000);
             }
         },
-
         onUnloaded() {
             this.stopAnimation();
         },
-
         goBack(event) {
             // Change background color when pressed
             let cn = event.object.className;
@@ -130,7 +142,6 @@ export default {
                 this.noImageText = steps[this.step].noImage;
             }
         },
-
         goNext() {
             if (this.step < steps.length - 1) {
                 this.step += 1;
@@ -147,7 +158,6 @@ export default {
                 }
             }
         },
-
         skip() {
             let skipCount = this._appSettings.getNumber("skipCount");
             if (!skipCount) {
@@ -157,13 +167,11 @@ export default {
             this._appSettings.setNumber("skipCount", skipCount);
             this.$navigateTo(routes.stations);
         },
-
         stopAnimation() {
             this.displayFrame = null;
             clearInterval(this.animateFrameTimer);
             this.animateFrameTimer = null;
         },
-
         animateFrames() {
             this.frameImage = this.frameImage == steps[this.step].images[0] ? steps[this.step].images[1] : steps[this.step].images[0];
             this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : null;

@@ -1,7 +1,7 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <StackLayout>
-            <ChooseStrategy :moduleKey="module.name" :strategies="strategies" @choose="choose" />
+            <ChooseStrategy :moduleKey="module.name" :strategies="strategies" @choose="choose" @back="back" />
         </StackLayout>
     </Page>
 </template>
@@ -10,6 +10,7 @@
 import Vue from "../wrappers/vue";
 import { _T } from "../utilities";
 
+import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import Calibrate from "./Calibrate.vue";
 import ChooseStrategy from "./ChooseStrategy.vue";
 import calibrationStrategies from "./strategies";
@@ -59,6 +60,14 @@ export default Vue.extend({
                     stationId: this.stationId,
                     position: this.position,
                     strategy: strategy,
+                },
+            });
+        },
+        back(this: any) {
+            console.log("back");
+            return this.$navigateTo(Recalibrate, {
+                props: {
+                    stationId: this.stationId,
                 },
             });
         },
