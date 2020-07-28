@@ -32,6 +32,15 @@ export const AvailableStationsSorter = (available: AvailableStation[]): Availabl
 };
 
 const getters = {
+    stationsById: (state: StationsState): { [index: number]: Station } => {
+        const stations = state.all.filter((s) => s.id);
+        return _.keyBy(stations, (s) => {
+            if (!s.id) {
+                throw new Error("station with no id");
+            }
+            return s.id;
+        });
+    },
     availableStations: (state: StationsState, getters, rootState: GlobalState): AvailableStation[] => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)

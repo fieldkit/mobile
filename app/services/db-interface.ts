@@ -493,7 +493,7 @@ export default class DatabaseInterface {
             ),
             Promise.all(
                 keeping.map((moduleId) => {
-                    const status = incoming[moduleId].status ? JSON.stringify(incoming[moduleId]) : "";
+                    const status = incoming[moduleId].status ? JSON.stringify(incoming[moduleId].status) : "";
                     const values = [incoming[moduleId].flags || 0, status, existing[moduleId].id];
                     return db.query("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
                         const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);

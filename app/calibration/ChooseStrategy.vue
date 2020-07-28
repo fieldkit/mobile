@@ -69,7 +69,6 @@ export default Vue.extend({
             // console.log("loaded", calibrationStrategies);
         },
         choose(this: any, strategy: any, index: number) {
-            console.log("choose", strategy, index);
             this.selected = index;
         },
         done(this: any) {

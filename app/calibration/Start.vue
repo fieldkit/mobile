@@ -1,7 +1,7 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <StackLayout>
-            <ChooseStrategy :moduleKey="moduleKey" :strategies="strategies" @choose="choose" />
+            <ChooseStrategy :moduleKey="module.name" :strategies="strategies" @choose="choose" />
         </StackLayout>
     </Page>
 </template>
@@ -30,17 +30,22 @@ export default Vue.extend({
             type: Number,
             required: true,
         },
-        moduleKey: {
-            type: String,
-            required: true,
-        },
     },
     data(): {} {
         return {};
     },
     computed: {
+        module(this: any) {
+            const station = this.$store.getters.stationsById[this.stationId];
+            const module = station.modules[this.position];
+            if (!module) {
+                throw new Error("unable to find module");
+            }
+            console.log("station-module", module.name);
+            return module;
+        },
         strategies(this: any) {
-            return calibrationStrategies.getModuleStrategies(this.moduleKey);
+            return calibrationStrategies.getModuleStrategies(this.module.name);
         },
     },
     methods: {
@@ -53,7 +58,6 @@ export default Vue.extend({
                 props: {
                     stationId: this.stationId,
                     position: this.position,
-                    moduleKey: this.moduleKey,
                     strategy: strategy,
                 },
             });

@@ -16,12 +16,14 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import Vue from "../wrappers/vue";
 import { _T } from "../utilities";
+
+import Vue from "../wrappers/vue";
+import Start from "./Start";
+
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { CalibrationVisual } from "./visuals";
-import { ClearAtlasCalibration } from "../store/modules/cal";
-import Start from "./Start";
+// import { ClearAtlasCalibration } from "../store/modules/cal";
 
 export default Vue.extend({
     name: "Calibrate",
@@ -33,10 +35,6 @@ export default Vue.extend({
         },
         position: {
             type: Number,
-            required: true,
-        },
-        moduleKey: {
-            type: String,
             required: true,
         },
         strategy: {
@@ -51,7 +49,8 @@ export default Vue.extend({
     },
     computed: {
         sensor(this: any) {
-            return new CalibratingSensor(this.stationId, false, this.position, "ph", 6.87, {});
+            const station = this.$store.getters.stationsById[this.stationId];
+            return new CalibratingSensor(this.stationId, station.connected, this.position, "ph", 6.87, {});
         },
         deviceId(this: any) {
             return this.$store.getters.legacyStations[this.stationId].deviceId;
@@ -71,10 +70,12 @@ export default Vue.extend({
         },
     },
     mounted() {
+        /*
         const action = new ClearAtlasCalibration(this.deviceId, 1);
         return this.$store.dispatch(action).then((cleared) => {
             console.log("clear done", cleared);
         });
+		*/
     },
     methods: {
         onPageLoaded(this: any, args) {
@@ -98,7 +99,6 @@ export default Vue.extend({
                     props: {
                         stationId: this.stationId,
                         position: this.position,
-                        moduleKey: this.moduleKey,
                     },
                 });
             }
