@@ -50,24 +50,12 @@ export class VisualCalibrationStep extends EmptyCalibrationStep implements HasVi
     }
 }
 
-type CalibrationPointVisuals = {
-    check: CalibrationVisual[];
-    prepare: CalibrationVisual[];
-    wait: CalibrationVisual[];
-    confirm: CalibrationVisual[];
-};
-
 export class CalibrationPointStep extends CalibrationStep {
     public readonly children: CalibrationStep[];
 
-    constructor(public readonly value: CalibrationValue, visuals: CalibrationPointVisuals) {
+    constructor(public readonly value: CalibrationValue, visuals: CalibrationVisual[]) {
         super();
-        this.children = _.flatten([
-            visuals.check.map((v) => new VisualCalibrationStep(v)),
-            visuals.prepare.map((v) => new VisualCalibrationStep(v)),
-            visuals.wait.map((v) => new VisualCalibrationStep(v)),
-            visuals.confirm.map((v) => new VisualCalibrationStep(v)),
-        ]);
+        this.children = visuals.map((v) => new VisualCalibrationStep(v));
     }
 }
 

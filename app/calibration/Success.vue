@@ -1,0 +1,40 @@
+<template>
+    <StackLayout height="100%" backgroundColor="white" verticalAlignment="middle">
+        <GridLayout rows="auto, auto" columns="*">
+            <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
+            <Label row="1" :text="_L('calibrated')" class="instruction-heading"></Label>
+        </GridLayout>
+    </StackLayout>
+</template>
+
+<script lang="ts">
+import { _T } from "../utilities";
+import Vue from "../wrappers/vue";
+
+export default Vue.extend({
+    name: "Success",
+    props: {},
+    data() {
+        return {};
+    },
+    computed: {},
+    methods: {},
+});
+</script>
+
+<style scoped lang="scss">
+@import "../app-variables";
+
+.instruction-heading {
+    color: $fk-primary-black;
+    text-align: center;
+    margin-right: 20;
+    margin-left: 20;
+    font-size: 18;
+}
+
+.small {
+    width: 50;
+    margin: 20;
+}
+</style>

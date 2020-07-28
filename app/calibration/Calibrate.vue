@@ -1,27 +1,34 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <StackLayout>
-            <component
-                :is="activeVisual.component"
-                :sensor="sensor"
-                :step="activeStep"
-                :visual="activeVisual"
-                :progress="progress"
-                @done="(ev) => onDone(ev, activeStep)"
-                @back="(ev) => onBack(ev, activeStep)"
-                @clear="(ev) => onClear(ev, activeStep)"
-                @calibrate="(ev) => onCalibrate(ev, activeStep)"
-                @cancel="(ev) => onCancel(ev, activeStep)"
-            />
+            <Success v-if="success" />
+            <Failure v-if="failure" />
+            <template v-if="!(success || failure)">
+                <component
+                    :is="activeVisual.component"
+                    :sensor="sensor"
+                    :step="activeStep"
+                    :visual="activeVisual"
+                    :progress="progress"
+                    @done="(ev) => onDone(ev, activeStep)"
+                    @back="(ev) => onBack(ev, activeStep)"
+                    @clear="(ev) => onClear(ev, activeStep)"
+                    @calibrate="(ev) => onCalibrate(ev, activeStep)"
+                    @cancel="(ev) => onCancel(ev, activeStep)"
+                />
+            </template>
         </StackLayout>
     </Page>
 </template>
 <script lang="ts">
 import _ from "lodash";
 import { _T } from "../utilities";
+import Promise from "bluebird";
 
 import Vue from "../wrappers/vue";
 import Start from "./Start";
+import Success from "./Success";
+import Failure from "./Failure";
 
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { CalibrationVisual } from "./visuals";
@@ -29,7 +36,10 @@ import { ClearAtlasCalibration, CalibrateAtlas } from "../store/modules/cal";
 
 export default Vue.extend({
     name: "Calibrate",
-    components: {},
+    components: {
+        Success,
+        Failure,
+    },
     props: {
         stationId: {
             type: Number,
@@ -44,8 +54,10 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(): { completed: CalibrationStep[] } {
+    data(): { success: boolean; failure: boolean; completed: CalibrationStep[] } {
         return {
+            success: false,
+            failure: false,
             completed: [],
         };
     },
@@ -125,11 +137,13 @@ export default Vue.extend({
             }
 
             console.log("cal", "finished");
-            return this.$navigateTo(Start, {
-                props: {
-                    stationId: this.stationId,
-                    position: this.position,
-                },
+            return this.notifySuccess().then(() => {
+                return this.$navigateTo(Start, {
+                    props: {
+                        stationId: this.stationId,
+                        position: this.position,
+                    },
+                });
             });
         },
         onCancel(this: any, ev: any, step: CalibrationStep) {
@@ -151,9 +165,13 @@ export default Vue.extend({
             const sensor = this.sensor;
             const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
             console.log("cal:", "clearing", action);
-            return this.$store.dispatch(action).then((cleared) => {
-                console.log("cal:", "cleared");
-            });
+            return this.$store.dispatch(action).then(
+                (cleared) => {
+                    console.log("cal:", "cleared");
+                    return this.notifySuccess();
+                },
+                () => this.notifyFailure()
+            );
         },
         onCalibrate(this: any, ev: any, step: CalibrationStep) {
             const sensor = this.sensor;
@@ -164,9 +182,24 @@ export default Vue.extend({
             const calibrationValue = this.strategy.getStepCalibrationValue(step);
             const action = new CalibrateAtlas(this.deviceId, sensor.moduleId, this.position, calibrationValue, compensations);
             console.log("cal:", "calibrate", action);
-            return this.$store.dispatch(action).then((calibrated) => {
-                console.log("cal:", "calibrated");
-                return this.onDone(ev, step);
+            return this.$store.dispatch(action).then(
+                (calibrated) => {
+                    console.log("cal:", "calibrated");
+                    return Promise.all([Promise.resolve(this.onDone(ev, step))]);
+                },
+                () => this.notifyFailure()
+            );
+        },
+        notifySuccess(this: any) {
+            this.success = true;
+            return Promise.delay(3000).then(() => {
+                this.success = false;
+            });
+        },
+        notifyFailure(this: any) {
+            this.failure = true;
+            return Promise.delay(3000).then(() => {
+                this.failure = false;
             });
         },
     },
