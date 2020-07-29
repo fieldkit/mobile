@@ -139,6 +139,7 @@ export default {
     },
     methods: {
         onPageLoaded(args) {
+            console.log("review loaded", this.stationId);
             this.page = args.object;
         },
         goBack(ev) {

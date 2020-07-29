@@ -286,6 +286,7 @@ export default {
             ]);
         },
         goToReview(ev) {
+            console.log("navigating to review");
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.deploy.review, {
