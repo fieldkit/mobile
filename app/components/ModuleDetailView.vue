@@ -186,8 +186,8 @@ export default {
             });
             // separate iteration to preserve order - worth it?
             let toDisplay = [];
-            graphs.forEach(g => {
-                let sensor = sensors.find(s => {
+            graphs.forEach((g) => {
+                let sensor = sensors.find((s) => {
                     return s.id == g;
                 });
                 if (sensor) {
@@ -250,11 +250,11 @@ export default {
             if (this.changeEvents > 1) {
                 this.changeEvents = 0;
 
-                let sensor = this.sensors.find(s => {
+                let sensor = this.sensors.find((s) => {
                     return s.name == this.selectedSensor;
                 });
                 // add to graphedSensors, if not already present
-                let index = this.graphedSensors.findIndex(s => {
+                let index = this.graphedSensors.findIndex((s) => {
                     return s.id == sensor.id;
                 });
                 if (index == -1) {
@@ -269,7 +269,7 @@ export default {
             event.object.className = cn + " pressed";
 
             let id = event.object.id.split("chart-")[1];
-            let index = this.graphedSensors.findIndex(s => {
+            let index = this.graphedSensors.findIndex((s) => {
                 return s.id == id;
             });
             // remove from graphedSensors
@@ -281,7 +281,7 @@ export default {
 
         saveGraphs() {
             let graphs = "";
-            this.graphedSensors.forEach(g => {
+            this.graphedSensors.forEach((g) => {
                 graphs += graphs == "" ? g.id : "," + g.id;
             });
             if (this.module.origGraphs != graphs) {
@@ -303,11 +303,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
-@import "../app-variables";
-// End custom common variables
+@import "~/_app-variables";
 
-// Custom styles
 .module-name {
     width: 195;
 }

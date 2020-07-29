@@ -138,5 +138,5 @@ export default class StartupScreen extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "~/_app-variables";
 </style>

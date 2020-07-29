@@ -214,7 +214,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "~/_app-variables";
 
 .bordered-container {
     border-radius: 4;

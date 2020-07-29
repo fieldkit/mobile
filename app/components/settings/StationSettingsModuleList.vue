@@ -82,7 +82,7 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
-@import "../../app-variables";
+@import "~/_app-variables";
 
 .bordered-container {
     padding: 10;

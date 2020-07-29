@@ -165,7 +165,7 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 // Start custom common variables
-@import "../../app-variables";
+@import "~/_app-variables";
 // End custom common variables
 
 // Custom styles

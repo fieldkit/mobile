@@ -72,7 +72,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../../app-variables";
+@import "~/_app-variables";
 
 #loading-circle-blue,
 #loading-circle-white {

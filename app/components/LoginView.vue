@@ -362,7 +362,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "~/_app-variables";
 
 .login-page {
     font-size: 16;

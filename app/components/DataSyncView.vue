@@ -206,7 +206,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "~/_app-variables";
 
 .station-container {
     margin: 15;

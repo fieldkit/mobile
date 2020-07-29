@@ -99,7 +99,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../../app-variables";
+@import "~/_app-variables";
 
 .field-label {
     color: $fk-gray-hint;

@@ -191,7 +191,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../../app-variables";
+@import "~/_app-variables";
 
 .top-line-bkgd {
     background-color: $fk-gray-lighter;

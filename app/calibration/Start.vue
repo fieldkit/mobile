@@ -89,7 +89,7 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
-@import "../app-variables";
+@import "~/_app-variables";
 
 .choice-heading {
 }

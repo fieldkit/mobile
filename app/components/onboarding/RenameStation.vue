@@ -143,7 +143,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "../../app-variables";
+@import "~/_app-variables";
 
 .bottom-bordered {
     border-bottom-width: 1px;
