@@ -6,7 +6,6 @@ import Login from "../components/LoginView";
 import StationDetail from "../components/StationDetailView";
 import StationListView from "../components/StationListView";
 import StationSettings from "../components/settings/StationSettingsView";
-import Module from "../components/ModuleDetailView";
 import ConfigureModule from "../components/unused/ConfigureModuleView";
 
 import CalibrateStart from "../calibration/Start";
@@ -39,7 +38,6 @@ const routes = {
     // Per station
     stationDetail: new Route(StationDetail, { reading: true, station: true }),
     stationSettings: new Route(StationSettings, {}),
-    module: new Route(Module, {}),
     configureModule: new Route(ConfigureModule, {}),
 
     // Onboarding
