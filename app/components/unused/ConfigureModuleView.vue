@@ -1,23 +1,10 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
-            <FlexboxLayout
-                flexDirection="column"
-                justifyContent="space-between"
-            >
+            <FlexboxLayout flexDirection="column" justifyContent="space-between">
                 <GridLayout rows="auto" columns="15*,70*,15*">
-                    <StackLayout
-                        row="0"
-                        col="0"
-                        class="round-bkgd"
-                        verticalAlignment="top"
-                        @tap="goBack"
-                    >
-                        <Image
-                            width="21"
-                            v-show="!isEditingName"
-                            src="~/images/Icon_Backarrow.png"
-                        ></Image>
+                    <StackLayout row="0" col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
+                        <Image width="21" v-show="!isEditingName" src="~/images/Icon_Backarrow.png"></Image>
                     </StackLayout>
                     <Image
                         row="0"
@@ -37,12 +24,7 @@
                         textWrap="true"
                     ></Label>
                     <!-- Edit name form -->
-                    <StackLayout
-                        row="0"
-                        col="1"
-                        id="module-name-field"
-                        class="input-field m-y-10 text-left"
-                    >
+                    <StackLayout row="0" col="1" id="module-name-field" class="input-field m-y-10 text-left">
                         <FlexboxLayout>
                             <TextField
                                 class="input"
@@ -63,10 +45,7 @@
                                 v-show="isEditingName"
                             ></Label>
                         </FlexboxLayout>
-                        <StackLayout
-                            class="spacer-top"
-                            id="name-field-spacer"
-                        ></StackLayout>
+                        <StackLayout class="spacer-top" id="name-field-spacer"></StackLayout>
                         <Label
                             class="validation-error"
                             id="no-name"
@@ -89,9 +68,7 @@
                             horizontalAlignment="left"
                             :text="_L('nameNotPrintable')"
                             textWrap="true"
-                            :visibility="
-                                nameNotPrintable ? 'visible' : 'collapsed'
-                            "
+                            :visibility="nameNotPrintable ? 'visible' : 'collapsed'"
                         ></Label>
                     </StackLayout>
                     <!-- end edit name form -->
@@ -116,24 +93,9 @@
                 </GridLayout>
 
                 <!-- Data capture interval -->
-                <GridLayout
-                    rows="auto,auto,auto,auto"
-                    columns="*,*"
-                    class="m-x-10 m-y-10"
-                >
-                    <Label
-                        row="0"
-                        colSpan="4"
-                        class="size-20"
-                        :text="_L('dataCaptureSchedule')"
-                    ></Label>
-                    <Label
-                        row="1"
-                        colSpan="2"
-                        class="size-14 m-y-5"
-                        textWrap="true"
-                        :text="_L('dataCaptureNotice')"
-                    ></Label>
+                <GridLayout rows="auto,auto,auto,auto" columns="*,*" class="m-x-10 m-y-10">
+                    <Label row="0" colSpan="4" class="size-20" :text="_L('dataCaptureSchedule')"></Label>
+                    <Label row="1" colSpan="2" class="size-14 m-y-5" textWrap="true" :text="_L('dataCaptureNotice')"></Label>
                     <TextField
                         row="2"
                         col="0"
@@ -171,9 +133,7 @@
                             horizontalAlignment="left"
                             :text="_L('intervalNotNumber')"
                             textWrap="true"
-                            :visibility="
-                                intervalNotNumber ? 'visible' : 'collapsed'
-                            "
+                            :visibility="intervalNotNumber ? 'visible' : 'collapsed'"
                         ></Label>
                     </StackLayout>
                 </GridLayout>
@@ -186,14 +146,15 @@
     </Page>
 </template>
 
-<script>
-import routes from "../../routes";
-import Services from "../../services/services";
-import ScreenFooter from "../ScreenFooter";
+<script lang="ts">
+import Vue from "vue";
+import routes from "@/routes";
+import Services from "@/services/services";
+import ScreenFooter from "../ScreenFooter.vue";
 
 const dbInterface = Services.Database();
 
-export default {
+export default Vue.extend({
     data() {
         return {
             currentUnit: 0,
@@ -206,29 +167,23 @@ export default {
             intervalNotNumber: false,
             module: {
                 name: "",
-                origName: ""
+                origName: "",
             },
-            timeUnits: [
-                _L("seconds"),
-                _L("minutes"),
-                _L("hours"),
-                _L("days"),
-                _L("weeks")
-            ]
+            timeUnits: [_L("seconds"), _L("minutes"), _L("hours"), _L("days"), _L("weeks")],
         };
     },
     props: ["moduleId", "station", "origin"],
     components: {
-        ScreenFooter
+        ScreenFooter,
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.page = args.object;
 
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
 
-            dbInterface.getModule([this.moduleId]).then(module => {
+            dbInterface.getModule([this.moduleId]).then((module) => {
                 this.module = module[0];
                 this.module.origName = this.module.name;
                 this.origInterval = this.module.interval;
@@ -237,8 +192,7 @@ export default {
                 this.origUnit = this.currentUnit;
             });
         },
-
-        goBack(event) {
+        goBack(this: any, event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
@@ -247,27 +201,27 @@ export default {
 
             // TODO: handle history better
             if (this.origin == "detail") {
+                /*
                 this.$navigateTo(routes.module, {
                     props: {
                         moduleId: this.module.id,
-                        station: this.station
-                    }
+                        station: this.station,
+                    },
                 });
+				*/
             }
             if (this.origin == "settings") {
                 this.$navigateTo(routes.stationSettings, {
                     props: {
-                        station: this.station
-                    }
+                        station: this.station,
+                    },
                 });
             }
         },
-
-        toggleRename() {
+        toggleRename(this: any) {
             this.isEditingName = true;
         },
-
-        checkName() {
+        checkName(this: any) {
             // reset these first
             this.noName = false;
             this.nameNotPrintable = false;
@@ -282,8 +236,7 @@ export default {
             this.nameTooLong = this.module.name.length > 40;
             return !this.nameTooLong && !this.nameNotPrintable;
         },
-
-        saveModuleName() {
+        saveModuleName(this: any) {
             this.isEditingName = false;
             let valid = this.checkName();
             if (valid && this.module.origName != this.module.name) {
@@ -293,22 +246,20 @@ export default {
                     before: this.module.origName,
                     after: this.module.name,
                     affectedField: "name",
-                    author: this.userName
+                    author: this.userName,
                 };
                 dbInterface.recordModuleConfigChange(configChange);
                 this.module.origName = this.module.name;
             }
         },
-
-        cancelRename() {
+        cancelRename(this: any) {
             this.isEditingName = false;
             this.noName = false;
             this.nameNotPrintable = false;
             this.nameTooLong = false;
             this.module.name = this.module.origName;
         },
-
-        convertFromSeconds() {
+        convertFromSeconds(this: any) {
             let displayValue = this.module.interval;
             // this.currentUnit is an index into timeUnits:
             // timeUnits: ["seconds", "minutes", "hours", "days", "weeks"]
@@ -338,8 +289,7 @@ export default {
             }
             this.displayInterval = displayValue;
         },
-
-        convertToSeconds() {
+        convertToSeconds(this: any) {
             switch (this.currentUnit) {
                 case 0:
                     this.module.interval = this.displayInterval;
@@ -360,24 +310,19 @@ export default {
                     break;
             }
         },
-
-        checkInterval() {
+        checkInterval(this: any) {
             // reset these first
             this.noInterval = false;
             this.intervalNotNumber = false;
             // then check
-            this.noInterval =
-                !this.displayInterval ||
-                this.displayInterval == 0 ||
-                this.displayInterval.length == 0;
+            this.noInterval = !this.displayInterval || this.displayInterval == 0 || this.displayInterval.length == 0;
             if (this.noInterval) {
                 return false;
             }
             this.intervalNotNumber = isNaN(this.displayInterval);
             return !this.intervalNotNumber;
         },
-
-        saveInterval() {
+        saveInterval(this: any) {
             let valid = this.checkInterval();
             if (valid) {
                 this.convertToSeconds(); // assigns displayInterval to this.module.interval
@@ -388,7 +333,7 @@ export default {
                         before: this.origInterval,
                         after: this.module.interval,
                         affectedField: "interval",
-                        author: this.userName
+                        author: this.userName,
                     };
                     dbInterface.recordModuleConfigChange(configChange);
                     this.origInterval = this.module.interval;
@@ -396,22 +341,18 @@ export default {
                 }
             }
         },
-
-        onSelectedIndexChanged(event) {
+        onSelectedIndexChanged(this: any, event) {
             // console.log(event.oldIndex, event.newIndex)
             this.currentUnit = event.newIndex;
             this.saveInterval();
-        }
-    }
-};
+        },
+    },
+});
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 #module-name-field {
     width: 225;
     font-size: 16;

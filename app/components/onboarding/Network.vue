@@ -23,7 +23,14 @@
                                 @checkedChange="$event.value !== form.options[0].selected && toggleChoice(0)"
                             />
                             <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('stationWifi')"></Label>
-                            <Label row="1" colSpan="2" class="radio-info size-15" lineHeight="4" :text="_L('stationWifiInfo')" textWrap="true"></Label>
+                            <Label
+                                row="1"
+                                colSpan="2"
+                                class="radio-info size-15"
+                                lineHeight="4"
+                                :text="_L('stationWifiInfo')"
+                                textWrap="true"
+                            ></Label>
                         </GridLayout>
 
                         <GridLayout rows="auto,auto" columns="30,*" class="option-container">
@@ -41,7 +48,14 @@
                                 @checkedChange="$event.value !== form.options[1].selected && toggleChoice(1)"
                             />
                             <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('yourWifi')"></Label>
-                            <Label row="1" colSpan="2" class="radio-info size-15" lineHeight="4" :text="_L('yourWifiInfo')" textWrap="true"></Label>
+                            <Label
+                                row="1"
+                                colSpan="2"
+                                class="radio-info size-15"
+                                lineHeight="4"
+                                :text="_L('yourWifiInfo')"
+                                textWrap="true"
+                            ></Label>
                         </GridLayout>
                     </StackLayout>
                 </GridLayout>
@@ -54,13 +68,12 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
-import * as i18n from "tns-i18n";
-i18n("en");
 
-export default {
+export default Vue.extend({
     props: {
         stationId: {
             type: Number,
@@ -76,7 +89,7 @@ export default {
     },
     methods: {
         onPageLoaded(args) {},
-        forward() {
+        forward(this: any) {
             if (this.form.network == 1) {
                 return this.$navigateTo(routes.onboarding.rename, {
                     props: {
@@ -87,13 +100,13 @@ export default {
             if (this.form.network == 2) {
             }
         },
-        toggleChoice(index) {
+        toggleChoice(this: any, index) {
             this.form.options[0].selected = false;
             this.form.options[1].selected = false;
             this.form.options[index].selected = true;
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

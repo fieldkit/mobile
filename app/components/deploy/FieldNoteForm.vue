@@ -38,16 +38,15 @@
     </GridLayout>
 </template>
 
-<script>
-import * as dialogs from "tns-core-modules/ui/dialogs";
-import { AnimationCurve } from "tns-core-modules/ui/enums";
-import { NoteMedia, NoteForm } from "../../store/modules/notes";
+<script lang="ts">
+import Vue from "vue";
+// import { AnimationCurve } from "tns-core-modules/ui/enums";
 
-import LabeledTextView from "../LabeledTextView";
-import MakeAudioRecording from "./MakeAudioRecording";
-import AudioRecordings from "./AudioRecordings";
+import LabeledTextView from "../LabeledTextView.vue";
+import MakeAudioRecording from "./MakeAudioRecording.vue";
+import AudioRecordings from "./AudioRecordings.vue";
 
-export default {
+export default Vue.extend({
     components: {
         LabeledTextView,
         MakeAudioRecording,
@@ -74,15 +73,15 @@ export default {
     methods: {
         onPageLoaded(args) {},
         onUnloaded() {},
-        onCancel() {
+        onCancel(this: any) {
             console.log("note cancel", this.form);
             this.$emit("cancel");
         },
-        onSave() {
+        onSave(this: any) {
             console.log("note save", this.form);
             this.$emit("save", { form: this.form });
         },
-        onAudioTap(ev) {
+        onAudioTap(this: any, ev) {
             this.audioReady = !this.audioReady;
         },
         onAudioDone(...args) {
@@ -91,11 +90,11 @@ export default {
         raiseRemoveAudio(...args) {
             this.$emit("remove-audio", ...args);
         },
-        maybeDismissKeyboard() {
+        maybeDismissKeyboard(this: any) {
             this.$refs.noteBody.nativeView.dismissSoftInput();
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

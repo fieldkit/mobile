@@ -29,13 +29,12 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
-import * as i18n from "tns-i18n";
-i18n("en");
 
-export default {
+export default Vue.extend({
     props: {
         deviceId: {
             type: String,
@@ -62,7 +61,7 @@ export default {
             return this.$navigateTo(routes.stations);
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

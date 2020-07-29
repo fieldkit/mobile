@@ -43,25 +43,26 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
+import _ from "lodash";
 import { crashlytics } from "nativescript-plugin-firebase";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import { knownFolders } from "tns-core-modules/file-system";
-import { BarcodeScanner } from "nativescript-barcodescanner";
-import { sendLogs } from "../lib/logging";
-import { listAllFiles } from "../lib/fs";
+import { listAllFiles } from "@/lib/fs";
 import Config from "@/config";
 import routes from "@/routes";
 import Services from "@/services/services";
 import Recalibrate from "./onboarding/Recalibrate";
-import AppSettings from "../wrappers/app-settings";
-import DiagnosticsModal from "./DiagnosticsModal";
-import StationPicker from "./StationPickerModal";
-import * as ActionTypes from "../store/actions";
-import * as MutationTypes from "../store/mutations";
+import AppSettings from "@/wrappers/app-settings";
+import * as ActionTypes from "@/store/actions";
+import * as MutationTypes from "@/store/mutations";
 
-export default {
-    data() {
+import DiagnosticsModal from "./DiagnosticsModal.vue";
+import StationPicker from "./StationPickerModal.vue";
+
+export default Vue.extend({
+    data(this: any) {
         return {
             message: _L("devOptions"),
             loggedIn: this.$portalInterface.isLoggedIn(),
@@ -81,11 +82,10 @@ export default {
         };
     },
     components: {
-        BarcodeScanner,
         Recalibrate,
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.page = args.object;
 
             Services.Database()
@@ -113,21 +113,21 @@ export default {
                     });
                 });
         },
-        viewStations() {
+        viewStations(this: any) {
             this.$navigateTo(routes.stations);
         },
-        openDropDown(event) {
+        openDropDown(this: any, event) {
             const dropDown = this.page.getViewById("env-drop-down");
             dropDown.open();
         },
-        onOpened(event) {
+        onOpened(this: any, event) {
             // provide feedback by changing background color
             event.object.backgroundColor = "#F4F5F7";
             setTimeout(() => {
                 event.object.backgroundColor = "white";
             }, 500);
         },
-        onDropDownSelection(event) {
+        onDropDownSelection(this: any, event) {
             this.currentEnv = event.newIndex;
             const baseUri = this.environments[this.currentEnv].uri;
             const params = {
@@ -141,7 +141,7 @@ export default {
                     return Services.PortalInterface().logout();
                 });
         },
-        resetCalibration() {
+        resetCalibration(this: any) {
             const stations = this.$store.stations.all;
             if (stations.length == 0) {
                 alert({
@@ -168,10 +168,10 @@ export default {
                 });
             }
         },
-        goOnboarding() {
+        goOnboarding(this: any) {
             return this.$navigateTo(routes.onboarding.assembleStation);
         },
-        resetOnboarding() {
+        resetOnboarding(this: any) {
             const appSettings = new AppSettings();
             appSettings.remove("completedSetup");
             appSettings.remove("skipCount");
@@ -188,12 +188,12 @@ export default {
                     }
                 });
         },
-        uploadDiagnostics() {
+        uploadDiagnostics(this: any) {
             this.$showModal(DiagnosticsModal, {
                 props: {},
             });
         },
-        deleteDB() {
+        deleteDB(this: any) {
             console.log("deleting database");
 
             return Services.CreateDb()
@@ -220,7 +220,7 @@ export default {
                         });
                 });
         },
-        deleteFiles() {
+        deleteFiles(this: any) {
             const rootFolder = knownFolders.documents();
             const diagnosticsFolder = rootFolder.getFolder("diagnostics");
             const firmwareFolder = rootFolder.getFolder("firmware");
@@ -255,52 +255,15 @@ export default {
                     });
                 });
         },
-        scan(front) {
-            new BarcodeScanner()
-                .scan({
-                    cancelLabel: "EXIT. Also, try the volume buttons!", // iOS only, default 'Close'
-                    cancelLabelBackgroundColor: "#333333", // iOS only, default '#000000' (black)
-                    showFlipCameraButton: true, // default false
-                    showTorchButton: true, // iOS only, default false
-                    torchOn: false, // launch with the flashlight on (default false)
-                    resultDisplayDuration: 500, // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
-                    beepOnScan: true, // Play or Suppress beep on scan (default true)
-                    openSettingsIfPermissionWasPreviouslyDenied: true, // On iOS you can send the user to the settings app if access was previously denied
-                    closeCallback: () => {
-                        // console.log("Scanner closed @ " + new Date().getTime());
-                    },
-                })
-                .then(
-                    (result) => {
-                        // console.log("--- scanned: " + result.text);
-                        // Note that this Promise is never invoked when a 'continuousScanCallback' function is provided
-                        setTimeout(() => {
-                            alert({
-                                title: "Scan result",
-                                message: "Format: " + result.format + ",\nValue: " + result.text,
-                                okButtonText: "OK",
-                            });
-                        }, 200);
-                    },
-                    (errorMessage) => {
-                        // console.log("No scan. " + errorMessage);
-                    }
-                );
-        },
-
-        crash() {
+        crash(this: any) {
             crashlytics.crash();
         },
-
-        manualCrash() {
-            crashlytics.sendCrashLog(new java.lang.Exception("Oh, no! Manual crash!"));
-        },
-
-        doScanWithBackCamera() {
-            this.scan(false);
+        manualCrash(this: any) {
+            // const globalAny: any = global as any;
+            // crashlytics.sendCrashLog(new java.lang.Exception("Oh, no! Manual crash!"));
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

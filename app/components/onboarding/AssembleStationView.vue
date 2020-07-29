@@ -87,15 +87,17 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import AppSettings from "../../wrappers/app-settings";
 
-export default {
+export default Vue.extend({
     props: {
         stepParam: {},
     },
     data() {
+        const steps = createSteps();
         return {
             step: 0,
             lastStep: steps.length - 1,
@@ -106,12 +108,13 @@ export default {
             displayFrame: null,
             noImageText: null,
             percentDone: (1 / (steps.length - 1)) * 100,
-            checklist: checklist,
+            steps: steps,
+            checklist: createCheckList(),
         };
     },
     components: {},
     methods: {
-        onPageLoaded() {
+        onPageLoaded(this: any) {
             this._appSettings = new AppSettings();
             if (this.stepParam) {
                 this.step = this.stepParam == "last" ? this.lastStep - 2 : this.stepParam == "first" ? 0 : this.stepParam;
@@ -121,10 +124,10 @@ export default {
                 this.animateFrameTimer = setInterval(this.animateFrames, 1000);
             }
         },
-        onUnloaded() {
+        onUnloaded(this: any) {
             this.stopAnimation();
         },
-        goBack(event) {
+        goBack(this: any, event) {
             // Change background color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -135,30 +138,28 @@ export default {
             if (this.step > 0) {
                 this.step -= 1;
                 this.animateFrames();
-                this.title = steps[this.step].title;
-                this.instruction = steps[this.step].instruction;
-                this.buttonText = steps[this.step].button;
-                this.percentDone = (this.step / (steps.length - 1)) * 100;
-                this.noImageText = steps[this.step].noImage;
+                this.title = this.steps[this.step].title;
+                this.instruction = this.steps[this.step].instruction;
+                this.buttonText = this.steps[this.step].button;
+                this.percentDone = (this.step / (this.steps.length - 1)) * 100;
             }
         },
-        goNext() {
-            if (this.step < steps.length - 1) {
+        goNext(this: any) {
+            if (this.step < this.steps.length - 1) {
                 this.step += 1;
                 this.animateFrames();
-                this.title = steps[this.step].title;
-                this.instruction = steps[this.step].instruction;
-                this.buttonText = steps[this.step].button;
-                this.percentDone = (this.step / (steps.length - 1)) * 100;
-                this.noImageText = steps[this.step].noImage;
-                if (this.step == steps.length - 1) {
+                this.title = this.steps[this.step].title;
+                this.instruction = this.steps[this.step].instruction;
+                this.buttonText = this.steps[this.step].button;
+                this.percentDone = (this.step / (this.steps.length - 1)) * 100;
+                if (this.step == this.steps.length - 1) {
                     setTimeout(() => {
-                        this.$navigateTo(routes.connectStation);
+                        this.$navigateTo(routes.onboarding.start);
                     }, 3000);
                 }
             }
         },
-        skip() {
+        skip(this: any) {
             let skipCount = this._appSettings.getNumber("skipCount");
             if (!skipCount) {
                 skipCount = 0;
@@ -167,155 +168,154 @@ export default {
             this._appSettings.setNumber("skipCount", skipCount);
             this.$navigateTo(routes.stations);
         },
-        stopAnimation() {
+        stopAnimation(this: any) {
             this.displayFrame = null;
             clearInterval(this.animateFrameTimer);
             this.animateFrameTimer = null;
         },
-        animateFrames() {
-            this.frameImage = this.frameImage == steps[this.step].images[0] ? steps[this.step].images[1] : steps[this.step].images[0];
+        animateFrames(this: any) {
+            this.frameImage =
+                this.frameImage == this.steps[this.step].images[0] ? this.steps[this.step].images[1] : this.steps[this.step].images[0];
             this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : null;
         },
     },
-};
-import * as i18n from "tns-i18n";
-// Note: i18n detects the preferred language on the phone,
-// and this default language initialization does not override that
-i18n("en");
+});
 
-const steps = [
-    {
-        // placeholder for intro screen step
-        title: "",
-        instruction: "",
-        button: "",
-        images: [],
-    },
-    {
-        title: _L("haveEverything"),
-        instruction: _L("assembleStep1"),
-        button: _L("assembleStation"),
-        images: ["TI_1-A.jpg", "TI_1-A.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep2"),
-        button: "Next",
-        images: ["TI_2-A.jpg", "TI_2-B.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep3"),
-        button: "Next",
-        images: ["TI_3-A.jpg", "TI_3-B.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep4"),
-        button: "Next",
-        images: ["TI_4-A.jpg", "TI_4-B.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep5"),
-        button: "Next",
-        images: ["TI_5-A.jpg", "TI_5-B.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep6"),
-        button: "Next",
-        images: ["TI_6-A.jpg", "TI_6-B.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep7"),
-        button: "Done",
-        images: ["TI_7-A.jpg", "TI_7-B.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep8"),
-        button: "Next",
-        images: ["TI_8-A.jpg", "TI_8-B.jpg"],
-    },
-    {
-        title: _L("assembleStation"),
-        instruction: _L("assembleStep9"),
-        button: "Next",
-        images: ["TI_15-A.jpg", "TI_15-B.jpg"],
-    },
-    {
-        title: _L("complete"),
-        instruction: _L("assembleStep10"),
-        button: _L("continue"),
-        images: [],
-    },
-];
+function createSteps() {
+    return [
+        {
+            // placeholder for intro screen step
+            title: "",
+            instruction: "",
+            button: "",
+            images: [],
+        },
+        {
+            title: _L("haveEverything"),
+            instruction: _L("assembleStep1"),
+            button: _L("assembleStation"),
+            images: ["TI_1-A.jpg", "TI_1-A.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep2"),
+            button: "Next",
+            images: ["TI_2-A.jpg", "TI_2-B.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep3"),
+            button: "Next",
+            images: ["TI_3-A.jpg", "TI_3-B.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep4"),
+            button: "Next",
+            images: ["TI_4-A.jpg", "TI_4-B.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep5"),
+            button: "Next",
+            images: ["TI_5-A.jpg", "TI_5-B.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep6"),
+            button: "Next",
+            images: ["TI_6-A.jpg", "TI_6-B.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep7"),
+            button: "Done",
+            images: ["TI_7-A.jpg", "TI_7-B.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep8"),
+            button: "Next",
+            images: ["TI_8-A.jpg", "TI_8-B.jpg"],
+        },
+        {
+            title: _L("assembleStation"),
+            instruction: _L("assembleStep9"),
+            button: "Next",
+            images: ["TI_15-A.jpg", "TI_15-B.jpg"],
+        },
+        {
+            title: _L("complete"),
+            instruction: _L("assembleStep10"),
+            button: _L("continue"),
+            images: [],
+        },
+    ];
+}
 
-const checklist = [
-    {
-        id: 1,
-        row: 1,
-        col: 0,
-        text: "\u{2022} " + _L("enclosure"),
-    },
-    {
-        id: 2,
-        row: 2,
-        col: 0,
-        text: "\u{2022} " + _L("radioBoard"),
-    },
-    {
-        id: 3,
-        row: 3,
-        col: 0,
-        text: "\u{2022} " + _L("coreBoard"),
-    },
-    {
-        id: 4,
-        row: 4,
-        col: 0,
-        text: "\u{2022} " + _L("backPlane"),
-    },
-    {
-        id: 5,
-        row: 5,
-        col: 0,
-        text: "\u{2022} " + _L("moduleParts"),
-    },
-    {
-        id: 6,
-        row: 1,
-        col: 1,
-        text: "\u{2022} 1 " + _L("battery"),
-    },
-    {
-        id: 7,
-        row: 2,
-        col: 1,
-        text: "\u{2022} " + _L("screws"),
-    },
-    {
-        id: 8,
-        row: 3,
-        col: 1,
-        text: "\u{2022} " + _L("microCable"),
-    },
-    {
-        id: 9,
-        row: 4,
-        col: 1,
-        text: "\u{2022} " + _L("screwdriver") + "*",
-    },
-];
+function createCheckList() {
+    return [
+        {
+            id: 1,
+            row: 1,
+            col: 0,
+            text: "\u{2022} " + _L("enclosure"),
+        },
+        {
+            id: 2,
+            row: 2,
+            col: 0,
+            text: "\u{2022} " + _L("radioBoard"),
+        },
+        {
+            id: 3,
+            row: 3,
+            col: 0,
+            text: "\u{2022} " + _L("coreBoard"),
+        },
+        {
+            id: 4,
+            row: 4,
+            col: 0,
+            text: "\u{2022} " + _L("backPlane"),
+        },
+        {
+            id: 5,
+            row: 5,
+            col: 0,
+            text: "\u{2022} " + _L("moduleParts"),
+        },
+        {
+            id: 6,
+            row: 1,
+            col: 1,
+            text: "\u{2022} 1 " + _L("battery"),
+        },
+        {
+            id: 7,
+            row: 2,
+            col: 1,
+            text: "\u{2022} " + _L("screws"),
+        },
+        {
+            id: 8,
+            row: 3,
+            col: 1,
+            text: "\u{2022} " + _L("microCable"),
+        },
+        {
+            id: 9,
+            row: 4,
+            col: 1,
+            text: "\u{2022} " + _L("screwdriver") + "*",
+        },
+    ];
+}
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
-// Custom styles
+
 .logo {
     margin-top: 8%;
     width: 50%;

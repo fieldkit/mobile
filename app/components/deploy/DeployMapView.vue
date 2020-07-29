@@ -81,11 +81,10 @@
         </GridLayout>
     </Page>
 </template>
-
-<script>
+<script lang="ts">
+import Vue from "vue";
 import { isIOS } from "tns-core-modules/platform";
 import { MAPBOX_ACCESS_TOKEN } from "../../secrets";
-import Services from "../../services/services";
 import routes from "../../routes";
 import * as ActionTypes from "../../store/actions";
 
@@ -94,7 +93,7 @@ import ScreenHeader from "../ScreenHeader";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import * as animations from "../animations";
 
-export default {
+export default Vue.extend({
     components: {
         ScreenHeader,
         ScheduleEditor,
@@ -126,24 +125,24 @@ export default {
         },
     },
     computed: {
-        currentNotes() {
+        currentNotes(this: any) {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation() {
+        currentStation(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.form.location = this.currentNotes.location || "";
             this.form.schedule = { interval: this.currentStation.interval };
             console.log("initialized", this.form.schedule);
         },
-        onMapReady(args) {
+        onMapReady(this: any, args) {
             this.map = args.map;
             this.displayStation();
         },
-        goBack(ev) {
+        goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -158,7 +157,7 @@ export default {
                 }),
             ]);
         },
-        goToNext(event) {
+        goToNext(this: any, event) {
             return this.saveForm().then(() => {
                 return this.$navigateTo(routes.deploy.notes, {
                     props: {
@@ -168,7 +167,7 @@ export default {
                 });
             });
         },
-        onNavCancel(ev) {
+        onNavCancel(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -179,7 +178,7 @@ export default {
                 }),
             ]);
         },
-        displayStation() {
+        displayStation(this: any) {
             const station = this.$store.getters.legacyStations[this.stationId];
             const location = station.location();
             if (!location) {
@@ -202,7 +201,7 @@ export default {
             };
             this.map.addMarkers([this.mapMarker]);
         },
-        checkLocationName() {
+        checkLocationName(this: any) {
             this.form.v = {
                 required: false,
                 long: false,
@@ -217,11 +216,11 @@ export default {
             this.form.v.any = this.form.v.required || this.form.v.long || this.form.v.characters;
             return !this.form.v.any;
         },
-        onScheduleChange(schedule) {
+        onScheduleChange(this: any, schedule) {
             console.log("schedule", schedule);
             this.form.schedule = schedule;
         },
-        saveForm() {
+        saveForm(this: any) {
             if (!this.checkLocationName()) {
                 return Promise.reject(new Error("validation error"));
             }
@@ -238,7 +237,7 @@ export default {
             });
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

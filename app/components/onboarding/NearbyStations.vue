@@ -11,7 +11,13 @@
                                 <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true"></Label>
 
                                 <StackLayout class="m-t-10"></StackLayout>
-                                <GridLayout rows="auto" columns="30,*" class="option-container" v-for="station in nearbyStations" :key="station.id">
+                                <GridLayout
+                                    rows="auto"
+                                    columns="30,*"
+                                    class="option-container"
+                                    v-for="station in nearbyStations"
+                                    :key="station.id"
+                                >
                                     <CheckBox
                                         col="0"
                                         :checked="station.selected"
@@ -39,11 +45,12 @@
     </Page>
 </template>
 
-<script>
-import { mapState, mapGetters } from "vuex";
-import routes from "../../routes";
+<script lang="ts">
+import Vue from "vue";
+import routes from "@/routes";
+import { LegacyStation } from "@/store/types";
 
-export default {
+export default Vue.extend({
     props: {},
     data() {
         return {
@@ -51,10 +58,11 @@ export default {
         };
     },
     computed: {
-        nearbyStations() {
-            return Object.values(this.$store.getters.legacyStations)
-                .filter(station => station.connected)
-                .map(station => {
+        nearbyStations(this: any) {
+            const legacyStations: LegacyStation[] = this.$store.getters.legacyStations; // TODO ts
+            return Object.values(legacyStations)
+                .filter((station) => station.connected)
+                .map((station) => {
                     console.log("station");
                     return {
                         id: station.id,
@@ -65,8 +73,9 @@ export default {
         },
     },
     methods: {
-        onPageLoaded(args) {
-            const connected = Object.values(this.$store.getters.legacyStations).filter(ls => ls.connected);
+        onPageLoaded(this: any, args) {
+            const legacyStations: LegacyStation[] = this.$store.getters.legacyStations; // TODO ts
+            const connected = Object.values(legacyStations).filter((ls) => ls.connected);
             if (connected.length == 0) {
                 throw new Error("invalid transition, no nearby stations");
             }
@@ -74,22 +83,22 @@ export default {
             this.selectedStationId = connected[0].id;
         },
         onNavigatingTo() {},
-        tryAgain() {
+        tryAgain(this: any) {
             return this.$navigateTo(routes.onboarding.searching, {});
         },
-        forward() {
+        forward(this: any) {
             return this.$navigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.selectedStationId,
                 },
             });
         },
-        onCheckChange(id) {
+        onCheckChange(this: any, id) {
             console.log("choose", id);
             this.selectedStationId = id;
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

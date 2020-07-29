@@ -26,13 +26,12 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
-import * as i18n from "tns-i18n";
-i18n("en");
 
-export default {
+export default Vue.extend({
     props: {},
     data() {
         return {
@@ -41,14 +40,14 @@ export default {
     },
     methods: {
         onPageLoaded(args) {},
-        forward() {
+        forward(this: any) {
             return this.$navigateTo(routes.onboarding.searching);
         },
-        skip() {
+        skip(this: any) {
             return this.$navigateTo(routes.stations);
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

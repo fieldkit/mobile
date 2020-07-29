@@ -135,23 +135,23 @@
     </Page>
 </template>
 
-<script>
-import { ImageSource } from "tns-core-modules/image-source";
-import routes from "../../routes";
+<script lang="ts">
+import Vue from "vue";
+import routes from "@/routes";
+import Promise from "bluebird";
 
-import ScreenHeader from "../ScreenHeader";
-import LabeledTextField from "../LabeledTextField";
-import FieldNoteForm from "./FieldNoteForm";
-import NoteDisplay from "./NoteDisplay";
+import ScreenHeader from "../ScreenHeader.vue";
+import FieldNoteForm from "./FieldNoteForm.vue";
+import NoteDisplay from "./NoteDisplay.vue";
 
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import * as MutationTypes from "../../store/mutations";
-import * as ActionTypes from "../../store/actions";
+import * as MutationTypes from "@/store/mutations";
+import * as ActionTypes from "@/store/actions";
 import * as animations from "../animations";
 
-import { NoteData, NotesForm, NoteMedia } from "../../store/modules/notes";
+import { NoteData, NoteMedia } from "@/store/modules/notes";
 
-export default {
+export default Vue.extend({
     components: {
         ScreenHeader,
         NoteDisplay,
@@ -163,26 +163,26 @@ export default {
         };
     },
     computed: {
-        notes() {
+        notes(this: any) {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation() {
+        currentStation(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        photoCache() {
+        photoCache(this: any) {
             return this.$store.state.media.photoCache;
         },
-        editing() {
+        editing(this: any) {
             return this.editingKey !== null;
         },
-        editingNote() {
+        editingNote(this: any) {
             if (this.editingKey) {
                 console.log("data", this.editingKey, this.notes);
                 return this.notes.notes[this.editingKey] || new NoteData();
             }
             return null;
         },
-        editingHelp() {
+        editingHelp(this: any) {
             if (this.editingKey) {
                 console.log("help", this.editingKey, this.notes);
                 return this.notes.help[this.editingKey];
@@ -201,16 +201,16 @@ export default {
         },
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             console.log("notes", this.$store.state.notes.stations[this.stationId]);
             const paths = this.$store.state.notes.stations[this.stationId].photos.map((p) => p.path);
             return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
         },
-        openNote(ev, key) {
+        openNote(this: any, ev, key) {
             console.log("opening", key);
             this.editingKey = key;
         },
-        onSaveNote({ form }) {
+        onSaveNote(this: any, { form }) {
             console.log("saving", this.editingKey, form);
 
             this.$store.commit(MutationTypes.UPDATE_NOTE, { stationId: this.stationId, key: this.editingKey, update: form });
@@ -219,7 +219,7 @@ export default {
                 this.editingKey = null;
             });
         },
-        onAttachNoteMedia(media) {
+        onAttachNoteMedia(this: any, media) {
             if (NoteMedia.isAudio(media)) {
                 this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
             } else {
@@ -227,11 +227,11 @@ export default {
             }
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
-        onRemoveAudio(note, media) {
+        onRemoveAudio(this: any, note, media) {
             this.$store.commit(MutationTypes.REMOVE_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
-        takePicture() {
+        takePicture(this: any) {
             return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
@@ -244,7 +244,7 @@ export default {
                 });
             });
         },
-        selectPicture() {
+        selectPicture(this: any) {
             return this.$store.dispatch(ActionTypes.FIND_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return Promise.delay(100).then(() => {
@@ -257,10 +257,10 @@ export default {
                 });
             });
         },
-        onCancelEditing() {
+        onCancelEditing(this: any) {
             this.editingKey = null;
         },
-        goBack(ev) {
+        goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.deploy.start, {
@@ -275,7 +275,7 @@ export default {
                 }),
             ]);
         },
-        onNavCancel(ev) {
+        onNavCancel(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -285,7 +285,7 @@ export default {
                 }),
             ]);
         },
-        goToReview(ev) {
+        goToReview(this: any, ev) {
             console.log("navigating to review");
             return Promise.all([
                 animations.pressed(ev),
@@ -296,7 +296,7 @@ export default {
                 }),
             ]);
         },
-        onBackToDetail(ev) {
+        onBackToDetail(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -306,7 +306,7 @@ export default {
                 }),
             ]);
         },
-        onPhotoTap(ev) {
+        onPhotoTap(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 dialogs
@@ -325,7 +325,7 @@ export default {
             ]);
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

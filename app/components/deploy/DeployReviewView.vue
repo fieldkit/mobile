@@ -103,14 +103,15 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import * as ActionTypes from "../../store/actions";
 import * as animations from "../animations";
 
 import ScreenHeader from "../ScreenHeader";
 
-export default {
+export default Vue.extend({
     components: {
         ScreenHeader,
     },
@@ -124,28 +125,28 @@ export default {
         return {};
     },
     computed: {
-        notes() {
+        notes(this: any) {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation() {
+        currentStation(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        photoCache() {
+        photoCache(this: any) {
             return this.$store.state.media.photoCache;
         },
-        visibleNotes() {
+        visibleNotes(this: any) {
             return [this.notes.studyObjective, this.notes.sitePurpose, this.notes.siteCriteria, this.notes.siteDescription];
         },
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             console.log("review loaded", this.stationId);
             this.page = args.object;
         },
-        goBack(ev) {
+        goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.deployNotes, {
+                this.$navigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -157,25 +158,25 @@ export default {
                 }),
             ]);
         },
-        editLocation(ev) {
+        editLocation(this: any, ev) {
             return Promise.all([
-                this.$navigateTo(routes.deployMap, {
+                this.$navigateTo(routes.deploy.start, {
                     props: {
                         stationId: this.stationId,
                     },
                 }),
             ]);
         },
-        editNotes(ev) {
+        editNotes(this: any, ev) {
             return Promise.all([
-                this.$navigateTo(routes.deployNotes, {
+                this.$navigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
                     },
                 }),
             ]);
         },
-        deployStation(ev, station) {
+        deployStation(this: any, ev, station) {
             ev.object.text = _L("processing");
 
             return this.$store.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
@@ -188,7 +189,7 @@ export default {
             });
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

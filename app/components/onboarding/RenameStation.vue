@@ -56,16 +56,15 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
-import * as i18n from "tns-i18n";
 import * as ActionTypes from "../../store/actions";
-i18n("en");
 
 import LabeledTextField from "../LabeledTextField";
 
-export default {
+export default Vue.extend({
     components: {
         LabeledTextField,
     },
@@ -90,17 +89,17 @@ export default {
         };
     },
     methods: {
-        currentStation() {
+        currentStation(this: any) {
             const station = this.$store.getters.legacyStations[this.stationId];
             if (!station) {
                 throw new Error("no station");
             }
             return station;
         },
-        onPageLoaded(args) {
+        onPageLoaded(this: any, rgs) {
             this.form.name = this.currentStation().name;
         },
-        rename() {
+        rename(this: any) {
             if (!this.validate()) {
                 return;
             }
@@ -116,7 +115,7 @@ export default {
                     this.error = true;
                 });
         },
-        validate() {
+        validate(this: any) {
             this.form.v = {
                 required: false,
                 long: false,
@@ -132,14 +131,14 @@ export default {
             this.form.v.any = this.form.v.required || this.form.v.long || this.form.v.characters;
             return !this.form.v.any;
         },
-        clearName() {
+        clearName(this: any) {
             this.form.name = "";
         },
-        skip() {
+        skip(this: any) {
             return this.$navigateTo(routes.stations, {});
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

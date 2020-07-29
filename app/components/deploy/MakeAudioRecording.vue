@@ -23,39 +23,38 @@
     </GridLayout>
 </template>
 
-<script>
-import * as dialogs from "tns-core-modules/ui/dialogs";
-import * as ActionTypes from "../../store/actions";
-import { ActiveRecording } from "../../store/modules/media";
+<script lang="ts">
+import Vue from "vue";
+import * as ActionTypes from "@/store/actions";
 
-export default {
+export default Vue.extend({
     data() {
         return {};
     },
     props: {},
     computed: {
-        recording() {
+        recording(this: any) {
             return this.$store.state.media.recording;
         },
     },
     methods: {
         onPageLoaded(args) {},
         onUnloaded() {},
-        startOrResume() {
+        startOrResume(this: any) {
             if (this.recording) {
                 return this.$store.dispatch(ActionTypes.AUDIO_RESUME);
             }
             return this.$store.dispatch(ActionTypes.AUDIO_RECORD);
         },
-        pause() {
+        pause(this: any) {
             return this.$store.dispatch(ActionTypes.AUDIO_PAUSE);
         },
-        stop() {
+        stop(this: any) {
             return this.$store.dispatch(ActionTypes.AUDIO_STOP).then((recording) => {
                 return this.$emit("stop", recording);
             });
         },
-        cancel() {
+        cancel(this: any) {
             if (this.$store.state.media.recording) {
                 return this.$store.dispatch(ActionTypes.AUDIO_STOP).then(() => {
                     return this.$emit("cancel");
@@ -64,7 +63,7 @@ export default {
             return this.$emit("cancel");
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

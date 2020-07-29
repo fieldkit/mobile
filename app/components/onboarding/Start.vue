@@ -45,16 +45,13 @@
     </Page>
 </template>
 
-<script>
-import * as i18n from "tns-i18n";
-// Note: i18n detects the preferred language on the phone,
-// and this default language initialization does not override that
-i18n("en");
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
 import { Timer } from "../../common/timer";
 
-export default {
+export default Vue.extend({
     props: {},
     data() {
         return {
@@ -63,18 +60,18 @@ export default {
         };
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             console.log("onboarding/Start loaded");
 
             this.timer = new Timer(1000, () => {
                 this.frame += 1;
             });
         },
-        onNavigatingTo() {
+        onNavigatingTo(this: any) {
             console.log("nav away");
             this.timer.stop();
         },
-        forward() {
+        forward(this: any) {
             this.step++;
             if (this.step == 2) {
                 this.$navigateTo(routes.onboarding.searching, {
@@ -83,15 +80,15 @@ export default {
                 });
             }
         },
-        back() {},
-        skip() {
+        back(this: any) {},
+        skip(this: any) {
             this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

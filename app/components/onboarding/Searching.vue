@@ -12,11 +12,15 @@
     </Page>
 </template>
 
-<script>
-import { mapState, mapGetters } from "vuex";
-import routes from "../../routes";
+<script lang="ts">
+import Vue from "vue";
+import Promise from "bluebird";
+import { mapGetters } from "vuex";
 
-export default {
+import routes from "@/routes";
+import { LegacyStation } from "@/store/types";
+
+export default Vue.extend({
     props: {},
     data() {
         return {
@@ -28,12 +32,12 @@ export default {
         ...mapGetters({ numberOfNearbyStations: "numberOfNearbyStations" }),
     },
     watch: {
-        numberOfNearbyStations(newValue, oldValue) {
+        numberOfNearbyStations(this: any, newValue, oldValue) {
             return this.foundStations(newValue);
         },
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             if (this.$store.getters.numberOfNearbyStations) {
                 return this.foundStations(this.$store.getters.numberOfNearbyStations);
             }
@@ -42,17 +46,18 @@ export default {
                 return this.$navigateTo(routes.onboarding.searchFailed);
             });
         },
-        onNavigatingTo() {
+        onNavigatingTo(this: any) {
             this.left = true;
         },
-        foundStations(number) {
+        foundStations(this: any, number) {
             console.log("nearby", number);
             if (number == 1) {
                 if (true) {
                     return this.$navigateTo(routes.onboarding.nearby);
                 }
 
-                const connected = Object.values(this.$store.getters.legacyStations).filter(ls => ls.connected);
+                const legacyStations: LegacyStation[] = this.$store.getters.legacyStations;
+                const connected = Object.values(legacyStations).filter((ls) => ls.connected);
                 if (connected.length < 1) {
                     throw new Error("expected a connected station");
                 }
@@ -68,7 +73,7 @@ export default {
             }
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
