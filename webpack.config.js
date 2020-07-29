@@ -18,7 +18,7 @@ const gitHash = require("child_process").execSync("git rev-parse HEAD").toString
 
 const gitBranch = require("child_process").execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
 
-module.exports = env => {
+module.exports = (env) => {
     // Add your custom Activities, Services and other android app components here.
     const appComponents = env.appComponents || [];
     appComponents.push(...["tns-core-modules/ui/frame", "tns-core-modules/ui/frame/activity"]);
@@ -86,7 +86,7 @@ module.exports = env => {
         bundle: entryPath,
         application: "./application.android",
     };
-    const areCoreModulesExternal = Array.isArray(env.externals) && env.externals.some(e => e.indexOf("tns-core-modules") > -1);
+    const areCoreModulesExternal = Array.isArray(env.externals) && env.externals.some((e) => e.indexOf("tns-core-modules") > -1);
     if (platform === "ios" && !areCoreModulesExternal) {
         entries["tns_modules/tns-core-modules/inspector_modules"] = "inspector_modules";
     }
@@ -161,9 +161,9 @@ module.exports = env => {
                     vendor: {
                         name: "vendor",
                         chunks: "all",
-                        test: module => {
+                        test: (module) => {
                             const moduleName = module.nameForCondition ? module.nameForCondition() : "";
-                            return /[\\/]node_modules[\\/]/.test(moduleName) || appComponents.some(comp => comp === moduleName);
+                            return /[\\/]node_modules[\\/]/.test(moduleName) || appComponents.some((comp) => comp === moduleName);
                         },
                         enforce: true,
                     },
@@ -213,7 +213,7 @@ module.exports = env => {
                                 ignoredFiles: nsWebpack.getUserDefinedEntries(entries, platform),
                             },
                         },
-                    ].filter(loader => Boolean(loader)),
+                    ].filter((loader) => Boolean(loader)),
                 },
                 {
                     test: /[\/|\\]app\.css$/,
