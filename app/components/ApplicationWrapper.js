@@ -1,9 +1,10 @@
+import Vue from "vue";
 import { Observable } from "tns-core-modules/data/observable";
 import { Route } from "../routes/navigate";
 import StartupScreen from "./StartupScreen";
 import Config from "../config";
 
-export default {
+export default Vue.extend({
     template: `<Frame ref="mainFrame" @navigated="navigated"></Frame>`,
     mounted() {
         console.log(`wrapper mounted`);
@@ -30,4 +31,4 @@ export default {
             // console.log("nav");
         },
     },
-};
+});

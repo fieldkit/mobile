@@ -20,16 +20,17 @@
         </GridLayout>
     </StackLayout>
 </template>
+<script lang="ts">
+import Vue from "vue";
 
-<script>
-export default {
+export default Vue.extend({
     data() {
         return {};
     },
     props: ["stations"],
     methods: {
-        onShownModally(args) {},
-        selectStation(event) {
+        onShownModally(this: any, args) {},
+        selectStation(this: any, event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
@@ -38,21 +39,17 @@ export default {
 
             // remove the "station-" prefix
             let id = event.object.id.split("station-")[1];
-            const station = this.stations.find(s => {
+            const station = this.stations.find((s) => {
                 return s.id == id;
             });
             this.$modal.close(station);
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .modal-bkgd {
     background-color: gray;
 }

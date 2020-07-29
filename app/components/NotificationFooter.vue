@@ -7,35 +7,31 @@
     </FlexboxLayout>
 </template>
 
-<script>
-import Config from "../config";
+<script lang="ts">
+import Vue from "vue";
 import NotificationModal from "./NotificationModal";
-import * as i18n from "tns-i18n";
-// Note: i18n detects the preferred language on the phone,
-// and this default language initialization does not override that
-i18n("en");
 
-const displayNotifications = {
-    unknown: {
-        heading: _L("portalProblemHeading"),
-        text: _L("encounteredAPortalError"),
-        error: true,
-    },
-    "station-owner-conflict": {
-        heading: _L("unableToUpdateHeading"),
-        text: _L("doNotHavePortalPermission"),
-        error: true,
-    },
-    authentication: {
-        heading: _L("unableToAccessHeading"),
-        text: _L("notAuthorizedToUpdatePortal"),
-        error: true,
-    },
-};
-
-export default {
+export default Vue.extend({
     data() {
-        return {};
+        return {
+            displayNotifications: {
+                unknown: {
+                    heading: _L("portalProblemHeading"),
+                    text: _L("encounteredAPortalError"),
+                    error: true,
+                },
+                "station-owner-conflict": {
+                    heading: _L("unableToUpdateHeading"),
+                    text: _L("doNotHavePortalPermission"),
+                    error: true,
+                },
+                authentication: {
+                    heading: _L("unableToAccessHeading"),
+                    text: _L("notAuthorizedToUpdatePortal"),
+                    error: true,
+                },
+            },
+        };
     },
     props: {
         notificationCodes: {
@@ -44,18 +40,18 @@ export default {
         },
     },
     computed: {
-        notifications() {
+        notifications(this: any) {
             return this.notificationCodes.map((code) => {
-                if (displayNotifications[code]) {
-                    return displayNotifications[code];
+                if (this.displayNotifications[code]) {
+                    return this.displayNotifications[code];
                 }
-                return displayNotifications["unknown"];
+                return this.displayNotifications["unknown"];
             });
         },
     },
     methods: {
-        onLoaded() {},
-        showNotifications() {
+        onLoaded(this: any) {},
+        showNotifications(this: any) {
             const options = {
                 props: {
                     notifications: this.notifications,
@@ -65,7 +61,7 @@ export default {
             return this.$showModal(NotificationModal, options);
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

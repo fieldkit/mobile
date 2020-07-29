@@ -1,6 +1,13 @@
 <template>
     <StackLayout>
-        <Label row="0" :text="label" class="m-x-20 m-y-10 size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" ref="label" width="100%" />
+        <Label
+            row="0"
+            :text="label"
+            class="m-x-20 m-y-10 size-12 field-label"
+            :visibility="typing ? 'visible' : 'collapsed'"
+            ref="label"
+            width="100%"
+        />
         <TextView
             row="1"
             :class="fieldClass"
@@ -16,11 +23,12 @@
     </StackLayout>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import { AnimationCurve } from "tns-core-modules/ui/enums";
 import * as animations from "./animations";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             typing: false,
@@ -77,7 +85,7 @@ export default {
             this.typing = true;
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

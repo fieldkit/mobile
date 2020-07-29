@@ -12,11 +12,11 @@
         </GridLayout>
     </Page>
 </template>
-<script>
-import { serializePromiseChain, promiseAfter } from "../utilities";
+<script lang="ts">
+import Vue from "vue";
 import Services from "../services/services";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             progress: null,
@@ -36,39 +36,39 @@ export default {
         },
     },
     methods: {
-        update(progress) {
+        update(this: any, progress) {
             this.progress = progress;
             console.log("diagnostics", progress.id, progress.message);
         },
-        onLoaded() {
+        onLoaded(this: any) {
             console.log("diagnostics loaded");
 
             Services.Diagnostics()
-                .upload(progress => {
+                .upload((progress) => {
                     this.update(progress);
                 })
                 .then(
-                    res => {
+                    (res) => {
                         console.log("diagnostics done");
                         this.done = true;
                         this.phrase = res.reference.phrase;
                     },
-                    e => {
+                    (e) => {
                         console.log("diagnostics done");
                         this.done = true;
                         this.error = true;
                     }
                 );
         },
-        onUnloaded() {
+        onUnloaded(this: any) {
             console.log("diagnostics unloaded");
         },
-        close() {
+        close(this: any) {
             console.log("Close");
             this.$modal.close(true);
         },
     },
-};
+});
 </script>
 <style scoped lang="scss">
 @import "~/_app-variables";

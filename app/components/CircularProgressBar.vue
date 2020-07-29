@@ -28,7 +28,8 @@
 </template>
 
 <script lang="ts">
-export default {
+import Vue from "vue";
+export default Vue.extend({
     props: {
         animated: { default: true },
         size: { default: 100 },
@@ -57,12 +58,8 @@ export default {
             this.height / 3.5;
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
-// Custom styles
 </style>

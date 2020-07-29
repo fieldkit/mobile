@@ -67,18 +67,18 @@
     </Page>
 </template>
 
-<script>
-import { mapState, mapGetters } from "vuex";
-import { screen } from "tns-core-modules/platform/platform";
+<script lang="ts">
+import Vue from "vue";
+import { mapGetters } from "vuex";
 import * as dialogs from "tns-core-modules/ui/dialogs";
-import ScreenHeader from "./ScreenHeader";
-import ScreenFooter from "./ScreenFooter";
-import { MAPBOX_ACCESS_TOKEN } from "../secrets";
-import MapModal from "./MapModal";
-import routes from "../routes";
+import ScreenHeader from "./ScreenHeader.vue";
+import ScreenFooter from "./ScreenFooter.vue";
+import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
+import MapModal from "./MapModal.vue";
+import routes from "@/routes";
 import * as animations from "./animations";
 
-export default {
+export default Vue.extend({
     computed: {
         ...mapGetters({ stations: "availableStations", mapCenter: "mapCenter", hasCenter: "hasCenter" }),
     },
@@ -104,18 +104,18 @@ export default {
             this.map = ev.map;
             this.showStations();
         },
-        openModal(event) {
+        openModal(this: any, event) {
             return this.$showModal(MapModal, {
                 fullscreen: true,
             });
         },
-        goToAddStation() {
-            return this.$navigateTo(routes.connectStation);
+        goToAddStation(this: any) {
+            return this.$navigateTo(routes.onboarding.start);
         },
-        getDeployStatus(station /*: AvailableStation*/) {
+        getDeployStatus(this: any, station /*: AvailableStation*/) {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
-        showStations() {
+        showStations(this: any) {
             if (!this.map) {
                 console.log("refresh map, no map");
                 return;
@@ -130,7 +130,7 @@ export default {
 
             console.log("refresh map");
 
-            const markers = Object.values(state.stations).map(station => {
+            const markers = Object.values(state.stations).map((station: any) => {
                 return {
                     id: station.deviceId,
                     lat: station.location.latitude,
@@ -169,7 +169,7 @@ export default {
                 animated: false,
             });
         },
-        onMarkerTap(station) {
+        onMarkerTap(this: any, station) {
             this.map.setCenter({
                 lat: station.location.latitude,
                 lng: station.location.longitude,
@@ -180,14 +180,14 @@ export default {
                 animated: false,
             });
         },
-        onCalloutTap(station) {
+        onCalloutTap(this: any, station) {
             return this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: station.id,
                 },
             });
         },
-        goToDetail(ev, station) {
+        goToDetail(this: any, ev, station) {
             return Promise.all([
                 animations.pressed(ev.object),
                 this.$navigateTo(routes.stationDetail, {
@@ -197,29 +197,26 @@ export default {
                 }),
             ]);
         },
-        showDev() {
+        showDev(this: any) {
             return dialogs
                 .confirm({
                     title: _L("confirmViewDevMenu"),
                     okButtonText: _L("yes"),
                     cancelButtonText: _L("cancel"),
                 })
-                .then(yes => {
+                .then((yes) => {
                     if (yes) {
                         return this.$navigateTo(routes.developerMenu);
                     }
                 });
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .toggle-container {
     margin-bottom: 16;
     margin-right: 10;

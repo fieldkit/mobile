@@ -86,12 +86,12 @@
     </StackLayout>
 </template>
 
-<script>
-import Services from "../services/services";
+<script lang="ts">
+import Vue from "vue";
 import { getLastSeen, convertBytesToLabel } from "../utilities";
 import { AnimationCurve } from "tns-core-modules/ui/enums";
 
-export default {
+export default Vue.extend({
     name: "StationStatusBox",
     data: () => {
         return {
@@ -102,13 +102,13 @@ export default {
         };
     },
     computed: {
-        displayConsumedMemory() {
+        displayConsumedMemory(this: any) {
             return convertBytesToLabel(this.station.consumedMemory);
         },
-        displayTotalMemory() {
+        displayTotalMemory(this: any) {
             return convertBytesToLabel(this.station.totalMemory);
         },
-        recording() {
+        recording(this: any) {
             if (this.station.deployStartTime) {
                 const now = new Date();
                 const elapsed = (now.getTime() - this.station.deployStartTime.getTime()) / 1000;
@@ -155,7 +155,7 @@ export default {
                 };
             }
         },
-        batteryImage() {
+        batteryImage(this: any) {
             const battery = this.station.batteryLevel;
             if (battery == 0) {
                 return "~/images/Icon_Battery_0.png";
@@ -171,13 +171,13 @@ export default {
                 return "~/images/Icon_Battery_100.png";
             }
         },
-        batteryLevel() {
+        batteryLevel(this: any) {
             if (this.station.batteryLevel != 0 && !this.station.batteryLevel) {
-                return L("unknown");
+                return _L("unknown");
             }
             return this.station.batteryLevel + "%";
         },
-        lastSeen() {
+        lastSeen(this: any) {
             if (!this.station.updated) {
                 return "";
             }
@@ -190,18 +190,18 @@ export default {
         },
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.page = args.object;
 
             this.updateStation(this.station);
         },
-        onUnloaded() {
+        onUnloaded(this: any) {
             this.stopProcesses();
         },
-        emitDeployTap() {
+        emitDeployTap(this: any) {
             this.$emit("deployTapped");
         },
-        updateStation(station) {
+        updateStation(this: any, station) {
             this.loading = false;
             if (this.station.deployStartTime) {
                 this.outer = this.page.getViewById("outer-circle");
@@ -213,32 +213,29 @@ export default {
                 this.page.addCss("#station-memory-bar {width: " + this.station.consumedMemoryPercent + "%;}");
             }
         },
-        updateStatus(data) {
+        updateStatus(this: any, data) {
             if (data.consumedMemoryPercent) {
                 this.page.addCss("#station-memory-bar {width: " + data.consumedMemoryPercent + "%;}");
             }
         },
-        rotateSyncingIcon() {
+        rotateSyncingIcon(this: any) {
             this.dataSyncingIcon =
                 this.dataSyncingIcon == "~/images/Icon_Syncing_blue.png"
                     ? "~/images/Icon_Syncing2_blue.png"
                     : "~/images/Icon_Syncing_blue.png";
         },
-        stopProcesses() {
+        stopProcesses(this: any) {
             if (this.syncIconIntervalTimer) {
                 clearInterval(this.syncIconIntervalTimer);
             }
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;

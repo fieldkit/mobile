@@ -16,11 +16,11 @@
     </StackLayout>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import { AnimationCurve } from "tns-core-modules/ui/enums";
-import * as animations from "./animations";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             typing: false,
@@ -42,16 +42,16 @@ export default {
         },
     },
     computed: {
-        fieldClass() {
+        fieldClass(this: any) {
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
     },
     methods: {
-        onFocus(ev) {
+        onFocus(this: any, ev) {
             this.focus = true;
             this.$emit("focus", ev);
         },
-        onChange(ev) {
+        onChange(this: any, ev) {
             const value = ev.value;
             if (!this.typing && value) {
                 this.animateLabel(this.$refs.label.nativeView);
@@ -60,11 +60,11 @@ export default {
             }
             this.$emit("input", ev.value);
         },
-        onBlur(ev) {
+        onBlur(this: any, ev) {
             this.focus = false;
             this.$emit("blur", ev);
         },
-        animateLabel(nativeView) {
+        animateLabel(this: any, nativeView) {
             nativeView.opacity = 0;
             nativeView.translateX = 5;
             nativeView.translateY = 20;
@@ -77,7 +77,7 @@ export default {
             this.typing = true;
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

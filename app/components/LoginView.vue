@@ -179,15 +179,16 @@
     </Page>
 </template>
 
-<script>
-import Config from "../config";
-import routes from "../routes";
-import { USERNAME, PASSWORD } from "../secrets";
-import * as ActionTypes from "../store/actions";
-import Services from "../services/services";
+<script lang="ts">
+import Vue from "vue";
+import routes from "@/routes";
+import { USERNAME, PASSWORD } from "@/secrets";
+import * as ActionTypes from "@/store/actions";
+import Services from "@/services/services";
+import * as dialogs from "tns-core-modules/ui/dialogs";
 
-export default {
-    data() {
+export default Vue.extend({
+    data(this: any) {
         return {
             isLoggingIn: true,
             processing: false,
@@ -213,7 +214,7 @@ export default {
         },
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             // logging out sends resetUser = true
             this.page = args.object;
             if (USERNAME && PASSWORD && !this.resetUser) {
@@ -225,21 +226,20 @@ export default {
         toggleForm() {
             this.isLoggingIn = !this.isLoggingIn;
         },
-        showActive(event) {
+        showActive(this: any, event) {
             let spacer = this.page.getViewById(event.object.id + "-spacer");
             spacer.className = "spacer-top active";
         },
-        checkName(event) {
+        checkName(this: any, event) {
             let spacer = this.page.getViewById("name-field-spacer");
             spacer.className = "spacer-top";
             this.noName = !this.user.name || this.user.name.length == 0;
             if (this.noName) {
                 return;
             }
-            let matches = this.user.name.match(/\s/g);
             this.nameTooLong = this.user.name.length > 255;
         },
-        checkEmail(event) {
+        checkEmail(this: any, event) {
             let spacer = this.page.getViewById("email-field-spacer");
             spacer.className = "spacer-top";
             this.noEmail = !this.user.email || this.user.email.length == 0;
@@ -249,7 +249,7 @@ export default {
             let emailPattern = /^([a-zA-Z0-9_+\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
             this.emailNotValid = !emailPattern.test(this.user.email);
         },
-        checkPassword(event) {
+        checkPassword(this: any, event) {
             let spacer = this.page.getViewById("password-field-spacer");
             spacer.className = "spacer-top";
             this.noPassword = !this.user.password || this.user.password.length == 0;
@@ -258,18 +258,18 @@ export default {
             }
             this.passwordTooShort = this.user.password.length < 10;
         },
-        checkConfirmPassword(event) {
+        checkConfirmPassword(this: any, event) {
             let spacer = this.page.getViewById("confirm-password-field-spacer");
             spacer.className = "spacer-top";
             this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
         },
-        continueOffline() {
+        continueOffline(this: any) {
             if (!this.navigatedAway) {
                 this.navigatedAway = true;
                 return this.$navigateTo(routes.onboarding.assembleStation, { clearHistory: true });
             }
         },
-        submit() {
+        submit(this: any) {
             if (!this.user.email || !this.user.password) {
                 return this.alert(_L("provideBoth"));
             }
@@ -281,7 +281,7 @@ export default {
                 return this.register();
             }
         },
-        login() {
+        login(this: any) {
             return Services.PortalInterface()
                 .login(this.user)
                 .then((token) => {
@@ -300,7 +300,7 @@ export default {
                     }
                 });
         },
-        register() {
+        register(this: any) {
             if (this.user.password != this.user.confirmPassword) {
                 this.processing = false;
                 return this.alert(_L("noMatch"));
@@ -318,39 +318,41 @@ export default {
                     return this.alert(_L("accountCreateFailed"));
                 });
         },
-        forgotPassword() {
-            prompt({
-                title: _L("forgotTitle"),
-                message: _L("forgotInstruction"),
-                inputType: "email",
-                defaultText: "",
-                okButtonText: _L("ok"),
-                cancelButtonText: _L("cancel"),
-            }).then((data) => {
-                if (data.result) {
-                    return Services.PortalInterface()
-                        .logout(data.text.trim())
-                        .then(() => {
-                            return this.alert(_L("passwordResetSucceeded"));
-                        })
-                        .catch(() => {
-                            return this.alert(_L("passwordResetFailed"));
-                        });
-                }
-            });
+        forgotPassword(this: any) {
+            dialogs
+                .prompt({
+                    title: _L("forgotTitle"),
+                    message: _L("forgotInstruction"),
+                    inputType: "email",
+                    defaultText: "",
+                    okButtonText: _L("ok"),
+                    cancelButtonText: _L("cancel"),
+                })
+                .then((data) => {
+                    if (data.result) {
+                        return Services.PortalInterface()
+                            .logout(data.text.trim())
+                            .then(() => {
+                                return this.alert(_L("passwordResetSucceeded"));
+                            })
+                            .catch(() => {
+                                return this.alert(_L("passwordResetFailed"));
+                            });
+                    }
+                });
         },
-        focusEmail() {
+        focusEmail(this: any) {
             this.$refs.email.nativeView.focus();
         },
-        focusPassword() {
+        focusPassword(this: any) {
             this.$refs.password.nativeView.focus();
         },
-        focusConfirmPassword() {
+        focusConfirmPassword(this: any) {
             if (!this.isLoggingIn) {
                 this.$refs.confirmPassword.nativeView.focus();
             }
         },
-        alert(message) {
+        alert(this: any, message) {
             return alert({
                 title: "FieldKit",
                 okButtonText: _L("ok"),
@@ -358,7 +360,7 @@ export default {
             });
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

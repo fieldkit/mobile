@@ -22,16 +22,16 @@
         </ScrollView>
     </Page>
 </template>
-
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+export default Vue.extend({
     data() {
         return {};
     },
     props: ["notifications"],
     methods: {
-        onPageLoaded(args) {},
-        dismiss(event) {
+        onPageLoaded(this: any, args) {},
+        dismiss(this: any, event) {
             // Change color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -41,7 +41,7 @@ export default {
 
             let id = event.object.dataId;
             id = parseInt(id);
-            let index = this.notifications.findIndex(n => {
+            let index = this.notifications.findIndex((n) => {
                 return n.id == id;
             });
             if (index > -1) {
@@ -49,14 +49,10 @@ export default {
             }
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
-// Custom styles
 
 .header-section {
     margin-top: 5;

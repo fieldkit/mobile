@@ -33,7 +33,7 @@
                                         v-if="notes.completed && notes.completed > 0"
                                     />
                                 </GridLayout>
-                                <ModuleListView order="3" :station="currentStation" @moduleTapped="goToModule" />
+                                <ModuleListView order="3" :station="currentStation" />
                             </StackLayout>
                         </GridLayout>
 
@@ -55,18 +55,20 @@
     </Page>
 </template>
 
-<script>
-import routes from "../routes";
+<script lang="ts">
+import Vue from "vue";
+import Promise from "bluebird";
+import routes from "@/routes";
 
 import * as animations from "./animations";
 
-import StationStatusBox from "./StationStatusBox";
-import ModuleListView from "./ModuleListView";
-import NotificationFooter from "./NotificationFooter";
-import ScreenHeader from "./ScreenHeader";
-import ScreenFooter from "./ScreenFooter";
+import StationStatusBox from "./StationStatusBox.vue";
+import ModuleListView from "./ModuleListView.vue";
+import NotificationFooter from "./NotificationFooter.vue";
+import ScreenHeader from "./ScreenHeader.vue";
+import ScreenFooter from "./ScreenFooter.vue";
 
-export default {
+export default Vue.extend({
     props: {
         stationId: {
             type: Number,
@@ -83,21 +85,21 @@ export default {
         };
     },
     computed: {
-        notificationCodes() {
-            const codes = [];
+        notificationCodes(this: any) {
+            const codes: string[] = [];
             const portal = this.currentStation.portalHttpError;
             if (portal && portal.name) {
                 codes.push(portal.name);
             }
             return codes;
         },
-        isDeployed() {
+        isDeployed(this: any) {
             return this.currentStation.deployStartTime != null;
         },
-        notes() {
+        notes(this: any) {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation() {
+        currentStation(this: any) {
             if (!this.$store.getters.legacyStations) {
                 throw new Error(`missing legacyStations`);
             }
@@ -112,14 +114,14 @@ export default {
         ScreenFooter,
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             console.log("loading station detail");
 
             this.completeSetup();
 
             console.log("loaded station detail", this.stationId);
         },
-        goBack(ev) {
+        goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
@@ -134,14 +136,14 @@ export default {
                 }),
             ]);
         },
-        goToDeploy(ev) {
+        goToDeploy(this: any, ev) {
             return this.$navigateTo(routes.deploy.start, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goToFieldNotes() {
+        goToFieldNotes(this: any) {
             return this.$navigateTo(routes.deploy.notes, {
                 props: {
                     stationId: this.stationId,
@@ -149,20 +151,7 @@ export default {
                 },
             });
         },
-        goToModule(ev) {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.module, {
-                    props: {
-                        // remove the "m_id-" prefix
-                        stationId: this.currentStation.id,
-                        moduleId: event.object.id.split("m_id-")[1],
-                        station: this.currentStation,
-                    },
-                }),
-            ]);
-        },
-        goToSettings(ev) {
+        goToSettings(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
@@ -173,7 +162,7 @@ export default {
                 }),
             ]);
         },
-        goToDetail(ev) {
+        goToDetail(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -183,7 +172,7 @@ export default {
                 }),
             ]);
         },
-        stopProcesses() {
+        stopProcesses(this: any) {
             if (this.intervalTimer) {
                 clearInterval(this.intervalTimer);
             }
@@ -191,10 +180,10 @@ export default {
                 this.$refs.statusBox.stopProcesses();
             }
         },
-        onUnloaded() {
+        onUnloaded(this: any) {
             this.stopProcesses();
         },
-        completeSetup() {
+        completeSetup(this: any) {
             this.loading = false;
 
             if (this.redirectedFromDeploy) {
@@ -206,11 +195,11 @@ export default {
 
             return Promise.resolve();
         },
-        getDeployedStatus() {
+        getDeployedStatus(this: any) {
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

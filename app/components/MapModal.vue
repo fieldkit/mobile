@@ -25,14 +25,15 @@
     </StackLayout>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import { mapGetters } from "vuex";
 import { screen } from "tns-core-modules/platform/platform";
 import { isIOS } from "tns-core-modules/platform";
 import routes from "../routes";
 import { MAPBOX_ACCESS_TOKEN } from "../secrets";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             ios: isIOS,
@@ -51,11 +52,11 @@ export default {
         },
     },
     methods: {
-        onMapReady(args) {
+        onMapReady(this: any, args) {
             this.map = args.map;
             this.showStations();
         },
-        showStations() {
+        showStations(this: any) {
             if (!this.map) {
                 console.log("refresh map, no map");
                 return;
@@ -70,7 +71,7 @@ export default {
 
             console.log("refresh map");
 
-            const markers = Object.values(state.stations).map(mappedStation => {
+            const markers = Object.values(state.stations).map((mappedStation: any) => {
                 return {
                     id: mappedStation.deviceId,
                     lat: mappedStation.location.latitude,
@@ -109,7 +110,7 @@ export default {
                 animated: false,
             });
         },
-        getDeployStatus(station /*: AvailableStation*/) {
+        getDeployStatus(this: any, station /*: AvailableStation*/) {
             if (!station.deployStartTime) {
                 return _L("readyToDeploy");
             }
@@ -119,7 +120,7 @@ export default {
             const year = start.getFullYear();
             return _L("deployed") + ": " + month + "/" + day + "/" + year; // TODO i18n interpolate
         },
-        onMarkerTap(station) {
+        onMarkerTap(this: any, station) {
             this.map.setCenter({
                 lat: station.location.latitude,
                 lng: station.location.longitude,
@@ -130,7 +131,7 @@ export default {
                 animated: false,
             });
         },
-        onCalloutTap(station) {
+        onCalloutTap(this: any, station) {
             console.log("STATION", station);
             return this.$navigateTo(routes.stationDetail, {
                 props: {
@@ -139,15 +140,12 @@ export default {
             }).then(() => this.$modal.close());
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .ios-container {
     margin-bottom: 60;
     margin-right: 10;

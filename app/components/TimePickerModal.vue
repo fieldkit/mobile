@@ -14,9 +14,9 @@
         </GridLayout>
     </StackLayout>
 </template>
-
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue";
+export default Vue.extend({
     data() {
         return {
             displayTime: "",
@@ -31,15 +31,11 @@ export default {
             this.$modal.close(this.displayTime);
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .modal-bkgd {
     background-color: gray;
 }

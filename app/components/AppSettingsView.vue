@@ -21,16 +21,17 @@
         </GridLayout>
     </Page>
 </template>
+<script lang="ts">
+import Vue from "vue";
 
-<script>
-import routes from "../routes";
-import ScreenHeader from "./ScreenHeader";
-import ScreenFooter from "./ScreenFooter";
-import { hexStringToByteWiseString } from "../utilities";
-import { Build } from "../config";
+import ScreenHeader from "./ScreenHeader.vue";
+import ScreenFooter from "./ScreenFooter.vue";
 
-export default {
-    data() {
+import routes from "@/routes";
+import { Build } from "@/config";
+
+export default Vue.extend({
+    data(this: any) {
         return {
             loggedIn: this.$portalInterface.isLoggedIn(),
             versions: Build,
@@ -41,9 +42,8 @@ export default {
         ScreenFooter,
     },
     methods: {
-        onPageLoaded() {},
-
-        logout() {
+        onPageLoaded(this: any) {},
+        logout(this: any) {
             this.$portalInterface.logout();
             this.$navigateTo(routes.login, {
                 clearHistory: true,
@@ -52,18 +52,12 @@ export default {
                 },
             });
         },
-
-        goToLogin() {
+        goToLogin(this: any) {
             this.$navigateTo(routes.login);
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
-
-// Custom styles
 </style>

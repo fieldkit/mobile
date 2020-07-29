@@ -7,6 +7,6 @@ declare module "vue/types/vue" {
 }
 
 declare global {
-    function _L(key: string): string;
+    function _L(key: string, ...args: any[]): string;
     TNS_ENV: string;
 }
