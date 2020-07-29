@@ -54,8 +54,9 @@ export default class PortalUpdater {
                 }
                 const ids = new Ids(station.id, saved.id);
                 return this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, { id: station.id, portalId: saved.id }).then(() => {
+                    console.log("updating station", ids, params);
                     return this.portal
-                        .updateStation(params, station.portalId)
+                        .updateStation(params, ids.portal)
                         .then((saved) =>
                             this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, {
                                 id: station.id,
