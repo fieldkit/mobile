@@ -288,7 +288,7 @@ export default {
         goToReview(ev) {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.deployReview, {
+                this.$navigateTo(routes.deploy.review, {
                     props: {
                         stationId: this.stationId,
                     },

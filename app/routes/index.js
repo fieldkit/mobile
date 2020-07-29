@@ -23,7 +23,7 @@ import OnboardingReconnecting from "../components/onboarding/Reconnecting";
 
 import DeployMap from "../components/deploy/DeployMapView";
 import DeployNotes from "../components/deploy/DeployNotesView";
-// import DeployReview from "../components/deploy/DeployReviewView";
+import DeployReview from "../components/deploy/DeployReviewView";
 
 import { Route } from "./navigate";
 
@@ -59,6 +59,7 @@ const routes = {
     deploy: {
         start: new Route(DeployMap, { connected: true }),
         notes: new Route(DeployNotes, { connected: true }),
+        review: new Route(DeployReview, { connected: true }),
     },
     calibration: {
         start: new Route(CalibrateStart, { connected: true }),
