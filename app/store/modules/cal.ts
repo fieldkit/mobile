@@ -7,6 +7,11 @@ import { HttpStatusReply } from "../http_reply";
 import { Services, ServiceRef } from "./utilities";
 import CalibrationService from "../../services/calibration-service";
 
+import { GlobalGetters } from "./global";
+
+import { StationCalibration } from "@/calibration/model";
+import calibrationStrategies from "@/calibration/strategies";
+
 export const CALIBRATED = "CALIBRATED";
 export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
 export const CALIBRATION_REFRESH = "CALIBRATION_REFRESH";
@@ -35,7 +40,21 @@ export class CalibrationState {
     connected: { [index: string]: ServiceInfo } = {};
 }
 
-const getters = {};
+const getters = {
+    stationCalibrations: (
+        state: CalibrationState,
+        getters: never,
+        rootState: never,
+        rootGetters: GlobalGetters
+    ): { [index: number]: StationCalibration } => {
+        return _(rootGetters.legacyStations)
+            .map((station, key) => {
+                return new StationCalibration(station, calibrationStrategies);
+            })
+            .keyBy((k) => k.id)
+            .value();
+    },
+};
 
 type ActionParameters = { commit: any; dispatch: any; state: CalibrationState };
 
@@ -76,7 +95,7 @@ const actions = {
         const service = new CalibrationService(state.services.conservify());
         const url = info.url + "/modules/" + payload.position;
         return service.clearCalibration(url).then((cleared) => {
-            console.log("cal:", "cleared", cleared);
+            console.log("cal:", "cleared", payload.moduleId, cleared);
             return commit(CLEARED_CALIBRATION, { [payload.moduleId]: cleared });
         });
     },
@@ -93,7 +112,7 @@ const actions = {
             compensations: payload.compensations,
         };
         return service.calibrateSensor(url, params).then((calibrated) => {
-            console.log("cal:", "calibrated", calibrated);
+            console.log("cal:", "calibrated", payload.moduleId, calibrated);
             return commit(CALIBRATED, { [payload.moduleId]: calibrated });
         });
     },

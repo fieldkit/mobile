@@ -6,52 +6,26 @@
                     <Label class="title text-center" :text="currentStation.name" textWrap="true"></Label>
                 </StackLayout>
                 <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
-                    <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_complete.png" v-if="completed" />
+                    <Image
+                        row="0"
+                        colSpan="2"
+                        class="m-b-10 m-l-15 m-r-15"
+                        src="~/images/Icon_complete.png"
+                        v-if="currentStation.completed"
+                    />
                     <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" v-else />
                     <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
                     <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')" />
                 </GridLayout>
             </GridLayout>
 
-            <ScrollView row="1" v-if="modules.length > 0">
+            <ScrollView row="1" v-if="currentStation.modules.length > 0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
                         <Label class="instruction" :text="_L('startCalibrationStep1')" lineHeight="4" textWrap="true" />
                         <Label class="instruction" :text="_L('startCalibrationStep2')" lineHeight="4" textWrap="true" />
 
-                        <GridLayout rows="auto" columns="*" class="m-t-10 m-x-20" v-for="(m, moduleIndex) in modules" :key="m.id">
-                            <StackLayout class="bordered-container p-10" @tap="goToCalibration(m)">
-                                <GridLayout rows="auto, auto" columns="15*,70*,15*">
-                                    <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="m.image"></Image>
-                                    <Label
-                                        row="0"
-                                        col="1"
-                                        rowSpan="1"
-                                        :text="m.name"
-                                        verticalAlignment="middle"
-                                        class="size-18"
-                                        textWrap="true"
-                                    />
-
-                                    <template v-if="m.canCalibrate">
-                                        <Label row="1" col="1" :text="_L('uncalibrated')" class="size-14 red-text" v-if="!m.isCalibrated" />
-                                        <Label row="1" col="1" :text="_L('calibrated')" class="size-14 gray-text" v-if="m.isCalibrated" />
-                                        <Image
-                                            rowSpan="2"
-                                            col="2"
-                                            width="20"
-                                            horizontalAlignment="right"
-                                            src="~/images/Icon_Success.png"
-                                            v-if="m.isCalibrated"
-                                        />
-                                    </template>
-                                    <template v-else>
-                                        <Label row="1" col="1" :text="_L('noCalibrationNeeded')" class="size-14 gray-text" />
-                                        <Image rowSpan="2" col="2" width="20" horizontalAlignment="right" src="~/images/Icon_Success.png" />
-                                    </template>
-                                </GridLayout>
-                            </StackLayout>
-                        </GridLayout>
+                        <CalibratingModules :station="currentStation" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -65,7 +39,7 @@
                 <GridLayout rows="auto, auto" columns="*">
                     <StackLayout row="0" id="loading-circle-blue"></StackLayout>
                     <StackLayout row="0" id="loading-circle-white"></StackLayout>
-                    <Label row="1" class="instruction m-t-30" :text="_L('fetchingStationInfo')" lineHeight="4" textWrap="true"></Label>
+                    <Label row="1" class="instruction m-t-30" :text="_L('fetchingStationInfo')" lineHeight="4" textWrap="true" />
                 </GridLayout>
             </StackLayout>
         </GridLayout>
@@ -77,12 +51,15 @@ import Vue from "../../wrappers/vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
 
-import { ModuleCalibration } from "../../calibration/model";
-import calibrationStrategies from "../../calibration/strategies";
+import { ModuleCalibration } from "@/calibration/model";
+
+import CalibratingModules from "./CalibratingModules.vue";
 
 export default Vue.extend({
     name: "Recalibrate",
-    components: {},
+    components: {
+        CalibratingModules,
+    },
     props: {
         stationId: {
             type: Number,
@@ -96,38 +73,12 @@ export default Vue.extend({
     },
     computed: {
         currentStation(this: any) {
-            const station = this.$store.getters.legacyStations[this.stationId];
-            if (!station) {
-                throw new Error("no station");
-            }
-            return station;
-        },
-        modules(this: any): ModuleCalibration[] {
-            console.log("modules", this.currentStation.modules);
-            return this.currentStation.modules
-                .filter((m) => !m.internal)
-                .map((m) => {
-                    const haveStrategies = calibrationStrategies.getModuleStrategies(m.name).length > 0;
-                    return new ModuleCalibration(m, haveStrategies);
-                });
-        },
-        completed(this: any) {
-            return this.modules.filter((m) => m.needsCalibration).length == 0;
+            return this.$store.getters.stationCalibrations[this.stationId];
         },
     },
     methods: {
         onPageLoaded(this: any, args) {
             console.log("recalibrating", this.stationId);
-            /*
-            this.page = args.object;
-            this.loadingWhite = this.page.getViewById("loading-circle-white");
-            if (this.loadingWhite) {
-                this.loadingWhite.animate({
-                    rotate: 360,
-                    duration: 1000,
-                });
-            }
-			*/
         },
         goToStations(this: any) {
             return this.$navigateTo(routes.stations, {
@@ -183,18 +134,5 @@ export default Vue.extend({
     margin-bottom: 10;
     margin-right: 30;
     margin-left: 30;
-}
-
-.bordered-container {
-    border-radius: 4;
-    border-color: $fk-gray-lighter;
-    border-width: 1;
-}
-
-.gray-text {
-    color: $fk-gray-hint;
-}
-.red-text {
-    color: $fk-primary-red;
 }
 </style>

@@ -54,12 +54,12 @@ function customizeLogger() {
                 );
                 return false;
             }
-            if (/CALIBRATION/.test(mutation.type)) {
-                console.log("mutation:", mutation.type, stateAfter.cal);
+            if (/CALIBRAT/.test(mutation.type)) {
+                console.log("mutation:", mutation.type);
                 return false;
             }
             if (mutation.type == MutationTypes.ATTACH_NOTE_MEDIA) {
-                console.log("mutation:", mutation, stateAfter.notes);
+                console.log("mutation:", mutation);
                 return false;
             }
 

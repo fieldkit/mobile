@@ -87,7 +87,7 @@ module.exports = {
     yourWifiInfo: "Connect your FieldKit station to your own WiFi network to sync data with the FieldKit portal directly. Unfortunately, only 2.4GHz WiFi is currently supported.",
     reconnectInstruction: "To reconnect to your station, go to your mobile phone WiFi settings and select the station's new WiFi name as displayed on the station screen.",
     // Recalibrate.vue
-    goToStations: "Go to stations",
+    goToStations: "Go to Stations",
     // StationSettingsCaptureSchedule.vue
     // StationSettingsConnectionNote.vue
     mustBeConnected: "Note: You must be connected to the station to make this change.",

@@ -4,32 +4,8 @@
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
                     <ScreenHeader :title="_L('modulesTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-                    <GridLayout
-                        rows="auto"
-                        columns="*"
-                        v-for="(m, moduleIndex) in station.modules"
-                        :key="m.id"
-                        :dataModule="m"
-                        @tap="(ev) => goToModule(ev, m)"
-                    >
-                        <template v-if="!m.internal">
-                            <StackLayout
-                                :class="'bordered-container ' + (moduleIndex == station.modules.length - 1 ? 'bottom-border' : '')"
-                            >
-                                <GridLayout rows="auto" columns="15*,85*">
-                                    <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
-                                    <Label
-                                        row="0"
-                                        col="1"
-                                        :text="getModuleName(m)"
-                                        verticalAlignment="middle"
-                                        class="size-18"
-                                        textWrap="true"
-                                    />
-                                </GridLayout>
-                            </StackLayout>
-                        </template>
-                    </GridLayout>
+
+                    <CalibratingModules :station="station" />
                 </StackLayout>
             </ScrollView>
             <ScreenFooter row="1" :station="station" active="stations" />
@@ -40,17 +16,19 @@
 <script>
 import routes from "../../routes";
 import { getLastSeen, _T, convertOldFirmwareResponse } from "../../utilities";
+
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
-import Module from "./StationSettingsModule";
-import * as animations from "../animations";
+import StationSettingsModule from "./StationSettingsModule";
+import CalibratingModules from "../onboarding/CalibratingModules.vue";
 
-const sensorsThatCalibrate = ["ph", "do", "ec"];
+import * as animations from "../animations";
 
 export default {
     components: {
         ScreenHeader,
         ScreenFooter,
+        CalibratingModules,
     },
     props: {
         stationId: {
@@ -63,7 +41,7 @@ export default {
     },
     computed: {
         station() {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$store.getters.stationCalibrations[this.stationId];
         },
         deployed() {
             return this.$store.getters.legacyStations[this.stationId].deployStartTime !== null;
@@ -90,11 +68,10 @@ export default {
         goToModule(ev, module) {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(Module, {
+                this.$navigateTo(StationSettingsModule, {
                     props: {
                         stationId: this.stationId,
-                        station: this.station,
-                        module: module,
+                        position: module.position,
                     },
                 }),
             ]);

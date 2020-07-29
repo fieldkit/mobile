@@ -47,13 +47,9 @@ export default {
             required: true,
             type: Number,
         },
-        station: {
+        position: {
             required: true,
-            type: Object,
-        },
-        module: {
-            required: true,
-            type: Object,
+            type: Number,
         },
     },
     components: {
@@ -64,11 +60,13 @@ export default {
     },
     methods: {
         onPageLoaded(args) {
+            /*
             if (this.module.calibrateSensor) {
                 this.calibrationText = _L("calibrationRecommendation");
             } else {
                 this.calibrationText = _L("noCalibrationNeededSensor");
             }
+			*/
         },
         goBack(ev) {
             return Promise.all([

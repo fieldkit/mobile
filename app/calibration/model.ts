@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
-import { Module } from "../store/types";
+import { LegacyStation, Module } from "../store/types";
 import { _T, convertOldFirmwareResponse } from "../utilities";
 
 export class Ids {
@@ -114,5 +114,33 @@ export class ModuleCalibration {
         this.canCalibrate = !!module.status?.calibration && haveStrategies;
         this.isCalibrated = (module.status?.calibration?.total || 0) > 0;
         this.needsCalibration = this.canCalibrate && !this.isCalibrated;
+    }
+}
+
+export class StationCalibration {
+    id: number;
+    name: string;
+    connected: boolean;
+    modules: ModuleCalibration[] = [];
+
+    constructor(station: LegacyStation, calibrationStrategies: CalibrationStrategies) {
+        if (!station.id) throw new Error("missing station id");
+        this.id = station.id;
+        this.name = station.name;
+        this.connected = station.connected;
+        this.modules = station.modules
+            .filter((m) => !m.internal)
+            .map((m) => {
+                const haveStrategies = calibrationStrategies.getModuleStrategies(m.name).length > 0;
+                return new ModuleCalibration(m, haveStrategies);
+            });
+        console.log(
+            "station-calibration",
+            this.modules.map((m) => [m.isCalibrated])
+        );
+    }
+
+    get completed(): boolean {
+        return this.modules.filter((m) => m.needsCalibration).length == 0;
     }
 }

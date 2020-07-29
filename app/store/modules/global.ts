@@ -7,7 +7,7 @@ import { NetworkState } from "./network";
 import { SyncingState } from "./syncing";
 import { NotesState } from "./notes";
 
-import { AvailableStation } from "../types";
+import { AvailableStation, LegacyStation } from "../types";
 
 export interface GlobalState {
     readonly nearby: NearbyState;
@@ -22,4 +22,5 @@ export interface GlobalState {
 
 export interface GlobalGetters {
     readonly availableStations: AvailableStation[];
+    readonly legacyStations: { [index: string]: LegacyStation };
 }
