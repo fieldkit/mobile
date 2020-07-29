@@ -9,7 +9,7 @@ import CalibrationService from "../../services/calibration-service";
 
 import { GlobalGetters } from "./global";
 
-import { StationCalibration } from "@/calibration/model";
+import { ModuleStatus, StationCalibration } from "@/calibration/model";
 import calibrationStrategies from "@/calibration/strategies";
 
 export const CALIBRATED = "CALIBRATED";
@@ -36,7 +36,7 @@ export class CalibrateAtlas {
 
 export class CalibrationState {
     services: ServiceRef = new ServiceRef();
-    status: { [index: string]: object | null } = {};
+    status: { [index: string]: ModuleStatus } = {};
     connected: { [index: string]: ServiceInfo } = {};
 }
 
@@ -49,7 +49,7 @@ const getters = {
     ): { [index: number]: StationCalibration } => {
         return _(rootGetters.legacyStations)
             .map((station, key) => {
-                return new StationCalibration(station, calibrationStrategies);
+                return new StationCalibration(station, state.status, calibrationStrategies);
             })
             .keyBy((k) => k.id)
             .value();

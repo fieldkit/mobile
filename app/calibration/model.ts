@@ -99,6 +99,12 @@ export class CalibrationStrategies {
     }
 }
 
+export interface ModuleStatus {
+    calibration?: { total: number };
+}
+
+export type ModuleStatusByModuleId = { [index: string]: ModuleStatus };
+
 export class ModuleCalibration {
     name: string;
     position: number;
@@ -107,12 +113,13 @@ export class ModuleCalibration {
     isCalibrated = false;
     needsCalibration = false;
 
-    constructor(module: Module, haveStrategies: boolean) {
+    constructor(module: Module, status: ModuleStatus | null, haveStrategies: boolean) {
         this.name = _T(convertOldFirmwareResponse(module) + ".name");
         this.position = module.position || 0;
         this.image = module.image;
-        this.canCalibrate = !!module.status?.calibration && haveStrategies;
-        this.isCalibrated = (module.status?.calibration?.total || 0) > 0;
+        const effective = status || module.status;
+        this.canCalibrate = !!effective?.calibration && haveStrategies;
+        this.isCalibrated = (effective?.calibration?.total || 0) > 0;
         this.needsCalibration = this.canCalibrate && !this.isCalibrated;
     }
 }
@@ -123,7 +130,7 @@ export class StationCalibration {
     connected: boolean;
     modules: ModuleCalibration[] = [];
 
-    constructor(station: LegacyStation, calibrationStrategies: CalibrationStrategies) {
+    constructor(station: LegacyStation, statuses: ModuleStatusByModuleId, calibrationStrategies: CalibrationStrategies) {
         if (!station.id) throw new Error("missing station id");
         this.id = station.id;
         this.name = station.name;
@@ -132,7 +139,7 @@ export class StationCalibration {
             .filter((m) => !m.internal)
             .map((m) => {
                 const haveStrategies = calibrationStrategies.getModuleStrategies(m.name).length > 0;
-                return new ModuleCalibration(m, haveStrategies);
+                return new ModuleCalibration(m, statuses[m.moduleId], haveStrategies);
             });
         console.log(
             "station-calibration",
