@@ -148,14 +148,14 @@ export default {
             ]);
         },
         goToDeploy(ev) {
-            return this.$navigateTo(routes.deployMap, {
+            return this.$navigateTo(routes.deploy.start, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
         goToFieldNotes() {
-            return this.$navigateTo(routes.deployNotes, {
+            return this.$navigateTo(routes.deploy.notes, {
                 props: {
                     stationId: this.stationId,
                     linkedFromStation: true,

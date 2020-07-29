@@ -105,10 +105,14 @@ export class Notes {
         return new NoteForm(help, data.body, data.photos, data.audio);
     }
 
+    private isNoteCompleted(note: NoteData): boolean {
+        return note.body.length > 0 || note.audio.length > 0 || note.photos.length > 0;
+    }
+
     public get completed(): string {
         const notes = [this.studyObjective, this.sitePurpose, this.siteCriteria, this.siteDescription];
         const total = notes.length + 1;
-        const filled = notes.filter((n) => n.body.length > 0);
+        const filled = notes.filter(this.isNoteCompleted);
         const done = filled.length + (this.photos.length > 0 ? 1 : 0);
         const percentage = (done / total) * 100;
         return percentage.toFixed(0);

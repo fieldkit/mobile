@@ -160,7 +160,7 @@ export default {
         },
         goToNext(event) {
             return this.saveForm().then(() => {
-                return this.$navigateTo(routes.deployNotes, {
+                return this.$navigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
                         station: this.currentStation,
