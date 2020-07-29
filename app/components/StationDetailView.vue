@@ -11,11 +11,6 @@
                         :onSettings="goToSettings"
                     />
 
-                    <GridLayout order="2" rows="auto" columns="*" v-if="loading" class="text-center">
-                        <StackLayout id="loading-circle-blue"></StackLayout>
-                        <StackLayout id="loading-circle-white"></StackLayout>
-                    </GridLayout>
-
                     <GridLayout order="3" rows="*" columns="*">
                         <GridLayout row="0" col="0">
                             <StackLayout orientation="vertical">
@@ -61,21 +56,21 @@
 </template>
 
 <script>
-import { BetterObservable } from "../services/rx";
 import routes from "../routes";
-import Services from "../services/services";
-import Config from "../config";
+
+import * as animations from "./animations";
+
 import StationStatusBox from "./StationStatusBox";
 import ModuleListView from "./ModuleListView";
 import NotificationFooter from "./NotificationFooter";
 import ScreenHeader from "./ScreenHeader";
 import ScreenFooter from "./ScreenFooter";
-import * as animations from "./animations";
 
 export default {
     props: {
         stationId: {
             type: Number,
+            required: true,
         },
         redirectedFromDeploy: {
             type: Boolean,
@@ -84,7 +79,6 @@ export default {
     },
     data() {
         return {
-            loading: true,
             newlyDeployed: false,
         };
     },
@@ -120,13 +114,6 @@ export default {
     methods: {
         onPageLoaded(args) {
             console.log("loading station detail");
-
-            this.page = args.object;
-
-            // NOTE these are now hidden by the v-if initially.
-            this.loadingBlue = this.page.getViewById("loading-circle-blue");
-            this.loadingWhite = this.page.getViewById("loading-circle-white");
-            this.intervalTimer = setInterval(this.showLoadingAnimation, 1000);
 
             this.completeSetup();
 
@@ -222,18 +209,6 @@ export default {
         getDeployedStatus() {
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
-        showLoadingAnimation() {
-            if (this.loadingWhite) {
-                return this.loadingWhite
-                    .animate({
-                        rotate: 360,
-                        duration: 975,
-                    })
-                    .then(() => {
-                        this.loadingWhite.rotate = 0;
-                    });
-            }
-        },
     },
 };
 </script>
@@ -241,21 +216,6 @@ export default {
 <style scoped lang="scss">
 @import "../app-variables";
 
-#loading-circle-blue,
-#loading-circle-white {
-    width: 90;
-    height: 90;
-    background: $fk-gray-white;
-    border-width: 2;
-    border-radius: 60%;
-}
-#loading-circle-white {
-    border-color: $fk-gray-white;
-    clip-path: circle(100% at 50% 0);
-}
-#loading-circle-blue {
-    border-color: $fk-secondary-blue;
-}
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
