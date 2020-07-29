@@ -23,7 +23,13 @@
                             ></TextField>
                             <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong"></StackLayout>
                             <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName"></Label>
-                            <Label class="validation-error" id="name-too-long" :text="_L('nameOver255')" textWrap="true" v-show="nameTooLong"></Label>
+                            <Label
+                                class="validation-error"
+                                id="name-too-long"
+                                :text="_L('nameOver255')"
+                                textWrap="true"
+                                v-show="nameTooLong"
+                            ></Label>
                         </StackLayout>
 
                         <StackLayout row="1" class="input-field">
@@ -46,11 +52,30 @@
                                     @returnPress="focusPassword"
                                     @blur="checkEmail"
                                 ></TextField>
-                                <Image row="0" width="25" class="bottom-pad" horizontalAlignment="right" v-show="isLoggingIn" src="~/images/Icon_Email_login.png"></Image>
+                                <Image
+                                    row="0"
+                                    width="25"
+                                    class="bottom-pad"
+                                    horizontalAlignment="right"
+                                    v-show="isLoggingIn"
+                                    src="~/images/Icon_Email_login.png"
+                                ></Image>
                             </GridLayout>
                             <StackLayout class="spacer-top" id="email-field-spacer" v-show="!noEmail && !emailNotValid"></StackLayout>
-                            <Label class="validation-error" id="no-email" :text="_L('emailRequired')" textWrap="true" v-show="noEmail"></Label>
-                            <Label class="validation-error" id="email-not-valid" :text="_L('emailNotValid')" textWrap="true" v-show="emailNotValid"></Label>
+                            <Label
+                                class="validation-error"
+                                id="no-email"
+                                :text="_L('emailRequired')"
+                                textWrap="true"
+                                v-show="noEmail"
+                            ></Label>
+                            <Label
+                                class="validation-error"
+                                id="email-not-valid"
+                                :text="_L('emailNotValid')"
+                                textWrap="true"
+                                v-show="emailNotValid"
+                            ></Label>
                         </StackLayout>
 
                         <StackLayout row="2" class="input-field">
@@ -70,12 +95,41 @@
                                     @returnPress="focusConfirmPassword"
                                     @blur="checkPassword"
                                 ></TextField>
-                                <Image row="0" width="25" class="bottom-pad" horizontalAlignment="right" v-show="isLoggingIn" src="~/images/Icon_Password_login.png"></Image>
+                                <Image
+                                    row="0"
+                                    width="25"
+                                    class="bottom-pad"
+                                    horizontalAlignment="right"
+                                    v-show="isLoggingIn"
+                                    src="~/images/Icon_Password_login.png"
+                                ></Image>
                             </GridLayout>
-                            <StackLayout class="spacer-top" id="password-field-spacer" v-show="!noPassword && !passwordTooShort"></StackLayout>
-                            <Label class="validation-error" id="no-password" :text="_L('passwordRequired')" textWrap="true" v-show="noPassword"></Label>
-                            <Label class="validation-error" id="password-too-short" :text="_L('passwordTooShort')" textWrap="true" v-show="passwordTooShort"></Label>
-                            <Label class="m-t-5" horizontalAlignment="right" v-show="isLoggingIn" :text="_L('forgotLink')" @tap="forgotPassword()"></Label>
+                            <StackLayout
+                                class="spacer-top"
+                                id="password-field-spacer"
+                                v-show="!noPassword && !passwordTooShort"
+                            ></StackLayout>
+                            <Label
+                                class="validation-error"
+                                id="no-password"
+                                :text="_L('passwordRequired')"
+                                textWrap="true"
+                                v-show="noPassword"
+                            ></Label>
+                            <Label
+                                class="validation-error"
+                                id="password-too-short"
+                                :text="_L('passwordTooShort')"
+                                textWrap="true"
+                                v-show="passwordTooShort"
+                            ></Label>
+                            <Label
+                                class="m-t-5"
+                                horizontalAlignment="right"
+                                v-show="isLoggingIn"
+                                :text="_L('forgotLink')"
+                                @tap="forgotPassword()"
+                            ></Label>
                         </StackLayout>
 
                         <StackLayout row="3" v-show="!isLoggingIn" class="input-field">
@@ -93,13 +147,24 @@
                                 @blur="checkConfirmPassword"
                             ></TextField>
                             <StackLayout class="spacer-top" id="confirm-password-field-spacer" v-show="!passwordsNotMatch"></StackLayout>
-                            <Label class="validation-error" id="passwords-not-match" :text="_L('noMatch')" textWrap="true" v-show="passwordsNotMatch"></Label>
+                            <Label
+                                class="validation-error"
+                                id="passwords-not-match"
+                                :text="_L('noMatch')"
+                                textWrap="true"
+                                v-show="passwordsNotMatch"
+                            ></Label>
                         </StackLayout>
 
                         <ActivityIndicator rowSpan="4" :busy="processing"></ActivityIndicator>
                     </GridLayout>
 
-                    <Button class="btn btn-primary btn-padded m-t-20" :text="isLoggingIn ? _L('logIn') : _L('signUp')" :isEnabled="!processing" @tap="submit"></Button>
+                    <Button
+                        class="btn btn-primary btn-padded m-t-20"
+                        :text="isLoggingIn ? _L('logIn') : _L('signUp')"
+                        :isEnabled="!processing"
+                        @tap="submit"
+                    ></Button>
 
                     <Button class="btn btn-primary btn-padded m-t-20" :text="_L('continueOffline')" @tap="continueOffline"></Button>
                 </StackLayout>
@@ -115,7 +180,6 @@
 </template>
 
 <script>
-import AssembleStation from "./onboarding/AssembleStationView";
 import Config from "../config";
 import routes from "../routes";
 import { USERNAME, PASSWORD } from "../secrets";
@@ -158,16 +222,13 @@ export default {
                 this.login();
             }
         },
-
         toggleForm() {
             this.isLoggingIn = !this.isLoggingIn;
         },
-
         showActive(event) {
             let spacer = this.page.getViewById(event.object.id + "-spacer");
             spacer.className = "spacer-top active";
         },
-
         checkName(event) {
             let spacer = this.page.getViewById("name-field-spacer");
             spacer.className = "spacer-top";
@@ -178,7 +239,6 @@ export default {
             let matches = this.user.name.match(/\s/g);
             this.nameTooLong = this.user.name.length > 255;
         },
-
         checkEmail(event) {
             let spacer = this.page.getViewById("email-field-spacer");
             spacer.className = "spacer-top";
@@ -189,7 +249,6 @@ export default {
             let emailPattern = /^([a-zA-Z0-9_+\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
             this.emailNotValid = !emailPattern.test(this.user.email);
         },
-
         checkPassword(event) {
             let spacer = this.page.getViewById("password-field-spacer");
             spacer.className = "spacer-top";
@@ -199,20 +258,17 @@ export default {
             }
             this.passwordTooShort = this.user.password.length < 10;
         },
-
         checkConfirmPassword(event) {
             let spacer = this.page.getViewById("confirm-password-field-spacer");
             spacer.className = "spacer-top";
             this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
         },
-
         continueOffline() {
             if (!this.navigatedAway) {
                 this.navigatedAway = true;
-                return this.$navigateTo(routes.assembleStation, { clearHistory: true });
+                return this.$navigateTo(routes.onboarding.assembleStation, { clearHistory: true });
             }
         },
-
         submit() {
             if (!this.user.email || !this.user.password) {
                 return this.alert(_L("provideBoth"));
@@ -225,26 +281,25 @@ export default {
                 return this.register();
             }
         },
-
         login() {
             return Services.PortalInterface()
                 .login(this.user)
-                .then(token => {
+                .then((token) => {
                     this.processing = false;
                     return this.$store.dispatch(ActionTypes.AUTHENTICATED, token).then(() => {
-                        return this.$navigateTo(routes.assembleStation, {
+                        console.log("redirecting");
+                        return this.$navigateTo(routes.onboarding.assembleStation, {
                             clearHistory: true,
                         });
                     });
                 })
-                .catch(error => {
+                .catch((error) => {
                     this.processing = false;
                     if (!this.navigatedAway) {
                         return this.alert(_L("loginFailed"));
                     }
                 });
         },
-
         register() {
             if (this.user.password != this.user.confirmPassword) {
                 this.processing = false;
@@ -263,7 +318,6 @@ export default {
                     return this.alert(_L("accountCreateFailed"));
                 });
         },
-
         forgotPassword() {
             prompt({
                 title: _L("forgotTitle"),
@@ -272,7 +326,7 @@ export default {
                 defaultText: "",
                 okButtonText: _L("ok"),
                 cancelButtonText: _L("cancel"),
-            }).then(data => {
+            }).then((data) => {
                 if (data.result) {
                     return Services.PortalInterface()
                         .logout(data.text.trim())
@@ -285,7 +339,6 @@ export default {
                 }
             });
         },
-
         focusEmail() {
             this.$refs.email.nativeView.focus();
         },
@@ -297,7 +350,6 @@ export default {
                 this.$refs.confirmPassword.nativeView.focus();
             }
         },
-
         alert(message) {
             return alert({
                 title: "FieldKit",
@@ -310,9 +362,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "../app-variables";
-// End custom common variables
 
 .login-page {
     font-size: 16;

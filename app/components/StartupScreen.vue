@@ -90,7 +90,9 @@ function getFirstRoute(): Vue {
     const appSettings = new AppSettings();
 
     if (Services.PortalInterface().isLoggedIn()) {
-        return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2 ? routes.stations : routes.assembleStation;
+        return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2
+            ? routes.stations
+            : routes.onboarding.assembleStation;
     }
 
     return routes.login;
@@ -115,7 +117,6 @@ export default class StartupScreen extends Vue {
                 return this.$navigateTo(routes.onboarding.assembleStation, {
                     props: {},
                 });
-				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
                     return this.$navigateTo(routes.onboarding.recalibrate, {
                         props: {
@@ -125,6 +126,7 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+				*/
             }
 
             return this.$navigateTo(getFirstRoute(), {

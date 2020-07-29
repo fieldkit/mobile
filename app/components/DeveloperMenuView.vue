@@ -169,7 +169,7 @@ export default {
             }
         },
         goOnboarding() {
-            return this.$navigateTo(routes.assembleStation);
+            return this.$navigateTo(routes.onboarding.assembleStation);
         },
         resetOnboarding() {
             const appSettings = new AppSettings();
@@ -184,7 +184,7 @@ export default {
                 .then((result) => {
                     if (result) {
                         // navigate to onboarding
-                        this.$navigateTo(routes.assembleStation);
+                        this.$navigateTo(routes.onboarding.assembleStation);
                     }
                 });
         },
