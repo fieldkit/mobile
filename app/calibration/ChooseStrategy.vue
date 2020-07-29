@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "@/wrappers/vue";
+import Vue from "vue";
 import Header from "./Header.vue";
 
 import calibrationStrategies from "./strategies";

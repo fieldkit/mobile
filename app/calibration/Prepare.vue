@@ -19,7 +19,7 @@ import { PrepareVisual } from "./visuals";
 
 import { _T } from "../utilities";
 
-import Vue from "../wrappers/vue";
+import Vue from "vue";
 import Header from "./Header.vue";
 import ProgressBarAndStatus from "./ProgressBarAndStatus.vue";
 

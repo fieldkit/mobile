@@ -57,9 +57,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "../../wrappers/vue";
-import routes from "../../routes";
-// import { hexStringToByteWiseString } from "../../utilities";
+import Vue from "vue";
+import routes from "@/routes";
 
 import ScreenHeader from "../ScreenHeader.vue";
 import ScreenFooter from "../ScreenFooter.vue";

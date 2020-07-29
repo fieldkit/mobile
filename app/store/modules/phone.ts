@@ -1,4 +1,4 @@
-import Vue from "../../wrappers/vue";
+import Vue from "vue";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import * as MutationTypes from "../mutations";
 

@@ -1,4 +1,4 @@
-import Vue from "../../wrappers/vue";
+import Vue from "vue";
 import AppSettings from "../../wrappers/app-settings";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";

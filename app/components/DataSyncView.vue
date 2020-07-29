@@ -142,20 +142,20 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
 import _ from "lodash";
-import Vue from "../wrappers/vue";
-import * as ActionTypes from "../store/actions";
 import moment from "moment";
-import Services from "../services/services";
-import Config from "../config";
-import routes from "../routes";
-import ScreenFooter from "./ScreenFooter";
-import ScreenHeader from "./ScreenHeader";
+
+import Vue from "vue";
+import * as ActionTypes from "@/store/actions";
+import Config from "@/config";
+
+import ScreenFooter from "./ScreenFooter.vue";
+import ScreenHeader from "./ScreenHeader.vue";
 
 const log = Config.logger("DataSyncView");
 
-export default {
+export default Vue.extend({
     data() {
         return {
             closed: {},
@@ -166,26 +166,26 @@ export default {
         ScreenFooter,
     },
     computed: {
-        syncs() {
+        syncs(this: any) {
             return this.$store.getters.syncs;
         },
     },
     methods: {
         onPageLoaded(args) {},
         onPageUnloaded(args) {},
-        onToggle(sync) {
+        onToggle(this: any, sync) {
             Vue.set(this.closed, sync.deviceId, this.opened(sync));
             log.info("toggle", sync.name, this.closed[sync.deviceId]);
         },
-        onDownload(sync) {
+        onDownload(this: any, sync) {
             log.info("download", sync);
             return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
         },
-        onUpload(sync) {
+        onUpload(this: any, sync) {
             log.info("upload", sync);
             return this.$store.dispatch(ActionTypes.UPLOAD_STATION, sync);
         },
-        opened(sync) {
+        opened(this: any, sync) {
             if (this.closed[sync.deviceId] === true) {
                 return false;
             }
@@ -194,14 +194,14 @@ export default {
             }
             return sync.connected;
         },
-        prettyDate(date) {
+        prettyDate(this: any, date) {
             if (!date) {
                 return "N/A";
             }
             return moment(date).format("MM/DD/YYYY");
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">

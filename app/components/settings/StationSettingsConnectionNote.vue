@@ -3,9 +3,10 @@
         <Label class="size-18" lineHeight="4" horizontalAlignment="left" :text="_L('mustBeConnected')" textWrap="true"></Label>
     </StackLayout>
 </template>
+<script lang="ts">
+import Vue from "vue";
 
-<script>
-export default {
+export default Vue.extend({
     data() {
         return {};
     },
@@ -20,7 +21,6 @@ export default {
         },
     },
     methods: {},
-};
+});
 </script>
-
 <style scoped lang="scss"></style>

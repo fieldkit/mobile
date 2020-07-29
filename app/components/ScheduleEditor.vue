@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import _ from "lodash";
-import Vue from "../wrappers/vue";
+import Vue from "vue";
 import { ValueList } from "nativescript-drop-down";
 
 export default Vue.extend({

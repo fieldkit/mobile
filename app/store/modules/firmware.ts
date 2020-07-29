@@ -1,5 +1,5 @@
 import _ from "lodash";
-import Vue from "../../wrappers/vue";
+import Vue from "vue";
 import { Station, FirmwareInfo } from "../types";
 import * as MutationTypes from "../mutations";
 import * as ActionTypes from "../actions";

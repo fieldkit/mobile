@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "../wrappers/vue";
+import Vue from "vue";
 import { _T } from "../utilities";
 
 import Calibrate from "./Calibrate.vue";

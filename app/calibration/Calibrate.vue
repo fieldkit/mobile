@@ -24,7 +24,7 @@ import _ from "lodash";
 import { _T } from "../utilities";
 import Promise from "bluebird";
 
-import Vue from "../wrappers/vue";
+import Vue from "vue";
 import Start from "./Start";
 import Success from "./Success";
 import Failure from "./Failure";

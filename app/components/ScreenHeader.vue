@@ -17,10 +17,11 @@
     </GridLayout>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import { isIOS } from "tns-core-modules/platform";
 
-export default {
+export default Vue.extend({
     data: () => {
         return {
             ios: isIOS,
@@ -61,12 +62,8 @@ export default {
             default: true,
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
-// Custom styles
 </style>

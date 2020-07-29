@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "../../wrappers/vue";
+import Vue from "vue";
 
 import { StationCalibration, ModuleCalibration } from "@/calibration/model";
 

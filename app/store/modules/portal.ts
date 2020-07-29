@@ -1,4 +1,4 @@
-import Vue from "../../wrappers/vue";
+import Vue from "vue";
 import * as MutationTypes from "../mutations";
 
 export class PortalState {

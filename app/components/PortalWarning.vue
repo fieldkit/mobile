@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import _ from "lodash";
-import Vue from "../wrappers/vue";
+import Vue from "vue";
 
 export default Vue.extend({
     data() {

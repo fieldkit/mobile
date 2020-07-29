@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import Vue from "../../wrappers/vue";
+import Vue from "vue";
 import * as ActionTypes from "../../store/actions";
 
 import ScreenHeader from "../ScreenHeader";

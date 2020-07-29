@@ -8,4 +8,5 @@ declare module "vue/types/vue" {
 
 declare global {
     function _L(key: string): string;
+    TNS_ENV: string;
 }

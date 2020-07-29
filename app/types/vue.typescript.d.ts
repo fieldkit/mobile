@@ -1,4 +1,4 @@
 declare module "*.vue" {
-    import Vue = require("@/wrappers/vue");
+    import Vue = require("vue");
     export default Vue;
 }

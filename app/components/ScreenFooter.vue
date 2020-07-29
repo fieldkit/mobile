@@ -33,14 +33,11 @@
     </FlexboxLayout>
 </template>
 
-<script>
-import Services from "../services/services";
-import Config from "../config";
-import routes from "../routes";
+<script lang="ts">
+import Vue from "vue";
+import routes from "@/routes";
 
-const log = Config.logger("ScreenFooter");
-
-export default {
+export default Vue.extend({
     data() {
         return {};
     },
@@ -78,14 +75,11 @@ export default {
             this.$navigateTo(routes.appSettings);
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
-// Custom styles
+
 .footer {
     border-top-color: $fk-gray-lightest;
     border-top-width: 2;

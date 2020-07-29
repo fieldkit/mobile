@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "@/wrappers/vue";
+import Vue from "vue";
 import _ from "lodash";
 import { getLastSeen, _T, convertOldFirmwareResponse } from "../utilities";
 

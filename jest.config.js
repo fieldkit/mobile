@@ -2,6 +2,7 @@ module.exports = {
     moduleNameMapper: {
         "~/(.*)$": ["<rootDir>/app/$1"],
         "@/(.*)$": ["<rootDir>/app/$1"],
+        "^vue$": "vue",
     },
     transform: {
         "^.+\\.tsx?$": "ts-jest",

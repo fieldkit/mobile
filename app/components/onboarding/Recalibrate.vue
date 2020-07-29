@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import Vue from "../../wrappers/vue";
+import Vue from "vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
 

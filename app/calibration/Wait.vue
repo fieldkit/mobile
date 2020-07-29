@@ -35,7 +35,7 @@ import { WaitVisual } from "./visuals";
 import { _T } from "../utilities";
 import Config from "../config";
 
-import Vue from "../wrappers/vue";
+import Vue from "vue";
 import Header from "./Header.vue";
 import ProgressBarAndStatus from "./ProgressBarAndStatus.vue";
 import CircularTimer from "./CircularTimer.vue";

@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { _T } from "../utilities";
-import Vue from "../wrappers/vue";
+import Vue from "vue";
 
 export default Vue.extend({
     name: "Success",
