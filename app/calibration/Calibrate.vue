@@ -25,10 +25,12 @@ import { _T } from "../utilities";
 import Promise from "bluebird";
 
 import Vue from "../wrappers/vue";
-import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import Start from "./Start";
 import Success from "./Success";
 import Failure from "./Failure";
+
+import Recalibrate from "../components/onboarding/Recalibrate.vue";
+import StationSettingsModules from "../components/settings/StationSettingsModuleList.vue";
 
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { ClearAtlasCalibration, CalibrateAtlas } from "../store/modules/cal";
@@ -51,6 +53,9 @@ export default Vue.extend({
         strategy: {
             type: CalibrationStrategy,
             required: true,
+        },
+        fromSettings: {
+            default: true,
         },
     },
     data(): { success: boolean; failure: boolean; completed: CalibrationStep[] } {
@@ -139,15 +144,27 @@ export default Vue.extend({
 
             console.log("cal", "finished");
             return this.notifySuccess().then(() => {
+                return this.navigateBack(ev, step);
+            });
+        },
+        onCancel(this: any, ev: any, step: CalibrationStep) {
+            console.log("cal:", "cancel", step);
+        },
+        navigateBack(this: any) {
+            console.log("navigateBack", this.fromSettings);
+            if (this.fromSettings) {
+                return this.$navigateTo(StationSettingsModules, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                });
+            } else {
                 return this.$navigateTo(Recalibrate, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
-            });
-        },
-        onCancel(this: any, ev: any, step: CalibrationStep) {
-            console.log("cal:", "cancel", step);
+            }
         },
         onBack(this: any, ev: any, step: CalibrationStep) {
             console.log("cal:", "back", step, "completed", this.completed.length);

@@ -10,10 +10,12 @@
 import Vue from "../wrappers/vue";
 import { _T } from "../utilities";
 
-import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import Calibrate from "./Calibrate.vue";
 import ChooseStrategy from "./ChooseStrategy.vue";
 import calibrationStrategies from "./strategies";
+
+import Recalibrate from "../components/onboarding/Recalibrate.vue";
+import StationSettingsModuleList from "../components/settings/StationSettingsModuleList.vue";
 
 import { CalibrationStrategy } from "./model";
 
@@ -30,6 +32,9 @@ export default Vue.extend({
         position: {
             type: Number,
             required: true,
+        },
+        fromSettings: {
+            default: true,
         },
     },
     data(): {} {
@@ -64,12 +69,20 @@ export default Vue.extend({
             });
         },
         back(this: any) {
-            console.log("back");
-            return this.$navigateTo(Recalibrate, {
-                props: {
-                    stationId: this.stationId,
-                },
-            });
+            console.log("Start::back", this.fromSettings);
+            if (this.fromSettings) {
+                return this.$navigateTo(StationSettingsModuleList, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                });
+            } else {
+                return this.$navigateTo(Recalibrate, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                });
+            }
         },
     },
 });

@@ -25,7 +25,7 @@
                         <Label class="instruction" :text="_L('startCalibrationStep1')" lineHeight="4" textWrap="true" />
                         <Label class="instruction" :text="_L('startCalibrationStep2')" lineHeight="4" textWrap="true" />
 
-                        <CalibratingModules :station="currentStation" />
+                        <CalibratingModules :station="currentStation" @selected="calibrateModule" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -86,12 +86,13 @@ export default Vue.extend({
                 backstackVisible: false,
             });
         },
-        goToCalibration(this: any, m: ModuleCalibration) {
+        calibrateModule(this: any, m: ModuleCalibration) {
             return this.$navigateTo(routes.calibration.start, {
                 clearHistory: true,
                 props: {
                     stationId: this.stationId,
                     position: m.position,
+                    fromSettings: false,
                 },
             });
         },

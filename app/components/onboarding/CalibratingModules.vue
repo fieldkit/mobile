@@ -1,7 +1,7 @@
 <template>
     <StackLayout>
         <GridLayout rows="auto" columns="*" class="m-t-10 m-x-20" v-for="m in station.modules" :key="m.id">
-            <StackLayout class="bordered-container p-10" @tap="goToCalibration(m)">
+            <StackLayout class="bordered-container p-10" @tap="selected(m)">
                 <GridLayout rows="auto, auto" columns="15*,70*,15*">
                     <Image rowSpan="2" col="0" width="40" horizontalAlignment="left" :src="m.image"></Image>
                     <Label row="0" col="1" rowSpan="1" :text="m.name" verticalAlignment="middle" class="size-18" textWrap="true" />
@@ -30,7 +30,6 @@
 
 <script lang="ts">
 import Vue from "../../wrappers/vue";
-import routes from "../../routes";
 
 import { StationCalibration, ModuleCalibration } from "@/calibration/model";
 
@@ -46,14 +45,8 @@ export default Vue.extend({
         return {};
     },
     methods: {
-        goToCalibration(this: any, m: ModuleCalibration) {
-            return this.$navigateTo(routes.calibration.start, {
-                clearHistory: true,
-                props: {
-                    stationId: this.station.id,
-                    position: m.position,
-                },
-            });
+        selected(this: any, m: ModuleCalibration) {
+            this.$emit("selected", m);
         },
     },
 });

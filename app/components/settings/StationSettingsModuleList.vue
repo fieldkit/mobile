@@ -5,7 +5,7 @@
                 <StackLayout class="p-t-10">
                     <ScreenHeader :title="_L('modulesTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
-                    <CalibratingModules :station="station" />
+                    <CalibratingModules :station="station" @selected="calibrateModule" />
                 </StackLayout>
             </ScrollView>
             <ScreenFooter row="1" :station="station" active="stations" />
@@ -13,18 +13,20 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "../../wrappers/vue";
+import { _T } from "../../utilities";
 import routes from "../../routes";
-import { getLastSeen, _T, convertOldFirmwareResponse } from "../../utilities";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import StationSettingsModule from "./StationSettingsModule";
+import ScreenHeader from "../ScreenHeader.vue";
+import ScreenFooter from "../ScreenFooter.vue";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
+
+import { ModuleCalibration } from "@/calibration/model";
 
 import * as animations from "../animations";
 
-export default {
+export default Vue.extend({
     components: {
         ScreenHeader,
         ScreenFooter,
@@ -40,16 +42,16 @@ export default {
         return {};
     },
     computed: {
-        station() {
+        station(this: any) {
             return this.$store.getters.stationCalibrations[this.stationId];
         },
-        deployed() {
+        deployed(this: any) {
             return this.$store.getters.legacyStations[this.stationId].deployStartTime !== null;
         },
     },
     methods: {
-        onPageLoaded(args) {},
-        goBack(ev) {
+        onPageLoaded(this: any, args) {},
+        goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
@@ -65,44 +67,18 @@ export default {
                 }),
             ]);
         },
-        goToModule(ev, module) {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(StationSettingsModule, {
-                    props: {
-                        stationId: this.stationId,
-                        position: module.position,
-                    },
-                }),
-            ]);
-        },
-        getModuleName(module) {
-            return _T(convertOldFirmwareResponse(module) + ".name");
-        },
-        getModuleImage(module) {
-            switch (module.name) {
-                case "modules.distance":
-                    return "~/images/Icon_Distance_Module.png";
-                case "modules.weather":
-                    return "~/images/Icon_Weather_Module.png ";
-                case "modules.water.ec":
-                    return "~/images/Icon_WaterConductivity_Module.png";
-                case "modules.water.ph":
-                    return "~/images/Icon_WaterpH_Module.png";
-                case "modules.water.do":
-                    return "~/images/Icon_DissolvedOxygen_Module.png";
-                case "modules.water.temp":
-                    return "~/images/Icon_WaterTemp_Module.png";
-                case "modules.water.orp":
-                    return "~/images/Icon_Water_Module.png";
-                case "modules.water.unknown":
-                    return "~/images/Icon_Water_Module.png";
-                default:
-                    return "~/images/Icon_Generic_Module.png";
-            }
+        calibrateModule(this: any, m: ModuleCalibration) {
+            console.log("module", m);
+            return this.$navigateTo(routes.calibration.start, {
+                clearHistory: true,
+                props: {
+                    stationId: this.station.id,
+                    position: m.position,
+                },
+            });
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
