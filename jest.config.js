@@ -1,4 +1,8 @@
 module.exports = {
+    moduleNameMapper: {
+        "~/(.*)$": ["<rootDir>/app/$1"],
+        "@/(.*)$": ["<rootDir>/app/$1"],
+    },
     transform: {
         "^.+\\.tsx?$": "ts-jest",
         "^.+\\.jsx?$": "babel-jest",
@@ -9,9 +13,6 @@ module.exports = {
         "js-test": {
             babelConfig: true,
         },
-    },
-    moduleNameMapper: {
-        "~(.*)$": "<rootDir>/app/$1",
     },
     setupFiles: ["./app/tests/setup.js"],
     testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",

@@ -1,16 +1,16 @@
 import _ from "lodash";
-import Vue from "../../wrappers/vue";
+import Vue from "@/wrappers/vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Station, ServiceInfo } from "../types";
 import { HttpStatusReply } from "../http_reply";
 import { Services, ServiceRef } from "./utilities";
-import CalibrationService from "../../services/calibration-service";
+import CalibrationService from "@/services/calibration-service";
 
 import { GlobalGetters } from "./global";
 
-import { ModuleStatus, StationCalibration } from "../../calibration/model";
-import calibrationStrategies from "../../calibration/strategies";
+import { ModuleStatus, StationCalibration } from "@/calibration/model";
+import calibrationStrategies from "@/calibration/strategies";
 
 export const CALIBRATED = "CALIBRATED";
 export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
