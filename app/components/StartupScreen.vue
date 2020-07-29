@@ -10,7 +10,10 @@ import AppSettings from "../wrappers/app-settings";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import { promiseAfter } from "../utilities";
+
 import routes from "../routes";
+import { Route } from "../routes/navigate";
+
 import Config from "../config";
 
 function initializeFirebase(services): Promise<any> {
@@ -86,7 +89,7 @@ function initializeApplication(services): Promise<any> {
     });
 }
 
-function getFirstRoute(): Vue {
+function getFirstRoute(): Route {
     const appSettings = new AppSettings();
 
     if (Services.PortalInterface().isLoggedIn()) {

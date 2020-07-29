@@ -7,15 +7,16 @@ export interface NavigateOptions {
     props: object | null;
 }
 
-export class RouteState {
-    public startup: boolean = false;
-    public connected: boolean = false;
-    public listing: boolean = false;
-    public station: boolean = false;
-    public login: boolean = false;
-    public developer: boolean = false;
-    public dataSync: boolean = false;
-    public props: any | null = null;
+export interface RouteState {
+    startup?: boolean;
+    connected?: boolean;
+    listing?: boolean;
+    station?: boolean;
+    login?: boolean;
+    developer?: boolean;
+    dataSync?: boolean;
+    props?: any | null;
+    reading?: boolean;
 }
 
 export class Route {
