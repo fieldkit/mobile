@@ -10,6 +10,9 @@ module.exports = {
             babelConfig: true,
         },
     },
+    moduleNameMapper: {
+        "~(.*)$": "<rootDir>/app/$1",
+    },
     setupFiles: ["./app/tests/setup.js"],
     testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     testPathIgnorePatterns: ["/lib/", "/node_modules/"],

@@ -51,7 +51,7 @@ export default Vue.extend({
             return module;
         },
         strategies(this: any) {
-            return calibrationStrategies.getModuleStrategies(this.module.name);
+            return calibrationStrategies().getModuleStrategies(this.module.name);
         },
     },
     methods: {

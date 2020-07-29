@@ -38,7 +38,7 @@ import { _T } from "../utilities";
 
 import calibrationStrategies from "./strategies";
 
-import { PhCommon } from "./water";
+import { Common } from "./water";
 
 export default Vue.extend({
     name: "ChooseStrategy",
@@ -58,10 +58,11 @@ export default Vue.extend({
     },
     computed: {
         strategies(this: any) {
-            return calibrationStrategies.getModuleStrategies(this.moduleKey);
+            return calibrationStrategies().getModuleStrategies(this.moduleKey);
         },
         visual(this: any) {
-            return PhCommon;
+            const common = Common();
+            return common[this.moduleKey];
         },
     },
     methods: {

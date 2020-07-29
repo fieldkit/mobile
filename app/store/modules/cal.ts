@@ -9,8 +9,8 @@ import CalibrationService from "../../services/calibration-service";
 
 import { GlobalGetters } from "./global";
 
-import { ModuleStatus, StationCalibration } from "@/calibration/model";
-import calibrationStrategies from "@/calibration/strategies";
+import { ModuleStatus, StationCalibration } from "../../calibration/model";
+import calibrationStrategies from "../../calibration/strategies";
 
 export const CALIBRATED = "CALIBRATED";
 export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
@@ -49,7 +49,7 @@ const getters = {
     ): { [index: number]: StationCalibration } => {
         return _(rootGetters.legacyStations)
             .map((station, key) => {
-                return new StationCalibration(station, state.status, calibrationStrategies);
+                return new StationCalibration(station, state.status, calibrationStrategies());
             })
             .keyBy((k) => k.id)
             .value();
