@@ -263,7 +263,7 @@ export default {
         goBack(ev) {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.deployMap, {
+                this.$navigateTo(routes.deploy.start, {
                     props: {
                         stationId: this.stationId,
                     },

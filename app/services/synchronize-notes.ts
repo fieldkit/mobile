@@ -52,8 +52,17 @@ export default class SynchronizeNotes {
         return name;
     }
 
+    private parseStampMaybe(key: string): string {
+        try {
+            return getPathTimestamp(moment(key));
+        } catch (e) {
+            console.log(`error parsing ${key} as time:`, e);
+            return getPathTimestamp(moment());
+        }
+    }
+
     private makeFileNameForPortal(key: string, contentType: string): string {
-        const ts = getPathTimestamp(moment(key));
+        const ts = this.parseStampMaybe(key);
         if (/jpeg/.test(contentType) || /jpg/.test(contentType)) {
             return ts + ".jpg";
         }

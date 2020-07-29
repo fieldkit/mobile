@@ -123,11 +123,11 @@ const mutations = {
         Object.assign(state, new CalibrationState());
     },
     [MutationTypes.FIND]: (state: CalibrationState, info: ServiceInfo) => {
-        console.log("cal:find", info);
+        // console.log("cal:find", info);
         Vue.set(state.connected, info.deviceId, info);
     },
     [MutationTypes.LOSE]: (state: CalibrationState, info: ServiceInfo) => {
-        console.log("cal:lose", info);
+        // console.log("cal:lose", info);
         Vue.set(state.connected, info.deviceId, null);
     },
     [MutationTypes.SERVICES]: (state: CalibrationState, services: () => Services) => {
