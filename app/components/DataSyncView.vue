@@ -30,20 +30,19 @@
                                         </StackLayout>
                                     </template>
                                 </StackLayout>
-                                <StackLayout row="0" col="1" class="container-icon">
-                                    <Image
-                                        width="25"
-                                        src="~/images/Icon_Cheveron_Up.png"
-                                        @tap="onToggle(sync)"
-                                        v-show="opened(sync)"
-                                    ></Image>
-                                    <Image
-                                        width="25"
-                                        src="~/images/Icon_Cheveron_Down.png"
-                                        @tap="onToggle(sync)"
-                                        v-show="!opened(sync)"
-                                    ></Image>
-                                </StackLayout>
+
+                                <FlexboxLayout
+                                    row="0"
+                                    col="1"
+                                    class="container-icon"
+                                    @tap="onToggle(sync)"
+                                    flexDirection="column"
+                                    justifyContent="space-around"
+                                    alignItems="center"
+                                >
+                                    <Image class="icon-button" width="25" src="~/images/Icon_Cheveron_Up.png" v-show="opened(sync)" />
+                                    <Image class="icon-button" width="25" src="~/images/Icon_Cheveron_Down.png" v-show="!opened(sync)" />
+                                </FlexboxLayout>
                             </GridLayout>
 
                             <GridLayout
@@ -58,7 +57,7 @@
                                     <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
-                                    <Image width="20" src="~/images/Icon_Download.png" @tap="onDownload(sync)"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onDownload(sync)"></Image>
                                 </StackLayout>
                             </GridLayout>
 
@@ -77,7 +76,7 @@
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Save.png"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Save.png"></Image>
                                 </StackLayout>
                             </GridLayout>
 
@@ -90,7 +89,7 @@
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" orientation="horizontal">
                                     <Label :text="sync.progress.percentage" class="transfer-progress" v-if="sync.progress" />
-                                    <Image width="20" src="~/images/Icon_Syncing.png"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Syncing.png"></Image>
                                 </StackLayout>
                             </GridLayout>
 
@@ -101,7 +100,7 @@
                                     <Label text="Ready to upload" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Download.png" @tap="onUpload(sync)"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onUpload(sync)"></Image>
                                 </StackLayout>
                             </GridLayout>
 
@@ -120,7 +119,7 @@
                                     <Label text="Synced" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image width="20" src="~/images/Icon_Success.png"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Success.png"></Image>
                                 </StackLayout>
                             </GridLayout>
 
@@ -250,10 +249,7 @@ export default {
 .station-disconnected {
 }
 .container-icon {
-    vertical-align: middle;
     /* background-color: #ffefaa; */
-    horizontal-align: right;
-    margin-right: 10;
 }
 .transfer-progress {
     vertical-align: middle;
@@ -262,5 +258,8 @@ export default {
     padding-right: 10;
 }
 .error-label {
+}
+.icon-button {
+    /* background-color: #bfbfef; */
 }
 </style>

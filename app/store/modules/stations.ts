@@ -176,7 +176,7 @@ class StationStatusFactory {
                             return new Module(
                                 null,
                                 moduleReply.module.name,
-                                moduleReply.module.position,
+                                moduleReply.module.position || 0,
                                 moduleReply.module.deviceId,
                                 moduleReply.module.flags,
                                 moduleReply.module.status,
@@ -196,7 +196,7 @@ class StationStatusFactory {
                 return new Module(
                     null,
                     moduleReply.name,
-                    moduleReply.position,
+                    moduleReply.position || 0,
                     moduleReply.deviceId,
                     moduleReply.flags,
                     moduleReply.status,
@@ -225,7 +225,15 @@ class StationDatabaseFactory {
                     .map((sensorRow) => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading, sensorRow.trend))
                     .value();
                 const status = this.parseModuleStatus(moduleRow.status);
-                return new Module(moduleRow.id, moduleRow.name, moduleRow.position, moduleRow.moduleId, moduleRow.flags, status, sensors);
+                return new Module(
+                    moduleRow.id,
+                    moduleRow.name,
+                    moduleRow.position || 0,
+                    moduleRow.moduleId,
+                    moduleRow.flags,
+                    status,
+                    sensors
+                );
             })
             .value();
 

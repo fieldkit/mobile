@@ -6,18 +6,24 @@
                     <GridLayout rows="auto" columns="15*,70*,15*">
                         <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
                         <Label col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-18" textWrap="true" />
-                        <Image
+
+                        <FlexboxLayout
                             col="2"
-                            verticalAlignment="center"
-                            horizontalAlignment="right"
-                            :src="closed.indexOf(m.id) > -1 ? '~/images/Icon_Cheveron_Down.png' : '~/images/Icon_Cheveron_Up.png'"
-                            width="25"
-                            :dataId="'m_id-' + m.id"
-                            @tap="toggleContainer"
-                        ></Image>
+                            class="expand-button-container"
+                            @tap="toggleContainer(m)"
+                            flexDirection="column"
+                            justifyContent="space-around"
+                            alignItems="center"
+                        >
+                            <Image
+                                class="expand-button"
+                                width="25"
+                                :src="closed[m.position] !== true ? '~/images/Icon_Cheveron_Down.png' : '~/images/Icon_Cheveron_Up.png'"
+                            />
+                        </FlexboxLayout>
                     </GridLayout>
 
-                    <WrapLayout orientation="horizontal" class="m-t-5" v-if="closed.indexOf(m.id) < 0">
+                    <WrapLayout orientation="horizontal" class="m-t-5" v-if="closed[m.position] !== true">
                         <Label :text="lastSeen()" width="100%" v-if="!station.connected" class="m-t-5 size-14 hint-color" />
                         <WrapLayout
                             orientation="horizontal"
@@ -40,16 +46,16 @@
     </StackLayout>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "@/wrappers/vue";
 import _ from "lodash";
-import routes from "../routes";
 import { getLastSeen, _T, convertOldFirmwareResponse } from "../utilities";
 
-export default {
+export default Vue.extend({
     name: "ModuleListView",
     data: () => {
         return {
-            closed: [],
+            closed: {},
         };
     },
     props: { station: { required: true } },
@@ -70,82 +76,62 @@ export default {
             return "~/images/Icon_Neutral.png";
         },
         onPageLoaded(args) {},
-
         onUnloaded() {},
-
-        lastSeen() {
+        lastSeen(this: any) {
             if (!this.station || !this.station.updated) {
                 return "";
             }
             return _L("lastReading") + " " + getLastSeen(this.station.updated);
         },
-
         getModuleName(module) {
             const newName = convertOldFirmwareResponse(module);
             return _T(newName + ".name");
         },
-
         getSensorName(module, sensor) {
             const newName = convertOldFirmwareResponse(module);
             return _T(newName + ".sensors." + sensor.name);
         },
-
         getModuleImage(module) {
             switch (module.name) {
                 case "modules.distance":
                     return "~/images/Icon_Distance_Module.png";
-                    break;
                 case "modules.weather":
                     return "~/images/Icon_Weather_Module.png ";
-                    break;
                 case "modules.water.ec":
                     return "~/images/Icon_WaterConductivity_Module.png";
-                    break;
                 case "modules.water.ph":
                     return "~/images/Icon_WaterpH_Module.png";
-                    break;
                 case "modules.water.do":
                     return "~/images/Icon_DissolvedOxygen_Module.png";
-                    break;
                 case "modules.water.temp":
                     return "~/images/Icon_WaterTemp_Module.png";
-                    break;
                 case "modules.water.orp":
                     return "~/images/Icon_Water_Module.png";
-                    break;
                 case "modules.water.unknown":
                     return "~/images/Icon_Water_Module.png";
-                    break;
                 default:
                     return "~/images/Icon_Generic_Module.png";
-                    break;
             }
         },
-
-        emitModuleTapped(event) {
-            this.$emit("moduleTapped", event);
+        emitModuleTapped(this: any, module) {
+            this.$emit("module-tapped", module);
         },
-
-        toggleContainer(event) {
-            let id = event.object.dataId.split("m_id-")[1];
-            id = parseInt(id);
-            let index = this.closed.indexOf(id);
-            if (index == -1) {
-                this.closed.push(id);
+        toggleContainer(this: any, module) {
+            console.log("toggle", this.closed[module.position]);
+            if (this.closed[module.position] === true) {
+                Vue.set(this.closed, module.position, false);
             } else {
-                this.closed.splice(index, 1);
+                Vue.set(this.closed, module.position, true);
             }
+            console.log("toggle", this.closed);
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
@@ -186,5 +172,12 @@ export default {
 }
 .hint-color {
     color: $fk-gray-hint;
+}
+
+.expand-button-container {
+    /* background-color: #afefef; */
+}
+.expand-button {
+    /* background-color: #efefaf; */
 }
 </style>
