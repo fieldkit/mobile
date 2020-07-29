@@ -32,6 +32,28 @@ function PhCommon() {
     };
 }
 
+function DoCommon() {
+    return {
+        sensor: "do",
+        unitOfMeasure: "mg/L",
+        title: _L("setup"),
+        subtitle: _L("waterDissolvedOxygen"),
+        icon: "~/images/Icon_DissolvedOxygen_Module.png",
+        done: _L("next"),
+    };
+}
+
+function EcCommon() {
+    return {
+        sensor: "ec",
+        unitOfMeasure: "μS",
+        title: _L("setup"),
+        subtitle: _L("waterConductivity"),
+        icon: "~/images/Icon_WaterConductivity_Module.png",
+        done: _L("next"),
+    };
+}
+
 const PhQuick = () => {
     const phCommon = PhCommon();
 
@@ -161,16 +183,7 @@ const Ph3 = () => {
 };
 
 const DissolvedOxygen = () => {
-    const DoCommon = {
-        sensor: "do",
-        unitOfMeasure: "mg/L",
-        title: _L("setup"),
-        subtitle: _L("waterDissolvedOxygen"),
-        icon: "~/images/Icon_DissolvedOxygen_Module.png",
-        done: _L("next"),
-    };
-
-    const doCommon = DoCommon;
+    const doCommon = DoCommon();
 
     return new CalibrationStrategy("modules.water.do", _L("waterDissolvedOxygen"), _L("waterDissolvedOxygen"), [
         new CalibrationPointStep(new AtlasCalValue(0.0, DoCalibrateCommand.values.CALIBRATE_DO_ATMOSPHERE), [
@@ -205,16 +218,7 @@ const DissolvedOxygen = () => {
 };
 
 const EcDual = () => {
-    const EcCommon = {
-        sensor: "ec",
-        unitOfMeasure: "μS",
-        title: _L("setup"),
-        subtitle: _L("waterConductivity"),
-        icon: "~/images/Icon_WaterConductivity_Module.png",
-        done: _L("next"),
-    };
-
-    const ecCommon = EcCommon;
+    const ecCommon = EcCommon();
 
     return new CalibrationStrategy("modules.water.ec", _L("waterConductivity"), _L("waterConductivity"), [
         new CalibrationPointStep(new AtlasCalValue(0.0, EcCalibrateCommand.values.CALIBRATE_EC_DRY), [
@@ -280,6 +284,8 @@ const EcDual = () => {
 export function Common() {
     return {
         "modules.water.ph": PhCommon(),
+        "modules.water.ec": EcCommon(),
+        "modules.water.do": DoCommon(),
     };
 }
 
