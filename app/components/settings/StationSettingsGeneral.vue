@@ -24,16 +24,16 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
-import Services from "../../services/services";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import StationName from "./StationSettingsName";
-import CaptureSchedule from "./StationSettingsCaptureSchedule";
+import ScreenHeader from "../ScreenHeader.vue";
+import ScreenFooter from "../ScreenFooter.vue";
+import StationName from "./StationSettingsName.vue";
+import CaptureSchedule from "./StationSettingsCaptureSchedule.vue";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             menuOptions: [_L("stationName"), _L("dataCaptureSchedule")],
@@ -56,9 +56,8 @@ export default {
         CaptureSchedule,
     },
     methods: {
-        onPageLoaded(args) {},
-
-        selectFromMenu(event) {
+        onPageLoaded(this: any, args) {},
+        selectFromMenu(this: any, event) {
             const cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
@@ -72,8 +71,7 @@ export default {
                     return this.goToSchedule();
             }
         },
-
-        goToName() {
+        goToName(this: any) {
             return this.$navigateTo(StationName, {
                 props: {
                     stationId: this.stationId,
@@ -81,8 +79,7 @@ export default {
                 },
             });
         },
-
-        goToSchedule() {
+        goToSchedule(this: any) {
             return this.$navigateTo(CaptureSchedule, {
                 props: {
                     stationId: this.stationId,
@@ -90,8 +87,7 @@ export default {
                 },
             });
         },
-
-        goBack(event) {
+        goBack(this: any, event) {
             // Change background color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -112,15 +108,11 @@ export default {
             });
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .menu-text {
     padding-left: 5;
     padding-top: 20;

@@ -61,7 +61,7 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from "vue";
 import * as ActionTypes from "../../store/actions";
 
@@ -93,20 +93,20 @@ export default Vue.extend({
         ConnectionNote,
     },
     computed: {
-        station() {
+        station(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
     },
     methods: {
-        getStation() {
+        getStation(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.page = args.object;
             this.stationName = this.getStation().name;
             this.origName = this.stationName;
         },
-        goBack(ev) {
+        goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(General, {
@@ -122,7 +122,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        checkName() {
+        checkName(this: any) {
             this.stationName = this.stationName.trim();
             this.noName = false;
             this.nameNotPrintable = false;
@@ -137,7 +137,7 @@ export default Vue.extend({
             this.nameTooLong = this.stationName.length > 40;
             return !this.nameTooLong && !this.nameNotPrintable;
         },
-        saveStationName() {
+        saveStationName(this: any) {
             const valid = this.checkName();
             if (valid && this.origName != this.stationName) {
                 return this.$store
@@ -150,11 +150,11 @@ export default Vue.extend({
                     });
             }
         },
-        clearName() {
+        clearName(this: any) {
             this.editingName = true;
             this.stationName = "";
         },
-        cancelRename() {
+        cancelRename(this: any) {
             this.noName = false;
             this.nameNotPrintable = false;
             this.nameTooLong = false;
@@ -164,11 +164,8 @@ export default Vue.extend({
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .bottom-border {
     border-bottom-color: $fk-gray-lighter;
     border-bottom-width: 1;

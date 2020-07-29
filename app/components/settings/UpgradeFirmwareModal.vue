@@ -16,11 +16,11 @@
         </GridLayout>
     </StackLayout>
 </template>
-<script>
-import { serializePromiseChain, promiseAfter } from "../../utilities";
+<script lang="ts">
+import Vue from "vue";
 import Services from "../../services/services";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             progress: 0,
@@ -43,7 +43,7 @@ export default {
         },
     },
     methods: {
-        onLoaded() {
+        onLoaded(this: any) {
             const updateProgress = (progress) => {
                 this.progress = progress.progress;
             };
@@ -85,11 +85,11 @@ export default {
                         });
                 });
         },
-        onUnloaded() {
+        onUnloaded(this: any) {
             console.log("onUnloaded");
         },
     },
-};
+});
 </script>
 <style scoped lang="scss">
 @import "~/_app-variables";

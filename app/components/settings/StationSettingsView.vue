@@ -26,8 +26,8 @@
         </GridLayout>
     </Page>
 </template>
-
-<script>
+<script lang="ts">
+import Vue from "vue";
 import routes from "../../routes";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
@@ -38,8 +38,8 @@ import Firmware from "./StationSettingsFirmware";
 import Modules from "./StationSettingsModuleList";
 import EndDeploy from "./StationSettingsEndDeploy";
 
-export default {
-    data() {
+export default Vue.extend({
+    data(this: any) {
         return {
             loggedIn: this.$portalInterface.isLoggedIn(),
             menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
@@ -64,7 +64,6 @@ export default {
     },
     methods: {
         onPageLoaded(args) {},
-
         selectFromMenu(event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -84,8 +83,9 @@ export default {
                 case _L("endDeployment"):
                     return this.goToEndDeploy();
             }
-        },
 
+            throw new Error("unknown option");
+        },
         goToGeneral() {
             return this.$navigateTo(General, {
                 props: {
@@ -94,7 +94,6 @@ export default {
                 },
             });
         },
-
         goToNetworks() {
             return this.$navigateTo(Networks, {
                 props: {
@@ -103,7 +102,6 @@ export default {
                 },
             });
         },
-
         goToFirmware() {
             return this.$navigateTo(Firmware, {
                 props: {
@@ -111,7 +109,6 @@ export default {
                 },
             });
         },
-
         goToModules() {
             return this.$navigateTo(Modules, {
                 props: {
@@ -120,7 +117,6 @@ export default {
                 },
             });
         },
-
         goToEndDeploy() {
             return this.$navigateTo(EndDeploy, {
                 props: {
@@ -129,7 +125,6 @@ export default {
                 },
             });
         },
-
         goBack(event) {
             // Change background color when pressed
             let cn = event.object.className;
@@ -150,15 +145,12 @@ export default {
             });
         },
     },
-};
+});
 </script>
 
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .menu-text {
     padding-left: 5;
     padding-top: 20;

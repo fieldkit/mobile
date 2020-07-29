@@ -24,14 +24,15 @@
     </Page>
 </template>
 
-<script>
-import routes from "../../routes";
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import WiFi from "./StationSettingsWiFi";
-import LoRa from "./StationSettingsLoRa";
+<script lang="ts">
+import Vue from "vue";
+import routes from "@/routes";
+import ScreenHeader from "../ScreenHeader.vue";
+import ScreenFooter from "../ScreenFooter.vue";
+import WiFi from "./StationSettingsWiFi.vue";
+import LoRa from "./StationSettingsLoRa.vue";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             menuOptions: [_L("wifi"), _L("lora")],
@@ -54,9 +55,8 @@ export default {
         LoRa,
     },
     methods: {
-        onPageLoaded(args) {},
-
-        selectFromMenu(event) {
+        onPageLoaded(this: any, args) {},
+        selectFromMenu(this: any, event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
@@ -72,8 +72,7 @@ export default {
                     break;
             }
         },
-
-        goToWiFi() {
+        goToWiFi(this: any) {
             this.$navigateTo(WiFi, {
                 props: {
                     stationId: this.stationId,
@@ -81,8 +80,7 @@ export default {
                 },
             });
         },
-
-        goToLoRa() {
+        goToLoRa(this: any) {
             this.$navigateTo(LoRa, {
                 props: {
                     stationId: this.stationId,
@@ -90,8 +88,7 @@ export default {
                 },
             });
         },
-
-        goBack(event) {
+        goBack(this: any, event) {
             // Change background color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -112,15 +109,11 @@ export default {
             });
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .menu-text {
     padding-left: 5;
     padding-top: 20;

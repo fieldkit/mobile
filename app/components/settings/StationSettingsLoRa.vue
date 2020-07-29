@@ -87,8 +87,8 @@
     </Page>
 </template>
 
-<script>
-import routes from "../../routes";
+<script lang="ts">
+import Vue from "vue";
 import Services from "../../services/services";
 
 import ScreenHeader from "../ScreenHeader";
@@ -98,7 +98,7 @@ import ConnectionNote from "./StationSettingsConnectionNote";
 
 const queryStation = Services.QueryStation();
 
-export default {
+export default Vue.extend({
     data() {
         return {
             invalidEui: false,
@@ -124,7 +124,7 @@ export default {
         ConnectionNote,
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.page = args.object;
             let user = this.$portalInterface.getCurrentUser();
             this.userName = user.name;
@@ -132,13 +132,12 @@ export default {
             if (deviceStatus && deviceStatus.loraSettings) {
                 let deviceEui = deviceStatus.loraSettings.deviceEui;
                 if (deviceEui) {
-                    this.lora.deviceEui = new Buffer.from(Object.values(deviceEui)).toString("hex");
+                    this.lora.deviceEui = Buffer.from(Object.values(deviceEui)).toString("hex");
                 }
             }
             this.deviceStatus = deviceStatus;
         },
-
-        goBack(event) {
+        goBack(this: any, event) {
             if (event) {
                 // Change background color when pressed
                 let cn = event.object.className;
@@ -160,38 +159,32 @@ export default {
                 },
             });
         },
-
-        showLoraForm(event) {
+        showLoraForm(this: any, event) {
             this.editingLora = true;
         },
-
-        checkAppEui() {
+        checkAppEui(this: any) {
             try {
                 if (this.lora.appEui.length != 16) {
-                    throw Error("Invalid length");
+                    throw Error("invalid length");
                 }
-
-                let appEui = Buffer.from(this.lora.appEui, "hex");
-                return appEui;
+                return Buffer.from(this.lora.appEui, "hex");
             } catch (error) {
                 this.invalidEui = true;
+                return null;
             }
         },
-
-        checkAppKey() {
+        checkAppKey(this: any) {
             try {
                 if (this.lora.appKey.length != 32) {
-                    throw Error("Invalid length");
+                    throw Error("invalid length");
                 }
-
-                let appKey = Buffer.from(this.lora.appKey, "hex");
-                return appKey;
+                return Buffer.from(this.lora.appKey, "hex");
             } catch (error) {
                 this.invalidKey = true;
+                return null;
             }
         },
-
-        editLora(event) {
+        editLora(this: any, event) {
             this.invalidEui = false;
             this.invalidKey = false;
             let appEui = this.checkAppEui();
@@ -219,15 +212,11 @@ export default {
             }
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .network-input {
     border-bottom-color: $fk-primary-black;
     border-bottom-width: 1;

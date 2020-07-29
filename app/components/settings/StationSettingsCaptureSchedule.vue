@@ -26,17 +26,17 @@
     </Page>
 </template>
 
-<script>
-import routes from "../../routes";
-import * as ActionTypes from "../../store/actions";
+<script lang="ts">
+import Vue from "vue";
+import * as ActionTypes from "@/store/actions";
 
 import ScheduleEditor from "../ScheduleEditor.vue";
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import General from "./StationSettingsGeneral";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import ScreenHeader from "../ScreenHeader.vue";
+import ScreenFooter from "../ScreenFooter.vue";
+import General from "./StationSettingsGeneral.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             form: {
@@ -57,21 +57,21 @@ export default {
         ConnectionNote,
     },
     computed: {
-        station() {
+        station(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
     },
     methods: {
-        getStation() {
+        getStation(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.form.schedule = { interval: this.getStation().interval };
         },
         onScheduleChange(schedule) {
             this.form.schedule = schedule;
         },
-        onSaveSchedule() {
+        onSaveSchedule(this: any) {
             return Promise.all([
                 this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
                     deviceId: this.getStation().deviceId,
@@ -84,7 +84,7 @@ export default {
                     return error;
                 });
         },
-        goBack(event) {
+        goBack(this: any, event) {
             if (event) {
                 const cn = event.object.className;
                 event.object.className = cn + " pressed";
@@ -106,9 +106,8 @@ export default {
             });
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
 @import "~/_app-variables";
 </style>

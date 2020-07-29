@@ -29,17 +29,17 @@
     </Page>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../../routes";
-import Services from "../../services/services";
 
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 
 import * as ActionTypes from "../../store/actions";
 
-export default {
+export default Vue.extend({
     data() {
         return {};
     },
@@ -54,16 +54,16 @@ export default {
         ScreenFooter,
     },
     computed: {
-        station() {
+        station(this: any) {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        deployed() {
+        deployed(this: any) {
             return this.$store.getters.legacyStations[this.stationId].deployStartTime !== null;
         },
     },
     methods: {
-        onPageLoaded(args) {},
-        goBack(event) {
+        onPageLoaded(this: any, args) {},
+        goBack(this: any, event) {
             if (event) {
                 // Change background color when pressed
                 const cn = event.object.className;
@@ -85,7 +85,7 @@ export default {
                 },
             });
         },
-        stopRecording(event) {
+        stopRecording(this: any, event) {
             const station = this.$store.getters.legacyStations[this.stationId];
             return dialogs
                 .confirm({
@@ -100,15 +100,10 @@ export default {
                 });
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
-
-// Custom styles
 
 .full-width {
     width: 100%;

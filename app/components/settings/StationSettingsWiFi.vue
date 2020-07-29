@@ -24,15 +24,15 @@
     </Page>
 </template>
 
-<script>
-import routes from "../../routes";
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import Networks from "./StationSettingsNetworks";
-import WiFiNetwork from "./StationSettingsWiFiNetwork";
-import WiFiSchedule from "./StationSettingsWiFiSchedule";
+<script lang="ts">
+import Vue from "vue";
+import ScreenHeader from "../ScreenHeader.vue";
+import ScreenFooter from "../ScreenFooter.vue";
+import Networks from "./StationSettingsNetworks.vue";
+import WiFiNetwork from "./StationSettingsWiFiNetwork.vue";
+import WiFiSchedule from "./StationSettingsWiFiSchedule.vue";
 
-export default {
+export default Vue.extend({
     data() {
         return {
             menuOptions: [_L("network"), _L("uploadSchedule")],
@@ -56,9 +56,8 @@ export default {
         WiFiSchedule,
     },
     methods: {
-        onPageLoaded(args) {},
-
-        selectFromMenu(event) {
+        onPageLoaded(this: any, args) {},
+        selectFromMenu(this: any, event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
@@ -74,8 +73,7 @@ export default {
                     break;
             }
         },
-
-        goToNetwork() {
+        goToNetwork(this: any) {
             this.$navigateTo(WiFiNetwork, {
                 props: {
                     stationId: this.stationId,
@@ -83,8 +81,7 @@ export default {
                 },
             });
         },
-
-        goToSchedule() {
+        goToSchedule(this: any) {
             this.$navigateTo(WiFiSchedule, {
                 props: {
                     stationId: this.stationId,
@@ -92,8 +89,7 @@ export default {
                 },
             });
         },
-
-        goBack(event) {
+        goBack(this: any, event) {
             // Change background color when pressed
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -114,15 +110,11 @@ export default {
             });
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .menu-text {
     padding-left: 5;
     padding-top: 20;

@@ -88,22 +88,20 @@
         </GridLayout>
     </Page>
 </template>
-
-<script>
-import * as dialogs from "tns-core-modules/ui/dialogs";
-import routes from "../../routes";
+<script lang="ts">
+import Vue from "vue";
+// import * as dialogs from "tns-core-modules/ui/dialogs";
 import Services from "../../services/services";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import WiFi from "./StationSettingsWiFi";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import ScreenHeader from "../ScreenHeader.vue";
+import ScreenFooter from "../ScreenFooter.vue";
+import WiFi from "./StationSettingsWiFi.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
-const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
 const oneHour = 3600;
 
-export default {
+export default Vue.extend({
     data() {
         return {
             interval: {},
@@ -127,7 +125,7 @@ export default {
         ConnectionNote,
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.page = args.object;
 
             let deviceStatus = this.station.statusJson;
@@ -153,8 +151,7 @@ export default {
             };
             this.checkInterval(this.interval);
         },
-
-        goBack(event) {
+        goBack(this: any, event) {
             if (event) {
                 // Change background color when pressed
                 let cn = event.object.className;
@@ -176,8 +173,7 @@ export default {
                 },
             });
         },
-
-        convertFromSeconds(interval) {
+        convertFromSeconds(this: any, interval) {
             let displayValue = interval;
             let unit;
             // unit is an index into this.timeUnits:
@@ -220,8 +216,7 @@ export default {
             }
             return { display: displayValue, unit: unit };
         },
-
-        convertToSeconds(interval) {
+        convertToSeconds(this: any, interval) {
             switch (interval.unit) {
                 case 0:
                     interval.value = interval.display * 60;
@@ -245,8 +240,7 @@ export default {
                     break;
             }
         },
-
-        checkInterval(interval) {
+        checkInterval(this: any, interval) {
             // reset these first
             interval.noInterval = false;
             interval.intervalTooSmall = false;
@@ -263,11 +257,9 @@ export default {
             interval.intervalNotNumber = isNaN(interval.display);
             return !interval.intervalNotNumber;
         },
-
-        saveUploadInterval() {
+        saveUploadInterval(this: any) {
             const valid = this.checkInterval(this.interval);
             if (valid) {
-                const convertedBack = this.convertToSeconds(this.interval);
                 if (this.interval.origValue != this.interval.value) {
                     // send to station
                     this.station.uploadSchedule = this.interval.value;
@@ -282,22 +274,19 @@ export default {
                 }
             }
         },
-
-        openDropDown(event) {
+        openDropDown(this: any, event) {
             const id = event.object.dataIntervalId;
             const dropDown = this.page.getViewById("drop-down-" + id);
             dropDown.open();
         },
-
-        onOpened(event) {
+        onOpened(this: any, event) {
             // provide feedback by changing background color
             event.object.backgroundColor = "#F4F5F7";
             setTimeout(() => {
                 event.object.backgroundColor = "white";
             }, 500);
         },
-
-        onDropDownSelection(event) {
+        onDropDownSelection(this: any, event) {
             // let id = event.object.id.split("drop-down-")[1];
             // let interval = this.intervals.find(i => {
             //     return i.id == id;
@@ -305,15 +294,11 @@ export default {
             this.interval.unit = event.newIndex;
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .disabled {
     opacity: 0.5;
 }

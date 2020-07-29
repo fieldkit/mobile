@@ -125,9 +125,8 @@
     </Page>
 </template>
 
-<script>
-import * as dialogs from "tns-core-modules/ui/dialogs";
-import routes from "../../routes";
+<script lang="ts">
+import Vue from "vue";
 import Services from "../../services/services";
 
 import ScreenHeader from "../ScreenHeader";
@@ -135,11 +134,13 @@ import ScreenFooter from "../ScreenFooter";
 import WiFi from "./StationSettingsWiFi";
 import ConnectionNote from "./StationSettingsConnectionNote";
 
+import * as dialogs from "tns-core-modules/ui/dialogs";
+
 const dbInterface = Services.Database();
 const queryStation = Services.QueryStation();
 const onlineStatus = Services.OnlineStatus();
 
-export default {
+export default Vue.extend({
     data() {
         return {
             maxNetworks: 2,
@@ -170,7 +171,7 @@ export default {
         ConnectionNote,
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(this: any, args) {
             this.page = args.object;
 
             dbInterface.getConfig().then((config) => {
@@ -187,16 +188,14 @@ export default {
             this.deviceStatus = deviceStatus;
             this.setWifiUploadStatus(deviceStatus);
         },
-
-        selectFromMenu(event) {
+        selectFromMenu(this: any, event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
             setTimeout(() => {
                 event.object.className = cn;
             }, 500);
         },
-
-        goBack(event) {
+        goBack(this: any, event) {
             if (event) {
                 // Change background color when pressed
                 let cn = event.object.className;
@@ -218,8 +217,7 @@ export default {
                 },
             });
         },
-
-        uploadOverWifi() {
+        uploadOverWifi(this: any) {
             if (this.wifiUpload) {
                 queryStation.uploadViaApp(this.station.url).then((result) => {
                     alert({
@@ -261,8 +259,7 @@ export default {
                     });
             }
         },
-
-        setWifiUploadStatus(status) {
+        setWifiUploadStatus(this: any, status) {
             this.deviceStatus.transmission = status.transmission;
             if (status && status.transmission && status.transmission.wifi.enabled) {
                 this.wifiUpload = true;
@@ -274,15 +271,13 @@ export default {
                 this.wifiUploadButton = _L("uploadOverWifi");
             }
         },
-
-        showNetworkForm(event) {
+        showNetworkForm(this: any, event) {
             if (this.networks.length == this.maxNetworks) {
                 return;
             }
             this.addingNetwork = true;
         },
-
-        addNetwork(event) {
+        addNetwork(this: any, event) {
             this.addingNetwork = false;
             let network = {
                 ssid: this.newNetwork.ssid,
@@ -307,8 +302,7 @@ export default {
                 this.goBack();
             });
         },
-
-        removeNetwork(event) {
+        removeNetwork(this: any, event) {
             dialogs
                 .confirm({
                     title: _L("areYouSureRemoveNetwork"),
@@ -333,16 +327,14 @@ export default {
                     }
                 });
         },
-
-        useNetwork(event) {
+        useNetwork(this: any, event) {
             const network = this.networks.find((n) => {
                 return n.ssid == event.object.text;
             });
             this.newNetwork.ssid = network.ssid;
             this.newNetwork.password = network.password;
         },
-
-        toggleChoice(radioOption) {
+        toggleChoice(this: any, radioOption) {
             this.networks.forEach((n) => {
                 n.selected = false;
                 if (n.ssid == radioOption.ssid) {
@@ -352,21 +344,16 @@ export default {
                 }
             });
         },
-
-        togglePassword() {
+        togglePassword(this: any) {
             this.hidePassword = !this.hidePassword;
             this.passwordVisibility = this.hidePassword ? _L("show") : _L("hide");
         },
     },
-};
+});
 </script>
-
 <style scoped lang="scss">
-// Start custom common variables
 @import "~/_app-variables";
-// End custom common variables
 
-// Custom styles
 .disabled {
     opacity: 0.5;
 }
