@@ -25,3 +25,7 @@ window._L = function (key) {
 };
 
 jest.mock("axios");
+
+jest.mock("../calibration/Check.vue");
+jest.mock("../calibration/Prepare.vue");
+jest.mock("../calibration/Wait.vue");
