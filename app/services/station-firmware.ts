@@ -36,7 +36,7 @@ export default class StationFirmware {
         );
     }
 
-    downloadFirmware(progressCallback, force) {
+    public downloadFirmware(progressCallback, force) {
         log.info("downloading firmware");
         return this.services
             .PortalInterface()
@@ -106,7 +106,7 @@ export default class StationFirmware {
             });
     }
 
-    _deleteFirmware(fw) {
+    private _deleteFirmware(fw) {
         const local = this.services.FileSystem().getFile(fw.path);
         if (local && local.exists) {
             log.info("removing", fw.path, local.exists, local.size);
@@ -115,7 +115,7 @@ export default class StationFirmware {
         return false;
     }
 
-    _deleteOldFirmware() {
+    private _deleteOldFirmware() {
         return this.services
             .Database()
             .getAllFirmware()
@@ -127,7 +127,7 @@ export default class StationFirmware {
             });
     }
 
-    upgradeStation(url, progressCallback) {
+    public upgradeStation(url, progressCallback) {
         log.info("upgrade", url);
 
         return this.haveFirmware().then((yes) => {
@@ -147,7 +147,7 @@ export default class StationFirmware {
         });
     }
 
-    haveFirmware() {
+    public haveFirmware() {
         return this.services
             .Database()
             .getLatestFirmware()

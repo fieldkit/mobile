@@ -12,7 +12,6 @@ import RadChart from "nativescript-ui-chart/vue";
 import RadGauge from "nativescript-ui-gauge/vue";
 
 import initializeLogging from "./lib/logging";
-import registerLifecycleEvents from "./services/lifecycle";
 import Services from "./services/services";
 import navigatorFactory from "./routes/navigate";
 import Config, { Build } from "./config";
@@ -133,10 +132,6 @@ global.Promise = Bluebird;
 initializeLogging(Services);
 console.log("starting: config", Config);
 console.log("starting: build", Build);
-
-// Startup VueJS and install hooks so we can show UI as soon as
-// possible, especially if something goes wrong.
-registerLifecycleEvents(Services);
 
 // This has to be the last thing we do. On iOS this will never return.
 startVueJs(Services);

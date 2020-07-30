@@ -45,7 +45,7 @@ const getters = {};
 
 const actions = {
     [ActionTypes.INITIALIZE]: ({ commit, dispatch, state }: ActionParameters) => {
-        return dispatch(ActionTypes.FIRMWARE_REFRESH);
+        // return dispatch(ActionTypes.FIRMWARE_REFRESH);
     },
     [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
         return dispatch(ActionTypes.FIRMWARE_REFRESH);
@@ -60,8 +60,8 @@ const actions = {
         return state.services
             .db()
             .getAllFirmware()
-            .then(all => all.map(row => Firmware.fromRow(row)))
-            .then(all => commit(AVAILABLE_FIRMWARE, all));
+            .then((all) => all.map((row) => Firmware.fromRow(row)))
+            .then((all) => commit(AVAILABLE_FIRMWARE, all));
     },
 };
 
@@ -74,7 +74,7 @@ const mutations = {
     },
     [MutationTypes.STATIONS]: (state: FirmwareState, stations: Station[]) => {
         state.stations = _(stations)
-            .map(s => {
+            .map((s) => {
                 const fw = s.firmwareInfo();
                 if (!fw) {
                     return [];

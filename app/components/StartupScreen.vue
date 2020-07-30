@@ -5,16 +5,16 @@
 <script lang="ts">
 import Firebase from "nativescript-plugin-firebase";
 import { Component, Vue } from "vue-property-decorator";
-import Services from "../services/services";
-import AppSettings from "../wrappers/app-settings";
-import * as ActionTypes from "../store/actions";
-import * as MutationTypes from "../store/mutations";
-import { promiseAfter } from "../utilities";
 
-import routes from "../routes";
-import { Route } from "../routes/navigate";
-
-import Config from "../config";
+import registerLifecycleEvents from "@/services/lifecycle";
+import Services from "@/services/services";
+import AppSettings from "@/wrappers/app-settings";
+import * as ActionTypes from "@/store/actions";
+import * as MutationTypes from "@/store/mutations";
+import { promiseAfter } from "@/utilities";
+import routes from "@/routes";
+import { Route } from "@/routes/navigate";
+import Config from "@/config";
 
 function initializeFirebase(services): Promise<any> {
     return Firebase.init({
@@ -68,6 +68,7 @@ function initializeApplication(services): Promise<any> {
                             .dispatch(ActionTypes.LOAD)
                             .then(() =>
                                 Promise.resolve()
+                                    .then(() => services.DiscoverStation().startServiceDiscovery())
                                     .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
                                     .then(() => {
                                         // Enable geolocation and start refreshing our location.
@@ -75,7 +76,7 @@ function initializeApplication(services): Promise<any> {
 
                                         return Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]);
                                     })
-                                    .then(() => services.DiscoverStation().startServiceDiscovery())
+                                    .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                     .then(() => updateStore(Services.Store()))
                             );
                     })
