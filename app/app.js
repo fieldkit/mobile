@@ -15,8 +15,9 @@ import initializeLogging from "./lib/logging";
 import registerLifecycleEvents from "./services/lifecycle";
 import Services from "./services/services";
 import navigatorFactory from "./routes/navigate";
-import ApplicationWrapper from "./components/ApplicationWrapper";
 import Config, { Build } from "./config";
+
+import StartupScreen from "./components/StartupScreen";
 
 function configureVueJs(services) {
     Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
@@ -111,7 +112,7 @@ function startVueJs(services) {
 
     new Vue({
         store,
-        render: (h) => h(ApplicationWrapper),
+        render: (h) => h("Frame", [h(StartupScreen)]),
     }).$start();
 }
 
