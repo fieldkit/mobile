@@ -15,7 +15,6 @@
 <script lang="ts">
 import Vue from "vue";
 import Promise from "bluebird";
-import { mapGetters } from "vuex";
 
 import routes from "@/routes";
 import { LegacyStation } from "@/store/types";
@@ -29,7 +28,9 @@ export default Vue.extend({
         };
     },
     computed: {
-        ...mapGetters({ numberOfNearbyStations: "numberOfNearbyStations" }),
+        numberOfNearbyStations(this: any): number {
+            return this.$store.getters.availableStations.filter((s) => s.connected).length;
+        },
     },
     watch: {
         numberOfNearbyStations(this: any, newValue, oldValue) {
@@ -38,8 +39,8 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(this: any, args) {
-            if (this.$store.getters.numberOfNearbyStations) {
-                return this.foundStations(this.$store.getters.numberOfNearbyStations);
+            if (this.numberOfNearbyStations) {
+                return this.foundStations(this.numberOfNearbyStations);
             }
 
             return Promise.delay(5000).then(() => {
