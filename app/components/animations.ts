@@ -1,5 +1,4 @@
 import { promiseAfter } from "../utilities";
-// import { Color } from "tns-core-modules/color";
 
 export function pressed(view: any): Promise<any> {
     if (view) {

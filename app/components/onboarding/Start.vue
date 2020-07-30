@@ -61,7 +61,7 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(this: any, args) {
-            console.log("onboarding/Start loaded");
+            console.log("onboarding/start:", "loaded");
 
             this.timer = new Timer(1000, () => {
                 this.frame += 1;
@@ -80,7 +80,13 @@ export default Vue.extend({
                 });
             }
         },
-        back(this: any) {},
+        back(this: any) {
+            console.log("onboarding/start:", "back");
+            this.$navigateTo(routes.stations, {
+                clearHistory: true,
+                backstackVisible: false,
+            });
+        },
         skip(this: any) {
             this.$navigateTo(routes.stations, {
                 clearHistory: true,

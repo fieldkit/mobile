@@ -89,8 +89,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "../../routes";
-import AppSettings from "../../wrappers/app-settings";
+import routes from "@/routes";
+import AppSettings from "@/wrappers/app-settings";
+import * as animations from "../animations";
 
 export default Vue.extend({
     props: {
@@ -127,13 +128,8 @@ export default Vue.extend({
         onUnloaded(this: any) {
             this.stopAnimation();
         },
-        goBack(this: any, event) {
-            // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
+        goBack(this: any, ev) {
+            console.log("goBack");
 
             if (this.step > 0) {
                 this.step -= 1;
@@ -142,6 +138,10 @@ export default Vue.extend({
                 this.instruction = this.steps[this.step].instruction;
                 this.buttonText = this.steps[this.step].button;
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
+                return animations.pressed(ev);
+            } else {
+                console.log("no more steps");
+                return Promise.all([animations.pressed(ev), this.$navigateTo(routes.stations)]);
             }
         },
         goNext(this: any) {
