@@ -1,8 +1,9 @@
 export class AuthenticationError extends Error {
+    authenticated = false;
+
     constructor(message) {
         super(message);
         this.name = "AuthenticationError";
-        this.authenticated = false;
     }
 }
 
@@ -28,9 +29,8 @@ export class QueryThrottledError extends Error {
 }
 
 export class HttpError extends Error {
-    constructor(message, response) {
+    constructor(message, public readonly response: any) {
         super(message);
         this.name = "HttpError";
-        this.response = response;
     }
 }

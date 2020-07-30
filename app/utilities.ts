@@ -52,7 +52,7 @@ export function serializePromiseChain(all, fn) {
     }, Promise.resolve([]));
 }
 
-export function promiseAfter(t, v) {
+export function promiseAfter(t: number, v?: any) {
     if (t == 0) {
         return {
             then: (cb) => {
