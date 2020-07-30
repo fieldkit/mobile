@@ -5,13 +5,12 @@ import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import { Services, ServiceRef } from "./utilities";
+import { AddStationNetworkAction } from "../typed-actions";
 
 export interface Schedule {
     quantity: number;
     duration: number;
 }
-
-export interface Networks {}
 
 export class NearbyState {
     services: ServiceRef = new ServiceRef();
@@ -119,17 +118,22 @@ const actions = {
                 }
             );
     },
-    [ActionTypes.CONFIGURE_STATION_NETWORK]: (
-        { commit, dispatch, state }: ActionParameters,
-        payload: { deviceId: string; networks: Networks }
-    ) => {
+    [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: AddStationNetworkAction) => {
         if (!payload?.deviceId) throw new Error("no nearby info");
         const info = state.stations[payload.deviceId];
         if (!info) throw new Error("no nearby info");
+
+        const networks = [
+            {
+                ssid: payload.ssid,
+                password: payload.password,
+            },
+        ];
+
         commit(MutationTypes.STATION_QUERIED, info);
         return state.services
             .queryStation()
-            .sendNetworkSettings(info.url, payload.networks)
+            .sendNetworkSettings(info.url, networks)
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);

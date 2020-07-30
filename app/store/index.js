@@ -17,6 +17,8 @@ import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
 import Config from "../config";
 
+export * from "./typed-actions";
+
 function customizeLogger() {
     return createLogger({
         filter(mutation, stateBefore, stateAfter) {

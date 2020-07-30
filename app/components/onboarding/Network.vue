@@ -101,13 +101,11 @@ export default Vue.extend({
             }
             if (this.form.network == 1) {
                 console.log("forward", "network", this.form.network);
-                /*
-                return this.$navigateTo(routes.onboarding.rename, {
+                return this.$navigateTo(routes.onboarding.addWifi, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
-				*/
             }
             console.log("forward", "error", this.form.network);
         },

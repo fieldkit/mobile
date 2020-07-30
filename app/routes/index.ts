@@ -19,6 +19,7 @@ import OnboardingNetwork from "../components/onboarding/Network.vue";
 import RenameStation from "../components/onboarding/RenameStation.vue";
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import OnboardingReconnecting from "../components/onboarding/Reconnecting.vue";
+import AddWifiNetwork from "../components/onboarding/AddWifi.vue";
 
 import DeployMap from "../components/deploy/DeployMapView.vue";
 import DeployNotes from "../components/deploy/DeployNotesView.vue";
@@ -48,6 +49,8 @@ const routes = {
         nearby: new Route(OnboardingNearbyStationsView, {}),
         searchFailed: new Route(SearchFailedView, {}),
         network: new Route(OnboardingNetwork, {}),
+        addWifi: new Route(AddWifiNetwork, {}),
+
         rename: new Route(RenameStation, {}),
         reconnecting: new Route(OnboardingReconnecting, {}),
         recalibrate: new Route(Recalibrate, {}),
