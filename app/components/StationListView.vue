@@ -34,11 +34,7 @@
                         </StackLayout>
                     </GridLayout>
 
-                    <GridLayout rows="*,*,*" v-if="stations.length == 0" class="m-t-20">
-                        <Label row="0" :text="_L('connectAStation')" class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20" />
-                        <Label row="1" :text="_L('addStationInstruction')" class="text-center size-18 instruction" textWrap="true" />
-                        <Button row="2" class="btn btn-primary btn-padded m-y-20" :text="_L('addStation')" @tap="goToAddStation"></Button>
-                    </GridLayout>
+                    <NoStationsWannaAdd v-if="stations.length == 0" />
 
                     <GridLayout
                         v-for="(s, index) in stations"
@@ -73,20 +69,20 @@ import { mapGetters } from "vuex";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
+import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
 import MapModal from "./MapModal.vue";
 import routes from "@/routes";
 import * as animations from "./animations";
 
 export default Vue.extend({
+    components: {
+        ScreenHeader,
+        ScreenFooter,
+        NoStationsWannaAdd,
+    },
     computed: {
         ...mapGetters({ stations: "availableStations", mapCenter: "mapCenter", hasCenter: "hasCenter" }),
-    },
-    watch: {
-        hasCenter(newValue, oldValue) {
-            console.log("hasCenter", newValue, oldValue);
-            this.showStations();
-        },
     },
     data() {
         return {
@@ -94,9 +90,11 @@ export default Vue.extend({
             mapboxToken: MAPBOX_ACCESS_TOKEN,
         };
     },
-    components: {
-        ScreenHeader,
-        ScreenFooter,
+    watch: {
+        hasCenter(newValue, oldValue) {
+            console.log("hasCenter", newValue, oldValue);
+            this.showStations();
+        },
     },
     methods: {
         onPageLoaded() {},
@@ -108,9 +106,6 @@ export default Vue.extend({
             return this.$showModal(MapModal, {
                 fullscreen: true,
             });
-        },
-        goToAddStation(this: any) {
-            return this.$navigateTo(routes.onboarding.start);
         },
         getDeployStatus(this: any, station /*: AvailableStation*/) {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");

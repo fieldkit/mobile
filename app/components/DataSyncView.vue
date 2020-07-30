@@ -1,7 +1,7 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onPageUnloaded">
         <GridLayout rows="*,55">
-            <ScrollView row="0">
+            <ScrollView row="0" v-if="syncs.length > 0">
                 <GridLayout rows="60,*" automationText="dataSyncLayout">
                     <ScreenHeader row="0" class="p-t-10" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
                     <StackLayout row="1" class="sync-panel-container">
@@ -137,6 +137,7 @@
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
+            <NoStationsWannaAdd v-if="syncs.length == 0" :image="true" />
             <ScreenFooter row="1" active="data" />
         </GridLayout>
     </Page>
@@ -148,22 +149,25 @@ import moment from "moment";
 
 import Vue from "vue";
 import * as ActionTypes from "@/store/actions";
+import routes from "@/routes";
 import Config from "@/config";
 
 import ScreenFooter from "./ScreenFooter.vue";
 import ScreenHeader from "./ScreenHeader.vue";
+import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 
 const log = Config.logger("DataSyncView");
 
 export default Vue.extend({
+    components: {
+        ScreenHeader,
+        ScreenFooter,
+        NoStationsWannaAdd,
+    },
     data() {
         return {
             closed: {},
         };
-    },
-    components: {
-        ScreenHeader,
-        ScreenFooter,
     },
     computed: {
         syncs(this: any) {
@@ -199,6 +203,9 @@ export default Vue.extend({
                 return "N/A";
             }
             return moment(date).format("MM/DD/YYYY");
+        },
+        goToAddStation(this: any) {
+            return this.$navigateTo(routes.onboarding.start);
         },
     },
 });
