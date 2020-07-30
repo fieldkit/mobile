@@ -8,7 +8,7 @@
 
                         <Label class="instruction" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
 
-                        <GridLayout rows="auto,auto" columns="30,*" class="option-container">
+                        <GridLayout rows="auto,auto" columns="30,*" class="option-container" @tap="selectOption(0)">
                             <CheckBox
                                 row="0"
                                 col="0"
@@ -20,7 +20,7 @@
                                 fontSize="18"
                                 boxType="circle"
                                 class="checkbox"
-                                @checkedChange="$event.value !== form.options[0].selected && toggleChoice(0)"
+                                @checkedChange="$event.value !== form.options[0].selected && selectOption(0)"
                             />
                             <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('stationWifi')"></Label>
                             <Label
@@ -33,7 +33,7 @@
                             ></Label>
                         </GridLayout>
 
-                        <GridLayout rows="auto,auto" columns="30,*" class="option-container">
+                        <GridLayout rows="auto,auto" columns="30,*" class="option-container" @tap="selectOption(1)">
                             <CheckBox
                                 row="0"
                                 col="0"
@@ -45,7 +45,7 @@
                                 fontSize="18"
                                 boxType="circle"
                                 class="checkbox"
-                                @checkedChange="$event.value !== form.options[1].selected && toggleChoice(1)"
+                                @checkedChange="$event.value !== form.options[1].selected && selectOption(1)"
                             />
                             <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('yourWifi')"></Label>
                             <Label
@@ -83,6 +83,7 @@ export default Vue.extend({
     data() {
         return {
             form: {
+                network: 0,
                 options: [{ selected: true }, { selected: false }],
             },
         };
@@ -90,17 +91,28 @@ export default Vue.extend({
     methods: {
         onPageLoaded(args) {},
         forward(this: any) {
-            if (this.form.network == 1) {
+            if (this.form.network == 0) {
+                console.log("forward", "rename", this.form.network);
                 return this.$navigateTo(routes.onboarding.rename, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
             }
-            if (this.form.network == 2) {
+            if (this.form.network == 1) {
+                console.log("forward", "network", this.form.network);
+                /*
+                return this.$navigateTo(routes.onboarding.rename, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                });
+				*/
             }
+            console.log("forward", "error", this.form.network);
         },
-        toggleChoice(this: any, index) {
+        selectOption(this: any, index: number) {
+            this.form.network = index;
             this.form.options[0].selected = false;
             this.form.options[1].selected = false;
             this.form.options[index].selected = true;

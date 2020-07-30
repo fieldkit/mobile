@@ -88,7 +88,7 @@ export default Vue.extend({
             },
         };
     },
-    methods: {
+    computed: {
         currentStation(this: any) {
             const station = this.$store.getters.legacyStations[this.stationId];
             if (!station) {
@@ -96,24 +96,36 @@ export default Vue.extend({
             }
             return station;
         },
+    },
+    methods: {
         onPageLoaded(this: any, rgs) {
-            this.form.name = this.currentStation().name;
+            this.form.name = this.currentStation.name;
         },
         rename(this: any) {
             if (!this.validate()) {
                 return;
             }
 
-            return this.$store
-                .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.currentStation().deviceId, name: this.form.name })
-                .then(() => {
-                    return this.$navigateTo(routes.onboarding.reconnecting, {
-                        deviceId: this.currentStation().deviceId,
+            if (this.form.name != this.currentStation.name) {
+                console.log("rename", this.form.name, this.currentStation.name);
+                return this.$store
+                    .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.currentStation.deviceId, name: this.form.name })
+                    .then(() => {
+                        return this.$navigateTo(routes.onboarding.reconnecting, {
+                            props: {
+                                stationId: this.currentStation.id,
+                            },
+                        });
+                    })
+                    .catch((error) => {
+                        this.error = true;
                     });
-                })
-                .catch((error) => {
-                    this.error = true;
-                });
+            }
+            return this.$navigateTo(routes.onboarding.recalibrate, {
+                props: {
+                    stationId: this.currentStation.id,
+                },
+            });
         },
         validate(this: any) {
             this.form.v = {
