@@ -25,6 +25,7 @@ export default Vue.extend({
         return {
             left: false,
             failed: false,
+            timer: null,
         };
     },
     computed: {
@@ -43,15 +44,23 @@ export default Vue.extend({
                 return this.foundStations(this.numberOfNearbyStations);
             }
 
-            return Promise.delay(5000).then(() => {
-                return this.$navigateTo(routes.onboarding.searchFailed);
+            this.timer = Promise.delay(5000).then(() => {
+                if (this.timer) {
+                    return this.$navigateTo(routes.onboarding.searchFailed);
+                }
             });
         },
         onNavigatingTo(this: any) {
             this.left = true;
         },
         foundStations(this: any, number) {
-            console.log("nearby", number);
+            console.log("number of nearby stations", number);
+
+            if (this.timer) {
+                this.timer.cancel();
+                this.timer = null;
+            }
+
             if (number == 1) {
                 if (true) {
                     return this.$navigateTo(routes.onboarding.nearby);
