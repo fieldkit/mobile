@@ -160,13 +160,8 @@ export default Vue.extend({
             }
         },
         skip(this: any) {
-            let skipCount = this._appSettings.getNumber("skipCount");
-            if (!skipCount) {
-                skipCount = 0;
-            }
-            skipCount += 1;
-            this._appSettings.setNumber("skipCount", skipCount);
-            this.$navigateTo(routes.stations);
+            this._appSettings.setNumber("skipCount", (this._appSettings.getNumber("skipCount") || 0) + 1);
+            this.$navigateTo(routes.onboarding.start);
         },
         stopAnimation(this: any) {
             this.displayFrame = null;
