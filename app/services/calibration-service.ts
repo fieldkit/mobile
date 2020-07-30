@@ -1,7 +1,8 @@
 import _ from "lodash";
 import protobuf from "protobufjs";
-import { promiseAfter } from "../utilities";
-import Config from "../config";
+import { promiseAfter } from "@/utilities";
+import Config from "@/config";
+import { AtlasSensorType } from "@/calibration";
 
 const atlasRoot: any = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
 const AtlasQuery = atlasRoot.lookupType("fk_atlas.WireAtlasQuery");
@@ -16,7 +17,7 @@ const AtlasCalibrationOperation = atlasRoot.lookup("fk_atlas.CalibrationOperatio
 const DoCalibrations = atlasRoot.lookup("fk_atlas.DoCalibrations");
 const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
 const EcCalibrations = atlasRoot.lookup("fk_atlas.EcCalibrations");
-const DoCalibrationsCommand = atlasRoot.lookup("fk_atlas.DoCalibrateCommand");
+// const DoCalibrationsCommand = atlasRoot.lookup("fk_atlas.DoCalibrateCommand");
 const PhCalibrationsCommand = atlasRoot.lookup("fk_atlas.PhCalibrateCommand");
 const EcCalibrationsCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
 // const OrpCalibrations = atlasRoot.lookup("fk_atlas.OrpCalibrations");
@@ -27,6 +28,15 @@ function numberOfOnes(n) {
     n = n - ((n >> 1) & 0x55555555);
     n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
     return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
+}
+
+export interface CalibrationAttempt {
+    sensorType: AtlasSensorType;
+    which: number;
+    reference: number;
+    compensations: {
+        temperature: number;
+    };
 }
 
 export function fixupStatus(reply) {
@@ -76,19 +86,6 @@ export function fixupStatus(reply) {
 export default class CalibrationService {
     constructor(private readonly conservify: any) {}
 
-    protected getCalibrationStatus(address) {
-        const message = AtlasQuery.create({
-            type: AtlasQueryType.values.QUERY_NONE,
-            calibration: {
-                operation: AtlasCalibrationOperation.values.CALIBRATION_STATUS,
-            },
-        });
-
-        return this.stationQuery(address, message).then((reply) => {
-            return this._fixupReply(reply);
-        });
-    }
-
     public clearCalibration(address) {
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
@@ -102,93 +99,69 @@ export default class CalibrationService {
         });
     }
 
-    protected calibrateQuickPh(address, data) {
-        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE;
-        data.refValue = this.getQuickPhRef(data.temp);
-        return this.performCalibration(address, data);
+    private applyCompensation(data: CalibrationAttempt): number {
+        switch (data.sensorType) {
+            case AtlasSensorType.None: {
+                break;
+            }
+            case AtlasSensorType.Ph: {
+                switch (data.which) {
+                    case PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE: {
+                        return this.getQuickPhRef(data.compensations.temperature);
+                    }
+                    case PhCalibrationsCommand.values.CALIBRATE_PH_LOW: {
+                        return this.getLowPhRef(data.compensations.temperature);
+                    }
+                    case PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE: {
+                        return this.getMidPhRef(data.compensations.temperature);
+                    }
+                    case PhCalibrationsCommand.values.CALIBRATE_PH_HIGH: {
+                        return this.getHighPhRef(data.compensations.temperature);
+                    }
+                }
+                break;
+            }
+            case AtlasSensorType.Temp: {
+                break;
+            }
+            case AtlasSensorType.Orp: {
+                break;
+            }
+            case AtlasSensorType.Do: {
+                break;
+            }
+            case AtlasSensorType.Ec: {
+                switch (data.which) {
+                    case EcCalibrationsCommand.values.CALIBRATE_EC_DRY: {
+                        return this.getDryEcRef(data.compensations.temperature);
+                    }
+                    case EcCalibrationsCommand.values.CALIBRATE_EC_SINGLE: {
+                        return this.getLowEcRef(data.compensations.temperature);
+                    }
+                    case EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_LOW: {
+                        return this.getLowEcRef(data.compensations.temperature);
+                    }
+                    case EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_HIGH: {
+                        return this.getHighEcRef(data.compensations.temperature);
+                    }
+                }
+                break;
+            }
+        }
+        return data.reference;
     }
 
-    protected calibrateLowPh(address, data) {
-        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_LOW;
-        data.refValue = this.getLowPhRef(data.temp);
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateMidPh(address, data) {
-        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE;
-        data.refValue = this.getMidPhRef(data.temp);
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateHighPh(address, data) {
-        data.which = PhCalibrationsCommand.values.CALIBRATE_PH_HIGH;
-        data.refValue = this.getHighPhRef(data.temp);
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateDryConductivity(address, data) {
-        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DRY;
-        data.refValue = this.getDryEcRef(data.temp);
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateSingleConductivity(address, data) {
-        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_SINGLE;
-        data.refValue = this.getLowEcRef(data.temp);
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateDualLowConductivity(address, data) {
-        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_LOW;
-        data.refValue = this.getLowEcRef(data.temp);
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateDualHighConductivity(address, data) {
-        data.which = EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_HIGH;
-        data.refValue = this.getHighEcRef(data.temp);
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateAtmosphereDissolvedOxygen(address, data) {
-        data.which = DoCalibrationsCommand.values.CALIBRATE_DO_ATMOSPHERE;
-        data.refValue = 0;
-        return this.performCalibration(address, data);
-    }
-
-    protected calibrateZeroDissolvedOxygen(address, data) {
-        data.which = DoCalibrationsCommand.values.CALIBRATE_DO_ZERO;
-        data.refValue = 0;
-        return this.performCalibration(address, data);
-    }
-
-    public calibrateSensor(address, data) {
+    public calibrateSensor(address: string, data: CalibrationAttempt) {
+        const adjusted = this.applyCompensation(data);
         const message = AtlasQuery.create({
             type: AtlasQueryType.values.QUERY_NONE,
             calibration: {
                 operation: AtlasCalibrationOperation.values.CALIBRATION_SET,
                 which: data.which,
-                value: data.reference,
+                value: adjusted,
             },
             compensations: {
-                temperature: data.compensations.temp,
-            },
-        });
-        return this.stationQuery(address, message).then((reply) => {
-            return this._fixupReply(reply);
-        });
-    }
-
-    protected performCalibration(address, data) {
-        const message = AtlasQuery.create({
-            type: AtlasQueryType.values.QUERY_NONE,
-            calibration: {
-                operation: AtlasCalibrationOperation.values.CALIBRATION_SET,
-                which: data.which,
-                value: data.refValue,
-            },
-            compensations: {
-                temperature: data.temperature,
+                temperature: data.compensations.temperature,
             },
         });
         return this.stationQuery(address, message).then((reply) => {

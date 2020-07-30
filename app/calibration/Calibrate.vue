@@ -78,7 +78,9 @@ export default Vue.extend({
             console.log("module-id", moduleId);
 
             const moduleCalibration = this.$store.state.cal.status[moduleId]?.calibration || null;
-            console.log("module-status", moduleCalibration);
+            console.log("module-cal", moduleCalibration);
+
+            if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
 
             const displaySensor = module.sensors[0];
             const stationSensors = _.fromPairs(
@@ -197,7 +199,14 @@ export default Vue.extend({
                 temperature: maybeWaterTemp || null,
             };
             const calibrationValue = this.strategy.getStepCalibrationValue(step);
-            const action = new CalibrateAtlas(this.deviceId, sensor.moduleId, this.position, calibrationValue, compensations);
+            const action = new CalibrateAtlas(
+                this.deviceId,
+                sensor.moduleId,
+                this.position,
+                sensor.calibration.type,
+                calibrationValue,
+                compensations
+            );
             console.log("cal:", "calibrate", action);
             return this.$store.dispatch(action).then(
                 (calibrated) => {

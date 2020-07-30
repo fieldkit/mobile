@@ -99,7 +99,17 @@ export class CalibrationStrategies {
     }
 }
 
+export enum AtlasSensorType {
+    None = 0,
+    Ph = 1,
+    Temp = 2,
+    Orp = 3,
+    Do = 4,
+    Ec = 5,
+}
+
 export interface ModuleStatus {
+    type: AtlasSensorType;
     calibration?: { total: number };
 }
 

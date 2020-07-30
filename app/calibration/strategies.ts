@@ -4,7 +4,7 @@ import Water from "./water";
 
 let strategies: CalibrationStrategies | null = null;
 
-export default function () {
+export function calibrationStrategies() {
     if (!strategies) {
         strategies = new CalibrationStrategies(Water());
     }

@@ -32,8 +32,7 @@
 import Vue from "vue";
 import Header from "./Header.vue";
 
-import calibrationStrategies from "./strategies";
-
+import { calibrationStrategies } from "./strategies";
 import { Common } from "./water";
 
 export default Vue.extend({

@@ -9,8 +9,7 @@ import CalibrationService from "@/services/calibration-service";
 
 import { GlobalGetters } from "./global";
 
-import { ModuleStatus, StationCalibration } from "@/calibration/model";
-import calibrationStrategies from "@/calibration/strategies";
+import { calibrationStrategies, ModuleStatus, AtlasSensorType, StationCalibration } from "@/calibration";
 
 export const CALIBRATED = "CALIBRATED";
 export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
@@ -29,8 +28,9 @@ export class CalibrateAtlas {
         public readonly deviceId: string,
         public readonly moduleId: string,
         public readonly position: number,
+        public readonly sensorType: AtlasSensorType,
         public readonly value: { which: number; reference: number },
-        public readonly compensations: { [index: string]: number }
+        public readonly compensations: { temperature: number }
     ) {}
 }
 
@@ -107,6 +107,7 @@ const actions = {
         const service = new CalibrationService(state.services.conservify());
         const url = info.url + "/modules/" + payload.position;
         const params = {
+            sensorType: payload.sensorType,
             which: payload.value.which,
             reference: payload.value.reference,
             compensations: payload.compensations,

@@ -12,11 +12,11 @@ import { _T } from "../utilities";
 
 import Calibrate from "./Calibrate.vue";
 import ChooseStrategy from "./ChooseStrategy.vue";
-import calibrationStrategies from "./strategies";
 
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import StationSettingsModuleList from "../components/settings/StationSettingsModuleList.vue";
 
+import { calibrationStrategies } from "./strategies";
 import { CalibrationStrategy } from "./model";
 
 export default Vue.extend({
