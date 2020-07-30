@@ -26,13 +26,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme"
-        android:windowSoftInputMode="adjustResize">
+        android:windowSoftInputMode="stateHidden|adjustResize">
 
         <activity
             android:name="com.tns.NativeScriptActivity"
             android:label="@string/title_activity_kimera"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|locale|uiMode"
-            android:theme="@style/LaunchScreenTheme">
+            android:theme="@style/LaunchScreenTheme"
+			android:windowSoftInputMode="stateHidden|adjustResize">
 
             <meta-data android:name="SET_THEME_ON_LAUNCH" android:resource="@style/AppTheme" />
 
