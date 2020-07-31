@@ -66,15 +66,15 @@ export default Vue.extend({
         },
     },
     methods: {
-        raiseBack(this: any) {
-            console.log("Screenheader:back");
+        raiseBack(this: any, ev) {
+            console.log("ScreenHeader:back");
             this.$emit("back");
-            this.onBack();
+            this.onBack(ev);
         },
-        raiseCancel(this: any) {
-            console.log("Screenheader:cancel");
+        raiseCancel(this: any, ev) {
+            console.log("ScreenHeader:cancel");
             this.$emit("cancel");
-            this.onCancel();
+            this.onCancel(ev);
         },
     },
 });

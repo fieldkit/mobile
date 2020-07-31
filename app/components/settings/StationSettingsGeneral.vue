@@ -87,12 +87,12 @@ export default Vue.extend({
                 },
             });
         },
-        goBack(this: any, event) {
+        goBack(this: any, ev) {
             // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
+            let cn = ev.object.className;
+            ev.object.className = cn + " pressed";
             setTimeout(() => {
-                event.object.className = cn;
+                ev.object.className = cn;
             }, 500);
 
             return this.$navigateTo(routes.stationSettings, {
