@@ -125,6 +125,7 @@ labeled-text-field {
     border-width: 2;
     border-color: #d8dce0;
     placeholder-color: $fk-gray-hint;
+    padding: 10;
     /* background-color: #ffaaff; */
 }
 .bottom-container {
