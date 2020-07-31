@@ -30,14 +30,12 @@
                         />
                     </GridLayout>
                 </StackLayout>
-                <Button class="btn btn-primary btn-padded" :text="_L('resetCalibration')" @tap="resetCalibration"></Button>
                 <Button class="btn btn-primary btn-padded" :text="'Onboarding'" @tap="goOnboarding"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash"></Button>
-                <Button class="btn btn-primary btn-padded" :text="_L('manualCrash')" @tap="manualCrash"></Button>
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -59,7 +57,6 @@ import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 
 import DiagnosticsModal from "./DiagnosticsModal.vue";
-import StationPicker from "./StationPickerModal.vue";
 
 export default Vue.extend({
     data(this: any) {
@@ -140,33 +137,6 @@ export default Vue.extend({
                 .then(() => {
                     return Services.PortalInterface().logout();
                 });
-        },
-        resetCalibration(this: any) {
-            const stations = this.$store.stations.all;
-            if (stations.length == 0) {
-                alert({
-                    title: _L("resetCalibration"),
-                    message: _L("noStationsFound"),
-                    okButtonText: _L("ok"),
-                });
-            } else {
-                const options = {
-                    props: {
-                        stations: stations,
-                    },
-                    fullscreen: true,
-                };
-                this.$showModal(StationPicker, options).then((station) => {
-                    if (station) {
-                        this.$navigateTo(Recalibrate, {
-                            props: {
-                                stepParam: "startCalibration",
-                                stationParam: station,
-                            },
-                        });
-                    }
-                });
-            }
         },
         goOnboarding(this: any) {
             return this.$navigateTo(routes.onboarding.assembleStation);
@@ -257,10 +227,6 @@ export default Vue.extend({
         },
         crash(this: any) {
             crashlytics.crash();
-        },
-        manualCrash(this: any) {
-            // const globalAny: any = global as any;
-            // crashlytics.sendCrashLog(new java.lang.Exception("Oh, no! Manual crash!"));
         },
     },
 });

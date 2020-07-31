@@ -21,7 +21,7 @@ function initializeFirebase(services): Promise<any> {
         crashlyticsCollectionEnabled: true,
     })
         .then((response) => {
-            console.log("firebase response", response);
+            console.log("firebase initialized", response);
             return Promise.resolve(true);
         })
         .catch((error) => {
@@ -48,7 +48,7 @@ function initializeApplication(services): Promise<any> {
                 key: "app_open",
             })
             .then((response) => {
-                console.log("firebase response", response);
+                console.log("firebase recorded", response);
                 return Promise.resolve(true);
             })
             .catch((message) => {
