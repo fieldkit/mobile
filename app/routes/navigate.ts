@@ -17,6 +17,7 @@ export interface RouteState {
     dataSync?: boolean;
     props?: any | null;
     reading?: boolean;
+    clear?: boolean;
 }
 
 export class Route {

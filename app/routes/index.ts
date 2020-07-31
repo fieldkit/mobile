@@ -32,9 +32,9 @@ const routes = {
     developerMenu: new Route(DeveloperMenu, { developer: true }),
 
     // Bottom navigation
-    stations: new Route(StationListView, { listing: true }),
-    dataSync: new Route(DataSync, { dataSync: true }),
-    appSettings: new Route(AppSettings, {}),
+    stations: new Route(StationListView, { clear: true, listing: true }),
+    dataSync: new Route(DataSync, { clear: true, dataSync: true }),
+    appSettings: new Route(AppSettings, { clear: true }),
 
     // Per station
     stationDetail: new Route(StationDetail, { reading: true, station: true }),

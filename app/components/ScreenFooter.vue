@@ -52,7 +52,9 @@ export default Vue.extend({
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.stations);
+            this.$navigateTo(routes.stations, {
+                clearHistory: true,
+            });
         },
 
         goToData(event) {
@@ -62,7 +64,9 @@ export default Vue.extend({
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.dataSync);
+            this.$navigateTo(routes.dataSync, {
+                clearHistory: true,
+            });
         },
 
         goToSettings(event) {
@@ -72,7 +76,9 @@ export default Vue.extend({
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.appSettings);
+            this.$navigateTo(routes.appSettings, {
+                clearHistory: true,
+            });
         },
     },
 });
