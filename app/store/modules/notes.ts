@@ -109,6 +109,10 @@ export class Notes {
         return note.body.length > 0 || note.audio.length > 0 || note.photos.length > 0;
     }
 
+    public get valid(): boolean {
+        return true;
+    }
+
     public get completed(): string {
         const notes = [this.studyObjective, this.sitePurpose, this.siteCriteria, this.siteDescription];
         const total = notes.length + 1;
