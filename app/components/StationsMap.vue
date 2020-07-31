@@ -70,13 +70,15 @@ export default Vue.extend({
             this.showStations();
         },
     },
-    mounted() {
+    mounted(this: any) {
         console.log("StationsMap::mounted");
         return Promise.delay(10000).then(() => {
-            this.unavailable = true;
+            if (!this.map) {
+                this.unavailable = true;
+            }
         });
     },
-    destroyed() {
+    destroyed(this: any) {
         console.log("StationsMap::destroyed");
     },
     methods: {
