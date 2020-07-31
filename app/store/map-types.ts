@@ -73,3 +73,17 @@ export class BoundingRectangle {
 export class MapCenter {
     constructor(public readonly location: Location, public readonly bounds: BoundingRectangle, public readonly zoom: number) {}
 }
+
+export class MappedStation {
+    constructor(
+        public readonly id: number,
+        public readonly deviceId: string,
+        public readonly name: string,
+        public readonly location: Location,
+        public readonly deployStartTime: Date | null
+    ) {}
+}
+
+export class MappedStations {
+    constructor(public readonly center: MapCenter, public readonly stations: MappedStation[]) {}
+}

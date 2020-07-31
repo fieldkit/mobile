@@ -5,52 +5,30 @@
                 <StackLayout id="stations-list" class="m-y-10">
                     <ScreenHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" :bottomMargin="false" />
 
-                    <GridLayout rows="auto" columns="*" id="mapbox-wrapper">
-                        <Mapbox
-                            row="0"
-                            :accessToken="mapboxToken"
-                            automationText="currentLocationMap"
-                            mapStyle="mapbox://styles/mapbox/outdoors-v11"
-                            height="170"
-                            zoomLevel="0"
-                            hideCompass="false"
-                            showUserLocation="false"
-                            disableZoom="false"
-                            disableRotation="false"
-                            disableScroll="false"
-                            disableTilt="false"
-                            class="m-b-10"
-                            @mapReady="onMapReady"
-                        ></Mapbox>
-                        <StackLayout
-                            row="0"
-                            height="35"
-                            verticalAlignment="bottom"
-                            horizontalAlignment="right"
-                            class="toggle-container"
-                            v-if="map != null"
-                        >
-                            <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="openModal"></Image>
-                        </StackLayout>
-                    </GridLayout>
+                    <StationsMap id="stations-map" :mappedStations="mappedStations" @open-modal="openModalMap" />
 
                     <NoStationsWannaAdd v-if="stations.length == 0" />
 
                     <GridLayout
-                        v-for="(s, index) in stations"
-                        :key="s.sortedIndex"
-                        :id="'station-' + s.id"
+                        v-for="(station, index) in stations"
+                        :key="station.sortedIndex"
+                        :id="'station-' + station.id"
                         rows="*,*"
                         columns="85*,15*"
                         class="station-container m-y-5 m-x-15 p-10"
                         orientation="vertical"
                         :automationText="'linkToStation' + index"
-                        @tap="goToDetail($event, s)"
+                        @tap="goToDetail($event, station)"
                     >
-                        <Label row="0" col="0" :text="s.name" :class="'station-name ' + (s.connected ? '' : 'disconnected')" />
-                        <Label row="1" col="0" :text="getDeployStatus(s)" :class="'m-t-5 ' + (s.connected ? '' : 'disconnected')" />
-                        <Image col="1" rowSpan="2" width="20" v-if="s.connected" src="~/images/Icon_Connected.png"></Image>
-                        <Image col="1" rowSpan="2" width="20" v-if="!s.connected" src="~/images/Icon_not_Connected.png"></Image>
+                        <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
+                        <Label
+                            row="1"
+                            col="0"
+                            :text="getDeployStatus(station)"
+                            :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')"
+                        />
+                        <Image col="1" rowSpan="2" width="20" v-if="station.connected" src="~/images/Icon_Connected.png"></Image>
+                        <Image col="1" rowSpan="2" width="20" v-if="!station.connected" src="~/images/Icon_not_Connected.png"></Image>
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
@@ -67,120 +45,35 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import * as dialogs from "tns-core-modules/ui/dialogs";
+import routes from "@/routes";
+import * as animations from "./animations";
+
+import { AvailableStation } from "@/store/types";
+
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
-import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
+import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
-import routes from "@/routes";
-import * as animations from "./animations";
 
 export default Vue.extend({
     components: {
         ScreenHeader,
         ScreenFooter,
         NoStationsWannaAdd,
+        StationsMap,
     },
     computed: {
-        ...mapGetters({ stations: "availableStations", mapCenter: "mapCenter", hasCenter: "hasCenter" }),
+        ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
     },
     data() {
-        return {
-            map: null,
-            mapboxToken: MAPBOX_ACCESS_TOKEN,
-        };
+        return {};
     },
-    watch: {
-        hasCenter(newValue, oldValue) {
-            console.log("hasCenter", newValue, oldValue);
-            this.showStations();
-        },
-    },
+    watch: {},
     methods: {
         onPageLoaded() {},
-        onMapReady(ev) {
-            this.map = ev.map;
-            this.showStations();
-        },
-        openModal(this: any, event) {
-            return this.$showModal(MapModal, {
-                fullscreen: true,
-            });
-        },
-        getDeployStatus(this: any, station /*: AvailableStation*/) {
+        getDeployStatus(this: any, station: AvailableStation) {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
-        },
-        showStations(this: any) {
-            if (!this.map) {
-                console.log("refresh map, no map");
-                return;
-            }
-
-            const state = this.$store.state.map;
-            const center = this.$store.getters.mapCenter;
-            if (!center) {
-                console.log("refresh map, no center");
-                return;
-            }
-
-            console.log("refresh map");
-
-            const markers = Object.values(state.stations).map((station: any) => {
-                return {
-                    id: station.deviceId,
-                    lat: station.location.latitude,
-                    lng: station.location.longitude,
-                    title: station.name,
-                    subtitle: this.getDeployStatus(station),
-                    iconPath: station.connected ? "images/Icon_Map_Dot.png" : "images/Icon_Map_Dot_unconnected.png",
-                    onTap: () => this.onMarkerTap(station),
-                    onCalloutTap: () => this.onCalloutTap(station),
-                };
-            });
-
-            this.map.removeMarkers();
-            this.map.addMarkers(markers);
-
-            this.map.setZoomLevel({
-                level: center.zoom,
-                animated: false,
-            });
-
-            this.map.setCenter({
-                lat: center.location.latitude,
-                lng: center.location.longitude,
-                animated: false,
-            });
-
-            const min = center.bounds.min;
-            const max = center.bounds.max;
-            this.map.setViewport({
-                bounds: {
-                    north: max.latitude,
-                    east: max.longitude,
-                    south: min.latitude,
-                    west: min.longitude,
-                },
-                animated: false,
-            });
-        },
-        onMarkerTap(this: any, station) {
-            this.map.setCenter({
-                lat: station.location.latitude,
-                lng: station.location.longitude,
-                animated: false,
-            });
-            this.map.setZoomLevel({
-                level: 14,
-                animated: false,
-            });
-        },
-        onCalloutTap(this: any, station) {
-            return this.$navigateTo(routes.stationDetail, {
-                props: {
-                    stationId: station.id,
-                },
-            });
         },
         goToDetail(this: any, ev, station) {
             return Promise.all([
@@ -204,6 +97,11 @@ export default Vue.extend({
                         return this.$navigateTo(routes.developerMenu);
                     }
                 });
+        },
+        openModalMap(this: any, ev) {
+            return this.$showModal(MapModal, {
+                fullscreen: true,
+            });
         },
     },
 });
