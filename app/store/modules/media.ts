@@ -1,11 +1,11 @@
 import _ from "lodash";
 import Vue from "vue";
-import Camera from "../../wrappers/camera";
+import Camera from "@/wrappers/camera";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Services, ServiceRef } from "./utilities";
-import { IncomingImage } from "../../services/types";
-import { serializePromiseChain } from "../../utilities";
+import { IncomingImage } from "@/services/types";
+import { serializePromiseChain } from "@/utilities";
 
 export const AUDIO_RECORDING_PROGRESS = "AUDIO_RECORDING_PROGRESS";
 export const CACHE_PHOTO = "CACHE_PHOTO";
@@ -55,7 +55,7 @@ const actions = {
         return state.services
             .audio()
             .startAudioRecording()
-            .then(path => {
+            .then((path) => {
                 commit(AUDIO_RECORDING_PROGRESS, new ActiveRecording(path));
             });
     },
@@ -96,33 +96,33 @@ const actions = {
             keepAspectRatio: true,
             saveToGallery: true,
             allowsEditing: false,
-        }).then(source => {
-            return dispatch(ActionTypes.SAVE_PICTURE, { source: source });
+        }).then((asset) => {
+            return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
         });
     },
     [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
         return Camera.findPicture(options)
-            .then(selection => selection[0])
-            .then(source => {
-                return dispatch(ActionTypes.SAVE_PICTURE, { source: source });
+            .then((selection) => selection[0])
+            .then((asset) => {
+                return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
             });
     },
-    [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { source: any }) => {
+    [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { asset: any }) => {
         return state.services
             .images()
-            .saveImage(new IncomingImage(payload.source))
-            .then(saved => {
-                commit(CACHE_PHOTO, { path: saved.path, source: saved.source });
+            .saveImage(new IncomingImage(payload.asset))
+            .then((saved) => {
+                commit(CACHE_PHOTO, saved);
                 return saved;
             });
     },
     [ActionTypes.LOAD_PICTURES]: ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
-        return serializePromiseChain(payload.paths, path =>
+        return serializePromiseChain(payload.paths, (path) =>
             state.services
                 .images()
                 .fromFile(path)
-                .then(saved => {
-                    commit(CACHE_PHOTO, { path: saved.path, source: saved.source });
+                .then((saved) => {
+                    commit(CACHE_PHOTO, saved);
                     return {};
                 })
         );
