@@ -216,6 +216,19 @@ const actions = {
                 }
             );
     },
+    [ActionTypes.SCAN_STATION_NETWORKS]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        if (!payload?.deviceId) throw new Error("no nearby info");
+        const info = state.stations[payload.deviceId];
+        if (!info) throw new Error("no nearby info");
+        commit(MutationTypes.STATION_QUERIED, info);
+        return state.services
+            .queryStation()
+            .scanNearbyNetworks(info.url)
+            .then((networksReply) => {
+                commit(MutationTypes.STATION_ACTIVITY, info);
+                return networksReply;
+            });
+    },
 };
 
 const getters = {

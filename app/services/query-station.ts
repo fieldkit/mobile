@@ -172,6 +172,16 @@ export default class QueryStation {
         });
     }
 
+    public scanNearbyNetworks(address) {
+        const message = HttpQuery.create({
+            type: QueryType.values.QUERY_SCAN_NETWORKS,
+        });
+
+        return this.stationQuery(address, message).then((reply) => {
+            return this._fixupStatus(reply);
+        });
+    }
+
     configureSchedule(address, schedule) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
@@ -180,18 +190,6 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then((reply) => {
-            return this._fixupStatus(reply);
-        });
-    }
-
-    setStationInterval(station) {
-        const message = HttpQuery.create({
-            type: QueryType.values.QUERY_CONFIGURE,
-            schedules: { modifying: true, readings: { interval: station.interval } },
-            time: unixNow(),
-        });
-
-        return this.stationQuery(station.url, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }

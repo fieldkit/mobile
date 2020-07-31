@@ -39,6 +39,7 @@
 import Vue from "vue";
 import routes from "@/routes";
 import { _T } from "@/utilities";
+import * as ActionTypes from "@/store/actions";
 import { AddStationNetworkAction } from "@/store";
 import ScreenHeader from "../ScreenHeader.vue";
 import * as utils from "tns-core-modules/utils/utils";
@@ -70,6 +71,12 @@ export default Vue.extend({
         canAdd(this: any) {
             return this.form.ssid.length > 0 && this.form.password.length > 0;
         },
+    },
+    mounted() {
+        return this.$store.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
+            console.log("networks", networks);
+            return {};
+        });
     },
     methods: {
         onPageLoaded(args) {
