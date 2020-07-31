@@ -44,7 +44,7 @@ describe("Store", () => {
             expect(_.size(store.state.nearby.stations)).toEqual(1);
             expect(
                 _(store.getters.availableStations)
-                    .filter(s => s.connected)
+                    .filter((s) => s.connected)
                     .size()
             ).toEqual(1);
         });
@@ -62,7 +62,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.FOUND, info);
 
             const s0 = _(store.getters.availableStations)
-                .filter(s => s.connected)
+                .filter((s) => s.connected)
                 .size();
             expect(s0).toEqual(1);
 
@@ -78,7 +78,7 @@ describe("Store", () => {
             }
 
             const s1 = _(store.getters.availableStations)
-                .filter(s => s.connected)
+                .filter((s) => s.connected)
                 .size();
             expect(s1).toEqual(1);
 
@@ -87,7 +87,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.REFRESH);
 
             const s2 = _(store.getters.availableStations)
-                .filter(s => s.connected)
+                .filter((s) => s.connected)
                 .size();
             expect(s2).toEqual(0);
         });
@@ -108,7 +108,7 @@ describe("Store", () => {
             expect(_.size(store.state.nearby.stations)).toEqual(0);
 
             const s = _(store.getters.availableStations)
-                .filter(s => s.connected)
+                .filter((s) => s.connected)
                 .size();
             expect(s).toEqual(0);
         });
@@ -233,13 +233,13 @@ describe("Store", () => {
 
     describe("map", () => {
         it("should begin with no default location", async () => {
-            expect(store.getters.mapCenter).toBe(null);
+            expect(store.getters.mappedStations).toBe(null);
         });
 
         it("should center on the phone's location", async () => {
-            expect(store.getters.mapCenter).toBe(null);
+            expect(store.getters.mappedStations).toBe(null);
             store.commit(MutationTypes.PHONE_LOCATION, CommonLocations.ConservifyLab);
-            expect(store.getters.mapCenter.location).toEqual(CommonLocations.ConservifyLab.location());
+            expect(store.getters.mappedStations.center.location).toEqual(CommonLocations.ConservifyLab.location());
         });
 
         it("should include all nearby stations", async () => {
