@@ -96,8 +96,6 @@ import ScreenFooter from "../ScreenFooter";
 import Networks from "./StationSettingsNetworks";
 import ConnectionNote from "./StationSettingsConnectionNote";
 
-const queryStation = Services.QueryStation();
-
 export default Vue.extend({
     data() {
         return {
@@ -200,15 +198,17 @@ export default Vue.extend({
                     appKey: appKey,
                 };
 
-                queryStation.sendLoraSettings(this.station.url, sendableLora).then((result) => {
-                    this.goBack();
-                    // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
-                    // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
-                    // in order to match in the interim, must edit station.statusJson
-                    // NOTE: appEui and appKey currently aren't sent in statusJson, so they
-                    // won't be preserved after exiting this view
-                    // console.log("response from station after adding", result.loraSettings)
-                });
+                Services.QueryStation()
+                    .sendLoraSettings(this.station.url, sendableLora)
+                    .then((result) => {
+                        this.goBack();
+                        // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
+                        // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
+                        // in order to match in the interim, must edit station.statusJson
+                        // NOTE: appEui and appKey currently aren't sent in statusJson, so they
+                        // won't be preserved after exiting this view
+                        // console.log("response from station after adding", result.loraSettings)
+                    });
             }
         },
     },

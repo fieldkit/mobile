@@ -136,10 +136,6 @@ import ConnectionNote from "./StationSettingsConnectionNote";
 
 import * as dialogs from "tns-core-modules/ui/dialogs";
 
-const dbInterface = Services.Database();
-const queryStation = Services.QueryStation();
-const onlineStatus = Services.OnlineStatus();
-
 export default Vue.extend({
     data() {
         return {
@@ -174,9 +170,11 @@ export default Vue.extend({
         onPageLoaded(this: any, args) {
             this.page = args.object;
 
-            dbInterface.getConfig().then((config) => {
-                this.transmissionUrl = config[0].ingestionUri;
-            });
+            Services.Database()
+                .getConfig()
+                .then((config) => {
+                    this.transmissionUrl = config[0].ingestionUri;
+                });
 
             let deviceStatus = this.station.statusJson;
             if (deviceStatus && deviceStatus.networkSettings) {
@@ -219,43 +217,49 @@ export default Vue.extend({
         },
         uploadOverWifi(this: any) {
             if (this.wifiUpload) {
-                queryStation.uploadViaApp(this.station.url).then((result) => {
-                    alert({
-                        title: _L("done"),
-                        message: _L("uploadConfigUpdated"),
-                        okButtonText: _L("ok"),
+                Services.QueryStation()
+                    .uploadViaApp(this.station.url)
+                    .then((result) => {
+                        alert({
+                            title: _L("done"),
+                            message: _L("uploadConfigUpdated"),
+                            okButtonText: _L("ok"),
+                        });
+                        this.setWifiUploadStatus(result);
                     });
-                    this.setWifiUploadStatus(result);
-                });
             } else {
                 this.$portalInterface
                     .getTransmissionToken()
                     .then((result) => {
-                        queryStation.uploadOverWifi(this.station.url, this.transmissionUrl, result.token).then((result) => {
-                            this.setWifiUploadStatus(result);
-                            alert({
-                                title: _L("done"),
-                                message: _L("uploadConfigUpdated"),
-                                okButtonText: _L("ok"),
+                        Services.QueryStation()
+                            .uploadOverWifi(this.station.url, this.transmissionUrl, result.token)
+                            .then((result) => {
+                                this.setWifiUploadStatus(result);
+                                alert({
+                                    title: _L("done"),
+                                    message: _L("uploadConfigUpdated"),
+                                    okButtonText: _L("ok"),
+                                });
                             });
-                        });
                     })
                     .catch((e) => {
-                        onlineStatus.isOnline().then((online) => {
-                            if (online) {
-                                alert({
-                                    title: _L("unableToUpdate"),
-                                    message: _L("pleaseLogin"),
-                                    okButtonText: _L("ok"),
-                                });
-                            } else {
-                                alert({
-                                    title: _L("unableToUpdate"),
-                                    message: _L("noteNeedInternet"),
-                                    okButtonText: _L("ok"),
-                                });
-                            }
-                        });
+                        Services.OnlineStatus()
+                            .isOnline()
+                            .then((online) => {
+                                if (online) {
+                                    alert({
+                                        title: _L("unableToUpdate"),
+                                        message: _L("pleaseLogin"),
+                                        okButtonText: _L("ok"),
+                                    });
+                                } else {
+                                    alert({
+                                        title: _L("unableToUpdate"),
+                                        message: _L("noteNeedInternet"),
+                                        okButtonText: _L("ok"),
+                                    });
+                                }
+                            });
                     });
             }
         },
@@ -294,13 +298,15 @@ export default Vue.extend({
                 this.networks.push(network);
             }
 
-            queryStation.sendNetworkSettings(this.station.url, this.networks).then((result) => {
-                this.networks = result.networkSettings.networks;
-                // in order to match in the interim, must edit station.statusJson
-                this.deviceStatus.networkSettings = result.networkSettings;
-                this.station.statusJson = this.deviceStatus;
-                this.goBack();
-            });
+            Services.QueryStation()
+                .sendNetworkSettings(this.station.url, this.networks)
+                .then((result) => {
+                    this.networks = result.networkSettings.networks;
+                    // in order to match in the interim, must edit station.statusJson
+                    this.deviceStatus.networkSettings = result.networkSettings;
+                    this.station.statusJson = this.deviceStatus;
+                    this.goBack();
+                });
         },
         removeNetwork(this: any, event) {
             dialogs
@@ -318,12 +324,14 @@ export default Vue.extend({
                         if (index > -1) {
                             this.networks.splice(index, 1);
                         }
-                        queryStation.sendNetworkSettings(this.station.url, this.networks).then((result) => {
-                            this.networks = result.networkSettings.networks;
-                            // in order to match in the interim, must edit station.statusJson
-                            this.deviceStatus.networkSettings = result.networkSettings;
-                            this.station.statusJson = this.deviceStatus;
-                        });
+                        Services.QueryStation()
+                            .sendNetworkSettings(this.station.url, this.networks)
+                            .then((result) => {
+                                this.networks = result.networkSettings.networks;
+                                // in order to match in the interim, must edit station.statusJson
+                                this.deviceStatus.networkSettings = result.networkSettings;
+                                this.station.statusJson = this.deviceStatus;
+                            });
                     }
                 });
         },

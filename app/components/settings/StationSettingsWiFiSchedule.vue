@@ -90,7 +90,6 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-// import * as dialogs from "tns-core-modules/ui/dialogs";
 import Services from "../../services/services";
 
 import ScreenHeader from "../ScreenHeader.vue";
@@ -98,7 +97,6 @@ import ScreenFooter from "../ScreenFooter.vue";
 import WiFi from "./StationSettingsWiFi.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
-const queryStation = Services.QueryStation();
 const oneHour = 3600;
 
 export default Vue.extend({
@@ -265,12 +263,14 @@ export default Vue.extend({
                     this.station.uploadSchedule = this.interval.value;
                     this.interval.origValue = this.interval.value;
                     this.interval.origUnit = this.interval.unit;
-                    queryStation.setStationUploadSchedule(this.station).then((result) => {
-                        // in order to match in the interim, must edit station.statusJson
-                        this.deviceStatus.schedules = result.schedules;
-                        this.station.statusJson = this.deviceStatus;
-                        this.goBack();
-                    });
+                    Services.QueryStation()
+                        .setStationUploadSchedule(this.station)
+                        .then((result) => {
+                            // in order to match in the interim, must edit station.statusJson
+                            this.deviceStatus.schedules = result.schedules;
+                            this.station.statusJson = this.deviceStatus;
+                            this.goBack();
+                        });
                 }
             }
         },
