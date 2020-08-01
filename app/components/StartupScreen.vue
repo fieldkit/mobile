@@ -31,7 +31,6 @@ function initializeFirebase(services): Promise<any> {
 }
 
 function updateStore(store): null {
-    console.log("action:", ActionTypes.REFRESH);
     promiseAfter(1000)
         .then(() => store.dispatch(ActionTypes.REFRESH))
         .catch((err) => {

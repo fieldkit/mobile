@@ -27,11 +27,11 @@ function customizeLogger() {
                 return false;
             }
             if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {
-                console.log("mutation:", mutation.type, mutation.payload);
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
                 return false;
             }
             if (mutation.type == MutationTypes.STATION_ACTIVITY || mutation.type == MutationTypes.STATION_QUERIED) {
-                console.log("mutation:", mutation.type, mutation.payload);
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
                 return false;
             }
             if (mutation.type == MutationTypes.NAVIGATION) {
@@ -61,7 +61,7 @@ function customizeLogger() {
                 return false;
             }
             if (mutation.type == MutationTypes.ATTACH_NOTE_MEDIA) {
-                console.log("mutation:", mutation);
+                console.log("mutation:", JSON.stringify(mutation));
                 return false;
             }
 

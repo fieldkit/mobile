@@ -421,7 +421,7 @@ export default class QueryStation {
             }
 
             const binaryQuery = HttpQuery.encodeDelimited(message).finish();
-            log.info(url, "querying", message);
+            log.info(url, "querying", JSON.stringify(message));
 
             return this._conservify
                 .protobuf({
