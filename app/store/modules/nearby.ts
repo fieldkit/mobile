@@ -37,9 +37,8 @@ const actions = {
         });
     },
     [ActionTypes.FOUND]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
-        return dispatch(ActionTypes.QUERY_STATION, info).then(() => {
-            commit(MutationTypes.FIND, info);
-        });
+        commit(MutationTypes.FIND, info);
+        return dispatch(ActionTypes.QUERY_STATION, info);
     },
     [ActionTypes.MAYBE_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
         const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
