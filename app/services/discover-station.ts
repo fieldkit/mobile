@@ -133,6 +133,12 @@ export default class DiscoverStation {
         }
     }
 
+    public restart() {
+        return this.stopServiceDiscovery().then(() => {
+            return this.startServiceDiscovery();
+        });
+    }
+
     startServiceDiscovery() {
         if (this._started) {
             return Promise.resolve(true);
@@ -143,9 +149,9 @@ export default class DiscoverStation {
     }
 
     stopServiceDiscovery() {
-        this._conservify.stop();
-        this._stations = {};
         this._started = false;
+        this._stations = {};
+        return this._conservify.stop();
     }
 
     onFoundService(info: FoundService): Promise<any> {
