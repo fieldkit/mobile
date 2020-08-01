@@ -31,9 +31,10 @@ export default function (discoverStation: () => DiscoverStation) {
             console.log("lifecycle: suspend: " + args.ios);
         }
 
-        console.log("lifecycle: stopping discovery");
-
-        discoverStation().stopServiceDiscovery();
+        if (discoverStation().started()) {
+            console.log("lifecycle: stopping discovery");
+            discoverStation().stopServiceDiscovery();
+        }
 
         return null;
     });
@@ -45,7 +46,7 @@ export default function (discoverStation: () => DiscoverStation) {
             console.log("lifecycle: resume: " + args.ios);
         }
 
-        if (discoverStation().started()) {
+        if (!discoverStation().started()) {
             console.log("lifecycle: starting discovery");
             discoverStation().startServiceDiscovery();
         }

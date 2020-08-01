@@ -105,7 +105,7 @@ export default class DiscoverStation {
     _history: any;
     _networkMonitor: NetworkMonitor;
     _stations: { [index: string]: Station } = {};
-    _started: boolean;
+    _started = false;
 
     constructor(services) {
         this._services = services;
@@ -134,13 +134,18 @@ export default class DiscoverStation {
     }
 
     startServiceDiscovery() {
+        if (this._started) {
+            return Promise.resolve(true);
+        }
         this._started = true;
         this.watchFakePreconfiguredDiscoveries();
         return this._conservify.start("_fk._tcp");
     }
 
     stopServiceDiscovery() {
+        this._conservify.stop();
         this._stations = {};
+        this._started = false;
     }
 
     onFoundService(info: FoundService): Promise<any> {
