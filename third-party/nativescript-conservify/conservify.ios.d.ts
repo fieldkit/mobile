@@ -152,6 +152,7 @@ export declare class Conservify extends Common implements ActiveTasks, OtherProm
     constructor(discoveryEvents: any, logger: any);
     getTask(id: string): any;
     removeTask(id: string): void;
+    stop(): void;
     start(serviceType: string): Promise<{}>;
     writeSampleData(): Promise<string>;
     open(path: any): Promise<OpenedFile>;

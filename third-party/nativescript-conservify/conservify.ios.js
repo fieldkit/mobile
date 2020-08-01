@@ -316,6 +316,7 @@ var Conservify = (function (_super) {
     Conservify.prototype.removeTask = function (id) {
         delete this.active[id];
     };
+    Conservify.prototype.stop = function () {};
     Conservify.prototype.start = function (serviceType) {
         var _this = this;
         this.networkingListener = MyNetworkingListener.alloc().initWithPromises(this, this.logger);

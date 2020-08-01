@@ -25,6 +25,7 @@ export declare class Conservify extends Common {
     fileSystem: org.conservify.data.FileSystem;
     constructor(discoveryEvents: any, logger: any);
     start(serviceType: string): Promise<{}>;
+    stop(): void;
     writeSampleData(): Promise<string>;
     open(path: any): Promise<OpenedFile>;
     text(info: any): Promise<{}>;
