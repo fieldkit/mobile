@@ -53,6 +53,7 @@ var Conservify = (function (_super) {
         _this.active = {};
         _this.networkStatus = null;
         _this.started = null;
+        _this.stopped = null;
         _this.discoveryEvents = discoveryEvents;
         var owner = _this;
         var active = _this.active;
@@ -62,6 +63,9 @@ var Conservify = (function (_super) {
         _this.networkingListener = new org.conservify.networking.NetworkingListener({
             onStarted: function () {
                 owner.started.resolve();
+            },
+            onStopped: function () {
+                owner.stopped.resolve();
             },
             onDiscoveryFailed: function () {
                 owner.started.reject(new Error("discovery failed"));
@@ -275,7 +279,6 @@ var Conservify = (function (_super) {
     }
     Conservify.prototype.start = function (serviceType) {
         var _this = this;
-        this.logger("initialize");
         return new Promise(function (resolve, reject) {
             _this.started = {
                 resolve: resolve,
@@ -286,7 +289,15 @@ var Conservify = (function (_super) {
         });
     };
     Conservify.prototype.stop = function () {
-        this.networking.getServiceDiscovery().stop();
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.stopped = {
+                resolve: resolve,
+                reject: reject,
+            };
+            _this.logger("stopping...");
+            _this.networking.getServiceDiscovery().stop();
+        });
     };
     Conservify.prototype.writeSampleData = function () {
         var sampleData = new org.conservify.data.SampleData();

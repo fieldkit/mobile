@@ -105,6 +105,7 @@ declare class MyNetworkingListener extends NSObject implements NetworkingListene
     static alloc(): MyNetworkingListener;
     initWithPromises(promises: OtherPromises, logger: any): MyNetworkingListener;
     onStarted(): void;
+    onStopped(): void;
     onDiscoveryFailed(): void;
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;

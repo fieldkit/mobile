@@ -18,6 +18,9 @@ var MyNetworkingListener = (function (_super) {
         this.logger("onStarted");
         this.promises.getStartedPromise().resolve(null);
     };
+    MyNetworkingListener.prototype.onStopped = function () {
+        this.logger("onStopped");
+    };
     MyNetworkingListener.prototype.onDiscoveryFailed = function () {
         this.promises.getStartedPromise().reject(new Error("discovery failed"));
     };
@@ -316,9 +319,14 @@ var Conservify = (function (_super) {
     Conservify.prototype.removeTask = function (id) {
         delete this.active[id];
     };
-    Conservify.prototype.stop = function () {};
+    Conservify.prototype.stop = function () {
+        console.log("stopped (ignored, ios)");
+    };
     Conservify.prototype.start = function (serviceType) {
         var _this = this;
+        if (this.started) {
+            return Promise.resolve(true);
+        }
         this.networkingListener = MyNetworkingListener.alloc().initWithPromises(this, this.logger);
         this.uploadListener = UploadListener.alloc().initWithTasks(this, this.logger);
         this.downloadListener = DownloadListener.alloc().initWithTasks(this, this.logger);
@@ -330,13 +338,12 @@ var Conservify = (function (_super) {
         this.fsListener = MyFileSystemListener.alloc().initWithTasks(this, this.logger);
         this.fileSystem = FileSystem.alloc().initWithListener(this.fsListener);
         return new Promise(function (resolve, reject) {
-            _this.logger("initialize, ok");
             _this.started = {
                 resolve: resolve,
                 reject: reject,
             };
-            _this.networking.serviceDiscovery.startWithServiceType(serviceType);
             _this.logger("starting...");
+            _this.networking.serviceDiscovery.startWithServiceType(serviceType);
         });
     };
     Conservify.prototype.writeSampleData = function () {

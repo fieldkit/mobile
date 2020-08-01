@@ -15,6 +15,7 @@ export declare class Conservify extends Common {
     };
     scan: any;
     started: any;
+    stopped: any;
     connected: any;
     networkStatus: any;
     networkingListener: org.conservify.networking.NetworkingListener;
@@ -25,7 +26,7 @@ export declare class Conservify extends Common {
     fileSystem: org.conservify.data.FileSystem;
     constructor(discoveryEvents: any, logger: any);
     start(serviceType: string): Promise<{}>;
-    stop(): void;
+    stop(): Promise<{}>;
     writeSampleData(): Promise<string>;
     open(path: any): Promise<OpenedFile>;
     text(info: any): Promise<{}>;
