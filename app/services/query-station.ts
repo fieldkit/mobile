@@ -258,7 +258,11 @@ export default class QueryStation {
                         return new CalculatedSize(size);
                     },
                     (err) => {
-                        console.log(url, "query error", err, err ? err.stack : null);
+                        if (false) {
+                            console.log(url, "query error", err, err ? err.stack : null);
+                        } else {
+                            console.log(url, "query error", err.message);
+                        }
                         return Promise.reject(err);
                     }
                 );
@@ -276,7 +280,11 @@ export default class QueryStation {
                         return response.body;
                     },
                     (err) => {
-                        console.log(url, "query error", err, err ? err.stack : null);
+                        if (false) {
+                            console.log(url, "query error", err, err ? err.stack : null);
+                        } else {
+                            console.log(url, "query error", err.message);
+                        }
                         return Promise.reject(err);
                     }
                 );
@@ -433,7 +441,11 @@ export default class QueryStation {
                 .then(
                     (response) => response,
                     (err) => {
-                        console.log(url, "query error", err, err ? err.stack : null);
+                        if (false) {
+                            console.log(url, "query error", err, err ? err.stack : null);
+                        } else {
+                            console.log(url, "query error", err.message);
+                        }
                         return Promise.reject(err);
                     }
                 );

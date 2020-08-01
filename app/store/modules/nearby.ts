@@ -27,7 +27,7 @@ const actions = {
         return Promise.all(
             Object.values(state.stations).map((nearby) => {
                 if (nearby.old(now) || nearby.tooManyFailures()) {
-                    console.log("station inactive, losing", nearby.info.deviceId, now, nearby.activity);
+                    console.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
                     return dispatch(ActionTypes.LOST, nearby.info);
                 }
                 return {};
