@@ -37,8 +37,9 @@ const actions = {
         });
     },
     [ActionTypes.FOUND]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
-        commit(MutationTypes.FIND, info);
-        return dispatch(ActionTypes.QUERY_STATION, info);
+        return dispatch(ActionTypes.QUERY_STATION, info).then(() => {
+            commit(MutationTypes.FIND, info);
+        });
     },
     [ActionTypes.MAYBE_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
         const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
@@ -46,9 +47,7 @@ const actions = {
             return dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
         }
     },
-    [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
-        //
-    },
+    [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {},
     [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
         commit(MutationTypes.LOSE, payload);
     },
@@ -64,7 +63,7 @@ const actions = {
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
-                        console.log("throttled");
+                        console.log(error.message);
                         return error;
                     }
                     return Promise.reject(error);

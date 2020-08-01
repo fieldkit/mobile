@@ -30,6 +30,16 @@ function initializeFirebase(services): Promise<any> {
         });
 }
 
+function restartDiscovery(discoverStation): null {
+    promiseAfter(1000 * 30)
+        .then(() => discoverStation.restart())
+        .catch((err) => {
+            console.log("refresh error", err, err ? err.stack : null);
+        })
+        .finally(() => restartDiscovery(discoverStation));
+    return null;
+}
+
 function updateStore(store): null {
     promiseAfter(1000)
         .then(() => store.dispatch(ActionTypes.REFRESH))
@@ -77,6 +87,7 @@ function initializeApplication(services): Promise<any> {
                                     })
                                     .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                     .then(() => updateStore(Services.Store()))
+                                    .then(() => restartDiscovery(Services.DiscoverStation()))
                             );
                     })
                     .catch((err) => {
