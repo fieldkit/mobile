@@ -445,10 +445,20 @@ export default class PortalInterface {
             "Content-Type": contentType,
         };
         return this.getUri().then((baseUri) => {
+            const url = baseUri + "/stations/" + stationId + "/media?key=" + key;
+            console.log("uploading:", url, baseUri, stationId, key);
+
+            if (!url) {
+                throw new Error("bad url");
+            }
+            if (!path) {
+                throw new Error("bad path");
+            }
+
             return this._services
                 .Conservify()
                 .upload({
-                    url: baseUri + "/stations/" + stationId + "/media?key=" + key,
+                    url: url,
                     method: "POST",
                     path: path,
                     headers: { ...headers },
