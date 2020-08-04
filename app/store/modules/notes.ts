@@ -224,13 +224,17 @@ const actions = {
             });
     },
     [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-        return state.services
+        const notes = state.services
             .updater()
             .addOrUpdateStations()
             .catch((error) => {
                 // Don't let this error prevent authentication.
                 return {};
             });
+
+        return Promise.resolve({
+            notes: notes,
+        });
     },
 };
 

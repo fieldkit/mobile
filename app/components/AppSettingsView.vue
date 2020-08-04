@@ -29,11 +29,12 @@ import ScreenFooter from "./ScreenFooter.vue";
 
 import routes from "@/routes";
 import { Build } from "@/config";
+import Services from "@/services/services";
 
 export default Vue.extend({
     data(this: any) {
         return {
-            loggedIn: this.$portalInterface.isLoggedIn(),
+            loggedIn: Services.PortalInterface().isLoggedIn(),
             versions: Build,
         };
     },

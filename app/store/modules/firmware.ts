@@ -48,7 +48,10 @@ const actions = {
         // return dispatch(ActionTypes.FIRMWARE_REFRESH);
     },
     [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-        return dispatch(ActionTypes.FIRMWARE_REFRESH);
+        const firmware = dispatch(ActionTypes.FIRMWARE_REFRESH);
+        return Promise.resolve({
+            firmware: firmware,
+        });
     },
     [ActionTypes.FIRMWARE_REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
