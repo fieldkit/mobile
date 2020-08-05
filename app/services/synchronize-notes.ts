@@ -54,14 +54,14 @@ export default class SynchronizeNotes {
 
     private parseStampMaybe(key: string): string {
         try {
-            return getPathTimestamp(moment(key));
+            const stampLike = key.replace(/[^\d_]+/, "");
+            return getPathTimestamp(moment(stampLike));
         } catch (e) {
-            console.log(`error parsing ${key} as time:`, e);
-            return getPathTimestamp(moment());
+            throw new Error(`error parsing ${key} as time:`);
         }
     }
 
-    private makeFileNameForPortal(key: string, contentType: string): string {
+    private makeFileNameForPortalDownload(key: string, contentType: string): string {
         const ts = this.parseStampMaybe(key);
         if (/jpeg/.test(contentType) || /jpg/.test(contentType)) {
             return ts + ".jpg";
@@ -98,7 +98,7 @@ export default class SynchronizeNotes {
                     const contentType = portalByKey[key].contentType;
                     const photo = isPhoto(contentType);
                     const folder = this.fs.getFolder(getFolder(contentType));
-                    const destination = folder.getFile(this.makeFileNameForPortal(key, contentType)).path;
+                    const destination = folder.getFile(this.makeFileNameForPortalDownload(key, contentType)).path;
                     console.log("downloading portal media", destination, contentType, key);
                     return this.portal.downloadStationMedia(portalByKey[key].id, destination).then(() => {
                         if (photo) {
