@@ -45,7 +45,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any) {},
         logout(this: any) {
-            this.$portalInterface.logout();
+            Services.PortalInterface().logout();
             this.$navigateTo(routes.login, {
                 clearHistory: true,
                 props: {
