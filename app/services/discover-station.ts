@@ -151,7 +151,7 @@ export default class DiscoverStation {
     stopServiceDiscovery() {
         this._started = false;
         this._stations = {};
-        return this._conservify.stop();
+        return Promise.resolve(this._conservify.stop());
     }
 
     onFoundService(info: FoundService): Promise<any> {
