@@ -9,7 +9,7 @@ import { AuthenticationError } from "./errors";
 import Config from "../config";
 
 const SaveInterval = 10000;
-const logs = [];
+const logs: string[][] = [];
 const originalConsole = console;
 const MaximumLogSize = 1024 * 1024 * 5;
 
@@ -30,8 +30,8 @@ function getExistingLogs(file) {
 
 function flush() {
     const appending = _(logs)
-        .map(log => {
-            return _(log).join(" ") + "\n";
+        .map((log) => {
+            return scrubMessage(_(log).join(" ")) + "\n";
         })
         .join("");
 
@@ -42,7 +42,7 @@ function flush() {
         const existing = getExistingLogs(file);
         const replacing = existing + appending + "\n";
 
-        file.writeTextSync(replacing, err => {
+        file.writeTextSync(replacing, (err) => {
             if (err) {
                 reject(err);
             }
@@ -58,7 +58,7 @@ export function copyLogs(where) {
             const file = getLogsFile();
             const existing = file.readTextSync();
 
-            where.writeTextSync(existing, err => {
+            where.writeTextSync(existing, (err) => {
                 if (err) {
                     reject(err);
                 }
@@ -69,6 +69,10 @@ export function copyLogs(where) {
             resolve();
         });
     });
+}
+
+function scrubMessage(message: string): string {
+    return message.replace(/Bearer [^\s"']+/, "");
 }
 
 function wrapLoggingMethod(method) {
@@ -112,7 +116,7 @@ function wrapLoggingMethod(method) {
             // Send string only representations to Crashlytics,
             // removing time since they do that for us.
             parts.shift();
-            crashlytics.log(parts.join(" "));
+            crashlytics.log(scrubMessage(parts.join(" ")));
         } catch (e) {
             originalConsole.log(e);
         }
@@ -122,7 +126,7 @@ function wrapLoggingMethod(method) {
 function configureGlobalErrorHandling() {
     try {
         traceModule.setErrorHandler({
-            handleError(err) {
+            handlerError(err) {
                 console.log("error", err, err ? err.stack : null);
             },
         });
@@ -137,7 +141,7 @@ function configureGlobalErrorHandling() {
             }
         });
 
-        Promise.onUnhandledRejectionHandled(promise => {
+        Promise.onUnhandledRejectionHandled((promise) => {
             console.log("onUnhandledRejectionHandled");
         });
 
@@ -160,7 +164,8 @@ function configureGlobalErrorHandling() {
 
 export default function initializeLogging(info) {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
-    if (TNS_ENV === "test") {
+    const globalAny: any = global;
+    if (globalAny.TNS_ENV === "test") {
         return;
     }
 
