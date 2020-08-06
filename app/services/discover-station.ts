@@ -123,7 +123,7 @@ export default class DiscoverStation {
         services.DiscoveryEvents().add(this);
     }
 
-    started() {
+    public started() {
         return this._started;
     }
 
@@ -158,7 +158,7 @@ export default class DiscoverStation {
         return Promise.resolve(this._conservify.stop());
     }
 
-    onFoundService(info: FoundService): Promise<any> {
+    protected onFoundService(info: FoundService): Promise<any> {
         const key = this.makeKey(info);
         const station = new Station(info);
 
@@ -178,7 +178,7 @@ export default class DiscoverStation {
             .then(() => this._store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId }));
     }
 
-    onLostService(info: LostService): Promise<any> {
+    protected onLostService(info: LostService): Promise<any> {
         const key = this.makeKey(info);
 
         if (!this._stations[key]) {
@@ -211,10 +211,5 @@ export default class DiscoverStation {
 
     private makeKey(station) {
         return station.name;
-    }
-
-    // TODO Used by diagnostics services.
-    public getConnectedStations() {
-        return Promise.resolve(this._stations);
     }
 }

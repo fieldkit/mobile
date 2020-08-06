@@ -32,46 +32,26 @@ export default class Diagnostics {
         progress({ id: id, message: "Starting..." });
 
         return Promise.resolve(true)
-            .then(() => {
-                return dumpAllFiles();
-            })
-            .then(() => {
-                progress({ id: id, message: "Uploading device information." });
-                return this._uploadDeviceInformation(id);
-            })
-            .then(() => {
-                progress({ id: id, message: "Querying stations." });
-                return this._queryLogs();
-            })
-            .then((allLogs) => {
-                progress({ id: id, message: "Uploading station logs." });
-                return this._uploadAllLogs(id, allLogs);
-            })
-            .then(() => {
-                progress({ id: id, message: "Uploading app logs." });
-                return this._uploadAppLogs(id);
-            })
-            .then(() => {
-                progress({ id: id, message: "Uploading database." });
-                return this._uploadDatabase(id);
-            })
-            .then((reference) => {
-                return this._uploadArchived().then(() => {
+            .then(() => dumpAllFiles())
+            .then(() => progress({ id: id, message: "Uploading device information." }))
+            .then(() => this.uploadDeviceInformation(id))
+            .then(() => progress({ id: id, message: "Uploading app logs." }))
+            .then(() => this.uploadAppLogs(id))
+            .then(() => progress({ id: id, message: "Uploading database." }))
+            .then(() => this.uploadDatabase(id))
+            .then((reference) =>
+                this.uploadArchived().then(() => {
                     progress({ id: id, message: "Done!" });
                     console.log("diagnostics", JSON.parse(reference));
                     return {
                         reference: JSON.parse(reference),
                         id: id,
                     };
-                });
-            });
+                })
+            );
     }
 
-    _backupDatabase(folder) {
-        return Promise.resolve();
-    }
-
-    _uploadDeviceInformation(id) {
+    private uploadDeviceInformation(id) {
         const device = platform.device;
 
         const info = {
@@ -97,10 +77,9 @@ export default class Diagnostics {
         });
     }
 
-    _uploadArchived() {
-        const folder = this._getDiagnosticsFolder();
-
-        return this._getAllFiles(folder).then((files) => {
+    private uploadArchived() {
+        const folder = this.getDiagnosticsFolder();
+        return this.getAllFiles(folder).then((files) => {
             console.log("uploading", files);
             return serializePromiseChain(files, (path, index) => {
                 const relative = path.replace(folder.path, "");
@@ -111,88 +90,13 @@ export default class Diagnostics {
                         url: this.baseUrl + relative,
                         path: path,
                     })
-                    .then(() => {
-                        return File.fromPath(path).remove();
-                    });
+                    .then(() => File.fromPath(path).remove());
             });
         });
     }
 
-    save() {
-        return Promise.resolve().then(() => {
-            const folder = this._getNewFolder();
-
-            return Promise.all([
-                copyLogs(folder.getFile("app.txt")),
-                this._backupDatabase(folder),
-                this._queryLogs().then((allLogs) => {
-                    return Promise.all(
-                        allLogs.map((row) => {
-                            return Promise.all([
-                                folder.getFile(row.name + ".json").writeText(JSON.stringify(row.status)),
-                                folder.getFile(row.name + ".txt").writeText(row.logs),
-                            ]);
-                        })
-                    );
-                }),
-            ]);
-        });
-    }
-
-    _queryLogs() {
-        return this.services
-            .DiscoverStation()
-            .getConnectedStations()
-            .then((stations) => {
-                console.log("connected", stations);
-
-                if (true) {
-                    return [];
-                }
-
-                return Promise.all(
-                    Object.values(stations).map((station) => {
-                        return this._queryStationLogs(station);
-                    })
-                ).then((all) => {
-                    return _.compact(all);
-                });
-            });
-    }
-
-    _queryStationLogs(station) {
-        return this.services
-            .QueryStation()
-            .getStatus(station.url)
-            .catch((_) => {
-                return null;
-            })
-            .then((status) => {
-                return this.services
-                    .QueryStation()
-                    .queryLogs(station.url)
-                    .then((logs) => {
-                        const name = status.status.identity.deviceId;
-                        return {
-                            name: name,
-                            status: status,
-                            station: station,
-                            logs: logs,
-                        };
-                    });
-            });
-    }
-
-    _uploadAllLogs(id, allLogs) {
-        return Promise.all(
-            allLogs.map((row) => {
-                return this._uploadLogs(id, row);
-            })
-        );
-    }
-
-    _uploadAppLogs(id) {
-        const copy = this._getDiagnosticsFolder().getFile("uploading.txt");
+    private uploadAppLogs(id) {
+        const copy = this.getDiagnosticsFolder().getFile("uploading.txt");
         return copyLogs(copy).then(() => {
             return this.services
                 .Conservify()
@@ -207,30 +111,10 @@ export default class Diagnostics {
         });
     }
 
-    _uploadLogs(id, logs) {
-        return this.services
-            .Conservify()
-            .text({
-                method: "POST",
-                url: this.baseUrl + "/" + id + "/" + logs.name + ".json",
-                body: JSON.stringify(logs.status),
-            })
-            .then(() => {
-                return this.services.Conservify().text({
-                    method: "POST",
-                    url: this.baseUrl + "/" + id + "/" + logs.name + ".txt",
-                    body: logs.logs,
-                });
-            });
-    }
-
-    _uploadDatabase(id) {
+    private uploadDatabase(id) {
         console.log("getting database path");
-
-        const path = this._getDatabasePath("fieldkit.sqlite3");
-
+        const path = this.getDatabasePath("fieldkit.sqlite3");
         console.log("diagnostics", path);
-
         return this.services
             .Conservify()
             .upload({
@@ -238,12 +122,10 @@ export default class Diagnostics {
                 url: this.baseUrl + "/" + id + "/fk.db",
                 path: path,
             })
-            .then((response) => {
-                return response.body;
-            });
+            .then((response) => response.body);
     }
 
-    _getDatabasePath(name) {
+    private getDatabasePath(name) {
         try {
             if (platform.isAndroid) {
                 const context = utils.ad.getApplicationContext();
@@ -258,7 +140,7 @@ export default class Diagnostics {
         }
     }
 
-    _getAllFiles(f) {
+    private getAllFiles(f) {
         return listAllFiles(f).then((files) => {
             return _(files)
                 .filter((f) => f.depth > 0)
@@ -267,12 +149,7 @@ export default class Diagnostics {
         });
     }
 
-    _getDiagnosticsFolder() {
+    private getDiagnosticsFolder() {
         return knownFolders.documents().getFolder("diagnostics");
-    }
-
-    _getNewFolder() {
-        const id = uuidv4();
-        return this._getDiagnosticsFolder().getFolder(id);
     }
 }
