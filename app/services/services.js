@@ -93,7 +93,7 @@ export class Services {
 
     Conservify() {
         if (!this.conservify) {
-            const logger = Config.logger("NativeScriptConservify").info;
+            const logger = Config.logger("NativeScriptConservify").noop;
             const Conservify = require("../wrappers/networking").default;
             this.conservify = new Conservify(this.DiscoveryEvents(), logger);
         }

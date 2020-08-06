@@ -17,7 +17,7 @@ function get_blank_developer_config() {
         },
         developer: {
             machine: null,
-            stationFilter: url => {
+            stationFilter: (url) => {
                 return true;
             },
         },
@@ -80,11 +80,14 @@ const disabledByEnv = {
     test: { Migrations: true },
 };
 
-final.logger = name => {
+final.logger = (name) => {
     if (final.logging.EnableAll || final.logging[name]) {
         const byEnv = disabledByEnv[TNS_ENV] || [];
         if (!(byEnv[name] === true)) {
             return {
+                noop: function () {
+                    // Do nothing
+                },
                 info: function () {
                     const args = Array.from(arguments);
                     args.unshift(name);
