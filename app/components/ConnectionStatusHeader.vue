@@ -27,6 +27,6 @@ export default Vue.extend({
     color: $fk-primary-black;
     font-size: 16;
     background-color: #fddb7a;
-    height: 37;
+    height: 40;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout :rows="currentStation.connected ? (ios ? '68,*,80' : '78,*,80') : '105,*,80'">
+        <GridLayout rows="auto,*,auto">
             <StackLayout row="0">
                 <ScreenHeader
                     :title="_L('deployment')"
@@ -13,9 +13,7 @@
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
                     <StackLayout col="0" class="top-line"></StackLayout>
                 </GridLayout>
-                <StackLayout class="text-center disconnect-warning" v-if="!currentStation.connected">
-                    <Label :text="_L('stationDisconnected')" />
-                </StackLayout>
+                <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
             <ScrollView row="1">
@@ -38,7 +36,7 @@
                     </StackLayout>
 
                     <GridLayout rows="auto,auto" columns="*" class="m-t-30 m-b-20 m-x-10">
-                        <StackLayout row="0">
+                        <StackLayout row="0" class="form-row">
                             <LabeledTextField v-model="form.location" :label="_L('nameYourLocation')" @blur="checkLocationName" />
                             <Label
                                 class="validation-error"
@@ -65,7 +63,10 @@
                                 :visibility="form.v.characters ? 'visible' : 'collapsed'"
                             />
                         </StackLayout>
-                        <ScheduleEditor row="1" :schedule="form.schedule" @change="onScheduleChange" v-if="form.schedule" />
+
+                        <StackLayout row="1" class="form-row">
+                            <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" v-if="form.schedule" />
+                        </StackLayout>
                     </GridLayout>
                 </FlexboxLayout>
             </ScrollView>
@@ -74,6 +75,7 @@
                 <Button
                     class="btn btn-primary btn-padded m-b-10"
                     :text="_L('continue')"
+                    :isEnabled="currentStation.connected"
                     automationText="nextButton"
                     @tap="goToNext"
                 ></Button>
@@ -90,12 +92,14 @@ import * as ActionTypes from "../../store/actions";
 
 import LabeledTextField from "../LabeledTextField";
 import ScreenHeader from "../ScreenHeader";
+import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import * as animations from "../animations";
 
 export default Vue.extend({
     components: {
         ScreenHeader,
+        ConnectionStatusHeader,
         ScheduleEditor,
         LabeledTextField,
     },
@@ -251,24 +255,6 @@ export default Vue.extend({
     border-bottom-color: $fk-primary-blue;
 }
 
-#location-name-field {
-    color: $fk-primary-black;
-    padding-bottom: 5;
-    width: 100%;
-    font-size: 18;
-}
-#hidden-instruction {
-    color: $fk-gray-hint;
-}
-
-.inactive-line {
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 1;
-}
-.active-line {
-    border-bottom-color: $fk-secondary-blue;
-    border-bottom-width: 2;
-}
 .validation-error {
     width: 100%;
     font-size: 12;
@@ -278,7 +264,7 @@ export default Vue.extend({
     padding-top: 5;
 }
 
-#hidden-field {
-    opacity: 0;
+.form-row {
+    padding-bottom: 20;
 }
 </style>

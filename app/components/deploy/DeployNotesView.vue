@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout :rows="currentStation.connected || linkedFromStation ? '78,*,80' : '105,*,80'" automationText="deployNotesLayout">
+        <GridLayout rows="auto,*,auto">
             <StackLayout row="0" v-if="!linkedFromStation">
                 <ScreenHeader
                     :title="_L('deployment')"
@@ -14,9 +14,7 @@
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd" v-if="!editing">
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
-                <StackLayout class="text-center disconnect-warning" v-if="!currentStation.connected && !editing">
-                    <Label :text="_L('stationDisconnected')" />
-                </StackLayout>
+                <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
             <GridLayout row="0" rows="auto" columns="85*,15*" :class="editing ? '' : 'alternate-header'" v-if="linkedFromStation">
@@ -141,6 +139,7 @@ import routes from "@/routes";
 import Promise from "bluebird";
 
 import ScreenHeader from "../ScreenHeader.vue";
+import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import FieldNoteForm from "./FieldNoteForm.vue";
 import NoteDisplay from "./NoteDisplay.vue";
 
@@ -154,6 +153,7 @@ import { NoteData, NoteMedia } from "@/store/modules/notes";
 export default Vue.extend({
     components: {
         ScreenHeader,
+        ConnectionStatusHeader,
         NoteDisplay,
         FieldNoteForm,
     },

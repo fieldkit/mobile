@@ -1,6 +1,6 @@
 <template>
     <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout :rows="currentStation.connected ? '78,*,80' : '105,*,80'">
+        <GridLayout rows="auto,*,auto">
             <StackLayout row="0">
                 <ScreenHeader
                     :title="_L('deploymentReview')"
@@ -11,9 +11,7 @@
                 <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
-                <StackLayout class="text-center disconnect-warning" v-if="!currentStation.connected">
-                    <Label :text="_L('stationDisconnected')" />
-                </StackLayout>
+                <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
             <ScrollView row="1">
@@ -110,10 +108,12 @@ import * as ActionTypes from "../../store/actions";
 import * as animations from "../animations";
 
 import ScreenHeader from "../ScreenHeader";
+import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     components: {
         ScreenHeader,
+        ConnectionStatusHeader,
     },
     props: {
         stationId: {

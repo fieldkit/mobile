@@ -144,7 +144,7 @@ export default class StartupScreen extends Vue {
                 });
 				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.onboarding.network, {
+                    return this.$navigateTo(routes.deploy.notes, {
                         props: {
                             stationId: 1,
                         },
