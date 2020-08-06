@@ -49,11 +49,13 @@ class NetworkMonitor {
     }
 
     private watch() {
-        return this.services
-            .Conservify()
-            .findConnectedNetwork()
-            .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi))
-            .finally(() => Promise.delay(10000).then(() => this.watch()));
+        return Promise.delay(10000).then(() =>
+            this.services
+                .Conservify()
+                .findConnectedNetwork()
+                .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi))
+                .finally(() => this.watch())
+        );
     }
 
     protected tryFixedAddress() {
