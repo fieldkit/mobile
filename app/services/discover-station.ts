@@ -1,3 +1,4 @@
+import Promise from "bluebird";
 import { BetterObservable } from "./rx";
 import { Connectivity } from "../wrappers/connectivity";
 import { every } from "./rx";
@@ -36,22 +37,10 @@ class Station {
 }
 
 class NetworkMonitor {
-    _services: any;
-    _stations: any;
-    _store: any;
-    _timer: any;
+    private readonly store: any;
 
-    constructor(services) {
-        this._services = services;
-        this._store = services.Store();
-        this._timer = setInterval(() => {
-            return services
-                .Conservify()
-                .findConnectedNetwork()
-                .then((status) => {
-                    this._store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi);
-                });
-        }, 10000);
+    constructor(private readonly services) {
+        this.store = services.Store();
 
         Connectivity.startMonitoring((newType) => {
             try {
@@ -60,17 +49,27 @@ class NetworkMonitor {
                 console.log("NetworkMonitor error:", e);
             }
         });
+
+        this.watch();
     }
 
-    tryFixedAddress() {
+    private watch() {
+        return this.services
+            .Conservify()
+            .findConnectedNetwork()
+            .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi))
+            .finally(() => Promise.delay(1000).then(() => this.watch()));
+    }
+
+    protected tryFixedAddress() {
         const ip = "192.168.2.1";
-        this._services
+        this.services
             .QueryStation()
             .getStatus("http://" + ip + "/fk/v1")
             .then(
                 (status) => {
                     console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
-                    this._services.DiscoverStation().onFoundService({
+                    this.services.DiscoverStation().onFoundService({
                         type: "_fk._tcp",
                         name: status.identity.deviceId,
                         host: ip,
@@ -83,7 +82,7 @@ class NetworkMonitor {
             );
     }
 
-    couldBeStation(ssid) {
+    protected couldBeStation(ssid) {
         const parts = ssid.split(" ");
         if (parts.length != 3) {
             return false;
@@ -101,30 +100,29 @@ export class LostService {
 }
 
 export default class DiscoverStation {
-    _services: any;
-    _store: any;
-    _conservify: any;
-    _pending: { [index: string]: any };
-    _timer: any;
-    _history: any;
-    _networkMonitor: NetworkMonitor;
-    _stations: { [index: string]: Station } = {};
-    _started = false;
+    public readonly networkMonitor: NetworkMonitor;
+
+    private readonly services: any;
+    private readonly store: any;
+    private readonly conservify: any;
+    private readonly pending: { [index: string]: any };
+    private readonly history: any;
+    private stations: { [index: string]: Station } = {};
+    private monitoring = false;
 
     constructor(services) {
-        this._services = services;
-        this._store = services.Store();
-        this._conservify = services.Conservify();
-        this._history = new EventHistory(this._services.Database());
-        this._pending = {};
-        this._networkMonitor = new NetworkMonitor(this._services);
-        this._started = false;
+        this.services = services;
+        this.store = services.Store();
+        this.conservify = services.Conservify();
+        this.history = new EventHistory(this.services.Database());
+        this.pending = {};
+        this.networkMonitor = new NetworkMonitor(this.services);
 
         services.DiscoveryEvents().add(this);
     }
 
     public started() {
-        return this._started;
+        return this.monitoring;
     }
 
     private watchFakePreconfiguredDiscoveries() {
@@ -144,18 +142,18 @@ export default class DiscoverStation {
     }
 
     public startServiceDiscovery() {
-        if (this._started) {
+        if (this.monitoring) {
             return Promise.resolve(true);
         }
-        this._started = true;
+        this.monitoring = true;
         this.watchFakePreconfiguredDiscoveries();
-        return this._conservify.start("_fk._tcp");
+        return this.conservify.start("_fk._tcp");
     }
 
     public stopServiceDiscovery() {
-        this._started = false;
-        this._stations = {};
-        return Promise.resolve(this._conservify.stop());
+        this.monitoring = false;
+        this.stations = {};
+        return Promise.resolve(this.conservify.stop());
     }
 
     protected onFoundService(info: FoundService): Promise<any> {
@@ -164,46 +162,46 @@ export default class DiscoverStation {
 
         log.info("found service:", info.type, info.name, info.host, info.port, key);
 
-        if (this._pending[key]) {
+        if (this.pending[key]) {
             log.info("cancel pending loss");
-            this._pending[key].cancel();
-            delete this._pending[key];
+            this.pending[key].cancel();
+            delete this.pending[key];
         }
 
-        this._stations[key] = station;
+        this.stations[key] = station;
 
         // save the event in our history before we notify the rest of the application.
-        return this._history
+        return this.history
             .onFoundStation(info)
-            .then(() => this._store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId }));
+            .then(() => this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId }));
     }
 
     protected onLostService(info: LostService): Promise<any> {
         const key = this.makeKey(info);
 
-        if (!this._stations[key]) {
+        if (!this.stations[key]) {
             log.info("lose service (pending, unknown):", info.type, info.name, Config.lossBufferDelay);
         } else {
             log.info("lose service (pending):", info.type, info.name, Config.lossBufferDelay);
         }
 
-        if (this._pending[key]) {
-            this._pending[key].cancel();
-            delete this._pending[key];
+        if (this.pending[key]) {
+            this.pending[key].cancel();
+            delete this.pending[key];
         }
 
-        return this._store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name }).then(() => {
-            return (this._pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
+        return this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name }).then(() => {
+            return (this.pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
                 log.info("lose service (final):", info.type, info.name);
 
-                delete this._pending[key];
+                delete this.pending[key];
 
                 // save the event in our history before we notify the rest of the application.
-                return this._history
+                return this.history
                     .onLostStation(info)
-                    .then(() => this._store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }))
+                    .then(() => this.store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }))
                     .then(() => {
-                        delete this._stations[key];
+                        delete this.stations[key];
                     });
             }));
         });
