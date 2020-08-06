@@ -62,7 +62,7 @@ export default Vue.extend({
     data(this: any) {
         return {
             message: _L("devOptions"),
-            loggedIn: this.$portalInterface.isLoggedIn(),
+            loggedIn: Services.PortalInterface().isLoggedIn(),
             currentEnv: 0,
             environments: [
                 {
