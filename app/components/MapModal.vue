@@ -1,6 +1,12 @@
 <template>
     <StackLayout backgroundColor="white">
-        <StationsMap id="stations-modal-map" :mappedStations="mappedStations" :allowModal="false" :height="height" />
+        <StationsMap
+            id="stations-modal-map"
+            :mappedStations="mappedStations"
+            :allowModal="false"
+            :height="height"
+            @opened-details="onOpenedDetails"
+        />
     </StackLayout>
 </template>
 
@@ -25,7 +31,11 @@ export default Vue.extend({
     computed: {
         ...mapGetters({ mappedStations: "mappedStations" }),
     },
-    methods: {},
+    methods: {
+        onOpenedDetails(this: any) {
+            this.$modal.close();
+        },
+    },
 });
 </script>
 

@@ -61,12 +61,14 @@ export default Vue.extend({
         return {
             loading: true,
             unavailable: false,
+            shown: false,
             token: MAPBOX_ACCESS_TOKEN,
             hasMap: false,
         };
     },
     watch: {
         mappedStations(this: any) {
+            console.log("mappedStations:changed");
             this.showStations();
         },
     },
@@ -100,52 +102,57 @@ export default Vue.extend({
                 return;
             }
 
-            console.log("refresh map");
+            if (!this.shown) {
+                console.log("refresh map");
 
-            const center = this.mappedStations.center;
-            const markers = this.mappedStations.stations.map((station: any) => {
-                return {
-                    id: station.deviceId,
-                    lat: station.location.latitude,
-                    lng: station.location.longitude,
-                    title: station.name,
-                    subtitle: this.getDeployStatus(station),
-                    iconPath: station.connected ? "images/Icon_Map_Dot.png" : "images/Icon_Map_Dot_unconnected.png",
-                    onTap: () => this.onMarkerTap(station),
-                    onCalloutTap: () => this.onCalloutTap(station),
-                };
-            });
+                const markers = this.mappedStations.stations.map((station: any) => {
+                    return {
+                        id: station.deviceId,
+                        lat: station.location.latitude,
+                        lng: station.location.longitude,
+                        title: station.name,
+                        subtitle: this.getDeployStatus(station),
+                        iconPath: station.connected ? "images/Icon_Map_Dot.png" : "images/Icon_Map_Dot_unconnected.png",
+                        onTap: () => this.onMarkerTap(station),
+                        onCalloutTap: () => this.onCalloutTap(station),
+                    };
+                });
 
-            this.map.removeMarkers();
-            this.map.addMarkers(markers);
+                this.map.removeMarkers();
+                this.map.addMarkers(markers);
 
-            this.map.setZoomLevel({
-                level: center.zoom,
-                animated: false,
-            });
+                const center = this.mappedStations.center;
 
-            this.map.setCenter({
-                lat: center.location.latitude,
-                lng: center.location.longitude,
-                animated: false,
-            });
+                this.map.setZoomLevel({
+                    level: center.zoom,
+                    animated: false,
+                });
 
-            const min = center.bounds.min;
-            const max = center.bounds.max;
-            this.map.setViewport({
-                bounds: {
-                    north: max.latitude,
-                    east: max.longitude,
-                    south: min.latitude,
-                    west: min.longitude,
-                },
-                animated: false,
-            });
+                this.map.setCenter({
+                    lat: center.location.latitude,
+                    lng: center.location.longitude,
+                    animated: false,
+                });
+
+                const min = center.bounds.min;
+                const max = center.bounds.max;
+                this.map.setViewport({
+                    bounds: {
+                        north: max.latitude,
+                        east: max.longitude,
+                        south: min.latitude,
+                        west: min.longitude,
+                    },
+                    animated: false,
+                });
+            }
 
             this.loading = false;
             this.hasMap = true;
+            this.shown = true;
         },
         onMarkerTap(this: any, station) {
+            /*
             this.map.setCenter({
                 lat: station.location.latitude,
                 lng: station.location.longitude,
@@ -155,8 +162,10 @@ export default Vue.extend({
                 level: 14,
                 animated: false,
             });
+			*/
         },
         onCalloutTap(this: any, station) {
+            this.$emit("opened-details", station);
             return this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: station.id,
