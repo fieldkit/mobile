@@ -3,7 +3,6 @@ import { BetterObservable } from "./rx";
 import { Connectivity } from "../wrappers/connectivity";
 import { every } from "./rx";
 import { promiseAfter } from "../utilities";
-import { EventHistory } from "./event-history";
 
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
@@ -106,7 +105,6 @@ export default class DiscoverStation {
     private readonly store: any;
     private readonly conservify: any;
     private readonly pending: { [index: string]: any };
-    private readonly history: any;
     private stations: { [index: string]: Station } = {};
     private monitoring = false;
 
@@ -114,7 +112,6 @@ export default class DiscoverStation {
         this.services = services;
         this.store = services.Store();
         this.conservify = services.Conservify();
-        this.history = new EventHistory(this.services.Database());
         this.pending = {};
         this.networkMonitor = new NetworkMonitor(this.services);
 
@@ -170,10 +167,7 @@ export default class DiscoverStation {
 
         this.stations[key] = station;
 
-        // save the event in our history before we notify the rest of the application.
-        return this.history
-            .onFoundStation(info)
-            .then(() => this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId }));
+        return this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
     }
 
     protected onLostService(info: LostService): Promise<any> {
@@ -197,12 +191,9 @@ export default class DiscoverStation {
                 delete this.pending[key];
 
                 // save the event in our history before we notify the rest of the application.
-                return this.history
-                    .onLostStation(info)
-                    .then(() => this.store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }))
-                    .then(() => {
-                        delete this.stations[key];
-                    });
+                return this.store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }).then(() => {
+                    delete this.stations[key];
+                });
             }));
         });
     }
