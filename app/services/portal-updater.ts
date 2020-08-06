@@ -22,15 +22,18 @@ export default class PortalUpdater {
 
     public addOrUpdateStations() {
         return this.portal.isAvailable().then((yes) => {
-            if (!yes || !this.portal.isLoggedIn()) {
-                console.log("portal unavailable");
+            if (!yes) {
+                console.log("portal unavailable, offline?");
+                return Promise.resolve();
+            }
+
+            if (!this.portal.isLoggedIn()) {
+                console.log("portal unavailable, no token");
                 return Promise.resolve();
             }
 
             console.log("updating stations", this.store.state.stations.all.length);
-
             const allStations = this.store.state.stations.all;
-
             return serializePromiseChain(allStations, (station: Station) => this.update(station));
         });
     }

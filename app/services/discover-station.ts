@@ -53,7 +53,7 @@ class NetworkMonitor {
             .Conservify()
             .findConnectedNetwork()
             .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi))
-            .finally(() => Promise.delay(1000).then(() => this.watch()));
+            .finally(() => Promise.delay(10000).then(() => this.watch()));
     }
 
     protected tryFixedAddress() {

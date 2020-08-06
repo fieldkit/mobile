@@ -54,8 +54,9 @@ const actions = {
         const info = state.stations[payload.deviceId].info;
         commit(MutationTypes.LOSE, payload);
         if (info) {
-            return dispatch(new TryStationAction(info));
+            dispatch(new TryStationAction(info));
         }
+        return;
     },
     [ActionTypes.TRY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
         if (!payload.info) throw new Error("payload.info required");
@@ -77,7 +78,7 @@ const actions = {
                     }
                 )
         ).catch(() => {
-            console.log("station backup ended", payload.info);
+            console.log("try-station failed", payload.info);
         });
     },
     [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
@@ -114,6 +115,15 @@ const actions = {
                     return querying;
                 })
                 .map((nearby: NearbyStation) =>
+                    /*
+                    backOff(() => dispatch(ActionTypes.QUERY_STATION, nearby.info), {
+                        numOfAttempts: 1,
+                        startingDelay: 250,
+                    }).catch((error) => {
+                        console.log("query-necessary failed", nearby.info);
+                        return dispatch(ActionTypes.LOST, nearby.info);
+                    })
+					*/
                     dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
                         (reply) => nearby.success(),
                         (error) => nearby.failure()

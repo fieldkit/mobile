@@ -1,5 +1,4 @@
 <template>
-    <!-- Fix Invalid handler when these aren't provided? -->
     <GridLayout rows="auto" columns="15*,70*,15*" :class="bottomMargin || ios ? 'm-b-20' : ''">
         <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="raiseBack" v-if="canNavigateBack">
             <Image width="21" src="~/images/Icon_Backarrow.png"></Image>

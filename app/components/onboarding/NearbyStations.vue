@@ -63,7 +63,6 @@ export default Vue.extend({
             return Object.values(legacyStations)
                 .filter((station) => station.connected)
                 .map((station) => {
-                    console.log("station");
                     return {
                         id: station.id,
                         selected: station.id == this.selectedStationId,
