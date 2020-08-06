@@ -2,19 +2,21 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="*,140">
             <ScrollView :row="0">
-                <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
-                    <ScreenHeader row="0" title="Connect Station" subtitle="Add WiFi" :canNavigateSettings="false" @back="onBack" />
+                <GridLayout rows="auto,auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
+                    <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-                    <StackLayout row="1">
+                    <ScreenHeader row="1" title="Connect Station" subtitle="Add WiFi" :canNavigateSettings="false" @back="onBack" />
+
+                    <StackLayout row="2">
                         <Label :text="_L('wifiStep1')" textWrap="true" class="wifi-help" />
                         <Label :text="_L('wifiStep2')" textWrap="true" class="wifi-help" />
                     </StackLayout>
 
-                    <StackLayout row="2" class="field-container">
+                    <StackLayout row="3" class="field-container">
                         <Label text="SSID" />
                         <TextField class="text-field" v-model="form.ssid" autocorrect="false" autocapitalizationType="none" />
                     </StackLayout>
-                    <StackLayout row="3" class="field-container">
+                    <StackLayout row="4" class="field-container">
                         <Label text="Password" />
                         <TextField
                             class="text-field"
@@ -41,13 +43,16 @@ import routes from "@/routes";
 import { _T } from "@/utilities";
 import * as ActionTypes from "@/store/actions";
 import { AddStationNetworkAction } from "@/store";
-import ScreenHeader from "../ScreenHeader.vue";
 import * as utils from "tns-core-modules/utils/utils";
 import { isAndroid } from "tns-core-modules/platform";
+
+import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
+import ScreenHeader from "../ScreenHeader.vue";
 
 export default Vue.extend({
     name: "AddWifi",
     components: {
+        ConnectionStatusHeader,
         ScreenHeader,
     },
     props: {
@@ -69,7 +74,7 @@ export default Vue.extend({
             return this.$store.getters.legacyStations[this.stationId];
         },
         canAdd(this: any) {
-            return this.form.ssid.length > 0 && this.form.password.length > 0;
+            return this.currentStation.connected && this.form.ssid.length > 0 && this.form.password.length > 0;
         },
     },
     mounted() {
@@ -90,7 +95,7 @@ export default Vue.extend({
             const action = new AddStationNetworkAction(this.currentStation.deviceId, this.form.ssid, this.form.password);
             return this.$store.dispatch(action).then(
                 () => {
-                    return this.$navigateTo(routes.stations, {
+                    return this.$navigateTo(routes.onboarding.rename, {
                         props: {
                             stationId: this.stationId,
                         },

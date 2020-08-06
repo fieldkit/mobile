@@ -1,7 +1,8 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="*,140">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,140">
+            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
+            <ScrollView row="1">
                 <GridLayout rows="*" columns="*" verticalAlignment="middle">
                     <StackLayout row="0" verticalAlignment="middle">
                         <Label class="title m-t-20 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
@@ -49,7 +50,12 @@
             </ScrollView>
 
             <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('saveNewName')" @tap="rename"></Button>
+                <Button
+                    class="btn btn-primary btn-padded m-y-10"
+                    :text="_L('saveNewName')"
+                    @tap="rename"
+                    :isEnabled="currentStation.connected"
+                />
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
@@ -62,10 +68,12 @@ import routes from "../../routes";
 import { _T } from "../../utilities";
 import * as ActionTypes from "../../store/actions";
 
+import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import LabeledTextField from "../LabeledTextField";
 
 export default Vue.extend({
     components: {
+        ConnectionStatusHeader,
         LabeledTextField,
     },
     props: {
@@ -90,11 +98,7 @@ export default Vue.extend({
     },
     computed: {
         currentStation(this: any) {
-            const station = this.$store.getters.legacyStations[this.stationId];
-            if (!station) {
-                throw new Error("no station");
-            }
-            return station;
+            return this.$store.getters.legacyStations[this.stationId];
         },
     },
     methods: {

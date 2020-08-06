@@ -4,6 +4,8 @@
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
+                        <ConnectionStatusHeader :connected="currentStation.connected" />
+
                         <Label class="title m-t-20 m-b-10 text-center" :text="_L('chooseWifiSettings')" textWrap="true"></Label>
 
                         <Label class="instruction" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
@@ -62,7 +64,8 @@
             </ScrollView>
 
             <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" @tap="forward"></Button>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" @tap="forward" :isEnabled="currentStation.connected" />
+                <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
     </Page>
@@ -70,10 +73,15 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "../../routes";
-import { _T } from "../../utilities";
+import routes from "@/routes";
+import { _T } from "@/utilities";
+import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 
 export default Vue.extend({
+    name: "Network",
+    components: {
+        ConnectionStatusHeader,
+    },
     props: {
         stationId: {
             type: Number,
@@ -87,6 +95,15 @@ export default Vue.extend({
                 options: [{ selected: true }, { selected: false }],
             },
         };
+    },
+    computed: {
+        currentStation(this: any) {
+            const station = this.$store.getters.legacyStations[this.stationId];
+            if (!station) {
+                throw new Error("no station");
+            }
+            return station;
+        },
     },
     methods: {
         onPageLoaded(args) {},
@@ -114,6 +131,14 @@ export default Vue.extend({
             this.form.options[0].selected = false;
             this.form.options[1].selected = false;
             this.form.options[index].selected = true;
+        },
+        skip(this: any) {
+            console.log("forward", this.form);
+            return this.$navigateTo(routes.stations, {
+                props: {
+                    stationId: this.stationId,
+                },
+            });
         },
     },
 });

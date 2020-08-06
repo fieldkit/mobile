@@ -1,8 +1,9 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="140,*,140">
+        <GridLayout rows="140,auto,*,140">
             <GridLayout row="0" rows="auto, auto" columns="*" class="m-y-20">
                 <StackLayout row="0" verticalAlignment="middle">
+                    <ConnectionStatusHeader :connected="currentStation.connected" />
                     <Label class="title text-center" :text="currentStation.name" textWrap="true"></Label>
                 </StackLayout>
                 <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
@@ -53,11 +54,13 @@ import { _T } from "../../utilities";
 
 import { ModuleCalibration } from "@/calibration/model";
 
+import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
 
 export default Vue.extend({
     name: "Recalibrate",
     components: {
+        ConnectionStatusHeader,
         CalibratingModules,
     },
     props: {
