@@ -2,7 +2,6 @@ import _ from "lodash";
 import protobuf from "protobufjs";
 import deepmerge from "deepmerge";
 import { unixNow, promiseAfter } from "../utilities";
-import { EventHistory } from "./event-history";
 import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors";
 import { PhoneLocation } from "../store/types";
 import Config from "../config";
@@ -105,14 +104,12 @@ export function prepareReply(reply) {
 
 export default class QueryStation {
     _conservify: any;
-    _history: any;
     _openQueries: any = {};
     _lastQueries: any = {};
     _lastQueryTried: any = {};
 
     constructor(services) {
         this._conservify = services.Conservify();
-        this._history = new EventHistory(services.Database());
     }
 
     private buildLocateMessage(queryType: number, locate: PhoneLocation) {
@@ -458,11 +455,9 @@ export default class QueryStation {
             }
 
             const decoded = this._getResponseBody(response);
-            return this._history.onStationReply(decoded).then(() => {
-                return this._handlePotentialBusyReply(decoded, url, message).then((finalReply) => {
-                    log.verbose(url, "query success", finalReply);
-                    return finalReply;
-                });
+            return this._handlePotentialBusyReply(decoded, url, message).then((finalReply) => {
+                log.verbose(url, "query success", finalReply);
+                return finalReply;
             });
         });
     }

@@ -1,13 +1,9 @@
 import Promise from "bluebird";
-import { BetterObservable } from "./rx";
-import { Connectivity } from "../wrappers/connectivity";
-import { every } from "./rx";
-import { promiseAfter } from "../utilities";
-
+import { Connectivity } from "@/wrappers/connectivity";
+import { promiseAfter } from "@/utilities";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
-
-import Config from "../config";
+import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");
 
@@ -100,8 +96,6 @@ export class LostService {
 
 export default class DiscoverStation {
     public readonly networkMonitor: NetworkMonitor;
-
-    private readonly services: any;
     private readonly store: any;
     private readonly conservify: any;
     private readonly pending: { [index: string]: any };
@@ -109,27 +103,16 @@ export default class DiscoverStation {
     private monitoring = false;
 
     constructor(services) {
-        this.services = services;
         this.store = services.Store();
         this.conservify = services.Conservify();
         this.pending = {};
-        this.networkMonitor = new NetworkMonitor(this.services);
+        this.networkMonitor = new NetworkMonitor(services);
 
         services.DiscoveryEvents().add(this);
     }
 
     public started() {
         return this.monitoring;
-    }
-
-    private watchFakePreconfiguredDiscoveries() {
-        if (Config.discover && Config.discover.enabled) {
-            every(10000).on(BetterObservable.propertyChangeEvent, (data) => {
-                Config.discover.stations.forEach((fake) => {
-                    this.onFoundService(new FoundService("_fk._tcp", fake.deviceId, fake.address, fake.port));
-                });
-            });
-        }
     }
 
     public restart() {
@@ -143,7 +126,6 @@ export default class DiscoverStation {
             return Promise.resolve(true);
         }
         this.monitoring = true;
-        this.watchFakePreconfiguredDiscoveries();
         return this.conservify.start("_fk._tcp");
     }
 
@@ -190,7 +172,6 @@ export default class DiscoverStation {
 
                 delete this.pending[key];
 
-                // save the event in our history before we notify the rest of the application.
                 return this.store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }).then(() => {
                     delete this.stations[key];
                 });
