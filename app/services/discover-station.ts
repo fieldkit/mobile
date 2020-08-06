@@ -4,23 +4,24 @@ import { every } from "./rx";
 import { promiseAfter } from "../utilities";
 import { EventHistory } from "./event-history";
 
-import * as ActionTypes from "../store/actions";
-import * as MutationTypes from "../store/mutations";
+import * as ActionTypes from "@/store/actions";
+import * as MutationTypes from "@/store/mutations";
+import { TryStationAction } from "@/store/typed-actions";
 
 import Config from "../config";
 
 const log = Config.logger("DiscoverStation");
 
 class Station {
-    scheme: string = "http";
-    type: string;
-    name: string;
-    deviceId: string;
-    host: string;
-    port: number;
-    url: string;
+    public readonly scheme: string = "http";
+    public readonly type: string;
+    public readonly name: string;
+    public readonly deviceId: string;
+    public readonly host: string;
+    public readonly port: number;
+    public readonly url: string;
 
-    constructor(info) {
+    constructor(info: FoundService) {
         this.scheme = "http";
         this.type = info.type;
         this.name = info.name;
@@ -28,6 +29,10 @@ class Station {
         this.host = info.host;
         this.port = info.port;
         this.url = this.scheme + "://" + this.host + ":" + this.port + "/fk/v1";
+    }
+
+    public get found(): FoundService {
+        return new FoundService(this.type, this.name, this.host, this.port);
     }
 }
 
@@ -174,8 +179,17 @@ export default class DiscoverStation {
             .then(() => this._store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId }));
     }
 
+    private getFoundService(info: LostService): FoundService | null {
+        const key = this.makeKey(info);
+        if (!this._stations[key]) {
+            return null;
+        }
+        return this._stations[key];
+    }
+
     onLostService(info: LostService): Promise<any> {
         const key = this.makeKey(info);
+        const found = this.getFoundService(info);
 
         if (!this._stations[key]) {
             log.info("lose service (pending, unknown):", info.type, info.name, Config.lossBufferDelay);
@@ -200,6 +214,12 @@ export default class DiscoverStation {
                     .then(() => this._store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }))
                     .then(() => {
                         delete this._stations[key];
+                    })
+                    .then(() => {
+                        if (found) {
+                            return this._store.dispatch(new TryStationAction(found));
+                        }
+                        return null;
                     });
             }));
         });

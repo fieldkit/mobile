@@ -5,7 +5,9 @@ import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import { Services, ServiceRef } from "./utilities";
-import { AddStationNetworkAction } from "../typed-actions";
+import { AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
+
+import { backOff } from "exponential-backoff";
 
 export interface Schedule {
     quantity: number;
@@ -49,6 +51,21 @@ const actions = {
     [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {},
     [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
         commit(MutationTypes.LOSE, payload);
+    },
+    [ActionTypes.TRY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
+        return backOff(() => {
+            return state.services
+                .queryStation()
+                .takeReadings(payload.info, state.location)
+                .then((statusReply) => {
+                    commit(MutationTypes.FIND, payload.info);
+                    commit(MutationTypes.STATION_QUERIED, payload.info);
+                    commit(MutationTypes.STATION_ACTIVITY, payload.info);
+                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                });
+        }).catch(() => {
+            console.log("station backup ended", payload.info);
+        });
     },
     [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
         commit(MutationTypes.STATION_QUERIED, info);

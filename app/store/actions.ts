@@ -13,6 +13,7 @@ export const LOST = "LOST";
 export const QUERY_ALL = "QUERY_ALL";
 export const QUERY_NECESSARY = "QUERY_NECESSARY";
 export const QUERY_STATION = "QUERY_STATION";
+export const TRY_STATION = "TRY_STATION";
 export const STATION_REPLY = "STATION_REPLY";
 
 export const STATION_PORTAL_ERROR = "STATION_PORTAL_ERROR";
