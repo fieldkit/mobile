@@ -22,7 +22,7 @@ export default class PortalUpdater {
 
     public addOrUpdateStations() {
         return this.portal.isAvailable().then((yes) => {
-            if (!yes && this.portal.isLoggedIn()) {
+            if (!yes || !this.portal.isLoggedIn()) {
                 console.log("portal unavailable");
                 return Promise.resolve();
             }
