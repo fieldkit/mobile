@@ -1,14 +1,14 @@
 import _ from "lodash";
 import * as utils from "tns-core-modules/utils/utils";
 import * as platform from "tns-core-modules/platform";
-import { Folder, path, File, knownFolders } from "tns-core-modules/file-system";
+import { File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
-import { serializePromiseChain, getPathTimestamp } from "../utilities";
+import { serializePromiseChain } from "../utilities";
 import { listAllFiles, dumpAllFiles } from "../lib/fs";
 import Config, { Build } from "../config";
 
 function uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         var r = (Math.random() * 16) | 0,
             v = c == "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
@@ -16,6 +16,9 @@ function uuidv4() {
 }
 
 export default class Diagnostics {
+    readonly services: any;
+    readonly baseUrl: string;
+
     constructor(services) {
         this.services = services;
         this.baseUrl = "https://code.conservify.org/diagnostics";
@@ -40,7 +43,7 @@ export default class Diagnostics {
                 progress({ id: id, message: "Querying stations." });
                 return this._queryLogs();
             })
-            .then(allLogs => {
+            .then((allLogs) => {
                 progress({ id: id, message: "Uploading station logs." });
                 return this._uploadAllLogs(id, allLogs);
             })
@@ -52,7 +55,7 @@ export default class Diagnostics {
                 progress({ id: id, message: "Uploading database." });
                 return this._uploadDatabase(id);
             })
-            .then(reference => {
+            .then((reference) => {
                 return this._uploadArchived().then(() => {
                     progress({ id: id, message: "Done!" });
                     console.log("diagnostics", JSON.parse(reference));
@@ -97,7 +100,7 @@ export default class Diagnostics {
     _uploadArchived() {
         const folder = this._getDiagnosticsFolder();
 
-        return this._getAllFiles(folder).then(files => {
+        return this._getAllFiles(folder).then((files) => {
             console.log("uploading", files);
             return serializePromiseChain(files, (path, index) => {
                 const relative = path.replace(folder.path, "");
@@ -122,9 +125,9 @@ export default class Diagnostics {
             return Promise.all([
                 copyLogs(folder.getFile("app.txt")),
                 this._backupDatabase(folder),
-                this._queryLogs().then(allLogs => {
+                this._queryLogs().then((allLogs) => {
                     return Promise.all(
-                        allLogs.map(row => {
+                        allLogs.map((row) => {
                             return Promise.all([
                                 folder.getFile(row.name + ".json").writeText(JSON.stringify(row.status)),
                                 folder.getFile(row.name + ".txt").writeText(row.logs),
@@ -140,7 +143,7 @@ export default class Diagnostics {
         return this.services
             .DiscoverStation()
             .getConnectedStations()
-            .then(stations => {
+            .then((stations) => {
                 console.log("connected", stations);
 
                 if (true) {
@@ -148,10 +151,10 @@ export default class Diagnostics {
                 }
 
                 return Promise.all(
-                    Object.values(stations).map(station => {
+                    Object.values(stations).map((station) => {
                         return this._queryStationLogs(station);
                     })
-                ).then(all => {
+                ).then((all) => {
                     return _.compact(all);
                 });
             });
@@ -161,14 +164,14 @@ export default class Diagnostics {
         return this.services
             .QueryStation()
             .getStatus(station.url)
-            .catch(_ => {
+            .catch((_) => {
                 return null;
             })
-            .then(status => {
+            .then((status) => {
                 return this.services
                     .QueryStation()
                     .queryLogs(station.url)
-                    .then(logs => {
+                    .then((logs) => {
                         const name = status.status.identity.deviceId;
                         return {
                             name: name,
@@ -182,7 +185,7 @@ export default class Diagnostics {
 
     _uploadAllLogs(id, allLogs) {
         return Promise.all(
-            allLogs.map(row => {
+            allLogs.map((row) => {
                 return this._uploadLogs(id, row);
             })
         );
@@ -235,7 +238,7 @@ export default class Diagnostics {
                 url: this.baseUrl + "/" + id + "/fk.db",
                 path: path,
             })
-            .then(response => {
+            .then((response) => {
                 return response.body;
             });
     }
@@ -256,10 +259,10 @@ export default class Diagnostics {
     }
 
     _getAllFiles(f) {
-        return listAllFiles(f).then(files => {
+        return listAllFiles(f).then((files) => {
             return _(files)
-                .filter(f => f.depth > 0)
-                .map(f => f.path)
+                .filter((f) => f.depth > 0)
+                .map((f) => f.path)
                 .value();
         });
     }

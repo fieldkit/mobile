@@ -139,7 +139,7 @@ export default class DiscoverStation {
         });
     }
 
-    startServiceDiscovery() {
+    public startServiceDiscovery() {
         if (this._started) {
             return Promise.resolve(true);
         }
@@ -148,7 +148,7 @@ export default class DiscoverStation {
         return this._conservify.start("_fk._tcp");
     }
 
-    stopServiceDiscovery() {
+    public stopServiceDiscovery() {
         this._started = false;
         this._stations = {};
         return Promise.resolve(this._conservify.stop());
@@ -210,7 +210,7 @@ export default class DiscoverStation {
     }
 
     // TODO Used by diagnostics services.
-    getConnectedStations() {
+    public getConnectedStations() {
         return Promise.resolve(this._stations);
     }
 }
