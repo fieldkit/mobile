@@ -144,19 +144,26 @@ describe("Store", () => {
         });
 
         it("should query again after delay", async () => {
-            const station = mockStation.newFakeStation();
-            mockStation.queueStatusReply(station);
-            mockStation.queueStatusReply(station);
+            expect.assertions(5);
 
-            expect.assertions(3);
+            const station = mockStation.newFakeStation();
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
+            expect(mockStation.mock.calls.length).toBe(0);
+
+            mockStation.queueStatusReply(station);
             await store.dispatch(ActionTypes.FOUND, info);
+
             clock.tick(1000);
-            await store.dispatch(ActionTypes.QUERY_NECESSARY);
-            clock.tick(9005);
             expect(mockStation.mock.calls.length).toBe(1);
+
+            await store.dispatch(ActionTypes.QUERY_NECESSARY);
+
+            clock.tick(9005);
+
+            expect(mockStation.mock.calls.length).toBe(1);
+            mockStation.queueStatusReply(station);
             await store.dispatch(ActionTypes.QUERY_NECESSARY);
             expect(mockStation.mock.calls.length).toBe(2);
 

@@ -5,6 +5,7 @@
             :mappedStations="mappedStations"
             :allowModal="false"
             :height="height"
+            @toggle-modal="$modal.close"
             @opened-details="onOpenedDetails"
         />
     </StackLayout>

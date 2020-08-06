@@ -5,7 +5,7 @@
                 <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
                     <ScreenHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" :bottomMargin="false" />
 
-                    <StationsMap id="stations-map" :mappedStations="mappedStations" @open-modal="openModalMap" />
+                    <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
                     <NoStationsWannaAdd v-if="stations.length == 0" />
 

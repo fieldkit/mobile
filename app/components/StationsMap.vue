@@ -17,7 +17,7 @@
             v-if="!unavailable"
         />
         <StackLayout row="0" height="35" verticalAlignment="bottom" horizontalAlignment="right" class="toggle-container" v-if="hasMap">
-            <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="openModal" />
+            <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
         </StackLayout>
 
         <StackLayout row="0" v-if="loading" class="loading">
@@ -88,8 +88,8 @@ export default Vue.extend({
             this.map = ev.map;
             this.showStations();
         },
-        openModal(this: any) {
-            this.$emit("open-modal");
+        toggleModal(this: any) {
+            this.$emit("toggle-modal");
         },
         showStations(this: any) {
             if (!this.mappedStations) {

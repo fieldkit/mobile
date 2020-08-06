@@ -25,6 +25,8 @@ export class MockStationReplies {
         this.services = services;
         this.now = 0;
 
+        console.log("MockStationReplies::ctor");
+
         this.call = jest.fn(() => {
             console.log("TESTS: no more mocked replies");
             return Promise.reject(new Error("TESTS: no more mocked replies"));
