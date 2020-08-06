@@ -2,7 +2,7 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="*,55">
             <ScrollView row="0">
-                <StackLayout id="stations-list" class="m-y-10">
+                <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
                     <ScreenHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" :bottomMargin="false" />
 
                     <StationsMap id="stations-map" :mappedStations="mappedStations" @open-modal="openModalMap" />
@@ -11,13 +11,11 @@
 
                     <GridLayout
                         v-for="(station, index) in stations"
-                        :key="station.sortedIndex"
-                        :id="'station-' + station.id"
+                        :key="station.deviceId"
                         rows="*,*"
                         columns="85*,15*"
                         class="station-container m-y-5 m-x-15 p-10"
                         orientation="vertical"
-                        :automationText="'linkToStation' + index"
                         @tap="goToDetail($event, station)"
                     >
                         <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
@@ -27,15 +25,16 @@
                             :text="getDeployStatus(station)"
                             :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')"
                         />
-                        <Image col="1" rowSpan="2" width="20" v-if="station.connected" src="~/images/Icon_Connected.png"></Image>
-                        <Image col="1" rowSpan="2" width="20" v-if="!station.connected" src="~/images/Icon_not_Connected.png"></Image>
+                        <Image col="1" rowSpan="2" width="20" v-if="station.connected" src="~/images/Icon_Connected.png" />
+                        <Image col="1" rowSpan="2" width="20" v-if="!station.connected" src="~/images/Icon_not_Connected.png" />
                     </GridLayout>
+                    <Label text="Double tap to scan for stations." textWrap="true" class="scan-notice" v-if="!scanning" />
+                    <Label text="Scanning" textWrap="true" class="scan-notice" v-if="scanning" />
                 </StackLayout>
             </ScrollView>
             <StackLayout horizontalAlignment="right" verticalAlignment="bottom">
                 <Label text="dev" class="dev-link" @doubleTap="showDev" />
             </StackLayout>
-            <!-- footer -->
             <ScreenFooter row="1" active="stations" />
         </GridLayout>
     </Page>
@@ -49,6 +48,7 @@ import routes from "@/routes";
 import * as animations from "./animations";
 
 import { AvailableStation } from "@/store/types";
+import * as ActionTypes from "@/store/actions";
 
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
@@ -67,7 +67,9 @@ export default Vue.extend({
         ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
     },
     data() {
-        return {};
+        return {
+            scanning: false,
+        };
     },
     watch: {},
     methods: {
@@ -97,6 +99,12 @@ export default Vue.extend({
                         return this.$navigateTo(routes.developerMenu);
                     }
                 });
+        },
+        onDoubleTap(this: any) {
+            this.scanning = true;
+            return this.$store.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
+                this.scanning = false;
+            });
         },
         openModalMap(this: any, ev) {
             return this.$showModal(MapModal, {
@@ -143,5 +151,11 @@ export default Vue.extend({
 .dev-link {
     color: $fk-gray-lightest;
     padding: 10;
+}
+
+.scan-notice {
+    padding-top: 30;
+    color: #afafaf;
+    text-align: center;
 }
 </style>

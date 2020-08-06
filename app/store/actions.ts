@@ -23,6 +23,8 @@ export const AUTHENTICATED = "AUTHENTICATED";
 
 export const REFRESH = "REFRESH";
 
+export const SCAN_FOR_STATIONS = "SCAN_FOR_STATIONS";
+
 export const UPLOAD_ALL = "UPLOAD_ALL";
 export const UPLOAD_STATION = "UPLOAD_STATION";
 

@@ -25,6 +25,9 @@ export class NearbyState {
 type ActionParameters = { commit: any; dispatch: any; state: NearbyState };
 
 const actions = {
+    [ActionTypes.SCAN_FOR_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
+        return state.services.discovery().restart();
+    },
     [ActionTypes.REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
         const now = new Date();
         return Promise.all(

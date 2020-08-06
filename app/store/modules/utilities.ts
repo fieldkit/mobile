@@ -1,5 +1,6 @@
 import PortalInterface from "../../services/portal-interface";
 import PortalUpdater from "../../services/portal-updater";
+import DiscoverStation from "../../services/discover-station";
 
 export interface Services {
     Database(): any;
@@ -8,6 +9,7 @@ export interface Services {
     FileSystem(): any;
     PortalInterface(): PortalInterface;
     PortalUpdater(): PortalUpdater;
+    DiscoverStation(): DiscoverStation;
     Conservify(): any;
     StationFirmware(): any;
     Audio(): any;
@@ -41,6 +43,10 @@ export class ServiceRef {
 
     public conservify(): any {
         return this.verify().Conservify();
+    }
+
+    public discovery(): any {
+        return this.verify().DiscoverStation();
     }
 
     public audio(): any {

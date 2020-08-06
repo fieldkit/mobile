@@ -118,9 +118,7 @@ export default class DiscoverStation {
     }
 
     public restart() {
-        return this.stopServiceDiscovery().then(() => {
-            return this.startServiceDiscovery();
-        });
+        return this.stopServiceDiscovery().then(() => Promise.delay(500).then(() => this.startServiceDiscovery()));
     }
 
     public startServiceDiscovery() {
