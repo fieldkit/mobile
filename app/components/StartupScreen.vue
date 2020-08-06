@@ -84,12 +84,8 @@ function initializeApplication(services): Promise<any> {
                                 Promise.resolve()
                                     .then(() => services.DiscoverStation().startServiceDiscovery())
                                     .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
-                                    .then(() => {
-                                        // Enable geolocation and start refreshing our location.
-                                        Services.PhoneLocation().enableAndGetLocation();
-
-                                        return Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]);
-                                    })
+                                    .then(() => Services.PhoneLocation().enableAndGetLocation())
+                                    .then(() => Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]))
                                     .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                     .then(() => updateStore(Services.Store()))
                                     .then(() => restartDiscovery(Services.DiscoverStation()))
@@ -151,9 +147,14 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-				*/
                 return this.$navigateTo(routes.stations, {
                     props: {},
+                });
+				*/
+                return this.$navigateTo(routes.reader.flow, {
+                    props: {
+                        flowName: "onboarding",
+                    },
                 });
             }
 

@@ -25,6 +25,8 @@ import DeployMap from "../components/deploy/DeployMapView.vue";
 import DeployNotes from "../components/deploy/DeployNotesView.vue";
 import DeployReview from "../components/deploy/DeployReviewView.vue";
 
+import FlowView from "@/reader/FlowView";
+
 import { Route } from "./navigate";
 
 const routes = {
@@ -64,6 +66,11 @@ const routes = {
     },
     calibration: {
         start: new Route(CalibrateStart, { connected: true }),
+    },
+
+    // Reader
+    reader: {
+        flow: new Route(FlowView, {}),
     },
 };
 
