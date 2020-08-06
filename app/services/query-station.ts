@@ -380,9 +380,11 @@ export default class QueryStation {
         const stationKey = this._urlToStationKey(options.url);
         if (this._openQueries[stationKey] === true) {
             if (options.throttle) {
+                console.log(options.url, "throttle");
                 return Promise.reject(new QueryThrottledError("throttled"));
             }
             return new Promise((resolve) => {
+                console.log(options.url, "queuing station query");
                 this.queued[stationKey] = resolve;
             }).then(() => {
                 return this._trackActivity(options, factory);

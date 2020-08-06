@@ -1,5 +1,5 @@
 import * as ActionTypes from "./actions";
-import { FoundService } from "@/services/discover-station";
+import { ServiceInfo } from "@/store/types";
 
 export class AddStationNetworkAction {
     type = ActionTypes.CONFIGURE_STATION_NETWORK;
@@ -10,5 +10,5 @@ export class AddStationNetworkAction {
 export class TryStationAction {
     type = ActionTypes.TRY_STATION;
 
-    constructor(public readonly info: FoundService) {}
+    constructor(public readonly info: ServiceInfo) {}
 }

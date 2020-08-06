@@ -1,4 +1,5 @@
 import _ from "lodash";
+import Promise from "bluebird";
 import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
@@ -50,20 +51,32 @@ const actions = {
     },
     [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {},
     [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        const info = state.stations[payload.deviceId].info;
         commit(MutationTypes.LOSE, payload);
+        if (info) {
+            return dispatch(new TryStationAction(info));
+        }
     },
     [ActionTypes.TRY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
-        return backOff(() => {
-            return state.services
+        if (!payload.info) throw new Error("payload.info required");
+        return backOff(() =>
+            state.services
                 .queryStation()
-                .takeReadings(payload.info, state.location)
-                .then((statusReply) => {
-                    commit(MutationTypes.FIND, payload.info);
-                    commit(MutationTypes.STATION_QUERIED, payload.info);
-                    commit(MutationTypes.STATION_ACTIVITY, payload.info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
-                });
-        }).catch(() => {
+                .takeReadings(payload.info.url, state.location)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.FIND, payload.info);
+                        commit(MutationTypes.STATION_QUERIED, payload.info);
+                        commit(MutationTypes.STATION_ACTIVITY, payload.info);
+                        return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    },
+                    {
+                        maxDelay: 60000,
+                        numOfAttempts: 10,
+                        startingDelay: 250,
+                    }
+                )
+        ).catch(() => {
             console.log("station backup ended", payload.info);
         });
     },
@@ -80,7 +93,7 @@ const actions = {
                 (error) => {
                     if (error instanceof QueryThrottledError) {
                         console.log(error.message);
-                        return error;
+                        return Promise.resolve();
                     }
                     return Promise.reject(error);
                 }
