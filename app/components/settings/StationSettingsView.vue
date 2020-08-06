@@ -29,6 +29,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "../../routes";
+import Services from "@/services/services";
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
 
@@ -41,7 +42,7 @@ import EndDeploy from "./StationSettingsEndDeploy";
 export default Vue.extend({
     data(this: any) {
         return {
-            loggedIn: this.$portalInterface.isLoggedIn(),
+            loggedIn: Services.PortalInterface().isLoggedIn(),
             menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
         };
     },

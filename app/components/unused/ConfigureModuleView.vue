@@ -180,7 +180,7 @@ export default Vue.extend({
         onPageLoaded(this: any, args) {
             this.page = args.object;
 
-            let user = this.$portalInterface.getCurrentUser();
+            let user = Services.PortalInterface().getCurrentUser();
             this.userName = user.name;
 
             dbInterface.getModule([this.moduleId]).then((module) => {
