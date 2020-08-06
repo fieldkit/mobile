@@ -6,7 +6,7 @@
                     <ScreenHeader row="0" class="p-t-10" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
                     <StackLayout row="1" class="sync-panel-container">
                         <StackLayout v-for="sync in syncs" :key="sync.deviceId" class="station-container">
-                            <GridLayout rows="auto" columns="70*, 30*">
+                            <GridLayout rows="auto" columns="*,30">
                                 <StackLayout row="0" col="0">
                                     <Label :text="sync.name" textWrap="true" class="station-name"></Label>
                                     <Label
@@ -45,23 +45,18 @@
                                 </FlexboxLayout>
                             </GridLayout>
 
-                            <GridLayout
-                                rows="auto"
-                                columns="70*, 30*"
-                                class="transfer-container"
-                                v-if="opened(sync) && sync.isDownloadReady"
-                            >
+                            <GridLayout rows="auto" columns="*,30" class="transfer-container" v-if="opened(sync) && sync.isDownloadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
                                     <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
-                                    <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onDownload(sync)"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onDownload(sync)" />
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isDownloaded">
+                            <GridLayout rows="auto" columns="*,30" class="transfer-container" v-if="opened(sync) && sync.isDownloaded">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label
                                         :text="sync.readingsDownloaded + ' Readings'"
@@ -76,11 +71,11 @@
                                     <Label text="Downloaded" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image class="icon-button" width="20" src="~/images/Icon_Save.png"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Save.png" />
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isCopying">
+                            <GridLayout rows="auto" columns="*,auto,30" class="transfer-container" v-if="opened(sync) && sync.isCopying">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-busy">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
@@ -89,22 +84,24 @@
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" orientation="horizontal">
                                     <Label :text="sync.progress.percentage" class="transfer-progress" v-if="sync.progress" />
-                                    <Image class="icon-button" width="20" src="~/images/Icon_Syncing.png"></Image>
+                                </StackLayout>
+                                <StackLayout row="0" col="2" class="container-icon" orientation="horizontal">
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Syncing.png" />
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isUploadReady">
+                            <GridLayout rows="auto" columns="*,30" class="transfer-container" v-if="opened(sync) && sync.isUploadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
                                     <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
                                     <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
                                     <Label text="Ready to upload" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
-                                    <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onUpload(sync)"></Image>
+                                    <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onUpload(sync)" />
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.isComplete">
+                            <GridLayout rows="auto" columns="*,30" class="transfer-container" v-if="opened(sync) && sync.isComplete">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
                                     <Label
                                         :text="sync.readingsUploaded + ' Readings'"
@@ -123,7 +120,7 @@
                                 </StackLayout>
                             </GridLayout>
 
-                            <GridLayout rows="auto" columns="70*, 30*" class="transfer-container" v-if="opened(sync) && sync.hasError">
+                            <GridLayout rows="auto" columns="*" class="transfer-container" v-if="opened(sync) && sync.hasError">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-waiting">
                                     <Label
                                         text="You are logged out. Please open settings and Log In."
