@@ -31,12 +31,14 @@ function initializeFirebase(services): Promise<any> {
 }
 
 function restartDiscovery(discoverStation): null {
-    promiseAfter(1000 * 30)
-        .then(() => discoverStation.restart())
-        .catch((err) => {
-            console.log("refresh error", err, err ? err.stack : null);
-        })
-        .finally(() => restartDiscovery(discoverStation));
+    if (false) {
+        promiseAfter(1000 * 30)
+            .then(() => discoverStation.restart())
+            .catch((err) => {
+                console.log("refresh error", err, err ? err.stack : null);
+            })
+            .finally(() => restartDiscovery(discoverStation));
+    }
     return null;
 }
 
