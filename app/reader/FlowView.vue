@@ -31,7 +31,7 @@ import Vue from "vue";
 import Header from "./Header.vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
-
+import routes from "@/routes";
 import flows from "@/data/flows.json";
 
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
@@ -77,7 +77,15 @@ export default Vue.extend({
         onUnloaded(this: Self) {},
         forward(this: Self) {
             console.log("forward", this.screen.navOptions.forward);
-            return this.nav.move(this.screen.navOptions.forward);
+            return this.nav.move(this.screen.navOptions.forward).then((done) => {
+                if (done) {
+                    // TODO: pass via prop?
+                    return this.$navigateTo(routes.stations, {
+                        props: {},
+                    });
+                }
+                return false;
+            });
         },
         backward(this: Self) {
             console.log("backward", this.screen.navOptions.backward);
@@ -89,6 +97,10 @@ export default Vue.extend({
         },
         cancel(this: Self) {
             console.log("cancel");
+            // TODO: pass via prop?
+            return this.$navigateTo(routes.stations, {
+                props: {},
+            });
         },
     },
 });
