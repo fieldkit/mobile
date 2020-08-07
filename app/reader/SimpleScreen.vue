@@ -1,11 +1,15 @@
 <template>
     <StackLayout class="simple-screen">
+        <StackLayout class="headings-container">
+            <Label class="heading" v-for="(heading, index) in body.headings" :key="index" :text="heading" lineHeight="4" textWrap="true" />
+        </StackLayout>
+
         <StackLayout class="body-container">
             <Label class="body" v-for="(line, index) in body.lines" :key="index" :text="line" lineHeight="4" textWrap="true" />
         </StackLayout>
 
         <StackLayout class="items-container">
-            <Label class="body" v-for="(item, index) in body.items" :key="index" :text="item" lineHeight="4" textWrap="true" />
+            <Label class="item" v-for="(item, index) in body.items" :key="index" :text="item" lineHeight="4" textWrap="true" />
         </StackLayout>
 
         <StackLayout class="image-container" v-if="image">
@@ -52,6 +56,19 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
+.headings-container {
+    padding: 30;
+}
+.heading {
+    color: $fk-primary-black;
+    text-align: center;
+    font-size: 16;
+    margin-right: 30;
+    margin-left: 30;
+    font-weight: bold;
+    font-size: 18;
+}
+
 .body-container {
     padding: 30;
 }
@@ -66,7 +83,7 @@ export default Vue.extend({
 .items-container {
     padding: 30;
 }
-.items {
+.item {
     color: $fk-primary-black;
     text-align: left;
     font-size: 16;

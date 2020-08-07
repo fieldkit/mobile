@@ -149,15 +149,17 @@ export class FlowNavigator {
 }
 
 export class Body {
-    constructor(public readonly lines: string[], public readonly items: string[]) {}
+    constructor(public readonly headings: string[], public readonly lines: string[], public readonly items: string[]) {}
 }
 
 export function parseBody(body: string): Body {
-    const isItem = (line) => {
-        return line[0] == "#";
-    };
+    const isHeading = (line) => line[0] == "#";
+    const isItem = (line) => line[0] == "-";
+    const isSpecial = (line) => isHeading(line) || isItem(line);
+
     const raw = body.split("\n").map((line) => line.trim());
-    const lines = raw.filter((line) => !isItem(line));
+    const lines = raw.filter((line) => !isSpecial(line));
+    const headings = raw.filter((line) => isHeading(line)).map((line) => line.substr(1).trim());
     const items = raw.filter((line) => isItem(line)).map((line) => line.substr(1).trim());
-    return new Body(lines, items);
+    return new Body(headings, lines, items);
 }

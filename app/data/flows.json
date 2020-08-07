@@ -67,7 +67,7 @@
                 },
                 "simple": [
                     {
-                        "body": "No image this time. I just want you to take in the zen experience of this text.\n\nNotice that this text has more formatting options:\n\n# Considering the effort.\n# Who knows if this will work.",
+                        "body": "# Header Header\n\nNo image this time. I just want you to take in the zen experience of this text.\n\nNotice that this text has more formatting options:\n\n- Considering the effort.\n- Who knows if this will work.",
                         "images": []
                     }
                 ]
