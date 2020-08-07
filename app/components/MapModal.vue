@@ -5,7 +5,7 @@
             :mappedStations="mappedStations"
             :allowModal="false"
             :height="height"
-            @toggle-modal="$modal.close"
+            @toggle-modal="onClose"
             @opened-details="onOpenedDetails"
         />
     </StackLayout>
@@ -33,7 +33,12 @@ export default Vue.extend({
         ...mapGetters({ mappedStations: "mappedStations" }),
     },
     methods: {
+        onClose(this: any) {
+            console.log("onClose");
+            this.$modal.close();
+        },
         onOpenedDetails(this: any) {
+            console.log("onOpenedDetails");
             this.$modal.close();
         },
     },

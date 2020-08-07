@@ -89,6 +89,7 @@ export default Vue.extend({
             this.showStations();
         },
         toggleModal(this: any) {
+            console.log("toggle-modal");
             this.$emit("toggle-modal");
         },
         showStations(this: any) {
