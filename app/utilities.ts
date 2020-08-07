@@ -158,3 +158,17 @@ export function onlyAllowEvery(seconds, action, otherwise) {
         }
     };
 }
+
+export function validateStationName(name: string): { required: boolean; long: boolean; any: boolean; characters: boolean } {
+    const matches = name.match(/^[ \w\d~!@#$%^&*()-.'`]*$/);
+    const required = name.length == 0;
+    const characters = !matches || matches.length == 0;
+    const long = name.length > 40;
+    const any = required || long || characters;
+    return {
+        required: required,
+        long: long,
+        characters: characters,
+        any: any,
+    };
+}

@@ -63,9 +63,10 @@
 </template>
 
 <script lang="ts">
+import _ from "lodash";
 import Vue from "vue";
 import routes from "../../routes";
-import { _T } from "../../utilities";
+import { _T, validateStationName } from "../../utilities";
 import * as ActionTypes from "../../store/actions";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -144,11 +145,7 @@ export default Vue.extend({
             };
 
             this.form.name = this.form.name.trim();
-            this.form.v.required = this.form.name.length == 0;
-            const matches = this.form.name.match(/^[ \w~!@#$%^&*()-.']*$/);
-            this.form.v.characters = !matches || matches.length == 0;
-            this.form.v.long = this.form.name.length > 40;
-            this.form.v.any = this.form.v.required || this.form.v.long || this.form.v.characters;
+            this.form.v = _.extend(this.form.v, validateStationName(this.form.name));
             return !this.form.v.any;
         },
         clearName(this: any) {

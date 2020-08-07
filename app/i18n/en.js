@@ -237,8 +237,8 @@ module.exports = {
     stationDisconnected: "Station disconnected.",
     nameYourLocation: "Name your location",
     locationRequired: "Location is a required field.",
-    locationOver255: "Location must be less than 256 characters.",
-    locationNotPrintable: "Location must be printable.",
+    locationOver255: "Location must be less than 256 letters.",
+    locationNotPrintable: "Location has invalid letters, acceptable letters are A-Z, 0-9 and \"~!@#$%^&*()-.'`",
     continue: "Continue",
     deployment: "Deployment",
     // DeployNotesView.vue
@@ -377,7 +377,7 @@ module.exports = {
     tapStationToRecalibrate: "Tap the station you want to recalibrate:",
     // StationSettingsView.vue
     nameOver40: "Name has a 40-character maximum.",
-    nameNotPrintable: "Name must be printable.",
+    nameNotPrintable: "Name has invalid letters, acceptable letters are A-Z, 0-9 and \"~!@#$%^&*()-.'`",
     endDeployment: "End Deployment",
     mustBeConnectedToStop: "To undeploy and stop recording data, you must be connected to your station.",
     stopRecording: "Stop Recording",

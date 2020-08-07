@@ -214,9 +214,9 @@ export default Vue.extend({
             };
 
             this.form.v.required = this.form.location.length == 0;
-            const matches = this.form.location.match(/^[ \w~!@#$%^&*()-.']*$/);
-            this.form.v.characters = !matches || matches.length == 0;
             this.form.v.long = this.form.location.length > 40;
+            const matches = this.form.location.match(/^[ \w\d~!@#$%^&*()-.'`"]*$/);
+            this.form.v.characters = !matches || matches.length == 0;
             this.form.v.any = this.form.v.required || this.form.v.long || this.form.v.characters;
             return !this.form.v.any;
         },
