@@ -365,6 +365,7 @@ export class NearbyStation {
     queried: Date = new Date();
     activity: Date = new Date();
     transferring = false;
+    delay = 10000;
     failures = 0;
 
     constructor(public readonly info: ServiceInfo) {
@@ -384,11 +385,13 @@ export class NearbyStation {
 
     public success(): NearbyStation {
         this.failures = 0;
+        this.delay = 10000;
         return this;
     }
 
     public failure(): NearbyStation {
         this.failures++;
+        this.delay = 200;
         return this;
     }
 

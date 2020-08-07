@@ -62,6 +62,7 @@ const actions = {
         return;
     },
     [ActionTypes.TRY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
+        if (!payload) throw new Error("payload required");
         if (!payload.info) throw new Error("payload.info required");
         return backOff(() =>
             state.services
@@ -114,7 +115,7 @@ const actions = {
                     const mark = nearby.activity.getTime() > nearby.queried.getTime() ? nearby.activity : nearby.queried;
                     const now = new Date();
                     const elapsed = now.getTime() - mark.getTime();
-                    const querying = elapsed > 10 * 1000;
+                    const querying = elapsed > nearby.delay;
                     return querying;
                 })
                 .map((nearby: NearbyStation) =>

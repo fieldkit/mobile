@@ -145,14 +145,19 @@ describe("Store", () => {
 
         it("should query skip previously queried", async () => {
             const station = mockStation.newFakeStation();
-            mockStation.queueStatusReply(station);
 
-            expect.assertions(1);
+            expect.assertions(3);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
+            expect(mockStation.mock.calls.length).toBe(0);
+
+            mockStation.queueStatusReply(station);
             await store.dispatch(ActionTypes.FOUND, info);
+
+            expect(mockStation.mock.calls.length).toBe(1);
             clock.tick(1005);
+
             await store.dispatch(ActionTypes.QUERY_NECESSARY);
             expect(mockStation.mock.calls.length).toBe(1);
         });
