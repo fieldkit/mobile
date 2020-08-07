@@ -320,6 +320,9 @@ const actions = {
         commit(MutationTypes.STATIONS, stations);
     },
     [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply) => {
+        if ((statusReply?.errors?.length || 0) > 0) {
+            return Promise.reject(new Error(`station error reply`));
+        }
         return state.services
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply))

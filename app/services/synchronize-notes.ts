@@ -170,14 +170,13 @@ export default class SynchronizeNotes {
                 console.log("media-ids", mediaIds);
 
                 if (portalExisting[key]) {
-                    const portalUpdatedAt = new Date(portalExisting[key].updatedAt);
                     const localEmpty = value.body.length == 0;
 
-                    console.log("comparing", key, localEmpty, portalUpdatedAt, mobileNotes.updatedAt);
-                    console.log("portal", portalUpdatedAt);
+                    console.log("comparing", key, localEmpty);
+                    console.log("portal", portalExisting[key].updatedAt);
                     console.log("mobile", mobileNotes.updatedAt);
 
-                    const remoteTime = moment(portalUpdatedAt);
+                    const remoteTime = moment(portalExisting[key].updatedAt);
                     const localTime = moment(mobileNotes.updatedAt);
 
                     console.log("times", remoteTime, localTime);
