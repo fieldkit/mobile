@@ -30,17 +30,17 @@
                         />
                     </GridLayout>
                 </StackLayout>
-                <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal"></Button>
+                <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
-                <Button class="btn btn-primary btn-padded" :text="'Onboarding'" @tap="goOnboarding"></Button>
-                <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding"></Button>
-                <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics"></Button>
+                <Button class="btn btn-primary btn-padded" :text="'Onboarding'" @tap="goOnboarding" />
+                <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" />
+                <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
 
-                <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB"></Button>
-                <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
+                <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
 
-                <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash"></Button>
-                <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash"></Button>
+                <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
+                <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -67,6 +67,7 @@ import DiagnosticsModal from "./DiagnosticsModal.vue";
 export default Vue.extend({
     data(this: any) {
         return {
+            syncing: false,
             message: _L("devOptions"),
             loggedIn: Services.PortalInterface().isLoggedIn(),
             currentEnv: 0,
@@ -117,6 +118,7 @@ export default Vue.extend({
                 });
         },
         syncPortal(this: any) {
+            this.syncing = true;
             return Services.PortalUpdater()
                 .addOrUpdateStations()
                 .then(() => {
@@ -125,6 +127,9 @@ export default Vue.extend({
                         message: "Done",
                         okButtonText: _L("ok"),
                     });
+                })
+                .finally(() => {
+                    this.syncing = false;
                 });
         },
         viewStations(this: any) {
