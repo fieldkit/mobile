@@ -170,11 +170,21 @@ export default class SynchronizeNotes {
                 console.log("media-ids", mediaIds);
 
                 if (portalExisting[key]) {
-                    const localEmpty = value.body.length == 0;
+                    const localBody = value.body;
+                    const remoteBody = portalExisting[key].body;
+                    const localEmpty = localBody.length == 0;
 
                     console.log("comparing", key, localEmpty);
                     console.log("portal", portalExisting[key].updatedAt);
                     console.log("mobile", mobileNotes.updatedAt);
+
+                    if (localBody == remoteBody) {
+                        console.log("identical");
+                        return {
+                            creating: null,
+                            updating: null,
+                        };
+                    }
 
                     const remoteTime = moment(portalExisting[key].updatedAt);
                     const localTime = moment(mobileNotes.updatedAt);
