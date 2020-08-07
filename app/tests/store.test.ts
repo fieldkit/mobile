@@ -8,6 +8,8 @@ import * as MutationTypes from "../store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
 import { PhoneLocation, CommonLocations } from "../store/types";
 
+import { nearby } from "@/store/modules/nearby";
+
 describe("Store", () => {
     let services;
     let mockStation;
@@ -22,6 +24,18 @@ describe("Store", () => {
         mockStation = new MockStationReplies(services);
         await services.CreateDb().initialize();
         store = services.Store();
+
+        store.hotUpdate({
+            modules: {
+                nearby: {
+                    actions: _.extend(nearby.actions, {
+                        [ActionTypes.TRY_STATION]: () => {
+                            return Promise.resolve();
+                        },
+                    }),
+                },
+            },
+        });
 
         store.commit(MutationTypes.SERVICES, () => services);
     });
