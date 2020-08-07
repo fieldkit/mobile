@@ -77,7 +77,12 @@ function customizeLogger() {
                 return false;
             }
             if (action.type == ActionTypes.STATION_REPLY) {
-                console.log("action:", action.type, action.payload.status.identity.device);
+                const device = action.payload?.status?.identity?.device;
+                if (!device) {
+                    console.log("action:", action.type, action);
+                } else {
+                    console.log("action:", action.type);
+                }
                 return false;
             }
             if (action.type == ActionTypes.STATIONS_LOADED) {
