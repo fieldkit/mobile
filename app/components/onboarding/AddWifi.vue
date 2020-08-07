@@ -30,7 +30,12 @@
             </ScrollView>
 
             <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" :isEnabled="canAdd" @tap="addNetwork"></Button>
+                <Button
+                    class="btn btn-primary btn-padded m-y-10"
+                    :text="_L('next')"
+                    :isEnabled="canAdd && !busy"
+                    @tap="addNetwork"
+                ></Button>
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
@@ -63,6 +68,7 @@ export default Vue.extend({
     },
     data() {
         return {
+            busy: false,
             form: {
                 ssid: "",
                 password: "",
@@ -92,6 +98,8 @@ export default Vue.extend({
 			*/
         },
         addNetwork(this: any) {
+            this.busy = true;
+
             const action = new AddStationNetworkAction(this.currentStation.deviceId, this.form.ssid, this.form.password);
             return this.$store.dispatch(action).then(
                 () => {
@@ -102,7 +110,7 @@ export default Vue.extend({
                     });
                 },
                 () => {
-                    //
+                    this.busy = false;
                 }
             );
         },

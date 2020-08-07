@@ -54,7 +54,7 @@
                     class="btn btn-primary btn-padded m-y-10"
                     :text="_L('saveNewName')"
                     @tap="rename"
-                    :isEnabled="currentStation.connected"
+                    :isEnabled="currentStation.connected && !busy"
                 />
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
@@ -85,6 +85,7 @@ export default Vue.extend({
     data() {
         return {
             error: false,
+            busy: false,
             form: {
                 name: "",
                 v: {
@@ -110,6 +111,8 @@ export default Vue.extend({
                 return;
             }
 
+            this.busy = true;
+
             if (this.form.name != this.currentStation.name) {
                 console.log("rename", this.form.name, this.currentStation.name);
                 return this.$store
@@ -122,6 +125,7 @@ export default Vue.extend({
                         });
                     })
                     .catch((error) => {
+                        this.busy = false;
                         this.error = true;
                     });
             }
