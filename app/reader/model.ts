@@ -13,6 +13,8 @@ export interface Header {
 export interface Screen {
     name: string;
     locale: string;
+    forward: string;
+    skip: string | null;
     header: Header;
     simple: SimpleScreen[];
 }
@@ -21,11 +23,13 @@ export interface Flow {
     id: string;
     name: string;
     show_progress: boolean;
-    screens: Screen[];
 }
 
 export interface FlowFile {
-    data: { flows: Flow[] };
+    data: {
+        flows: Flow[];
+        screens: Screen[];
+    };
 }
 
 export class NavigationOption {
@@ -53,6 +57,14 @@ export class NavigationOptions {
 export class VisibleScreen {
     constructor(public readonly screen: Screen, public readonly navOptions: NavigationOptions) {}
 
+    public get forward(): string {
+        return this.screen.forward;
+    }
+
+    public get skip(): string | null {
+        return this.screen.skip;
+    }
+
     public get header(): Header {
         return this.screen.header;
     }
@@ -62,8 +74,13 @@ export class VisibleScreen {
     }
 }
 
+function screenOrder(screen: Screen): number {
+    return Number(screen.name.replace(/[a-z\.]+/, ""));
+}
+
 export class FlowNavigator {
     public readonly flow: Flow;
+    private screens: Screen[];
     private visible: VisibleScreen;
     private index = 0;
 
@@ -73,6 +90,10 @@ export class FlowNavigator {
             throw new Error(`no flow: ${name}`);
         }
         this.flow = byKey[name];
+        this.screens = data.data.screens.filter((screen) => screen.name.indexOf(name) == 0);
+        this.screens.sort((a, b) => {
+            return screenOrder(a) - screenOrder(b);
+        });
         this.visible = this.createVisibleScreen();
     }
 
@@ -87,10 +108,6 @@ export class FlowNavigator {
     private recreate(): Promise<any> {
         this.visible = this.createVisibleScreen();
         return Promise.resolve(false);
-    }
-
-    public get screens(): Screen[] {
-        return this.flow.screens;
     }
 
     public get progress(): number {

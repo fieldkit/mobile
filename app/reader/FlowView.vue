@@ -15,7 +15,12 @@
                 <SimpleScreen :screen="screen.simple[0]" v-if="screen.simple.length >= 1" />
             </StackLayout>
             <StackLayout row="2" class="m-x-10">
-                <Button class="btn btn-primary btn-padded" @tap="forward" text="Next" :isEnabled="screen.navOptions.forward.allowed" />
+                <Button
+                    class="btn btn-primary btn-padded"
+                    @tap="forward"
+                    :text="screen.forward"
+                    :isEnabled="screen.navOptions.forward.allowed"
+                />
             </StackLayout>
         </GridLayout>
     </Page>

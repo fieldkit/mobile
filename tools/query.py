@@ -16,14 +16,17 @@ def main():
                 id
                 name
                 show_progress
-                screens {
-                    name
-                    locale
-                    header { title subtitle }
-                    simple {
-                        body
-                        images { url }
-                    }
+            }
+            screens {
+                id
+                name
+                locale
+                forward
+                skip
+                header { title subtitle }
+                simple {
+                    body
+                    images { url }
                 }
             }
         }
@@ -37,16 +40,16 @@ def main():
     r = requests.post(url + "/graphql", data=data)
     flows = r.json()
 
-    for flow in flows["data"]["flows"]:
-        for screen in flow["screens"]:
-            for simple in screen["simple"]:
-                for image in simple["images"]:
-                    relativeUrl = image["url"]
-                    logging.info(relativeUrl)
-                    imageUrl = url + relativeUrl
-                    r = requests.get(imageUrl, allow_redirects=True)
-                    with open("app/images/reader/" + relativeUrl, "wb") as file:
-                        file.write(r.content)
+    print(flows)
+    for screen in flows["data"]["screens"]:
+        for simple in screen["simple"]:
+            for image in simple["images"]:
+                relativeUrl = image["url"]
+                logging.info(relativeUrl)
+                imageUrl = url + relativeUrl
+                r = requests.get(imageUrl, allow_redirects=True)
+                with open("app/images/reader/" + relativeUrl, "wb") as file:
+                    file.write(r.content)
 
     with open("app/data/flows.json", "w") as file:
         file.write(json.dumps(flows))
