@@ -52,7 +52,7 @@ def main():
                     file.write(r.content)
 
     with open("app/data/flows.json", "w") as file:
-        file.write(json.dumps(flows))
+        file.write(json.dumps(flows, indent=4, separators=(",", ": ")))
 
 
 if __name__ == "__main__":
