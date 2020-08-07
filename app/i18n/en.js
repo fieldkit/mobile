@@ -274,7 +274,7 @@ module.exports = {
     longitude: "Longitude",
     noNameGiven: "No name given",
     record: "Record",
-    mustBeConnectedToRecord: "Must be connected to station to start recording",
+    mustBeConnectedToRecord: "Station not Connected",
     deploymentReview: "Deployment Review",
     processing: "Processing...",
     // FieldNoteForm.vue

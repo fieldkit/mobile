@@ -224,7 +224,7 @@ const actions = {
             });
     },
     [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-        const notes = state.services
+        const syncing = state.services
             .updater()
             .addOrUpdateStations()
             .catch((error) => {
@@ -233,7 +233,7 @@ const actions = {
             });
 
         return Promise.resolve({
-            notes: notes,
+            syncing: syncing,
         });
     },
 };

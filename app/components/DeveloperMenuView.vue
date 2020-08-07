@@ -30,11 +30,15 @@
                         />
                     </GridLayout>
                 </StackLayout>
+                <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal"></Button>
+
                 <Button class="btn btn-primary btn-padded" :text="'Onboarding'" @tap="goOnboarding"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics"></Button>
+
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles"></Button>
+
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash"></Button>
                 <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash"></Button>
             </FlexboxLayout>
@@ -112,6 +116,17 @@ export default Vue.extend({
                     });
                 });
         },
+        syncPortal(this: any) {
+            return Services.PortalUpdater()
+                .addOrUpdateStations()
+                .then(() => {
+                    return alert({
+                        title: _L("devOptions"),
+                        message: "Done",
+                        okButtonText: _L("ok"),
+                    });
+                });
+        },
         viewStations(this: any) {
             this.$navigateTo(routes.stations);
         },
@@ -136,9 +151,7 @@ export default Vue.extend({
             };
             return Services.Database()
                 .updateConfigUris(params)
-                .then(() => {
-                    return Services.PortalInterface().logout();
-                });
+                .then(() => Services.PortalInterface().logout());
         },
         goOnboarding(this: any) {
             return this.$navigateTo(routes.onboarding.assembleStation);

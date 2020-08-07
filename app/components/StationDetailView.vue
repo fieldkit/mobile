@@ -19,7 +19,6 @@
                                     order="2"
                                     rows="auto"
                                     columns="10*,55*,35*"
-                                    v-if="isDeployed"
                                     class="m-t-5 m-b-10 m-x-10 p-10 bordered-container"
                                     @tap="goToFieldNotes"
                                 >
