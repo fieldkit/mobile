@@ -65,18 +65,24 @@ export default class SynchronizeNotes {
         }
     }
 
+    // Used when we're downlaoding to make the file name, this can be deprecated eventually.
     private makeFileNameForPortalDownload(key: string, contentType: string): string {
         const ts = this.parseStampMaybe(key);
-        if (/jpeg/.test(contentType) || /jpg/.test(contentType)) {
-            return ts + ".jpg";
-        }
-        if (/png/.test(contentType)) {
-            return ts + ".png";
-        }
-        if (/gif/.test(contentType)) {
-            return ts + ".gif";
-        }
+        if (/jpeg/.test(contentType) || /jpg/.test(contentType)) return ts + ".jpg";
+        if (/png/.test(contentType)) return ts + ".png";
+        if (/gif/.test(contentType)) return ts + ".gif";
+        if (/caf/.test(contentType)) return ts + ".caf";
+        if (/mp4a/.test(contentType)) return ts + ".m4a";
         throw new Error(`unexpected contentType: ${contentType}`);
+    }
+
+    // Used when uploading to the server.
+    private getContentType(path: string): string {
+        if (/\.jpg$/.test(path)) return "image/jpeg";
+        if (/\.caf$/.test(path)) return "audio/x-caf";
+        if (/\.m4a$/.test(path)) return "video/mp4";
+        // NOTE Server will reject this.
+        return "application/octet-stream";
     }
 
     private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
@@ -130,7 +136,7 @@ export default class SynchronizeNotes {
                 return [localByKey[key].path, portalByKey[key].id];
             }
             const path = localByKey[key].path;
-            const contentType = "application/octet-stream";
+            const contentType = this.getContentType(path);
             return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((response) => {
                 if (response.status != 200) {
                     return Promise.reject(new Error("error uploading media"));
@@ -166,8 +172,10 @@ export default class SynchronizeNotes {
                 if (portalExisting[key]) {
                     const portalUpdatedAt = new Date(portalExisting[key].updatedAt);
                     const localEmpty = value.body.length == 0;
-                    console.log("comparing", key, localEmpty, portalUpdatedAt, mobileNotes.updatedAt);
-                    if (localEmpty || portalUpdatedAt > mobileNotes.updatedAt) {
+                    console.log("comparing", key, localEmpty);
+                    console.log("portal", portalUpdatedAt, portalUpdatedAt.getTime());
+                    console.log("mobile", mobileNotes.updatedAt, mobileNotes.updatedAt.getTime());
+                    if (localEmpty || portalUpdatedAt.getTime() > mobileNotes.updatedAt.getTime()) {
                         console.log("portal wins", key);
                         this.store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: key, update: portalExisting[key] });
                         return {
