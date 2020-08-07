@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onLoaded" @unloaded="onUnloaded">
+    <Page class="page" actionBarHidden="true">
         <GridLayout rows="auto,*,auto">
             <StackLayout row="0">
                 <Header
@@ -21,6 +21,7 @@
                     :text="screen.forward"
                     :isEnabled="screen.navOptions.forward.allowed"
                 />
+                <Label :text="screen.skip" class="skip" @tap="skip" textWrap="true" v-if="screen.skip" />
             </StackLayout>
         </GridLayout>
     </Page>
@@ -68,6 +69,7 @@ export default Vue.extend({
     },
     mounted(this: Self) {
         this.timer = new Timer(1000, () => {});
+        console.log("flows", flows);
     },
     destroyed(this: Self) {
         this.timer.stop();
@@ -84,10 +86,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onLoaded(this: Self) {
-            console.log("flows", flows);
-        },
-        onUnloaded(this: Self) {},
         forward(this: Self) {
             console.log("forward", this.screen.name, this.screen.navOptions.forward);
             return this.nav.move(this.screen.navOptions.forward).then((done) => {

@@ -125,6 +125,9 @@ export class FlowNavigator {
             case NavigationOption.Done: {
                 return Promise.resolve(true);
             }
+            case NavigationOption.Skip: {
+                return Promise.resolve(true);
+            }
             case NavigationOption.Forward: {
                 if (this.index == this.screens.length - 1) throw new Error("invalid nav forward");
                 this.index++;
@@ -137,7 +140,7 @@ export class FlowNavigator {
             }
         }
 
-        throw new Error(`invalid navigation: Nope`);
+        throw new Error(`invalid navigation: ${JSON.stringify(option)}`);
     }
 
     public get screen(): VisibleScreen {

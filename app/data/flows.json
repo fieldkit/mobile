@@ -59,8 +59,8 @@
                 "id": "3",
                 "name": "onboarding.3",
                 "locale": "en_US",
-                "forward": "Done",
-                "skip": null,
+                "forward": "Next",
+                "skip": "Skip",
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Set Up"
@@ -76,8 +76,8 @@
                 "id": "4",
                 "name": "onboarding.4",
                 "locale": "en_US",
-                "forward": "Next",
-                "skip": "Skip",
+                "forward": "Done",
+                "skip": "",
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Set Up"
