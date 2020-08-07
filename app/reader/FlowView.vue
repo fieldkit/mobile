@@ -104,7 +104,12 @@ export default Vue.extend({
         },
         skip(this: Self) {
             console.log("skip", this.screen.name);
-            return this.nav.move(NavigationOption.Skip);
+            return this.nav.move(NavigationOption.Skip).then(() => {
+                // TODO: pass via prop?
+                return this.$navigateTo(routes.stations, {
+                    props: {},
+                });
+            });
         },
         cancel(this: Self) {
             console.log("cancel", this.screen.name);
