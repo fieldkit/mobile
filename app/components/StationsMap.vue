@@ -16,7 +16,14 @@
             @mapReady="onMapReady"
             v-if="!unavailable"
         />
-        <StackLayout row="0" height="35" verticalAlignment="bottom" horizontalAlignment="right" class="toggle-container" v-if="hasMap">
+        <StackLayout
+            row="0"
+            height="35"
+            verticalAlignment="bottom"
+            horizontalAlignment="right"
+            class="toggle-container"
+            v-if="hasMap && !isIOS"
+        >
             <Image width="35" src="~/images/Icon_Expand_Map.png" @tap="toggleModal" />
         </StackLayout>
 
@@ -34,6 +41,7 @@ import Vue from "vue";
 import Promise from "bluebird";
 import routes from "@/routes";
 import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
+import { isIOS } from "tns-core-modules/platform";
 
 import { AvailableStation } from "@/store/types";
 
@@ -59,6 +67,7 @@ export default Vue.extend({
     },
     data() {
         return {
+            isIOS: isIOS,
             loading: true,
             unavailable: false,
             shown: false,
