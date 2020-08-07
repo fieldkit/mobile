@@ -36,6 +36,7 @@
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles"></Button>
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash"></Button>
+                <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash"></Button>
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -44,6 +45,7 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
+import Firebase from "nativescript-plugin-firebase";
 import { crashlytics } from "nativescript-plugin-firebase";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import { knownFolders } from "tns-core-modules/file-system";
@@ -226,7 +228,16 @@ export default Vue.extend({
                 });
         },
         crash(this: any) {
+            console.log("send crash");
             crashlytics.crash();
+        },
+        manualCrash(this: any) {
+            console.log("send manual crash");
+            const globalAny: any = global;
+            crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
+            Firebase.analytics.logEvent({
+                key: "app_crash_manual",
+            });
         },
     },
 });

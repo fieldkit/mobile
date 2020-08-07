@@ -3,6 +3,7 @@ import moment from "moment";
 import Promise from "bluebird";
 import { knownFolders } from "tns-core-modules/file-system";
 import * as traceModule from "tns-core-modules/trace";
+import Firebase from "nativescript-plugin-firebase";
 import { crashlytics } from "nativescript-plugin-firebase";
 import Vue from "nativescript-vue";
 import { AuthenticationError } from "./errors";
@@ -79,6 +80,7 @@ function wrapLoggingMethod(method) {
     const original = console[method];
     console[method] = function () {
         try {
+            const errors: Error[] = [];
             const args = Array.prototype.slice.apply(arguments);
             const time = getPrettyTime();
 
@@ -99,7 +101,11 @@ function wrapLoggingMethod(method) {
             const parts = [time];
             for (let i = 0; i < args.length; i++) {
                 const arg = args[i];
-                if (typeof arg === "string") {
+                if (arg instanceof Error) {
+                    parts.push(arg.message);
+                    if (arg.stack) parts.push(arg.stack);
+                    errors.push(arg);
+                } else if (typeof arg === "string") {
                     parts.push(arg.trim());
                 } else {
                     try {
@@ -117,6 +123,10 @@ function wrapLoggingMethod(method) {
             // removing time since they do that for us.
             parts.shift();
             crashlytics.log(scrubMessage(parts.join(" ")));
+
+            errors.forEach((error) => {
+                // crashlytics.error(error);
+            });
         } catch (e) {
             originalConsole.log(e);
         }
@@ -127,6 +137,9 @@ function configureGlobalErrorHandling() {
     try {
         traceModule.setErrorHandler({
             handlerError(err) {
+                Firebase.analytics.logEvent({
+                    key: "app_error",
+                });
                 console.log("error", err, err ? err.stack : null);
             },
         });
@@ -148,9 +161,11 @@ function configureGlobalErrorHandling() {
         // err: error trace
         // vm: component in which error occured
         // info: Vue specific error information such as lifecycle hooks, events etc.
+        /*
         Vue.config.errorHandler = (err, vm, info) => {
             console.log("vuejs error:", err, err ? err.stack : null);
         };
+		*/
 
         Vue.config.warnHandler = (msg, vm, info) => {
             console.log("vuejs warning:", msg);

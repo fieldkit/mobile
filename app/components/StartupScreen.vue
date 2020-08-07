@@ -4,6 +4,7 @@
 
 <script lang="ts">
 import Firebase from "nativescript-plugin-firebase";
+import { crashlytics } from "nativescript-plugin-firebase";
 import { Component, Vue } from "vue-property-decorator";
 
 import registerLifecycleEvents from "@/services/lifecycle";
@@ -21,6 +22,8 @@ function initializeFirebase(services): Promise<any> {
         crashlyticsCollectionEnabled: true,
     })
         .then((response) => {
+            const globalAny: any = global;
+            crashlytics.setString("env", globalAny.TNS_ENV);
             console.log("firebase initialized", response);
             return Promise.resolve(true);
         })
