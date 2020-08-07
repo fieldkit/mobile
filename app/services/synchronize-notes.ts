@@ -54,10 +54,14 @@ export default class SynchronizeNotes {
 
     private parseStampMaybe(key: string): string {
         try {
-            const stampLike = key.replace(/[^\d_]+/, "");
-            return getPathTimestamp(moment(stampLike));
+            const stampLike = key.split(".")[0];
+            const stamp = moment(stampLike, "YYYYMMDD_hhmmss");
+            if (!stamp.isValid()) {
+                throw new Error(`error parsing '${key}' / '${stampLike}' as time`);
+            }
+            return getPathTimestamp(stamp);
         } catch (e) {
-            throw new Error(`error parsing ${key} as time:`);
+            throw new Error(`error parsing '${key}' as time: ${e}`);
         }
     }
 
