@@ -172,10 +172,17 @@ export default class SynchronizeNotes {
                 if (portalExisting[key]) {
                     const portalUpdatedAt = new Date(portalExisting[key].updatedAt);
                     const localEmpty = value.body.length == 0;
-                    console.log("comparing", key, localEmpty);
+
+                    console.log("comparing", key, localEmpty, portalUpdatedAt, mobileNotes.updatedAt);
                     console.log("portal", portalUpdatedAt, portalUpdatedAt.getTime());
                     console.log("mobile", mobileNotes.updatedAt, mobileNotes.updatedAt.getTime());
-                    if (localEmpty || portalUpdatedAt.getTime() > mobileNotes.updatedAt.getTime()) {
+
+                    const remoteTime = moment(portalUpdatedAt);
+                    const localTime = moment(mobileNotes.updatedAt);
+
+                    console.log("times", remoteTime, localTime);
+
+                    if (localEmpty || remoteTime.isAfter(localTime)) {
                         console.log("portal wins", key);
                         this.store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: key, update: portalExisting[key] });
                         return {
