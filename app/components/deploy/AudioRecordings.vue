@@ -17,7 +17,7 @@
                 v-if="playing == r"
                 @tap="(ev) => stopPlaying(ev, r)"
             />
-            <Label col="1" :text="getFileName(r)" :data="getFileName(r)" textWrap="true" @tap="playAudio" />
+            <Label col="1" :text="getFileName(r)" :data="getFileName(r)" textWrap="true" @tap="(ev) => playAudio(ev, r)" />
             <Image col="2" width="20" class="small-round" src="~/images/Icon_Delete.png" @tap="(ev) => removeRecording(ev, r)" />
         </GridLayout>
     </StackLayout>
