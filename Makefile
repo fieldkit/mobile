@@ -14,6 +14,7 @@ setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 	$(ANDROID)/sdkmanager --verbose "emulator"
 	echo | $(ANDROID)/avdmanager create avd --force -n test -k "system-images;android-26;google_apis;x86"
 	touch .setup-completed
+	pip3 install requests
 
 refresh-data:
 	tools/query.py
