@@ -90,6 +90,7 @@
 import Vue from "vue";
 import { getLastSeen, convertBytesToLabel } from "../utilities";
 import { AnimationCurve } from "tns-core-modules/ui/enums";
+import { Timer } from "@/common/timer";
 
 export default Vue.extend({
     name: "StationStatusBox",
@@ -99,7 +100,16 @@ export default Vue.extend({
             syncing: false,
             dataSyncingIcon: "~/images/Icon_Syncing_blue.png",
             dataSyncMessage: "",
+            now: new Date(),
         };
+    },
+    mounted(this: any) {
+        this.timer = new Timer(1000, (counter) => {
+            this.now = new Date();
+        });
+    },
+    destroyed(this: any) {
+        this.timer.stop();
     },
     computed: {
         displayConsumedMemory(this: any) {
@@ -110,7 +120,7 @@ export default Vue.extend({
         },
         recording(this: any) {
             if (this.station.deployStartTime) {
-                const now = new Date();
+                const now = this.now;
                 const elapsed = (now.getTime() - this.station.deployStartTime.getTime()) / 1000;
                 const seconds = Math.floor(elapsed % 60);
                 const minutes = Math.floor((elapsed / 60) % 60);
