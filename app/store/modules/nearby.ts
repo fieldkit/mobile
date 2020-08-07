@@ -54,7 +54,7 @@ const actions = {
     },
     [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {},
     [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
-        const info = state.stations[payload.deviceId].info;
+        const info = state.stations[payload.deviceId]?.info || null;
         commit(MutationTypes.LOSE, payload);
         if (info) {
             dispatch(new TryStationAction(info));
