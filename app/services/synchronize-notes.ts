@@ -174,8 +174,8 @@ export default class SynchronizeNotes {
                     const localEmpty = value.body.length == 0;
 
                     console.log("comparing", key, localEmpty, portalUpdatedAt, mobileNotes.updatedAt);
-                    console.log("portal", portalUpdatedAt, portalUpdatedAt.getTime());
-                    console.log("mobile", mobileNotes.updatedAt, mobileNotes.updatedAt.getTime());
+                    console.log("portal", portalUpdatedAt);
+                    console.log("mobile", mobileNotes.updatedAt);
 
                     const remoteTime = moment(portalUpdatedAt);
                     const localTime = moment(mobileNotes.updatedAt);
