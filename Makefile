@@ -15,6 +15,9 @@ setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 	echo | $(ANDROID)/avdmanager create avd --force -n test -k "system-images;android-26;google_apis;x86"
 	touch .setup-completed
 
+refresh-data:
+	tools/query.py
+
 update:
 	$(ANDROID)/sdkmanager --update --verbose
 
@@ -37,7 +40,7 @@ jenkins: setup
 	cd $(APP) && npm install
 	cd $(APP) && npm test
 
-android-release: setup
+android-release: setup refresh-data
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
@@ -50,7 +53,7 @@ android-release: setup
 clean-secrets:
 	rm -rf $(APP)/app/secrets.ts
 
-ios-release: setup
+ios-release: setup refresh-data
 	security list-keychains
 	security lock-keychain login.keychain
 	security unlock-keychain -p $(APP_IOS_KEYCHAIN_PASSWORD) login.keychain
@@ -75,10 +78,10 @@ android-logs:
 android-logs-verbose:
 	adb logcat | grep -i " JS"
 
-android-debug: setup
+android-debug: setup refresh-data
 	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
 
-ios-debug: setup
+ios-debug: setup refresh-data
 	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue
 
 clean:
