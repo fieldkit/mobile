@@ -57,6 +57,10 @@ export class NavigationOptions {
 export class VisibleScreen {
     constructor(public readonly screen: Screen, public readonly navOptions: NavigationOptions) {}
 
+    public get name(): string {
+        return this.screen.name;
+    }
+
     public get forward(): string {
         return this.screen.forward;
     }

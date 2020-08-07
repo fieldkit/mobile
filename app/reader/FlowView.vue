@@ -12,7 +12,7 @@
                 <FlowProgress :progress="progress" />
             </StackLayout>
             <StackLayout row="1">
-                <SimpleScreen :screen="screen.simple[0]" v-if="screen.simple.length >= 1" />
+                <SimpleScreen :screen="screen.simple[0]" v-if="screen.simple.length >= 1" :frame="frame" />
             </StackLayout>
             <StackLayout row="2" class="m-x-10">
                 <Button
@@ -34,6 +34,8 @@ import SimpleScreen from "./SimpleScreen.vue";
 import routes from "@/routes";
 import flows from "@/data/flows.json";
 
+import { Timer } from "@/common/timer";
+
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 
 // asdf;
@@ -42,6 +44,7 @@ interface Self extends Vue {
     flowName: string;
     nav: FlowNavigator;
     screen: VisibleScreen;
+    timer: Timer;
 }
 
 export default Vue.extend({
@@ -60,9 +63,19 @@ export default Vue.extend({
     data(this: Self) {
         return {
             nav: new FlowNavigator(flows, this.flowName),
+            timer: null,
         };
     },
+    mounted(this: Self) {
+        this.timer = new Timer(1000, () => {});
+    },
+    destroyed(this: Self) {
+        this.timer.stop();
+    },
     computed: {
+        frame(this: Self): number {
+            return this.timer?.counter || 0;
+        },
         screen(this: Self): VisibleScreen {
             return this.nav.screen;
         },
@@ -76,7 +89,7 @@ export default Vue.extend({
         },
         onUnloaded(this: Self) {},
         forward(this: Self) {
-            console.log("forward", this.screen.navOptions.forward);
+            console.log("forward", this.screen.name, this.screen.navOptions.forward);
             return this.nav.move(this.screen.navOptions.forward).then((done) => {
                 if (done) {
                     // TODO: pass via prop?
@@ -88,15 +101,15 @@ export default Vue.extend({
             });
         },
         backward(this: Self) {
-            console.log("backward", this.screen.navOptions.backward);
+            console.log("backward", this.screen.name, this.screen.navOptions.backward);
             return this.nav.move(this.screen.navOptions.backward);
         },
         skip(this: Self) {
-            console.log("skip");
+            console.log("skip", this.screen.name);
             return this.nav.move(NavigationOption.Skip);
         },
         cancel(this: Self) {
-            console.log("cancel");
+            console.log("cancel", this.screen.name);
             // TODO: pass via prop?
             return this.$navigateTo(routes.stations, {
                 props: {},
