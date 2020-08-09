@@ -36,6 +36,8 @@
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" />
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
 
+                <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
+
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
 
@@ -130,6 +132,21 @@ export default Vue.extend({
                 })
                 .finally(() => {
                     this.syncing = false;
+                });
+        },
+        forgetUploads(this: any) {
+            return Services.Database()
+                .forgetUploads()
+                .then(() => {
+                    return Services.Store()
+                        .dispatch(ActionTypes.LOAD)
+                        .then(() => {
+                            return alert({
+                                title: _L("devOptions"),
+                                message: "Done",
+                                okButtonText: _L("ok"),
+                            });
+                        });
                 });
         },
         viewStations(this: any) {

@@ -533,6 +533,15 @@ export default class DatabaseInterface {
         );
     }
 
+    public forgetUploads() {
+        return this.getDatabase()
+            .then((db) => db.query("UPDATE streams SET portal_size = NULL, portal_first_block = NULL, portal_last_block = NULL"))
+            .then(() => this.getDatabase())
+            .then((db) => db.query("SELECT * FROM streams"))
+            .then((rows) => sqliteToJs(rows))
+            .then((rows) => console.log(rows));
+    }
+
     private _updateStream(db, streamId, stream) {
         const updates: Promise<any>[] = [];
 
