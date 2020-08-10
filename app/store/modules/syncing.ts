@@ -240,8 +240,22 @@ export class StationSyncStatus {
         return _.sum(this.uploads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
     }
 
-    public get readingsReady(): number {
-        return this.readingsIncoming || this.readingsOutgoing;
+    public get readingsCopying(): number {
+        if (this.isDownloading) {
+            return this.readingsReadyDownload;
+        }
+        if (this.isUploading) {
+            return this.readingsReadyUpload;
+        }
+        return 0;
+    }
+
+    public get readingsReadyUpload(): number {
+        return _.sum(this.uploads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
+    }
+
+    public get readingsReadyDownload(): number {
+        return _.sum(this.downloads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
     }
 
     public getPathsToUpload(): string[] {
@@ -420,8 +434,13 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
                 return a.fileType < b.fileType ? -1 : 1;
             });
 
-        const downloaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
-        const uploaded = _.sum(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
+        const downloaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
+        const uploaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
+
+        console.log("syncing", "uploads", uploads);
+        console.log("syncing", "downloads", downloads);
+        console.log("syncing", "downloaded", downloaded);
+        console.log("syncing", "uploaded", uploaded);
 
         return new StationSyncStatus(
             station.id,

@@ -47,8 +47,16 @@
 
                             <GridLayout rows="auto" columns="*,30" class="transfer-container" v-if="opened(sync) && sync.isDownloadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
-                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
+                                    <Label
+                                        :text="sync.readingsReadyDownload + ' Readings'"
+                                        class="readings-label"
+                                        v-if="sync.readingsReadyDownload > 1"
+                                    />
+                                    <Label
+                                        :text="sync.readingsReadyDownload + ' Reading'"
+                                        class="readings-label"
+                                        v-if="sync.readingsReadyDownload == 1"
+                                    />
                                     <Label text="Ready to download from station" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon" v-if="sync.connected">
@@ -77,8 +85,16 @@
 
                             <GridLayout rows="auto" columns="*,auto,30" class="transfer-container" v-if="opened(sync) && sync.isCopying">
                                 <StackLayout row="0" col="0" class="transfer-pending transfer-busy">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
-                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
+                                    <Label
+                                        :text="sync.readingsCopying + ' Readings'"
+                                        class="readings-label"
+                                        v-if="sync.readingsCopying > 1"
+                                    />
+                                    <Label
+                                        :text="sync.readingsCopying + ' Reading'"
+                                        class="readings-label"
+                                        v-if="sync.readingsCopying == 1"
+                                    />
                                     <Label text="Downloading" class="transfer-label" v-if="sync.isDownloading" />
                                     <Label text="Uploading" class="transfer-label" v-if="sync.isUploading" />
                                 </StackLayout>
@@ -92,8 +108,16 @@
 
                             <GridLayout rows="auto" columns="*,30" class="transfer-container" v-if="opened(sync) && sync.isUploadReady">
                                 <StackLayout row="0" col="0" class="transfer-details transfer-ready">
-                                    <Label :text="sync.readingsReady + ' Readings'" class="readings-label" v-if="sync.readingsReady > 1" />
-                                    <Label :text="sync.readingsReady + ' Reading'" class="readings-label" v-if="sync.readingsReady == 1" />
+                                    <Label
+                                        :text="sync.readingsReadyUpload + ' Readings'"
+                                        class="readings-label"
+                                        v-if="sync.readingsReadyUpload > 1"
+                                    />
+                                    <Label
+                                        :text="sync.readingsReadyUpload + ' Reading'"
+                                        class="readings-label"
+                                        v-if="sync.readingsReadyUpload == 1"
+                                    />
                                     <Label text="Ready to upload" class="transfer-label" />
                                 </StackLayout>
                                 <StackLayout row="0" col="1" class="container-icon">
