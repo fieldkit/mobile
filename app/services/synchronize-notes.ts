@@ -79,10 +79,16 @@ export default class SynchronizeNotes {
 
     private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
         const allPortalMedia = [...portalNotes.media, ..._.flatten(portalNotes.notes.map((n) => n.media))];
-        const portalByKey = _.keyBy(allPortalMedia, (m) => m.key);
+        const portalByKey = _.keyBy(
+            allPortalMedia.filter((m) => m.key),
+            (m) => m.key
+        );
 
         const allLocalMedia = mobileNotes.allMedia();
-        const localByKey = _.keyBy(allLocalMedia, (m) => m.key);
+        const localByKey = _.keyBy(
+            allLocalMedia.filter((m) => m.key),
+            (m) => m.key
+        );
 
         const allKeys = _.union(_.flatten([Object.keys(localByKey), Object.keys(portalByKey)]));
 
