@@ -57,7 +57,7 @@
                             <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
                             <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
                             <WrapLayout orientation="horizontal">
-                                <StackLayout v-for="(photo, index) in notes.photos" :key="photo.path" class="photo-display">
+                                <StackLayout v-for="(photo, index) in photos" :key="photo.path" class="photo-display">
                                     <StackLayout v-if="photoCache[photo.path]">
                                         <Image :src="photoCache[photo.path]" stretch="aspectFit" />
                                     </StackLayout>
@@ -134,6 +134,7 @@
 </template>
 
 <script lang="ts">
+import _ from "lodash";
 import Vue from "vue";
 import routes from "@/routes";
 import Promise from "bluebird";
@@ -165,6 +166,9 @@ export default Vue.extend({
     computed: {
         notes(this: any) {
             return this.$store.state.notes.stations[this.stationId];
+        },
+        photos(this: any): NoteMedia[] {
+            return _.uniqBy(this.notes.photos, (m) => m.path);
         },
         currentStation(this: any) {
             return this.$store.getters.legacyStations[this.stationId];

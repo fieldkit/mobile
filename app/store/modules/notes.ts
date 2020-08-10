@@ -11,7 +11,7 @@ export interface NoteUpdate {
 }
 
 export class NoteMedia {
-    constructor(public readonly path: string) {}
+    constructor(public readonly path: string, public readonly key: string | null = null) {}
 
     public static except(media: NoteMedia[], removing: NoteMedia): NoteMedia[] {
         return media.filter((m) => m.path !== removing.path);
@@ -150,26 +150,26 @@ export class Notes {
 
     public attachAudio(key: string | null, audio: NoteMedia): Notes {
         if (!key) {
-            const newAudio = [...this.photos, audio];
+            const newAudio = _.uniqBy([...this.photos, audio], (m) => m.path);
             return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, this.photos, newAudio);
         }
 
         const newNotes = { ...this.notes };
         const old = this.notes[key] || new NoteData();
-        const newAudio = [...old.audio, audio];
+        const newAudio = _.uniqBy([...old.audio, audio], (m) => m.path);
         newNotes[key] = new NoteData(old.body, old.photos, newAudio);
         return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
     }
 
     public attachPhoto(key: string | null, photo: NoteMedia): Notes {
         if (!key) {
-            const newPhoto = [...this.photos, photo];
-            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, newPhoto, this.audio);
+            const newPhotos = _.uniqBy([...this.photos, photo], (m) => m.path);
+            return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, newPhotos, this.audio);
         }
 
         const newNotes = { ...this.notes };
         const old = this.notes[key] || new NoteData();
-        const newPhotos = [...old.photos, photo];
+        const newPhotos = _.uniqBy([...old.photos, photo], (m) => m.path);
         newNotes[key] = new NoteData(old.body, newPhotos, old.audio);
         return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, newNotes, this.photos, this.audio);
     }
@@ -264,7 +264,7 @@ const mutations = {
     },
     [MutationTypes.ATTACH_NOTE_MEDIA]: (
         state: NotesState,
-        payload: { stationId: number; key: string | null; audio: NoteMedia; photo: NoteMedia }
+        payload: { stationId: number; key: string | null; audio: NoteMedia | null; photo: NoteMedia | null }
     ) => {
         if (!state.stations[payload.stationId]) {
             state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
