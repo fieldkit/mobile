@@ -58,7 +58,9 @@ export default Vue.extend({
         visual(this: any) {
             const common = Common();
             console.log("common", common, this.moduleKey);
-            return common[this.moduleKey];
+            const visual = common[this.moduleKey];
+            if (!visual) throw new Error(`missing common module visual: ${this.moduleKey}`);
+            return visual;
         },
     },
     methods: {

@@ -43,10 +43,8 @@ export default Vue.extend({
     computed: {
         module(this: any) {
             const station = this.$store.getters.stationsById[this.stationId];
-            const module = station.modules[this.position];
-            if (!module) {
-                throw new Error("unable to find module");
-            }
+            const module = station.modules.find((m) => m.position === this.position);
+            if (!module) throw new Error("unable to find module");
             console.log("station-module", module.name);
             return module;
         },
