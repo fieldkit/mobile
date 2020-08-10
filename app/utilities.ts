@@ -172,3 +172,11 @@ export function validateStationName(name: string): { required: boolean; long: bo
         any: any,
     };
 }
+
+export function getFileName(path: string): string {
+    const name = _.last(path.split("/"));
+    if (!name) {
+        throw new Error(`error getting file name: ${path}`);
+    }
+    return name;
+}

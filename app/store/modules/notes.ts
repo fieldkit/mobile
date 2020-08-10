@@ -11,7 +11,7 @@ export interface NoteUpdate {
 }
 
 export class NoteMedia {
-    constructor(public readonly path: string, public readonly key: string | null = null) {}
+    constructor(public readonly path: string, public readonly key: string) {}
 
     public static except(media: NoteMedia[], removing: NoteMedia): NoteMedia[] {
         return media.filter((m) => m.path !== removing.path);

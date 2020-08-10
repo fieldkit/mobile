@@ -44,14 +44,6 @@ export default class SynchronizeNotes {
         return this.portal.updateStationNotes(ids.portal, patch);
     }
 
-    private getFileName(path: string): string {
-        const name = _.last(path.split("/"));
-        if (!name) {
-            throw new Error(`error getting file name: ${path}`);
-        }
-        return name;
-    }
-
     private parseStampMaybe(key: string): string {
         try {
             const stampLike = key.split(".")[0];
@@ -90,7 +82,7 @@ export default class SynchronizeNotes {
         const portalByKey = _.keyBy(allPortalMedia, (m) => m.key);
 
         const allLocalMedia = mobileNotes.allMedia();
-        const localByKey = _.keyBy(allLocalMedia, (m) => this.getFileName(m.path));
+        const localByKey = _.keyBy(allLocalMedia, (m) => m.key);
 
         const allKeys = _.union(_.flatten([Object.keys(localByKey), Object.keys(portalByKey)]));
 

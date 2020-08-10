@@ -137,6 +137,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import routes from "@/routes";
+import { getFileName } from "@/utilities";
 import Promise from "bluebird";
 
 import ScreenHeader from "../ScreenHeader.vue";
@@ -242,7 +243,7 @@ export default Vue.extend({
                     this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
                         stationId: this.stationId,
                         key: null,
-                        photo: new NoteMedia(savedImage.path),
+                        photo: new NoteMedia(savedImage.path, getFileName(savedImage.path)),
                     });
                     return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
@@ -255,7 +256,7 @@ export default Vue.extend({
                     this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
                         stationId: this.stationId,
                         key: null,
-                        photo: new NoteMedia(savedImage.path),
+                        photo: new NoteMedia(savedImage.path, getFileName(savedImage.path)),
                     });
                     return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
