@@ -303,7 +303,7 @@ export default class PortalInterface {
         }
 
         const requestBody = {
-            refresh_token: token.refresh_token,
+            refreshToken: token.refresh_token,
         };
 
         console.log("refreshing token", requestBody);
