@@ -1,72 +1,54 @@
 <template>
     <StackLayout verticalAlignment="top" class="schedule-editor">
-        <Label :text="_L('dataCaptureSchedule')" class="size-12 header" />
-        <GridLayout rows="auto" columns="*,*" class="simple-interval-container">
-            <StackLayout row="0" col="0">
-                <TextField
-                    :text="form.quantity"
-                    :class="fieldClass"
-                    verticalAligment="bottom"
-                    keyboardType="number"
-                    autocorrect="false"
-                    autocapitalizationType="none"
-                    @focus="onFocus"
-                    @textChange="onQuantityChange"
-                    @blur="onBlur"
-                />
-                <Label
-                    v-if="errors.quantity.required"
-                    class="validation-error"
-                    horizontalAlignment="left"
-                    :text="_L('intervalRequired')"
-                    textWrap="true"
-                />
-                <Label
-                    v-if="errors.quantity.numeric"
-                    class="validation-error"
-                    horizontalAlignment="left"
-                    :text="_L('intervalNotNumber')"
-                    textWrap="true"
-                />
+        <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
+        <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
+
+        <GridLayout rows="auto" columns="*,*" class="schedule-options">
+            <StackLayout column="0" class="option" @tap="(ev) => changeScheduleType(ev, 0)" v-bind:class="{ selected: isSimple }">
+                <Label text="Simple" />
             </StackLayout>
-            <StackLayout row="0" col="1">
-                <DropDown
-                    :items="items"
-                    :selectedIndex="indexOf(form.duration)"
-                    class="p-l-5 p-b-2 size-18 drop-down"
-                    @selectedIndexChanged="onDurationChange"
-                />
+            <StackLayout column="1" class="option" @tap="(ev) => changeScheduleType(ev, 1)" v-bind:class="{ selected: isComplex }">
+                <Label text="Complex" />
             </StackLayout>
         </GridLayout>
+
+        <StackLayout class="simple-schedule-container" v-if="isSimple">
+            <IntervalEditor :interval="schedule.intervals[0]" :fullDay="true" @change="(interval) => onChangeInterval(0, interval)" />
+        </StackLayout>
+
+        <StackLayout class="complex-schedule-container" v-if="isComplex">
+            <StackLayout v-for="(interval, index) in schedule.intervals" :key="index" class="interval-container">
+                <IntervalEditor :interval="interval" @change="(interval) => onChangeInterval(index, interval)" />
+                <StackLayout @tap="(ev) => removeInterval(interval)" class="remove-interval" v-if="canRemove">
+                    <Label text="Remove" />
+                </StackLayout>
+            </StackLayout>
+            <StackLayout @tap="addInterval" class="add-interval">
+                <Label text="Add Time" />
+            </StackLayout>
+        </StackLayout>
     </StackLayout>
 </template>
 
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { ValueList } from "nativescript-drop-down";
+import IntervalEditor, { Interval } from "./IntervalEditor.vue";
+
+export interface Schedule {
+    intervals: Interval[];
+}
+
+interface Self {
+    scheduleType: number;
+    schedule: Schedule;
+    $emit: (name, value) => {};
+}
 
 export default Vue.extend({
-    data() {
-        const durations = [
-            { display: "Minutes", value: 60, duration: 60 },
-            { display: "Hours", value: 60 * 60, duration: 60 * 60 },
-        ];
-        return {
-            focus: false,
-            durations: durations,
-            items: new ValueList(durations),
-            form: {
-                quantity: "1",
-                duration: 60,
-            },
-            errors: {
-                quantity: {
-                    required: false,
-                    numberic: false,
-                },
-            },
-        };
+    name: "ScheduleEditor",
+    components: {
+        IntervalEditor,
     },
     props: {
         schedule: {
@@ -74,76 +56,46 @@ export default Vue.extend({
             required: true,
         },
     },
+    data() {
+        return {
+            scheduleType: 0,
+        };
+    },
     computed: {
-        fieldClass(this: any) {
-            return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
+        isSimple(this: Self) {
+            return this.scheduleType == 0;
+        },
+        isComplex(this: Self) {
+            return this.scheduleType == 1;
+        },
+        canRemove(this: Self) {
+            return this.schedule.intervals.length > 1;
         },
     },
-    mounted(this: any) {
-        console.log("mounted!", this.schedule);
-        return this.updateForm(this.schedule);
+    mounted(this: Self) {
+        console.log("schedule:editor mounted", this.schedule);
     },
     methods: {
-        updateForm(this: any, schedule) {
-            console.log("updateForm", schedule);
-            const minutes = schedule.interval / 60;
-            if (minutes >= 60) {
-                this.form.duration = 3600;
-            }
-            this.form.quantity = String(Math.ceil(schedule.interval / this.form.duration));
-            console.log("updated", this.form);
+        changeScheduleType(this: Self, ev: any, scheduleType: number) {
+            this.scheduleType = scheduleType;
         },
-        onChange(this: any, ev) {
-            console.log("onChange", this.form.quantity, this.form.duration, this.form);
-
-            this.errors.quantity.numeric = false;
-            this.errors.quantity.required = false;
-
-            if (!this.form.quantity || this.form.quantity.length == 0) {
-                this.errors.quantity.required = true;
-                return;
-            }
-
-            const numeric = Number(this.form.quantity);
-            if (isNaN(numeric)) {
-                this.errors.quantity.numeric = true;
-                return;
-            }
-
-            const interval = numeric * this.form.duration;
-            const schedule = {
-                duration: this.form.duration,
-                quantity: numeric,
-                interval: interval,
-            };
-            console.log("schedule-change", schedule);
-            this.$emit("change", schedule);
+        addInterval(this: Self) {
+            const newSchedule = _.clone(this.schedule);
+            newSchedule.intervals.push(new Interval(0, 86400, 60));
+            console.log("add-interval", JSON.stringify(newSchedule));
+            this.$emit("change", newSchedule);
         },
-        onFocus(this: any) {
-            this.focus = true;
+        removeInterval(this: Self, interval: Interval) {
+            const newSchedule = _.clone(this.schedule);
+            newSchedule.intervals = _.without(newSchedule.intervals, interval);
+            console.log("remove-interval", JSON.stringify(newSchedule));
+            this.$emit("change", newSchedule);
         },
-        onBlur(this: any) {
-            this.focus = false;
-            this.onQuantityChange(true);
-        },
-        onQuantityChange(this: any, ev, fireChange: boolean) {
-            // value is undefined for onBlur
-            if (ev && ev.value) {
-                this.form.quantity = ev.value;
-                return this.onChange(fireChange);
-            }
-        },
-        onDurationChange(this: any, ev, ...args) {
-            this.form.duration = this.durations[ev.newIndex].duration;
-            return this.onChange(true);
-        },
-        indexOf(this: any, duration: number) {
-            for (let v of this.durations) {
-                if (v.duration === duration) {
-                    return this.durations.indexOf(v);
-                }
-            }
-            return 0;
+        onChangeInterval(this: Self, index: number, interval: Interval) {
+            const newSchedule = _.clone(this.schedule);
+            newSchedule.intervals[index] = interval;
+            console.log("change-interval", JSON.stringify(newSchedule));
+            this.$emit("change", newSchedule);
         },
     },
 });
@@ -154,8 +106,6 @@ export default Vue.extend({
 
 .schedule-editor {
 }
-.simple-interval-container {
-}
 .validation-error {
     margin-right: 20;
     font-size: 12;
@@ -165,12 +115,35 @@ export default Vue.extend({
 .header {
     color: $fk-gray-hint;
 }
-.inactive-line {
-    border-bottom-color: $fk-gray-lighter;
-    border-bottom-width: 1;
+.subtitle {
+    margin-top: 5;
+    margin-bottom: 5;
 }
-.active-line {
-    border-bottom-color: $fk-secondary-blue;
-    border-bottom-width: 2;
+
+.schedule-options {
+    margin: 10;
+}
+.schedule-options .option {
+    text-align: center;
+    padding: 10;
+    border-radius: 10;
+}
+.schedule-options .option.selected {
+    background: #000;
+    color: #fff;
+}
+
+.remove-interval {
+    padding: 10;
+    /* background: #ee00ee; */
+}
+.add-interval {
+    padding: 10;
+    /* background: #af0000; */
+}
+.interval-container {
+    padding-bottom: 10;
+    border-bottom-color: $fk-primary-black;
+    border-bottom-width: 1;
 }
 </style>

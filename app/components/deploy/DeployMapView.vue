@@ -35,7 +35,7 @@
                         />
                     </StackLayout>
 
-                    <GridLayout rows="auto,auto" columns="*" class="m-t-30 m-b-20 m-x-10">
+                    <GridLayout rows="auto,auto" columns="*" class="m-t-30 m-b-20 m-x-10 form-container">
                         <StackLayout row="0" class="form-row">
                             <LabeledTextField v-model="form.location" :label="_L('nameYourLocation')" @blur="checkLocationName" />
                             <Label
@@ -139,7 +139,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             this.form.location = this.currentNotes.location || "";
-            this.form.schedule = { interval: this.currentStation.interval };
+            this.form.schedule = { intervals: [{ interval: this.currentStation.interval, start: 0, end: 86400 }] };
             console.log("initialized", this.form.schedule);
         },
         onMapReady(this: any, args) {
@@ -221,7 +221,7 @@ export default Vue.extend({
             return !this.form.v.any;
         },
         onScheduleChange(this: any, schedule) {
-            console.log("schedule", schedule);
+            console.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
         saveForm(this: any) {
@@ -266,5 +266,9 @@ export default Vue.extend({
 
 .form-row {
     padding-bottom: 20;
+}
+
+.form-container {
+    padding: 10;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <StackLayout>
-        <Label row="0" :text="label" class="size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" ref="label" width="100%" />
+        <Label :text="label" class="size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" ref="label" width="100%" />
         <TextField
             row="1"
             :class="fieldClass"
