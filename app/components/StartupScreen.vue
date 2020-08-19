@@ -146,7 +146,6 @@ export default class StartupScreen extends Vue {
                         flowName: "onboarding",
                     },
                 });
-				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
                     return this.$navigateTo(routes.deploy.start, {
                         props: {
@@ -156,6 +155,7 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+				*/
             }
 
             console.log("first navigate");

@@ -51,7 +51,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ValueList } from "nativescript-drop-down";
-import TimeField from "./TimeField.vue";
+import TimeField from "./TimeFieldModalPicker.vue";
 
 export class IntervalForm {
     constructor(
@@ -124,22 +124,20 @@ export default Vue.extend({
         },
     },
     mounted(this: Self) {
-        console.log("interval-editor:mounted", this.interval);
+        console.log("interval-editor:mounted", JSON.stringify(this.interval));
         return this.updateForm(this.interval);
     },
     methods: {
         updateForm(this: Self, interval: Interval) {
-            console.log("interval-editor:updating", interval);
+            console.log("interval-editor:updating", JSON.stringify(interval));
             const minutes = interval.interval / 60;
             if (minutes >= 60) {
                 this.form.duration = 3600;
             }
             this.form.quantity = String(Math.ceil(interval.interval / this.form.duration));
-            console.log("interval-editor:updated", this.form);
+            console.log("interval-editor:updated", JSON.stringify(this.form));
         },
         onChange(this: Self, ev) {
-            console.log("interval-editor:onChange", this.form.quantity, this.form.duration, this.form);
-
             this.errors.quantity.numeric = false;
             this.errors.quantity.required = false;
 
@@ -161,7 +159,7 @@ export default Vue.extend({
                 interval: seconds,
             };
 
-            console.log("interval-editor:seconds", newInterval);
+            console.log("interval-editor:seconds", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
         },
         onChangeStart(this: Self, time: number) {
@@ -257,9 +255,11 @@ export default Vue.extend({
 
 .start-container {
     /* background: #efafaf; */
+    padding-bottom: 10;
 }
 .end-container {
     /* background: #afefaf; */
+    padding-bottom: 10;
 }
 .field-container {
     /* background: #afefef; */

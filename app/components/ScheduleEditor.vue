@@ -18,10 +18,19 @@
 
         <StackLayout class="complex-schedule-container" v-if="isComplex">
             <StackLayout v-for="(interval, index) in schedule.intervals" :key="index" class="interval-container">
+                <GridLayout columns="*,30" class="interval-header">
+                    <Label :text="'Capture Time ' + (index + 1)" />
+                    <StackLayout
+                        col="1"
+                        class="round-bkgd"
+                        verticalAlignment="top"
+                        @tap="(ev) => removeInterval(interval)"
+                        v-if="canRemove"
+                    >
+                        <Image width="21" src="~/images/Icon_Close.png" />
+                    </StackLayout>
+                </GridLayout>
                 <IntervalEditor :interval="interval" @change="(interval) => onChangeInterval(index, interval)" />
-                <StackLayout @tap="(ev) => removeInterval(interval)" class="remove-interval" v-if="canRemove">
-                    <Label text="Remove" />
-                </StackLayout>
             </StackLayout>
             <StackLayout @tap="addInterval" class="add-interval">
                 <Label text="Add Time" />
@@ -106,6 +115,13 @@ export default Vue.extend({
 
 .schedule-editor {
 }
+.simple-schedule-container,
+.complex-schedule-container {
+    padding: 10;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+    border-radius: 5;
+}
 .validation-error {
     margin-right: 20;
     font-size: 12;
@@ -139,11 +155,17 @@ export default Vue.extend({
 }
 .add-interval {
     padding: 10;
+    text-align: center;
     /* background: #af0000; */
 }
 .interval-container {
     padding-bottom: 10;
+    /*
     border-bottom-color: $fk-primary-black;
     border-bottom-width: 1;
+	*/
+}
+.interval-header {
+    padding-bottom: 10;
 }
 </style>

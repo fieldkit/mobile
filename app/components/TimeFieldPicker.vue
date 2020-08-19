@@ -9,6 +9,7 @@
             @timeChange="onTimeChanged"
             @loaded="onPickerLoaded"
         />
+        <Button @tap="onSave">OK</Button>
     </StackLayout>
 </template>
 
@@ -20,13 +21,16 @@ import { TimePicker } from "tns-core-modules/ui/time-picker";
 
 interface Self {
     value: number;
-    form: { hour: number; minute: number };
+    form: { hour: number; minute: number; time: number };
     updateDisplay: () => any;
     $emit: (type: string, value: number) => any;
+    $modal: {
+        close: (value: number) => any;
+    };
 }
 
 export default Vue.extend({
-    name: "TimeField",
+    name: "TimeFieldPicker",
     props: {
         value: {
             type: Number,
@@ -42,10 +46,7 @@ export default Vue.extend({
             form: {
                 hour: 0,
                 minute: 0,
-            },
-            errors: {
-                required: false,
-                format: false,
+                time: 0,
             },
         };
     },
@@ -53,7 +54,7 @@ export default Vue.extend({
         this.updateDisplay();
     },
     watch: {
-        value() {
+        value(this: Self) {
             this.updateDisplay();
         },
     },
@@ -85,12 +86,18 @@ export default Vue.extend({
             }
             this.form.hour = hour;
             this.form.minute = minute;
+            this.form.time = this.value;
             console.log("time-field:update-display", this.value, this.form);
         },
         onTimeChanged(this: Self, ev: any) {
-            const time = ev.value;
-            console.log("time-field:time-change", time.getHours(), time.getMinutes());
-            this.$emit("change", time.getHours() * 60 * 60 + time.getMinutes() * 60);
+            const date: Date = ev.value;
+            const time = date.getHours() * 60 * 60 + date.getMinutes() * 60;
+            console.log("time-field:time-change", date.getHours(), date.getMinutes());
+            this.form.time = time;
+            this.$emit("change", time);
+        },
+        onSave(this: Self, ev: any) {
+            this.$modal.close(this.form.time);
         },
     },
 });
