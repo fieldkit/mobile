@@ -33,7 +33,7 @@ export interface SensorCapabilities {
 }
 
 export interface ReplySchedule {
-    interval: number;
+    intervals: { start: number; end: number; interval; number }[];
 }
 
 export interface ReplySchedules {
@@ -46,6 +46,7 @@ export interface ReplyStatus {
     recording: any;
     memory: any;
     power: any;
+    schedules: ReplySchedules;
 }
 
 export interface ReplyStream {

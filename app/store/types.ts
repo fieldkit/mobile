@@ -184,6 +184,22 @@ export class Stream {
     }
 }
 
+export interface IntervalLike {
+    readonly start: number;
+    readonly end: number;
+    readonly interval: number;
+}
+
+export class Interval implements IntervalLike {
+    constructor(public readonly start: number, public readonly end: number, public readonly interval: number) {}
+}
+
+export interface Schedules {
+    readings: {
+        intervals: IntervalLike[];
+    };
+}
+
 export interface StationCreationFields {
     id: number | null;
     deviceId: string;
@@ -192,7 +208,7 @@ export interface StationCreationFields {
     batteryLevel: number | null;
     consumedMemory: number | null;
     totalMemory: number | null;
-    interval: number | null; // TODO rename
+    schedules: Schedules;
     longitude: number | null;
     latitude: number | null;
     deployStartTime: Date | null;
@@ -226,7 +242,7 @@ export class Station implements StationCreationFields {
     public readonly batteryLevel: number | null;
     public readonly consumedMemory: number | null;
     public readonly totalMemory: number | null;
-    public readonly interval: number | null;
+    public readonly schedules: Schedules;
     public readonly longitude: number | null;
     public readonly latitude: number | null;
     public readonly deployStartTime: Date | null;
@@ -264,7 +280,7 @@ export class Station implements StationCreationFields {
         this.batteryLevel = o.batteryLevel;
         this.consumedMemory = o.consumedMemory;
         this.totalMemory = o.totalMemory;
-        this.interval = o.interval;
+        this.schedules = o.schedules;
         this.latitude = o.latitude;
         this.longitude = o.longitude;
         this.deployStartTime = o.deployStartTime;

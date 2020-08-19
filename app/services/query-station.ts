@@ -99,6 +99,30 @@ export function prepareReply(reply) {
         });
     }
 
+    const fixupSchedule = (schedule) => {
+        if (schedule && schedule.intervals) {
+            schedule.intervals.forEach((i) => {
+                i.start = i.start || 0;
+                i.end = i.end || 0;
+                i.interval = i.interval || 0;
+            });
+        }
+    };
+
+    if (reply.status?.schedules) {
+        fixupSchedule(reply.status.schedules.readings);
+        fixupSchedule(reply.status.schedules.network);
+        fixupSchedule(reply.status.schedules.gps);
+        fixupSchedule(reply.status.schedules.lora);
+    }
+
+    if (reply.schedules) {
+        fixupSchedule(reply.schedules.readings);
+        fixupSchedule(reply.schedules.network);
+        fixupSchedule(reply.schedules.gps);
+        fixupSchedule(reply.schedules.lora);
+    }
+
     return deepmerge.all([MandatoryStatus, reply]);
 }
 

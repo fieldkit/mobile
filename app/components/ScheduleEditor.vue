@@ -42,7 +42,8 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import IntervalEditor, { Interval } from "./IntervalEditor.vue";
+import IntervalEditor from "./IntervalEditor.vue";
+import { Interval } from "@/store/types";
 
 export interface Schedule {
     intervals: Interval[];
@@ -51,6 +52,7 @@ export interface Schedule {
 interface Self {
     scheduleType: number;
     schedule: Schedule;
+    isScheduleSimple: (s: Schedule) => boolean;
     $emit: (name, value) => {};
 }
 
@@ -82,9 +84,17 @@ export default Vue.extend({
         },
     },
     mounted(this: Self) {
-        console.log("schedule:editor mounted", this.schedule);
+        console.log("schedule-editor:mounted", this.schedule);
+        this.scheduleType = this.isScheduleSimple(this.schedule) ? 0 : 1;
     },
     methods: {
+        isScheduleSimple(this: Self, schedule: Schedule) {
+            if (schedule.intervals.length > 1) return false;
+            const interval = schedule.intervals[0];
+            if (interval.start != 0) return false;
+            if (interval.end < 86400 - 60) return false;
+            return true;
+        },
         changeScheduleType(this: Self, ev: any, scheduleType: number) {
             this.scheduleType = scheduleType;
         },

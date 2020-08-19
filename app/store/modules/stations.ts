@@ -13,6 +13,7 @@ import {
     Download,
     StationPortalStatus,
     SortableStationSorter,
+    Schedules,
 } from "../types";
 import { HasLocation } from "../map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "../row-types";
@@ -135,6 +136,15 @@ class StationStatusFactory {
             : null;
         const modules = this.makeModules(this.statusReply);
         const streams = this.makeStreams(this.statusReply);
+        const defaultSchedules = {
+            readings: [
+                {
+                    start: 0,
+                    end: 86400,
+                    interval: 60,
+                },
+            ],
+        };
         const fields: StationCreationFields = {
             id: null,
             deviceId: this.statusReply.status.identity.deviceId,
@@ -145,7 +155,7 @@ class StationStatusFactory {
             totalMemory: this.statusReply.status.memory.dataMemoryInstalled,
             deployStartTime: deployStartTime,
             serializedStatus: this.statusReply.serialized,
-            interval: this.statusReply?.schedules?.readings?.interval || 60,
+            schedules: this.statusReply?.schedules || defaultSchedules,
             longitude: longitude,
             latitude: latitude,
             lastSeen: new Date(),
@@ -278,7 +288,7 @@ class StationDatabaseFactory {
             totalMemory: stationRow.totalMemory,
             deployStartTime: stationRow.deployStartTime ? new Date(stationRow.deployStartTime) : null,
             serializedStatus: stationRow.serializedStatus,
-            interval: stationRow.interval,
+            schedules: JSON.parse(stationRow.schedules) as Schedules,
             longitude: stationRow.longitude,
             latitude: stationRow.latitude,
             lastSeen: new Date(stationRow.lastSeen),

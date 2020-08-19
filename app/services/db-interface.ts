@@ -268,10 +268,6 @@ export default class DatabaseInterface {
         );
     }
 
-    public setModuleInterval(module) {
-        return this.getDatabase().then((db) => db.query("UPDATE modules SET interval = ? WHERE id = ?", [module.interval, module.id]));
-    }
-
     public setModuleGraphs(module) {
         return this.getDatabase().then((db) => db.query("UPDATE modules SET graphs = ? WHERE id = ?", [module.graphs, module.id]));
     }
@@ -317,7 +313,7 @@ export default class DatabaseInterface {
             station.consumedMemory,
             station.totalMemory,
             station.consumedMemoryPercent, // TODO remove
-            station.interval,
+            JSON.stringify(station.schedules),
             JSON.stringify(station.statusJson),
             station.longitude,
             station.latitude,
@@ -331,7 +327,7 @@ export default class DatabaseInterface {
                 `
 					UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?,
 						   deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?,
-						   interval = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
+						   schedules = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
 					WHERE id = ?`,
                 values
             )
@@ -605,7 +601,7 @@ export default class DatabaseInterface {
 					INSERT INTO stations (device_id,
 						generation_id, name, url, status,
 						deploy_start_time, battery_level, consumed_memory, total_memory,
-						consumed_memory_percent, interval, status_json,
+						consumed_memory_percent, schedules, status_json,
 						longitude, latitude, serialized_status, updated, last_seen)
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
@@ -619,7 +615,7 @@ export default class DatabaseInterface {
                         newStation.consumedMemory,
                         newStation.totalMemory,
                         newStation.consumedMemoryPercent, // TODO remove
-                        newStation.interval,
+                        JSON.stringify(newStation.schedules),
                         JSON.stringify(statusJson),
                         newStation.longitude,
                         newStation.latitude,

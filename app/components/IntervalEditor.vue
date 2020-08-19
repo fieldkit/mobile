@@ -52,6 +52,7 @@ import _ from "lodash";
 import Vue from "vue";
 import { ValueList } from "nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
+import { Interval } from "@/store/types";
 
 export class IntervalForm {
     constructor(
@@ -60,10 +61,6 @@ export class IntervalForm {
         public readonly quantity: string,
         public readonly duration: number
     ) {}
-}
-
-export class Interval {
-    constructor(public readonly start: number, public readonly end: number, public readonly interval: number) {}
 }
 
 interface Self {

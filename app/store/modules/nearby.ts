@@ -197,12 +197,10 @@ const actions = {
         const info = state.stations[payload.deviceId];
         if (!info) throw new Error("no nearby info");
 
-        const interval = payload.schedule.quantity * payload.schedule.duration;
-
         commit(MutationTypes.STATION_QUERIED, info);
         return state.services
             .queryStation()
-            .configureSchedule(info.url, { readings: { interval: interval } })
+            .configureSchedule(info.url, { readings: payload.schedule })
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);

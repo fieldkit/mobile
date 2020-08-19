@@ -6,7 +6,7 @@ export interface StationTableRow {
     batteryLevel: number | null;
     consumedMemory: number | null;
     totalMemory: number | null;
-    interval: number | null; // TODO rename
+    schedules: string;
     longitude: number | null;
     latitude: number | null;
     deployStartTime: string | null;

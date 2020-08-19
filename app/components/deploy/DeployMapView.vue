@@ -139,8 +139,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             this.form.location = this.currentNotes.location || "";
-            this.form.schedule = { intervals: [{ interval: this.currentStation.interval, start: 0, end: 86400 }] };
-            console.log("initialized", this.form.schedule);
+            this.form.schedule = this.currentStation.schedules.readings;
         },
         onMapReady(this: any, args) {
             this.map = args.map;
