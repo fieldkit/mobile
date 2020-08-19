@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Config from "../config";
 import { serializePromiseChain, onlyAllowEvery } from "../utilities";
+import Services from "./services";
 
 const log = Config.logger("StationFirmware");
 
@@ -16,10 +17,10 @@ function transformProgress(callback, fn) {
 }
 
 export default class StationFirmware {
-    private services: any;
+    private services: Services;
     public check: () => Promise<any>;
 
-    constructor(services) {
+    constructor(services: Services) {
         this.services = services;
         this.check = onlyAllowEvery(
             60,

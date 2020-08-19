@@ -45,7 +45,7 @@ const getters = {};
 
 const actions = {
     [ActionTypes.INITIALIZE]: ({ commit, dispatch, state }: ActionParameters) => {
-        // return dispatch(ActionTypes.FIRMWARE_REFRESH);
+        return dispatch(RELOAD_FIRMWARE);
     },
     [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
         const firmware = dispatch(ActionTypes.FIRMWARE_REFRESH);
