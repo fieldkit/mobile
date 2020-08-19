@@ -41,7 +41,7 @@
                             class="btn btn-primary btn-padded"
                         />
                         <Label v-else :text="_L('upToDate')" class="size-20 m-x-15" />
-                        <ConnectionNote v-if="updateAvailable" :station="station" />
+                        <ConnectionNote v-if="updateAvailable" :station="station" :stationId="stationId" />
                     </StackLayout>
 
                     <WrapLayout orientation="horizontal" class="m-10 m-b-20">
@@ -127,6 +127,7 @@ export default Vue.extend({
             const options = {
                 props: {
                     station: this.station,
+                    stationId: this.stationId,
                     downloadOnly: false,
                 },
                 fullscreen: true,
