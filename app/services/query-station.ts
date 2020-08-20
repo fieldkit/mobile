@@ -342,8 +342,9 @@ export default class QueryStation {
                     progress: progress,
                 })
                 .then((response) => {
-                    console.log(response);
-                    return {};
+                    const body = JSON.parse(response.body);
+                    console.log("upload-firmware:", body);
+                    return body;
                 });
         });
     }

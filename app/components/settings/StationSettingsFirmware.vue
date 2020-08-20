@@ -75,6 +75,10 @@ export default Vue.extend({
     data() {
         return {
             canUpgrade: true,
+            failed: false,
+            finished: false,
+            success: false,
+            sdCard: false,
         };
     },
     props: {
@@ -114,6 +118,7 @@ export default Vue.extend({
             const options = {
                 props: {
                     station: this.station,
+                    stationId: this.stationId,
                     downloadOnly: true,
                 },
                 fullscreen: true,
@@ -132,10 +137,9 @@ export default Vue.extend({
                 },
                 fullscreen: true,
             };
+            this.finished = false;
             this.canUpgrade = false;
-            return this.$showModal(UpgradeFirmwareModal, options).then(() => {
-                // this.canUpgrade = true;
-            });
+            return this.$showModal(UpgradeFirmwareModal, options).then((value) => {});
         },
         goBack(this: any, ev) {
             return Promise.all([

@@ -3,14 +3,21 @@
         <GridLayout rows="*" columns="*" width="100%" height="100%" class="p-20 modal-container text-center">
             <StackLayout verticalAlignment="middle" class="bar-container" v-if="!done">
                 <Label class="info" lineHeight="4" :text="_L('upgradeInProcess')" textWrap="true" v-if="!downloadOnly && !error" />
-                <Label class="info" lineHeight="4" :text="_L('noLocalFirmwareOffline')" textWrap="true" v-if="error" />
                 <Label class="info" lineHeight="4" :text="_L('downloadingFirmware')" textWrap="true" v-if="downloadOnly" />
                 <Progress :value="progress" scaleY="4" v-if="!error" />
             </StackLayout>
 
             <StackLayout verticalAlignment="middle" class="bar-container" v-if="done">
-                <Label class="info" lineHeight="4" :text="_L('upgradeDone')" textWrap="true" v-if="!downloadOnly" />
                 <Label class="info" lineHeight="4" :text="_L('downloaded')" textWrap="true" v-if="downloadOnly" />
+                <Label class="info" lineHeight="4" :text="_L('upgradeDone')" textWrap="true" v-if="success && !downloadOnly" />
+                <Label
+                    class="info"
+                    lineHeight="4"
+                    text="Please check your station to ensure that it has an SD Card."
+                    textWrap="true"
+                    v-if="sdCard"
+                />
+                <Label class="info" lineHeight="4" text="An unknown error occured." textWrap="true" v-if="error" />
                 <Label class="ok-btn" :text="_L('ok')" verticalAlignment="middle" @tap="$modal.close()" />
             </StackLayout>
         </GridLayout>
@@ -24,6 +31,8 @@ export default Vue.extend({
     data() {
         return {
             progress: 0,
+            success: false,
+            sdCard: false,
             error: false,
             done: false,
         };
@@ -52,11 +61,13 @@ export default Vue.extend({
                 console.log("downloading only");
                 return Services.StationFirmware()
                     .downloadFirmware(updateProgress, true)
-                    .then(() => {
+                    .then((status) => {
+                        console.log("status", status);
                         this.done = true;
                     })
                     .catch((err) => {
                         this.done = true;
+                        this.error = true;
                         console.log("error", err, err.stack);
                     });
             }
@@ -76,11 +87,20 @@ export default Vue.extend({
                     console.log("upgrading firmware");
                     return Services.StationFirmware()
                         .upgradeStation(this.station.url, updateProgress)
-                        .then(() => {
+                        .then((status) => {
+                            console.log("status", status);
+                            if (status.success === true) {
+                                this.success = true;
+                            } else if (status.sdCard === true) {
+                                this.sdCard = true;
+                            } else {
+                                this.error = true;
+                            }
                             this.done = true;
                         })
                         .catch((err) => {
                             this.done = true;
+                            this.error = true;
                             console.log("error", err, err.stack);
                         });
                 });
