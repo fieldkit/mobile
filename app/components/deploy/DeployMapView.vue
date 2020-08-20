@@ -86,9 +86,10 @@
 <script lang="ts">
 import Vue from "vue";
 import { isIOS } from "tns-core-modules/platform";
-import { MAPBOX_ACCESS_TOKEN } from "../../secrets";
-import routes from "../../routes";
-import * as ActionTypes from "../../store/actions";
+import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
+import routes from "@/routes";
+import * as ActionTypes from "@/store/actions";
+import { Schedule } from "@/store/types";
 
 import LabeledTextField from "../LabeledTextField";
 import ScreenHeader from "../ScreenHeader";
@@ -139,7 +140,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             this.form.location = this.currentNotes.location || "";
-            this.form.schedule = this.currentStation.schedules.readings;
+            this.form.schedule = Schedule.getMinimum(this.currentStation.schedules.readings);
         },
         onMapReady(this: any, args) {
             this.map = args.map;

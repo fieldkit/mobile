@@ -194,10 +194,19 @@ export class Interval implements IntervalLike {
     constructor(public readonly start: number, public readonly end: number, public readonly interval: number) {}
 }
 
+export class Schedule {
+    constructor(public readonly intervals: IntervalLike[] = []) {}
+
+    public static getMinimum(s: Schedule): Schedule {
+        if (!s.intervals || s.intervals.length == 0) {
+            return new Schedule([{ start: 0, end: 86400, interval: 60 }]);
+        }
+        return s;
+    }
+}
+
 export interface Schedules {
-    readings: {
-        intervals: IntervalLike[];
-    };
+    readings: Schedule;
 }
 
 export interface StationCreationFields {

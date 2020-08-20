@@ -31,6 +31,7 @@
 <script lang="ts">
 import Vue from "vue";
 import * as ActionTypes from "@/store/actions";
+import { Schedule } from "@/store/types";
 
 import ScheduleEditor from "../ScheduleEditor.vue";
 import ScreenHeader from "../ScreenHeader.vue";
@@ -68,7 +69,7 @@ export default Vue.extend({
             return this.$store.getters.legacyStations[this.stationId];
         },
         onPageLoaded(this: any, args) {
-            this.form.schedule = this.station.schedules.readings;
+            this.form.schedule = Schedule.getMinimum(this.station.schedules.readings);
         },
         onScheduleChange(schedule) {
             console.log("schedule:change", schedule);
@@ -115,6 +116,6 @@ export default Vue.extend({
 @import "~/_app-variables";
 
 .editor-container {
-    padding: 10;
+    padding: 20;
 }
 </style>

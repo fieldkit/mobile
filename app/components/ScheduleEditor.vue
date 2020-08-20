@@ -87,6 +87,7 @@ export default Vue.extend({
     },
     mounted(this: Self) {
         console.log("schedule-editor:mounted", this.schedule);
+        if (this.schedule.intervals.length == 0) throw new Error("one schedule interval required");
         this.scheduleType = this.isScheduleSimple(this.schedule) ? 0 : 1;
     },
     methods: {
