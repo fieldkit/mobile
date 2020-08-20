@@ -15,7 +15,9 @@
 
                     <ConnectionNote :station="station" :stationId="stationId" />
 
-                    <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
+                    <StackLayout class="editor-container">
+                        <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
+                    </StackLayout>
 
                     <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
                 </FlexboxLayout>
@@ -51,10 +53,10 @@ export default Vue.extend({
         },
     },
     components: {
-        ScheduleEditor,
         ScreenHeader,
         ScreenFooter,
         ConnectionNote,
+        ScheduleEditor,
     },
     computed: {
         station(this: any) {
@@ -66,15 +68,16 @@ export default Vue.extend({
             return this.$store.getters.legacyStations[this.stationId];
         },
         onPageLoaded(this: any, args) {
-            this.form.schedule = { interval: this.getStation().interval };
+            this.form.schedule = this.station.schedules.readings;
         },
         onScheduleChange(schedule) {
+            console.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
         onSaveSchedule(this: any) {
             return Promise.all([
                 this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
-                    deviceId: this.getStation().deviceId,
+                    deviceId: this.station.deviceId,
                     schedule: this.form.schedule,
                 }),
             ])
@@ -110,4 +113,8 @@ export default Vue.extend({
 </script>
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.editor-container {
+    padding: 10;
+}
 </style>

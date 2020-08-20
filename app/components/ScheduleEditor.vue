@@ -18,8 +18,9 @@
 
         <StackLayout class="complex-schedule-container" v-if="isComplex">
             <StackLayout v-for="(interval, index) in schedule.intervals" :key="index" class="interval-container">
-                <GridLayout columns="*,30" class="interval-header">
+                <GridLayout rows="auto" columns="*,30" class="interval-header">
                     <Label :text="'Capture Time ' + (index + 1)" />
+
                     <StackLayout
                         col="1"
                         class="round-bkgd"
@@ -30,6 +31,7 @@
                         <Image width="21" src="~/images/Icon_Close.png" />
                     </StackLayout>
                 </GridLayout>
+
                 <IntervalEditor :interval="interval" @change="(interval) => onChangeInterval(index, interval)" />
             </StackLayout>
             <StackLayout @tap="addInterval" class="add-interval">
@@ -132,6 +134,9 @@ export default Vue.extend({
     border-width: 1;
     border-radius: 5;
 }
+.complex-schedule-container {
+    /* background: #efafaf; */
+}
 .validation-error {
     margin-right: 20;
     font-size: 12;
@@ -173,9 +178,11 @@ export default Vue.extend({
     /*
     border-bottom-color: $fk-primary-black;
     border-bottom-width: 1;
+    background: #8de9ef;
 	*/
 }
 .interval-header {
     padding-bottom: 10;
+    /* background: #23ff44; */
 }
 </style>

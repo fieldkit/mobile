@@ -54,15 +54,6 @@ import { ValueList } from "nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
 import { Interval } from "@/store/types";
 
-export class IntervalForm {
-    constructor(
-        public readonly start: string,
-        public readonly end: string,
-        public readonly quantity: string,
-        public readonly duration: number
-    ) {}
-}
-
 interface Self {
     interval: Interval;
     fullDay: boolean;
@@ -121,7 +112,7 @@ export default Vue.extend({
         },
     },
     mounted(this: Self) {
-        console.log("interval-editor:mounted", JSON.stringify(this.interval));
+        console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay);
         return this.updateForm(this.interval);
     },
     methods: {
@@ -212,7 +203,8 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.schedule-editor {
+.interval-editor {
+    /* background: #ffffaa; */
 }
 .validation-error {
     margin-right: 20;

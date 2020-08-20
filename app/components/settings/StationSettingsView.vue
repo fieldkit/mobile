@@ -51,10 +51,6 @@ export default Vue.extend({
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
     components: {
         ScreenHeader,
@@ -62,6 +58,11 @@ export default Vue.extend({
         General,
         Firmware,
         Networks,
+    },
+    computed: {
+        station(this: any) {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
     },
     methods: {
         onPageLoaded(args) {},
