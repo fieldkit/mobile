@@ -126,9 +126,6 @@ export default class StartupScreen extends Vue {
                         position: 0,
                     },
                 });
-                return this.$navigateTo(routes.onboarding.assembleStation, {
-                    props: {},
-                });
                 if (Services.Store().getters.stationCalibrations[1]) {
                     return this.$navigateTo(routes.onboarding.recalibrate, {
                         props: {
@@ -155,6 +152,9 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+                return this.$navigateTo(routes.onboarding.assembleStation, {
+                    props: {},
+                });
 				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
                     return this.$navigateTo(routes.stationSettings, {
