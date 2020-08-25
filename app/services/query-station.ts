@@ -203,7 +203,7 @@ export default class QueryStation {
         });
     }
 
-    configureSchedule(address, schedule) {
+    public configureSchedule(address, schedule) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             schedules: { modifying: true, ...schedule },
@@ -211,18 +211,6 @@ export default class QueryStation {
         });
 
         return this.stationQuery(address, message).then((reply) => {
-            return this._fixupStatus(reply);
-        });
-    }
-
-    setStationUploadSchedule(station) {
-        const message = HttpQuery.create({
-            type: QueryType.values.QUERY_CONFIGURE,
-            schedules: { modifying: true, network: { duration: station.uploadSchedule } },
-            time: unixNow(),
-        });
-
-        return this.stationQuery(station.url, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }

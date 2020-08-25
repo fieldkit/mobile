@@ -79,7 +79,7 @@ export default Vue.extend({
             return Promise.all([
                 this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
                     deviceId: this.station.deviceId,
-                    schedule: this.form.schedule,
+                    schedules: { readings: this.form.schedule },
                 }),
             ])
                 .then(() => this.goBack())

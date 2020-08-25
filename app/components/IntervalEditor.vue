@@ -38,7 +38,7 @@
             />
         </StackLayout>
         <StackLayout row="1" col="1" class="duration-container" verticalAlignment="bottom">
-            <DropDown class="" :items="items" :selectedIndex="indexOf(form.duration)" @selectedIndexChanged="onDurationChange" />
+            <DropDown class="drop-down" :items="items" :selectedIndex="indexOf(form.duration)" @selectedIndexChanged="onDurationChange" />
         </StackLayout>
 
         <StackLayout row="2" colSpan="2" class="summary-container" v-if="false">
@@ -261,5 +261,11 @@ export default Vue.extend({
 .field-label {
     text-align: left;
     font-size: 14;
+}
+
+.drop-down {
+    padding: 10;
+    font-size: 16;
+    text-align: center;
 }
 </style>
