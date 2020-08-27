@@ -18,17 +18,18 @@ import { Route } from "@/routes/navigate";
 import Config from "@/config";
 
 function initializeFirebase(services): Promise<any> {
+    console.log("initialize:firebase");
     return Firebase.init({
         crashlyticsCollectionEnabled: true,
     })
         .then((response) => {
             const globalAny: any = global;
             crashlytics.setString("env", globalAny.TNS_ENV);
-            console.log("firebase initialized", response);
+            console.log("firebase:initialized", response);
             return Promise.resolve(true);
         })
         .catch((error) => {
-            console.log("firebase error", error);
+            console.log("firebase:error", error);
             return Promise.resolve();
         });
 }
@@ -55,18 +56,28 @@ function updateStore(store): null {
     return null;
 }
 
+function enableLocationServices() {
+    // On iOS this can take a while, so we do this in the background.
+    Services.PhoneLocation().enableAndGetLocation();
+
+    return Promise.resolve();
+}
+
 function initializeApplication(services): Promise<any> {
+    const started = new Date();
+
     return initializeFirebase(services).then(() => {
+        console.log("firebase:app_open");
         return Firebase.analytics
             .logEvent({
                 key: "app_open",
             })
             .then((response) => {
-                console.log("firebase recorded", response);
+                console.log("firebase:recorded", response);
                 return Promise.resolve(true);
             })
             .catch((message) => {
-                console.log("firebase error", message);
+                console.log("firebase:error", message);
                 return Promise.resolve(false);
             })
             .then(() =>
@@ -75,8 +86,12 @@ function initializeApplication(services): Promise<any> {
                     .initialize()
                     .then((db) => services.Database().checkConfig())
                     .then(() => {
+                        console.log("services:setup");
+
                         // This uses a function so that the services object doesn't get spammed into the logs.
                         Services.Store().commit(MutationTypes.SERVICES, () => Services);
+
+                        console.log("services:ready");
 
                         return Services.Store()
                             .dispatch(ActionTypes.LOAD)
@@ -84,7 +99,7 @@ function initializeApplication(services): Promise<any> {
                                 Promise.resolve()
                                     .then(() => services.DiscoverStation().startServiceDiscovery())
                                     .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
-                                    .then(() => Services.PhoneLocation().enableAndGetLocation())
+                                    .then(() => enableLocationServices())
                                     .then(() => Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]))
                                     .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                     .then(() => updateStore(Services.Store()))
@@ -92,10 +107,12 @@ function initializeApplication(services): Promise<any> {
                             );
                     })
                     .catch((err) => {
-                        console.log("error:", err, err ? err.stack : null);
+                        console.log("startup:error:", err, err ? err.stack : null);
                     })
                     .then(() => {
-                        console.log("started!");
+                        const now = new Date();
+                        const elapsed = now.getTime() - started.getTime();
+                        console.log("startup:started", elapsed);
                     })
             );
     });
@@ -126,9 +143,6 @@ export default class StartupScreen extends Vue {
                         position: 0,
                     },
                 });
-                return this.$navigateTo(routes.onboarding.assembleStation, {
-                    props: {},
-                });
                 if (Services.Store().getters.stationCalibrations[1]) {
                     return this.$navigateTo(routes.onboarding.recalibrate, {
                         props: {
@@ -138,6 +152,12 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+                return this.$navigateTo(routes.onboarding.assembleStation, {
+                    props: {},
+                });
+                return this.$navigateTo(routes.login, {
+                    props: {},
+                });
                 return this.$navigateTo(routes.stations, {
                     props: {},
                 });
@@ -157,7 +177,7 @@ export default class StartupScreen extends Vue {
                 }
 				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.stationSettings, {
+                    return this.$navigateTo(routes.stationDetail, {
                         props: {
                             stationId: 1,
                         },

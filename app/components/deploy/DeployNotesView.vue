@@ -140,7 +140,7 @@ import routes from "@/routes";
 import { getFileName } from "@/utilities";
 import Promise from "bluebird";
 
-import ScreenHeader from "../ScreenHeader.vue";
+import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import FieldNoteForm from "./FieldNoteForm.vue";
 import NoteDisplay from "./NoteDisplay.vue";
@@ -154,7 +154,7 @@ import { NoteData, NoteMedia } from "@/store/modules/notes";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
+        ...SharedComponents,
         ConnectionStatusHeader,
         NoteDisplay,
         FieldNoteForm,

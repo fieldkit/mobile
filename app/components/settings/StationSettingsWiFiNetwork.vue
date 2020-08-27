@@ -15,27 +15,8 @@
                             <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
                             <!-- wifi radio buttons -->
                             <GridLayout rows="auto" columns="0,*,30" v-for="n in networks" :key="n.ssid" class="m-10">
-                                <!-- <check-box
-                                    row="0"
-                                    col="0"
-                                    :checked="n.selected"
-                                    :isEnabled="!n.selected"
-                                    fillColor="#2C3E50"
-                                    onCheckColor="#2C3E50"
-                                    onTintColor="#2C3E50"
-                                    fontSize="18"
-                                    boxType="circle"
-                                    @checkedChange="$event.value !== n.selected && toggleChoice(n)"
-                                /> -->
                                 <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid"></Label>
-                                <Image
-                                    row="0"
-                                    col="2"
-                                    src="~/images/Icon_Close.png"
-                                    width="17"
-                                    :dataSsid="n.ssid"
-                                    @tap="removeNetwork"
-                                ></Image>
+                                <Image row="0" col="2" src="~/images/Icon_Close.png" width="17" @tap="(ev) => removeNetwork(n)" />
                             </GridLayout>
                             <!-- end radio buttons -->
                         </WrapLayout>
@@ -103,7 +84,7 @@
                             @tap="addNetwork"
                         ></Button>
 
-                        <ConnectionNote :station="station" />
+                        <ConnectionNote :station="station" :stationId="stationId" />
 
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
@@ -114,8 +95,6 @@
                                 @tap="uploadOverWifi"
                             />
                         </StackLayout>
-
-                        <StackLayout class="p-b-20"></StackLayout>
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -128,6 +107,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Services from "../../services/services";
+import * as animations from "@/components/animations";
 
 import ScreenHeader from "../ScreenHeader";
 import ScreenFooter from "../ScreenFooter";
@@ -170,13 +150,7 @@ export default Vue.extend({
         onPageLoaded(this: any, args) {
             this.page = args.object;
 
-            Services.Database()
-                .getConfig()
-                .then((config) => {
-                    this.transmissionUrl = config[0].ingestionUri;
-                });
-
-            let deviceStatus = this.station.statusJson;
+            const deviceStatus = this.station.statusJson;
             if (deviceStatus && deviceStatus.networkSettings) {
                 this.networks = deviceStatus.networkSettings.networks.map((n) => {
                     n.selected = false;
@@ -186,74 +160,67 @@ export default Vue.extend({
             this.deviceStatus = deviceStatus;
             this.setWifiUploadStatus(deviceStatus);
         },
-        selectFromMenu(this: any, event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
+        selectFromMenu(this: any, ev: any) {
+            return animations.pressed(ev);
         },
-        goBack(this: any, event) {
-            if (event) {
-                // Change background color when pressed
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {
-                    event.object.className = cn;
-                }, 500);
-            }
-
-            this.$navigateTo(WiFi, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+        goBack(this: any, ev: any) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(WiFi, {
+                    props: {
+                        stationId: this.stationId,
+                        station: this.station,
+                    },
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear",
+                    },
+                }),
+            ]);
         },
         uploadOverWifi(this: any) {
             if (this.wifiUpload) {
-                Services.QueryStation()
+                return Services.QueryStation()
                     .uploadViaApp(this.station.url)
                     .then((result) => {
-                        alert({
-                            title: _L("done"),
-                            message: _L("uploadConfigUpdated"),
-                            okButtonText: _L("ok"),
+                        return this.setWifiUploadStatus(result).then(() => {
+                            return alert({
+                                title: _L("done"),
+                                message: _L("uploadConfigUpdated"),
+                                okButtonText: _L("ok"),
+                            });
                         });
-                        this.setWifiUploadStatus(result);
                     });
             } else {
-                this.$portalInterface
+                return Services.PortalInterface()
                     .getTransmissionToken()
-                    .then((result) => {
-                        Services.QueryStation()
-                            .uploadOverWifi(this.station.url, this.transmissionUrl, result.token)
+                    .then((upload) => {
+                        return Services.QueryStation()
+                            .uploadOverWifi(this.station.url, upload.url, upload.token)
                             .then((result) => {
-                                this.setWifiUploadStatus(result);
-                                alert({
-                                    title: _L("done"),
-                                    message: _L("uploadConfigUpdated"),
-                                    okButtonText: _L("ok"),
+                                return this.setWifiUploadStatus(result).then(() => {
+                                    return alert({
+                                        title: _L("done"),
+                                        message: _L("uploadConfigUpdated"),
+                                        okButtonText: _L("ok"),
+                                    });
                                 });
                             });
                     })
                     .catch((e) => {
-                        Services.OnlineStatus()
+                        console.log(`error: ${e}`);
+                        return Services.OnlineStatus()
                             .isOnline()
                             .then((online) => {
                                 if (online) {
-                                    alert({
+                                    return alert({
                                         title: _L("unableToUpdate"),
                                         message: _L("pleaseLogin"),
                                         okButtonText: _L("ok"),
                                     });
                                 } else {
-                                    alert({
+                                    return alert({
                                         title: _L("unableToUpdate"),
                                         message: _L("noteNeedInternet"),
                                         okButtonText: _L("ok"),
@@ -274,6 +241,7 @@ export default Vue.extend({
                 this.wifiUploadText = _L("noteUploadDirectlyOption");
                 this.wifiUploadButton = _L("uploadOverWifi");
             }
+            return Promise.resolve();
         },
         showNetworkForm(this: any, event) {
             if (this.networks.length == this.maxNetworks) {
@@ -308,8 +276,8 @@ export default Vue.extend({
                     this.goBack();
                 });
         },
-        removeNetwork(this: any, event) {
-            dialogs
+        removeNetwork(this: any, network: { ssid: string }) {
+            return dialogs
                 .confirm({
                     title: _L("areYouSureRemoveNetwork"),
                     okButtonText: _L("yes"),
@@ -317,14 +285,13 @@ export default Vue.extend({
                 })
                 .then((result) => {
                     if (result) {
-                        let ssid = event.object.dataSsid;
-                        let index = this.networks.findIndex((n) => {
-                            return n.ssid == ssid;
+                        const index = this.networks.findIndex((n) => {
+                            return n.ssid == network.ssid;
                         });
                         if (index > -1) {
                             this.networks.splice(index, 1);
                         }
-                        Services.QueryStation()
+                        return Services.QueryStation()
                             .sendNetworkSettings(this.station.url, this.networks)
                             .then((result) => {
                                 this.networks = result.networkSettings.networks;
@@ -341,16 +308,6 @@ export default Vue.extend({
             });
             this.newNetwork.ssid = network.ssid;
             this.newNetwork.password = network.password;
-        },
-        toggleChoice(this: any, radioOption) {
-            this.networks.forEach((n) => {
-                n.selected = false;
-                if (n.ssid == radioOption.ssid) {
-                    n.selected = true;
-                    this.newNetwork.ssid = n.ssid;
-                    this.newNetwork.password = n.password;
-                }
-            });
         },
         togglePassword(this: any) {
             this.hidePassword = !this.hidePassword;

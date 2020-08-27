@@ -67,6 +67,8 @@
         "babel-loader": "^8.1.0",
         "chai": "^4.2.0",
         "electron-devtools-installer": "^3.0.0",
+        "eslint": "^7.7.0",
+        "eslint-plugin-vue": "^6.2.2",
         "jest": "^26.1.0",
         "jest-runner-tsc": "^1.6.0",
         "mocha": "^8.0.1",
@@ -83,7 +85,7 @@
         "svgexport": "^0.4.0",
         "ts-jest": "^26.1.1",
         "typescript": "^3.9.5",
-        "vue": "^2.6.11",
+        "vue": "^2.6.12",
         "vue-loader": "^15.9.2"
     },
     "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",

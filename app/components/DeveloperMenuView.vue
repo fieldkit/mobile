@@ -1,5 +1,6 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader title="Developer" :canNavigateBack="false" :canNavigateSettings="false" />
         <Scrollview>
             <FlexboxLayout flexDirection="column" class="p-t-10">
                 <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
@@ -64,6 +65,7 @@ import AppSettings from "@/wrappers/app-settings";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 
+import SharedComponents from "@/components/shared";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 
 export default Vue.extend({
@@ -88,6 +90,7 @@ export default Vue.extend({
         };
     },
     components: {
+        ...SharedComponents,
         Recalibrate,
     },
     methods: {

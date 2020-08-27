@@ -104,8 +104,9 @@ export default class PortalInterface {
 
     resetPassword(email) {}
 
-    public getTransmissionToken() {
+    public getTransmissionToken(): Promise<{ token: string; url: string }> {
         return this.query({
+            method: "GET",
             authenticated: true,
             url: "/user/transmission-token",
         });

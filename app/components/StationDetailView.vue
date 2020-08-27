@@ -1,16 +1,9 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
+        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
                 <StackLayout orientation="vertical">
-                    <ScreenHeader
-                        order="1"
-                        :title="currentStation.name"
-                        :subtitle="getDeployedStatus()"
-                        :onBack="goBack"
-                        :onSettings="goToSettings"
-                    />
-
                     <GridLayout order="3" rows="*" columns="*">
                         <GridLayout row="0" col="0">
                             <StackLayout orientation="vertical">
@@ -32,7 +25,7 @@
                                         v-if="notes.completed && notes.completed > 0"
                                     />
                                 </GridLayout>
-                                <ModuleListView order="3" :station="currentStation" />
+                                <ModuleList order="3" :station="currentStation" />
                             </StackLayout>
                         </GridLayout>
 
@@ -61,11 +54,10 @@ import routes from "@/routes";
 
 import * as animations from "./animations";
 
+import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
-import ModuleListView from "./ModuleListView.vue";
+import ModuleList from "./ModuleList.vue";
 import NotificationFooter from "./NotificationFooter.vue";
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
 
 export default Vue.extend({
     props: {
@@ -106,11 +98,10 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
+        ...SharedComponents,
         StationStatusBox,
-        ModuleListView,
+        ModuleList,
         NotificationFooter,
-        ScreenFooter,
     },
     methods: {
         onPageLoaded(this: any, args) {

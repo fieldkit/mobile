@@ -11,8 +11,13 @@ import { AddStationNetworkAction, TryStationAction } from "@/store/typed-actions
 import { backOff } from "exponential-backoff";
 
 export interface Schedule {
-    quantity: number;
+    intervals: { start: number; end: number; interval: number }[];
     duration: number;
+}
+
+export interface Schedules {
+    readings: Schedule;
+    network: Schedule;
 }
 
 export class NearbyState {
@@ -191,7 +196,7 @@ const actions = {
     },
     [ActionTypes.CONFIGURE_STATION_SCHEDULES]: (
         { commit, dispatch, state }: ActionParameters,
-        payload: { deviceId: string; schedule: Schedule }
+        payload: { deviceId: string; schedules: Schedules }
     ) => {
         if (!payload?.deviceId) throw new Error("no nearby info");
         const info = state.stations[payload.deviceId];
@@ -200,7 +205,7 @@ const actions = {
         commit(MutationTypes.STATION_QUERIED, info);
         return state.services
             .queryStation()
-            .configureSchedule(info.url, { readings: payload.schedule })
+            .configureSchedule(info.url, payload.schedules)
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);

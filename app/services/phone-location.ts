@@ -23,36 +23,43 @@ export default class PhoneLocationWatcher extends BetterObservable {
     }
 
     enableAndGetLocation() {
+        const started = new Date();
+
+        console.log("phone-location:enable");
+
         return this._geolocation
             .isEnabled()
-            .then(isEnabled => {
-                if (!isEnabled) {
+            .then((enabled: boolean) => {
+                if (!enabled) {
                     return this._geolocation.enableLocationRequest();
                 }
                 // TODO Remove this eventually.
                 this.testAccuracies();
                 return true;
             })
+            .then(() => this._keepLocationUpdated())
             .then(() => {
-                return this._keepLocationUpdated();
+                const now = new Date();
+                const elapsed = now.getTime() - started.getTime();
+                console.log("phone-location:ready", elapsed);
             });
     }
 
     _keepLocationUpdated() {
         return this._geolocation
             .isEnabled()
-            .then(enabled => {
+            .then((enabled) => {
                 if (!enabled) {
                     return CommonLocations.TwinPeaksEastLosAngelesNationalForest;
                 }
                 return this.getLocation();
             })
-            .then(location => {
+            .then((location) => {
                 this._store.commit(MutationTypes.PHONE_LOCATION, location);
                 return location;
             })
-            .then(location => (<HasPublish>(<unknown>this)).publish(location))
-            .then(location => {
+            .then((location) => (<HasPublish>(<unknown>this)).publish(location))
+            .then((location) => {
                 promiseAfter(10000).then(() => {
                     return this._keepLocationUpdated();
                 });
@@ -64,12 +71,12 @@ export default class PhoneLocationWatcher extends BetterObservable {
     test(name, params) {
         const started = new Date();
         return this._geolocation.getCurrentLocation(params).then(
-            loc => {
+            (loc) => {
                 const done = new Date();
                 const elapsed = done.getTime() - started.getTime();
                 log.info("done", name, elapsed, loc.latitude, loc.longitude, loc.horizontalAccuracy);
             },
-            err => {
+            (err) => {
                 const done = new Date();
                 const elapsed = done.getTime() - started.getTime();
                 log.info("failed", name, elapsed, err);
@@ -124,8 +131,8 @@ export default class PhoneLocationWatcher extends BetterObservable {
                 timeout: 20000,
             })
             .then(
-                l => new PhoneLocation(l.latitude, l.longitude, unixNow()),
-                e => CommonLocations.TwinPeaksEastLosAngelesNationalForest
+                (l) => new PhoneLocation(l.latitude, l.longitude, unixNow()),
+                (e) => CommonLocations.TwinPeaksEastLosAngelesNationalForest
             );
     }
 }

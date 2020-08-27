@@ -38,17 +38,27 @@ export default Vue.extend({
             return this.foundStations(newValue);
         },
     },
+    mounted(this: any) {
+        console.log("searching:mounted");
+        this.timer = Promise.delay(5000).then(() => {
+            if (this.timer) {
+                console.log("searching:failed");
+                return this.$navigateTo(routes.onboarding.searchFailed);
+            }
+        });
+    },
+    destroyed(this: any) {
+        console.log("searching:destroyed");
+        if (this.timer) {
+            this.timer.cancel();
+            this.timer = null;
+        }
+    },
     methods: {
         onPageLoaded(this: any, args) {
             if (this.numberOfNearbyStations) {
                 return this.foundStations(this.numberOfNearbyStations);
             }
-
-            this.timer = Promise.delay(5000).then(() => {
-                if (this.timer) {
-                    return this.$navigateTo(routes.onboarding.searchFailed);
-                }
-            });
         },
         onNavigatingTo(this: any) {
             this.left = true;

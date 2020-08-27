@@ -107,12 +107,12 @@ import routes from "../../routes";
 import * as ActionTypes from "../../store/actions";
 import * as animations from "../animations";
 
-import ScreenHeader from "../ScreenHeader";
+import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
+        ...SharedComponents,
         ConnectionStatusHeader,
     },
     props: {

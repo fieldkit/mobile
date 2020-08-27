@@ -1,6 +1,6 @@
 <template>
-    <GridLayout rows="auto" columns="15*,70*,15*" :class="bottomMargin || ios ? 'm-b-20' : ''">
-        <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="raiseBack" v-if="canNavigateBack">
+    <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
+        <StackLayout col="0" class="round-bkgd" @tap="raiseBack" v-if="canNavigateBack">
             <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
         </StackLayout>
         <GridLayout col="1" rows="auto,auto" columns="*">
@@ -15,18 +15,22 @@
         </StackLayout>
     </GridLayout>
 </template>
-
 <script lang="ts">
 import Vue from "vue";
 import { isIOS } from "tns-core-modules/platform";
 
 export default Vue.extend({
+    name: "ScreenHeader",
     data: () => {
         return {
             ios: isIOS,
         };
     },
     props: {
+        actionBar: {
+            type: Boolean,
+            default: false,
+        },
         title: {
             type: String,
             required: true,
@@ -64,6 +68,17 @@ export default Vue.extend({
             default: true,
         },
     },
+    computed: {
+        classes(this: any): string {
+            const c: string[] = [];
+            if (this.bottomMargin || this.ios) c.push("m-b-20");
+            if (this.actionBar) c.push("header-container");
+            return c.join(" ");
+        },
+    },
+    mounted() {
+        console.log("screen-header:mounted", this.subtitle);
+    },
     methods: {
         raiseBack(this: any, ev) {
             console.log("ScreenHeader:back");
@@ -80,4 +95,8 @@ export default Vue.extend({
 </script>
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.header-container {
+    padding-top: 15;
+}
 </style>

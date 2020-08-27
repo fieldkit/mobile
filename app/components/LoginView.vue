@@ -187,7 +187,13 @@ import * as ActionTypes from "@/store/actions";
 import Services from "@/services/services";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 
+import SharedComponents from "@/components/shared";
+
 export default Vue.extend({
+    name: "LoginView",
+    components: {
+        ...SharedComponents,
+    },
     data(this: any) {
         return {
             isLoggingIn: true,

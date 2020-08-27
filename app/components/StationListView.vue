@@ -1,10 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
+
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
-                    <ScreenHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" :bottomMargin="false" />
-
                     <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
                     <NoStationsWannaAdd v-if="stations.length == 0" />
@@ -50,16 +50,14 @@ import * as animations from "./animations";
 import { AvailableStation } from "@/store/types";
 import * as ActionTypes from "@/store/actions";
 
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         NoStationsWannaAdd,
         StationsMap,
     },

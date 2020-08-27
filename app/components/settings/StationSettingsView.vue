@@ -30,9 +30,8 @@
 import Vue from "vue";
 import routes from "../../routes";
 import Services from "@/services/services";
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
 
+import SharedComponents from "@/components/shared";
 import General from "./StationSettingsGeneral";
 import Networks from "./StationSettingsNetworks";
 import Firmware from "./StationSettingsFirmware";
@@ -53,8 +52,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         General,
         Firmware,
         Networks,

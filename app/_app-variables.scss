@@ -41,9 +41,6 @@ $base-font-size: 16;
 $border-width: 1;
 $border-radius: 3;
 
-/**
- * Theme variables overrides
-**/
 
 // Colors
 $background: $white;
@@ -62,14 +59,14 @@ $side-drawer-header-brand: #737373;
 $side-drawer-background: $white;
 
 // ActionBar
-$ab-background: $accent;
-$ab-color: $white;
+$ab-background: $white;
+$ab-color: $black;
 
 // Buttons
 $btn-color-inverse: $white;
 $btn-color: $accent;
 
-//Text colors
+// Text colors
 $headings-color: $fk-primary-black;
 $secondary: $fk-primary-black;
 $text-color: $fk-primary-black;
