@@ -152,9 +152,6 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-                return this.$navigateTo(routes.stations, {
-                    props: {},
-                });
                 return this.$navigateTo(routes.reader.flow, {
                     props: {
                         flowName: "onboarding",
@@ -181,8 +178,11 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-				*/
                 return this.$navigateTo(routes.login, {
+                    props: {},
+                });
+				*/
+                return this.$navigateTo(routes.stations, {
                     props: {},
                 });
             }

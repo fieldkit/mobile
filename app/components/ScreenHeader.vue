@@ -1,6 +1,6 @@
 <template>
-    <GridLayout rows="auto" columns="15*,70*,15*" :class="bottomMargin || ios ? 'm-b-20' : ''">
-        <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="raiseBack" v-if="canNavigateBack">
+    <GridLayout rows="auto" columns="15*,70*,15*" :class="bottomMargin || ios ? 'm-b-20 header-container' : 'header-container'">
+        <StackLayout col="0" class="round-bkgd" @tap="raiseBack" v-if="canNavigateBack">
             <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
         </StackLayout>
         <GridLayout col="1" rows="auto,auto" columns="*">
@@ -80,4 +80,16 @@ export default Vue.extend({
 </script>
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.header-container {
+    /*padding-top: 15; */
+}
+
+/*
+.round-bkgd {
+    width: 40;
+    margin-top: 1;
+    border-radius: 20;
+}
+*/
 </style>

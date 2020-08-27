@@ -32,7 +32,7 @@
                                         v-if="notes.completed && notes.completed > 0"
                                     />
                                 </GridLayout>
-                                <ModuleListView order="3" :station="currentStation" />
+                                <ModuleList order="3" :station="currentStation" />
                             </StackLayout>
                         </GridLayout>
 
@@ -61,11 +61,10 @@ import routes from "@/routes";
 
 import * as animations from "./animations";
 
+import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
-import ModuleListView from "./ModuleListView.vue";
+import ModuleList from "./ModuleList.vue";
 import NotificationFooter from "./NotificationFooter.vue";
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
 
 export default Vue.extend({
     props: {
@@ -106,11 +105,10 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
+        ...SharedComponents,
         StationStatusBox,
-        ModuleListView,
+        ModuleList,
         NotificationFooter,
-        ScreenFooter,
     },
     methods: {
         onPageLoaded(this: any, args) {

@@ -24,8 +24,7 @@
 <script lang="ts">
 import Vue from "vue";
 
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 
 import routes from "@/routes";
 import { Build } from "@/config";
@@ -39,8 +38,7 @@ export default Vue.extend({
         };
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
     },
     methods: {
         onPageLoaded(this: any) {},

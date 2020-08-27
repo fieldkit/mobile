@@ -64,6 +64,7 @@ import AppSettings from "@/wrappers/app-settings";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 
+import SharedComponents from "@/components/shared";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 
 export default Vue.extend({
@@ -88,6 +89,7 @@ export default Vue.extend({
         };
     },
     components: {
+        ...SharedComponents,
         Recalibrate,
     },
     methods: {

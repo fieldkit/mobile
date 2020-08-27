@@ -50,16 +50,14 @@ import * as animations from "./animations";
 import { AvailableStation } from "@/store/types";
 import * as ActionTypes from "@/store/actions";
 
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         NoStationsWannaAdd,
         StationsMap,
     },

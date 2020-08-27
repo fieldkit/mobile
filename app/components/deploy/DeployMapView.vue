@@ -91,18 +91,16 @@ import routes from "@/routes";
 import * as ActionTypes from "@/store/actions";
 import { Schedule } from "@/store/types";
 
-import LabeledTextField from "../LabeledTextField";
-import ScreenHeader from "../ScreenHeader";
+import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import * as animations from "../animations";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
+        ...SharedComponents,
         ConnectionStatusHeader,
         ScheduleEditor,
-        LabeledTextField,
     },
     data() {
         return {
