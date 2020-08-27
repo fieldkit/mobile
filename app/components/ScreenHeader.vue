@@ -15,12 +15,12 @@
         </StackLayout>
     </GridLayout>
 </template>
-
 <script lang="ts">
 import Vue from "vue";
 import { isIOS } from "tns-core-modules/platform";
 
 export default Vue.extend({
+    name: "ScreenHeader",
     data: () => {
         return {
             ios: isIOS,
