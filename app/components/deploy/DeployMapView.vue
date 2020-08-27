@@ -1,15 +1,15 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page plain" @loaded="onPageLoaded">
+        <PlatformHeader
+            :title="_L('deployment')"
+            :subtitle="currentStation.name"
+            :canNavigateBack="false"
+            :canCancel="true"
+            :onCancel="onNavCancel"
+            :canNavigateSettings="false"
+        />
         <GridLayout rows="auto,*,auto">
             <StackLayout row="0">
-                <ScreenHeader
-                    :title="_L('deployment')"
-                    :subtitle="currentStation.name"
-                    :canNavigateBack="false"
-                    :canCancel="true"
-                    :onCancel="onNavCancel"
-                    :canNavigateSettings="false"
-                />
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
                     <StackLayout col="0" class="top-line"></StackLayout>
                 </GridLayout>

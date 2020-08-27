@@ -157,27 +157,10 @@ export default class StartupScreen extends Vue {
                         flowName: "onboarding",
                     },
                 });
-                if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.deploy.start, {
-                        props: {
-                            stationId: 1,
-                        },
-                    });
-                } else {
-                    console.log("no test station");
-                }
-                if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.stationDetail, {
-                        props: {
-                            stationId: 1,
-                        },
-                    });
-                } else {
-                    console.log("no test station");
-                }
 				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.stationSettings, {
+                    return this.$navigateTo(routes.deploy.start, {
+                        // return this.$navigateTo(routes.stationSettings, {
                         // return this.$navigateTo(routes.stationDetail, {
                         // return this.$navigateTo(routes.onboarding.recalibrate, {
                         props: {

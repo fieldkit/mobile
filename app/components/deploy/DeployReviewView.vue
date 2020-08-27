@@ -1,13 +1,8 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page plain" @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('deploymentReview')" :subtitle="currentStation.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,auto">
             <StackLayout row="0">
-                <ScreenHeader
-                    :title="_L('deploymentReview')"
-                    :subtitle="currentStation.name"
-                    :onBack="goBack"
-                    :canNavigateSettings="false"
-                />
                 <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
