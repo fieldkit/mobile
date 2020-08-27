@@ -27,8 +27,8 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+
+import SharedComponents from "@/components/shared";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
 
@@ -49,8 +49,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         WiFi,
         LoRa,
     },

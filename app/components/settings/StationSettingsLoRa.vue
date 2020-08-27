@@ -91,10 +91,9 @@
 import Vue from "vue";
 import Services from "../../services/services";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import Networks from "./StationSettingsNetworks";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import SharedComponents from "@/components/shared";
+import Networks from "./StationSettingsNetworks.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
 export default Vue.extend({
     data() {
@@ -116,8 +115,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         Networks,
         ConnectionNote,
     },

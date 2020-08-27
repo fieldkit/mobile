@@ -60,16 +60,14 @@
 import Vue from "vue";
 import routes from "@/routes";
 
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         ConnectionNote,
     },
     data() {

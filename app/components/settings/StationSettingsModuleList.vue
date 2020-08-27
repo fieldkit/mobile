@@ -18,8 +18,7 @@ import Vue from "vue";
 import { _T } from "../../utilities";
 import routes from "../../routes";
 
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
 
 import { ModuleCalibration } from "@/calibration/model";
@@ -28,8 +27,7 @@ import * as animations from "../animations";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         CalibratingModules,
     },
     props: {

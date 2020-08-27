@@ -26,8 +26,8 @@
 
 <script lang="ts">
 import Vue from "vue";
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+
+import SharedComponents from "@/components/shared";
 import Networks from "./StationSettingsNetworks.vue";
 import WiFiNetwork from "./StationSettingsWiFiNetwork.vue";
 import WiFiSchedule from "./StationSettingsWiFiSchedule.vue";
@@ -49,8 +49,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         Networks,
         WiFiNetwork,
         WiFiSchedule,

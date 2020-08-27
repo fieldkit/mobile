@@ -109,10 +109,9 @@ import Vue from "vue";
 import Services from "../../services/services";
 import * as animations from "@/components/animations";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import WiFi from "./StationSettingsWiFi";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import SharedComponents from "@/components/shared";
+import WiFi from "./StationSettingsWiFi.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
 import * as dialogs from "tns-core-modules/ui/dialogs";
 
@@ -141,8 +140,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         WiFi,
         ConnectionNote,
     },

@@ -65,10 +65,9 @@
 import Vue from "vue";
 import * as ActionTypes from "../../store/actions";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import General from "./StationSettingsGeneral";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import SharedComponents from "@/components/shared";
+import General from "./StationSettingsGeneral.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
 
 export default Vue.extend({
@@ -87,8 +86,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         General,
         ConnectionNote,
     },

@@ -29,8 +29,7 @@ import Vue from "vue";
 import * as ActionTypes from "@/store/actions";
 import * as animations from "@/components/animations";
 
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import WiFi from "./StationSettingsWiFi.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
@@ -59,8 +58,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         ConnectionNote,
         ScheduleEditor,
     },

@@ -34,8 +34,7 @@ import Vue from "vue";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../../routes";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
+import SharedComponents from "@/components/shared";
 
 import * as ActionTypes from "../../store/actions";
 
@@ -50,8 +49,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
     },
     computed: {
         station(this: any) {
