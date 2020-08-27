@@ -1,8 +1,7 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <StackLayout>
-            <ChooseStrategy :moduleKey="module.name" :strategies="strategies" @choose="choose" @back="back" />
-        </StackLayout>
+    <Page @loaded="onPageLoaded">
+        <Header :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
+        <ChooseStrategy :moduleKey="moduleKey" :strategies="strategies" :visual="visual" @choose="choose" />
     </Page>
 </template>
 
@@ -10,6 +9,7 @@
 import Vue from "vue";
 import { _T } from "../utilities";
 
+import Header from "./Header.vue";
 import Calibrate from "./Calibrate.vue";
 import ChooseStrategy from "./ChooseStrategy.vue";
 
@@ -19,9 +19,12 @@ import StationSettingsModuleList from "../components/settings/StationSettingsMod
 import { calibrationStrategies } from "./strategies";
 import { CalibrationStrategy } from "./model";
 
+import { Common } from "./water";
+
 export default Vue.extend({
     name: "Start",
     components: {
+        Header,
         ChooseStrategy,
     },
     props: {
@@ -48,8 +51,18 @@ export default Vue.extend({
             console.log("station-module", module.name);
             return module;
         },
+        moduleKey(this: any) {
+            return this.module.name;
+        },
         strategies(this: any) {
-            return calibrationStrategies().getModuleStrategies(this.module.name);
+            return calibrationStrategies().getModuleStrategies(this.moduleKey);
+        },
+        visual(this: any) {
+            const common = Common();
+            console.log("common", common, this.moduleKey);
+            const visual = common[this.moduleKey];
+            if (!visual) throw new Error(`missing common module visual: ${this.moduleKey}`);
+            return visual;
         },
     },
     methods: {

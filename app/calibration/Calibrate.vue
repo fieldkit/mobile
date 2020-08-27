@@ -1,5 +1,11 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <Header
+            :title="activeStep.visual.title"
+            :subtitle="activeStep.visual.subtitle"
+            :icon="activeStep.visual.icon"
+            @back="(ev) => onBack(ev, activeStep)"
+        />
         <StackLayout>
             <Success v-if="success" />
             <Failure v-if="failure" />
@@ -25,9 +31,10 @@ import { _T } from "../utilities";
 import Promise from "bluebird";
 
 import Vue from "vue";
-import Start from "./Start";
-import Success from "./Success";
-import Failure from "./Failure";
+import Header from "./Header.vue";
+import Start from "./Start.vue";
+import Success from "./Success.vue";
+import Failure from "./Failure.vue";
 
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import StationSettingsModules from "../components/settings/StationSettingsModuleList.vue";
@@ -38,6 +45,7 @@ import { ClearAtlasCalibration, CalibrateAtlas } from "../store/modules/cal";
 export default Vue.extend({
     name: "Calibrate",
     components: {
+        Header,
         Success,
         Failure,
     },
@@ -194,6 +202,9 @@ export default Vue.extend({
         },
         onCalibrate(this: any, ev: any, step: CalibrationStep) {
             const sensor = this.sensor;
+            if (!sensor.calibration) {
+                throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
+            }
             const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
             const compensations = {
                 temperature: maybeWaterTemp || null,

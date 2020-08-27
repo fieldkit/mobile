@@ -1,5 +1,5 @@
 <template>
-    <GridLayout row="1" rows="auto,auto" columns="*" class="timer-container">
+    <GridLayout rows="auto,auto" columns="*" class="timer-container">
         <GridLayout row="0" class="inner-circle">
             <FlexboxLayout verticalAlignment="middle" justifyContent="center" v-if="reading">
                 <Label
