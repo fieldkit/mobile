@@ -1,5 +1,6 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader title="Developer" :canNavigateBack="false" :canNavigateSettings="false" />
         <Scrollview>
             <FlexboxLayout flexDirection="column" class="p-t-10">
                 <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>

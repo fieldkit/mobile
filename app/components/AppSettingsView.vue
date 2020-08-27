@@ -1,8 +1,9 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="75,*,55">
-            <ScreenHeader row="0" :title="_L('fieldkitSettings')" :canNavigateBack="false" :canNavigateSettings="false" class="m-t-10" />
-            <ScrollView row="1">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('fieldkitSettings')" :canNavigateBack="false" :canNavigateSettings="false" />
+
+        <GridLayout rows="*,55">
+            <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout>
                         <Button v-if="loggedIn" class="btn btn-secondary" :text="_L('logOut')" @tap="logout"></Button>
@@ -16,8 +17,7 @@
                     </StackLayout>
                 </FlexboxLayout>
             </ScrollView>
-            <!-- footer -->
-            <ScreenFooter row="2" active="settings" />
+            <ScreenFooter row="1" active="settings" />
         </GridLayout>
     </Page>
 </template>

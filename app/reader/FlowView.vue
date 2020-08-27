@@ -39,8 +39,6 @@ import { Timer } from "@/common/timer";
 
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 
-// asdf;
-
 interface Self extends Vue {
     flowName: string;
     nav: FlowNavigator;

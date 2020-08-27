@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="auto" columns="15*,70*,15*" :class="bottomMargin || ios ? 'm-b-20 header-container' : 'header-container'">
+    <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
         <StackLayout col="0" class="round-bkgd" @tap="raiseBack" v-if="canNavigateBack">
             <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
         </StackLayout>
@@ -27,6 +27,10 @@ export default Vue.extend({
         };
     },
     props: {
+        actionBar: {
+            type: Boolean,
+            default: false,
+        },
         title: {
             type: String,
             required: true,
@@ -64,6 +68,17 @@ export default Vue.extend({
             default: true,
         },
     },
+    computed: {
+        classes(this: any): string {
+            const c: string[] = [];
+            if (this.bottomMargin || this.ios) c.push("m-b-20");
+            if (this.actionBar) c.push("header-container");
+            return c.join(" ");
+        },
+    },
+    mounted() {
+        console.log("screen-header:mounted", this.subtitle);
+    },
     methods: {
         raiseBack(this: any, ev) {
             console.log("ScreenHeader:back");
@@ -82,14 +97,6 @@ export default Vue.extend({
 @import "~/_app-variables";
 
 .header-container {
-    /*padding-top: 15; */
+    padding-top: 15;
 }
-
-/*
-.round-bkgd {
-    width: 40;
-    margin-top: 1;
-    border-radius: 20;
-}
-*/
 </style>

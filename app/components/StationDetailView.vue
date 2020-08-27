@@ -1,16 +1,9 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
+        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
                 <StackLayout orientation="vertical">
-                    <ScreenHeader
-                        order="1"
-                        :title="currentStation.name"
-                        :subtitle="getDeployedStatus()"
-                        :onBack="goBack"
-                        :onSettings="goToSettings"
-                    />
-
                     <GridLayout order="3" rows="*" columns="*">
                         <GridLayout row="0" col="0">
                             <StackLayout orientation="vertical">

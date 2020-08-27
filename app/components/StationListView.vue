@@ -1,10 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
+
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
-                    <ScreenHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" :bottomMargin="false" />
-
                     <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
                     <NoStationsWannaAdd v-if="stations.length == 0" />

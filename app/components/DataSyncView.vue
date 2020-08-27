@@ -1,9 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onPageUnloaded">
-        <GridLayout rows="*,*,55">
-            <ScreenHeader row="0" class="p-t-10" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
-            <NoStationsWannaAdd row="1" v-if="syncs.length == 0" :image="true" />
-            <ScrollView row="1" v-if="syncs.length > 0">
+    <Page @loaded="onPageLoaded" @unloaded="onPageUnloaded">
+        <PlatformHeader row="0" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
+
+        <GridLayout rows="*,55">
+            <NoStationsWannaAdd row="0" v-if="syncs.length == 0" :image="true" />
+            <ScrollView row="0" v-if="syncs.length > 0">
                 <StackLayout class="sync-panel-container">
                     <StackLayout v-for="sync in syncs" :key="sync.deviceId" class="station-container">
                         <GridLayout rows="auto" columns="*,30">
@@ -149,7 +150,7 @@
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="2" active="data" />
+            <ScreenFooter row="1" active="data" />
         </GridLayout>
     </Page>
 </template>
