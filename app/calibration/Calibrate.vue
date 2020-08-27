@@ -189,7 +189,7 @@ export default Vue.extend({
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
         },
         onClear(this: any, ev: any, step: CalibrationStep) {
-            const sensor = this.sensor;
+            const sensor: CalibratingSensor = this.sensor;
             const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
             console.log("cal:", "clearing", action);
             return this.$store.dispatch(action).then(
@@ -201,8 +201,9 @@ export default Vue.extend({
             );
         },
         onCalibrate(this: any, ev: any, step: CalibrationStep) {
-            const sensor = this.sensor;
-            if (!sensor.calibration) {
+            const sensor: CalibratingSensor = this.sensor;
+            console.log("cal:", "sensor", sensor);
+            if (!sensor.moduleCalibration) {
                 throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
             }
             const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
@@ -214,7 +215,7 @@ export default Vue.extend({
                 this.deviceId,
                 sensor.moduleId,
                 this.position,
-                sensor.calibration.type,
+                sensor.moduleCalibration.type,
                 calibrationValue,
                 compensations
             );
