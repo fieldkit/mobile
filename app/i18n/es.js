@@ -407,5 +407,16 @@ module.exports = {
     daysHrsMin: "días hrs min",
     hrsMinSec: "hrs min seg",
     downloadFirmware: "Descargar Firmware",
-    upgradeFirmware: "Actualización de Firmware"
+    upgradeFirmware: "Actualización de Firmware",
+    appSettings: {
+        title: "Settings",
+        data: "Data",
+        notifications: "Notifications",
+        units: "Units",
+        permissions: "Permissions",
+        appearance: "Appearance",
+        account: "Account",
+        help: "Help",
+        legal: "Legal"
+    }
 };
