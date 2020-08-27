@@ -1,11 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('networks')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader :title="_L('networks')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
-                    <!-- menu -->
                     <StackLayout class="m-t-5">
                         <Label
                             v-for="(option, i) in menuOptions"

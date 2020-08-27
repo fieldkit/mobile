@@ -1,10 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('firmware')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
-                    <ScreenHeader :title="_L('firmware')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
                     <StackLayout class="m-t-10 m-b-30">
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
                         <Label

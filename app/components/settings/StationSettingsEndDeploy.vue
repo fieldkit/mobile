@@ -1,9 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                     <GridLayout rows="*" columns="*">
                         <StackLayout row="0">
                             <StackLayout class="m-x-20 m-t-20" v-if="deployed">

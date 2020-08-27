@@ -1,18 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <StackLayout>
-                        <ScreenHeader
-                            :title="_L('dataCaptureSchedule')"
-                            :subtitle="station.name"
-                            :onBack="goBack"
-                            :canNavigateSettings="false"
-                        />
-                        <StackLayout class="p-b-10"></StackLayout>
-                    </StackLayout>
-
                     <ConnectionNote :station="station" :stationId="stationId" />
 
                     <StackLayout class="editor-container">
