@@ -27,10 +27,19 @@
                             <Image col="1" src="~/images/Icon_Edit.png" width="18" @tap="editLocation" />
                         </GridLayout>
                         <Label :text="notes.location ? notes.location : _L('noNameGiven')" />
+
                         <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
-                        <Label :text="_L('basic')" />
-                        <Label :text="_L('every')" class="m-t-20 m-b-5" />
-                        <Label :text="currentStation.interval | prettyDurationSeconds" />
+                        <StackLayout
+                            v-for="i in currentStation.schedules.readings.intervals"
+                            orientation="horizontal"
+                            class="schedule-interval"
+                        >
+                            <Label :text="i.start | prettyTimeOfDay" />
+                            <Label :text="' to '" />
+                            <Label :text="i.end | prettyTimeOfDay" />
+                            <Label :text="' ' + _L('every') + ' '" />
+                            <Label :text="i.interval | prettyDurationSeconds" />
+                        </StackLayout>
                     </StackLayout>
 
                     <StackLayout class="review-section-no-border">
@@ -136,6 +145,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             console.log("review loaded", this.stationId);
+            console.log("review loaded", this.currentStation);
             this.page = args.object;
         },
         goBack(this: any, ev) {
