@@ -1,17 +1,19 @@
 <template>
     <ActionBar backgroundColor="white" flat="true">
-        <template v-if="ios && !canNavigateSettings">
-            <GridLayout rows="auto,auto" columns="*">
-                <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
-                <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
-            </GridLayout>
-        </template>
-        <template v-if="ios && canNavigateSettings">
-            <GridLayout rows="auto,auto" columns="*">
-                <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
-                <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
-            </GridLayout>
-            <ActionItem @tap="onSettings" ios.systemIcon="2" ios.position="right" android.systemIcon="ic_menu_edit" />
+        <template v-if="ios">
+            <template v-if="canNavigateSettings">
+                <GridLayout rows="auto,auto" columns="*">
+                    <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
+                    <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
+                </GridLayout>
+                <ActionItem @tap="onSettings" ios.systemIcon="2" ios.position="right" android.systemIcon="ic_menu_edit" />
+            </template>
+            <template v-else>
+                <GridLayout rows="auto,auto" columns="*">
+                    <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
+                    <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
+                </GridLayout>
+            </template>
         </template>
         <template v-else>
             <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
@@ -92,7 +94,7 @@ export default Vue.extend({
         },
     },
     mounted() {
-        console.log("screen-header:mounted");
+        console.log("screen-header:mounted", this.ios, this.canNavigateSettings, this.canNavigateBack);
     },
     methods: {
         raiseBack(this: any, ev) {
