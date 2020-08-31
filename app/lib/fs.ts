@@ -5,11 +5,12 @@ import { Folder, knownFolders } from "tns-core-modules/file-system";
 function recurse(f, depth, callback) {
     return f.getEntities().then((entities) => {
         return Promise.all(
-            entities.map((e) => {
-                if (Folder.exists(e.path)) {
-                    return recurse(Folder.fromPath(e.path), depth + 1, callback);
+            entities.map((entry) => {
+                console.log("ENTRY", entry);
+                if (Folder.exists(entry.path)) {
+                    return recurse(Folder.fromPath(entry.path), depth + 1, callback);
                 } else {
-                    callback(depth, e);
+                    callback(depth, entry);
                 }
             })
         );
@@ -17,12 +18,13 @@ function recurse(f, depth, callback) {
 }
 
 export function listAllFiles(f) {
-    const files: { path: string; depth: number }[] = [];
+    const files: { path: string; size: number; depth: number }[] = [];
 
     return recurse(f, 0, (depth, entry) => {
         files.push({
             depth: depth,
             path: entry.path,
+            size: entry.size,
         });
     }).then(() => {
         return files;

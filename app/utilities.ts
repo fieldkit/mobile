@@ -102,7 +102,7 @@ export function getLastSeen(date) {
     return month + "/" + day + "/" + year;
 }
 
-export function getFormattedTime(date) {
+export function getFormattedTime(date: Date) {
     if (!date) {
         return "";
     }
@@ -117,7 +117,7 @@ export function getFormattedTime(date) {
     return hour + ":" + minutes + suffix;
 }
 
-export function _T(key) {
+export function _T(key): any {
     const value = _L(key);
     if (value) {
         return value;
@@ -171,6 +171,14 @@ export function validateStationName(name: string): { required: boolean; long: bo
         characters: characters,
         any: any,
     };
+}
+
+export function getFilePath(path: string): string {
+    const parts = path.split("/");
+    if (parts.length < 2) {
+        throw new Error(`error getting file path: ${path}`);
+    }
+    return _.take(parts, parts.length - 1).join("/");
 }
 
 export function getFileName(path: string): string {
