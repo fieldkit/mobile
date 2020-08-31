@@ -6,7 +6,6 @@ function recurse(f, depth, callback) {
     return f.getEntities().then((entities) => {
         return Promise.all(
             entities.map((entry) => {
-                console.log("ENTRY", entry);
                 if (Folder.exists(entry.path)) {
                     return recurse(Folder.fromPath(entry.path), depth + 1, callback);
                 } else {
@@ -32,8 +31,7 @@ export function listAllFiles(f) {
 }
 
 export function dumpAllFiles() {
-    const rootFolder = knownFolders.documents();
-    return recurse(rootFolder, 0, (depth, entry) => {
+    return recurse(knownFolders.documents(), 0, (depth, entry) => {
         console.log("files", entry.path, entry.size);
     });
 }

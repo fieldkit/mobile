@@ -37,6 +37,7 @@
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" />
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
 
+                <Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
 
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
@@ -64,6 +65,8 @@ import Recalibrate from "./onboarding/Recalibrate";
 import AppSettings from "@/wrappers/app-settings";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
+
+import { getFilePath, getFileName, serializePromiseChain } from "@/utilities";
 
 import SharedComponents from "@/components/shared";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
@@ -97,7 +100,7 @@ export default Vue.extend({
         onPageLoaded(this: any, args) {
             this.page = args.object;
 
-            Services.Database()
+            return Services.Database()
                 .getConfig()
                 .then((result) => {
                     if (result.length == 0) {
@@ -120,6 +123,48 @@ export default Vue.extend({
                     this.environmentLabels = this.environments.map((env) => {
                         return env.label;
                     });
+                });
+        },
+        downloadSampleData(this: any) {
+            const files: string[] = [
+                "5e1fd3f938dff63ba5c5f4d29fe84850255191ff/20200831_000000/meta.fkpb",
+                "5e1fd3f938dff63ba5c5f4d29fe84850255191ff/20200831_000000/data.fkpb",
+            ];
+
+            const progress = (total: number, copied: number, info) => {
+                console.log("progress", total, copied);
+            };
+
+            return serializePromiseChain(files, (file) => {
+                const fullPath = ["downloads", getFilePath(file)].join("/");
+                const folder = Services.FileSystem().getFolder(fullPath);
+                const destination = folder.getFile(getFileName(file));
+
+                return destination.remove().then(() => {
+                    console.log("downloading", file);
+                    return Services.Conservify()
+                        .download({
+                            method: "GET",
+                            url: "http://192.168.0.100:8000/" + file,
+                            path: destination.path,
+                            progress: progress,
+                        })
+                        .catch((error) => {
+                            console.log("error", file, error);
+                            return {};
+                        })
+                        .then((response) => {
+                            console.log("status", file, response.statusCode);
+                            return response;
+                        });
+                });
+            })
+                .then((all) => {
+                    console.log("all", all);
+                })
+                .finally(() => {
+                    console.log("listing phone files");
+                    return this.listPhoneFiles();
                 });
         },
         syncPortal(this: any) {
@@ -230,6 +275,14 @@ export default Vue.extend({
                         });
                 });
         },
+        listPhoneFiles(this: any) {
+            const rootFolder = knownFolders.documents();
+            return listAllFiles(rootFolder).then((fs) => {
+                return fs.map((e) => {
+                    console.log(e.path, e.size);
+                });
+            });
+        },
         deleteFiles(this: any) {
             const rootFolder = knownFolders.documents();
             const diagnosticsFolder = rootFolder.getFolder("diagnostics");
@@ -252,7 +305,7 @@ export default Vue.extend({
                 })
                 .then((after) => {
                     console.log(
-                        "files deleted",
+                        "files after deletion",
                         _(after)
                             .map((f) => f.path)
                             .value()

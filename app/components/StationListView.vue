@@ -66,6 +66,7 @@ export default Vue.extend({
     },
     data() {
         return {
+            busy: false,
             scanning: false,
         };
     },
@@ -86,6 +87,12 @@ export default Vue.extend({
             ]);
         },
         showDev(this: any) {
+            if (this.busy) {
+                return;
+            }
+
+            this.busy = true;
+
             return dialogs
                 .confirm({
                     title: _L("confirmViewDevMenu"),
@@ -96,6 +103,9 @@ export default Vue.extend({
                     if (yes) {
                         return this.$navigateTo(routes.developerMenu);
                     }
+                })
+                .finally(() => {
+                    this.busy = false;
                 });
         },
         onDoubleTap(this: any) {
