@@ -161,11 +161,8 @@ export default Vue.extend({
                         });
                 });
             })
-                .then((all) => testWithFiles(Services.Conservify(), all))
-                .finally(() => {
-                    console.log("listing phone files");
-                    return this.listPhoneFiles();
-                });
+                .then((all) => this.listPhoneFiles("downloads").then(() => all))
+                .then((all) => testWithFiles(Services.Conservify(), all));
         },
         syncPortal(this: any) {
             this.syncing = true;
@@ -275,9 +272,9 @@ export default Vue.extend({
                         });
                 });
         },
-        listPhoneFiles(this: any) {
+        listPhoneFiles(this: any, path: string) {
             const rootFolder = knownFolders.documents();
-            return listAllFiles(rootFolder).then((fs) => {
+            return listAllFiles(rootFolder.getFolder(path)).then((fs) => {
                 return fs.map((e) => {
                     console.log(e.path, e.size);
                 });
