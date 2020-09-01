@@ -1,8 +1,7 @@
 import _ from "lodash";
+import protobuf from "protobufjs";
 import { FileType } from "@/store/types";
 import { serializePromiseChain } from "@/utilities";
-
-import protobuf from "protobufjs";
 
 const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
 const PbDataRecord = dataRoot.lookupType("fk_data.DataRecord");
@@ -14,7 +13,27 @@ export class Time {
 }
 
 export interface DataRecord {
-    readings: { meta: number; reading: number; time: number };
+    readings: {
+        meta: number;
+        reading: number;
+        time: number;
+        uptime: number;
+        location: {
+            latitude: number;
+            longitude: number;
+            time: number;
+        };
+        sensorGroups: { module: number; readings: { sensor: number; value: number }[] }[];
+    };
+    metadata: { deviceId: Buffer; generation: Buffer };
+    modules: {
+        id: string;
+        position: number;
+        name: string;
+        flags: number;
+        header: never;
+        sensors: { name: string; unitOfMeasure: string }[];
+    }[];
 }
 
 export interface ParsedDataRecord {
@@ -72,8 +91,10 @@ function parseMetaRecord(buffer: Buffer): ParsedDataRecord {
     };
 }
 
+type DelimitedCallback = (position: number, size: number, records: any) => void;
+
 interface ConservifyFile {
-    delimited(any): Promise<any>;
+    delimited(callback: DelimitedCallback): Promise<any>;
 }
 
 interface Conservify {
@@ -223,11 +244,69 @@ function getPathFileType(path: string): FileType {
     throw new Error(`unable to get file type: ${path}`);
 }
 
-class StatisticsDataVisitor implements DataVisitor {
+export class StatisticsDataVisitor implements DataVisitor {
     constructor(public visited: number = 0) {}
 
     public onData(data: ParsedDataRecord, meta: ParsedDataRecord): void {
         this.visited++;
+    }
+}
+
+export type ReadingsMap = { [index: string]: number };
+
+/*
+export class RecordRef {
+    constructor(public readonly record: number, public readonly path: string) {}
+}
+*/
+
+export class Readings {
+    constructor(
+        public readonly time: number,
+        public readonly uptime: number,
+        public readonly record: number,
+        public readonly meta: number,
+        public readonly deviceId: string,
+        public readonly generation: string,
+        public readonly readings: ReadingsMap
+    ) {}
+}
+
+export interface ReadingsVisitor {
+    onReadings(readings: Readings): boolean;
+}
+
+export class MergeMetaAndDataVisitor implements DataVisitor {
+    constructor(private readonly visitor: ReadingsVisitor) {}
+
+    public onData(data: ParsedDataRecord, meta: ParsedDataRecord): void {
+        const map = _.fromPairs(
+            _.flatten(
+                data.parsed.readings.sensorGroups.map((sg, moduleIndex) => {
+                    const moduleMeta = meta.parsed.modules[moduleIndex];
+                    return sg.readings.map((s, sensorIndex) => {
+                        const sensorMeta = moduleMeta.sensors[sensorIndex];
+                        const key = [moduleMeta.name, sensorMeta.name].join(".");
+                        return [key, s.value];
+                    });
+                })
+            )
+        );
+
+        const deviceId = Buffer.from(meta.parsed.metadata.deviceId).toString("hex");
+        const generation = Buffer.from(meta.parsed.metadata.generation).toString("hex");
+
+        const readings = new Readings(
+            data.parsed.readings.time,
+            data.parsed.readings.uptime,
+            data.record,
+            meta.record,
+            deviceId,
+            generation,
+            map
+        );
+
+        this.visitor.onReadings(readings);
     }
 }
 
@@ -309,9 +388,19 @@ export class DataReader implements MetaLoader {
 }
 
 export function testWithFiles(cfy: Conservify, files: string[]) {
+    const IgnoringVisitor = class implements ReadingsVisitor {
+        public onReadings(readings: Readings): boolean {
+            return true;
+        }
+    };
+
+    const visitor = new MergeMetaAndDataVisitor(new IgnoringVisitor());
     return new DataReader(() => cfy, files)
-        .walkData(new DataWalkParams(Time.Min, Time.Max), new StatisticsDataVisitor())
+        .walkData(new DataWalkParams(Time.Min, Time.Max), visitor)
         .then((visitor) => {
-            console.log("done", visitor.visited);
+            console.log("done");
+        })
+        .catch((error) => {
+            console.log("error", error, error.stack);
         });
 }
