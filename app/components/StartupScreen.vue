@@ -167,8 +167,11 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-				*/
                 return this.$navigateTo(routes.stations, {
+                    props: {},
+                });
+				*/
+                return this.$navigateTo(routes.developerMenu, {
                     props: {},
                 });
             }
