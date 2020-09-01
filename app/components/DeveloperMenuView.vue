@@ -71,11 +71,7 @@ import { getFilePath, getFileName, serializePromiseChain } from "@/utilities";
 import SharedComponents from "@/components/shared";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 
-import protobuf from "protobufjs";
-
-const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
-const DataRecord = dataRoot.lookupType("fk_data.DataRecord");
-const SignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
+import { testWithFiles } from "@/lib/data";
 
 export default Vue.extend({
     data(this: any) {
@@ -132,19 +128,6 @@ export default Vue.extend({
                 });
         },
         downloadSampleData(this: any) {
-            const parseData = (buffer): any => {
-                return DataRecord.decode(buffer);
-            };
-
-            const parseMeta = (buffer): any => {
-                const signed = SignedRecord.decode(buffer) as any;
-                const parsed = DataRecord.decodeDelimited(Buffer.from(signed.data, "base64"));
-                return {
-                    number: signed.record,
-                    record: parsed,
-                };
-            };
-
             const files: string[] = [
                 "5e1fd3f938dff63ba5c5f4d29fe84850255191ff/20200831_000000/meta.fkpb",
                 "5e1fd3f938dff63ba5c5f4d29fe84850255191ff/20200831_000000/data.fkpb",
@@ -174,62 +157,11 @@ export default Vue.extend({
                         })
                         .then((response) => {
                             console.log("status", file, response.statusCode);
-
-                            let recordParser = parseData;
-                            if (/^meta/.test(getFileName(file))) {
-                                recordParser = parseMeta;
-                            }
-
-                            return Services.Conservify()
-                                .open(destination.path)
-                                .then(
-                                    (file) => {
-                                        console.log("opened file");
-                                        let printed = 0;
-                                        return file
-                                            .info()
-                                            .then(
-                                                (info) => {
-                                                    console.log("info", info);
-                                                },
-                                                (err) => {
-                                                    console.log("error getting info", err);
-                                                }
-                                            )
-                                            .then(() => {
-                                                return file
-                                                    .delimited((position, size, records) => {
-                                                        console.log("records", position, size);
-                                                        for (let i = 0; i < records.size(); ++i) {
-                                                            const buffer = Buffer.from(records.get(i), "base64");
-                                                            try {
-                                                                const parsed = recordParser(buffer);
-                                                                if (printed < 10) {
-                                                                    console.log(parsed);
-                                                                    printed++;
-                                                                }
-                                                            } catch (e) {
-                                                                console.log(`error: ${e.message}`);
-                                                            }
-                                                        }
-                                                    })
-                                                    .then(() => {
-                                                        console.log("done reading");
-                                                    });
-                                            });
-                                    },
-                                    () => {
-                                        console.log("ERROR");
-                                    }
-                                );
-
-                            return response;
+                            return destination.path;
                         });
                 });
             })
-                .then((all) => {
-                    console.log("all", all);
-                })
+                .then((all) => testWithFiles(Services.Conservify(), all))
                 .finally(() => {
                     console.log("listing phone files");
                     return this.listPhoneFiles();
