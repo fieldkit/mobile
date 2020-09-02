@@ -16,13 +16,22 @@ function recurse(f, depth, callback) {
     });
 }
 
+export interface FileLike {
+    path: string;
+    size: number;
+    depth: number;
+    lastModified: Date;
+}
+
 export function listAllFiles(f) {
-    const files: { path: string; size: number; depth: number }[] = [];
+    const files: FileLike[] = [];
 
     return recurse(f, 0, (depth, entry) => {
+        // console.log("entry", depth, entry, entry.path, entry.size, entry.lastModified);
         files.push({
             depth: depth,
             path: entry.path,
+            lastModified: entry.lastModified,
             size: entry.size,
         });
     }).then(() => {

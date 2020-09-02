@@ -40,4 +40,8 @@ export default class FileSystemNode {
     getFile(path) {
         return new File(this, path);
     }
+
+    listFolder(path) {
+        return Promise.resolve([]);
+    }
 }
