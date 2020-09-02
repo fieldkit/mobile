@@ -7,6 +7,8 @@ import { FileLike } from "./fs";
 import Sqlite from "@/wrappers/sqlite";
 import Services from "@/services/services";
 
+import DataWorker from "nativescript-worker-loader!@/lib/worker";
+
 const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
 const PbDataRecord = dataRoot.lookupType("fk_data.DataRecord");
 const PbSignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
@@ -424,6 +426,7 @@ export class DataReader implements MetaLoader {
     }
 }
 
+// whatever;
 
 class Sensor {
     constructor(public readonly id: number, public readonly key: string) {}
@@ -482,6 +485,12 @@ class ReadingsDatabase {
 }
 
 export async function testWithFiles(services: Services, deviceId: string) {
+    const worker = new DataWorker();
+    worker.postMessage({ message: "hello" });
+    worker.onmessage = (message) => {
+        console.log(`main:received: ${JSON.stringify(message)}`);
+    };
+
     const dataServices = new DataServicesImpl(services);
 
     const name = ":memory:"; // "cache/fkdata.sqlite3"
