@@ -23,10 +23,10 @@ export interface FileLike {
     lastModified: Date;
 }
 
-export function listAllFiles(f) {
+export function listAllFiles(f): Promise<FileLike[]> {
     const files: FileLike[] = [];
 
-    return recurse(f, 0, (depth, entry) => {
+    return recurse(f, 0, (depth: number, entry) => {
         // console.log("entry", depth, entry, entry.path, entry.size, entry.lastModified);
         files.push({
             depth: depth,

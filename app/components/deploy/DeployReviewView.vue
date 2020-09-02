@@ -30,9 +30,10 @@
 
                         <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
                         <StackLayout
-                            v-for="i in currentStation.schedules.readings.intervals"
+                            v-for="(i, index) in currentStation.schedules.readings.intervals"
                             orientation="horizontal"
                             class="schedule-interval"
+                            :key="index"
                         >
                             <Label :text="i.start | prettyTimeOfDay" />
                             <Label :text="' to '" />
