@@ -1,5 +1,7 @@
 import _ from "lodash";
 import Sqlite from "@/wrappers/sqlite";
+import { Readings } from "./readings";
+import { Task } from "./tasks";
 
 export class Sensor {
     constructor(public readonly id: number, public readonly key: string) {}
@@ -65,5 +67,27 @@ export class ReadingsDatabase {
         }
 
         return Promise.resolve(this.sensors[key]);
+    }
+}
+
+const name = ":memory:"; // "cache/fkdata.sqlite3"
+const readingsDbPromise = ReadingsDatabase.open(name);
+
+export class SaveReadingsTask extends Task {
+    public readonly taskName = "SaveReadingsTask";
+
+    constructor(public readonly readings: Readings[]) {
+        super();
+    }
+
+    public run(): Promise<any> {
+        return readingsDbPromise
+            .then((readingsDb) => {
+                const sensorKeys = _.uniq(_.flatten(this.readings.map((r) => Object.keys(r.readings))));
+                return Promise.all(sensorKeys.map((key) => readingsDb.findSensor(key))).then((sensors) => {});
+            })
+            .catch((error) => {
+                console.log(`error: ${error}`);
+            });
     }
 }

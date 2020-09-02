@@ -3,15 +3,14 @@ import Services from "@/services/services";
 import { createDataServices } from "./data-services";
 import { MergeMetaAndDataVisitor, ReadingsVisitor, Readings } from "./readings";
 import { DeviceReader } from "./parsing";
+import { TaskQueue } from "./tasks";
+import { SaveReadingsTask } from "./database";
 
 import ReadingsDatabaseWorker from "nativescript-worker-loader!./worker";
 
 export async function testWithFiles(services: Services, deviceId: string) {
-    const worker = new ReadingsDatabaseWorker();
-    worker.postMessage({ message: "hello" });
-    worker.onmessage = (message) => {
-        console.log(`main:received: ${JSON.stringify(message)}`);
-    };
+    const queue = new TaskQueue();
+    queue.start(ReadingsDatabaseWorker);
 
     const dataServices = createDataServices(services);
     const IgnoringVisitor = class implements ReadingsVisitor {
@@ -30,7 +29,7 @@ export async function testWithFiles(services: Services, deviceId: string) {
 
         private flush() {
             if (this.pending.length > 0) {
-                worker.postMessage({ readings: this.pending });
+                queue.enqueue(new SaveReadingsTask(this.pending));
                 this.pending = [];
             }
         }
@@ -46,5 +45,3 @@ export async function testWithFiles(services: Services, deviceId: string) {
             console.log("error", error, error.stack);
         });
 }
-
-// whatever;
