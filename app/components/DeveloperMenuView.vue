@@ -128,6 +128,7 @@ export default Vue.extend({
                 });
         },
         downloadSampleData(this: any) {
+            const deviceId = "5e1fd3f938dff63ba5c5f4d29fe84850255191ff";
             const files: string[] = [
                 "5e1fd3f938dff63ba5c5f4d29fe84850255191ff/20200831_000000/meta.fkpb",
                 "5e1fd3f938dff63ba5c5f4d29fe84850255191ff/20200831_000000/data.fkpb",
@@ -162,7 +163,7 @@ export default Vue.extend({
                 });
             })
                 .then((all) => this.listPhoneFiles("downloads").then(() => all))
-                .then((all) => testWithFiles(Services.Conservify(), all));
+                .then((all) => testWithFiles(Services, deviceId));
         },
         syncPortal(this: any) {
             this.syncing = true;

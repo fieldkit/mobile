@@ -2,6 +2,9 @@ import _ from "lodash";
 import protobuf from "protobufjs";
 import { FileType } from "@/store/types";
 import { serializePromiseChain } from "@/utilities";
+import { FileLike } from "./fs";
+
+import Services from "@/services/services";
 
 const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
 const PbDataRecord = dataRoot.lookupType("fk_data.DataRecord");
@@ -13,6 +16,7 @@ export class Time {
 }
 
 export interface DataRecord {
+    metadata: { deviceId: Buffer; generation: Buffer };
     readings: {
         meta: number;
         reading: number;
@@ -25,7 +29,6 @@ export interface DataRecord {
         };
         sensorGroups: { module: number; readings: { sensor: number; value: number }[] }[];
     };
-    metadata: { deviceId: Buffer; generation: Buffer };
     modules: {
         id: string;
         position: number;
@@ -97,11 +100,24 @@ interface ConservifyFile {
     delimited(callback: DelimitedCallback): Promise<any>;
 }
 
-interface Conservify {
+interface DataServices {
     open(path: string): Promise<ConservifyFile>;
+    listFolder(path: string): Promise<FileLike[]>;
 }
 
-type ServiceFunc = () => Conservify;
+class DataServicesImpl implements DataServices {
+    constructor(private readonly services: Services) {}
+
+    public open(path: string): Promise<ConservifyFile> {
+        return this.services.Conservify().open(path);
+    }
+
+    public listFolder(path: string): Promise<FileLike[]> {
+        return this.services.FileSystem().listFolder(path);
+    }
+}
+
+type ServiceFunc = () => DataServices;
 
 interface DataVisitor {
     onData(data: ParsedDataRecord, meta: ParsedDataRecord): void;
@@ -323,6 +339,21 @@ class LoadMetaVisitor implements ParsedRecordVisitor {
     }
 }
 
+export class DeviceReader {
+    constructor(private readonly services: ServiceFunc, private readonly deviceId: string) {}
+
+    public walkData<T extends DataVisitor>(visitor: T): Promise<T> {
+        return this.services()
+            .listFolder(["downloads", this.deviceId].join("/"))
+            .then((files) => {
+                const paths = files.map((f) => f.path);
+
+                return new DataReader(this.services, paths).walkData(visitor);
+            })
+            .then(() => visitor);
+    }
+}
+
 export class DataReader implements MetaLoader {
     private readonly cached: { [key: string]: Promise<ParsedDataRecord> } = {};
     private readonly files: DataFile[];
@@ -332,7 +363,7 @@ export class DataReader implements MetaLoader {
         this.files = paths.map((path) => new DataFile(services, path, getPathFileType(path)));
     }
 
-    public async walkData<T extends DataVisitor>(params: DataWalkParams, visitor: T): Promise<T> {
+    public async walkData<T extends DataVisitor>(visitor: T): Promise<T> {
         console.log("walk-data:walking");
         const started = new Date();
 
@@ -387,7 +418,9 @@ export class DataReader implements MetaLoader {
     }
 }
 
-export function testWithFiles(cfy: Conservify, files: string[]) {
+export function testWithFiles(services: Services, deviceId: string) {
+    const dataServices = new DataServicesImpl(services);
+
     const IgnoringVisitor = class implements ReadingsVisitor {
         public onReadings(readings: Readings): boolean {
             return true;
@@ -395,8 +428,8 @@ export function testWithFiles(cfy: Conservify, files: string[]) {
     };
 
     const visitor = new MergeMetaAndDataVisitor(new IgnoringVisitor());
-    return new DataReader(() => cfy, files)
-        .walkData(new DataWalkParams(Time.Min, Time.Max), visitor)
+    return new DeviceReader(() => dataServices, deviceId)
+        .walkData(visitor)
         .then((visitor) => {
             console.log("done");
         })
