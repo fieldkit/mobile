@@ -71,7 +71,7 @@ import { getFilePath, getFileName, serializePromiseChain } from "@/utilities";
 import SharedComponents from "@/components/shared";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 
-import { testWithFiles } from "@/lib/data";
+import { testWithFiles } from "@/lib/testing";
 
 export default Vue.extend({
     data(this: any) {
