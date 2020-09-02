@@ -4,6 +4,7 @@ import { FileType } from "@/store/types";
 import { serializePromiseChain } from "@/utilities";
 import { FileLike } from "./fs";
 
+import Sqlite from "@/wrappers/sqlite";
 import Services from "@/services/services";
 
 const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
@@ -289,7 +290,7 @@ export class Readings {
 }
 
 export interface ReadingsVisitor {
-    onReadings(readings: Readings): boolean;
+    onReadings(readings: Readings): void;
 }
 
 export class MergeMetaAndDataVisitor implements DataVisitor {
@@ -322,7 +323,12 @@ export class MergeMetaAndDataVisitor implements DataVisitor {
             map
         );
 
-        this.visitor.onReadings(readings);
+        try {
+            this.visitor.onReadings(readings);
+        } catch (e) {
+            console.log("visitor:error: ${e.message}");
+            throw e;
+        }
     }
 }
 
@@ -418,12 +424,84 @@ export class DataReader implements MetaLoader {
     }
 }
 
-export function testWithFiles(services: Services, deviceId: string) {
+
+class Sensor {
+    constructor(public readonly id: number, public readonly key: string) {}
+}
+
+class ReadingsDatabase {
+    private sensors: { [index: string]: Sensor } = {};
+
+    constructor(private readonly db: any) {}
+
+    public async create() {
+        await this.db.batch([
+            `CREATE TABLE IF NOT EXISTS sensors (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				key TEXT NOT NULL
+			)`,
+            `CREATE TABLE IF NOT EXISTS readings (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				device_id TEXT NOT NULL,
+				time DATETIME NOT NULL,
+				sensor_id INTEGER NOT NULL,
+				value NUMERIC NOT NULL
+			)`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS readings_idx ON readings (device_id, time, sensor_id)`,
+        ]);
+
+        await this.refreshSensors();
+
+        return this;
+    }
+
+    private async refreshSensors(): Promise<{ [index: string]: Sensor }> {
+        const rows = await this.db.query(`SELECT * FROM sensors ORDER BY key`);
+        this.sensors = _.keyBy(
+            rows.map((r) => new Sensor(r.id, r.key)),
+            (s) => s.key
+        );
+        return this.sensors;
+    }
+
+    public async findSensor(key: string): Promise<Sensor> {
+        if (this.sensors[key]) {
+            return Promise.resolve(this.sensors[key]);
+        }
+
+        await this.db.query(`INSERT INTO sensors (key) VALUES (?)`);
+
+        this.refreshSensors();
+
+        if (!this.sensors[key]) {
+            throw new Error(`error finding sensor: ${key}`);
+        }
+
+        return Promise.resolve(this.sensors[key]);
+    }
+}
+
+export async function testWithFiles(services: Services, deviceId: string) {
     const dataServices = new DataServicesImpl(services);
 
+    const name = ":memory:"; // "cache/fkdata.sqlite3"
+    const readingsDb: ReadingsDatabase = await new Sqlite()
+        .open(name)
+        .then((db) => {
+            db.query(`PRAGMA foreign_keys = ON;`);
+            return new ReadingsDatabase(db);
+        })
+        .then((db) => db.create());
+
+    if (readingsDb) {
+        // console.log("hello");
+    }
+
     const IgnoringVisitor = class implements ReadingsVisitor {
-        public onReadings(readings: Readings): boolean {
-            return true;
+        public onReadings(readings: Readings): void {
+            // console.log("adding");
+            // const sensors = await Promise.all(Object.keys(readings.readings).map((key) => readingsDb.findSensor(key)));
+            // console.log(sensors);
         }
     };
 
