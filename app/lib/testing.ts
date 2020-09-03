@@ -33,14 +33,9 @@ class SaveReadingsVisitor implements ReadingsVisitor {
     }
 
     private flush() {
-        if (this.pending.length > 0) {
-            this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.purge, this.pending));
-            this.pending = [];
-            this.purge = false;
-        } else {
-            this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.purge, []));
-            this.purge = false;
-        }
+        this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.purge, this.pending));
+        this.pending = [];
+        this.purge = false;
     }
 }
 
