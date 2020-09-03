@@ -163,7 +163,7 @@ export default Vue.extend({
                 });
             })
                 .then((all) => this.listPhoneFiles("downloads").then(() => all))
-                .then((all) => testWithFiles(Services, deviceId));
+                .then((all) => testWithFiles(deviceId));
         },
         syncPortal(this: any) {
             this.syncing = true;

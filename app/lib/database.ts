@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Sqlite from "@/wrappers/sqlite";
 import { Readings } from "./readings";
-import { Task } from "./tasks";
+import { DataServices, Task, TaskQueuer } from "./tasks";
 
 export class Sensor {
     constructor(public readonly id: number, public readonly key: string) {}
@@ -80,7 +80,7 @@ export class SaveReadingsTask extends Task {
         super();
     }
 
-    public run(): Promise<any> {
+    public run(services: DataServices, tasks: TaskQueuer): Promise<any> {
         return readingsDbPromise
             .then((readingsDb) => {
                 const sensorKeys = _.uniq(_.flatten(this.readings.map((r) => Object.keys(r.readings))));

@@ -7,23 +7,32 @@ class DiscoveryEvents {
     }
 
     onFoundService(info) {
-        // console.log("onServiceFound", info);
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onFoundService(info);
         }
-        // console.log("onServiceFound (done)");
     }
 
     onLostService(info) {
-        // console.log("onServiceLost", info);
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onLostService(info);
         }
-        // console.log("onServiceLost (done)");
     }
 
     add(listener) {
         this.listeners.push(listener);
+    }
+}
+
+export class ServiceFactories {
+    createFileSystem() {
+        const FileSystem = require("../wrappers/file-system").default;
+        return new FileSystem();
+    }
+
+    createConservify(discoveryEvents) {
+        const logger = Config.logger("NativeScriptConservify").noop;
+        const Conservify = require("../wrappers/networking").default;
+        return new Conservify(discoveryEvents, logger);
     }
 }
 

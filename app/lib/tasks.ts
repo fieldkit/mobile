@@ -1,3 +1,7 @@
+import { DataServices } from "./data-services";
+
+export { DataServices };
+
 export interface WorkerMessage {
     data: { taskName: string };
 }
@@ -8,18 +12,31 @@ export interface WorkerError {
     lineno: any;
 }
 
+export interface TaskQueuer {
+    enqueue<T extends Task>(task: T): void;
+}
+
 export abstract class Task {
     public abstract get taskName(): string;
-    public abstract run(): Promise<any>;
+    public abstract run(services: DataServices, tasks: TaskQueuer): Promise<any>;
 }
 
 export type TaskWorkerMap = { [index: string]: Function };
 
 export class TaskWorker {
-    constructor(public readonly ctx: Worker, public readonly map: TaskWorkerMap) {}
+    private readonly queuer: TaskQueuer;
+
+    constructor(private readonly ctx: Worker, private readonly services: DataServices, private readonly map: TaskWorkerMap) {
+        this.queuer = new WorkerTaskQueuer(ctx);
+        console.log("worker:ctor", Object.keys(this.map));
+    }
 
     public message(message: WorkerMessage) {
         const taskName = message.data.taskName;
+        if (!taskName) {
+            console.log(`worker:ignored-message`);
+            return;
+        }
         if (this.map[taskName]) {
             console.log(`worker:begin: ${taskName}`);
             const started = new Date();
@@ -27,7 +44,7 @@ export class TaskWorker {
             const task = message.data as Task;
             Object.setPrototypeOf(task, ctor.prototype);
             try {
-                Promise.resolve(task.run())
+                Promise.resolve(task.run(this.services, this.queuer))
                     .catch((error) => {
                         console.log(`worker:error: ${taskName} ${error}`);
                     })
@@ -35,12 +52,15 @@ export class TaskWorker {
                         const end = new Date();
                         const elapsed = end.getTime() - started.getTime();
                         console.log(`worker:done: ${taskName} ${elapsed}`);
+                        this.ctx.postMessage({ done: true });
                     });
             } catch (error) {
                 console.log(`worker:error: ${taskName} ${error}`);
+                this.ctx.postMessage({ done: true });
             }
         } else {
-            console.log(`worker:error: unknown type! ${JSON.stringify(message)}`);
+            console.log(`worker:error: unknown type! taskName=${taskName} message=${JSON.stringify(message)}`);
+            console.log(`worker:error ${this.map[taskName]}`);
         }
     }
 
@@ -50,18 +70,33 @@ export class TaskWorker {
     }
 }
 
-export class TaskQueue {
+export class TaskQueue implements TaskQueuer {
     private readonly workers: Worker[] = [];
 
     public start(workerFunc: any) {
         const worker = new workerFunc();
         worker.onmessage = (message) => {
-            console.log(`main:received: ${JSON.stringify(message)}`);
+            const taskName = message.data.taskName;
+            if (!taskName) {
+                console.log(`queue:ignored`);
+                return;
+            }
+            console.log(`queue:message: ${taskName}`);
+            this.workers[0].postMessage(message.data);
         };
         this.workers.push(worker);
     }
 
     public enqueue<T extends Task>(task: T): void {
+        console.log("enqueue", this.workers.length, task);
         this.workers[0].postMessage(task);
+    }
+}
+
+class WorkerTaskQueuer implements TaskQueuer {
+    constructor(private readonly ctx: Worker) {}
+
+    public enqueue<T extends Task>(task: T): void {
+        this.ctx.postMessage(task);
     }
 }
