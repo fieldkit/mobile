@@ -29,7 +29,7 @@
         methods: {
             goToRoute() {
                 if (this.link) {
-                    this.$navigateTo(routes[this.link], {
+                    this.$navigateTo(routes.appSettings[this.link], {
                         clearHistory: true,
                     });
                 }
