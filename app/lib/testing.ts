@@ -1,4 +1,3 @@
-// import Bluebird from "bluebird";
 import { MergeMetaAndDataVisitor, ReadingsVisitor, Readings } from "./readings";
 import { DeviceReader } from "./parsing";
 import { DataServices, Task, TaskQueue, TaskQueuer } from "./tasks";
@@ -6,11 +5,12 @@ import { SaveReadingsTask } from "./database";
 
 import ReadingsDatabaseWorker from "nativescript-worker-loader!./worker";
 
-export async function testWithFiles(deviceId: string) {
-    const queue = new TaskQueue();
-    queue.start(ReadingsDatabaseWorker);
+const queue = new TaskQueue();
 
-    // await Bluebird.delay(5000);
+export async function testWithFiles(deviceId: string) {
+    if (queue.size == 0) {
+        queue.start(10, ReadingsDatabaseWorker);
+    }
 
     queue.enqueue(new ProcessDeviceFilesTask(deviceId));
 }
@@ -58,5 +58,3 @@ export class ProcessDeviceFilesTask extends Task {
             });
     }
 }
-
-// whatever;

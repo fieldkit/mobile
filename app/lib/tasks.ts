@@ -72,24 +72,35 @@ export class TaskWorker {
 
 export class TaskQueue implements TaskQueuer {
     private readonly workers: Worker[] = [];
+    private index: number = 0;
 
-    public start(workerFunc: any) {
-        const worker = new workerFunc();
-        worker.onmessage = (message) => {
-            const taskName = message.data.taskName;
-            if (!taskName) {
-                console.log(`queue:ignored`);
-                return;
-            }
-            console.log(`queue:message: ${taskName}`);
-            this.workers[0].postMessage(message.data);
-        };
-        this.workers.push(worker);
+    public start(size: number, workerFunc: any) {
+        for (let i = 0; i < size; ++i) {
+            const worker = new workerFunc();
+            worker.onmessage = (message) => {
+                const taskName = message.data.taskName;
+                if (!taskName) {
+                    console.log(`queue:ignored`);
+                    return;
+                }
+                console.log(`queue:message: ${taskName}`);
+                this.deqeueuWorker().postMessage(message.data);
+            };
+            this.workers.push(worker);
+        }
+    }
+
+    public get size(): number {
+        return this.workers.length;
+    }
+
+    private deqeueuWorker(): Worker {
+        return this.workers[this.index++ % this.workers.length];
     }
 
     public enqueue<T extends Task>(task: T): void {
         console.log("enqueue", this.workers.length, task);
-        this.workers[0].postMessage(task);
+        this.deqeueuWorker().postMessage(task);
     }
 }
 
