@@ -76,3 +76,11 @@ export interface NotesTableRow {
     notes: string;
     notesObject: object | null;
 }
+
+export interface SettingsTableRow {
+    id: number;
+    settings: string;
+    settingsObject: object | null;
+    createdAt: string;
+    updatedAt: string;
+}
