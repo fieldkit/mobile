@@ -78,6 +78,10 @@ export class TaskQueue implements TaskQueuer {
         for (let i = 0; i < size; ++i) {
             const worker = new workerFunc();
             worker.onmessage = (message) => {
+                if (message.data.done === true) {
+                    console.log(`queue:done`);
+                    return;
+                }
                 const taskName = message.data.taskName;
                 if (!taskName) {
                     console.log(`queue:ignored`);

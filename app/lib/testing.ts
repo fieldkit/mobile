@@ -9,7 +9,7 @@ const queue = new TaskQueue();
 
 export async function testWithFiles(deviceId: string) {
     if (queue.size == 0) {
-        queue.start(10, ReadingsDatabaseWorker);
+        queue.start(1, ReadingsDatabaseWorker);
     }
 
     queue.enqueue(new ProcessDeviceFilesTask(deviceId));
@@ -18,7 +18,7 @@ export async function testWithFiles(deviceId: string) {
 class SaveReadingsVisitor implements ReadingsVisitor {
     private pending: Readings[] = [];
 
-    constructor(private readonly tasks: TaskQueuer) {}
+    constructor(private readonly deviceId: string, private readonly tasks: TaskQueuer) {}
 
     public onReadings(readings: Readings): void {
         this.pending.push(readings);
@@ -33,7 +33,7 @@ class SaveReadingsVisitor implements ReadingsVisitor {
 
     private flush() {
         if (this.pending.length > 0) {
-            this.tasks.enqueue(new SaveReadingsTask(this.pending));
+            this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.pending));
             this.pending = [];
         }
     }
@@ -47,7 +47,7 @@ export class ProcessDeviceFilesTask extends Task {
     }
 
     public run(services: DataServices, tasks: TaskQueuer): Promise<any> {
-        const visitor = new MergeMetaAndDataVisitor(new SaveReadingsVisitor(tasks));
+        const visitor = new MergeMetaAndDataVisitor(new SaveReadingsVisitor(this.deviceId, tasks));
         return new DeviceReader(services, this.deviceId)
             .walkData(visitor)
             .then((visitor) => {
