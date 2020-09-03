@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Config from "../config";
+import Settings from "../settings";
 import { sqliteToJs } from "../utilities";
 import { Download, FileTypeUtils } from "../store/types";
 import { DownloadTableRow, NotesTableRow } from "../store/row-types";
@@ -16,7 +17,7 @@ export default class DatabaseInterface {
     public checkConfig() {
         return this.getConfig().then((result) => {
             if (result.length == 0) {
-                console.log("config: intializing", Config);
+                console.log("config: initializing", Config);
                 return this.insertConfig(Config);
             } else {
                 console.log("config: * actual baseUri and ingestionUri *", result[0]);
@@ -884,5 +885,51 @@ export default class DatabaseInterface {
                 })
             )
             .catch((err) => Promise.reject(new Error(`error fetching notes: ${err}`)));
+    }
+
+    public checkSettings() {
+        return this.getSettings().then((result) => {
+            if (result.length == 0) {
+                console.log("settings: initializing", Settings);
+                return this.insertSettings(Settings);
+            } else {
+                console.log("existing settings: ", result[0]);
+            }
+        });
+    }
+
+    public getSettings() {
+        return this.getDatabase()
+            .then((db) => db.query("SELECT * FROM settings LIMIT 1"))
+            .then((rows) => sqliteToJs(rows))
+            .then((rows) =>
+                rows.map((row) => {
+                    try {
+                        row.settingsObject = JSON.parse(row.settings);
+                        return row;
+                    } catch (err) {
+                        log.error(`error deserializing notes JSON: ${err}`);
+                        log.error(`JSON: ${row.settings}`);
+                    }
+                    return row;
+                })
+            )
+            .catch((err) => Promise.reject(new Error(`error fetching settings: ${err}`)));
+    }
+
+    public insertSettings(settings) {
+        return this.getDatabase()
+            .then((db) =>
+                db.execute("INSERT INTO settings (created_at, updated_at,settings) VALUES (?, ?, ?)", [new Date(), new Date(), JSON.stringify(settings)])
+        )
+            .catch((error) => `error inserting settings: ${error}`);
+    }
+
+    public updateSettings(settings) {
+        return this.getDatabase()
+            .then((db) =>
+                db.execute("UPDATE settings SET settings = ?", JSON.stringify(settings))
+        )
+            .catch((error) => `error updating settings: ${error}`);
     }
 }
