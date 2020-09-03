@@ -26,8 +26,15 @@ export class ReadingsDatabase {
 
     constructor(private readonly db: any) {}
 
+    public static async delete(name: string): Promise<any> {
+        const sqlite = new Sqlite();
+        await sqlite.delete(name);
+        return {};
+    }
+
     public static async open(name: string): Promise<ReadingsDatabase> {
-        const db = await new Sqlite().open(name);
+        const sqlite = new Sqlite();
+        const db = await sqlite.open(name);
         await db.query(`PRAGMA foreign_keys = ON;`);
         await db.query(`PRAGMA synchronous = OFF;`);
         await db.query(`PRAGMA journal_mode = MEMORY;`);
@@ -163,22 +170,23 @@ export class ReadingsDatabase {
     }
 }
 
-// whatever;
-
 export class SaveReadingsTask extends Task {
     public readonly taskName = "SaveReadingsTask";
 
-    constructor(public readonly deviceId: string, public readonly readings: Readings[]) {
+    constructor(public readonly deviceId: string, private readonly purge: boolean, public readonly readings: Readings[]) {
         super();
     }
 
-    private open(): Promise<ReadingsDatabase> {
-        const name = this.deviceId + ".sqlite3";
-        return ReadingsDatabase.open(name);
+    private get name(): string {
+        return this.deviceId + ".sqlite3";
     }
 
     public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
-        const db = await this.open();
+        if (this.purge) {
+            console.log("purging database", this.name);
+            await ReadingsDatabase.delete(this.name);
+        }
+        const db = await ReadingsDatabase.open(this.name);
         await db.save(this.deviceId, this.readings);
         const summary = await db.describe();
         console.log("summary", summary);

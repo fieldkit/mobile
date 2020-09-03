@@ -17,6 +17,7 @@ export async function testWithFiles(deviceId: string) {
 
 class SaveReadingsVisitor implements ReadingsVisitor {
     private pending: Readings[] = [];
+    private purge = true;
 
     constructor(private readonly deviceId: string, private readonly tasks: TaskQueuer) {}
 
@@ -33,8 +34,12 @@ class SaveReadingsVisitor implements ReadingsVisitor {
 
     private flush() {
         if (this.pending.length > 0) {
-            this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.pending));
+            this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.purge, this.pending));
             this.pending = [];
+            this.purge = false;
+        } else {
+            this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.purge, []));
+            this.purge = false;
         }
     }
 }
