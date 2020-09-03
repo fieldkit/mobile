@@ -31,8 +31,9 @@ const actions = {
         return state.services
             .db()
             .updateSettings(settings)
-            .then(() => {
+            .then((res) => {
                 dispatch(ActionTypes.LOAD_SETTINGS);
+                return res;
             })
             .catch((e) => console.log('ActionTypes.UPDATE_SETTINGS', e))
     },

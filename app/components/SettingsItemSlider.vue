@@ -7,7 +7,7 @@
         <GridLayout row="0" col="1" verticalAlignment="center" >
             <GridLayout class="wrapSwitch">
                 <GridLayout verticalAlignment="center" borderRadius="50" borderColor="#d8dce0" borderWidth="2" width="50" >
-                    <Switch :checked="value" offBackgroundColor="#fcfcfc" @tap="handleInput"/>
+                    <Switch :checked="content" offBackgroundColor="#fcfcfc" @tap="handleInput"/>
                 </GridLayout>
             </GridLayout>
         </GridLayout>
@@ -38,8 +38,8 @@
         },
         methods: {
             handleInput (e) {
-                this.$emit('input', !this.value)
-                this.$emit('change', !this.value)
+                this.$emit('input', !this.content)
+                this.$emit('change', !this.content)
             }
         },
     });
