@@ -1,11 +1,24 @@
 import _ from "lodash";
 import Sqlite from "@/wrappers/sqlite";
-import { serializePromiseChain } from "@/utilities";
+import { sqliteToJs, serializePromiseChain } from "@/utilities";
 import { Readings } from "./readings";
 import { DataServices, Task, TaskQueuer } from "./tasks";
 
+export class DataQueryParams {
+    constructor(public readonly start: number, public readonly end: number, public readonly sensorIds: number[]) {}
+}
+
 export class Sensor {
     constructor(public readonly id: number, public readonly key: string) {}
+}
+
+export interface ReadingRow {
+    id: number;
+    // deviceId: string;
+    // stationId: number;
+    time: number;
+    sensorId: number;
+    value: number;
 }
 
 export class ReadingsDatabase {
@@ -31,7 +44,6 @@ export class ReadingsDatabase {
 			)`,
             `CREATE TABLE IF NOT EXISTS readings (
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				device_id TEXT NOT NULL,
 				time DATETIME NOT NULL,
 				sensor_id INTEGER NOT NULL,
 				value NUMERIC NOT NULL
@@ -94,7 +106,7 @@ export class ReadingsDatabase {
         const sensors = _.fromPairs(sensorPairs);
         const started = new Date();
 
-        await this.db.query("BEGIN TRANSACTION");
+        await this.db.query(`BEGIN TRANSACTION`);
 
         return serializePromiseChain(readings, (readings: Readings) => {
             return serializePromiseChain(Object.keys(readings.readings), (sensorKey: string) => {
@@ -103,12 +115,12 @@ export class ReadingsDatabase {
                     throw new Error(`missing sensor: ${sensorKey}`);
                 }
                 const value = readings.readings[sensorKey];
-                const values = [deviceId, readings.time, sensor.id, value];
+                const values = [readings.time, sensor.id, value];
                 return this.db
                     .query(
                         `
-						INSERT INTO readings (device_id, time, sensor_id, value)
-						VALUES (?, ?, ?, ?)
+						INSERT INTO readings (time, sensor_id, value)
+						VALUES (?, ?, ?)
 						`,
                         values
                     )
@@ -118,7 +130,7 @@ export class ReadingsDatabase {
                     });
             });
         }).then(() => {
-            return this.db.query("COMMIT TRANSACTION").then(() => {
+            return this.db.query(`COMMIT TRANSACTION`).then(() => {
                 const end = new Date();
                 const elapsed = end.getTime() - started.getTime();
                 console.log(`save:done elapsed=${elapsed} records=${readings.length}`);
@@ -126,12 +138,32 @@ export class ReadingsDatabase {
             });
         });
     }
+
+    public async describe() {
+        const times = sqliteToJs(await this.db.query(`SELECT MIN(time) AS start, MAX(time) AS end FROM readings`));
+        const sensors = sqliteToJs(
+            await this.db.query(
+                `SELECT sensor_id, sensors.key, COUNT(*) AS records FROM readings JOIN sensors ON (sensor_id = sensors.id) GROUP BY sensor_id`
+            )
+        );
+        if (times.length != 1) throw new Error(`no times in readings database`);
+        return {
+            start: times[0].start,
+            end: times[0].end,
+            sensors: sensors,
+        };
+    }
+
+    public async query(params: DataQueryParams): Promise<ReadingRow[]> {
+        const values = [params.start, params.end, params.sensorIds];
+        const rawRows = await this.db.query(`SELECT * FROM readings WHERE (time > ? AND time < ?) AND (sensor_id IN (?))`, values);
+        const rows = sqliteToJs(rawRows);
+        console.log(rows);
+        return [];
+    }
 }
 
 // whatever;
-
-const name = ":memory:"; // "cache/fkdata.sqlite3"
-const readingsDbPromise = ReadingsDatabase.open(name);
 
 export class SaveReadingsTask extends Task {
     public readonly taskName = "SaveReadingsTask";
@@ -140,11 +172,15 @@ export class SaveReadingsTask extends Task {
         super();
     }
 
-    public run(services: DataServices, tasks: TaskQueuer): Promise<any> {
-        return readingsDbPromise
-            .then((readingsDb) => readingsDb.save(this.deviceId, this.readings))
-            .catch((error) => {
-                console.log(`error: ${error}`);
-            });
+    private open(): Promise<ReadingsDatabase> {
+        const name = this.deviceId + ".sqlite3";
+        return ReadingsDatabase.open(name);
+    }
+
+    public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
+        const db = await this.open();
+        await db.save(this.deviceId, this.readings);
+        const summary = await db.describe();
+        console.log("summary", summary);
     }
 }
