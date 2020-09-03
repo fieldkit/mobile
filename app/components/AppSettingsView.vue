@@ -5,8 +5,8 @@
             <ScrollView row="1" class="m-r-20 m-l-20">
                 <StackLayout>
                     <SettingsItemText
-                        :link="'dataSync'"
-                        :text="'appSettings.data'"
+                        :link="'data'"
+                        :text="'appSettings.data.data'"
                         :imageSrc="'~/images/icon_connections.png'"
                         :cssClass="'top-bordered-item'">
                     </SettingsItemText>

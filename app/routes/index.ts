@@ -25,6 +25,8 @@ import DeployMap from "../components/deploy/DeployMapView.vue";
 import DeployNotes from "../components/deploy/DeployNotesView.vue";
 import DeployReview from "../components/deploy/DeployReviewView.vue";
 
+import AppSettingsData from "../components/AppSettingsDataView.vue";
+
 import FlowView from "@/reader/FlowView";
 
 import { Route } from "./navigate";
@@ -36,7 +38,10 @@ const routes = {
     // Bottom navigation
     stations: new Route(StationListView, { clear: true, listing: true }),
     dataSync: new Route(DataSync, { clear: true, dataSync: true }),
-    appSettings: new Route(AppSettings, { clear: true }),
+    appSettings: {
+        list: new Route(AppSettings, { clear: true }),
+        data: new Route(AppSettingsData, { clear: true })
+    },
 
     // Per station
     stationDetail: new Route(StationDetail, { reading: true, station: true }),
