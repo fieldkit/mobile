@@ -57,9 +57,18 @@ var Conservify = (function (_super) {
         _this.discoveryEvents = discoveryEvents;
         var owner = _this;
         var active = _this.active;
-        if (!application_1.android.context) {
-            throw new Error("No androidApp.context? Are we being called before application.start?");
-        }
+        var getAndroidContext = function () {
+            if (!application_1.android.context) {
+                var cc = new org.conservify.ContextContainer(null);
+                if (!cc.getContext()) {
+                    throw new Error("No androidApp.context? Are we being called before application.start?");
+                }
+                return cc.getContext();
+            } else {
+                var cc = new org.conservify.ContextContainer(application_1.android.context);
+                return cc.getContext();
+            }
+        };
         _this.networkingListener = new org.conservify.networking.NetworkingListener({
             onStarted: function () {
                 owner.started.resolve();
@@ -268,9 +277,10 @@ var Conservify = (function (_super) {
                 }
             },
         });
-        _this.fileSystem = new org.conservify.data.FileSystem(application_1.android.context, _this.fsListener);
+        var androidContext = getAndroidContext();
+        _this.fileSystem = new org.conservify.data.FileSystem(androidContext, _this.fsListener);
         _this.networking = new org.conservify.networking.Networking(
-            application_1.android.context,
+            androidContext,
             _this.networkingListener,
             _this.uploadListener,
             _this.downloadListener
