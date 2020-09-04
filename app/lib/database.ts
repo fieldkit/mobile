@@ -5,19 +5,53 @@ import { Readings } from "./readings";
 import { DataServices, Task, TaskQueuer } from "./tasks";
 
 export class DataQueryParams {
+    public static MaxTime = 8640000000000000;
+    public static MinTime = -8640000000000000;
+
     constructor(
         public readonly start: number,
         public readonly end: number,
-        public readonly sensorIds: number[],
-        public readonly page: number,
-        public readonly pageSize: number
+        public readonly sensorIds: number[] = [],
+        public readonly aggregate: string = Aggregate.Default,
+        public readonly page: number = 0,
+        public readonly pageSize: number = 1000
     ) {}
 }
 
-export interface DataSummary {
-    start: number;
-    end: number;
-    sensors: { id: number; key: string; records: number }[];
+export class AggregateSummary {
+    constructor(
+        public readonly aggregate: Aggregate,
+        public readonly start: number,
+        public readonly end: number,
+        public readonly sensors: { id: number; key: string; records: number }[]
+    ) {}
+
+    public get name(): string {
+        return this.aggregate.name;
+    }
+
+    public get records(): number {
+        return _.sum(this.sensors.map((s) => s.records));
+    }
+
+    public get sensorIds(): number[] {
+        return this.sensors.map((s) => s.id);
+    }
+}
+
+export class Summaries {
+    constructor(public readonly summaries: AggregateSummary[]) {}
+
+    public makeDefaultParams() {
+        const aggSummary = this.pickAggregate();
+        return new DataQueryParams(aggSummary.start, aggSummary.end, aggSummary.sensorIds, aggSummary.name);
+    }
+
+    private pickAggregate(): AggregateSummary {
+        const aggSummary = _.first(this.summaries.filter((s) => s.records < 1000));
+        if (!aggSummary) throw new Error(`no suitable aggregate summary`);
+        return aggSummary;
+    }
 }
 
 export class Sensor {
@@ -32,7 +66,7 @@ interface ReadingRow {
 }
 
 interface AggregatedReadingLike {
-    aggregate: string;
+    aggregate: Aggregate;
     time: number;
     sensorKey: string;
     value: number;
@@ -74,17 +108,11 @@ export class ReadingsDatabase {
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
 				key TEXT NOT NULL
 			)`,
-            `CREATE TABLE IF NOT EXISTS readings (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				time DATETIME NOT NULL,
-				sensor_id INTEGER NOT NULL,
-				value NUMERIC NOT NULL
-			)`,
-            // `CREATE UNIQUE INDEX IF NOT EXISTS readings_idx ON readings (device_id, time, sensor_id)`,
+            `CREATE UNIQUE INDEX IF NOT EXISTS sensors_idx ON sensors (key)`,
         ]);
 
         Aggregate.getAll().forEach(async (aggregate) => {
-            const table = "aggregated_" + aggregate.name;
+            const table = aggregate.table;
             await this.db.batch([
                 `CREATE TABLE IF NOT EXISTS ${table} (
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -92,7 +120,7 @@ export class ReadingsDatabase {
 					sensor_id INTEGER NOT NULL,
 					value NUMERIC NOT NULL
 				)`,
-                // `CREATE UNIQUE INDEX IF NOT EXISTS readings_idx ON readings (device_id, time, sensor_id)`,
+                // `CREATE UNIQUE INDEX IF NOT EXISTS ${table}_idx ON ${table} (time, sensor_id)`,
             ]);
         });
 
@@ -139,13 +167,7 @@ export class ReadingsDatabase {
         return Promise.resolve(this.sensors[key]);
     }
 
-    public async status(): Promise<any> {
-        const size = await this.db.query(`SELECT COUNT(*) AS number_readings FROM readings`);
-        console.log(`status: ${JSON.stringify(size)}`);
-        return {};
-    }
-
-    public async saveAggregates(readings: AggregatedReadingLike[]): Promise<any> {
+    public async save(readings: AggregatedReadingLike[]): Promise<any> {
         const sensorKeys = _.uniq(readings.map((r) => r.sensorKey));
         const sensorPairs = await Promise.all(sensorKeys.map((key) => this.findSensor(key).then((sensor) => [key, sensor])));
         const sensors = _.fromPairs(sensorPairs);
@@ -157,7 +179,7 @@ export class ReadingsDatabase {
             if (!sensor) {
                 throw new Error(`missing sensor: ${reading.sensorKey}`);
             }
-            const table = "aggregated_" + reading.aggregate;
+            const table = reading.aggregate.table;
             const values = [reading.time, sensor.id, reading.value];
             return this.db
                 .query(
@@ -171,63 +193,30 @@ export class ReadingsDatabase {
                     console.log(`sql:error: ${error.message} ${values}`);
                     return Promise.reject(error);
                 });
-        }).then(() => {
-            return this.db.query(`COMMIT TRANSACTION`);
-        });
+        })
+            .then(() => {
+                return this.db.query(`COMMIT TRANSACTION`);
+            })
+            .catch(() => {
+                return this.db.query(`ROLLBACK TRANSACTION`);
+            });
     }
 
-    public async save(deviceId: string, readings: Readings[]): Promise<any> {
-        const sensorKeys = _.uniq(_.flatten(readings.map((r) => Object.keys(r.readings))));
-        const sensorPairs = await Promise.all(sensorKeys.map((key) => this.findSensor(key).then((sensor) => [key, sensor])));
-        const sensors = _.fromPairs(sensorPairs);
-        const started = new Date();
-
-        await this.db.query(`BEGIN TRANSACTION`);
-
-        return serializePromiseChain(readings, (readings: Readings) => {
-            return serializePromiseChain(Object.keys(readings.readings), (sensorKey: string) => {
-                const sensor = sensors[sensorKey];
-                if (!sensor) {
-                    throw new Error(`missing sensor: ${sensorKey}`);
-                }
-                const value = readings.readings[sensorKey];
-                const values = [readings.time, sensor.id, value];
-                return this.db
-                    .query(
-                        `
-						INSERT INTO readings (time, sensor_id, value)
-						VALUES (?, ?, ?)
-						`,
-                        values
-                    )
-                    .catch((error) => {
-                        console.log(`sql:error: ${error.message} ${values}`);
-                        return Promise.reject(error);
-                    });
-            });
-        }).then(() => {
-            return this.db.query(`COMMIT TRANSACTION`).then(() => {
-                const end = new Date();
-                const elapsed = end.getTime() - started.getTime();
-                console.log(`save:done elapsed=${elapsed} records=${readings.length}`);
-                return this.status();
-            });
-        });
-    }
-
-    public async describe(): Promise<DataSummary> {
-        const times = sqliteToJs(await this.db.query(`SELECT MIN(time) AS start, MAX(time) AS end FROM readings`));
+    public async describe(aggregate: Aggregate): Promise<AggregateSummary> {
+        const table = aggregate.table;
+        const times = sqliteToJs(await this.db.query(`SELECT MIN(time) AS start, MAX(time) AS end FROM ${table}`));
         const sensors = sqliteToJs(
             await this.db.query(
-                `SELECT sensor_id AS id, sensors.key, COUNT(*) AS records FROM readings JOIN sensors ON (sensor_id = sensors.id) GROUP BY sensor_id`
+                `SELECT sensor_id AS id, sensors.key, COUNT(*) AS records FROM ${table} JOIN sensors ON (sensor_id = sensors.id) GROUP BY sensor_id`
             )
         );
-        if (times.length != 1) throw new Error(`no times in readings database`);
-        return {
-            start: times[0].start,
-            end: times[0].end,
-            sensors: sensors,
-        };
+        if (times.length != 1) throw new Error(`no rows in aggregate table`);
+        return new AggregateSummary(aggregate, times[0].start, times[0].end, sensors);
+    }
+
+    public async summarize(): Promise<Summaries> {
+        const summaries = await Promise.all(Aggregate.getAll().map((aggregate) => this.describe(aggregate)));
+        return new Summaries(_.reverse(_.sortBy(summaries, (s) => s.aggregate.interval)));
     }
 
     public async query(params: DataQueryParams): Promise<ReadingRow[]> {
@@ -235,10 +224,12 @@ export class ReadingsDatabase {
             console.log(`no sensor ids`);
             return [];
         }
+        const aggregate = Aggregate.byName(params.aggregate);
+        const table = aggregate.table;
         const questions = _.times(params.sensorIds.length, _.constant("?"));
         const values = [params.start, params.end, ...params.sensorIds, params.pageSize, params.page * params.pageSize];
         const rawRows = await this.db.query(
-            `SELECT * FROM readings WHERE (time > ? AND time < ?) AND (sensor_id IN (${questions})) ORDER BY time, sensor_id LIMIT ? OFFSET ?`,
+            `SELECT * FROM ${table} WHERE (time > ? AND time < ?) AND (sensor_id IN (${questions})) ORDER BY time, sensor_id LIMIT ? OFFSET ?`,
             values
         );
         return sqliteToJs(rawRows);
@@ -250,6 +241,20 @@ export class Aggregate {
     public openTime: number = 0;
 
     constructor(public readonly name: string, public readonly interval: number) {}
+
+    public get table(): string {
+        return "aggregated_" + this.name;
+    }
+
+    public static byName(name: string): Aggregate {
+        const m = Aggregate.getAll().filter((a) => a.name == name);
+        if (m.length != 1) {
+            throw new Error(`unable to find aggregate: ${name}`);
+        }
+        return m[0];
+    }
+
+    public static Default = "24h";
 
     public static getAll(): Aggregate[] {
         return [
@@ -266,6 +271,9 @@ export class Aggregate {
         const rounded = Math.floor(time / this.interval) * this.interval;
         if (this.openTime == rounded) {
             return [];
+        }
+        if (rounded < this.openTime) {
+            console.log(`moving backward: ${rounded} ${this.openTime}`);
         }
         this.openTime = rounded;
         return this.flush(db);
@@ -296,7 +304,7 @@ export class Aggregate {
             .map((entry) => {
                 const [key, values]: [string, number[]] = entry;
                 return {
-                    aggregate: this.name,
+                    aggregate: this,
                     time: this.openTime,
                     sensorKey: key,
                     value: _.sum(values) / values.length,
@@ -335,12 +343,14 @@ export class Aggregator {
                 }
             }
 
+            // console.log("READINGS", readings.record, readings.time, readings.uptime);
+
             this.aggregates.forEach((aggregate) => {
                 Object.entries(readings.readings).forEach(([key, value]: [string, number]) => aggregate.push(readings.time, key, value));
             });
         }
 
-        await timePromise(`save-aggregates rows=${this.rows.length}`, () => db.saveAggregates(this.rows));
+        await timePromise(`save-aggregates rows=${this.rows.length}`, () => db.save(this.rows));
 
         this.rows = [];
     }
@@ -372,8 +382,5 @@ export class SaveReadingsTask extends Task {
         const db = await ReadingsDatabase.open(this.name);
 
         await this.aggregators[this.deviceId].process(db, this.readings);
-
-        const summary = await db.describe();
-        console.log("summary", summary);
     }
 }
