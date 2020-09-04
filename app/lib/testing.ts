@@ -5,8 +5,6 @@ import { DataQueryParams, ReadingsDatabase, SaveReadingsTask } from "./database"
 
 import StandardWorker from "nativescript-worker-loader!./worker";
 
-// whatever;
-
 const queue = new TaskQueue();
 
 export async function testWithFiles(deviceId: string) {

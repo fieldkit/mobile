@@ -4,8 +4,6 @@ import { sqliteToJs, serializePromiseChain } from "@/utilities";
 import { Readings } from "./readings";
 import { DataServices, Task, TaskQueuer } from "./tasks";
 
-// whatever;
-
 export class DataQueryParams {
     constructor(
         public readonly start: number,
@@ -119,7 +117,7 @@ export class ReadingsDatabase {
             (s) => s.key
         );
         if (previousSize !== this.numberOfSensors) {
-            console.log(`sensors added: ${this.numberOfSensors - previousSize} ${this.sensorKeys}`);
+            console.log(`sensors: ${this.numberOfSensors - previousSize} ${this.sensorKeys}`);
         }
         return this.sensors;
     }
@@ -251,9 +249,7 @@ export class Aggregate {
     public samples: { [index: string]: number[] } = {};
     public openTime: number = 0;
 
-    constructor(public readonly name: string, public readonly interval: number) {
-        console.log(`Aggregate:${name}`, this.interval);
-    }
+    constructor(public readonly name: string, public readonly interval: number) {}
 
     public static getAll(): Aggregate[] {
         return [
@@ -313,6 +309,16 @@ export class Aggregate {
     }
 }
 
+function timePromise<T>(name: string, makePromise: () => Promise<T>): Promise<T> {
+    const started = new Date();
+    return makePromise().then((value) => {
+        const ended = new Date();
+        const elapsed = ended.getTime() - started.getTime();
+        console.log(`timed:${name}: ${elapsed}`);
+        return value;
+    });
+}
+
 export class Aggregator {
     private readonly aggregates: Aggregate[];
     private rows: AggregatedReadingLike[] = [];
@@ -334,7 +340,7 @@ export class Aggregator {
             });
         }
 
-        await db.saveAggregates(this.rows);
+        await timePromise(`save-aggregates rows=${this.rows.length}`, () => db.saveAggregates(this.rows));
 
         this.rows = [];
     }
@@ -354,6 +360,7 @@ export class SaveReadingsTask extends Task {
 
     public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
         if (!this.aggregators[this.deviceId]) {
+            console.log("creating aggregator", this.deviceId);
             this.aggregators[this.deviceId] = new Aggregator(this.deviceId);
         }
 

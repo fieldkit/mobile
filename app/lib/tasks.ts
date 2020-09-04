@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { DataServices } from "./data-services";
 
 export { DataServices };
@@ -25,6 +26,7 @@ export type TaskWorkerMap = { [index: string]: Function };
 
 export class TaskWorker {
     private readonly queuer: TaskQueuer;
+    private readonly tasks: { [index: string]: Task } = {};
 
     constructor(private readonly ctx: Worker, private readonly services: DataServices, private readonly map: TaskWorkerMap) {
         this.queuer = new WorkerTaskQueuer(ctx);
@@ -40,9 +42,17 @@ export class TaskWorker {
         if (this.map[taskName]) {
             console.log(`worker:begin: ${taskName}`);
             const started = new Date();
-            const ctor = this.map[taskName];
-            const task = message.data as Task;
-            Object.setPrototypeOf(task, ctor.prototype);
+            const incomingTask = message.data as Task;
+            if (!this.tasks[taskName]) {
+                const ctor = this.map[taskName];
+                Object.setPrototypeOf(incomingTask, ctor.prototype);
+                this.tasks[taskName] = incomingTask;
+            } else {
+                this.tasks[taskName] = _.merge(this.tasks[taskName], incomingTask);
+            }
+
+            const task = this.tasks[taskName];
+
             try {
                 Promise.resolve(task.run(this.services, this.queuer))
                     .catch((error) => {
