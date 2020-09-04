@@ -1,18 +1,34 @@
 import { MergeMetaAndDataVisitor, ReadingsVisitor, Readings } from "./readings";
 import { DeviceReader } from "./parsing";
 import { DataServices, Task, TaskQueue, TaskQueuer } from "./tasks";
-import { SaveReadingsTask } from "./database";
+import { DataQueryParams, ReadingsDatabase, SaveReadingsTask } from "./database";
 
-import ReadingsDatabaseWorker from "nativescript-worker-loader!./worker";
+import StandardWorker from "nativescript-worker-loader!./worker";
+
+// whatever;
 
 const queue = new TaskQueue();
 
 export async function testWithFiles(deviceId: string) {
-    if (queue.size == 0) {
-        queue.start(1, ReadingsDatabaseWorker);
+    if (true) {
+        if (queue.size == 0) {
+            queue.start(1, StandardWorker);
+        }
+        queue.enqueue(new ProcessDeviceFilesTask(deviceId));
+    } else {
+        const db = await ReadingsDatabase.forDevice(deviceId);
+        const summary = await db.describe();
+        const params = new DataQueryParams(
+            summary.start,
+            summary.end,
+            summary.sensors.map((s) => s.id),
+            0,
+            100
+        );
+        console.log("summary", summary);
+        const rows = await db.query(params);
+        console.log("queried", rows.length);
     }
-
-    queue.enqueue(new ProcessDeviceFilesTask(deviceId));
 }
 
 class SaveReadingsVisitor implements ReadingsVisitor {
