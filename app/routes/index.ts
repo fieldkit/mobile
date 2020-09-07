@@ -26,10 +26,16 @@ import DeployNotes from "../components/deploy/DeployNotesView.vue";
 import DeployReview from "../components/deploy/DeployReviewView.vue";
 
 import AppSettingsData from "../components/AppSettingsDataView.vue";
+import AppSettingsNotifications from "../components/AppSettingsNotificationsView.vue";
 
 import FlowView from "@/reader/FlowView";
 
 import { Route } from "./navigate";
+import AppSettingsPermissions from "~/components/AppSettingsPermissionsView.vue";
+import AppSettingsHelp from "~/components/AppSettingsHelpView.vue";
+import AppSettingsHelpAppVersion from "~/components/AppSettingsHelpAppVersionView.vue";
+import AppSettingsLegal from "~/components/AppSettingsLegalView.vue";
+import AppSettingsUnits from "~/components/AppSettingsUnitsView.vue";
 
 const routes = {
     login: new Route(Login, { login: true }),
@@ -40,7 +46,13 @@ const routes = {
     dataSync: new Route(DataSync, { clear: true, dataSync: true }),
     appSettings: {
         list: new Route(AppSettings, { clear: true }),
-        data: new Route(AppSettingsData, { clear: true })
+        data: new Route(AppSettingsData, { clear: true }),
+        units: new Route(AppSettingsUnits, { clear: true }),
+        notifications: new Route(AppSettingsNotifications, { clear: true }),
+        permissions: new Route(AppSettingsPermissions, { clear: true }),
+        help: new Route(AppSettingsHelp, { clear: true }),
+        helpAppVersion: new Route(AppSettingsHelpAppVersion, { clear: true }),
+        legal: new Route(AppSettingsLegal, { clear: true }),
     },
 
     // Per station
