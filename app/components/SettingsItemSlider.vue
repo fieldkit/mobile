@@ -2,7 +2,8 @@
     <GridLayout :rows="description ? '60' : '50'" columns="*, 50" class="bottom-bordered-item" :class="cssClass">
         <StackLayout row="0" col="0" verticalAlignment="center" backgroundColor="white" class="m-r-30">
             <Label :text="_L(title)" class="size-16 m-2 v-middle" backgroundColor="white"/>
-            <Label :text="_L(description)" v-if="description" class="size-12 m-2 v-middle" backgroundColor="white" textWrap="true"/>
+            <Label :text="_L(description)" v-if="description" class="size-12 m-2 v-middle" backgroundColor="white"
+                   textWrap="true"/>
         </StackLayout>
         <GridLayout row="0" col="1" verticalAlignment="center">
             <GridLayout class="wrapSwitch">

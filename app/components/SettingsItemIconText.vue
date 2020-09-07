@@ -5,48 +5,48 @@
     </GridLayout>
 </template>
 <script lang="ts">
-    import Vue from "vue";
-    import routes from "@/routes";
+import Vue from "vue";
+import routes from "@/routes";
 
-    export default Vue.extend({
-        data() {
-            return {};
+export default Vue.extend({
+    data() {
+        return {};
+    },
+    props: {
+        link: {
+            type: String
         },
-        props: {
-            link: {
-                type: String
-            },
-            text: {
-                type: String
-            },
-            imageSrc: {
-                type: String
-            },
-            cssClass: {
-                type: String
+        text: {
+            type: String
+        },
+        imageSrc: {
+            type: String
+        },
+        cssClass: {
+            type: String
+        }
+    },
+    methods: {
+        goToRoute() {
+            if (this.link) {
+                this.$navigateTo(routes.appSettings[this.link], {
+                    clearHistory: true,
+                });
             }
         },
-        methods: {
-            goToRoute() {
-                if (this.link) {
-                    this.$navigateTo(routes.appSettings[this.link], {
-                        clearHistory: true,
-                    });
-                }
-            },
-        },
-    });
+    },
+});
 </script>
 <style scoped lang="scss">
-    @import "~/_app-variables";
+@import "~/_app-variables";
 
-    .bottom-bordered-item {
-        border-bottom-color: $fk-gray-lighter;
-        border-bottom-width: 1;
-    }
+.bottom-bordered-item {
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
+}
 
-    .top-bordered-item {
-        border-top-color: $fk-gray-lighter;
-        border-top-width: 1;
-    }
+.top-bordered-item {
+    border-top-color: $fk-gray-lighter;
+    border-top-width: 1;
+}
 </style>

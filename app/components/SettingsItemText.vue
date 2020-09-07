@@ -34,15 +34,15 @@
     });
 </script>
 <style scoped lang="scss">
-    @import "~/_app-variables";
+@import "~/_app-variables";
 
-    .bottom-bordered-item {
-        border-bottom-color: $fk-gray-lighter;
-        border-bottom-width: 1;
-    }
+.bottom-bordered-item {
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
+}
 
-    .top-bordered-item {
-        border-top-color: $fk-gray-lighter;
-        border-top-width: 1;
-    }
+.top-bordered-item {
+    border-top-color: $fk-gray-lighter;
+    border-top-width: 1;
+}
 </style>

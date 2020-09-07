@@ -1,7 +1,8 @@
 <template>
     <Page class="page" actionBarHidden="true">
         <GridLayout rows="75,*,55">
-            <ScreenHeader row="0" :title="_L('appSettings.title')" :canNavigateBack="false" :canNavigateSettings="false" class="m-t-10 m-r-20 m-l-20"/>
+            <ScreenHeader row="0" :title="_L('appSettings.title')" :canNavigateBack="false" :canNavigateSettings="false"
+                          class="m-t-10 m-r-20 m-l-20"/>
             <ScrollView row="1" class="m-r-20 m-l-20">
                 <StackLayout>
                     <SettingsItemIconText
@@ -51,17 +52,17 @@
     </Page>
 </template>
 <script lang="ts">
-    import Vue from "vue";
+import Vue from "vue";
 
-    import ScreenHeader from "./ScreenHeader.vue";
-    import ScreenFooter from "./ScreenFooter.vue";
-    import SettingsItemIconText from "./SettingsItemIconText.vue";
+import ScreenHeader from "./ScreenHeader.vue";
+import ScreenFooter from "./ScreenFooter.vue";
+import SettingsItemIconText from "./SettingsItemIconText.vue";
 
-    export default Vue.extend({
-        components: {
-            ScreenHeader,
-            ScreenFooter,
-            SettingsItemIconText
-        }
-    });
+export default Vue.extend({
+    components: {
+        ScreenHeader,
+        ScreenFooter,
+        SettingsItemIconText
+    }
+});
 </script>
