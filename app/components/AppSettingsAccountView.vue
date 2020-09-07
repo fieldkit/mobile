@@ -1,7 +1,8 @@
 <template>
     <Page class="page" actionBarHidden="true">
         <GridLayout rows="75,*,55">
-            <ScreenHeader row="0" :title="_L('appSettings.account.account')" :canNavigateBack="true" :canNavigateSettings="false" :onBack="goBack" class="m-t-10 m-r-20 m-l-20"/>
+            <ScreenHeader row="0" :title="_L('appSettings.account.account')" :canNavigateBack="true"
+                          :canNavigateSettings="false" :onBack="goBack" class="m-t-10 m-r-20 m-l-20"/>
             <ScrollView row="1" class="m-r-20 m-l-20">
                 <StackLayout>
                     <StackLayout class="top-bordered-item">
@@ -9,14 +10,18 @@
                     </StackLayout>
                     <StackLayout v-for="account in accounts" orientation="horizontal" class="v-middle m-b-16">
                         <Label :text="account.email" class="size-14 m-10 v-middle"/>
-                        <Image v-if="account.email == currentUser.email" width="10" class="v-middle" src="~/images/Icon_Save.png"></Image>
+                        <Image v-if="account.email == currentUser.email" width="10" class="v-middle"
+                               src="~/images/Icon_Save.png"></Image>
                     </StackLayout>
                     <GridLayout rows="50" columns="20, *" @tap="addAccount" class="m-t-15">
-                        <Image width="20" height="20" row="0" col="0" src="~/images/Icon_Add_Button.png" verticalAlignment="center"></Image>
-                        <Label :text="_L('appSettings.account.addAccount')" class="size-16 m-10" row="0" col="1" verticalAlignment="center"/>
+                        <Image width="20" height="20" row="0" col="0" src="~/images/Icon_Add_Button.png"
+                               verticalAlignment="center"></Image>
+                        <Label :text="_L('appSettings.account.addAccount')" class="size-16 m-10" row="0" col="1"
+                               verticalAlignment="center"/>
                     </GridLayout>
                     <StackLayout>
-                        <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')" @tap="logout"></Button>
+                        <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')"
+                                @tap="logout"></Button>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
@@ -45,8 +50,6 @@ export default Vue.extend({
     },
     computed: {
         accounts() {
-            console.log(Services.PortalInterface().getCurrentUser());
-            console.log(this.$store.state.portal.accounts);
             return this.$store.state.portal.accounts;
         },
     },

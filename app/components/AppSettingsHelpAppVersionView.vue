@@ -47,7 +47,6 @@ export default Vue.extend({
     },
     computed: {
         currentSettings(this: any) {
-            console.log(this.versions);
             return this.$store.state.portal.settings;
         },
     },

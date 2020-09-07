@@ -947,7 +947,6 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then((db) =>
                 db.query(`SELECT id FROM accounts WHERE portal_id = ?`, [account.portalId]).then((maybeId) => {
-                    console.log('maybe', maybeId);
                     if (maybeId.length == 0) {
                         return db.execute(`INSERT INTO accounts (name, email, portal_id, token) VALUES (?, ?, ?, ?)`, [account.name, account.email, account.portalId, account.token]);
                     }

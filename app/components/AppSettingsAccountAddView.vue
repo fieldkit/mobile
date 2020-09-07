@@ -21,8 +21,10 @@
                                 @focus="showActive"
                                 @blur="checkName"
                             ></TextField>
-                            <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong"></StackLayout>
-                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName"></Label>
+                            <StackLayout class="spacer-top" id="name-field-spacer"
+                                         v-show="!noName && !nameTooLong"></StackLayout>
+                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true"
+                                   v-show="noName"></Label>
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
@@ -61,7 +63,8 @@
                                     src="~/images/Icon_Email_login.png"
                                 ></Image>
                             </GridLayout>
-                            <StackLayout class="spacer-top" id="email-field-spacer" v-show="!noEmail && !emailNotValid"></StackLayout>
+                            <StackLayout class="spacer-top" id="email-field-spacer"
+                                         v-show="!noEmail && !emailNotValid"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-email"
@@ -146,7 +149,8 @@
                                 @focus="showActive"
                                 @blur="checkConfirmPassword"
                             ></TextField>
-                            <StackLayout class="spacer-top" id="confirm-password-field-spacer" v-show="!passwordsNotMatch"></StackLayout>
+                            <StackLayout class="spacer-top" id="confirm-password-field-spacer"
+                                         v-show="!passwordsNotMatch"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="passwords-not-match"
@@ -180,7 +184,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { USERNAME, PASSWORD } from "@/secrets";
+import {USERNAME, PASSWORD} from "@/secrets";
 import * as ActionTypes from "@/store/actions";
 import Services from "@/services/services";
 import * as dialogs from "tns-core-modules/ui/dialogs";
@@ -270,7 +274,7 @@ export default Vue.extend({
         continueOffline(this: any) {
             if (!this.navigatedAway) {
                 this.navigatedAway = true;
-                return this.$navigateTo(routes.onboarding.assembleStation, { clearHistory: true });
+                return this.$navigateTo(routes.onboarding.assembleStation, {clearHistory: true});
             }
         },
         submit(this: any) {
