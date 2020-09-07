@@ -4,40 +4,45 @@
             <ScreenHeader row="0" :title="_L('appSettings.title')" :canNavigateBack="false" :canNavigateSettings="false" class="m-t-10 m-r-20 m-l-20"/>
             <ScrollView row="1" class="m-r-20 m-l-20">
                 <StackLayout>
-                    <SettingsItemText
+                    <SettingsItemIconText
                         :link="'data'"
                         :text="'appSettings.data.data'"
                         :imageSrc="'~/images/icon_connections.png'"
                         :cssClass="'top-bordered-item'">
-                    </SettingsItemText>
-                    <SettingsItemText
-                        :text="'appSettings.notifications'"
+                    </SettingsItemIconText>
+                    <SettingsItemIconText
+                        :link="'notifications'"
+                        :text="'appSettings.notifications.notifications'"
                         :imageSrc="'~/images/icon_settings_notifications.png'">
-                    </SettingsItemText>
-                    <SettingsItemText
-                        :text="'appSettings.units'"
+                    </SettingsItemIconText>
+                    <SettingsItemIconText
+                        :link="'units'"
+                        :text="'appSettings.units.units'"
                         :imageSrc="'~/images/icons_units.png'">
-                    </SettingsItemText>
-                    <SettingsItemText
-                        :text="'appSettings.permissions'"
+                    </SettingsItemIconText>
+                    <SettingsItemIconText
+                        :link="'permissions'"
+                        :text="'appSettings.permissions.permissions'"
                         :imageSrc="'~/images/icon_permissions.png'">
-                    </SettingsItemText>
-                    <SettingsItemText
+                    </SettingsItemIconText>
+                    <SettingsItemIconText
                         :text="'appSettings.appearance'"
                         :imageSrc="'~/images/icon_lightmode_settings.png'">
-                    </SettingsItemText>
-                    <SettingsItemText
+                    </SettingsItemIconText>
+                    <SettingsItemIconText
                         :text="'appSettings.account'"
                         :imageSrc="'~/images/icon_account_settings.png'">
-                    </SettingsItemText>
-                    <SettingsItemText
-                        :text="'appSettings.help'"
+                    </SettingsItemIconText>
+                    <SettingsItemIconText
+                        :link="'help'"
+                        :text="'appSettings.help.help'"
                         :imageSrc="'~/images/icon_help_settings.png'">
-                    </SettingsItemText>
-                    <SettingsItemText
-                        :text="'appSettings.legal'"
+                    </SettingsItemIconText>
+                    <SettingsItemIconText
+                        :link="'legal'"
+                        :text="'appSettings.legal.legal'"
                         :imageSrc="'~/images/icon_legal_settings.png'">
-                    </SettingsItemText>
+                    </SettingsItemIconText>
                 </StackLayout>
             </ScrollView>
             <!-- footer -->
@@ -50,13 +55,13 @@
 
     import ScreenHeader from "./ScreenHeader.vue";
     import ScreenFooter from "./ScreenFooter.vue";
-    import SettingsItemText from "./SettingsItemText.vue";
+    import SettingsItemIconText from "./SettingsItemIconText.vue";
 
     export default Vue.extend({
         components: {
             ScreenHeader,
             ScreenFooter,
-            SettingsItemText
+            SettingsItemIconText
         }
     });
 </script>
