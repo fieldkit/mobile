@@ -25,9 +25,6 @@ const settings = {
         language: 'english',
         dark_mode: false
     },
-    account: {
-        account1: {}
-    },
     help: {
         app_version: {
             updates: false,

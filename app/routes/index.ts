@@ -36,6 +36,8 @@ import AppSettingsHelp from "~/components/AppSettingsHelpView.vue";
 import AppSettingsHelpAppVersion from "~/components/AppSettingsHelpAppVersionView.vue";
 import AppSettingsLegal from "~/components/AppSettingsLegalView.vue";
 import AppSettingsUnits from "~/components/AppSettingsUnitsView.vue";
+import AppSettingsAccount from "~/components/AppSettingsAccountView.vue";
+import AppSettingsAccountAdd from "~/components/AppSettingsAccountAddView.vue";
 
 const routes = {
     login: new Route(Login, { login: true }),
@@ -50,6 +52,8 @@ const routes = {
         units: new Route(AppSettingsUnits, { clear: true }),
         notifications: new Route(AppSettingsNotifications, { clear: true }),
         permissions: new Route(AppSettingsPermissions, { clear: true }),
+        account: new Route(AppSettingsAccount, { clear: true }),
+        accountAdd: new Route(AppSettingsAccountAdd, { clear: true }),
         help: new Route(AppSettingsHelp, { clear: true }),
         helpAppVersion: new Route(AppSettingsHelpAppVersion, { clear: true }),
         legal: new Route(AppSettingsLegal, { clear: true }),
