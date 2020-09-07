@@ -84,3 +84,11 @@ export interface SettingsTableRow {
     createdAt: string;
     updatedAt: string;
 }
+
+export interface AccountsTableRow {
+    id: number;
+    name: string;
+    email: string;
+    portalId: string;
+    token: string;
+}
