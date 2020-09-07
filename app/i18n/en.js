@@ -443,7 +443,17 @@ module.exports = {
             microphoneTitle: "Microphone",
         },
         appearance: "Appearance",
-        account: "Account",
+        account: {
+            account: "Account",
+            accounts: "Account",
+            addAccount: "Add Account",
+            logoutAll: "Log Out All Accounts",
+            email: 'Email',
+            password: 'Password',
+            resetPassword: 'Reset Password',
+            login: 'Log in',
+            createAccount: 'Create an account'
+        },
         help: {
             help: "Help",
             appVersion: "App Version",
