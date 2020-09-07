@@ -84,7 +84,8 @@ function initializeApplication(services): Promise<any> {
                 services
                     .CreateDb()
                     .initialize()
-                    .then((db) => services.Database().checkConfig())
+                    .then(() => services.Database().checkSettings())
+                    .then(() => services.Database().checkConfig())
                     .then(() => {
                         console.log("services:setup");
 
