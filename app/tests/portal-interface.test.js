@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import * as MutationTypes from "../store/mutations";
 import { Services } from "../services/services";
 import Fixtures from "./fixtures.js";
 
@@ -12,6 +12,7 @@ describe("UserAuth", () => {
     beforeEach(async () => {
         services = new Services();
         portalInterface = services.PortalInterface();
+        services.Store().commit(MutationTypes.SERVICES, () => services);
         await services.CreateDb().initialize();
         await new Fixtures(services.Database()).addMinimum();
     });
@@ -45,7 +46,7 @@ describe("UserAuth", () => {
         axios
             .mockImplementationOnce(() => Promise.resolve(mockResponseLogin))
             .mockImplementationOnce(() => Promise.resolve(mockResponseCurrentUser));
-        return portalInterface.login(user).then(resp => expect(portalInterface.isLoggedIn()).toBeTruthy());
+        return portalInterface.login(user).then((resp) => expect(portalInterface.isLoggedIn()).toBeTruthy());
     });
 
     it("should not log non-existing user in", () => {
@@ -60,7 +61,7 @@ describe("UserAuth", () => {
         };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
         const expectedError = new Error("authentication failed");
-        return portalInterface.login(user).catch(error => {
+        return portalInterface.login(user).catch((error) => {
             expect(error).toEqual(expectedError);
         });
     });
@@ -73,6 +74,6 @@ describe("UserAuth", () => {
         };
         const mockResponse = { status: 200 };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return portalInterface.register(user).then(resp => expect(resp).toEqual("Account created"));
+        return portalInterface.register(user).then((resp) => expect(resp).toEqual("Account created"));
     });
 });

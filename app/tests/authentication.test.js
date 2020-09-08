@@ -1,4 +1,5 @@
 import axios from "axios";
+import * as MutationTypes from "../store/mutations";
 import { Services } from "../services/services";
 
 describe("Authentication", () => {
@@ -6,6 +7,7 @@ describe("Authentication", () => {
 
     beforeEach(() => {
         services = new Services();
+        services.Store().commit(MutationTypes.SERVICES, () => services);
         return services
             .CreateDb()
             .initialize()
@@ -53,7 +55,10 @@ describe("Authentication", () => {
                 },
             };
 
-            axios.mockReturnValueOnce(Promise.resolve(auth)).mockReturnValueOnce(Promise.resolve(user)).mockReturnValueOnce(Promise.resolve(firmware));
+            axios
+                .mockReturnValueOnce(Promise.resolve(auth))
+                .mockReturnValueOnce(Promise.resolve(user))
+                .mockReturnValueOnce(Promise.resolve(firmware));
 
             services.Conservify().download = jest.fn(() =>
                 Promise.resolve({
