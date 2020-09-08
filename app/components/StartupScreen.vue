@@ -144,22 +144,10 @@ export default class StartupScreen extends Vue {
                         position: 0,
                     },
                 });
-                if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.onboarding.recalibrate, {
-                        props: {
-                            stationId: 1,
-                        },
-                    });
-                } else {
-                    console.log("no test station");
-                }
                 return this.$navigateTo(routes.onboarding.assembleStation, {
                     props: {},
                 });
                 return this.$navigateTo(routes.login, {
-                    props: {},
-                });
-                return this.$navigateTo(routes.stations, {
                     props: {},
                 });
                 return this.$navigateTo(routes.reader.flow, {
@@ -168,7 +156,11 @@ export default class StartupScreen extends Vue {
                     },
                 });
                 if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.deploy.start, {
+                    return this.$navigateTo(routes.deploy.review, {
+                        // return this.$navigateTo(routes.deploy.start, {
+                        // return this.$navigateTo(routes.stationSettings, {
+                        // return this.$navigateTo(routes.stationDetail, {
+                        // return this.$navigateTo(routes.onboarding.recalibrate, {
                         props: {
                             stationId: 1,
                         },
@@ -176,16 +168,13 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+                return this.$navigateTo(routes.stations, {
+                    props: {},
+                });
 				*/
-                if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.stationDetail, {
-                        props: {
-                            stationId: 1,
-                        },
-                    });
-                } else {
-                    console.log("no test station");
-                }
+                return this.$navigateTo(routes.developerMenu, {
+                    props: {},
+                });
             }
 
             console.log("first navigate");

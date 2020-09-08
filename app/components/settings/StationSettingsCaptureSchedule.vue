@@ -1,18 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <StackLayout>
-                        <ScreenHeader
-                            :title="_L('dataCaptureSchedule')"
-                            :subtitle="station.name"
-                            :onBack="goBack"
-                            :canNavigateSettings="false"
-                        />
-                        <StackLayout class="p-b-10"></StackLayout>
-                    </StackLayout>
-
                     <ConnectionNote :station="station" :stationId="stationId" />
 
                     <StackLayout class="editor-container">
@@ -33,9 +25,8 @@ import Vue from "vue";
 import * as ActionTypes from "@/store/actions";
 import { Schedule } from "@/store/types";
 
+import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
 import General from "./StationSettingsGeneral.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
@@ -54,8 +45,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         ConnectionNote,
         ScheduleEditor,
     },

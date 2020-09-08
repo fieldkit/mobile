@@ -1,13 +1,8 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page plain" @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('deploymentReview')" :subtitle="currentStation.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,auto">
             <StackLayout row="0">
-                <ScreenHeader
-                    :title="_L('deploymentReview')"
-                    :subtitle="currentStation.name"
-                    :onBack="goBack"
-                    :canNavigateSettings="false"
-                />
                 <GridLayout rows="auto" columns="33*,33*,30*,4*" class="top-line-bkgd">
                     <StackLayout colSpan="3" class="top-line"></StackLayout>
                 </GridLayout>
@@ -32,10 +27,20 @@
                             <Image col="1" src="~/images/Icon_Edit.png" width="18" @tap="editLocation" />
                         </GridLayout>
                         <Label :text="notes.location ? notes.location : _L('noNameGiven')" />
+
                         <Label :text="_L('dataCaptureSchedule')" class="m-t-20 m-b-5" />
-                        <Label :text="_L('basic')" />
-                        <Label :text="_L('every')" class="m-t-20 m-b-5" />
-                        <Label :text="currentStation.interval | prettyDurationSeconds" />
+                        <StackLayout
+                            v-for="(i, index) in currentStation.schedules.readings.intervals"
+                            orientation="horizontal"
+                            class="schedule-interval"
+                            :key="index"
+                        >
+                            <Label :text="i.start | prettyTimeOfDay" />
+                            <Label :text="' to '" />
+                            <Label :text="i.end | prettyTimeOfDay" />
+                            <Label :text="' ' + _L('every') + ' '" />
+                            <Label :text="i.interval | prettyDurationSeconds" />
+                        </StackLayout>
                     </StackLayout>
 
                     <StackLayout class="review-section-no-border">
@@ -141,6 +146,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             console.log("review loaded", this.stationId);
+            console.log("review loaded", this.currentStation);
             this.page = args.object;
         },
         goBack(this: any, ev) {

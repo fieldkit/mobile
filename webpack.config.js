@@ -102,11 +102,19 @@ module.exports = (env) => {
         );
     }
 
+    const finalExternals = {
+        "nativescript-sqlite-commercial": "nativescript-sqlite-commercial",
+        "nativescript-sqlite-encrypted": "nativescript-sqlite-encrypted",
+        "nativescript-sqlite-sync": "nativescript-sqlite-sync",
+        sqlite3: "sqlite3",
+        ...externals,
+    };
+
     nsWebpack.processAppComponents(appComponents, platform);
     const config = {
         mode: mode,
         context: appFullPath,
-        externals,
+        externals: finalExternals,
         watchOptions: {
             ignored: [
                 appResourcesFullPath,
@@ -312,13 +320,6 @@ module.exports = (env) => {
             // Does IPC communication with the {N} CLI to notify events when running in watch mode.
             new nsWebpack.WatchStateLoggerPlugin(),
         ],
-        // to silence warnings about these modules not being found:
-        externals: {
-            "nativescript-sqlite-commercial": "nativescript-sqlite-commercial",
-            "nativescript-sqlite-encrypted": "nativescript-sqlite-encrypted",
-            "nativescript-sqlite-sync": "nativescript-sqlite-sync",
-            sqlite3: "sqlite3",
-        },
     };
 
     if (unitTesting) {

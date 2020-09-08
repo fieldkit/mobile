@@ -1,9 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
                     <GridLayout rows="*" columns="*">
                         <StackLayout row="0">
                             <StackLayout class="m-x-20 m-t-20" v-if="deployed">
@@ -34,8 +35,7 @@ import Vue from "vue";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import routes from "../../routes";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
+import SharedComponents from "@/components/shared";
 
 import * as ActionTypes from "../../store/actions";
 
@@ -50,8 +50,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
     },
     computed: {
         station(this: any) {

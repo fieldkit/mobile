@@ -1,11 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('networks')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader :title="_L('networks')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
-                    <!-- menu -->
                     <StackLayout class="m-t-5">
                         <Label
                             v-for="(option, i) in menuOptions"
@@ -27,8 +26,8 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+
+import SharedComponents from "@/components/shared";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
 
@@ -49,8 +48,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         WiFi,
         LoRa,
     },

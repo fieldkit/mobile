@@ -1,9 +1,9 @@
 <template>
     <GridLayout rows="auto,auto,auto,auto" class="m-t-20">
-        <Image src="~/images/TI_8-B.jpg" v-if="image" />
-        <Label row="0" :text="_L('connectAStation')" class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20" />
-        <Label row="1" :text="_L('addStationInstruction')" class="text-center size-18 instruction" textWrap="true" />
-        <Button row="2" class="btn btn-primary btn-padded m-y-20" :text="_L('addStation')" @tap="goToAddStation"></Button>
+        <Image row="0" src="~/images/TI_8-B.jpg" v-if="image" width="50%" />
+        <Label row="1" :text="_L('connectAStation')" class="m-x-10 m-t-30 m-b-10 text-center bold dark size-20" />
+        <Label row="2" :text="_L('addStationInstruction')" class="text-center size-18 instruction" textWrap="true" />
+        <Button row="3" class="btn btn-primary btn-padded m-y-20" :text="_L('addStation')" @tap="goToAddStation"></Button>
     </GridLayout>
 </template>
 <script lang="ts">

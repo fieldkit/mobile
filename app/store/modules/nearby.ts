@@ -53,7 +53,7 @@ const actions = {
     },
     [ActionTypes.MAYBE_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
         const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
-        if (info) {
+        if (info && !info.transferring) {
             return dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
         }
     },

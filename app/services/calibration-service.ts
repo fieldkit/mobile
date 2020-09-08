@@ -35,7 +35,7 @@ export interface CalibrationAttempt {
     which: number;
     reference: number;
     compensations: {
-        temperature: number;
+        temperature: number | null;
     };
 }
 

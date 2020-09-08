@@ -10,7 +10,7 @@ class DatabaseWrapper {
         return new Promise((resolve, reject) => {
             this.db.all(sql, params, (err, rows) => {
                 if (err) {
-					console.log(sql, err)
+                    console.log(sql, err);
                     reject(err);
                     return;
                 }
@@ -21,7 +21,7 @@ class DatabaseWrapper {
 
     execute(sql, params) {
         return new Promise((resolve, reject) => {
-            this.db.run(sql, params, function(err) {
+            this.db.run(sql, params, function (err) {
                 if (err) {
                     console.log(sql, err);
                     reject(err);
@@ -39,13 +39,13 @@ class DatabaseWrapper {
         }
         return sqlArray.reduce((promise, item, index) => {
             return promise
-                .then(values =>
-                    this.execute(item).then(value => {
+                .then((values) =>
+                    this.execute(item).then((value) => {
                         values.push(value);
                         return values;
                     })
                 )
-                .catch(err => {
+                .catch((err) => {
                     console.log("SQL error", sql, err);
                 });
         }, Promise.resolve([]));
@@ -55,7 +55,7 @@ class DatabaseWrapper {
 export default class SqliteNodeJs {
     open(name) {
         return new Promise((resolve, reject) => {
-            const db = new sqlite3.Database(name, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, err => {
+            const db = new sqlite3.Database(name, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
                 if (err) {
                     reject(err);
                     return;
@@ -63,5 +63,9 @@ export default class SqliteNodeJs {
                 resolve(new DatabaseWrapper(db));
             });
         });
+    }
+
+    delete(name) {
+        return Promise.resolve({});
     }
 }

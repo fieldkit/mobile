@@ -55,7 +55,10 @@ function configureVueJs(services) {
 
     Vue.filter("prettyDurationSeconds", (value) => {
         const duration = moment.duration(value, "seconds");
-        return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+        if (value > 3600) {
+            return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
+        }
+        return moment.utc(duration.asMilliseconds()).format("mm:ss");
     });
 
     Vue.filter("prettyDuration", (value) => {
@@ -64,6 +67,15 @@ function configureVueJs(services) {
             return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
         }
         return moment.utc(duration.asMilliseconds()).format("mm:ss");
+    });
+
+    Vue.filter("prettyTimeOfDay", (value) => {
+        if (value == 86400) {
+            value -= 60;
+        }
+        const duration = moment.duration(value, "seconds");
+        console.log("prettyTimeOfDay", value, duration);
+        return moment.utc(duration.asMilliseconds()).format("HH:mm");
     });
 
     Vue.filter("prettyDurationLabel", (value) => {

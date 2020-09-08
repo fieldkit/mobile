@@ -1,9 +1,8 @@
 <template>
-    <Page class="page" actionBarHidden="true">
-        <GridLayout rows="75,*,55">
-            <ScreenHeader row="0" :title="_L('appSettings.title')" :canNavigateBack="false" :canNavigateSettings="false"
-                          class="m-t-10 m-r-20 m-l-20"/>
-            <ScrollView row="1" class="m-r-20 m-l-20">
+    <Page>
+	<PlatformHeader :title="_L('appSettings.title')" :canNavigateBack="false" :canNavigateSettings="false" />
+        <GridLayout rows="*,55">
+            <ScrollView row="0" class="m-r-20 m-l-20">
                 <StackLayout>
                     <SettingsItemIconText
                         :link="'data'"
@@ -46,22 +45,19 @@
                     </SettingsItemIconText>
                 </StackLayout>
             </ScrollView>
-            <!-- footer -->
-            <ScreenFooter row="2" active="settings"/>
+            <ScreenFooter row="1" active="settings"/>
         </GridLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 import SettingsItemIconText from "./SettingsItemIconText.vue";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
-        ScreenFooter,
+	...SharedComponents,
         SettingsItemIconText
     }
 });
