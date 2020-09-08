@@ -36,6 +36,9 @@ import AppSettingsHelp from "~/components/AppSettingsHelpView.vue";
 import AppSettingsHelpAppVersion from "~/components/AppSettingsHelpAppVersionView.vue";
 import AppSettingsLegal from "~/components/AppSettingsLegalView.vue";
 import AppSettingsUnits from "~/components/AppSettingsUnitsView.vue";
+import AppSettingsAppearance from "~/components/AppSettingsAppearanceView.vue";
+import AppSettingsAppearanceLanguage from "~/components/AppSettingsAppearanceLanguageView.vue";
+import AppSettingsAppearanceFontSize from "~/components/AppSettingsAppearanceFontSizeView.vue";
 
 const routes = {
     login: new Route(Login, { login: true }),
@@ -50,6 +53,9 @@ const routes = {
         units: new Route(AppSettingsUnits, { clear: true }),
         notifications: new Route(AppSettingsNotifications, { clear: true }),
         permissions: new Route(AppSettingsPermissions, { clear: true }),
+        appearance: new Route(AppSettingsAppearance, { clear: true }),
+        appearanceFontSize: new Route(AppSettingsAppearanceFontSize, { clear: true }),
+        appearanceLanguage: new Route(AppSettingsAppearanceLanguage, { clear: true }),
         help: new Route(AppSettingsHelp, { clear: true }),
         helpAppVersion: new Route(AppSettingsHelpAppVersion, { clear: true }),
         legal: new Route(AppSettingsLegal, { clear: true }),

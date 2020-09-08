@@ -27,7 +27,8 @@
                         :imageSrc="'~/images/icon_permissions.png'">
                     </SettingsItemIconText>
                     <SettingsItemIconText
-                        :text="'appSettings.appearance'"
+                        :link="'appearance'"
+                        :text="'appSettings.appearance.appearance'"
                         :imageSrc="'~/images/icon_lightmode_settings.png'">
                     </SettingsItemIconText>
                     <SettingsItemIconText
