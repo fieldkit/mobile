@@ -2,12 +2,13 @@ import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import {ServiceRef, Services} from "~/store/modules/utilities";
-import {SettingsTableRow} from "~/store/row-types";
+import {AccountsTableRow, SettingsTableRow} from "~/store/row-types";
 
 export class PortalState {
     authenticated: boolean = false;
     services: ServiceRef = new ServiceRef();
     settings: any;
+    accounts: any;
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: any };
@@ -17,6 +18,7 @@ const getters = {};
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
         dispatch(ActionTypes.LOAD_SETTINGS);
+        dispatch(ActionTypes.LOAD_ACCOUNTS);
     },
     [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
@@ -37,6 +39,34 @@ const actions = {
             })
             .catch((e) => console.log('ActionTypes.UPDATE_SETTINGS', e))
     },
+    [ActionTypes.LOAD_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
+        return state.services
+            .db()
+            .getAllAccounts()
+            .then((accounts) => {
+                commit(MutationTypes.LOAD_ACCOUNTS, accounts)
+            })
+            .catch((e) => console.log('ActionTypes.LOAD_ACCOUNTS', e))
+    },
+    [ActionTypes.UPDATE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, account) => {
+        return state.services
+            .db()
+            .addOrUpdateAccounts(account)
+            .then((all) => {
+                dispatch(ActionTypes.LOAD_ACCOUNTS);
+            })
+            .catch((e) => console.log('ActionTypes.UPDATE_ACCOUNT', e))
+    },
+    [ActionTypes.LOGOUT_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
+        return state.services
+            .db()
+            .deleteAllAccounts()
+            .then((all) => {
+                commit(MutationTypes.LOGOUT_ACCOUNTS);
+                dispatch(ActionTypes.LOAD_ACCOUNTS);
+            })
+            .catch((e) => console.log('ActionTypes.LOGOUT_ACCOUNTS', e))
+    },
 };
 
 const mutations = {
@@ -54,6 +84,13 @@ const mutations = {
     },
     [MutationTypes.LOAD_SETTINGS]: (state: PortalState, settings: SettingsTableRow) => {
         Vue.set(state, 'settings', settings[0].settingsObject);
+    },
+
+    [MutationTypes.LOGOUT_ACCOUNTS]: (state: PortalState) => {
+        Vue.set(state, "accounts", []);
+    },
+    [MutationTypes.LOAD_ACCOUNTS]: (state: PortalState, accounts: AccountsTableRow) => {
+        Vue.set(state, 'accounts', accounts);
     },
 };
 

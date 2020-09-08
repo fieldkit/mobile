@@ -30,7 +30,8 @@
                         :imageSrc="'~/images/icon_lightmode_settings.png'">
                     </SettingsItemIconText>
                     <SettingsItemIconText
-                        :text="'appSettings.account'"
+                        :link="'account'"
+                        :text="'appSettings.account.account'"
                         :imageSrc="'~/images/icon_account_settings.png'">
                     </SettingsItemIconText>
                     <SettingsItemIconText
