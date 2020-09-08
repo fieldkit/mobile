@@ -1,10 +1,9 @@
 import _ from "lodash";
-import * as utils from "tns-core-modules/utils/utils";
 import * as platform from "tns-core-modules/platform";
 import { File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
 import { serializePromiseChain } from "../utilities";
-import { listAllFiles, dumpAllFiles } from "../lib/fs";
+import { getDatabasePath, listAllFiles, dumpAllFiles } from "../lib/fs";
 import Config, { Build } from "../config";
 
 function uuidv4() {
@@ -113,7 +112,7 @@ export default class Diagnostics {
 
     private uploadDatabase(id) {
         console.log("getting database path");
-        const path = this.getDatabasePath("fieldkit.sqlite3");
+        const path = getDatabasePath("fieldkit.sqlite3");
         console.log("diagnostics", path);
         return this.services
             .Conservify()
@@ -123,21 +122,6 @@ export default class Diagnostics {
                 path: path,
             })
             .then((response) => response.body);
-    }
-
-    private getDatabasePath(name) {
-        try {
-            if (platform.isAndroid) {
-                const context = utils.ad.getApplicationContext();
-                return context.getDatabasePath(name).getAbsolutePath();
-            }
-
-            const folder = knownFolders.documents().path;
-            return folder + "/" + name;
-        } catch (e) {
-            console.log("error getting path", e);
-            return null;
-        }
     }
 
     private getAllFiles(f) {

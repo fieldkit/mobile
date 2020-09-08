@@ -1,7 +1,6 @@
 <template>
-    <GridLayout rows="82,*,80">
-        <Header row="0" :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <StackLayout row="1">
+    <GridLayout rows="*,80">
+        <StackLayout row="0">
             <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
 
             <Label :class="'instruction-heading ' + (expected ? '' : 'm-b-20')" :text="visual.heading" lineHeight="4" textWrap="true" />
@@ -22,7 +21,7 @@
                 :reading="sensor.reading"
             />
         </StackLayout>
-        <StackLayout row="2">
+        <StackLayout row="1">
             <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="calibrate" :isEnabled="doneWaiting || debugging" />
         </StackLayout>
     </GridLayout>

@@ -1,16 +1,16 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page plain" @loaded="onPageLoaded">
+        <PlatformHeader
+            :title="_L('deployment')"
+            :subtitle="currentStation.name"
+            :onBack="goBack"
+            :canCancel="true"
+            :onCancel="onNavCancel"
+            :canNavigateSettings="false"
+            v-if="!editing"
+        />
         <GridLayout rows="auto,*,auto">
             <StackLayout row="0" v-if="!linkedFromStation">
-                <ScreenHeader
-                    :title="_L('deployment')"
-                    :subtitle="currentStation.name"
-                    :onBack="goBack"
-                    :canCancel="true"
-                    :onCancel="onNavCancel"
-                    :canNavigateSettings="false"
-                    v-if="!editing"
-                />
                 <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd" v-if="!editing">
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>

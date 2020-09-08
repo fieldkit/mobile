@@ -1,4 +1,5 @@
 import { Folder, File, knownFolders, path as FilePaths } from "tns-core-modules/file-system";
+import { listAllFiles } from "@/lib/fs";
 
 class FileWrapper {
     constructor(path) {
@@ -45,5 +46,9 @@ export default class FileSystemNativeScript {
 
     getFile(path) {
         return new FileWrapper(path);
+    }
+
+    listFolder(path) {
+        return listAllFiles(knownFolders.documents().getFolder(path));
     }
 }

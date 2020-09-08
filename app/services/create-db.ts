@@ -12,7 +12,7 @@ export default class CreateDB {
 
     constructor() {
         this.sqlite = new Sqlite();
-        this.promisedDatabase = new Promise(resolve => {
+        this.promisedDatabase = new Promise((resolve) => {
             this.resolveDatabase = resolve;
         });
     }
@@ -53,10 +53,10 @@ export default class CreateDB {
 
     dropTables() {
         console.log("dropping tables");
-        return this.database.query("SELECT name FROM sqlite_master WHERE type = 'table'").then(tables => {
+        return this.database.query("SELECT name FROM sqlite_master WHERE type = 'table'").then((tables) => {
             const dropping = _(tables)
-                .map(table => table.name)
-                .filter(name => name.indexOf("sqlite_") < 0)
+                .map((table) => table.name)
+                .filter((name) => name.indexOf("sqlite_") < 0)
                 .value();
             if (dropping.length > 0) {
                 console.log("dropping", dropping);
@@ -66,7 +66,7 @@ export default class CreateDB {
                 .then(() => {
                     return this.database.batch(
                         _(dropping)
-                            .map(name => "DROP TABLE " + name)
+                            .map((name) => "DROP TABLE " + name)
                             .value()
                     );
                 })
@@ -77,12 +77,13 @@ export default class CreateDB {
     }
 
     _open(path: string | null) {
-        return this.sqlite.open(this.getDatabaseName(path)).then(db => {
+        return this.sqlite.open(this.getDatabaseName(path)).then((db) => {
             // foreign keys are disabled by default in sqlite
             // enable them here
-            db.query(`PRAGMA foreign_keys = ON;`);
-            this.database = db;
-            return this.database;
+            return db.query(`PRAGMA foreign_keys = ON;`).then(() => {
+                this.database = db;
+                return this.database;
+            });
         });
     }
 }

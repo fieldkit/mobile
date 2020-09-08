@@ -1,11 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('wifi')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <ScreenHeader :title="_L('wifi')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
-                    <!-- menu -->
                     <StackLayout class="m-t-5">
                         <Label
                             v-for="(option, i) in menuOptions"
@@ -26,8 +25,8 @@
 
 <script lang="ts">
 import Vue from "vue";
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+
+import SharedComponents from "@/components/shared";
 import Networks from "./StationSettingsNetworks.vue";
 import WiFiNetwork from "./StationSettingsWiFiNetwork.vue";
 import WiFiSchedule from "./StationSettingsWiFiSchedule.vue";
@@ -49,8 +48,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         Networks,
         WiFiNetwork,
         WiFiSchedule,

@@ -3,42 +3,40 @@
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
-                <StackLayout orientation="vertical">
-                    <GridLayout order="3" rows="*" columns="*">
-                        <GridLayout row="0" col="0">
-                            <StackLayout orientation="vertical">
-                                <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
-                                <GridLayout
-                                    order="2"
-                                    rows="auto"
-                                    columns="10*,55*,35*"
-                                    class="m-t-5 m-b-10 m-x-10 p-10 bordered-container"
-                                    @tap="goToFieldNotes"
-                                >
-                                    <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
-                                    <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
-                                    <Label
-                                        col="2"
-                                        :text="notes.completed + '% ' + _L('complete')"
-                                        class="size-16 blue"
-                                        verticalAlignment="middle"
-                                        v-if="notes.completed && notes.completed > 0"
-                                    />
-                                </GridLayout>
-                                <ModuleList order="3" :station="currentStation" />
+                <GridLayout rows="*" columns="*">
+                    <GridLayout row="0" col="0">
+                        <StackLayout orientation="vertical">
+                            <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
+                            <GridLayout
+                                order="2"
+                                rows="auto"
+                                columns="10*,55*,35*"
+                                class="m-t-5 m-b-10 m-x-10 p-10 bordered-container"
+                                @tap="goToFieldNotes"
+                            >
+                                <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
+                                <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
+                                <Label
+                                    col="2"
+                                    :text="notes.completed + '% ' + _L('complete')"
+                                    class="size-16 blue"
+                                    verticalAlignment="middle"
+                                    v-if="notes.completed && notes.completed > 0"
+                                />
+                            </GridLayout>
+                            <ModuleList order="3" :station="currentStation" />
+                        </StackLayout>
+                    </GridLayout>
+
+                    <AbsoluteLayout row="0" col="0" class="text-center" v-if="newlyDeployed">
+                        <GridLayout top="75" width="100%">
+                            <StackLayout class="deployed-dialog-container">
+                                <Image width="60" src="~/images/Icon_Success.png"></Image>
+                                <Label :text="_L('stationDeployed')" class="deployed-dialog-text" />
                             </StackLayout>
                         </GridLayout>
-
-                        <AbsoluteLayout row="0" col="0" class="text-center" v-if="newlyDeployed">
-                            <GridLayout top="75" width="100%">
-                                <StackLayout class="deployed-dialog-container">
-                                    <Image width="60" src="~/images/Icon_Success.png"></Image>
-                                    <Label :text="_L('stationDeployed')" class="deployed-dialog-text" />
-                                </StackLayout>
-                            </GridLayout>
-                        </AbsoluteLayout>
-                    </GridLayout>
-                </StackLayout>
+                    </AbsoluteLayout>
+                </GridLayout>
             </ScrollView>
 
             <NotificationFooter row="1" :onClose="goToDetail" :notificationCodes="notificationCodes" v-if="notificationCodes.length > 0" />

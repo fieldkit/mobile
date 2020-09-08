@@ -30,7 +30,7 @@ export class CalibrateAtlas {
         public readonly position: number,
         public readonly sensorType: AtlasSensorType,
         public readonly value: { which: number; reference: number },
-        public readonly compensations: { temperature: number }
+        public readonly compensations: { temperature: number | null }
     ) {}
 }
 

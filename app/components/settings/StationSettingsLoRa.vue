@@ -1,11 +1,8 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="80,*,70">
-            <StackLayout row="0" class="p-t-10">
-                <ScreenHeader :title="_L('longRangeNetwork')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-                <StackLayout class="p-b-10"></StackLayout>
-            </StackLayout>
-            <ScrollView row="1">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('longRangeNetwork')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <GridLayout rows="*,70">
+            <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <!-- edit LoRa -->
                     <StackLayout class="m-x-10">
@@ -82,7 +79,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <ScreenFooter row="2" :station="station" active="stations" />
+            <ScreenFooter row="1" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -91,10 +88,9 @@
 import Vue from "vue";
 import Services from "../../services/services";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import Networks from "./StationSettingsNetworks";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import SharedComponents from "@/components/shared";
+import Networks from "./StationSettingsNetworks.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
 export default Vue.extend({
     data() {
@@ -116,8 +112,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         Networks,
         ConnectionNote,
     },

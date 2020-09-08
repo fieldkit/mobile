@@ -39,7 +39,7 @@ export default Vue.extend({
                 displayValue = 86400 - 60;
             }
             const duration = moment.duration(displayValue, "seconds");
-            return moment.utc(duration.asMilliseconds()).format("hh:mm A");
+            return moment.utc(duration.asMilliseconds()).format("HH:mm");
         },
     },
     methods: {

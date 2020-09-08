@@ -8,8 +8,8 @@ class DatabaseWrapper {
 
     query(sql, params) {
         return this.db.all(sql, params).then(
-            rows => rows,
-            err => {
+            (rows) => rows,
+            (err) => {
                 console.log("SQL error", sql, params, err, err ? err.stack : null);
                 return Promise.reject(err);
             }
@@ -17,7 +17,7 @@ class DatabaseWrapper {
     }
 
     execute(sql, params) {
-        return this.db.execSQL(sql, params).then(res => {
+        return this.db.execSQL(sql, params).then((res) => {
             return res ? res : this;
         });
     }
@@ -29,13 +29,13 @@ class DatabaseWrapper {
         }
         return sqlArray.reduce((promise, item, index) => {
             return promise
-                .then(values =>
-                    this.execute(item).then(value => {
+                .then((values) =>
+                    this.execute(item).then((value) => {
                         values.push(value);
                         return values;
                     })
                 )
-                .catch(err => {
+                .catch((err) => {
                     console.log("SQL error", sql, err, err ? err.stack : null);
                     return Promise.reject(err);
                 });
@@ -54,5 +54,13 @@ export default class SqliteNativeScript {
                 resolve(new DatabaseWrapper(db));
             });
         });
+    }
+
+    delete(name) {
+        if (Sqlite.exists(name)) {
+            Sqlite.deleteDatabase(name);
+        }
+
+        return Promise.resolve({});
     }
 }

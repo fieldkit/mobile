@@ -1,11 +1,8 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="80,*,70">
-            <StackLayout row="0">
-                <ScreenHeader :title="_L('stationName')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-                <StackLayout class="p-b-10"></StackLayout>
-            </StackLayout>
-            <ScrollView row="1">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('stationName')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <GridLayout rows="*,70">
+            <ScrollView row="0">
                 <GridLayout rows="*" columns="*" verticalAlignment="middle" class="p-t-10">
                     <StackLayout>
                         <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
@@ -56,7 +53,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <ScreenFooter row="2" :station="station" active="stations" />
+            <ScreenFooter row="1" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -65,10 +62,9 @@
 import Vue from "vue";
 import * as ActionTypes from "../../store/actions";
 
-import ScreenHeader from "../ScreenHeader";
-import ScreenFooter from "../ScreenFooter";
-import General from "./StationSettingsGeneral";
-import ConnectionNote from "./StationSettingsConnectionNote";
+import SharedComponents from "@/components/shared";
+import General from "./StationSettingsGeneral.vue";
+import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
 
 export default Vue.extend({
@@ -87,8 +83,7 @@ export default Vue.extend({
         },
     },
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         General,
         ConnectionNote,
     },

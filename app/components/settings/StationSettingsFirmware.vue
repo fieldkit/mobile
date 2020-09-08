@@ -1,10 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('firmware')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
-                    <ScreenHeader :title="_L('firmware')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
                     <StackLayout class="m-t-10 m-b-30">
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
                         <Label
@@ -60,16 +60,14 @@
 import Vue from "vue";
 import routes from "@/routes";
 
-import ScreenHeader from "../ScreenHeader.vue";
-import ScreenFooter from "../ScreenFooter.vue";
+import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
-        ScreenFooter,
+        ...SharedComponents,
         ConnectionNote,
     },
     data() {

@@ -1,39 +1,37 @@
 <template>
-    <GridLayout rows="82,*,80">
-        <Header row="0" :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <StackLayout row="1">
-            <StackLayout class="choice-container">
-                <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
-                <Label
-                    class="choice-why"
-                    textWrap="true"
-                    text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
-                />
+    <StackLayout>
+        <GridLayout rows="*,80">
+            <StackLayout row="0">
+                <StackLayout class="choice-container">
+                    <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
+                    <Label
+                        class="choice-why"
+                        textWrap="true"
+                        text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
+                    />
 
-                <StackLayout
-                    v-for="(strategy, index) in strategies"
-                    :key="index"
-                    class="strategy-container"
-                    v-bind:class="{ selected: selected === index }"
-                    @tap="choose(strategy, index)"
-                >
-                    <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
-                    <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
+                    <StackLayout
+                        v-for="(strategy, index) in strategies"
+                        :key="index"
+                        class="strategy-container"
+                        v-bind:class="{ selected: selected === index }"
+                        @tap="choose(strategy, index)"
+                    >
+                        <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
+                        <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
+                    </StackLayout>
                 </StackLayout>
             </StackLayout>
-        </StackLayout>
-        <StackLayout row="2">
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
-        </StackLayout>
-    </GridLayout>
+            <StackLayout row="1">
+                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
+            </StackLayout>
+        </GridLayout>
+    </StackLayout>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import Header from "./Header.vue";
-
-import { calibrationStrategies } from "./strategies";
-import { Common } from "./water";
 
 export default Vue.extend({
     name: "ChooseStrategy",
@@ -45,28 +43,21 @@ export default Vue.extend({
             type: String,
             required: true,
         },
+        strategies: {
+            type: Array,
+            required: true,
+        },
+        visual: {
+            type: Object,
+            required: true,
+        },
     },
     data(): { selected: number } {
         return {
             selected: 0,
         };
     },
-    computed: {
-        strategies(this: any) {
-            return calibrationStrategies().getModuleStrategies(this.moduleKey);
-        },
-        visual(this: any) {
-            const common = Common();
-            console.log("common", common, this.moduleKey);
-            const visual = common[this.moduleKey];
-            if (!visual) throw new Error(`missing common module visual: ${this.moduleKey}`);
-            return visual;
-        },
-    },
     methods: {
-        onPageLoaded(this: any, args) {
-            // console.log("loaded", calibrationStrategies);
-        },
         choose(this: any, strategy: any, index: number) {
             this.selected = index;
         },

@@ -13,7 +13,7 @@ import {
     SortableStationSorter,
 } from "../types";
 import { Services, ServiceRef } from "./utilities";
-import { serializePromiseChain, getPathTimestamp } from "../../utilities";
+import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
 import { AuthenticationError } from "../../lib/errors";
 
@@ -315,10 +315,12 @@ const actions = {
 
         commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
 
-        return serializePromiseChain(sync.downloads, (file) => {
+        return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
+            const fsFolder = state.services.fs().getFolder(getFilePath(file.path));
+            const fsFile = fsFolder.getFile(getFileName(file.path));
             return state.services
                 .queryStation()
-                .download(file.url, file.path, (total, copied, info) => {
+                .download(file.url, fsFile.path, (total: number, copied: number, info) => {
                     commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                 })
                 .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
@@ -353,10 +355,10 @@ const actions = {
 
         commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
 
-        return serializePromiseChain(downloads, (download) => {
+        return serializePromiseChain(downloads, (download: Download) => {
             return state.services
                 .portal()
-                .uploadPreviouslyDownloaded(sync.name, download, (total, copied, info) => {
+                .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
                     commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                 })
                 .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
@@ -403,12 +405,9 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
                 const lastBlock = stream.deviceLastBlock;
                 const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
                 const typeName = FileTypeUtils.toString(stream.fileType());
-                const path = ["downloads", station.deviceId, getPathTimestamp(now)].join("/");
                 const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
-                const folder = state.services.fs().getFolder(path);
-                const file = folder.getFile(FileTypeUtils.toString(stream.fileType()) + ".fkpb");
-                const pending = new PendingDownload(stream.fileType(), url, file.path, firstBlock, lastBlock, estimatedBytes);
-                return pending;
+                const filePath = ["downloads", station.deviceId, getPathTimestamp(now), typeName + ".fkpb"].join("/");
+                return new PendingDownload(stream.fileType(), url, filePath, firstBlock, lastBlock, estimatedBytes);
             })
             .filter((dl) => dl.firstBlock != dl.lastBlock)
             .filter((dl) => dl.fileType != FileType.Unknown)
@@ -425,8 +424,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
                     .filter((d) => d.fileType == stream.fileType())
                     .filter((d) => !d.uploaded)
                     .map((d) => new LocalFile(d.path, d.size));
-                const pending = new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files);
-                return pending;
+                return new PendingUpload(stream.fileType(), firstBlock, lastBlock, estimatedBytes, files);
             })
             .filter((dl) => dl.firstBlock != dl.lastBlock)
             .filter((dl) => dl.fileType != FileType.Unknown)
