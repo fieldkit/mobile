@@ -443,6 +443,7 @@ module.exports = {
             microphoneTitle: "Microphone",
         },
         appearance: {
+			appearance: "Appearance",
             fontSize: "Font Size",
             language: "Language",
             darkMode: "Dark Mode",
@@ -453,7 +454,7 @@ module.exports = {
             huge: "Huge"
         },
         account: {
-            accounts: "Account",
+            account: "Account",
             addAccount: "Add Account",
             logoutAll: "Log Out All Accounts",
             email: 'Email',
