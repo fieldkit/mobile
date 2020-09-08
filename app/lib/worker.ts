@@ -1,9 +1,10 @@
 import _ from "lodash";
+import Services from "@/services/services";
+
 import { TaskWorker } from "./tasks";
 import { SaveReadingsTask } from "./database";
-import { ProcessDeviceFilesTask } from "./testing";
+import { ProcessStationFilesTask } from "./process";
 import { createAdaptedDataServices } from "./data-services";
-import Services from "@/services/services";
 
 /**
  * NativeScript requires this to wire up the JS context in this thread.
@@ -16,7 +17,7 @@ try {
     const context: Worker = self as any;
     const services = createAdaptedDataServices(Services);
     const taskWorker = new TaskWorker(context, services, {
-        ProcessDeviceFilesTask,
+        ProcessStationFilesTask,
         SaveReadingsTask,
     });
 

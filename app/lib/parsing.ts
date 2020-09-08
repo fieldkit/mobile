@@ -2,7 +2,7 @@ import _ from "lodash";
 import { DataServices } from "./data-services";
 import { DataVisitor, DataReader } from "./data-reader";
 
-export class DeviceReader {
+export class StationReader {
     constructor(private readonly services: DataServices, private readonly deviceId: string) {}
 
     public walkData<T extends DataVisitor>(visitor: T): Promise<T> {
