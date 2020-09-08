@@ -442,9 +442,17 @@ module.exports = {
             cameraTitle: "Camera",
             microphoneTitle: "Microphone",
         },
-        appearance: "Appearance",
+        appearance: {
+            fontSize: "Font Size",
+            language: "Language",
+            darkMode: "Dark Mode",
+            english: "English",
+            spanish: "Spanish",
+            chinese: "Mandarin Chinese",
+            tiny: "Tiny",
+            huge: "Huge"
+        },
         account: {
-            account: "Account",
             accounts: "Account",
             addAccount: "Add Account",
             logoutAll: "Log Out All Accounts",
