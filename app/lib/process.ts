@@ -3,7 +3,7 @@ import { DataServices, Task, TaskQueuer } from "./tasks";
 import { MergeMetaAndDataVisitor, ReadingsVisitor, Readings } from "./readings";
 import { SaveReadingsTask } from "./database";
 import { StationReader } from "./parsing";
-import { getDeviceIdFromPath, listAllFiles } from "@/lib/fs";
+import { DownloadsDirectory, getDeviceIdFromPath, listAllFiles } from "@/lib/fs";
 
 class SaveReadingsVisitor implements ReadingsVisitor {
     private pending: Readings[] = [];
@@ -57,7 +57,7 @@ export class ProcessAllStationsTask extends Task {
     }
 
     private getAllDeviceIds(): Promise<string[]> {
-        return listAllFiles("downloads").then((files) => {
+        return listAllFiles(DownloadsDirectory).then((files) => {
             return _.uniq(files.map((file) => getDeviceIdFromPath(file.path)));
         });
     }

@@ -25,6 +25,8 @@ export interface FileLike {
     lastModified: Date;
 }
 
+export const DownloadsDirectory = "downloads";
+
 export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
     const files: FileLike[] = [];
 

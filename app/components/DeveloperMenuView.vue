@@ -57,7 +57,7 @@ import Firebase from "nativescript-plugin-firebase";
 import { crashlytics } from "nativescript-plugin-firebase";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import { knownFolders } from "tns-core-modules/file-system";
-import { listAllFiles } from "@/lib/fs";
+import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
 import Config from "@/config";
 import routes from "@/routes";
 import Services from "@/services/services";
@@ -139,7 +139,7 @@ export default Vue.extend({
             };
 
             return serializePromiseChain(files, (file) => {
-                const fullPath = ["downloads", getFilePath(file)].join("/");
+                const fullPath = [DownloadsDirectory, getFilePath(file)].join("/");
                 const folder = Services.FileSystem().getFolder(fullPath);
                 const destination = folder.getFile(getFileName(file));
 
@@ -162,7 +162,7 @@ export default Vue.extend({
                         });
                 });
             })
-                .then((all) => this.listPhoneFiles("downloads").then(() => all))
+                .then((all) => this.listPhoneFiles(DownloadsDirectory).then(() => all))
                 .then((all) => testWithFiles(deviceId));
         },
         syncPortal(this: any) {
@@ -285,7 +285,7 @@ export default Vue.extend({
             const diagnosticsFolder = rootFolder.getFolder("diagnostics");
             const firmwareFolder = rootFolder.getFolder("firmware");
             const oldDataFolder = rootFolder.getFolder("FieldKitData");
-            const downloadsFolder = rootFolder.getFolder("downloads");
+            const downloadsFolder = rootFolder.getFolder(DownloadsDirectory);
 
             return Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), downloadsFolder.clear(), oldDataFolder.clear()])
                 .catch((res) => {
