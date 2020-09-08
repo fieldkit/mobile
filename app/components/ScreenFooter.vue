@@ -76,7 +76,7 @@ export default Vue.extend({
                 event.object.className = cn;
             }, 500);
 
-            this.$navigateTo(routes.appSettings, {
+            this.$navigateTo(routes.appSettings.list, {
                 clearHistory: true,
             });
         },

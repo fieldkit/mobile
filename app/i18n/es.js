@@ -410,7 +410,15 @@ module.exports = {
     upgradeFirmware: "Actualización de Firmware",
     appSettings: {
         title: "Settings",
-        data: "Data",
+        data: {
+            data: "Data",
+            autoSyncStationTitle: "Auto Sync Station",
+            autoSyncStationDescription: "Automatically download data from station",
+            autoSyncPortalTitle: "Auto Sync Portal",
+            autoSyncPortalDescription: "Automatically upload data portal",
+            mobileDataUsageTitle: "Mobile Data Usage",
+            mobileDataUsageDescription: "Only sync your data to portal while connected WiFi",
+        },
         notifications: "Notifications",
         units: "Units",
         permissions: "Permissions",
