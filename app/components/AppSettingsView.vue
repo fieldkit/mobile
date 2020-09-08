@@ -8,8 +8,8 @@
                         :link="'data'"
                         :text="'appSettings.data.data'"
                         :imageSrc="'~/images/icon_connections.png'"
-                        :cssClass="'top-bordered-item'">
-                    </SettingsItemIconText>
+                        :cssClass="'top-bordered-item'"
+                    ></SettingsItemIconText>
                     <SettingsItemIconText
                         :link="'notifications'"
                         :text="'appSettings.notifications.notifications'"
@@ -43,8 +43,8 @@
                     <SettingsItemIconText
                         :link="'legal'"
                         :text="'appSettings.legal.legal'"
-                        :imageSrc="'~/images/icon_legal_settings.png'">
-                    </SettingsItemIconText>
+                        :imageSrc="'~/images/icon_legal_settings.png'"
+                    ></SettingsItemIconText>
                 </StackLayout>
             </ScrollView>
             <ScreenFooter row="1" active="settings" />
@@ -59,6 +59,8 @@ import SettingsItemIconText from "./SettingsItemIconText.vue";
 
 export default Vue.extend({
     components: {
-	...SharedComponents,
+        ...SharedComponents,
+        SettingsItemIconText,
+    },
 });
 </script>
