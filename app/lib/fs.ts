@@ -4,7 +4,7 @@ import { Folder, knownFolders } from "tns-core-modules/file-system";
 import * as utils from "tns-core-modules/utils/utils";
 import * as platform from "tns-core-modules/platform";
 
-function recurse(f, depth, callback) {
+function recurse(f: any, depth: number, callback) {
     return f.getEntities().then((entities) => {
         return Promise.all(
             entities.map((entry) => {
@@ -25,10 +25,17 @@ export interface FileLike {
     lastModified: Date;
 }
 
-export function listAllFiles(f): Promise<FileLike[]> {
+export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
     const files: FileLike[] = [];
 
-    return recurse(f, 0, (depth: number, entry) => {
+    const getFolder = () => {
+        if (f && f.length > 0) {
+            return knownFolders.documents().getFolder(f);
+        }
+        return knownFolders.documents();
+    };
+
+    return recurse(getFolder(), 0, (depth: number, entry) => {
         // console.log("entry", depth, entry, entry.path, entry.size, entry.lastModified);
         files.push({
             depth: depth,
@@ -55,4 +62,16 @@ export function getDatabasePath(name: string) {
 
     const folder = knownFolders.documents().path;
     return folder + "/" + name;
+}
+
+export function getDeviceIdFromPath(path: string): string {
+    const relative = path.replace(knownFolders.documents().path + "/", "");
+    const parts = relative.split("/");
+    const maybeDeviceId = parts[1];
+    try {
+        Buffer.from(maybeDeviceId, "hex");
+        return maybeDeviceId;
+    } catch (e) {
+        throw new Error(`no device id in path: ${path}`);
+    }
 }

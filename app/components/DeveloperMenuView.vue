@@ -274,8 +274,7 @@ export default Vue.extend({
                 });
         },
         listPhoneFiles(this: any, path: string) {
-            const rootFolder = knownFolders.documents();
-            return listAllFiles(rootFolder.getFolder(path)).then((fs) => {
+            return listAllFiles(path).then((fs) => {
                 return fs.map((e) => {
                     console.log(e.path, e.size);
                 });
@@ -299,7 +298,7 @@ export default Vue.extend({
                     });
                 })
                 .then((res) => {
-                    return listAllFiles(rootFolder);
+                    return listAllFiles();
                 })
                 .then((after) => {
                     console.log(

@@ -49,6 +49,6 @@ export default class FileSystemNativeScript {
     }
 
     listFolder(path) {
-        return listAllFiles(knownFolders.documents().getFolder(path));
+        return listAllFiles(path);
     }
 }

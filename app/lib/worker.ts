@@ -3,7 +3,7 @@ import Services from "@/services/services";
 
 import { TaskWorker } from "./tasks";
 import { SaveReadingsTask } from "./database";
-import { ProcessStationFilesTask } from "./process";
+import { ProcessAllStationsTask, ProcessStationFilesTask } from "./process";
 import { createAdaptedDataServices } from "./data-services";
 
 /**
@@ -17,6 +17,7 @@ try {
     const context: Worker = self as any;
     const services = createAdaptedDataServices(Services);
     const taskWorker = new TaskWorker(context, services, {
+        ProcessAllStationsTask,
         ProcessStationFilesTask,
         SaveReadingsTask,
     });

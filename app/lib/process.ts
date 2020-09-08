@@ -1,7 +1,9 @@
+import _ from "lodash";
 import { DataServices, Task, TaskQueuer } from "./tasks";
 import { MergeMetaAndDataVisitor, ReadingsVisitor, Readings } from "./readings";
 import { SaveReadingsTask } from "./database";
 import { StationReader } from "./parsing";
+import { getDeviceIdFromPath, listAllFiles } from "@/lib/fs";
 
 class SaveReadingsVisitor implements ReadingsVisitor {
     private pending: Readings[] = [];
@@ -44,5 +46,27 @@ export class ProcessStationFilesTask extends Task {
             .catch((error) => {
                 console.log("error", error, error.stack);
             });
+    }
+}
+
+export class ProcessAllStationsTask extends Task {
+    public readonly taskName = "ProcessAllStationsTask";
+
+    constructor() {
+        super();
+    }
+
+    private getAllDeviceIds(): Promise<string[]> {
+        return listAllFiles("downloads").then((files) => {
+            return _.uniq(files.map((file) => getDeviceIdFromPath(file.path)));
+        });
+    }
+
+    public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
+        for (const deviceId of await this.getAllDeviceIds()) {
+            console.log("deviceId", deviceId);
+            tasks.enqueue(new ProcessStationFilesTask(deviceId));
+        }
+        return {};
     }
 }
