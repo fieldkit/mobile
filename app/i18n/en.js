@@ -410,13 +410,68 @@ module.exports = {
 	upgradeFirmware: "Upgrade Firmware",
     appSettings: {
         title: "Settings",
-        data: "Data",
-        notifications: "Notifications",
-        units: "Units",
-        permissions: "Permissions",
+        data: {
+            data: "Data",
+            autoSyncStationTitle: "Auto Sync Station",
+            autoSyncStationDescription: "Automatically download data from station",
+            autoSyncPortalTitle: "Auto Sync Portal",
+            autoSyncPortalDescription: "Automatically upload data portal",
+            mobileDataUsageTitle: "Mobile Data Usage",
+            mobileDataUsageDescription: "Only sync your data to portal while connected WiFi",
+        },
+        notifications: {
+            notifications: "Notifications",
+            pushNotificationsTitle: "Push Notifications",
+            pushNotificationsDescription: "Placeholder text lorem ipsum"
+        },
+        units: {
+            units: "Units",
+            unitSystem: "Unit System",
+            imperial: "Imperial",
+            metric: "Metric",
+            customMetricSettings: "Custom Metric Settings",
+            temperature: "Temperature",
+            unitName: "Unit Name",
+            pressure: "Pressure",
+            velocity: "Velocity"
+        },
+        permissions: {
+            permissions: "Permissions",
+            locationTitle: "Location",
+            filesTitle: "Files",
+            cameraTitle: "Camera",
+            microphoneTitle: "Microphone",
+        },
         appearance: "Appearance",
-        account: "Account",
-        help: "Help",
-        legal: "Legal"
+        account: {
+            account: "Account",
+            accounts: "Account",
+            addAccount: "Add Account",
+            logoutAll: "Log Out All Accounts",
+            email: 'Email',
+            password: 'Password',
+            resetPassword: 'Reset Password',
+            login: 'Log in',
+            createAccount: 'Create an account'
+        },
+        help: {
+            help: "Help",
+            appVersion: "App Version",
+            crashReports: "Crash Reports",
+            tutorialGuide: "Tutorial Guide",
+            version: "Version",
+            updatesTitle: "Updates",
+            updatesDescription: "No available updates",
+            downloadUpdatesTitle: "Download Updates",
+            downloadUpdatesDescription: "Download FieldKit app updates automatically when on WiFi internet "
+        },
+        legal: {
+            legal: "Legal",
+            termsOfService: "Terms of Service",
+            privacyPolicy: "Privacy Policy",
+            dataPolicy: "Data Policy",
+            licenses: "Licenses"
+        },
+        lorem: "Lorem ipsum"
     }
 };

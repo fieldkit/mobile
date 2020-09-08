@@ -25,21 +25,42 @@ import DeployMap from "../components/deploy/DeployMapView.vue";
 import DeployNotes from "../components/deploy/DeployNotesView.vue";
 import DeployReview from "../components/deploy/DeployReviewView.vue";
 
+import AppSettingsData from "../components/AppSettingsDataView.vue";
+import AppSettingsNotifications from "../components/AppSettingsNotificationsView.vue";
+
 import FlowView from "@/reader/FlowView";
 
-import { Route } from "./navigate";
+import {Route} from "./navigate";
+import AppSettingsPermissions from "~/components/AppSettingsPermissionsView.vue";
+import AppSettingsHelp from "~/components/AppSettingsHelpView.vue";
+import AppSettingsHelpAppVersion from "~/components/AppSettingsHelpAppVersionView.vue";
+import AppSettingsLegal from "~/components/AppSettingsLegalView.vue";
+import AppSettingsUnits from "~/components/AppSettingsUnitsView.vue";
+import AppSettingsAccount from "~/components/AppSettingsAccountView.vue";
+import AppSettingsAccountAdd from "~/components/AppSettingsAccountAddView.vue";
 
 const routes = {
-    login: new Route(Login, { login: true }),
-    developerMenu: new Route(DeveloperMenu, { developer: true }),
+    login: new Route(Login, {login: true}),
+    developerMenu: new Route(DeveloperMenu, {developer: true}),
 
     // Bottom navigation
-    stations: new Route(StationListView, { clear: true, listing: true }),
-    dataSync: new Route(DataSync, { clear: true, dataSync: true }),
-    appSettings: new Route(AppSettings, { clear: true }),
+    stations: new Route(StationListView, {clear: true, listing: true}),
+    dataSync: new Route(DataSync, {clear: true, dataSync: true}),
+    appSettings: {
+        list: new Route(AppSettings, {clear: true}),
+        data: new Route(AppSettingsData, {clear: true}),
+        units: new Route(AppSettingsUnits, {clear: true}),
+        notifications: new Route(AppSettingsNotifications, {clear: true}),
+        permissions: new Route(AppSettingsPermissions, {clear: true}),
+        account: new Route(AppSettingsAccount, {clear: true}),
+        accountAdd: new Route(AppSettingsAccountAdd, {clear: true}),
+        help: new Route(AppSettingsHelp, {clear: true}),
+        helpAppVersion: new Route(AppSettingsHelpAppVersion, {clear: true}),
+        legal: new Route(AppSettingsLegal, {clear: true}),
+    },
 
     // Per station
-    stationDetail: new Route(StationDetail, { reading: true, station: true }),
+    stationDetail: new Route(StationDetail, {reading: true, station: true}),
     stationSettings: new Route(StationSettings, {}),
     configureModule: new Route(ConfigureModule, {}),
 
@@ -60,12 +81,12 @@ const routes = {
 
     // Deployment
     deploy: {
-        start: new Route(DeployMap, { connected: true }),
-        notes: new Route(DeployNotes, { connected: true }),
-        review: new Route(DeployReview, { connected: true }),
+        start: new Route(DeployMap, {connected: true}),
+        notes: new Route(DeployNotes, {connected: true}),
+        review: new Route(DeployReview, {connected: true}),
     },
     calibration: {
-        start: new Route(CalibrateStart, { connected: true }),
+        start: new Route(CalibrateStart, {connected: true}),
     },
 
     // Reader
