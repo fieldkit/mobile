@@ -419,12 +419,49 @@ module.exports = {
             mobileDataUsageTitle: "Mobile Data Usage",
             mobileDataUsageDescription: "Only sync your data to portal while connected WiFi",
         },
-        notifications: "Notifications",
-        units: "Units",
-        permissions: "Permissions",
+        notifications: {
+            notifications: "Notifications",
+            pushNotificationsTitle: "Push Notifications",
+            pushNotificationsDescription: "Placeholder text lorem ipsum"
+        },
+        units: {
+            units: "Units",
+            unitSystem: "Unit System",
+            imperial: "Imperial",
+            metric: "Metric",
+            customMetricSettings: "Custom Metric Settings",
+            temperature: "Temperature",
+            unitName: "Unit Name",
+            pressure: "Pressure",
+            velocity: "Velocity"
+        },
+        permissions: {
+            permissions: "Permissions",
+            locationTitle: "Location",
+            filesTitle: "Files",
+            cameraTitle: "Camera",
+            microphoneTitle: "Microphone",
+        },
         appearance: "Appearance",
         account: "Account",
-        help: "Help",
-        legal: "Legal"
+        help: {
+            help: "Help",
+            appVersion: "App Version",
+            crashReports: "Crash Reports",
+            tutorialGuide: "Tutorial Guide",
+            version: "Version",
+            updatesTitle: "Updates",
+            updatesDescription: "No available updates",
+            downloadUpdatesTitle: "Download Updates",
+            downloadUpdatesDescription: "Download FieldKit app updates automatically when on WiFi internet "
+        },
+        legal: {
+            legal: "Legal",
+            termsOfService: "Terms of Service",
+            privacyPolicy: "Privacy Policy",
+            dataPolicy: "Data Policy",
+            licenses: "Licenses"
+        },
+        lorem: "Lorem ipsum"
     }
 };

@@ -8,6 +8,7 @@ const settings = {
         push_notifications: true
     },
     units: {
+        unit_system: 'imperial',
         temperature: 'c',
         unit_name: 'mgl',
         pressure: 'kpa',

@@ -1,12 +1,13 @@
 <template>
-    <GridLayout rows="60" columns="*, 50" class="bottom-bordered-item" :class="cssClass">
-        <StackLayout row="0" col="0" verticalAlignment="center" backgroundColor="white">
+    <GridLayout :rows="description ? '60' : '50'" columns="*, 50" class="bottom-bordered-item" :class="cssClass">
+        <StackLayout row="0" col="0" verticalAlignment="center" backgroundColor="white" class="m-r-30">
             <Label :text="_L(title)" class="size-16 m-2 v-middle" backgroundColor="white"/>
-            <Label :text="_L(description)" class="size-12 m-2 v-middle" backgroundColor="white"/>
+            <Label :text="_L(description)" v-if="description" class="size-12 m-2 v-middle" backgroundColor="white"
+                   textWrap="true"/>
         </StackLayout>
-        <GridLayout row="0" col="1" verticalAlignment="center" >
+        <GridLayout row="0" col="1" verticalAlignment="center">
             <GridLayout class="wrapSwitch">
-                <GridLayout verticalAlignment="center" borderRadius="50" borderColor="#d8dce0" borderWidth="2" width="50" >
+                <GridLayout verticalAlignment="center" borderRadius="50" borderColor="#d8dce0" borderWidth="2" width="50">
                     <Switch :checked="content" offBackgroundColor="#fcfcfc" @tap="handleInput"/>
                 </GridLayout>
             </GridLayout>
