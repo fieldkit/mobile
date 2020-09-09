@@ -68,4 +68,8 @@ export default class SqliteNodeJs {
     delete(name) {
         return Promise.resolve({});
     }
+
+    exists(name) {
+        return false;
+    }
 }

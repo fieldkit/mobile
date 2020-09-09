@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { DataServices, Task, TaskQueuer } from "./tasks";
 import { MergeMetaAndDataVisitor, ReadingsVisitor, Readings } from "./readings";
-import { SaveReadingsTask } from "./database";
+import { ReadingsDatabase, SaveReadingsTask } from "./database";
 import { StationReader } from "./parsing";
 import { DownloadsDirectory, getDeviceIdFromPath, listAllFiles } from "@/lib/fs";
 
@@ -32,20 +32,22 @@ class SaveReadingsVisitor implements ReadingsVisitor {
 export class ProcessStationFilesTask extends Task {
     public readonly taskName = "ProcessStationFilesTask";
 
-    constructor(public readonly deviceId: string) {
+    constructor(public readonly deviceId: string, public readonly purge = false) {
         super();
     }
 
-    public run(services: DataServices, tasks: TaskQueuer): Promise<any> {
+    public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
+        if (ReadingsDatabase.existsForDevice(this.deviceId)) {
+            if (!this.purge) {
+                console.log("skipping, have data", this.deviceId);
+                return {};
+            }
+        }
+
         const visitor = new MergeMetaAndDataVisitor(new SaveReadingsVisitor(this.deviceId, tasks));
-        return new StationReader(services, this.deviceId)
-            .walkData(visitor)
-            .then((visitor) => {
-                console.log("done");
-            })
-            .catch((error) => {
-                console.log("error", error, error.stack);
-            });
+        const reader = new StationReader(services, this.deviceId);
+        await reader.walkData(visitor);
+        return visitor;
     }
 }
 

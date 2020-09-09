@@ -63,4 +63,8 @@ export default class SqliteNativeScript {
 
         return Promise.resolve({});
     }
+
+    exists(name) {
+        return Sqlite.exists(name);
+    }
 }

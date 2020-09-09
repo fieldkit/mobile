@@ -91,6 +91,11 @@ export class ReadingsDatabase {
         return ReadingsDatabase.open(ReadingsDatabase.nameForDevice(deviceId));
     }
 
+    public static async existsForDevice(device: string): Promise<boolean> {
+        const sqlite = new Sqlite();
+        return await sqlite.exists(name);
+    }
+
     public static async open(name: string): Promise<ReadingsDatabase> {
         const sqlite = new Sqlite();
         const db = await sqlite.open(name);
