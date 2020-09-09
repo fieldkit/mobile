@@ -16,6 +16,7 @@ import { promiseAfter } from "@/utilities";
 import routes from "@/routes";
 import { Route } from "@/routes/navigate";
 import Config from "@/config";
+import { ProcessAllStationsTask } from "@/lib/process";
 
 function initializeFirebase(services): Promise<any> {
     console.log("initialize:firebase");
@@ -105,6 +106,7 @@ function initializeApplication(services): Promise<any> {
                                     .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                     .then(() => updateStore(Services.Store()))
                                     .then(() => restartDiscovery(Services.DiscoverStation()))
+                                    .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
                             );
                     })
                     .catch((err) => {

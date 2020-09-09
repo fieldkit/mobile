@@ -1,5 +1,6 @@
-import Config from "../config";
-import storeFactory from "../store";
+import Config from "@/config";
+import storeFactory from "@/store";
+import { TaskQueue } from "@/lib/tasks";
 
 class DiscoveryEvents {
     constructor() {
@@ -42,6 +43,16 @@ export class Services {
             this.store = storeFactory();
         }
         return this.store;
+    }
+
+    Tasks() {
+        if (!this.tasks) {
+            const StandardWorker = require("nativescript-worker-loader!@/lib/worker");
+            console.log("worker", StandardWorker);
+            this.tasks = new TaskQueue();
+            this.tasks.start(1, StandardWorker);
+        }
+        return this.tasks;
     }
 
     DiscoverStation() {

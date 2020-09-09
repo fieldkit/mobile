@@ -102,7 +102,7 @@ export class TaskQueue implements TaskQueuer {
 
     public start(size: number, workerFunc: any) {
         for (let i = 0; i < size; ++i) {
-            const worker = new workerFunc();
+            const worker = workerFunc();
             worker.onmessage = (message) => {
                 if (message.data.done) {
                     console.log(`queue:done`, message.data.id);
