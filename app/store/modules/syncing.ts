@@ -325,7 +325,7 @@ const actions = {
                 })
                 .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
                 .catch((error) => {
-                    if (error instanceof AuthenticationError) {
+                    if (AuthenticationError.isInstance(error)) {
                         Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
                     } else {
                         Vue.set(state.errors, sync.deviceId, TransferError.Other);
@@ -363,7 +363,7 @@ const actions = {
                 })
                 .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
                 .catch((error) => {
-                    if (error instanceof AuthenticationError) {
+                    if (AuthenticationError.isInstance(error)) {
                         console.log("error uploading (auth)", error, error ? error.stack : null);
                         Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
                     } else {

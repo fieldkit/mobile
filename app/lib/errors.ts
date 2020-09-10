@@ -5,6 +5,10 @@ export class AuthenticationError extends Error {
         super(message);
         this.name = "AuthenticationError";
     }
+
+    public static isInstance(error: any): boolean {
+        return error.authenticated === false;
+    }
 }
 
 export class StationQueryError extends Error {
