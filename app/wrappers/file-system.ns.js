@@ -45,7 +45,7 @@ export default class FileSystemNativeScript {
     }
 
     getRelativeFile(path) {
-        return new FileWrapper(knownFolders.documents().getFile(path));
+        return new FileWrapper(knownFolders.documents().getFile(path).path);
     }
 
     getFile(path) {
