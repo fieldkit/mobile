@@ -37,6 +37,10 @@ export default class FileSystemNode {
         return new Folder(this, path);
     }
 
+    getRelativeFile(path) {
+        return new FileWrapper(path);
+    }
+
     getFile(path) {
         return new File(this, path);
     }

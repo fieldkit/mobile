@@ -54,7 +54,7 @@ export default class PortalInterface {
             this._currentUser.portalId = data.id;
             this._currentUser.email = data.email;
             this._currentUser.token = accessToken;
-            this._store.dispatch(ActionTypes.UPDATE_ACCOUNT, {...this._currentUser});
+            this._store.dispatch(ActionTypes.UPDATE_ACCOUNT, { ...this._currentUser });
 
             return data;
         });
@@ -382,25 +382,23 @@ export default class PortalInterface {
          * like the no consequences way of just purging that
          * data. What can be more noop than uploading nothing?
          */
-        const local = this._fs.getFile(download.path);
+        const local = this._fs.getRelativeFile(download.path);
         if (!local.exists) {
-            // return Promise.reject(new Error(`missing file: ${download.path}`));
-            console.log(`missing file: ${download.path} faking success`);
+            console.log(`missing file: ${local.path} faking success`);
             return Promise.resolve({
                 statusCode: 200,
                 headers: headers,
             });
         }
         if (!local.size) {
-            // return Promise.reject(new Error());
-            console.log(`empty file: ${download.path} faking success`);
+            console.log(`empty file: ${local.path} faking success`);
             return Promise.resolve({
                 statusCode: 200,
                 headers: headers,
             });
         }
 
-        console.log("uploading", download.path, local.exists, local.size);
+        console.log("uploading", local.path, local.exists, local.size);
 
         const defaultHeaders = {
             "Content-Type": "application/octet-stream",
@@ -419,7 +417,7 @@ export default class PortalInterface {
                 .upload({
                     method: "POST",
                     url: url,
-                    path: download.path,
+                    path: local.path,
                     headers: { ...headers, ...defaultHeaders },
                     progress: progress,
                 })
