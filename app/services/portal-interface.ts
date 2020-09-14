@@ -14,12 +14,20 @@ export class ApiUnexpectedStatus extends Error {
     }
 }
 
+export interface CurrentUser {
+    name: string;
+    portalId: number;
+    email: string;
+    token: string;
+    usedAt: Date | null;
+}
+
 export default class PortalInterface {
     _services: any;
     _dbInterface: any;
     _fs: any;
     _conservify: any;
-    _currentUser: any;
+    _currentUser: CurrentUser | null = null;
     _appSettings: any;
     _store: any;
 
@@ -28,7 +36,6 @@ export default class PortalInterface {
         this._dbInterface = services.Database();
         this._fs = services.FileSystem();
         this._conservify = services.Conservify();
-        this._currentUser = {};
         this._appSettings = new AppSettings();
         this._store = services.Store();
     }
@@ -43,23 +50,6 @@ export default class PortalInterface {
         });
     }
 
-    private storeCurrentUser(refreshed, accessToken) {
-        return this.query({
-            refreshed: refreshed || false,
-            authenticated: true,
-            method: "GET",
-            url: "/user",
-        }).then((data) => {
-            this._currentUser.name = data.name;
-            this._currentUser.portalId = data.id;
-            this._currentUser.email = data.email;
-            this._currentUser.token = accessToken;
-            this._store.dispatch(ActionTypes.UPDATE_ACCOUNT, { ...this._currentUser });
-
-            return data;
-        });
-    }
-
     public isAvailable() {
         return this.getUri().then((baseUri) =>
             axios({ url: baseUri + "/status" })
@@ -68,8 +58,28 @@ export default class PortalInterface {
         );
     }
 
-    public getCurrentUser() {
+    public setCurrentUser(currentUser: CurrentUser) {
+        if (!currentUser) throw new Error(`invalid current user`);
+        this._currentUser = currentUser;
+    }
+
+    public getCurrentUser(): CurrentUser | null {
         return this._currentUser;
+    }
+
+    public whoAmI(): Promise<CurrentUser> {
+        return this.query({
+            authenticated: true,
+            url: "/user",
+        }).then((user) => {
+            return {
+                name: user.name,
+                portalId: user.id,
+                email: user.email,
+                token: this.getCurrentToken(),
+                usedAt: new Date(),
+            };
+        });
     }
 
     public isLoggedIn() {
@@ -242,7 +252,7 @@ export default class PortalInterface {
             });
     }
 
-    private handleTokenResponse(response) {
+    private handleTokenResponse(response): Promise<{ token: string }> {
         if (response.status !== 204) {
             throw new Error("authentication failed");
         }
@@ -250,10 +260,8 @@ export default class PortalInterface {
         // Headers should always be lower case, bug otherwise.
         const accessToken = response.headers.authorization;
         this._appSettings.setString("accessToken", accessToken);
-        return this.storeCurrentUser(true, accessToken).then(() => {
-            return {
-                token: accessToken,
-            };
+        return Promise.resolve({
+            token: accessToken,
         });
     }
 

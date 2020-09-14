@@ -1,61 +1,75 @@
+import _ from "lodash";
 import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import {ServiceRef, Services} from "~/store/modules/utilities";
-import {AccountsTableRow, SettingsTableRow} from "~/store/row-types";
+import { ServiceRef, Services } from "~/store/modules/utilities";
+import { AccountsTableRow, SettingsTableRow } from "~/store/row-types";
+import { CurrentUser } from "@/services/portal-interface";
 
 export class PortalState {
     authenticated: boolean = false;
     services: ServiceRef = new ServiceRef();
     settings: any;
     accounts: any;
+    currentUser: CurrentUser | null = null;
 }
 
 type ActionParameters = { commit: any; dispatch: any; state: any };
 
 const getters = {};
 
+export const SET_CURRENT_USER = "SET_CURRENT_USER";
+
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
-        dispatch(ActionTypes.LOAD_SETTINGS);
-        dispatch(ActionTypes.LOAD_ACCOUNTS);
+        return Promise.all([dispatch(ActionTypes.LOAD_SETTINGS), dispatch(ActionTypes.LOAD_ACCOUNTS)]);
     },
     [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
             .db()
             .getSettings()
             .then((settings) => {
-                commit(MutationTypes.LOAD_SETTINGS, settings)
+                commit(MutationTypes.LOAD_SETTINGS, settings);
             })
-            .catch((e) => console.log('ActionTypes.LOAD_SETTINGS', e))
+            .catch((e) => console.log(ActionTypes.LOAD_SETTINGS, e));
     },
     [ActionTypes.UPDATE_SETTINGS]: ({ commit, dispatch, state }: ActionParameters, settings) => {
         return state.services
             .db()
             .updateSettings(settings)
-            .then((res) => {
-                dispatch(ActionTypes.LOAD_SETTINGS);
-                return res;
-            })
-            .catch((e) => console.log('ActionTypes.UPDATE_SETTINGS', e))
+            .then((res) => dispatch(ActionTypes.LOAD_SETTINGS).then(() => res))
+            .catch((e) => console.log(ActionTypes.UPDATE_SETTINGS, e));
     },
     [ActionTypes.LOAD_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
             .db()
             .getAllAccounts()
             .then((accounts) => {
-                commit(MutationTypes.LOAD_ACCOUNTS, accounts)
+                console.log(MutationTypes.LOAD_ACCOUNTS, accounts);
+                commit(MutationTypes.LOAD_ACCOUNTS, accounts);
+                const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
+                if (sorted.length > 0) {
+                    state.services.portal().setCurrentUser(sorted[0]);
+                    commit(SET_CURRENT_USER, sorted[0]);
+                }
             })
-            .catch((e) => console.log('ActionTypes.LOAD_ACCOUNTS', e))
+            .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
     },
-    [ActionTypes.UPDATE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, account) => {
+    [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
-            .db()
-            .addOrUpdateAccounts(account)
-            .then((all) => {
-                dispatch(ActionTypes.LOAD_ACCOUNTS);
-            })
-            .catch((e) => console.log('ActionTypes.UPDATE_ACCOUNT', e))
+            .portal()
+            .whoAmI()
+            .then((self) => {
+                return state.services
+                    .db()
+                    .addOrUpdateAccounts(self)
+                    .then((all) => {
+                        state.services.portal().setCurrentUser(self);
+                        commit(SET_CURRENT_USER, self);
+                        return dispatch(ActionTypes.LOAD_ACCOUNTS);
+                    })
+                    .catch((e) => console.log(ActionTypes.UPDATE_ACCOUNT, e));
+            });
     },
     [ActionTypes.LOGOUT_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
         return state.services
@@ -63,13 +77,22 @@ const actions = {
             .deleteAllAccounts()
             .then((all) => {
                 commit(MutationTypes.LOGOUT_ACCOUNTS);
-                dispatch(ActionTypes.LOAD_ACCOUNTS);
+                return dispatch(ActionTypes.LOAD_ACCOUNTS);
             })
-            .catch((e) => console.log('ActionTypes.LOGOUT_ACCOUNTS', e))
+            .catch((e) => console.log(ActionTypes.LOGOUT_ACCOUNTS, e));
+    },
+    [ActionTypes.CHANGE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, email: string) => {
+        const chosen = state.accounts.filter((a) => a.email === email);
+        if (chosen.length == 0) throw new Error(`no such account: ${email}`);
+        state.services.portal().setCurrentUser(chosen[0]);
+        commit(SET_CURRENT_USER, chosen[0]);
     },
 };
 
 const mutations = {
+    [SET_CURRENT_USER]: (state: PortalState, currentUser: CurrentUser) => {
+        Vue.set(state, "currentUser", currentUser);
+    },
     [MutationTypes.RESET]: (state: PortalState, error: string) => {
         Object.assign(state, new PortalState());
     },
@@ -83,14 +106,13 @@ const mutations = {
         Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.LOAD_SETTINGS]: (state: PortalState, settings: SettingsTableRow) => {
-        Vue.set(state, 'settings', settings[0].settingsObject);
+        Vue.set(state, "settings", settings[0].settingsObject);
     },
-
     [MutationTypes.LOGOUT_ACCOUNTS]: (state: PortalState) => {
         Vue.set(state, "accounts", []);
     },
     [MutationTypes.LOAD_ACCOUNTS]: (state: PortalState, accounts: AccountsTableRow) => {
-        Vue.set(state, 'accounts', accounts);
+        Vue.set(state, "accounts", accounts);
     },
 };
 
