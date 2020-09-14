@@ -3,7 +3,7 @@ import * as platform from "tns-core-modules/platform";
 import { File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
 import { serializePromiseChain } from "../utilities";
-import { getDatabasePath, listAllFiles, dumpAllFiles } from "../lib/fs";
+import { DiagnosticsDirectory, getDatabasePath, listAllFiles, dumpAllFiles } from "../lib/fs";
 import Config, { Build } from "../config";
 
 function uuidv4() {
@@ -47,7 +47,10 @@ export default class Diagnostics {
                         id: id,
                     };
                 })
-            );
+            )
+            .catch((err) => {
+                console.log(`diagnostics error: ${err}`);
+            });
     }
 
     private uploadDeviceInformation(id) {
@@ -77,11 +80,10 @@ export default class Diagnostics {
     }
 
     private uploadArchived() {
-        const folder = this.getDiagnosticsFolder();
-        return this.getAllFiles(folder).then((files) => {
-            console.log("uploading", files);
+        return this.getAllFiles(DiagnosticsDirectory).then((files) => {
             return serializePromiseChain(files, (path, index) => {
-                const relative = path.replace(folder.path, "");
+                const relative = path.replace(DiagnosticsDirectory, "");
+                console.log("uploading", path, relative);
                 return this.services
                     .Conservify()
                     .upload({
@@ -124,7 +126,7 @@ export default class Diagnostics {
             .then((response) => response.body);
     }
 
-    private getAllFiles(f) {
+    private getAllFiles(f: string): Promise<any> {
         return listAllFiles(f).then((files) => {
             return _(files)
                 .filter((f) => f.depth > 0)
@@ -134,6 +136,6 @@ export default class Diagnostics {
     }
 
     private getDiagnosticsFolder() {
-        return knownFolders.documents().getFolder("diagnostics");
+        return knownFolders.documents().getFolder(DiagnosticsDirectory);
     }
 }

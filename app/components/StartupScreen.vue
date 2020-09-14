@@ -173,11 +173,11 @@ export default class StartupScreen extends Vue {
                 return this.$navigateTo(routes.stations, {
                     props: {},
                 });
-                return this.$navigateTo(routes.developerMenu, {
+                return this.$navigateTo(routes.appSettings.account, {
                     props: {},
                 });
 				*/
-                return this.$navigateTo(routes.appSettings.account, {
+                return this.$navigateTo(routes.developerMenu, {
                     props: {},
                 });
             }

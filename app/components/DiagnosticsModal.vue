@@ -25,16 +25,7 @@ export default Vue.extend({
             done: false,
         };
     },
-    props: {
-        station: {
-            required: true,
-            type: Object,
-        },
-        downloadOnly: {
-            required: true,
-            type: Boolean,
-        },
-    },
+    props: {},
     methods: {
         update(this: any, progress) {
             this.progress = progress;
@@ -43,18 +34,18 @@ export default Vue.extend({
         onLoaded(this: any) {
             console.log("diagnostics loaded");
 
-            Services.Diagnostics()
+            return Services.Diagnostics()
                 .upload((progress) => {
                     this.update(progress);
                 })
                 .then(
                     (res) => {
-                        console.log("diagnostics done");
+                        console.log("diagnostics done", res);
                         this.done = true;
                         this.phrase = res.reference.phrase;
                     },
                     (e) => {
-                        console.log("diagnostics done");
+                        console.log("diagnostics done", e);
                         this.done = true;
                         this.error = true;
                     }

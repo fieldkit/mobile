@@ -26,6 +26,7 @@ export interface FileLike {
 }
 
 export const DownloadsDirectory = "downloads";
+export const DiagnosticsDirectory = "diagnostics";
 
 export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
     const files: FileLike[] = [];
@@ -38,7 +39,6 @@ export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
     };
 
     return recurse(getFolder(), 0, (depth: number, entry) => {
-        // console.log("entry", depth, entry, entry.path, entry.size, entry.lastModified);
         files.push({
             depth: depth,
             path: entry.path,
