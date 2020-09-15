@@ -291,10 +291,7 @@ export default Vue.extend({
                 .login(this.user)
                 .then((token) => {
                     return this.$store.dispatch(ActionTypes.AUTHENTICATED).then(() => {
-                        console.log("redirecting");
-                        return this.$navigateTo(routes.onboarding.assembleStation, {
-                            clearHistory: true,
-                        });
+                        return this.$navigateBack();
                     });
                 })
                 .catch((error) => {

@@ -40,7 +40,7 @@
                         />
                     </GridLayout>
                     <StackLayout>
-                        <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')" @tap="logout"></Button>
+                        <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')" @tap="logoutAll"></Button>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
@@ -83,16 +83,8 @@ export default Vue.extend({
         addAccount() {
             return this.$navigateTo(routes.appSettings.accountAdd);
         },
-        logout() {
-            return Promise.all([
-                Services.PortalInterface().logout(),
-                this.$navigateTo(routes.login, {
-                    clearHistory: true,
-                    props: {
-                        resetUser: true,
-                    },
-                }),
-            ]);
+        logoutAll() {
+            return Services.PortalInterface().logout();
         },
         goBack(this: any, ev) {
             return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.list, {})]);
