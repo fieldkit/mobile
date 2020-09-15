@@ -16,6 +16,10 @@ timestamps {
                 withCredentials([file(credentialsId: 'app-android-google-services', variable: 'APP_ANDROID_GOOGLE_SERVICES')]) {
                     sh "cp -f $APP_ANDROID_GOOGLE_SERVICES app/App_Resources/Android"
 				}
+                withCredentials([file(credentialsId: 'nativescript-sqlite-commercial', variable: 'APP_NATIVESCRIPT_SQLITE')]) {
+                    sh "cp -f $APP_NATIVESCRIPT_SQLITE ."
+                    sh "unzip $APP_NATIVESCRIPT_SQLITE"
+				}
             }
 
             stage ('build') {

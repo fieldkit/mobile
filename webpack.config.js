@@ -1,5 +1,6 @@
 const { join, relative, resolve, sep } = require("path");
 
+const fs = require("fs");
 const webpack = require("webpack");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
@@ -17,6 +18,10 @@ const hashSalt = Date.now().toString();
 const gitHash = require("child_process").execSync("git rev-parse HEAD").toString().trim();
 
 const gitBranch = require("child_process").execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+
+const haveSqliteCommercial = () => {
+    return fs.existsSync("node_modules/nativescript-sqlite-commercial");
+};
 
 module.exports = (env) => {
     // Add your custom Activities, Services and other android app components here.
@@ -103,12 +108,15 @@ module.exports = (env) => {
     }
 
     const finalExternals = {
-        "nativescript-sqlite-commercial": "nativescript-sqlite-commercial",
         "nativescript-sqlite-encrypted": "nativescript-sqlite-encrypted",
         "nativescript-sqlite-sync": "nativescript-sqlite-sync",
         sqlite3: "sqlite3",
         ...externals,
     };
+
+    if (!haveSqliteCommercial()) {
+        finalExternals["nativescript-sqlite-commercial"] = "nativescript-sqlite-commercial";
+    }
 
     nsWebpack.processAppComponents(appComponents, platform);
     const config = {
@@ -123,7 +131,6 @@ module.exports = (env) => {
             ],
         },
         target: nativescriptTarget,
-        // target: nativeScriptVueTarget,
         entry: entries,
         output: {
             pathinfo: false,

@@ -92,9 +92,13 @@ android-logs-verbose:
 	adb logcat | grep -i " JS"
 
 android-debug: setup refresh-data
+	cd $(APP) && tns platform add android || true
+	$(MAKE) platform-libraries
 	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
 
 ios-debug: setup refresh-data
+	cd $(APP) && tns platform add ios || true
+	$(MAKE) platform-libraries
 	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue | grep -v boringssl
 
 clean:
