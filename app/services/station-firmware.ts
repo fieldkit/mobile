@@ -5,9 +5,11 @@ import Services from "./services";
 
 const log = Config.logger("StationFirmware");
 
-function transformProgress(callback, fn) {
+type ProgressCallback = ({ progress: number }) => void;
+
+function transformProgress(callback: ProgressCallback, fn: (number) => number) {
     if (_.isFunction(callback)) {
-        return (total, copied, info) => {
+        return (total: number, copied: number, info: never) => {
             callback({
                 progress: fn((copied / total) * 100.0),
             });
@@ -37,7 +39,7 @@ export default class StationFirmware {
         );
     }
 
-    public downloadFirmware(progressCallback, force) {
+    public downloadFirmware(progressCallback: ProgressCallback, force: boolean): Promise<any> {
         log.info("downloading firmware");
         return this.services
             .PortalInterface()
@@ -87,7 +89,7 @@ export default class StationFirmware {
 
                         log.info("already have", firmwares[0]);
 
-                        return this._deleteOldFirmware().then(() => {
+                        return this.deleteOldFirmware().then(() => {
                             return firmwares[0];
                         });
                     })
@@ -102,12 +104,12 @@ export default class StationFirmware {
                     .deleteAllFirmwareExceptIds(ids)
                     .then((deleted) => {
                         console.log("deleted", deleted);
-                        return Promise.all(deleted.map((fw) => this._deleteFirmware(fw)));
+                        return Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
                     });
             });
     }
 
-    private _deleteFirmware(fw) {
+    private deleteFirmware(fw) {
         const local = this.services.FileSystem().getFile(fw.path);
         if (local && local.exists) {
             log.info("removing", fw.path, local.exists, local.size);
@@ -116,19 +118,42 @@ export default class StationFirmware {
         return false;
     }
 
-    private _deleteOldFirmware() {
-        return this.services
+    private async deleteOldFirmware(): Promise<any> {
+        await this.services
             .Database()
             .getAllFirmware()
             .then((firmware) => {
                 return _(firmware)
                     .tail()
-                    .map((fw) => this._deleteFirmware(fw))
+                    .map((fw) => this.deleteFirmware(fw))
                     .value();
             });
     }
 
-    public upgradeStation(url, progressCallback) {
+    public async cleanupFirmware(): Promise<any> {
+        const firmware = await this.services.Database().getAllFirmware();
+        const keeping: number[] = [];
+
+        for (const fw of firmware) {
+            const local = this.services.FileSystem().getFile(fw.path);
+            if (local && local.exists && local.size > 0) {
+                log.info("keeping", fw.path, local.exists, local.size);
+                keeping.push(fw.id);
+            } else {
+                log.info("deleting", fw.path, local.exists, local.size);
+            }
+        }
+
+        await this.services
+            .Database()
+            .deleteAllFirmwareExceptIds(keeping)
+            .then((deleted) => {
+                log.info("deleted", deleted);
+                return Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
+            });
+    }
+
+    public upgradeStation(url: string, progressCallback): Promise<any> {
         log.info("upgrade", url);
 
         return this.haveFirmware().then((yes) => {
@@ -148,7 +173,7 @@ export default class StationFirmware {
         });
     }
 
-    public haveFirmware() {
+    public haveFirmware(): Promise<any> {
         return this.services
             .Database()
             .getLatestFirmware()

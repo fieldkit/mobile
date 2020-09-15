@@ -47,21 +47,36 @@ function restartDiscovery(discoverStation): null {
     return null;
 }
 
-function updateStore(store): null {
+function updateStore(store): Promise<any> {
     promiseAfter(1000)
         .then(() => store.dispatch(ActionTypes.REFRESH))
         .catch((err) => {
             console.log("refresh error", err, err ? err.stack : null);
         })
         .finally(() => updateStore(store));
-    return null;
+
+    return Promise.resolve();
 }
 
-function enableLocationServices() {
+function enableLocationServices(): Promise<any> {
     // On iOS this can take a while, so we do this in the background.
     Services.PhoneLocation().enableAndGetLocation();
 
     return Promise.resolve();
+}
+
+function resumeSession(services: Services): Promise<any> {
+    return services
+        .StationFirmware()
+        .cleanupFirmware()
+        .then(() => {
+            const store = services.Store();
+            if (store.state.portal.currentUser) {
+                store.dispatch(ActionTypes.AUTHENTICATED);
+            }
+
+            return null;
+        });
 }
 
 function initializeApplication(services): Promise<any> {
@@ -105,6 +120,7 @@ function initializeApplication(services): Promise<any> {
                                     .then(() => Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]))
                                     .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                     .then(() => updateStore(Services.Store()))
+                                    .then(() => resumeSession(Services))
                                     .then(() => restartDiscovery(Services.DiscoverStation()))
                                     .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
                             );
