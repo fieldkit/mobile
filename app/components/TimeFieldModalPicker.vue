@@ -49,10 +49,8 @@ export default Vue.extend({
                     value: this.value,
                 },
             }).then((time, ...args) => {
-                if (time) {
-                    console.log("time-field:time-change", time);
-                    this.$emit("change", time);
-                }
+                console.log("time-field:time-change(emit)", time);
+                this.$emit("change", time || 0);
             });
         },
     },
