@@ -67,4 +67,8 @@ export default class SqliteNativeScript {
     exists(name) {
         return Sqlite.exists(name);
     }
+
+    copy(name) {
+        return Sqlite.copyDatabase(name);
+    }
 }

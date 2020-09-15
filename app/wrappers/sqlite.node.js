@@ -72,4 +72,8 @@ export default class SqliteNodeJs {
     exists(name) {
         return false;
     }
+
+    copy(name) {
+        return false;
+    }
 }
