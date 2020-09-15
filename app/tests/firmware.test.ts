@@ -11,7 +11,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 // import { Firmware } from "../store/modules/firmware";
 
 function addFakeFirmware(services: Services) {
-    services.PortalInterface().listFirmware = jest.fn(_ => {
+    services.PortalInterface().listFirmware = jest.fn((_) => {
         return Promise.resolve({
             firmwares: [
                 {
@@ -40,7 +40,7 @@ function addFakeFirmware(services: Services) {
         });
     });
 
-    services.PortalInterface().downloadFirmware = jest.fn(_ => {
+    services.PortalInterface().downloadFirmware = jest.fn((_) => {
         return Promise.resolve({
             status: 200,
         });
@@ -89,7 +89,7 @@ describe("Firmware", () => {
     });
 
     it("should delete firmware that disappears from the server", async () => {
-        services.PortalInterface().listFirmware = jest.fn(_ => {
+        services.PortalInterface().listFirmware = jest.fn((_) => {
             return Promise.resolve({
                 firmwares: [
                     {
@@ -118,7 +118,7 @@ describe("Firmware", () => {
             });
         });
 
-        services.PortalInterface().downloadFirmware = jest.fn(_ => {
+        services.PortalInterface().downloadFirmware = jest.fn((_) => {
             return Promise.resolve({
                 status: 200,
             });
@@ -140,8 +140,8 @@ describe("Firmware", () => {
             })
             .then(() => services.StationFirmware().downloadFirmware())
             .then(() => services.Database().getAllFirmware())
-            .then(firmware => {
-                expect(firmware.length).toEqual(2);
+            .then((firmware) => {
+                expect(firmware.length).toEqual(1);
             });
     });
 });

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Config from "../config";
-import { serializePromiseChain, onlyAllowEvery } from "../utilities";
+import { onlyAllowEvery } from "../utilities";
 import Services from "./services";
 
 const log = Config.logger("StationFirmware");
@@ -66,9 +66,9 @@ export default class StationFirmware {
                     return;
                 }
 
-                return serializePromiseChain(firmwares, (firmware) => {
-                    return this.services.Database().addOrUpdateFirmware(firmware);
-                })
+                return this.services
+                    .Database()
+                    .addOrUpdateFirmware(firmwares[0])
                     .then(() => {
                         const local = this.services.FileSystem().getFile(firmwares[0].path);
                         if (!local.exists || local.size == 0 || force === true) {
