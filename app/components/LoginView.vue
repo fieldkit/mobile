@@ -292,7 +292,7 @@ export default Vue.extend({
             return Services.PortalInterface()
                 .login(this.user)
                 .then((token) => {
-                    return this.$store.dispatch(ActionTypes.AUTHENTICATED, token).then(() => {
+                    return this.$store.dispatch(ActionTypes.AUTHENTICATED).then(() => {
                         console.log("redirecting");
                         return this.$navigateTo(routes.onboarding.assembleStation, {
                             clearHistory: true,

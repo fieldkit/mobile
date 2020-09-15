@@ -21,8 +21,8 @@ const actions = {
             commit(MutationTypes.LOGIN, token);
         }
     },
-    [ActionTypes.AUTHENTICATED]: ({ commit }: ActionParameters, token: string) => {
-        commit(MutationTypes.LOGIN, token);
+    [ActionTypes.AUTHENTICATED]: ({ commit }: ActionParameters) => {
+        commit(MutationTypes.LOGIN);
     },
 };
 
@@ -30,7 +30,7 @@ const mutations = {
     [MutationTypes.RESET]: (state: NetworkState, error: string) => {
         Object.assign(state, new NetworkState());
     },
-    [MutationTypes.LOGIN]: (state: NetworkState, token: string) => {
+    [MutationTypes.LOGIN]: (state: NetworkState) => {
         Vue.set(state, "authenticated", true);
     },
     [MutationTypes.LOGOUT]: (state: NetworkState) => {

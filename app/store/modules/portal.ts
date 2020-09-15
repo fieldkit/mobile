@@ -45,7 +45,6 @@ const actions = {
             .db()
             .getAllAccounts()
             .then((accounts) => {
-                console.log(MutationTypes.LOAD_ACCOUNTS, accounts);
                 commit(MutationTypes.LOAD_ACCOUNTS, accounts);
                 const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
                 if (sorted.length > 0) {

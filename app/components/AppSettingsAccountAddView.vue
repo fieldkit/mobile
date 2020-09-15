@@ -2,7 +2,7 @@
     <Page actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <FlexboxLayout class="page login-page" flexDirection="column">
-                <Label :text="_L('appSettings.account.addAccount')" class="size-16 m-5 m-t-20 m-b-25 bold"/>
+                <Label :text="_L('appSettings.account.addAccount')" class="size-16 m-5 m-t-20 m-b-25 bold" />
                 <StackLayout class="form">
                     <GridLayout rows="auto, auto, auto, auto">
                         <StackLayout row="0" v-show="!isLoggingIn" class="input-field">
@@ -21,10 +21,8 @@
                                 @focus="showActive"
                                 @blur="checkName"
                             ></TextField>
-                            <StackLayout class="spacer-top" id="name-field-spacer"
-                                         v-show="!noName && !nameTooLong"></StackLayout>
-                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true"
-                                   v-show="noName"></Label>
+                            <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong"></StackLayout>
+                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName"></Label>
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
@@ -63,8 +61,7 @@
                                     src="~/images/Icon_Email_login.png"
                                 ></Image>
                             </GridLayout>
-                            <StackLayout class="spacer-top" id="email-field-spacer"
-                                         v-show="!noEmail && !emailNotValid"></StackLayout>
+                            <StackLayout class="spacer-top" id="email-field-spacer" v-show="!noEmail && !emailNotValid"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="no-email"
@@ -149,8 +146,7 @@
                                 @focus="showActive"
                                 @blur="checkConfirmPassword"
                             ></TextField>
-                            <StackLayout class="spacer-top" id="confirm-password-field-spacer"
-                                         v-show="!passwordsNotMatch"></StackLayout>
+                            <StackLayout class="spacer-top" id="confirm-password-field-spacer" v-show="!passwordsNotMatch"></StackLayout>
                             <Label
                                 class="validation-error"
                                 id="passwords-not-match"
@@ -184,7 +180,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import {USERNAME, PASSWORD} from "@/secrets";
+import { USERNAME, PASSWORD } from "@/secrets";
 import * as ActionTypes from "@/store/actions";
 import Services from "@/services/services";
 import * as dialogs from "tns-core-modules/ui/dialogs";
@@ -274,7 +270,7 @@ export default Vue.extend({
         continueOffline(this: any) {
             if (!this.navigatedAway) {
                 this.navigatedAway = true;
-                return this.$navigateTo(routes.onboarding.assembleStation, {clearHistory: true});
+                return this.$navigateTo(routes.onboarding.assembleStation, { clearHistory: true });
             }
         },
         submit(this: any) {
@@ -294,7 +290,7 @@ export default Vue.extend({
             return Services.PortalInterface()
                 .login(this.user)
                 .then((token) => {
-                    return this.$store.dispatch(ActionTypes.AUTHENTICATED, token).then(() => {
+                    return this.$store.dispatch(ActionTypes.AUTHENTICATED).then(() => {
                         console.log("redirecting");
                         return this.$navigateTo(routes.onboarding.assembleStation, {
                             clearHistory: true,
