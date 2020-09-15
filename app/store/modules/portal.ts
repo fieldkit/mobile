@@ -83,8 +83,14 @@ const actions = {
     [ActionTypes.CHANGE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, email: string) => {
         const chosen = state.accounts.filter((a) => a.email === email);
         if (chosen.length == 0) throw new Error(`no such account: ${email}`);
-        state.services.portal().setCurrentUser(chosen[0]);
-        commit(SET_CURRENT_USER, chosen[0]);
+        return state.services
+            .db()
+            .addOrUpdateAccounts(chosen[0])
+            .then((all) => {
+                state.services.portal().setCurrentUser(chosen[0]);
+                commit(SET_CURRENT_USER, chosen[0]);
+            })
+            .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
     },
 };
 
