@@ -83,7 +83,7 @@ android-debug: setup refresh-data
 	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
 
 ios-debug: setup refresh-data
-	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue
+	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue | grep -v boringssl
 
 clean:
 	rm -rf $(APP)/node_modules
