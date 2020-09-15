@@ -45,7 +45,7 @@
             />
         </StackLayout>
         <StackLayout row="1" col="1" class="duration-container" verticalAlignment="bottom">
-            <DropDown class="drop-down" :items="items" :selectedIndex="indexOf(form.duration)" @selectedIndexChanged="onDurationChange" />
+            <DropDown class="drop-down" :items="items" :selectedIndex="indexOf(form.duration)" @selectedIndexChanged="onDurationChange" v-if="items" />
         </StackLayout>
 
         <StackLayout row="2" colSpan="2" class="summary-container" v-if="false">
@@ -72,6 +72,7 @@ interface Self {
     $emit: (type, value) => any;
     onQuantityChange: (ev: any, fireChange: boolean) => any;
     onChange: (fireChange: boolean) => any;
+    items: any;
 }
 
 export default Vue.extend({
@@ -97,7 +98,7 @@ export default Vue.extend({
         return {
             focus: false,
             durations: durations,
-            items: new ValueList(durations),
+            items: null,
             form: {
                 quantity: "1",
                 duration: 60,
@@ -121,6 +122,7 @@ export default Vue.extend({
     },
     mounted(this: Self) {
         console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay);
+        this.items = new ValueList(this.durations)
         return this.updateForm(this.interval);
     },
     methods: {
