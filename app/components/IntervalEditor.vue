@@ -36,6 +36,13 @@
                 :text="_L('intervalNotNumber')"
                 textWrap="true"
             />
+            <Label
+                v-if="errors.quantity.minimum"
+                class="validation-error"
+                horizontalAlignment="left"
+                :text="'A minimum of 1 minute is required.'"
+                textWrap="true"
+            />
         </StackLayout>
         <StackLayout row="1" col="1" class="duration-container" verticalAlignment="bottom">
             <DropDown class="drop-down" :items="items" :selectedIndex="indexOf(form.duration)" @selectedIndexChanged="onDurationChange" />
@@ -59,7 +66,7 @@ interface Self {
     fullDay: boolean;
     form: { quantity: string; duration: number };
     focus: boolean;
-    errors: { quantity: { numeric: boolean; required: boolean } };
+    errors: { quantity: { numeric: boolean; required: boolean; minimum: boolean } };
     durations: { display: string; value: number; duration: number }[];
     updateForm: (interval: Interval) => any;
     $emit: (type, value) => any;
@@ -99,6 +106,7 @@ export default Vue.extend({
                 quantity: {
                     required: false,
                     numeric: false,
+                    minimum: false,
                 },
             },
         };
@@ -128,6 +136,7 @@ export default Vue.extend({
         onChange(this: Self, ev) {
             this.errors.quantity.numeric = false;
             this.errors.quantity.required = false;
+            this.errors.quantity.minimum = false;
 
             if (!this.form.quantity || this.form.quantity.length == 0) {
                 this.errors.quantity.required = true;
@@ -141,6 +150,11 @@ export default Vue.extend({
             }
 
             const seconds = numeric * this.form.duration;
+            if (seconds < 60) {
+                this.errors.quantity.minimum = true;
+                return;
+            }
+
             const newInterval = {
                 start: this.interval.start,
                 end: this.interval.end,
