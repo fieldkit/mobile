@@ -7,7 +7,7 @@ var Common = (function (_super) {
         return _super.call(this) || this;
     }
     return Common;
-})(observable_1.Observable);
+}(observable_1.Observable));
 exports.Common = Common;
 var FileSystemError = (function (_super) {
     __extends(FileSystemError, _super);
@@ -17,7 +17,7 @@ var FileSystemError = (function (_super) {
         return _this;
     }
     return FileSystemError;
-})(Error);
+}(Error));
 exports.FileSystemError = FileSystemError;
 var ConnectionError = (function (_super) {
     __extends(ConnectionError, _super);
@@ -27,6 +27,6 @@ var ConnectionError = (function (_super) {
         return _this;
     }
     return ConnectionError;
-})(Error);
+}(Error));
 exports.ConnectionError = ConnectionError;
 //# sourceMappingURL=conservify.common.js.map
