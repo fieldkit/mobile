@@ -1,9 +1,12 @@
 ANDROID ?= $(HOME)/Android/Sdk/tools/bin
 APP ?= ./
 
+NSSQLITE = nativescript-sqlite-commercial-1.3.2.tgz
+
 default: setup test
 
 setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
+	mkdir -p backup
 
 .setup-completed:
 	$(ANDROID)/sdkmanager --verbose "system-images;android-25;google_apis;x86"
@@ -41,6 +44,16 @@ jenkins: setup
 	cd $(APP) && npm install
 	cd $(APP) && npm test
 
+clean-secrets:
+	rm -rf $(APP)/app/secrets.ts
+
+platform-libraries:
+	if [ -f $(NSSQLITE) ]; then                       \
+		tns plugin add $(NSSQLITE);                   \
+	    mkdir -p backup;                              \
+		mv $(NSSQLITE) backup/$(NSSQLITE);            \
+    fi
+
 android-release: setup refresh-data
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
@@ -48,11 +61,9 @@ android-release: setup refresh-data
 	jq '.nativescript.id = "com.fieldkit"' $(APP)/package.json > $(APP)/package.json.temp
 	mv $(APP)/package.json.temp $(APP)/package.json
 	npm install
+	$(MAKE) platform-libraries
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
-
-clean-secrets:
-	rm -rf $(APP)/app/secrets.ts
 
 ios-release: setup refresh-data
 	security list-keychains
@@ -68,6 +79,7 @@ ios-release: setup refresh-data
 	else                                                \
 		cd $(APP) && tns platform add ios || true      ;\
 	fi
+	$(MAKE) platform-libraries
 	cd $(APP) && tns build ios --provision || true
 	cd $(APP) && tns build ios --team-id || true
 	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap

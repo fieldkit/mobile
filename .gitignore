@@ -48,3 +48,10 @@ google-services.json
 *.swp
 
 coverage
+
+backup
+
+README.md
+nativescript-sqlite-*.tgz
+commercial-sqlite-2.4.0.zip
+sqlite.d.ts
