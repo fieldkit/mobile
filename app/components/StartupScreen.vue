@@ -13,6 +13,7 @@ import AppSettings from "@/wrappers/app-settings";
 import Sqlite from "@/wrappers/sqlite";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
+import * as platform from "tns-core-modules/platform";
 import { promiseAfter } from "@/utilities";
 import routes from "@/routes";
 import { Route } from "@/routes/navigate";
@@ -75,7 +76,6 @@ function resumeSession(services: Services): Promise<any> {
             if (store.state.portal.currentUser) {
                 store.dispatch(ActionTypes.AUTHENTICATED);
             }
-
             return null;
         });
 }
@@ -89,7 +89,7 @@ function downloadDatabase(services: Services, url: string): Promise<void> {
         console.log("progress", total, copied);
     };
 
-    const folder = Services.FileSystem().getFolder("app");
+    const folder = Services.FileSystem().getFolder(platform.isAndroid ? "app" : "");
     const name = "fieldkit.sqlite3";
     const destination = folder.getFile(name);
 
