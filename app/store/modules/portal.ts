@@ -48,6 +48,7 @@ const actions = {
                 commit(MutationTypes.LOAD_ACCOUNTS, accounts);
                 const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
                 if (sorted.length > 0) {
+                    console.log("currentUser", sorted);
                     state.services.portal().setCurrentUser(sorted[0]);
                     commit(SET_CURRENT_USER, sorted[0]);
                 }
@@ -59,6 +60,7 @@ const actions = {
             .portal()
             .whoAmI()
             .then((self) => {
+                console.log("authenticated", self);
                 return state.services
                     .db()
                     .addOrUpdateAccounts(self)

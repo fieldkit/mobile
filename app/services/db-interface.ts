@@ -956,13 +956,8 @@ export default class DatabaseInterface {
             .then((db) =>
                 db.query(`SELECT id FROM accounts WHERE email = ?`, [account.email]).then((maybeId) => {
                     if (maybeId.length == 0) {
-                        return db.execute(`INSERT INTO accounts (name, email, portal_id, token, used_at) VALUES (?, ?, ?, ?, ?)`, [
-                            account.name,
-                            account.email,
-                            account.portalId,
-                            account.token,
-                            new Date(),
-                        ]);
+                        const values = [account.name, account.email, account.portalId, account.token, new Date()];
+                        return db.execute(`INSERT INTO accounts (name, email, portal_id, token, used_at) VALUES (?, ?, ?, ?, ?)`, values);
                     }
                     const values = [account.name, account.email, account.portalId, account.token, new Date(), maybeId[0].id];
                     return db.execute(
@@ -975,6 +970,6 @@ export default class DatabaseInterface {
     }
 
     public deleteAllAccounts(): Promise<AccountsTableRow[]> {
-        return this.getDatabase().then((db) => db.query("DELETE FROM accounts"));
+        return this.getDatabase().then((db) => db.query(`DELETE FROM accounts`));
     }
 }

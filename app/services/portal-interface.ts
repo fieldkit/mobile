@@ -61,6 +61,7 @@ export default class PortalInterface {
     public setCurrentUser(currentUser: CurrentUser) {
         if (!currentUser) throw new Error(`invalid current user`);
         this._currentUser = currentUser;
+        this._appSettings.setString("accessToken", currentUser.token);
     }
 
     public getCurrentUser(): CurrentUser | null {
