@@ -10,6 +10,7 @@ import { Component, Vue } from "vue-property-decorator";
 import registerLifecycleEvents from "@/services/lifecycle";
 import Services from "@/services/services";
 import AppSettings from "@/wrappers/app-settings";
+import Sqlite from "@/wrappers/sqlite";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 import { promiseAfter } from "@/utilities";
@@ -79,6 +80,36 @@ function resumeSession(services: Services): Promise<any> {
         });
 }
 
+function downloadDatabase(services: Services, url: string): Promise<void> {
+    if (true) {
+        return Promise.resolve();
+    }
+
+    const progress = (total: number, copied: number, info) => {
+        console.log("progress", total, copied);
+    };
+
+    const folder = Services.FileSystem().getFolder("app");
+    const name = "fieldkit.sqlite3";
+    const destination = folder.getFile(name);
+
+    return services
+        .Conservify()
+        .download({
+            method: "GET",
+            url: url,
+            path: destination.path,
+            progress: progress,
+        })
+        .catch((error) => {
+            console.log("error", error);
+            return Promise.resolve();
+        })
+        .then((response) => {
+            new Sqlite().copy(name);
+        });
+}
+
 function initializeApplication(services): Promise<any> {
     const started = new Date();
 
@@ -97,34 +128,37 @@ function initializeApplication(services): Promise<any> {
                 return Promise.resolve(false);
             })
             .then(() =>
-                services
-                    .CreateDb()
-                    .initialize()
-                    .then(() => services.Database().checkSettings())
-                    .then(() => services.Database().checkConfig())
-                    .then(() => {
-                        console.log("services:setup");
+                downloadDatabase(services, "http://192.168.0.100:8000/fk.db")
+                    .then(() =>
+                        services
+                            .CreateDb()
+                            .initialize()
+                            .then(() => services.Database().checkSettings())
+                            .then(() => services.Database().checkConfig())
+                            .then(() => {
+                                console.log("services:setup");
 
-                        // This uses a function so that the services object doesn't get spammed into the logs.
-                        Services.Store().commit(MutationTypes.SERVICES, () => Services);
+                                // This uses a function so that the services object doesn't get spammed into the logs.
+                                Services.Store().commit(MutationTypes.SERVICES, () => Services);
 
-                        console.log("services:ready");
+                                console.log("services:ready");
 
-                        return Services.Store()
-                            .dispatch(ActionTypes.LOAD)
-                            .then(() =>
-                                Promise.resolve()
-                                    .then(() => services.DiscoverStation().startServiceDiscovery())
-                                    .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
-                                    .then(() => enableLocationServices())
-                                    .then(() => Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]))
-                                    .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
-                                    .then(() => updateStore(Services.Store()))
-                                    .then(() => resumeSession(Services))
-                                    .then(() => restartDiscovery(Services.DiscoverStation()))
-                                    .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
-                            );
-                    })
+                                return Services.Store()
+                                    .dispatch(ActionTypes.LOAD)
+                                    .then(() =>
+                                        Promise.resolve()
+                                            .then(() => services.DiscoverStation().startServiceDiscovery())
+                                            .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
+                                            .then(() => enableLocationServices())
+                                            .then(() => Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]))
+                                            .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
+                                            .then(() => updateStore(Services.Store()))
+                                            .then(() => resumeSession(Services))
+                                            .then(() => restartDiscovery(Services.DiscoverStation()))
+                                            .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
+                                    );
+                            })
+                    )
                     .catch((err) => {
                         console.log("startup:error:", err, err ? err.stack : null);
                     })
