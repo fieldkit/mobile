@@ -40,7 +40,16 @@
                             @tap="upgradeFirmware"
                             class="btn btn-primary btn-padded"
                         />
-                        <Label v-else :text="_L('upToDate')" class="size-20 m-x-15" />
+
+                        <Label
+                            v-if="missingFirmware"
+                            text="No firmware downloaded, please add a portal account."
+                            class="size-20 m-x-15"
+                            textWrap="true"
+                        />
+
+                        <Label v-if="!missingFirmware && !updateAvailable" :text="_L('upToDate')" class="size-20 m-x-15" />
+
                         <ConnectionNote v-if="updateAvailable" :station="station" :stationId="stationId" />
                     </StackLayout>
 
@@ -94,6 +103,9 @@ export default Vue.extend({
         },
         availableFirmware(this: any) {
             return this.$store.state.firmware.available;
+        },
+        missingFirmware(this: any): boolean {
+            return !this.availableFirmware || !this.availableFirmware.simpleNumber;
         },
         updateAvailable(this: any) {
             const local = this.$store.state.firmware.available;
