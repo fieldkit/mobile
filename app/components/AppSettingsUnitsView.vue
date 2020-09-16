@@ -55,7 +55,7 @@
                                            justifyContent="center" width="55"
                                            :class="currentSettings.units.unit_name == 'kgm3'? 'b-active' : '' "
                                            @tap="setUnitName('kgm3')"
-                                           >
+                            >
                                 <HtmlView class="size-13"
                                           height="15"
                                           alignSelf="center"
@@ -69,7 +69,6 @@
                                    :class="currentSettings.units.unit_name == 'kgm3'? 'b-active' : '' "
                                    @tap="setUnitName('kgm3')"
                             >
-
                                 <FormattedString>
                                     <Span text="kg/m" class="span"></Span>
                                     <Span text="3" class="span" style="font-size: 10;vertical-align: top;"></Span>
@@ -246,7 +245,7 @@ HtmlView, .span {
     background-color: transparent;
 }
 
-.b-active HtmlView,.b-active .span {
+.b-active HtmlView, .b-active .span {
     background-color: #f4f5f7;
 }
 
