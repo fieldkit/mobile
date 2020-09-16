@@ -20,7 +20,12 @@ import routes from "@/routes";
 import { LegacyStation } from "@/store/types";
 
 export default Vue.extend({
-    props: {},
+    props: {
+        reconnecting: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             left: false,
@@ -43,7 +48,11 @@ export default Vue.extend({
         this.timer = Promise.delay(5000).then(() => {
             if (this.timer) {
                 console.log("searching:failed");
-                return this.$navigateTo(routes.onboarding.searchFailed);
+                return this.$navigateTo(routes.onboarding.searchFailed, {
+                    props: {
+                        reconnecting: this.reconnecting,
+                    },
+                });
             }
         });
     },
@@ -63,17 +72,21 @@ export default Vue.extend({
         onNavigatingTo(this: any) {
             this.left = true;
         },
-        foundStations(this: any, number) {
-            console.log("number of nearby stations", number);
+        foundStations(this: any, numberStations) {
+            console.log("number of nearby stations", numberStations);
 
             if (this.timer) {
                 this.timer.cancel();
                 this.timer = null;
             }
 
-            if (number == 1) {
+            if (numberStations == 1) {
                 if (true) {
-                    return this.$navigateTo(routes.onboarding.nearby);
+                    return this.$navigateTo(routes.onboarding.nearby, {
+                        props: {
+                            reconnecting: this.reconnecting,
+                        },
+                    });
                 }
 
                 const legacyStations: LegacyStation[] = this.$store.getters.legacyStations;
@@ -82,14 +95,26 @@ export default Vue.extend({
                     throw new Error("expected a connected station");
                 }
 
-                return this.$navigateTo(routes.onboarding.network, {
+                if (this.reconnecting) {
+                    return this.$navigateTo(routes.onboarding.recalibrate, {
+                        props: {
+                            stationId: connected[0].id,
+                        },
+                    });
+                } else {
+                    return this.$navigateTo(routes.onboarding.network, {
+                        props: {
+                            stationId: connected[0].id,
+                        },
+                    });
+                }
+            }
+            if (numberStations > 1) {
+                return this.$navigateTo(routes.onboarding.nearby, {
                     props: {
-                        stationId: connected[0].id,
+                        reconnecting: this.reconnecting,
                     },
                 });
-            }
-            if (number > 1) {
-                return this.$navigateTo(routes.onboarding.nearby);
             }
         },
     },

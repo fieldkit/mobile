@@ -32,7 +32,12 @@ import routes from "../../routes";
 import { _T } from "../../utilities";
 
 export default Vue.extend({
-    props: {},
+    props: {
+        reconnecting: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             step: {},

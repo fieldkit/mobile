@@ -7,7 +7,7 @@
                 </StackLayout>
             </GridLayout>
 
-            <ScrollView row="1" v-show="step == 0">
+            <ScrollView row="1">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <StackLayout row="0">
                         <Label class="title text-center m-b-20" :text="_L('reconnectToStation')" textWrap="true"></Label>
@@ -41,20 +41,18 @@ export default Vue.extend({
         },
     },
     data() {
-        return {
-            step: 0,
-        };
+        return {};
     },
     methods: {
         onPageLoaded(args) {},
         forward() {
-            this.step++;
-            if (this.step == 1) {
-                this.$navigateTo(routes.onboarding.searching, {
-                    clearHistory: true,
-                    backstackVisible: false,
-                });
-            }
+            return this.$navigateTo(routes.onboarding.searching, {
+                clearHistory: true,
+                backstackVisible: false,
+                props: {
+                    reconnecting: true,
+                },
+            });
         },
         back() {},
         skip() {

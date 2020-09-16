@@ -51,7 +51,12 @@ import routes from "@/routes";
 import { LegacyStation } from "@/store/types";
 
 export default Vue.extend({
-    props: {},
+    props: {
+        reconnecting: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             selectedStationId: null,
@@ -86,6 +91,13 @@ export default Vue.extend({
             return this.$navigateTo(routes.onboarding.searching, {});
         },
         forward(this: any) {
+            if (this.reconnecting) {
+                return this.$navigateTo(routes.onboarding.recalibrate, {
+                    props: {
+                        stationId: this.selectedStationId,
+                    },
+                });
+            }
             return this.$navigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.selectedStationId,
