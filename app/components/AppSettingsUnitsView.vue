@@ -29,14 +29,14 @@
                                verticalAlignment="center"/>
                         <StackLayout orientation="horizontal" borderRadius="4" col="1" class="m-10 border"
                                      verticalAlignment="center" height="30">
-                            <Label :text="'ºC'" class="size-13 text-center p-t-3 b-right" width="55"
-                                   @loaded="onLabelLoaded"
-                                   :class="currentSettings.units.temperature == 'c'? 'b-active' : '' "
-                                   @tap="setTemperature('c')"/>
                             <Label :text="'ºF'" class="size-13 text-center p-t-3 b-right" width="55"
                                    @loaded="onLabelLoaded"
                                    :class="currentSettings.units.temperature == 'f'? 'b-active' : '' "
                                    @tap="setTemperature('f')"/>
+                            <Label :text="'ºC'" class="size-13 text-center p-t-3 b-right" width="55"
+                                   @loaded="onLabelLoaded"
+                                   :class="currentSettings.units.temperature == 'c'? 'b-active' : '' "
+                                   @tap="setTemperature('c')"/>
                             <Label :text="'K'" class="size-13 text-center p-t-3" width="55" @loaded="onLabelLoaded"
                                    :class="currentSettings.units.temperature == 'k'? 'b-active' : '' "
                                    @tap="setTemperature('k')"/>
@@ -51,13 +51,29 @@
                                    @loaded="onLabelLoaded"
                                    :class="currentSettings.units.unit_name == 'mgl'? 'b-active' : '' "
                                    @tap="setUnitName('mgl')"/>
-                            <FlexboxLayout flexDirection="column" justifyContent="center" width="55"
+                            <FlexboxLayout v-if="isIOS" flexDirection="column"
+                                           justifyContent="center" width="55"
                                            :class="currentSettings.units.unit_name == 'kgm3'? 'b-active' : '' "
-                                           @tap="setUnitName('kgm3')">
+                                           @tap="setUnitName('kgm3')"
+                            >
                                 <HtmlView class="size-13"
+                                          height="15"
+                                          alignSelf="center"
                                           html="<p style='text-align:center'>kg/m<sup style='font-size:10'>3</sup></p>"
-                                          alignSelf="center" height="20"/>
+                                />
+
                             </FlexboxLayout>
+                            <Label v-if="isAndroid" class="size-13 text-center"
+                                   width="55"
+                                   @loaded="onLabelLoaded"
+                                   :class="currentSettings.units.unit_name == 'kgm3'? 'b-active' : '' "
+                                   @tap="setUnitName('kgm3')"
+                            >
+                                <FormattedString>
+                                    <Span text="kg/m" class="span"></Span>
+                                    <Span text="3" class="span" style="font-size: 10;vertical-align: top;"></Span>
+                                </FormattedString>
+                            </Label>
                         </StackLayout>
                     </GridLayout>
                     <GridLayout rows="50" columns="*, 130" class="bottom-bordered-item">
@@ -69,6 +85,7 @@
                                    @loaded="onLabelLoaded"
                                    :class="currentSettings.units.pressure == 'mBar'? 'b-active' : '' "
                                    @tap="setPressure('mBar')"/>
+
                             <Label :text="'kPa'" class="size-13 text-center p-t-3" width="55" @loaded="onLabelLoaded"
                                    :class="currentSettings.units.pressure == 'kPa'? 'b-active' : '' "
                                    @tap="setPressure('kPa')"/>
@@ -106,13 +123,19 @@ import * as animations from "~/components/animations";
 import routes from "@/routes";
 import Promise from "bluebird";
 import {Label} from 'tns-core-modules/ui/label';
-import {isAndroid} from 'tns-core-modules/platform';
+import {isAndroid, isIOS} from 'tns-core-modules/platform';
 
 export default Vue.extend({
     computed: {
         currentSettings(this: any) {
             return this.$store.state.portal.settings;
         },
+        isAndroid() {
+            return isAndroid;
+        },
+        isIOS() {
+            return isIOS;
+        }
     },
     components: {
         ScreenHeader,
@@ -137,7 +160,11 @@ export default Vue.extend({
             }
         },
         setUnitSystem(setting) {
-            this.currentSettings.units.unit_system = setting;
+            if (setting == 'imperial') {
+                this.setImperial();
+            } else {
+                this.setMetric();
+            }
             this.saveSettings();
         },
         setTemperature(setting) {
@@ -155,7 +182,26 @@ export default Vue.extend({
         setVelocity(setting) {
             this.currentSettings.units.velocity = setting;
             this.saveSettings();
-        }
+        },
+        setImperial() {
+            this.currentSettings.units = {
+                unit_system: 'imperial',
+                temperature: 'f',
+                unit_name: 'mgl',
+                pressure: 'mBar',
+                velocity: 'mBar'
+            }
+        },
+        setMetric() {
+            this.currentSettings.units = {
+                unit_system: 'metric',
+                temperature: 'c',
+                unit_name: 'kgm3',
+                pressure: 'kPa',
+                velocity: 'kPa'
+            }
+        },
+
     },
 });
 </script>
@@ -193,6 +239,18 @@ export default Vue.extend({
 .b-active {
     font-weight: bold;
     background-color: #f4f5f7;
+}
+
+HtmlView, .span {
+    background-color: transparent;
+}
+
+.b-active HtmlView, .b-active .span {
+    background-color: #f4f5f7;
+}
+
+.red {
+    background-color: red;
 }
 
 </style>

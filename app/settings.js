@@ -11,8 +11,8 @@ const settings = {
         unit_system: 'imperial',
         temperature: 'c',
         unit_name: 'mgl',
-        pressure: 'kpa',
-        velocity: 'kpa'
+        pressure: 'kPa',
+        velocity: 'kPa'
     },
     permissions: {
         location: true,
