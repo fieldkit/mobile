@@ -1,5 +1,5 @@
 <template>
-    <FlexboxLayout justifyContent="space-between" class="size-12 footer" @loaded="onLoaded">
+    <FlexboxLayout justifyContent="space-between" class="size-12 footer">
         <StackLayout @tap="goToStation" class="footer-btn" automationText="linkToStations">
             <template v-if="active == 'stations'">
                 <Image width="22" height="22" src="~/images/Icon_Station_active2.png"></Image>
@@ -36,49 +36,42 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
+import * as animations from "./animations";
 
 export default Vue.extend({
     data() {
         return {};
     },
-    props: ["active"],
+    props: {
+        active: {
+            type: String,
+            required: true,
+        },
+    },
     methods: {
-        onLoaded(args) {},
-
-        goToStation(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            this.$navigateTo(routes.stations, {
-                clearHistory: true,
-            });
+        goToStation(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stations, {
+                    // clearHistory: true,
+                }),
+            ]);
         },
-
-        goToData(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            this.$navigateTo(routes.dataSync, {
-                clearHistory: true,
-            });
+        goToData(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.dataSync, {
+                    // clearHistory: true,
+                }),
+            ]);
         },
-
-        goToSettings(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            this.$navigateTo(routes.appSettings.list, {
-                clearHistory: true,
-            });
+        goToSettings(ev) {
+            return Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.appSettings.list, {
+                    // clearHistory: true,
+                }),
+            ]);
         },
     },
 });
