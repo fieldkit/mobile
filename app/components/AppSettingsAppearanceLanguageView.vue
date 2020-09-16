@@ -9,6 +9,7 @@
                         <CheckBox
                             row="0"
                             col="0"
+                            :class="this.isIOS ? 'm-l-5' : ''"
                             :checked="this.currentSettings.appearance.language == 'en'"
                             fillColor="#2c3e50"
                             onCheckColor="#2c3e50"
@@ -24,21 +25,23 @@
                         <CheckBox
                             row="0"
                             col="0"
+                            :class="this.isIOS ? 'm-l-5' : ''"
                             :checked="this.currentSettings.appearance.language == 'es'"
                             fillColor="#2c3e50"
                             onCheckColor="#2c3e50"
                             onTintColor="#d8dce0"
-                            fontSize="16"
+                            fontSize="15"
                             boxType="circle"
                             @tap="selectLanguage('es')"
                         />
                         <Label row="0" col="1" class=" size-16 m-t-5 m-l-5"
                                :text="_L('appSettings.appearance.spanish')"></Label>
                     </GridLayout>
-                    <GridLayout columns="30,*" class="p-t-10 p-b-10" @tap="selectLanguage('cz')">
+                    <GridLayout columns="30,*" class="p-t-10 p-b-10 p-l-1" @tap="selectLanguage('cz')">
                         <CheckBox
                             row="0"
                             col="0"
+                            :class="this.isIOS ? 'm-l-5' : ''"
                             :checked="this.currentSettings.appearance.language == 'cz'"
                             fillColor="#2c3e50"
                             onCheckColor="#2c3e50"
@@ -65,12 +68,17 @@ import ScreenFooter from "./ScreenFooter.vue";
 import * as animations from "~/components/animations";
 import routes from "@/routes";
 import Promise from "bluebird";
+import {isIOS} from "tns-core-modules/platform";
+
 
 export default Vue.extend({
     computed: {
         currentSettings(this: any) {
             return this.$store.state.portal.settings;
         },
+        isIOS() {
+            return isIOS;
+        }
     },
     components: {
         ScreenHeader,
