@@ -49,7 +49,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
+            <StackLayout row="2" verticalAlignment="bottom" class="m-x-10">
                 <Button
                     class="btn btn-primary btn-padded m-y-10"
                     :text="_L('saveNewName')"
