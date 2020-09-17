@@ -8,8 +8,43 @@ import * as MutationTypes from "../store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
-import { FileTypeUtils, FileType } from "../store/types";
-import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError } from "../store/modules/syncing";
+import { FileTypeUtils, FileType, TransferProgress } from "../store/types";
+import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "../store/modules/syncing";
+
+describe("Progress", () => {
+    let sp: StationProgress;
+
+    beforeEach(() => {
+        sp = new StationProgress("device-id", true, 0);
+    });
+
+    it("should track progress over multiple downloads", () => {
+        console.log("_________________________________________________________");
+        console.log(sp);
+
+        expect(sp.decimal).toEqual(0.0);
+
+        sp = sp.include(new TransferProgress("device-id", "path-1", 100, 0));
+
+        expect(sp.decimal).toEqual(0.0);
+
+        sp = sp.include(new TransferProgress("device-id", "path-1", 100, 50));
+
+        expect(sp.decimal).toEqual(0.5);
+
+        sp = sp.include(new TransferProgress("device-id", "path-1", 100, 100));
+
+        expect(sp.decimal).toEqual(1.0);
+
+        sp = sp.include(new TransferProgress("device-id", "path-2", 100, 0));
+
+        expect(sp.decimal).toEqual(0.5);
+
+        sp = sp.include(new TransferProgress("device-id", "path-2", 100, 50));
+
+        expect(sp.decimal).toEqual(0.75);
+    });
+});
 
 describe("Syncing", () => {
     let services;

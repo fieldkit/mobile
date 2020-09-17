@@ -34,10 +34,6 @@ export class StationProgress {
         });
     }
 
-    private incomplete(): TransferProgress[] {
-        return Object.values(this.transfers).filter((t) => t.copied < t.total);
-    }
-
     private get copiedBytes(): number {
         return _.sum(Object.values(this.transfers).map((t) => t.copied));
     }
@@ -47,9 +43,9 @@ export class StationProgress {
             return this.copiedBytes / this.totalBytes;
         }
 
-        const incomplete = this.incomplete();
-        const total = _.sum(incomplete.map((i) => i.total));
-        const copied = _.sum(incomplete.map((i) => i.copied));
+        const transfers = Object.values(this.transfers);
+        const total = _.sum(transfers.map((i) => i.total));
+        const copied = _.sum(transfers.map((i) => i.copied));
         if (total == 0) {
             return 0;
         }
