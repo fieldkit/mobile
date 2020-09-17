@@ -18,7 +18,7 @@ timestamps {
 				}
                 withCredentials([file(credentialsId: 'nativescript-sqlite-commercial', variable: 'APP_NATIVESCRIPT_SQLITE')]) {
                     sh "cp -f $APP_NATIVESCRIPT_SQLITE ."
-                    sh "unzip $APP_NATIVESCRIPT_SQLITE"
+                    sh "unzip -o $APP_NATIVESCRIPT_SQLITE"
 				}
             }
 
