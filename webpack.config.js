@@ -2,7 +2,7 @@ const { join, relative, resolve, sep } = require("path");
 
 const fs = require("fs");
 const webpack = require("webpack");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 const TerserPlugin = require("terser-webpack-plugin");
@@ -10,8 +10,8 @@ const TerserPlugin = require("terser-webpack-plugin");
 const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const NsVueTemplateCompiler = require("nativescript-vue-template-compiler");
 
-const nsWebpack = require("nativescript-dev-webpack");
-const nativescriptTarget = require("nativescript-dev-webpack/nativescript-target");
+const nsWebpack = require("@nativescript/webpack");
+const nativescriptTarget = require("@nativescript/webpack/nativescript-target");
 const { NativeScriptWorkerPlugin } = require("nativescript-worker-loader/NativeScriptWorkerPlugin");
 const hashSalt = Date.now().toString();
 
@@ -26,7 +26,7 @@ const haveSqliteCommercial = () => {
 module.exports = (env) => {
     // Add your custom Activities, Services and other android app components here.
     const appComponents = env.appComponents || [];
-    appComponents.push(...["tns-core-modules/ui/frame", "tns-core-modules/ui/frame/activity"]);
+    appComponents.push(...["@nativescript/core/ui/frame", "@nativescript/core/ui/frame/activity"]);
 
     const platform = env && ((env.android && "android") || (env.ios && "ios") || env.platform);
     if (!platform) {
@@ -57,6 +57,7 @@ module.exports = (env) => {
         sourceMap, // --env.sourceMap
         hiddenSourceMap, // --env.hiddenSourceMap
         unitTesting, // --env.unitTesting
+        testing, // --env.testing
         verbose, // --env.verbose
         snapshotInDocker, // --env.snapshotInDocker
         skipSnapshotTools, // --env.skipSnapshotTools
@@ -73,6 +74,7 @@ module.exports = (env) => {
     const hasRootLevelScopedModules = nsWebpack.hasRootLevelScopedModules({ projectDir: projectRoot });
     let coreModulesPackageName = "tns-core-modules";
     const alias = env.alias || {};
+    alias["~/package.json"] = resolve(projectRoot, "package.json");
     alias["~"] = appFullPath;
     alias["@"] = appFullPath;
     alias["vue"] = "nativescript-vue";
@@ -84,16 +86,16 @@ module.exports = (env) => {
 
     const appResourcesFullPath = resolve(projectRoot, appResourcesPath);
 
+    const copyIgnore = { ignore: [`${relative(appPath, appResourcesFullPath)}/**`] };
+
     const entryModule = nsWebpack.getEntryModule(appFullPath, platform);
     const entryPath = `.${sep}${entryModule}`;
-    console.log("entryModule", entryModule);
-    const entries = {
-        bundle: entryPath,
-        application: "./application.android",
-    };
-    const areCoreModulesExternal = Array.isArray(env.externals) && env.externals.some((e) => e.indexOf("tns-core-modules") > -1);
-    if (platform === "ios" && !areCoreModulesExternal) {
-        entries["tns_modules/tns-core-modules/inspector_modules"] = "inspector_modules";
+    const entries = env.entries || {};
+    entries.bundle = entryPath;
+
+    const areCoreModulesExternal = Array.isArray(env.externals) && env.externals.some((e) => e.indexOf("@nativescript") > -1);
+    if (platform === "ios" && !areCoreModulesExternal && !testing) {
+        entries["tns_modules/@nativescript/core/inspector_modules"] = "inspector_modules";
     }
     console.log(`Bundling application for entryPath ${entryPath}...`);
 
@@ -131,6 +133,7 @@ module.exports = (env) => {
             ],
         },
         target: nativescriptTarget,
+        // target: nativeScriptVueTarget,
         entry: entries,
         output: {
             pathinfo: false,
@@ -143,7 +146,7 @@ module.exports = (env) => {
         },
         resolve: {
             extensions: [".vue", ".ts", ".js", ".scss", ".css"],
-            // Resolve {N} system modules from tns-core-modules
+            // Resolve {N} system modules from @nativescript/core
             modules: [
                 resolve(__dirname, `node_modules/${coreModulesPackageName}`),
                 resolve(__dirname, "node_modules"),
@@ -213,12 +216,12 @@ module.exports = (env) => {
                     use: [
                         // Require all Android app components
                         platform === "android" && {
-                            loader: "nativescript-dev-webpack/android-app-components-loader",
+                            loader: "@nativescript/webpack/helpers/android-app-components-loader",
                             options: { modules: appComponents },
                         },
 
                         {
-                            loader: "nativescript-dev-webpack/bundle-config-loader",
+                            loader: "@nativescript/webpack/bundle-config-loader",
                             options: {
                                 registerPages: true, // applicable only for non-angular apps
                                 loadCss: !snapshot, // load the application css if in debug mode
@@ -233,9 +236,9 @@ module.exports = (env) => {
                 {
                     test: /[\/|\\]app\.css$/,
                     use: [
-                        "nativescript-dev-webpack/style-hot-loader",
+                        "@nativescript/webpack/helpers/style-hot-loader",
                         {
-                            loader: "nativescript-dev-webpack/css2json-loader",
+                            loader: "@nativescript/webpack/helpers/css2json-loader",
                             options: { useForImports: true },
                         },
                     ],
@@ -243,9 +246,9 @@ module.exports = (env) => {
                 {
                     test: /[\/|\\]app\.scss$/,
                     use: [
-                        "nativescript-dev-webpack/style-hot-loader",
+                        "@nativescript/webpack/helpers/style-hot-loader",
                         {
-                            loader: "nativescript-dev-webpack/css2json-loader",
+                            loader: "@nativescript/webpack/helpers/css2json-loader",
                             options: { useForImports: true },
                         },
                         "sass-loader",
@@ -255,8 +258,8 @@ module.exports = (env) => {
                     test: /\.css$/,
                     exclude: /[\/|\\]app\.css$/,
                     use: [
-                        "nativescript-dev-webpack/style-hot-loader",
-                        "nativescript-dev-webpack/apply-css-loader.js",
+                        "@nativescript/webpack/helpers/style-hot-loader",
+                        "@nativescript/webpack/helpers/apply-css-loader.js",
                         { loader: "css-loader", options: { url: false } },
                     ],
                 },
@@ -264,8 +267,8 @@ module.exports = (env) => {
                     test: /\.scss$/,
                     exclude: /[\/|\\]app\.scss$/,
                     use: [
-                        "nativescript-dev-webpack/style-hot-loader",
-                        "nativescript-dev-webpack/apply-css-loader.js",
+                        "@nativescript/webpack/helpers/style-hot-loader",
+                        "@nativescript/webpack/helpers/apply-css-loader.js",
                         { loader: "css-loader", options: { url: false } },
                         "sass-loader",
                     ],
@@ -283,6 +286,9 @@ module.exports = (env) => {
                         compilerOptions: {
                             declaration: false,
                         },
+                        getCustomTransformers: (program) => ({
+                            before: [require("@nativescript/webpack/transformers/ns-transform-native-classes").default],
+                        }),
                     },
                 },
                 {
@@ -301,6 +307,8 @@ module.exports = (env) => {
             // Define useful constants like TNS_WEBPACK
             new webpack.DefinePlugin({
                 "global.TNS_WEBPACK": "true",
+                "global.isAndroid": platform === "android",
+                "global.isIOS": platform === "ios",
                 TNS_ENV: JSON.stringify(mode),
                 process: "global.process",
                 FK_BUILD_TIMESTAMP: JSON.stringify(process.env.BUILD_TIMESTAMP),
@@ -310,12 +318,18 @@ module.exports = (env) => {
                 FK_GIT_BRANCH: JSON.stringify(gitBranch),
             }),
             // Remove all files from the out dir.
-            new CleanWebpackPlugin(itemsToClean, { verbose: !!verbose }),
-            // Copy assets to out dir. Add your own globs as needed.
-            new CopyWebpackPlugin(
-                [{ from: { glob: "fonts/**" } }, { from: { glob: "**/*.+(jpg|png)" } }, { from: { glob: "assets/**/*" } }],
-                { ignore: [`${relative(appPath, appResourcesFullPath)}/**`] }
-            ),
+            new CleanWebpackPlugin({
+                cleanOnceBeforeBuildPatterns: itemsToClean,
+                verbose: !!verbose,
+            }),
+            // Copy assets
+            new CopyWebpackPlugin({
+                patterns: [
+                    { from: "assets/**", noErrorOnMissing: true, globOptions: { dot: false, ...copyIgnore } },
+                    { from: "fonts/**", noErrorOnMissing: true, globOptions: { dot: false, ...copyIgnore } },
+                    { from: "**/*.+(jpg|png)", noErrorOnMissing: true, globOptions: { dot: false, ...copyIgnore } },
+                ],
+            }),
             new nsWebpack.GenerateNativeScriptEntryPointsPlugin("bundle"),
             // For instructions on how to set up workers with webpack
             // check out https://github.com/nativescript/worker-loader
@@ -333,14 +347,14 @@ module.exports = (env) => {
         config.module.rules.push(
             {
                 test: /-page\.js$/,
-                use: "nativescript-dev-webpack/script-hot-loader",
+                use: "@nativescript/webpack/helpers/script-hot-loader",
             },
             {
                 test: /\.(html|xml)$/,
-                use: "nativescript-dev-webpack/markup-hot-loader",
+                use: "@nativescript/webpack/helpers/markup-hot-loader",
             },
 
-            { test: /\.(html|xml)$/, use: "nativescript-dev-webpack/xml-namespace-loader" }
+            { test: /\.(html|xml)$/, use: "@nativescript/webpack/helpers/xml-namespace-loader" }
         );
     }
 
@@ -361,7 +375,7 @@ module.exports = (env) => {
         config.plugins.push(
             new nsWebpack.NativeScriptSnapshotPlugin({
                 chunk: "vendor",
-                requireModules: ["tns-core-modules/bundle-entry-points"],
+                requireModules: ["@nativescript/core/bundle-entry-points"],
                 projectRoot,
                 webpackConfig: config,
                 snapshotInDocker,

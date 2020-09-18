@@ -1,13 +1,4 @@
 {
-    "nativescript": {
-        "id": "org.fieldkit.fieldkit",
-        "tns-android": {
-            "version": "6.5.1"
-        },
-        "tns-ios": {
-            "version": "6.5.1"
-        }
-    },
     "description": "FieldKit",
     "license": "SEE LICENSE IN <your-license-filename>",
     "repository": "<fill-your-repository-here>",
@@ -47,17 +38,21 @@
         "nativescript-vue": "^2.7.1",
         "nativescript-vue-devtools": "^1.4.0",
         "protobufjs": "^6.9.0",
-        "tns-core-modules": "~6.5.0",
         "tns-i18n-deep": "0.0.13",
         "typescript-json-validator": "^2.4.2",
         "vue-class-component": "^7.2.3",
         "vue-property-decorator": "^9.0.0",
-        "vuex": "^3.5.1"
+        "vuex": "^3.5.1",
+        "@nativescript/core": "~7.0.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.5.5",
         "@babel/core": "^7.5.5",
         "@babel/preset-env": "^7.5.5",
+        "@nativescript/types": "7.0.0",
+        "@nativescript/android": "7.0.0",
+        "@nativescript/ios": "7.0.0",
+        "@nativescript/webpack": "~3.0.0",
         "@types/chai": "~4.1.7",
         "@types/jasmine": "^3.5.11",
         "@types/jest": "^26.0.3",
@@ -77,9 +72,7 @@
         "mochawesome": "^6.1.1",
         "nativescript": "^6.7.8",
         "nativescript-dev-appium": "^5.3.0",
-        "nativescript-dev-webpack": "^1.5.1",
         "nativescript-vue-template-compiler": "^2.7.1",
-        "nativescript-worker-loader": "^0.12.1",
         "node-sass": "^4.14.1",
         "prettier": "^2.0.5",
         "sqlite3": "^4.2.0",
@@ -95,5 +88,6 @@
         "test": "jest",
         "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  tsc -p e2e  &&  mocha --opts ./e2e/config/mocha.opts ",
         "e2e-watch": "tsc -p e2e --watch"
-    }
+    },
+    "main": "app"
 }
