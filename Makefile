@@ -48,11 +48,11 @@ clean-secrets:
 	rm -rf $(APP)/app/secrets.ts
 
 platform-libraries:
-	if [ -f $(NSSQLITE) ]; then                       \
-		tns plugin add $(NSSQLITE);                   \
-	    mkdir -p backup;                              \
+	if [ -f $(NSSQLITE) ]; then                           \
+		ns plugin add $(NSSQLITE);                    \
+		mkdir -p backup;                              \
 		mv $(NSSQLITE) backup/$(NSSQLITE);            \
-    fi
+	fi
 
 android-release: setup refresh-data
 	rm -rf $(APP)/node_modules/*/.git
@@ -80,10 +80,10 @@ ios-release: setup refresh-data
 		cd $(APP) && tns platform add ios || true      ;\
 	fi
 	$(MAKE) platform-libraries
-	cd $(APP) && tns build ios --provision || true
-	cd $(APP) && tns build ios --team-id || true
-	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap
-	cd $(APP) && tns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --release --env.sourceMap
+	cd $(APP) && ns build ios --provision || true
+	cd $(APP) && ns build ios --team-id || true
+	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap
+	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --release --env.sourceMap
 
 android-logs:
 	adb logcat | grep -i " JS" | grep -v NSVue
@@ -92,14 +92,14 @@ android-logs-verbose:
 	adb logcat | grep -i " JS"
 
 android-debug: setup refresh-data
-	cd $(APP) && tns platform add android || true
+	cd $(APP) && ns platform add android || true
 	$(MAKE) platform-libraries
-	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
+	cd $(APP) && ns debug android --bundle --no-hmr | grep -v NSVue
 
 ios-debug: setup refresh-data
-	cd $(APP) && tns platform add ios || true
+	cd $(APP) && ns platform add ios || true
 	$(MAKE) platform-libraries
-	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue | grep -v boringssl
+	cd $(APP) && ns debug ios --bundle --no-hmr | grep -v NSVue | grep -v boringssl
 
 clean:
 	rm -rf $(APP)/node_modules

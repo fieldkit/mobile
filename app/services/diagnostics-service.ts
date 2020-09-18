@@ -1,5 +1,5 @@
 import _ from "lodash";
-import * as platform from "tns-core-modules/platform";
+import { Utils } from "@nativescript/core";
 import { File, knownFolders } from "tns-core-modules/file-system";
 import { copyLogs } from "../lib/logging";
 import { serializePromiseChain } from "../utilities";

@@ -19,8 +19,6 @@ import Config, { Build } from "./config";
 import StartupScreen from "./components/StartupScreen";
 
 function configureVueJs(services) {
-    Vue.registerElement("BarcodeScanner", () => require("nativescript-barcodescanner").BarcodeScannerView);
-
     Vue.registerElement("DropDown", () => require("nativescript-drop-down/drop-down").DropDown);
 
     Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);

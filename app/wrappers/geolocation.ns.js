@@ -1,4 +1,4 @@
-import * as geolocation from "nativescript-geolocation";
+import * as geolocation from "@nativescript/geolocation";
 
 export class GeoLocation {
     isEnabled() {

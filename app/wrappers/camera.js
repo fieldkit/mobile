@@ -6,12 +6,13 @@ if (TNS_ENV === "test") {
         findPicture: () => {},
     };
 } else {
-    const NativeCamera = require("nativescript-camera");
-    const ImagePicker = require("nativescript-imagepicker");
+    // import { isAvailable, requestCameraPermissions, takePicture } from '@nativescript/camera';
+    const NativeCamera = require("@nativescript/camera");
+    const ImagePicker = require("@nativescript/imagepicker");
 
     module.exports = {
-        takePicture: options => {
-            return NativeCamera.requestPermissions().then(() => {
+        takePicture: (options) => {
+            return NativeCamera.requestCameraPermissions().then(() => {
                 return NativeCamera.takePicture(options);
             });
         },

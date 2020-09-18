@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import Promise from "bluebird";
 import { knownFolders } from "tns-core-modules/file-system";
-import * as traceModule from "tns-core-modules/trace";
+import { Trace } from "@nativescript/core";
 import Firebase from "nativescript-plugin-firebase";
 import { crashlytics } from "nativescript-plugin-firebase";
 import Vue from "nativescript-vue";
@@ -135,7 +135,7 @@ function wrapLoggingMethod(method) {
 
 function configureGlobalErrorHandling() {
     try {
-        traceModule.setErrorHandler({
+        Trace.setErrorHandler({
             handlerError(err) {
                 Firebase.analytics.logEvent({
                     key: "app_error",
@@ -144,7 +144,7 @@ function configureGlobalErrorHandling() {
             },
         });
 
-        traceModule.enable();
+        Trace.enable();
 
         Promise.onPossiblyUnhandledRejection((reason, promise) => {
             if (reason instanceof AuthenticationError) {
