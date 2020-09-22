@@ -7,28 +7,18 @@
             :canCancel="true"
             :onCancel="onNavCancel"
             :canNavigateSettings="false"
-            v-if="!editing"
         />
         <GridLayout rows="auto,*,auto">
             <StackLayout row="0" v-if="!linkedFromStation">
-                <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd" v-if="!editing">
+                <GridLayout rows="auto" columns="33*,33*,34*" class="top-line-bkgd">
                     <StackLayout colSpan="2" class="top-line"></StackLayout>
                 </GridLayout>
                 <ConnectionStatusHeader :connected="currentStation.connected" />
             </StackLayout>
 
-            <GridLayout row="0" rows="auto" columns="85*,15*" :class="editing ? '' : 'alternate-header'" v-if="linkedFromStation">
-                <StackLayout row="0" col="0" colSpan="2" verticalAlignment="middle" v-if="!editing">
-                    <Label class="title text-center" :text="_L('fieldNotes')"></Label>
-                </StackLayout>
-                <StackLayout row="0" col="1" class="round-bkgd m-r-10" verticalAlignment="top" @tap="onBackToDetail" v-if="!editing">
-                    <Image width="21" src="~/images/Icon_Close.png"></Image>
-                </StackLayout>
-            </GridLayout>
-
             <ScrollView row="1" :rowSpan="linkedFromStation ? 2 : 1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <StackLayout class="m-x-20" v-if="!editing">
+                    <StackLayout class="m-x-20">
                         <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
                             <Label row="0" col="0" :text="_L('fieldNotes')" class="size-18 bold"></Label>
                             <Label
@@ -61,7 +51,6 @@
                                     <StackLayout v-if="photoCache[photo.path]">
                                         <Image :src="photoCache[photo.path]" stretch="aspectFit" />
                                     </StackLayout>
-                                    <!- Loading Image... -->
                                 </StackLayout>
                                 <StackLayout class="photo-btn" @tap="onPhotoTap">
                                     <Image src="~/images/Icon_Add_Button.png" width="20" opacity="0.25" class="photo-btn-img" />
@@ -112,23 +101,8 @@
                     automationText="nextButton"
                     :isEnabled="notes.valid"
                     @tap="goToReview"
-                    v-if="!editing"
                 />
             </StackLayout>
-
-            <template v-if="editing">
-                <StackLayout rowSpan="3">
-                    <FieldNoteForm
-                        :help="editingHelp"
-                        :note="editingNote"
-                        v-if="editing"
-                        @save="onSaveNote"
-                        @cancel="onCancelEditing"
-                        @attach-media="onAttachNoteMedia"
-                        @remove-audio="onRemoveAudio"
-                    />
-                </StackLayout>
-            </template>
         </GridLayout>
     </Page>
 </template>
@@ -137,12 +111,11 @@
 import _ from "lodash";
 import Vue from "vue";
 import routes from "@/routes";
-import { getFileName } from "@/utilities";
 import Promise from "bluebird";
+import { getFileName } from "@/utilities";
 
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import FieldNoteForm from "./FieldNoteForm.vue";
 import NoteDisplay from "./NoteDisplay.vue";
 
 import * as dialogs from "tns-core-modules/ui/dialogs";
@@ -150,19 +123,16 @@ import * as MutationTypes from "@/store/mutations";
 import * as ActionTypes from "@/store/actions";
 import * as animations from "../animations";
 
-import { NoteData, NoteMedia } from "@/store/modules/notes";
+import { NoteMedia } from "@/store/modules/notes";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
         ConnectionStatusHeader,
         NoteDisplay,
-        FieldNoteForm,
     },
     data() {
-        return {
-            editingKey: null,
-        };
+        return {};
     },
     computed: {
         notes(this: any) {
@@ -176,23 +146,6 @@ export default Vue.extend({
         },
         photoCache(this: any) {
             return this.$store.state.media.photoCache;
-        },
-        editing(this: any) {
-            return this.editingKey !== null;
-        },
-        editingNote(this: any) {
-            if (this.editingKey) {
-                console.log("data", this.editingKey, this.notes);
-                return this.notes.notes[this.editingKey] || new NoteData();
-            }
-            return null;
-        },
-        editingHelp(this: any) {
-            if (this.editingKey) {
-                console.log("help", this.editingKey, this.notes);
-                return this.notes.help[this.editingKey];
-            }
-            return null;
         },
     },
     props: {
@@ -213,16 +166,28 @@ export default Vue.extend({
         },
         openNote(this: any, ev, key) {
             console.log("opening", key);
-            this.editingKey = key;
+            // this.editingKey = key;
+            return this.$navigateTo(routes.deploy.editing, {
+                props: {
+                    stationId: this.stationId,
+                    editingKey: key,
+                },
+            });
         },
+        /*
         onSaveNote(this: any, { form }) {
             console.log("saving", this.editingKey, form);
 
             this.$store.commit(MutationTypes.UPDATE_NOTE, { stationId: this.stationId, key: this.editingKey, update: form });
 
-            this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId }).then(() => {
-                this.editingKey = null;
-            });
+            return this.$store
+                .dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId })
+                .then(() => {
+                    this.editingKey = null;
+                })
+                .then(() => {
+                    console.log("saved");
+                });
         },
         onAttachNoteMedia(this: any, media) {
             if (NoteMedia.isAudio(media)) {
@@ -236,6 +201,7 @@ export default Vue.extend({
             this.$store.commit(MutationTypes.REMOVE_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
+		*/
         takePicture(this: any) {
             return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
@@ -261,9 +227,6 @@ export default Vue.extend({
                     return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
             });
-        },
-        onCancelEditing(this: any) {
-            this.editingKey = null;
         },
         goBack(this: any, ev) {
             return Promise.all([
