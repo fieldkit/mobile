@@ -129,6 +129,7 @@ labeled-text-field {
 }
 .bottom-container {
     border-top: 1px solid #d8dce0;
+    padding: 15;
     /* background-color: #afaaff; */
 }
 

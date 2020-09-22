@@ -224,7 +224,6 @@ export default class StartupScreen extends Vue {
                         // return this.$navigateTo(routes.stationDetail, {
                         // return this.$navigateTo(routes.onboarding.recalibrate, {
                         props: {
-                            linkedFromStation: true,
                             stationId: 1,
                         },
                     });
