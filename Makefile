@@ -48,11 +48,11 @@ clean-secrets:
 	rm -rf $(APP)/app/secrets.ts
 
 platform-libraries:
-	if [ -f $(NSSQLITE) ]; then                       \
+	if [ -f $(NSSQLITE) ]; then                           \
 		tns plugin add $(NSSQLITE);                   \
-	    mkdir -p backup;                              \
+		mkdir -p backup;                              \
 		mv $(NSSQLITE) backup/$(NSSQLITE);            \
-    fi
+	fi
 
 android-release: setup refresh-data
 	rm -rf $(APP)/node_modules/*/.git
