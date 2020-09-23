@@ -54,7 +54,7 @@ platform-libraries:
 		mv $(NSSQLITE) backup/$(NSSQLITE);            \
 	fi
 
-android-release: setup refresh-data
+android-release: setup
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
@@ -65,7 +65,7 @@ android-release: setup refresh-data
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
-ios-release: setup refresh-data
+ios-release: setup
 	security list-keychains
 	security lock-keychain login.keychain
 	security unlock-keychain -p $(APP_IOS_KEYCHAIN_PASSWORD) login.keychain
@@ -91,12 +91,12 @@ android-logs:
 android-logs-verbose:
 	adb logcat | grep -i " JS"
 
-android-debug: setup refresh-data
+android-debug: setup
 	cd $(APP) && tns platform add android || true
 	$(MAKE) platform-libraries
 	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
 
-ios-debug: setup refresh-data
+ios-debug: setup
 	cd $(APP) && tns platform add ios || true
 	$(MAKE) platform-libraries
 	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue | grep -v boringssl
