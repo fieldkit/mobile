@@ -152,7 +152,7 @@ export default class DatabaseInterface {
             .then((db) => db.query("SELECT * FROM config"))
             .then((rows) => sqliteToJs(rows))
             .then((rows) => {
-                if (Config.env.jacob) {
+                if (Config.env.developer) {
                     return [
                         {
                             baseUri: Config.baseUri,

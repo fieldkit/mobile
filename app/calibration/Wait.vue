@@ -86,7 +86,7 @@ export default Vue.extend({
             return this.remaining === 0;
         },
         debugging() {
-            return Config.env.jacob;
+            return Config.env.developer;
         },
         expected(this: any) {
             return this.sensor.calibrationValue?.reference?.toFixed(2) || null;

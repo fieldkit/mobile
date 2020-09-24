@@ -188,7 +188,7 @@ export default class StartupScreen extends Vue {
     onPageLoaded(args): Promise<any> {
         console.log("startup loaded");
         return initializeApplication(Services).then(() => {
-            if (Config.env.jacob) {
+            if (Config.env.developer) {
                 /*
                 return this.$navigateTo(routes.internal.calibrate, {
                     props: {
