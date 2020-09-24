@@ -1,0 +1,26 @@
+@Library('conservify') _
+
+conservifyProperties([ disableConcurrentBuilds() ])
+
+timestamps {
+    node () {
+        try {
+            stage ('git') {
+                checkout scm
+            }
+
+            stage ('build') {
+                sh """
+export PATH=$PATH:node_modules/.bin
+make refresh-cms-data verify-cms-data
+"""
+            }
+
+            notifySuccess()
+        }
+        catch (Exception e) {
+            notifyFailure()
+            throw e;
+        }
+    }
+}

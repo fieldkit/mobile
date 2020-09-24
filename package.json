@@ -63,6 +63,7 @@
         "@types/jest": "^26.0.3",
         "@types/mocha": "~5.2.5",
         "@types/node": "~10.12.18",
+        "@types/yup": "^0.29.7",
         "babel-jest": "^26.0.1",
         "babel-loader": "^8.1.0",
         "chai": "^4.2.0",
@@ -86,9 +87,11 @@
         "sqlite3": "^4.2.0",
         "svgexport": "^0.4.0",
         "ts-jest": "^26.1.1",
+        "ts-node": "^9.0.0",
         "typescript": "^3.9.5",
         "vue": "^2.6.12",
-        "vue-loader": "^15.9.2"
+        "vue-loader": "^15.9.2",
+        "yup": "^0.29.3"
     },
     "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
     "readme": "NativeScript Application",

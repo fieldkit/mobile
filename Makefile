@@ -19,8 +19,11 @@ setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 	touch .setup-completed
 	pip3 install requests
 
-refresh-data:
+refresh-cms-data:
 	tools/query.py
+
+verify-cms-data:
+	ts-node tools/verify-data.ts
 
 update:
 	$(ANDROID)/sdkmanager --update --verbose
