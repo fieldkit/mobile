@@ -94,12 +94,12 @@ android-logs-verbose:
 android-debug: setup
 	cd $(APP) && tns platform add android || true
 	$(MAKE) platform-libraries
-	cd $(APP) && tns debug android --bundle --no-hmr | grep -v NSVue
+	cd $(APP) && tns debug android --no-hmr | grep -v NSVue
 
 ios-debug: setup
 	cd $(APP) && tns platform add ios || true
 	$(MAKE) platform-libraries
-	cd $(APP) && tns debug ios --bundle --no-hmr | grep -v NSVue | grep -v boringssl
+	cd $(APP) && tns debug ios --no-hmr | grep -v NSVue | grep -v boringssl
 
 clean:
 	rm -rf $(APP)/node_modules
