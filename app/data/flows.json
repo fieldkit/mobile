@@ -148,7 +148,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Insert the battery cable to the top left of the upper board where it says \u201cBATTERY\u201d.",
+                        "body": "Insert the battery cable to the top left of the upper board where it says “BATTERY”.",
                         "images": [
                             {
                                 "url": "/uploads/TI_6_A_501dfaea02.png"
@@ -172,7 +172,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Insert the button cable to the top right of the upper board where it says \u201cBTN\u201d.",
+                        "body": "Insert the button cable to the top right of the upper board where it says “BTN”.",
                         "images": [
                             {
                                 "url": "/uploads/TI_7_A_836b705122.png"
@@ -271,7 +271,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Flip the switch to the \u201cON\u201d position. Leave micro USB cable plugged in until the battery reads fully charged.",
+                        "body": "Flip the switch to the “ON” position. Leave micro USB cable plugged in until the battery reads fully charged.",
                         "images": [
                             {
                                 "url": "/uploads/TI_15_A_NEW_x2_9759453cc0.png"
