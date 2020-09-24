@@ -13,7 +13,7 @@ timestamps {
                 sh """
 export PATH=$PATH:node_modules/.bin
 npm install
-make refresh-cms-data verify-cms-data
+make refresh-cms-data
 """
             }
 
