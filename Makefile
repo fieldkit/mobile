@@ -61,6 +61,7 @@ android-release: setup
 	jq '.nativescript.id = "com.fieldkit"' $(APP)/package.json > $(APP)/package.json.temp
 	mv $(APP)/package.json.temp $(APP)/package.json
 	npm install
+	$(MAKE) refresh-cms-data || true
 	$(MAKE) platform-libraries
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
@@ -74,6 +75,7 @@ ios-release: setup
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
 	npm install
+	$(MAKE) refresh-cms-data || true
 	if [ -d $(APP)/platforms/ios ]; then                \
 		cd $(APP) && tns platform clean ios || true    ;\
 	else                                                \
