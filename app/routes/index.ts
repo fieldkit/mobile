@@ -29,7 +29,7 @@ import DeployReview from "../components/deploy/DeployReviewView.vue";
 import AppSettingsData from "../components/AppSettingsDataView.vue";
 import AppSettingsNotifications from "../components/AppSettingsNotificationsView.vue";
 
-import FlowView from "@/reader/FlowView";
+import FlowView from "@/reader/FlowView.vue";
 
 import { Route } from "./navigate";
 import AppSettingsPermissions from "~/components/AppSettingsPermissionsView.vue";
