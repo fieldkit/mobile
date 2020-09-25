@@ -10,10 +10,7 @@ timestamps {
             }
 
             stage ('build') {
-                sh """
-export PATH=$PATH:node_modules/.bin
-make jenkins
-"""
+                sh "PATH=$PATH:node_modules/.bin make jenkins"
             }
 
             notifySuccess()
