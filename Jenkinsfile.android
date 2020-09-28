@@ -32,8 +32,10 @@ timestamps {
             stage ('build') {
                 def props = readProperties(file: "private/gradle.properties")
                 sh """
+pwd
+
 export PATH=$PATH:node_modules/.bin
-export ANDROID_HOME=/var/jenkins_home/workspace/android-sdk/android-sdk
+export ANDROID_HOME=`pwd`/android-sdk
 export FK_APP_RELEASE_STORE_FILE=private/${props.FK_APP_RELEASE_STORE_FILE}
 export FK_APP_RELEASE_KEY_ALIAS=${props.FK_APP_RELEASE_KEY_ALIAS}
 set +x
