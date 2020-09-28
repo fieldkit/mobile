@@ -3,11 +3,18 @@
 conservifyProperties([ disableConcurrentBuilds() ])
 
 timestamps {
-    node () {
+    node ("jenkins-aws-ubuntu") {
         try {
             stage ('git') {
                 checkout scm
             }
+
+			stage ("android-sdk") {
+				sh "rm -rf android-sdk"
+				sh "rm -f android-sdk-setup.sh*"
+				sh "wget https://raw.githubusercontent.com/conservify/dev-ops/main/android-sdk/android-sdk-setup.sh"
+				sh "bash android-sdk-setup.sh"
+			}
 
             stage ("configuration") {
                 withCredentials([file(credentialsId: 'app-android-signing-data', variable: 'APP_ANDROID_SIGNING_DATA')]) {

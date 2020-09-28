@@ -3,7 +3,7 @@
 conservifyProperties([ disableConcurrentBuilds() ])
 
 timestamps {
-    node () {
+    node ("jenkins-aws-ubuntu") {
         try {
             stage ('git') {
                 checkout scm
