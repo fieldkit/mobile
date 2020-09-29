@@ -107,7 +107,7 @@ export default class DatabaseInterface {
     public getSensors(moduleDeviceId) {
         return this.getDatabase()
             .then((db) =>
-                this._getModulePrimaryKey(moduleDeviceId).then((modulePrimaryKey) =>
+                this.getModulePrimaryKey(moduleDeviceId).then((modulePrimaryKey) =>
                     db
                         .query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
                         .catch((err) => Promise.reject(new Error(`error getting sensors: ${err}`)))
@@ -361,7 +361,7 @@ export default class DatabaseInterface {
         );
     }
 
-    private _getModulePrimaryKey(deviceId) {
+    private getModulePrimaryKey(deviceId) {
         if (_.isString(deviceId)) {
             return this.getDatabase().then((db) =>
                 db.query("SELECT id FROM modules WHERE device_id = ? ORDER BY id DESC", [deviceId]).then((rows) => {
@@ -389,9 +389,9 @@ export default class DatabaseInterface {
         return Promise.resolve(deviceId);
     }
 
-    private _insertSensor(sensor) {
+    private insertSensor(sensor) {
         return this.getDatabase().then((db) =>
-            this._getModulePrimaryKey(sensor.moduleId).then((modulePrimaryKey) =>
+            this.getModulePrimaryKey(sensor.moduleId).then((modulePrimaryKey) =>
                 db
                     .execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
                         modulePrimaryKey,
@@ -405,7 +405,7 @@ export default class DatabaseInterface {
         );
     }
 
-    private _insertModule(module) {
+    private insertModule(module) {
         // Note: device_id is the module's unique hardware id (not the station's)
         return this.getDatabase().then((db) =>
             db
@@ -426,7 +426,7 @@ export default class DatabaseInterface {
         );
     }
 
-    private _synchronizeSensors(db, moduleId, module, sensorRows) {
+    private synchronizeSensors(db, moduleId, module, sensorRows) {
         // TODO: include position?
         const incoming = _.keyBy(module.sensors, (s) => s.name);
         const existing = _.keyBy(sensorRows, (s) => s.name);
@@ -438,7 +438,7 @@ export default class DatabaseInterface {
 
         return Promise.all([
             Promise.all(
-                adding.map((name) => this._insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
+                adding.map((name) => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
             ),
             Promise.all(removed.map((name) => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
             Promise.all(
@@ -446,6 +446,7 @@ export default class DatabaseInterface {
                     .map((name) => {
                         const previous = Math.round(existing[name].currentReading * 10) / 10;
                         const current = Math.round(incoming[name].reading * 10) / 10;
+                        /*
                         if (false) {
                             console.log(
                                 "comparing readings",
@@ -456,6 +457,7 @@ export default class DatabaseInterface {
                                 current
                             );
                         }
+						*/
                         const trend = current == previous ? 0 : current > previous ? 1 : -1;
                         return {
                             id: existing[name].id,
@@ -487,8 +489,8 @@ export default class DatabaseInterface {
         return Promise.all([
             Promise.all(
                 adding.map((moduleId) =>
-                    this._insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
-                        this._synchronizeSensors(db, moduleId, incoming[moduleId], [])
+                    this.insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
+                        this.synchronizeSensors(db, moduleId, incoming[moduleId], [])
                     )
                 )
             ),
@@ -505,14 +507,14 @@ export default class DatabaseInterface {
                     const values = [incoming[moduleId].flags || 0, status, existing[moduleId].id];
                     return db.query("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
                         const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
-                        return this._synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
+                        return this.synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
                     });
                 })
             ),
         ]);
     }
 
-    private _insertStream(db, stationId, stream) {
+    private insertStream(db, stationId, stream) {
         // NOTE We're always created for the first time from a status
         // reply and these are the values we're guaranteed to get from
         // those, to avoid inserting NULLs, which the Android SQLITE
@@ -541,7 +543,7 @@ export default class DatabaseInterface {
             .then((rows) => console.log(rows));
     }
 
-    private _updateStream(db, streamId, stream) {
+    private updateStream(db, streamId, stream) {
         const updates: Promise<any>[] = [];
 
         if (stream.deviceSize !== null && stream.deviceFirstBlock !== null && stream.deviceLastBlock !== null) {
@@ -590,9 +592,9 @@ export default class DatabaseInterface {
         log.verbose("synchronize streams", stationId, adding, removed, keeping);
 
         return Promise.all([
-            Promise.all(adding.map((name) => this._insertStream(db, stationId, incoming[name]))),
+            Promise.all(adding.map((name) => this.insertStream(db, stationId, incoming[name]))),
             Promise.all(removed.map((name) => db.query("DELETE FROM streams WHERE id = ?", [existing[name].id]))),
-            Promise.all(keeping.map((name) => this._updateStream(db, existing[name].id, incoming[name].keepingFrom(existing[name])))),
+            Promise.all(keeping.map((name) => this.updateStream(db, existing[name].id, incoming[name].keepingFrom(existing[name])))),
         ]);
     }
 
