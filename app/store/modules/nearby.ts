@@ -6,7 +6,7 @@ import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import { Services, ServiceRef } from "./utilities";
-import { AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
+import { StationRepliedAction, AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
 
 import { backOff } from "exponential-backoff";
 
@@ -78,7 +78,7 @@ const actions = {
                         commit(MutationTypes.FIND, payload.info);
                         commit(MutationTypes.STATION_QUERIED, payload.info);
                         commit(MutationTypes.STATION_ACTIVITY, payload.info);
-                        return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                        return dispatch(new StationRepliedAction(statusReply, payload.info.url), { root: true });
                     },
                     {
                         maxDelay: 60000,
@@ -98,7 +98,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -155,7 +155,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -184,7 +184,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -209,7 +209,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -230,7 +230,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -251,7 +251,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {

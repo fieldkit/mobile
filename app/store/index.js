@@ -77,7 +77,7 @@ function customizeLogger() {
                 return false;
             }
             if (action.type == ActionTypes.STATION_REPLY) {
-                const device = action.payload?.status?.identity?.device;
+                const device = action.payload?.statusReply?.status?.identity?.device;
                 if (!device) {
                     console.log("action:", action.type, action);
                 } else {
