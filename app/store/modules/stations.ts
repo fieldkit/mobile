@@ -53,6 +53,7 @@ const getters = {
             .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
             .value();
 
+        /*
         if (false) {
             console.log(
                 "available",
@@ -65,7 +66,7 @@ const getters = {
                 })
             );
         }
-
+		*/
         return AvailableStationsSorter(available);
     },
     legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
@@ -92,6 +93,7 @@ const getters = {
             })
             .value();
 
+        /*
         if (false) {
             console.log(
                 "legacy",
@@ -104,6 +106,7 @@ const getters = {
                 })
             );
         }
+		*/
 
         return _.keyBy(legacy, (s) => s.id);
     },

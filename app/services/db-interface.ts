@@ -461,18 +461,18 @@ export default class DatabaseInterface {
     public addOrUpdateStation(station: Station, url: string) {
         return this.getDatabase().then((db) => {
             return this.getStationIdByDeviceId(station.deviceId)
-                .then((id) => {
+                .then((id: number | null) => {
                     if (id === null) {
                         return this.insertStation(station);
                     }
                     return this.updateStation(_.merge({}, station, { id: id }));
                 })
                 .then(() => this.getStationIdByDeviceId(station.deviceId))
-                .then((stationId) => {
-                    return this.updateStationAddress(stationId, url).then(() => {
+                .then((stationId) =>
+                    this.updateStationAddress(stationId, url).then(() => {
                         return stationId;
-                    });
-                })
+                    })
+                )
                 .then((stationId) => {
                     return Promise.all([
                         db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]).then((r) => sqliteToJs(r)),
@@ -495,7 +495,6 @@ export default class DatabaseInterface {
     private updateStationAddress(stationId: number, url: string) {
         return this.getDatabase().then((db) => {
             return db.query("SELECT * FROM station_addresses WHERE station_id = ?", [stationId]).then((existing: StationAddressRow[]) => {
-                console.log("addresses", existing);
                 const byUrl = _.keyBy(existing, (e) => e.url);
                 if (byUrl[url]) {
                     const id = byUrl[url].id;
@@ -505,6 +504,19 @@ export default class DatabaseInterface {
                 }
             });
         });
+    }
+
+    public queryRecentlyActiveAddresses(): Promise<{ deviceId: string; url: string }[]> {
+        return this.getDatabase().then((db) =>
+            db
+                .query(
+                    "SELECT sa.url, s.device_id FROM station_addresses AS sa JOIN stations AS s ON (sa.station_id = s.id) ORDER BY sa.time DESC"
+                )
+                .then((rows) => sqliteToJs(rows))
+                .then((rows) => {
+                    return rows;
+                })
+        );
     }
 
     public insertConfig(config) {
