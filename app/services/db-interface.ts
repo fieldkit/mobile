@@ -76,69 +76,8 @@ export default class DatabaseInterface {
             .then((rows) => sqliteToJs(rows));
     }
 
-    public getStation(stationId) {
-        throw new Error("deprecated");
-    }
-
-    public getStationByDeviceId(deviceId) {
-        throw new Error("deprecated");
-    }
-
-    public getModule(moduleId) {
-        throw new Error("deprecated");
-    }
-
-    public getModuleByDeviceId(deviceId) {
-        throw new Error("deprecated");
-    }
-
-    public getModules(stationId) {
-        throw new Error("deprecated");
-    }
-
-    public removeModule(moduleId) {
-        throw new Error("deprecated");
-    }
-
     public removeNullIdModules() {
         return this.getDatabase().then((db) => db.query("DELETE FROM modules WHERE device_id IS NULL"));
-    }
-
-    public getSensors(moduleDeviceId) {
-        return this.getDatabase()
-            .then((db) =>
-                this.getModulePrimaryKey(moduleDeviceId).then((modulePrimaryKey) =>
-                    db
-                        .query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
-                        .catch((err) => Promise.reject(new Error(`error getting sensors: ${err}`)))
-                )
-            )
-            .then((rows) => sqliteToJs(rows));
-    }
-
-    public getFieldNotes(stationId) {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM fieldnotes WHERE station_id = ?", [stationId]))
-            .then((rows) => sqliteToJs(rows));
-    }
-
-    public updateFieldNote(fieldnote) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE fieldnotes SET note = ?, audio_file = ?, author = ?, title = ?, updated = ? WHERE id = ?", [
-                fieldnote.value,
-                fieldnote.audioFile,
-                fieldnote.author,
-                fieldnote.title,
-                new Date(),
-                fieldnote.fieldNoteId,
-            ])
-        );
-    }
-
-    public getFieldMedia(stationId) {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM fieldmedia WHERE station_id = ?", [stationId]))
-            .then((rows) => sqliteToJs(rows));
     }
 
     public getConfig() {
@@ -175,77 +114,12 @@ export default class DatabaseInterface {
         );
     }
 
-    public setStationName(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET name = ?, updated = ? WHERE id = ?", [station.name, new Date(), station.id])
-        );
-    }
-
     public setStationPortalId(station) {
         return this.getDatabase()
             .then((db) =>
                 db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id])
             )
             .catch((error) => `error setting portal id ${error}`);
-    }
-
-    public setStationLocationCoordinates(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET latitude = ?, longitude = ?, updated = ? WHERE id = ?", [
-                station.latitude,
-                station.longitude,
-                new Date(),
-                station.id,
-            ])
-        );
-    }
-
-    public setStationLocationName(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET location_name = ?, updated = ? WHERE id = ?", [station.locationName, new Date(), station.id])
-        );
-    }
-
-    public setStationStudyObjective(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET study_objective = ?, updated = ? WHERE id = ?", [station.studyObjective, new Date(), station.id])
-        );
-    }
-
-    public setStationLocationPurpose(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET location_purpose = ?, updated = ? WHERE id = ?", [
-                station.locationPurpose,
-                new Date(),
-                station.id,
-            ])
-        );
-    }
-
-    public setStationSiteCriteria(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET site_criteria = ?, updated = ? WHERE id = ?", [station.siteCriteria, new Date(), station.id])
-        );
-    }
-
-    public setStationSiteDescription(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET site_description = ?, updated = ? WHERE id = ?", [
-                station.siteDescription,
-                new Date(),
-                station.id,
-            ])
-        );
-    }
-
-    public setStationPercentComplete(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET percent_complete = ?, updated = ? WHERE id = ?", [
-                station.percentComplete,
-                new Date(),
-                station.id,
-            ])
-        );
     }
 
     public setStationPortalError(station, error) {
@@ -263,31 +137,6 @@ export default class DatabaseInterface {
 
     public setModuleName(module) {
         return this.getDatabase().then((db) => db.query("UPDATE modules SET name = ? WHERE device_id = ?", [module.name, module.deviceId]));
-    }
-
-    public setModulePosition(module) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE modules SET position = ? WHERE device_id = ?", [module.position, module.deviceId])
-        );
-    }
-
-    public setModuleGraphs(module) {
-        return this.getDatabase().then((db) => db.query("UPDATE modules SET graphs = ? WHERE id = ?", [module.graphs, module.id]));
-    }
-
-    public setCurrentReading(sensor) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE sensors SET current_reading = ? WHERE id = ?", [sensor.currentReading, sensor.id])
-        );
-    }
-
-    public clearDeployNotes(station) {
-        return this.getDatabase().then((db) =>
-            db.query(
-                "UPDATE stations SET location_name = '', study_objective = '', location_purpose = '', site_criteria = '', site_description = '', deploy_start_time = '', percent_complete = ? WHERE id = ?",
-                [0, station.id]
-            )
-        );
     }
 
     private updateStation(station: Station) {
@@ -334,30 +183,6 @@ export default class DatabaseInterface {
 					WHERE id = ?`,
                 values
             )
-        );
-    }
-
-    recordStationConfigChange(config) {
-        return this.getDatabase().then((db) =>
-            db.query("INSERT INTO stations_config (station_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)", [
-                config.stationId,
-                config.before,
-                config.after,
-                config.affectedField,
-                config.author,
-            ])
-        );
-    }
-
-    recordModuleConfigChange(config) {
-        return this.getDatabase().then((db) =>
-            db.query("INSERT INTO modules_config (module_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)", [
-                config.moduleId,
-                config.before,
-                config.after,
-                config.affectedField,
-                config.author,
-            ])
         );
     }
 
@@ -668,9 +493,9 @@ export default class DatabaseInterface {
     }
 
     private updateStationAddress(stationId: number, url: string) {
-        console.log("UPDATING", stationId, url);
         return this.getDatabase().then((db) => {
             return db.query("SELECT * FROM station_addresses WHERE station_id = ?", [stationId]).then((existing: StationAddressRow[]) => {
+                console.log("addresses", existing);
                 const byUrl = _.keyBy(existing, (e) => e.url);
                 if (byUrl[url]) {
                     const id = byUrl[url].id;
@@ -686,36 +511,6 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) =>
             db.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [config.baseUri, config.ingestionUri])
         );
-    }
-
-    public insertFieldNote(note) {
-        return this.getDatabase().then((db) =>
-            db.execute(
-                "INSERT INTO fieldnotes (station_id, generation_id, note, title, audio_file, category, author) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [note.stationId, note.generationId, note.note, note.title, note.audioFile, note.category, note.author]
-            )
-        );
-    }
-
-    public insertFieldMedia(media) {
-        return this.getDatabase().then((db) =>
-            db.execute(
-                "INSERT INTO fieldmedia (station_id, generation_id, image_name, image_label, category, author) VALUES (?, ?, ?, ?, ?, ?)",
-                [media.stationId, media.generationId, media.imageName, media.imageLabel, media.category, media.author]
-            )
-        );
-    }
-
-    public removeFieldNote(noteId) {
-        return this.getDatabase().then((db) => db.query("DELETE FROM fieldnotes WHERE id = ?", [noteId]));
-    }
-
-    public removeFieldNoteByAudioFile(audioFile) {
-        return this.getDatabase().then((db) => db.query("DELETE FROM fieldnotes WHERE audio_file = ?", [audioFile]));
-    }
-
-    public removeFieldMedia(mediaId) {
-        return this.getDatabase().then((db) => db.query("DELETE FROM fieldmedia WHERE id = ?", [mediaId]));
     }
 
     public insertDownload(download: DownloadTableRow) {
