@@ -3,13 +3,14 @@ import { describe, expect, it } from "@jest/globals";
 import { Services } from "../services/services";
 import { prepareReply } from "../services/query-station";
 import { MockStationReplies } from "./utilities";
-import * as ActionTypes from "../store/actions";
-import * as MutationTypes from "../store/mutations";
+import * as ActionTypes from "@/store/actions";
+import * as MutationTypes from "@/store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
-import { FileTypeUtils, FileType, TransferProgress } from "../store/types";
-import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "../store/modules/syncing";
+import { FileTypeUtils, FileType, TransferProgress } from "@/store/types";
+import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store/modules/syncing";
+import { StationRepliedAction } from "@/store/typed-actions";
 
 describe("Progress", () => {
     let sp: StationProgress;
@@ -384,7 +385,7 @@ describe("Syncing", () => {
 
             const streams2 = mockStation.newStreams(1, 200);
             const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply2);
+            await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -495,7 +496,7 @@ describe("Syncing", () => {
 
             const streams2 = mockStation.newStreams(5, 200);
             const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply2);
+            await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -638,7 +639,7 @@ describe("Syncing", () => {
 
             const streams2 = mockStation.newStreams(5, 200);
             const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
-            await store.dispatch(ActionTypes.STATION_REPLY, reply2);
+            await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             mockStation.queueDownload(200, { "fk-blocks": "1,5" });
             mockStation.queueDownload(200, { "fk-blocks": "100,200" });
