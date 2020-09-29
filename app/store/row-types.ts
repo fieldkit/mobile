@@ -16,6 +16,12 @@ export interface StationTableRow {
     portalHttpError: string | null;
 }
 
+export interface StationAddressRow {
+    id: number;
+    stationId: number;
+    url: string;
+}
+
 export interface ModuleTableRow {
     id: number;
     name: string;

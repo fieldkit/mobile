@@ -3,7 +3,7 @@ import Config from "../config";
 import Settings from "../settings";
 import { sqliteToJs } from "../utilities";
 import { Download, FileTypeUtils, Station } from "../store/types";
-import { AccountsTableRow, DownloadTableRow, NotesTableRow } from "../store/row-types";
+import { AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow } from "../store/row-types";
 
 const log = Config.logger("DbInterface");
 
@@ -642,6 +642,11 @@ export default class DatabaseInterface {
                 })
                 .then(() => this.getStationIdByDeviceId(station.deviceId))
                 .then((stationId) => {
+                    return this.updateStationAddress(stationId, url).then(() => {
+                        return stationId;
+                    });
+                })
+                .then((stationId) => {
                     return Promise.all([
                         db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]).then((r) => sqliteToJs(r)),
                         db
@@ -657,6 +662,21 @@ export default class DatabaseInterface {
                         });
                     });
                 });
+        });
+    }
+
+    private updateStationAddress(stationId: number, url: string) {
+        console.log("UPDATING", stationId, url);
+        return this.getDatabase().then((db) => {
+            return db.query("SELECT * FROM station_addresses WHERE station_id = ?", [stationId]).then((existing: StationAddressRow[]) => {
+                const byUrl = _.keyBy(existing, (e) => e.url);
+                if (byUrl[url]) {
+                    const id = byUrl[url].id;
+                    return db.query("UPDATE station_addresses SET url = ?, time = ? WHERE id = ?", [url, new Date(), id]);
+                } else {
+                    return db.query("INSERT INTO station_addresses (station_id, time, url) VALUES (?, ?, ?)", [stationId, new Date(), url]);
+                }
+            });
         });
     }
 
