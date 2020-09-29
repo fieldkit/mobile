@@ -43,7 +43,7 @@ function customizeLogger() {
                 return false;
             }
             if (mutation.type == MutationTypes.PHONE_NETWORK) {
-                console.log("mutation:", mutation.type);
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload)); // PRIVACY ANONYMIZE
                 return false;
             }
             if (mutation.type == MutationTypes.STATIONS) {
