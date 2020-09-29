@@ -2,7 +2,7 @@ import _ from "lodash";
 import Config from "../config";
 import Settings from "../settings";
 import { sqliteToJs } from "../utilities";
-import { Download, FileTypeUtils } from "../store/types";
+import { Download, FileTypeUtils, Station } from "../store/types";
 import { AccountsTableRow, DownloadTableRow, NotesTableRow } from "../store/row-types";
 
 const log = Config.logger("DbInterface");
@@ -48,13 +48,7 @@ export default class DatabaseInterface {
     public getAll() {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM stations"))
-            .then((rows) => {
-                rows.map((r) => {
-                    r.status_json = JSON.parse(r.status_json);
-                    return r;
-                });
-                return sqliteToJs(rows);
-            })
+            .then((rows) => sqliteToJs(rows))
             .catch((err) => Promise.reject(new Error(`error fetching stations: ${err}`)));
     }
 
@@ -296,7 +290,7 @@ export default class DatabaseInterface {
         );
     }
 
-    private _updateStation(station) {
+    private updateStation(station: Station) {
         if (!station.id) {
             return Promise.reject(new Error(`no station id in update station`));
         }
@@ -311,19 +305,19 @@ export default class DatabaseInterface {
         // station.percentComplete,
 
         const values = [
-            station.connected,
+            false, // TODO remove station.connected,
             station.generationId,
             station.name,
-            station.url || "", // TODO remove
+            "", // TODO remove URL
             station.portalId,
-            station.status,
+            "", // TODO remove status
             station.deployStartTime,
             station.batteryLevel,
             station.consumedMemory,
             station.totalMemory,
-            station.consumedMemoryPercent, // TODO remove
+            0, // TODO remove consumedMemoryPercent
             JSON.stringify(station.schedules),
-            JSON.stringify(station.statusJson),
+            "", // TODO remove JSON.stringify(station.statusJson),
             station.longitude,
             station.latitude,
             station.serializedStatus,
@@ -481,7 +475,7 @@ export default class DatabaseInterface {
         ]);
     }
 
-    private _synchronizeModules(db, stationId, station, moduleRows, sensorRows) {
+    private synchronizeModules(db, stationId, station, moduleRows, sensorRows) {
         const incoming = _.keyBy(station.modules, (m) => m.moduleId);
         const existing = _.keyBy(moduleRows, (m) => m.moduleId || m.deviceId);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
@@ -586,7 +580,7 @@ export default class DatabaseInterface {
         return Promise.all(updates);
     }
 
-    private _synchronizeStreams(db, stationId, station, streamRows) {
+    private synchronizeStreams(db, stationId, station, streamRows) {
         const incoming = _.keyBy(station.streams, (m) => m.type);
         const existing = _.keyBy(streamRows, (m) => m.type);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
@@ -602,7 +596,7 @@ export default class DatabaseInterface {
         ]);
     }
 
-    private _insertStation(newStation, statusJson) {
+    private insertStation(newStation: Station) {
         return this.getDatabase().then((db) =>
             db
                 .execute(
@@ -617,15 +611,15 @@ export default class DatabaseInterface {
                         newStation.deviceId,
                         newStation.generationId,
                         newStation.name,
-                        "", // TODO remove
-                        newStation.status,
+                        "", // TODO remove newStatus.url,
+                        "", // TODO remove newStation.status,
                         newStation.deployStartTime,
                         newStation.batteryLevel,
                         newStation.consumedMemory,
                         newStation.totalMemory,
-                        newStation.consumedMemoryPercent, // TODO remove
+                        0, // TODO remove newStation.consumedMemoryPercent,
                         JSON.stringify(newStation.schedules),
-                        JSON.stringify(statusJson),
+                        "", // TODO remove JSON.stringify(statusJson),
                         newStation.longitude,
                         newStation.latitude,
                         newStation.serializedStatus,
@@ -637,14 +631,14 @@ export default class DatabaseInterface {
         );
     }
 
-    public addOrUpdateStation(station) {
+    public addOrUpdateStation(station: Station, url: string) {
         return this.getDatabase().then((db) => {
             return this.getStationIdByDeviceId(station.deviceId)
                 .then((id) => {
                     if (id === null) {
-                        return this._insertStation(station, null);
+                        return this.insertStation(station);
                     }
-                    return this._updateStation(_.merge({}, station, { id: id }));
+                    return this.updateStation(_.merge({}, station, { id: id }));
                 })
                 .then(() => this.getStationIdByDeviceId(station.deviceId))
                 .then((stationId) => {
@@ -658,8 +652,8 @@ export default class DatabaseInterface {
                         const moduleRows = all[0];
                         const sensorRows = all[1];
                         const streamRows = all[2];
-                        return this._synchronizeModules(db, stationId, station, moduleRows, sensorRows).then(() => {
-                            return this._synchronizeStreams(db, stationId, station, streamRows);
+                        return this.synchronizeModules(db, stationId, station, moduleRows, sensorRows).then(() => {
+                            return this.synchronizeStreams(db, stationId, station, streamRows);
                         });
                     });
                 });
