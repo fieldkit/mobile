@@ -3,6 +3,7 @@ export const INITIALIZE = "INITIALIZE";
 export const LOAD = "LOAD";
 export const SAVE = "SAVE";
 export const UPDATE = "SAVE";
+export const LOAD_STATIONS = "LOAD_STATIONS";
 export const STATIONS_LOADED = "STATIONS_LOADED";
 
 export const FOUND = "FOUND";

@@ -328,6 +328,9 @@ type ActionParameters = { commit: any; dispatch: any; state: StationsState };
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
+        return dispatch(ActionTypes.LOAD_STATIONS);
+    },
+    [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
         return loadStationsFromDatabase(state.services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
     },
     [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
@@ -341,7 +344,7 @@ const actions = {
         return state.services
             .db()
             .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
-            .then((station) => dispatch(ActionTypes.LOAD));
+            .then((station) => dispatch(ActionTypes.LOAD_STATIONS));
     },
     [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
         return state.services
