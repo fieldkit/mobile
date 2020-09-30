@@ -76,6 +76,10 @@ function customizeLogger() {
             if (action.type == ActionTypes.QUERY_NECESSARY) {
                 return false;
             }
+            if (action.type == ActionTypes.QUERY_STATION) {
+                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                return false;
+            }
             if (action.type == ActionTypes.STATION_REPLY) {
                 const device = action.payload?.statusReply?.status?.identity?.device;
                 if (!device) {

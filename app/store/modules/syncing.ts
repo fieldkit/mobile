@@ -431,10 +431,12 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         const downloaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
         const uploaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
 
-        console.log("syncing", "uploads", uploads);
-        console.log("syncing", "downloads", downloads);
-        console.log("syncing", "downloaded", downloaded);
-        console.log("syncing", "uploaded", uploaded);
+        if (false) {
+            console.log("syncing", "uploads", uploads);
+            console.log("syncing", "downloads", downloads);
+            console.log("syncing", "downloaded", downloaded);
+            console.log("syncing", "uploaded", uploaded);
+        }
 
         return new StationSyncStatus(
             station.id,

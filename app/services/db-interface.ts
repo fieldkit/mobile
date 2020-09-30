@@ -23,12 +23,12 @@ export default class DatabaseInterface {
     }
 
     public checkConfig() {
-        return this.getConfig().then((result) => {
-            if (result.length == 0) {
+        return this.getConfig().then((rows) => {
+            if (rows.length == 0) {
                 console.log("config: initializing", Config);
                 return this.insertConfig(Config);
             } else {
-                console.log("config: * actual baseUri and ingestionUri *", result[0]);
+                console.log("config: actual", rows[0]);
             }
         });
     }
