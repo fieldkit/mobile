@@ -205,8 +205,7 @@ export default Vue.extend({
                     })
                     .catch((e) => {
                         console.log(`error: ${e}`);
-                        return Services.OnlineStatus()
-                            .isOnline()
+                        return Promise.resolve(true)
                             .then((online) => {
                                 if (online) {
                                     return alert({

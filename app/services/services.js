@@ -159,14 +159,6 @@ export class Services {
         return this.calibrationService;
     }
 
-    OnlineStatus() {
-        if (!this.onlineStatus) {
-            const OnlineStatus = require("./online-status").default;
-            this.onlineStatus = new OnlineStatus(this);
-        }
-        return this.onlineStatus;
-    }
-
     Audio() {
         if (!this.audioInterface) {
             const AudioInterface = require("./audio-interface").default;

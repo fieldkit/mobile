@@ -150,7 +150,7 @@ function initializeApplication(services): Promise<any> {
                                             .then(() => services.DiscoverStation().startServiceDiscovery())
                                             .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
                                             .then(() => enableLocationServices())
-                                            .then(() => Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]))
+                                            .then(() => services.PortalUpdater().start())
                                             .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                             .then(() => updateStore(Services.Store()))
                                             .then(() => resumeSession(Services))

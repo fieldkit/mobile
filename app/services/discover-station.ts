@@ -3,6 +3,7 @@ import { Connectivity } from "@/wrappers/connectivity";
 import { promiseAfter } from "@/utilities";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
+import { PhoneNetwork } from "@/store/types";
 import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");
@@ -33,15 +34,38 @@ class Station {
 
 class NetworkMonitor {
     private readonly store: any;
+    private enabled: boolean = false;
+    private wifi: boolean = false;
 
-    constructor(private readonly services) {
+    constructor(private readonly services: any) {
         this.store = services.Store();
+        console.log("network-monitor: ctor");
+    }
+
+    public start() {
+        if (this.enabled) {
+            return;
+        }
+
+        this.enabled = true;
+
+        console.log("network-monitor: starting", this.enabled);
 
         Connectivity.startMonitoring((newType) => {
             try {
-                log.info(newType);
+                console.log("network-monitor: connectivity", Connectivity.typeToString(newType));
+
+                switch (newType) {
+                    case Connectivity.connectionType.wifi:
+                        this.wifi = true;
+                        break;
+                    default:
+                        this.wifi = false;
+                        break;
+                }
+                this.issue();
             } catch (e) {
-                console.log("NetworkMonitor error:", e);
+                log.error("network-monitor", e);
             }
         });
 
@@ -49,13 +73,14 @@ class NetworkMonitor {
     }
 
     private watch() {
-        return Promise.delay(10000).then(() =>
-            this.services
-                .Conservify()
-                .findConnectedNetwork()
-                .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, status.connectedWifi))
-                .finally(() => this.watch())
-        );
+        return Promise.delay(10000).then(() => this.issue().finally(() => this.watch()));
+    }
+
+    private issue() {
+        return this.services
+            .Conservify()
+            .findConnectedNetwork()
+            .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(status.connectedWifi?.ssid, this.wifi)));
     }
 
     protected tryFixedAddress() {
@@ -97,7 +122,7 @@ export class LostService {
 }
 
 export default class DiscoverStation {
-    public readonly networkMonitor: NetworkMonitor;
+    protected readonly networkMonitor: NetworkMonitor;
     private readonly store: any;
     private readonly conservify: any;
     private readonly pending: { [index: string]: any };
@@ -113,15 +138,17 @@ export default class DiscoverStation {
         services.DiscoveryEvents().add(this);
     }
 
-    public started() {
+    public started(): boolean {
         return this.monitoring;
     }
 
-    public restart() {
+    public restart(): Promise<never> {
         return this.stopServiceDiscovery().then(() => Promise.delay(500).then(() => this.startServiceDiscovery()));
     }
 
-    public startServiceDiscovery() {
+    public startServiceDiscovery(): Promise<never> {
+        this.networkMonitor.start();
+
         if (this.monitoring) {
             return Promise.resolve(true);
         }
@@ -129,7 +156,7 @@ export default class DiscoverStation {
         return this.conservify.start("_fk._tcp");
     }
 
-    public stopServiceDiscovery() {
+    public stopServiceDiscovery(): Promise<never> {
         this.monitoring = false;
         this.stations = {};
         return Promise.resolve(this.conservify.stop());
@@ -179,7 +206,7 @@ export default class DiscoverStation {
         });
     }
 
-    private makeKey(station) {
+    private makeKey(station): string {
         return station.name;
     }
 }

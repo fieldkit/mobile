@@ -495,7 +495,7 @@ export class CommonLocations {
 }
 
 export class PhoneNetwork {
-    constructor(public readonly ssid: string | null = null) {}
+    constructor(public readonly ssid: string | null, public readonly wifi: boolean = false) {}
 }
 
 export class OpenProgressPayload {
