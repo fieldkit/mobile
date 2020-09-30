@@ -1,7 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
-import * as ActionTypes from "../actions";
-import * as MutationTypes from "../mutations";
+import * as ActionTypes from "@/store/actions";
+import * as MutationTypes from "@/store/mutations";
 import {
     StationCreationFields,
     Station,
@@ -14,10 +14,11 @@ import {
     StationPortalStatus,
     SortableStationSorter,
     Schedules,
-} from "../types";
-import { HasLocation } from "../map-types";
-import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "../row-types";
-import { HttpStatusReply, AtlasStatus } from "../http_reply";
+} from "@/store/types";
+import { StationRepliedAction } from "@/store/typed-actions";
+import { HasLocation } from "@/store/map-types";
+import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
+import { HttpStatusReply, AtlasStatus } from "@/store/http_reply";
 import { GlobalState } from "./global";
 import { Services, ServiceRef } from "./utilities";
 
@@ -52,6 +53,7 @@ const getters = {
             .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
             .value();
 
+        /*
         if (false) {
             console.log(
                 "available",
@@ -64,7 +66,7 @@ const getters = {
                 })
             );
         }
-
+		*/
         return AvailableStationsSorter(available);
     },
     legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
@@ -91,6 +93,7 @@ const getters = {
             })
             .value();
 
+        /*
         if (false) {
             console.log(
                 "legacy",
@@ -103,6 +106,7 @@ const getters = {
                 })
             );
         }
+		*/
 
         return _.keyBy(legacy, (s) => s.id);
     },
@@ -324,19 +328,23 @@ type ActionParameters = { commit: any; dispatch: any; state: StationsState };
 
 const actions = {
     [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
+        return dispatch(ActionTypes.LOAD_STATIONS);
+    },
+    [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
         return loadStationsFromDatabase(state.services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
     },
-    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations) => {
+    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
         commit(MutationTypes.STATIONS, stations);
     },
-    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply) => {
+    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
+        const statusReply = payload.statusReply;
         if ((statusReply?.errors?.length || 0) > 0) {
             return Promise.reject(new Error(`station error reply`));
         }
         return state.services
             .db()
-            .addOrUpdateStation(makeStationFromStatus(statusReply))
-            .then((station) => dispatch(ActionTypes.LOAD));
+            .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
+            .then((station) => dispatch(ActionTypes.LOAD_STATIONS));
     },
     [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
         return state.services

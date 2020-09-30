@@ -3,11 +3,18 @@
 conservifyProperties([ disableConcurrentBuilds() ])
 
 timestamps {
-    node () {
+    node ("jenkins-aws-ubuntu") {
         try {
             stage ('git') {
                 checkout scm
             }
+
+			stage ("android-sdk") {
+				sh "rm -rf android-sdk"
+				sh "rm -f android-sdk-setup.sh*"
+				sh "wget https://raw.githubusercontent.com/conservify/dev-ops/main/android-sdk/android-sdk-setup.sh"
+				sh "bash android-sdk-setup.sh"
+			}
 
             stage ("configuration") {
                 withCredentials([file(credentialsId: 'app-android-signing-data', variable: 'APP_ANDROID_SIGNING_DATA')]) {
@@ -25,8 +32,10 @@ timestamps {
             stage ('build') {
                 def props = readProperties(file: "private/gradle.properties")
                 sh """
+pwd
+
 export PATH=$PATH:node_modules/.bin
-export ANDROID_HOME=/var/jenkins_home/workspace/android-sdk/android-sdk
+export ANDROID_HOME=`pwd`/android-sdk
 export FK_APP_RELEASE_STORE_FILE=private/${props.FK_APP_RELEASE_STORE_FILE}
 export FK_APP_RELEASE_KEY_ALIAS=${props.FK_APP_RELEASE_KEY_ALIAS}
 set +x

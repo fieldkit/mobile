@@ -2,8 +2,8 @@ import _ from "lodash";
 import Config from "../config";
 import Settings from "../settings";
 import { sqliteToJs } from "../utilities";
-import { Download, FileTypeUtils } from "../store/types";
-import { AccountsTableRow, DownloadTableRow, NotesTableRow } from "../store/row-types";
+import { Download, FileTypeUtils, Station } from "../store/types";
+import { AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow } from "../store/row-types";
 
 const log = Config.logger("DbInterface");
 
@@ -23,12 +23,12 @@ export default class DatabaseInterface {
     }
 
     public checkConfig() {
-        return this.getConfig().then((result) => {
-            if (result.length == 0) {
+        return this.getConfig().then((rows) => {
+            if (rows.length == 0) {
                 console.log("config: initializing", Config);
                 return this.insertConfig(Config);
             } else {
-                console.log("config: * actual baseUri and ingestionUri *", result[0]);
+                console.log("config: actual", rows[0]);
             }
         });
     }
@@ -48,13 +48,7 @@ export default class DatabaseInterface {
     public getAll() {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM stations"))
-            .then((rows) => {
-                rows.map((r) => {
-                    r.status_json = JSON.parse(r.status_json);
-                    return r;
-                });
-                return sqliteToJs(rows);
-            })
+            .then((rows) => sqliteToJs(rows))
             .catch((err) => Promise.reject(new Error(`error fetching stations: ${err}`)));
     }
 
@@ -82,69 +76,8 @@ export default class DatabaseInterface {
             .then((rows) => sqliteToJs(rows));
     }
 
-    public getStation(stationId) {
-        throw new Error("deprecated");
-    }
-
-    public getStationByDeviceId(deviceId) {
-        throw new Error("deprecated");
-    }
-
-    public getModule(moduleId) {
-        throw new Error("deprecated");
-    }
-
-    public getModuleByDeviceId(deviceId) {
-        throw new Error("deprecated");
-    }
-
-    public getModules(stationId) {
-        throw new Error("deprecated");
-    }
-
-    public removeModule(moduleId) {
-        throw new Error("deprecated");
-    }
-
     public removeNullIdModules() {
         return this.getDatabase().then((db) => db.query("DELETE FROM modules WHERE device_id IS NULL"));
-    }
-
-    public getSensors(moduleDeviceId) {
-        return this.getDatabase()
-            .then((db) =>
-                this._getModulePrimaryKey(moduleDeviceId).then((modulePrimaryKey) =>
-                    db
-                        .query("SELECT * FROM sensors WHERE module_id = ?", [modulePrimaryKey])
-                        .catch((err) => Promise.reject(new Error(`error getting sensors: ${err}`)))
-                )
-            )
-            .then((rows) => sqliteToJs(rows));
-    }
-
-    public getFieldNotes(stationId) {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM fieldnotes WHERE station_id = ?", [stationId]))
-            .then((rows) => sqliteToJs(rows));
-    }
-
-    public updateFieldNote(fieldnote) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE fieldnotes SET note = ?, audio_file = ?, author = ?, title = ?, updated = ? WHERE id = ?", [
-                fieldnote.value,
-                fieldnote.audioFile,
-                fieldnote.author,
-                fieldnote.title,
-                new Date(),
-                fieldnote.fieldNoteId,
-            ])
-        );
-    }
-
-    public getFieldMedia(stationId) {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM fieldmedia WHERE station_id = ?", [stationId]))
-            .then((rows) => sqliteToJs(rows));
     }
 
     public getConfig() {
@@ -152,7 +85,7 @@ export default class DatabaseInterface {
             .then((db) => db.query("SELECT * FROM config"))
             .then((rows) => sqliteToJs(rows))
             .then((rows) => {
-                if (Config.env.jacob) {
+                if (Config.env.developer) {
                     return [
                         {
                             baseUri: Config.baseUri,
@@ -181,77 +114,12 @@ export default class DatabaseInterface {
         );
     }
 
-    public setStationName(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET name = ?, updated = ? WHERE id = ?", [station.name, new Date(), station.id])
-        );
-    }
-
     public setStationPortalId(station) {
         return this.getDatabase()
             .then((db) =>
                 db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id])
             )
             .catch((error) => `error setting portal id ${error}`);
-    }
-
-    public setStationLocationCoordinates(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET latitude = ?, longitude = ?, updated = ? WHERE id = ?", [
-                station.latitude,
-                station.longitude,
-                new Date(),
-                station.id,
-            ])
-        );
-    }
-
-    public setStationLocationName(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET location_name = ?, updated = ? WHERE id = ?", [station.locationName, new Date(), station.id])
-        );
-    }
-
-    public setStationStudyObjective(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET study_objective = ?, updated = ? WHERE id = ?", [station.studyObjective, new Date(), station.id])
-        );
-    }
-
-    public setStationLocationPurpose(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET location_purpose = ?, updated = ? WHERE id = ?", [
-                station.locationPurpose,
-                new Date(),
-                station.id,
-            ])
-        );
-    }
-
-    public setStationSiteCriteria(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET site_criteria = ?, updated = ? WHERE id = ?", [station.siteCriteria, new Date(), station.id])
-        );
-    }
-
-    public setStationSiteDescription(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET site_description = ?, updated = ? WHERE id = ?", [
-                station.siteDescription,
-                new Date(),
-                station.id,
-            ])
-        );
-    }
-
-    public setStationPercentComplete(station) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE stations SET percent_complete = ?, updated = ? WHERE id = ?", [
-                station.percentComplete,
-                new Date(),
-                station.id,
-            ])
-        );
     }
 
     public setStationPortalError(station, error) {
@@ -271,32 +139,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) => db.query("UPDATE modules SET name = ? WHERE device_id = ?", [module.name, module.deviceId]));
     }
 
-    public setModulePosition(module) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE modules SET position = ? WHERE device_id = ?", [module.position, module.deviceId])
-        );
-    }
-
-    public setModuleGraphs(module) {
-        return this.getDatabase().then((db) => db.query("UPDATE modules SET graphs = ? WHERE id = ?", [module.graphs, module.id]));
-    }
-
-    public setCurrentReading(sensor) {
-        return this.getDatabase().then((db) =>
-            db.query("UPDATE sensors SET current_reading = ? WHERE id = ?", [sensor.currentReading, sensor.id])
-        );
-    }
-
-    public clearDeployNotes(station) {
-        return this.getDatabase().then((db) =>
-            db.query(
-                "UPDATE stations SET location_name = '', study_objective = '', location_purpose = '', site_criteria = '', site_description = '', deploy_start_time = '', percent_complete = ? WHERE id = ?",
-                [0, station.id]
-            )
-        );
-    }
-
-    private _updateStation(station) {
+    private updateStation(station: Station) {
         if (!station.id) {
             return Promise.reject(new Error(`no station id in update station`));
         }
@@ -311,19 +154,19 @@ export default class DatabaseInterface {
         // station.percentComplete,
 
         const values = [
-            station.connected,
+            false, // TODO remove station.connected,
             station.generationId,
             station.name,
-            station.url || "", // TODO remove
+            "", // TODO remove URL
             station.portalId,
-            station.status,
+            "", // TODO remove status
             station.deployStartTime,
             station.batteryLevel,
             station.consumedMemory,
             station.totalMemory,
-            station.consumedMemoryPercent, // TODO remove
+            0, // TODO remove consumedMemoryPercent
             JSON.stringify(station.schedules),
-            JSON.stringify(station.statusJson),
+            "", // TODO remove JSON.stringify(station.statusJson),
             station.longitude,
             station.latitude,
             station.serializedStatus,
@@ -343,31 +186,7 @@ export default class DatabaseInterface {
         );
     }
 
-    recordStationConfigChange(config) {
-        return this.getDatabase().then((db) =>
-            db.query("INSERT INTO stations_config (station_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)", [
-                config.stationId,
-                config.before,
-                config.after,
-                config.affectedField,
-                config.author,
-            ])
-        );
-    }
-
-    recordModuleConfigChange(config) {
-        return this.getDatabase().then((db) =>
-            db.query("INSERT INTO modules_config (module_id, before, after, affected_field, author) VALUES (?, ?, ?, ?, ?)", [
-                config.moduleId,
-                config.before,
-                config.after,
-                config.affectedField,
-                config.author,
-            ])
-        );
-    }
-
-    private _getModulePrimaryKey(deviceId) {
+    private getModulePrimaryKey(deviceId) {
         if (_.isString(deviceId)) {
             return this.getDatabase().then((db) =>
                 db.query("SELECT id FROM modules WHERE device_id = ? ORDER BY id DESC", [deviceId]).then((rows) => {
@@ -395,9 +214,9 @@ export default class DatabaseInterface {
         return Promise.resolve(deviceId);
     }
 
-    private _insertSensor(sensor) {
+    private insertSensor(sensor) {
         return this.getDatabase().then((db) =>
-            this._getModulePrimaryKey(sensor.moduleId).then((modulePrimaryKey) =>
+            this.getModulePrimaryKey(sensor.moduleId).then((modulePrimaryKey) =>
                 db
                     .execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
                         modulePrimaryKey,
@@ -411,7 +230,7 @@ export default class DatabaseInterface {
         );
     }
 
-    private _insertModule(module) {
+    private insertModule(module) {
         // Note: device_id is the module's unique hardware id (not the station's)
         return this.getDatabase().then((db) =>
             db
@@ -432,7 +251,7 @@ export default class DatabaseInterface {
         );
     }
 
-    private _synchronizeSensors(db, moduleId, module, sensorRows) {
+    private synchronizeSensors(db, moduleId, module, sensorRows) {
         // TODO: include position?
         const incoming = _.keyBy(module.sensors, (s) => s.name);
         const existing = _.keyBy(sensorRows, (s) => s.name);
@@ -444,7 +263,7 @@ export default class DatabaseInterface {
 
         return Promise.all([
             Promise.all(
-                adding.map((name) => this._insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
+                adding.map((name) => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
             ),
             Promise.all(removed.map((name) => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
             Promise.all(
@@ -452,6 +271,7 @@ export default class DatabaseInterface {
                     .map((name) => {
                         const previous = Math.round(existing[name].currentReading * 10) / 10;
                         const current = Math.round(incoming[name].reading * 10) / 10;
+                        /*
                         if (false) {
                             console.log(
                                 "comparing readings",
@@ -462,6 +282,7 @@ export default class DatabaseInterface {
                                 current
                             );
                         }
+						*/
                         const trend = current == previous ? 0 : current > previous ? 1 : -1;
                         return {
                             id: existing[name].id,
@@ -481,7 +302,7 @@ export default class DatabaseInterface {
         ]);
     }
 
-    private _synchronizeModules(db, stationId, station, moduleRows, sensorRows) {
+    private synchronizeModules(db, stationId, station, moduleRows, sensorRows) {
         const incoming = _.keyBy(station.modules, (m) => m.moduleId);
         const existing = _.keyBy(moduleRows, (m) => m.moduleId || m.deviceId);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
@@ -493,8 +314,8 @@ export default class DatabaseInterface {
         return Promise.all([
             Promise.all(
                 adding.map((moduleId) =>
-                    this._insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
-                        this._synchronizeSensors(db, moduleId, incoming[moduleId], [])
+                    this.insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
+                        this.synchronizeSensors(db, moduleId, incoming[moduleId], [])
                     )
                 )
             ),
@@ -511,14 +332,14 @@ export default class DatabaseInterface {
                     const values = [incoming[moduleId].flags || 0, status, existing[moduleId].id];
                     return db.query("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
                         const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
-                        return this._synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
+                        return this.synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
                     });
                 })
             ),
         ]);
     }
 
-    private _insertStream(db, stationId, stream) {
+    private insertStream(db, stationId, stream) {
         // NOTE We're always created for the first time from a status
         // reply and these are the values we're guaranteed to get from
         // those, to avoid inserting NULLs, which the Android SQLITE
@@ -547,7 +368,7 @@ export default class DatabaseInterface {
             .then((rows) => console.log(rows));
     }
 
-    private _updateStream(db, streamId, stream) {
+    private updateStream(db, streamId, stream) {
         const updates: Promise<any>[] = [];
 
         if (stream.deviceSize !== null && stream.deviceFirstBlock !== null && stream.deviceLastBlock !== null) {
@@ -586,7 +407,7 @@ export default class DatabaseInterface {
         return Promise.all(updates);
     }
 
-    private _synchronizeStreams(db, stationId, station, streamRows) {
+    private synchronizeStreams(db, stationId, station, streamRows) {
         const incoming = _.keyBy(station.streams, (m) => m.type);
         const existing = _.keyBy(streamRows, (m) => m.type);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
@@ -596,13 +417,13 @@ export default class DatabaseInterface {
         log.verbose("synchronize streams", stationId, adding, removed, keeping);
 
         return Promise.all([
-            Promise.all(adding.map((name) => this._insertStream(db, stationId, incoming[name]))),
+            Promise.all(adding.map((name) => this.insertStream(db, stationId, incoming[name]))),
             Promise.all(removed.map((name) => db.query("DELETE FROM streams WHERE id = ?", [existing[name].id]))),
-            Promise.all(keeping.map((name) => this._updateStream(db, existing[name].id, incoming[name].keepingFrom(existing[name])))),
+            Promise.all(keeping.map((name) => this.updateStream(db, existing[name].id, incoming[name].keepingFrom(existing[name])))),
         ]);
     }
 
-    private _insertStation(newStation, statusJson) {
+    private insertStation(newStation: Station) {
         return this.getDatabase().then((db) =>
             db
                 .execute(
@@ -617,15 +438,15 @@ export default class DatabaseInterface {
                         newStation.deviceId,
                         newStation.generationId,
                         newStation.name,
-                        "", // TODO remove
-                        newStation.status,
+                        "", // TODO remove newStatus.url,
+                        "", // TODO remove newStation.status,
                         newStation.deployStartTime,
                         newStation.batteryLevel,
                         newStation.consumedMemory,
                         newStation.totalMemory,
-                        newStation.consumedMemoryPercent, // TODO remove
+                        0, // TODO remove newStation.consumedMemoryPercent,
                         JSON.stringify(newStation.schedules),
-                        JSON.stringify(statusJson),
+                        "", // TODO remove JSON.stringify(statusJson),
                         newStation.longitude,
                         newStation.latitude,
                         newStation.serializedStatus,
@@ -637,16 +458,21 @@ export default class DatabaseInterface {
         );
     }
 
-    public addOrUpdateStation(station) {
+    public addOrUpdateStation(station: Station, url: string) {
         return this.getDatabase().then((db) => {
             return this.getStationIdByDeviceId(station.deviceId)
-                .then((id) => {
+                .then((id: number | null) => {
                     if (id === null) {
-                        return this._insertStation(station, null);
+                        return this.insertStation(station);
                     }
-                    return this._updateStation(_.merge({}, station, { id: id }));
+                    return this.updateStation(_.merge({}, station, { id: id }));
                 })
                 .then(() => this.getStationIdByDeviceId(station.deviceId))
+                .then((stationId) =>
+                    this.updateStationAddress(stationId, url).then(() => {
+                        return stationId;
+                    })
+                )
                 .then((stationId) => {
                     return Promise.all([
                         db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]).then((r) => sqliteToJs(r)),
@@ -658,48 +484,45 @@ export default class DatabaseInterface {
                         const moduleRows = all[0];
                         const sensorRows = all[1];
                         const streamRows = all[2];
-                        return this._synchronizeModules(db, stationId, station, moduleRows, sensorRows).then(() => {
-                            return this._synchronizeStreams(db, stationId, station, streamRows);
+                        return this.synchronizeModules(db, stationId, station, moduleRows, sensorRows).then(() => {
+                            return this.synchronizeStreams(db, stationId, station, streamRows);
                         });
                     });
                 });
         });
     }
 
+    private updateStationAddress(stationId: number, url: string) {
+        return this.getDatabase().then((db) => {
+            return db.query("SELECT * FROM station_addresses WHERE station_id = ?", [stationId]).then((existing: StationAddressRow[]) => {
+                const byUrl = _.keyBy(existing, (e) => e.url);
+                if (byUrl[url]) {
+                    const id = byUrl[url].id;
+                    return db.query("UPDATE station_addresses SET url = ?, time = ? WHERE id = ?", [url, new Date(), id]);
+                } else {
+                    return db.query("INSERT INTO station_addresses (station_id, time, url) VALUES (?, ?, ?)", [stationId, new Date(), url]);
+                }
+            });
+        });
+    }
+
+    public queryRecentlyActiveAddresses(): Promise<{ deviceId: string; url: string }[]> {
+        return this.getDatabase().then((db) =>
+            db
+                .query(
+                    "SELECT sa.url, s.device_id FROM station_addresses AS sa JOIN stations AS s ON (sa.station_id = s.id) ORDER BY sa.time DESC"
+                )
+                .then((rows) => sqliteToJs(rows))
+                .then((rows) => {
+                    return rows;
+                })
+        );
+    }
+
     public insertConfig(config) {
         return this.getDatabase().then((db) =>
             db.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [config.baseUri, config.ingestionUri])
         );
-    }
-
-    public insertFieldNote(note) {
-        return this.getDatabase().then((db) =>
-            db.execute(
-                "INSERT INTO fieldnotes (station_id, generation_id, note, title, audio_file, category, author) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [note.stationId, note.generationId, note.note, note.title, note.audioFile, note.category, note.author]
-            )
-        );
-    }
-
-    public insertFieldMedia(media) {
-        return this.getDatabase().then((db) =>
-            db.execute(
-                "INSERT INTO fieldmedia (station_id, generation_id, image_name, image_label, category, author) VALUES (?, ?, ?, ?, ?, ?)",
-                [media.stationId, media.generationId, media.imageName, media.imageLabel, media.category, media.author]
-            )
-        );
-    }
-
-    public removeFieldNote(noteId) {
-        return this.getDatabase().then((db) => db.query("DELETE FROM fieldnotes WHERE id = ?", [noteId]));
-    }
-
-    public removeFieldNoteByAudioFile(audioFile) {
-        return this.getDatabase().then((db) => db.query("DELETE FROM fieldnotes WHERE audio_file = ?", [audioFile]));
-    }
-
-    public removeFieldMedia(mediaId) {
-        return this.getDatabase().then((db) => db.query("DELETE FROM fieldmedia WHERE id = ?", [mediaId]));
     }
 
     public insertDownload(download: DownloadTableRow) {

@@ -43,7 +43,7 @@ function customizeLogger() {
                 return false;
             }
             if (mutation.type == MutationTypes.PHONE_NETWORK) {
-                console.log("mutation:", mutation.type);
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload)); // PRIVACY ANONYMIZE
                 return false;
             }
             if (mutation.type == MutationTypes.STATIONS) {
@@ -73,11 +73,19 @@ function customizeLogger() {
             if (action.type == ActionTypes.REFRESH) {
                 return false;
             }
+            if (action.type == ActionTypes.TRY_STATION_ONCE) {
+                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                return false;
+            }
             if (action.type == ActionTypes.QUERY_NECESSARY) {
                 return false;
             }
+            if (action.type == ActionTypes.QUERY_STATION) {
+                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                return false;
+            }
             if (action.type == ActionTypes.STATION_REPLY) {
-                const device = action.payload?.status?.identity?.device;
+                const device = action.payload?.statusReply?.status?.identity?.device;
                 if (!device) {
                     console.log("action:", action.type, action);
                 } else {

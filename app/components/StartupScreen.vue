@@ -150,13 +150,13 @@ function initializeApplication(services): Promise<any> {
                                             .then(() => services.DiscoverStation().startServiceDiscovery())
                                             .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
                                             .then(() => enableLocationServices())
-                                            .then(() => Promise.all([services.PortalUpdater().start(), services.OnlineStatus().start()]))
+                                            .then(() => services.PortalUpdater().start())
                                             .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
                                             .then(() => updateStore(Services.Store()))
                                             .then(() => resumeSession(Services))
                                             .then(() => restartDiscovery(Services.DiscoverStation()))
                                             .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
-                                    );
+										 );
                             })
                     )
                     .catch((err) => {
@@ -188,7 +188,8 @@ export default class StartupScreen extends Vue {
     onPageLoaded(args): Promise<any> {
         console.log("startup loaded");
         return initializeApplication(Services).then(() => {
-            if (Config.env.jacob) {
+			console.log("developer", Config.env.developer);
+			if (Config.env.developer) {
                 /*
                 return this.$navigateTo(routes.internal.calibrate, {
                     props: {
@@ -207,9 +208,16 @@ export default class StartupScreen extends Vue {
                         flowName: "onboarding",
                     },
                 });
+                return this.$navigateTo(routes.appSettings.account, {
+                    props: {},
+                });
+                return this.$navigateTo(routes.developerMenu, {
+                    props: {},
+                });
                 if (Services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.deploy.review, {
-                        // return this.$navigateTo(routes.deploy.start, {
+                    return this.$navigateTo(routes.deploy.start, {
+                        // return this.$navigateTo(routes.deploy.notes, {
+                        // return this.$navigateTo(routes.deploy.review, {
                         // return this.$navigateTo(routes.stationSettings, {
                         // return this.$navigateTo(routes.stationDetail, {
                         // return this.$navigateTo(routes.onboarding.recalibrate, {
@@ -220,13 +228,8 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-                return this.$navigateTo(routes.appSettings.account, {
-                    props: {},
-                });
-                return this.$navigateTo(routes.developerMenu, {
-                    props: {},
-                });
 				*/
+				console.log("developer")
                 return this.$navigateTo(routes.stations, {
                     props: {},
                 });

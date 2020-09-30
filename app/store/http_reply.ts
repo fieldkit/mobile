@@ -64,4 +64,5 @@ export interface HttpStatusReply {
     schedules: ReplySchedules;
     streams: ReplyStream[];
     serialized: string;
+    errors: any[];
 }

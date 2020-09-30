@@ -13,11 +13,15 @@ const NsVueTemplateCompiler = require("nativescript-vue-template-compiler");
 const nsWebpack = require("@nativescript/webpack");
 const nativescriptTarget = require("@nativescript/webpack/nativescript-target");
 const { NativeScriptWorkerPlugin } = require("nativescript-worker-loader/NativeScriptWorkerPlugin");
-const hashSalt = Date.now().toString();
+
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 
 const gitHash = require("child_process").execSync("git rev-parse HEAD").toString().trim();
-
 const gitBranch = require("child_process").execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+
+const hashSalt = Date.now().toString();
+
+const smp = new SpeedMeasurePlugin();
 
 const haveSqliteCommercial = () => {
     return fs.existsSync("node_modules/nativescript-sqlite-commercial");
@@ -389,5 +393,5 @@ module.exports = (env) => {
         config.plugins.push(new webpack.HotModuleReplacementPlugin());
     }
 
-    return config;
+    return smp.wrap(config);
 };

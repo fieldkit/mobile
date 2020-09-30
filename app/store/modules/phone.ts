@@ -3,7 +3,7 @@ import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import * as MutationTypes from "../mutations";
 
 export class PhoneState {
-    network: PhoneNetwork = new PhoneNetwork();
+    network: PhoneNetwork = new PhoneNetwork(null);
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 

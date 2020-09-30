@@ -50,11 +50,18 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDefault</string>
+	<string>UIStatusBarStyleDarkContent</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_fk._tcp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Locate and communicate with your FieldKit station.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

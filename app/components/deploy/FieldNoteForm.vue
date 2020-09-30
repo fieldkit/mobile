@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="auto,*,auto" height="100%" @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <GridLayout rows="auto,*,auto" @loaded="onPageLoaded" @unloaded="onUnloaded">
         <GridLayout row="0" rows="auto" columns="15*,70*,15*" class="container-header">
             <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="onCancel">
                 <Image width="21" src="~/images/Icon_Close.png"></Image>
@@ -40,7 +40,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-// import { AnimationCurve } from "tns-core-modules/ui/enums";
 
 import LabeledTextView from "../LabeledTextView.vue";
 import MakeAudioRecording from "./MakeAudioRecording.vue";
@@ -130,6 +129,7 @@ labeled-text-field {
 }
 .bottom-container {
     border-top: 1px solid #d8dce0;
+    padding: 15;
     /* background-color: #afaaff; */
 }
 

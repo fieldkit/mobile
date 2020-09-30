@@ -3,14 +3,18 @@
 conservifyProperties([ disableConcurrentBuilds() ])
 
 timestamps {
-    node ("jenkins-aws-ubuntu") {
+    node () {
         try {
             stage ('git') {
                 checkout scm
             }
 
             stage ('build') {
-                sh "PATH=$PATH:node_modules/.bin make jenkins"
+                sh """
+export PATH=$PATH:node_modules/.bin
+npm install
+make refresh-cms-data
+"""
             }
 
             notifySuccess()

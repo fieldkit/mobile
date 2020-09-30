@@ -19,8 +19,8 @@ setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 	touch .setup-completed
 	pip3 install requests
 
-refresh-data:
-	tools/query.py
+refresh-cms-data:
+	ts-node tools/verify-data.ts
 
 update:
 	$(ANDROID)/sdkmanager --update --verbose
@@ -54,18 +54,19 @@ platform-libraries:
 		mv $(NSSQLITE) backup/$(NSSQLITE);            \
 	fi
 
-android-release: setup refresh-data
+android-release: setup
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
 	jq '.nativescript.id = "com.fieldkit"' $(APP)/package.json > $(APP)/package.json.temp
 	mv $(APP)/package.json.temp $(APP)/package.json
 	npm install
+	$(MAKE) refresh-cms-data || true
 	$(MAKE) platform-libraries
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
 	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
-ios-release: setup refresh-data
+ios-release: setup
 	security list-keychains
 	security lock-keychain login.keychain
 	security unlock-keychain -p $(APP_IOS_KEYCHAIN_PASSWORD) login.keychain
@@ -74,6 +75,7 @@ ios-release: setup refresh-data
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
 	npm install
+	$(MAKE) refresh-cms-data || true
 	if [ -d $(APP)/platforms/ios ]; then                \
 		cd $(APP) && tns platform clean ios || true    ;\
 	else                                                \
@@ -91,12 +93,12 @@ android-logs:
 android-logs-verbose:
 	adb logcat | grep -i " JS"
 
-android-debug: setup refresh-data
+android-debug: setup
 	cd $(APP) && ns platform add android || true
 	$(MAKE) platform-libraries
 	cd $(APP) && ns debug android --bundle --no-hmr | grep -v NSVue
 
-ios-debug: setup refresh-data
+ios-debug: setup
 	cd $(APP) && ns platform add ios || true
 	$(MAKE) platform-libraries
 	cd $(APP) && ns debug ios --bundle --no-hmr | grep -v NSVue | grep -v boringssl

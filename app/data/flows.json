@@ -15,7 +15,7 @@
         "screens": [
             {
                 "id": "1",
-                "name": "onboarding.1",
+                "name": "onboarding.01",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip",
@@ -25,10 +25,13 @@
                 },
                 "simple": [
                     {
-                        "body": "Hey there friends! This is the first screen of onboarding! Get ready for a wild ride!",
+                        "body": "Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\nA) Upper board \nB) Lower board\nC) Module base \nD) Module board(s)\nE) Battery\nF) FieldKit Case\nG) Cable Plate\nH) Screws\nI) Micro USB cable\n\n+ Phillips screwdriver (not included)",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e444ba76b8.jpg"
+                            },
+                            {
+                                "url": "/uploads/TI_18_9cfa25c5fc.png"
                             }
                         ]
                     }
@@ -36,20 +39,26 @@
             },
             {
                 "id": "2",
-                "name": "onboarding.2",
+                "name": "onboarding.02",
                 "locale": "en_US",
                 "forward": "Next",
-                "skip": "Skip",
+                "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Set Up"
                 },
                 "simple": [
                     {
-                        "body": "You're doing great. Just keep looking and reading.",
+                        "body": "If not already pre-assembled, combine your upper and lower boards. Be sure to line up the pin headers and sockets. Then press them together firmly.",
                         "images": [
                             {
                                 "url": "/uploads/TI_2_A_112a78f350.jpg"
+                            },
+                            {
+                                "url": "/uploads/TI_19_23d1c3d3b8.png"
+                            },
+                            {
+                                "url": "/uploads/TI_2_B_9b35a3f7e6.jpg"
                             }
                         ]
                     }
@@ -57,42 +66,237 @@
             },
             {
                 "id": "3",
-                "name": "onboarding.3",
+                "name": "onboarding.03",
                 "locale": "en_US",
                 "forward": "Next",
-                "skip": "Skip",
+                "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Set Up"
                 },
                 "simple": [
                     {
-                        "body": "# Header Header\n\nNo image this time. I just want you to take in the zen experience of this text.\n\nNotice that this text has more formatting options:\n\n- Considering the effort.\n- Who knows if this will work.",
-                        "images": []
+                        "body": "Attach the combined upper and lower boards to the module base. You now have your FieldKit core.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_3_A_e2c8ce7917.png"
+                            },
+                            {
+                                "url": "/uploads/TI_3_B_128f1f4de9.png"
+                            }
+                        ]
                     }
                 ]
             },
             {
                 "id": "4",
-                "name": "onboarding.4",
+                "name": "onboarding.04",
                 "locale": "en_US",
-                "forward": "Done",
-                "skip": "",
+                "forward": "Next",
+                "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Set Up"
                 },
                 "simple": [
                     {
-                        "body": "Let's put this thing together! Snap 'em like so.",
+                        "body": "Attach your individual module boards to the module base, and secure them with screws.",
                         "images": [
                             {
-                                "url": "/uploads/TI_3_B_71826b14a9.jpg"
+                                "url": "/uploads/TI_4_A_e9dc955a94.jpg"
                             },
                             {
-                                "url": "/uploads/TI_3_A_8ed4a5e981.jpg"
+                                "url": "/uploads/TI_4_B_8d208f1547.jpg"
                             }
                         ]
+                    }
+                ]
+            },
+            {
+                "id": "5",
+                "name": "onboarding.05",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Place your assembled components inside the case. Secure everything down with screws so it doesn't move around.\n\nNote: You'll have to temporarily lift off the upper board to reach one of the screw holes in the lower board.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_5_A_ccf0984f18.png"
+                            },
+                            {
+                                "url": "/uploads/TI_5_B_920a8e61b4.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "6",
+                "name": "onboarding.06",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Insert the battery cable to the top left of the upper board where it says “BATTERY”.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_6_A_501dfaea02.png"
+                            },
+                            {
+                                "url": "/uploads/TI_6_B_6405844cdc.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "7",
+                "name": "onboarding.07",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Insert the button cable to the top right of the upper board where it says “BTN”.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_7_A_836b705122.png"
+                            },
+                            {
+                                "url": "/uploads/TI_7_B_4470d5694e.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "8",
+                "name": "onboarding.08",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Screw the glands or connectors into the cable plate. The number of holes depends on your sensor/power configuration.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_21_1c7cdf7182.png"
+                            },
+                            {
+                                "url": "/uploads/TI_22_89ef0f77bf.png"
+                            },
+                            {
+                                "url": "/uploads/TI_23_f4df431734.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "9",
+                "name": "onboarding.09",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Plug it in to charge the battery from a power source. ",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_8_A_78b8c9b87a.png"
+                            },
+                            {
+                                "url": "/uploads/TI_8_B_f3f2eaff13.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "10",
+                "name": "onboarding.10",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Screw the cable plate onto the case.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_25_150740cf20.png"
+                            },
+                            {
+                                "url": "/uploads/TI_24_a4a37e4c0f.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "11",
+                "name": "onboarding.11",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Flip the switch to the “ON” position. Leave micro USB cable plugged in until the battery reads fully charged.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_15_A_NEW_x2_9759453cc0.png"
+                            },
+                            {
+                                "url": "/uploads/TI_15_B_NEW_x2_05f6fd4bb9.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "12",
+                "name": "onboarding.12",
+                "locale": "en_US",
+                "forward": "Done",
+                "skip": null,
+                "header": {
+                    "title": "Onboarding",
+                    "subtitle": "Set Up"
+                },
+                "simple": [
+                    {
+                        "body": "Station Assembled",
+                        "images": []
                     }
                 ]
             }

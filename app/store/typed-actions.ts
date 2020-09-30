@@ -1,5 +1,6 @@
 import * as ActionTypes from "./actions";
 import { ServiceInfo } from "@/store/types";
+import { HttpStatusReply } from "@/store/http_reply";
 
 export class AddStationNetworkAction {
     type = ActionTypes.CONFIGURE_STATION_NETWORK;
@@ -26,3 +27,9 @@ export class RemoteNoteMediaAction {
     constructor(public readonly stationId: number, public readonly key: string | null, public readonly audio: NoteMedia) {}
 }
 */
+
+export class StationRepliedAction {
+    type = ActionTypes.STATION_REPLY;
+
+    constructor(public readonly statusReply: HttpStatusReply, public readonly url: string) {}
+}

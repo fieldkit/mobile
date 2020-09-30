@@ -1,12 +1,11 @@
 import _ from "lodash";
-import Promise from "bluebird";
 import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import { Services, ServiceRef } from "./utilities";
-import { AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
+import { StationRepliedAction, AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
 
 import { backOff } from "exponential-backoff";
 
@@ -30,10 +29,14 @@ export class NearbyState {
 type ActionParameters = { commit: any; dispatch: any; state: NearbyState };
 
 const actions = {
-    [ActionTypes.SCAN_FOR_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
-        return state.services.discovery().restart();
+    [ActionTypes.SCAN_FOR_STATIONS]: async ({ dispatch, state }: ActionParameters) => {
+        await state.services.discovery().restart();
+        const candidates = await state.services.db().queryRecentlyActiveAddresses();
+        const offline = candidates;
+        const tries = offline.map((candidate) => dispatch(ActionTypes.TRY_STATION_ONCE, new TryStationAction(candidate)));
+        return await Promise.all(tries);
     },
-    [ActionTypes.REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
+    [ActionTypes.REFRESH]: ({ dispatch, state }: ActionParameters) => {
         const now = new Date();
         return Promise.all(
             Object.values(state.stations).map((nearby) => {
@@ -43,15 +46,13 @@ const actions = {
                 }
                 return {};
             })
-        ).then(() => {
-            return dispatch(ActionTypes.QUERY_NECESSARY);
-        });
+        ).then(() => dispatch(ActionTypes.QUERY_NECESSARY));
     },
     [ActionTypes.FOUND]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
         commit(MutationTypes.FIND, info);
         return dispatch(ActionTypes.QUERY_STATION, info);
     },
-    [ActionTypes.MAYBE_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+    [ActionTypes.MAYBE_LOST]: ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
         const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
         if (info && !info.transferring) {
             return dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
@@ -66,28 +67,26 @@ const actions = {
         }
         return;
     },
-    [ActionTypes.TRY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
+    [ActionTypes.TRY_STATION_ONCE]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
         if (!payload) throw new Error("payload required");
         if (!payload.info) throw new Error("payload.info required");
-        return backOff(() =>
-            state.services
-                .queryStation()
-                .takeReadings(payload.info.url, state.location)
-                .then(
-                    (statusReply) => {
-                        commit(MutationTypes.FIND, payload.info);
-                        commit(MutationTypes.STATION_QUERIED, payload.info);
-                        commit(MutationTypes.STATION_ACTIVITY, payload.info);
-                        return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
-                    },
-                    {
-                        maxDelay: 60000,
-                        numOfAttempts: 10,
-                        startingDelay: 250,
-                    }
-                )
-        ).catch(() => {
-            console.log("try-station failed", payload.info);
+        return state.services
+            .queryStation()
+            .takeReadings(payload.info.url, state.location)
+            .then((statusReply) => {
+                commit(MutationTypes.FIND, payload.info);
+                commit(MutationTypes.STATION_QUERIED, payload.info);
+                commit(MutationTypes.STATION_ACTIVITY, payload.info);
+                return dispatch(new StationRepliedAction(statusReply, payload.info.url), { root: true });
+            });
+    },
+    [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
+        if (!payload) throw new Error("payload required");
+        if (!payload.info) throw new Error("payload.info required");
+        return await backOff(() => dispatch(ActionTypes.TRY_STATION_ONCE, payload), {
+            maxDelay: 60000,
+            numOfAttempts: 10,
+            startingDelay: 250,
         });
     },
     [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
@@ -98,11 +97,11 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
-                    if (error instanceof QueryThrottledError) {
-                        console.log(error.message);
+                    if (QueryThrottledError.isInstance(error)) {
+                        console.log("query-stationi:warning", error.message);
                         return Promise.resolve();
                     }
                     return Promise.reject(error);
@@ -155,7 +154,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -184,7 +183,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -209,7 +208,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -230,7 +229,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {
@@ -251,7 +250,7 @@ const actions = {
             .then(
                 (statusReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(ActionTypes.STATION_REPLY, statusReply, { root: true });
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
                     if (error instanceof QueryThrottledError) {

@@ -3,6 +3,7 @@ export const INITIALIZE = "INITIALIZE";
 export const LOAD = "LOAD";
 export const SAVE = "SAVE";
 export const UPDATE = "SAVE";
+export const LOAD_STATIONS = "LOAD_STATIONS";
 export const STATIONS_LOADED = "STATIONS_LOADED";
 
 export const FOUND = "FOUND";
@@ -14,6 +15,7 @@ export const QUERY_ALL = "QUERY_ALL";
 export const QUERY_NECESSARY = "QUERY_NECESSARY";
 export const QUERY_STATION = "QUERY_STATION";
 export const TRY_STATION = "TRY_STATION";
+export const TRY_STATION_ONCE = "TRY_STATION_ONCE";
 export const STATION_REPLY = "STATION_REPLY";
 
 export const STATION_PORTAL_ERROR = "STATION_PORTAL_ERROR";

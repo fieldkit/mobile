@@ -48,7 +48,7 @@ const actions = {
                 commit(MutationTypes.LOAD_ACCOUNTS, accounts);
                 const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
                 if (sorted.length > 0) {
-                    console.log("currentUser", sorted);
+                    console.log("currentUser", sorted); // PRIVACY ANONYMIZE
                     state.services.portal().setCurrentUser(sorted[0]);
                     commit(SET_CURRENT_USER, sorted[0]);
                 }

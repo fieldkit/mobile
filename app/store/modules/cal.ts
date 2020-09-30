@@ -3,7 +3,7 @@ import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Station, ServiceInfo } from "../types";
-import { HttpStatusReply } from "../http_reply";
+import { StationRepliedAction } from "@/store/typed-actions";
 import { Services, ServiceRef } from "./utilities";
 import CalibrationService from "@/services/calibration-service";
 
@@ -75,9 +75,9 @@ const actions = {
 
         return commit(CALIBRATION_REFRESH, updating);
     },
-    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, statusReply: HttpStatusReply) => {
+    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
         const updating = _.fromPairs(
-            statusReply.modules.map((m) => {
+            payload.statusReply.modules.map((m) => {
                 if (m.status) {
                     return [m.deviceId, m.status];
                 }

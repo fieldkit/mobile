@@ -3,10 +3,12 @@ import { describe, expect, it } from "@jest/globals";
 import { Services } from "../services/services";
 import { prepareReply } from "../services/query-station";
 import { MockStationReplies } from "./utilities";
-import * as ActionTypes from "../store/actions";
-import * as MutationTypes from "../store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
-import { PhoneLocation, CommonLocations } from "../store/types";
+
+import * as ActionTypes from "@/store/actions";
+import * as MutationTypes from "@/store/mutations";
+import { PhoneLocation, CommonLocations } from "@/store/types";
+import { StationRepliedAction } from "@/store/typed-actions";
 
 import { nearby } from "@/store/modules/nearby";
 
@@ -277,8 +279,8 @@ describe("Store", () => {
             const reply1 = prepareReply(mockStation.newFakeStatusReply(station1, locationToGpsStatus(CommonLocations.ConservifyLab)));
             const reply2 = prepareReply(mockStation.newFakeStatusReply(station2, locationToGpsStatus(CommonLocations.DowntownLA)));
 
-            await store.dispatch(ActionTypes.STATION_REPLY, reply1);
-            await store.dispatch(ActionTypes.STATION_REPLY, reply2);
+            await store.dispatch(new StationRepliedAction(reply1, "http://10.0.01/fk/v1"));
+            await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             expect(Object.keys(store.state.map.stations).length).toBe(2);
             expect(store.state.map.stations[station1.deviceId].location).toEqual(CommonLocations.ConservifyLab.location());

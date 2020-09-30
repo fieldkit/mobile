@@ -3,12 +3,10 @@ import { describe, expect, it } from "@jest/globals";
 import { Services } from "../services/services";
 import { prepareReply } from "../services/query-station";
 import { MockStationReplies } from "./utilities";
-import * as ActionTypes from "../store/actions";
-import * as MutationTypes from "../store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
 
-// import { FileTypeUtils, FileType } from "../store/types";
-// import { Firmware } from "../store/modules/firmware";
+import * as MutationTypes from "@/store/mutations";
+import { StationRepliedAction } from "@/store/typed-actions";
 
 function addFakeFirmware(services: Services) {
     services.PortalInterface().listFirmware = jest.fn((_) => {
@@ -75,8 +73,8 @@ describe("Firmware", () => {
             expect.assertions(1);
 
             const fake = [mockStation.newFakeStation(), mockStation.newFakeStation()];
-            await store.dispatch(ActionTypes.STATION_REPLY, prepareReply(mockStation.newFakeStatusReply(fake[0])));
-            await store.dispatch(ActionTypes.STATION_REPLY, prepareReply(mockStation.newFakeStatusReply(fake[1])));
+            await store.dispatch(new StationRepliedAction(prepareReply(mockStation.newFakeStatusReply(fake[0])), "http://10.0.01/fk/v1"));
+            await store.dispatch(new StationRepliedAction(prepareReply(mockStation.newFakeStatusReply(fake[1])), "http://10.0.01/fk/v1"));
 
             await addFakeFirmware(services);
 

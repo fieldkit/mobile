@@ -33,7 +33,8 @@
                 </StackLayout>
                 <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
-                <Button class="btn btn-primary btn-padded" :text="'Onboarding'" @tap="goOnboarding" />
+                <Button class="btn btn-primary btn-padded" :text="'Onboarding Flow'" @tap="goOnboardingFlow" />
+                <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" />
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" />
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
 
@@ -220,6 +221,13 @@ export default Vue.extend({
             return Services.Database()
                 .updateConfigUris(params)
                 .then(() => Services.PortalInterface().logout());
+        },
+        goOnboardingFlow(this: any) {
+            return this.$navigateTo(routes.reader.flow, {
+                props: {
+                    flowName: "onboarding",
+                },
+            });
         },
         goOnboarding(this: any) {
             return this.$navigateTo(routes.onboarding.assembleStation);

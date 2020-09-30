@@ -140,13 +140,15 @@ export class Stream {
         s.portalFirstBlock = o.portalFirstBlock;
         s.portalLastBlock = o.portalLastBlock;
         s.updated = new Date(o.updated);
-        console.log(
-            "StreamRow",
-            o.stationId,
-            [o.deviceFirstBlock, o.deviceLastBlock],
-            [o.downloadFirstBlock, o.downloadLastBlock],
-            [o.portalFirstBlock, o.portalLastBlock]
-        );
+        if (false) {
+            console.log(
+                "StreamRow",
+                o.stationId,
+                [o.deviceFirstBlock, o.deviceLastBlock],
+                [o.downloadFirstBlock, o.downloadLastBlock],
+                [o.portalFirstBlock, o.portalLastBlock]
+            );
+        }
         return s;
     }
 
@@ -495,7 +497,7 @@ export class CommonLocations {
 }
 
 export class PhoneNetwork {
-    constructor(public readonly ssid: string | null = null) {}
+    constructor(public readonly ssid: string | null, public readonly wifi: boolean = false) {}
 }
 
 export class OpenProgressPayload {

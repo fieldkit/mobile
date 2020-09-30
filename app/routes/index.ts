@@ -23,12 +23,13 @@ import AddWifiNetwork from "../components/onboarding/AddWifi.vue";
 
 import DeployMap from "../components/deploy/DeployMapView.vue";
 import DeployNotes from "../components/deploy/DeployNotesView.vue";
+import EditNoteView from "../components/deploy/EditNoteView.vue";
 import DeployReview from "../components/deploy/DeployReviewView.vue";
 
 import AppSettingsData from "../components/AppSettingsDataView.vue";
 import AppSettingsNotifications from "../components/AppSettingsNotificationsView.vue";
 
-import FlowView from "@/reader/FlowView";
+import FlowView from "@/reader/FlowView.vue";
 
 import { Route } from "./navigate";
 import AppSettingsPermissions from "~/components/AppSettingsPermissionsView.vue";
@@ -55,8 +56,8 @@ const routes = {
         units: new Route(AppSettingsUnits, { clear: true }),
         notifications: new Route(AppSettingsNotifications, { clear: true }),
         permissions: new Route(AppSettingsPermissions, { clear: true }),
-        account: new Route(AppSettingsAccount, {clear: true}),
-        accountAdd: new Route(AppSettingsAccountAdd, {clear: true}),
+        account: new Route(AppSettingsAccount, { clear: true }),
+        accountAdd: new Route(AppSettingsAccountAdd, { clear: true }),
         appearance: new Route(AppSettingsAppearance, { clear: true }),
         appearanceFontSize: new Route(AppSettingsAppearanceFontSize, { clear: true }),
         appearanceLanguage: new Route(AppSettingsAppearanceLanguage, { clear: true }),
@@ -89,6 +90,7 @@ const routes = {
     deploy: {
         start: new Route(DeployMap, { connected: true }),
         notes: new Route(DeployNotes, { connected: true }),
+        editing: new Route(EditNoteView, { connected: true }),
         review: new Route(DeployReview, { connected: true }),
     },
     calibration: {

@@ -152,7 +152,7 @@ export default Vue.extend({
         goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(routes.deploy.notes, {
+                this.$navigateBack({
                     props: {
                         stationId: this.stationId,
                     },
