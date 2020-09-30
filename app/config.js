@@ -65,7 +65,7 @@ function get_config() {
         env: {
             dev: /^dev/.test(TNS_ENV),
             test: /^test/.test(TNS_ENV),
-            developer: !/^test/.test(TNS_ENV) && CONFIG.env === true,
+            developer: !/^test/.test(TNS_ENV) && CONFIG.dev === true,
         },
     };
     if (TNS_ENV === "test") {

@@ -156,7 +156,7 @@ function initializeApplication(services): Promise<any> {
                                             .then(() => resumeSession(Services))
                                             .then(() => restartDiscovery(Services.DiscoverStation()))
                                             .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
-                                    );
+										 );
                             })
                     )
                     .catch((err) => {
@@ -188,7 +188,8 @@ export default class StartupScreen extends Vue {
     onPageLoaded(args): Promise<any> {
         console.log("startup loaded");
         return initializeApplication(Services).then(() => {
-            if (Config.env.developer) {
+			console.log("developer", Config.env.developer);
+			if (Config.env.developer) {
                 /*
                 return this.$navigateTo(routes.internal.calibrate, {
                     props: {
@@ -213,10 +214,6 @@ export default class StartupScreen extends Vue {
                 return this.$navigateTo(routes.developerMenu, {
                     props: {},
                 });
-                return this.$navigateTo(routes.stations, {
-                    props: {},
-                });
-				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
                     return this.$navigateTo(routes.deploy.start, {
                         // return this.$navigateTo(routes.deploy.notes, {
@@ -231,6 +228,11 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+				*/
+				console.log("developer")
+                return this.$navigateTo(routes.stations, {
+                    props: {},
+                });
             }
 
             console.log("first navigate");
