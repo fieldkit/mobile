@@ -45,7 +45,13 @@
             />
         </StackLayout>
         <StackLayout row="1" col="1" class="duration-container" verticalAlignment="bottom">
-            <DropDown class="drop-down" :items="items" :selectedIndex="indexOf(form.duration)" @selectedIndexChanged="onDurationChange" v-if="items" />
+            <DropDown
+                class="drop-down"
+                :items="items"
+                :selectedIndex="indexOf(form.duration)"
+                @selectedIndexChanged="onDurationChange"
+                v-if="items"
+            />
         </StackLayout>
 
         <StackLayout row="2" colSpan="2" class="summary-container" v-if="false">
@@ -57,7 +63,7 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { ValueList } from "nativescript-drop-down";
+import { ValueList } from "@proplugins/nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
 import { Interval } from "@/store/types";
 
@@ -122,7 +128,7 @@ export default Vue.extend({
     },
     mounted(this: Self) {
         console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay);
-        this.items = new ValueList(this.durations)
+        this.items = new ValueList(this.durations);
         return this.updateForm(this.interval);
     },
     methods: {
