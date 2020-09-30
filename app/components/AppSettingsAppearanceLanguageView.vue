@@ -1,8 +1,14 @@
 <template>
     <Page class="page" actionBarHidden="true">
         <GridLayout rows="75,*,55">
-            <ScreenHeader row="0" :title="_L('appSettings.appearance.language')" :canNavigateBack="true"
-                          :canNavigateSettings="false" :onBack="goBack" class="m-t-10 m-r-20 m-l-20"/>
+            <ScreenHeader
+                row="0"
+                :title="_L('appSettings.appearance.language')"
+                :canNavigateBack="true"
+                :canNavigateSettings="false"
+                :onBack="goBack"
+                class="m-t-10 m-r-20 m-l-20"
+            />
             <ScrollView row="1" class="m-r-20 m-l-20">
                 <StackLayout orientation="vertical">
                     <GridLayout columns="30,*" class="top-bordered-item p-t-30 p-b-10" @tap="selectLanguage('en')">
@@ -18,8 +24,7 @@
                             boxType="circle"
                             @tap="selectLanguage('en')"
                         />
-                        <Label row="0" col="1" class="size-16 m-t-5 m-l-5"
-                               :text="_L('appSettings.appearance.english')"></Label>
+                        <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="_L('appSettings.appearance.english')"></Label>
                     </GridLayout>
                     <GridLayout columns="30,*" class="p-t-10 p-b-10" @tap="selectLanguage('es')">
                         <CheckBox
@@ -34,8 +39,7 @@
                             boxType="circle"
                             @tap="selectLanguage('es')"
                         />
-                        <Label row="0" col="1" class=" size-16 m-t-5 m-l-5"
-                               :text="_L('appSettings.appearance.spanish')"></Label>
+                        <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="_L('appSettings.appearance.spanish')"></Label>
                     </GridLayout>
                     <GridLayout columns="30,*" class="p-t-10 p-b-10 p-l-1" @tap="selectLanguage('cz')">
                         <CheckBox
@@ -50,12 +54,11 @@
                             boxType="circle"
                             @tap="selectLanguage('cz')"
                         />
-                        <Label row="0" col="1" class="size-16 m-t-5 m-l-5"
-                               :text="_L('appSettings.appearance.chinese')"></Label>
+                        <Label row="0" col="1" class="size-16 m-t-5 m-l-5" :text="_L('appSettings.appearance.chinese')"></Label>
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="2" active="settings"/>
+            <ScreenFooter row="2" active="settings" />
         </GridLayout>
     </Page>
 </template>
@@ -68,8 +71,7 @@ import ScreenFooter from "./ScreenFooter.vue";
 import * as animations from "~/components/animations";
 import routes from "@/routes";
 import Promise from "bluebird";
-import {isIOS} from "tns-core-modules/platform";
-
+import { isIOS } from "tns-core-modules/platform";
 
 export default Vue.extend({
     computed: {
@@ -78,27 +80,24 @@ export default Vue.extend({
         },
         isIOS() {
             return isIOS;
-        }
+        },
     },
     components: {
         ScreenHeader,
-        ScreenFooter
+        ScreenFooter,
     },
     methods: {
         saveSettings() {
             this.$store.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         goBack(this: any, ev) {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.appSettings.appearance, {}),
-            ]);
+            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.appearance, {})]);
         },
         selectLanguage(language) {
             this.currentSettings.appearance.language = language;
             this.saveSettings();
-        }
-    }
+        },
+    },
 });
 </script>
 <style scoped lang="scss">
