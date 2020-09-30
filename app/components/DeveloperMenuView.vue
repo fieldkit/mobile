@@ -54,7 +54,6 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
-import { crashlytics, analytics } from "@nativescript/firebase";
 import { Dialogs, knownFolders } from "@nativescript/core";
 import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
 import Config from "@/config";
@@ -71,6 +70,8 @@ import SharedComponents from "@/components/shared";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 
 import { testWithFiles } from "@/lib/testing";
+
+const firebase = require("@nativescript/firebase");
 
 export default Vue.extend({
     data(this: any) {
@@ -321,13 +322,13 @@ export default Vue.extend({
         },
         crash(this: any) {
             console.log("send crash");
-            crashlytics.crash();
+            firebase.crashlytics.crash();
         },
         manualCrash(this: any) {
             console.log("send manual crash");
             const globalAny: any = global;
-            crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
-            analytics.logEvent({
+            firebase.crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
+            firebase.analytics.logEvent({
                 key: "app_crash_manual",
             });
         },

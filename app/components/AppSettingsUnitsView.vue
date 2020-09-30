@@ -204,8 +204,7 @@ import SettingsItemText from "./SettingsItemText.vue";
 import * as animations from "~/components/animations";
 import routes from "@/routes";
 import Promise from "bluebird";
-import { Label } from "tns-core-modules/ui/label";
-import { isAndroid, isIOS } from "tns-core-modules/platform";
+import { isAndroid, isIOS, Label } from "@nativescript/core";
 
 export default Vue.extend({
     computed: {

@@ -5,7 +5,6 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { isAndroid } from "@nativescript/core";
-import { firebase, analytics, crashlytics } from "@nativescript/firebase";
 
 import registerLifecycleEvents from "@/services/lifecycle";
 import Services from "@/services/services";
@@ -19,6 +18,8 @@ import { Route } from "@/routes/navigate";
 import Config from "@/config";
 import { ProcessAllStationsTask } from "@/lib/process";
 
+const firebase = require("@nativescript/firebase");
+
 function initializeFirebase(services): Promise<any> {
     console.log("initialize:firebase");
     return firebase
@@ -27,7 +28,7 @@ function initializeFirebase(services): Promise<any> {
         })
         .then((response) => {
             const globalAny: any = global;
-            crashlytics.setString("env", globalAny.TNS_ENV);
+            firebase.crashlytics.setString("env", globalAny.TNS_ENV);
             console.log("firebase:initialized", response);
             return Promise.resolve(true);
         })
@@ -115,7 +116,7 @@ function initializeApplication(services): Promise<any> {
 
     return initializeFirebase(services).then(() => {
         console.log("firebase:app_open");
-        return analytics
+        return firebase.analytics
             .logEvent({
                 key: "app_open",
             })

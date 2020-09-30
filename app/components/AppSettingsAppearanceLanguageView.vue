@@ -71,7 +71,7 @@ import ScreenFooter from "./ScreenFooter.vue";
 import * as animations from "~/components/animations";
 import routes from "@/routes";
 import Promise from "bluebird";
-import { isIOS } from "tns-core-modules/platform";
+import { isIOS } from "@nativescript/core";
 
 export default Vue.extend({
     computed: {

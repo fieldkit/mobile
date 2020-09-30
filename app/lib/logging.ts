@@ -2,11 +2,11 @@ import _ from "lodash";
 import moment from "moment";
 import Promise from "bluebird";
 import { Trace, knownFolders } from "@nativescript/core";
-import Firebase from "@nativescript/firebase";
-import { crashlytics } from "@nativescript/firebase";
 import Vue from "nativescript-vue";
 import { AuthenticationError } from "./errors";
 import Config from "../config";
+
+const firebase = require("@nativescript/firebase");
 
 const SaveInterval = 10000;
 const logs: string[][] = [];
@@ -121,7 +121,7 @@ function wrapLoggingMethod(method) {
             // Send string only representations to Crashlytics,
             // removing time since they do that for us.
             parts.shift();
-            crashlytics.log(scrubMessage(parts.join(" ")));
+            firebase.crashlytics.log(scrubMessage(parts.join(" ")));
 
             errors.forEach((error) => {
                 // crashlytics.error(error);
@@ -136,7 +136,7 @@ function configureGlobalErrorHandling() {
     try {
         Trace.setErrorHandler({
             handlerError(err) {
-                Firebase.analytics.logEvent({
+                firebase.analytics.logEvent({
                     key: "app_error",
                 });
                 console.log("error", err, err ? err.stack : null);
