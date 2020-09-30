@@ -100,8 +100,8 @@ const actions = {
                     return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                 },
                 (error) => {
-                    if (error instanceof QueryThrottledError) {
-                        console.log(error.message);
+                    if (QueryThrottledError.isInstance(error)) {
+                        console.log("query-stationi:warning", error.message);
                         return Promise.resolve();
                     }
                     return Promise.reject(error);

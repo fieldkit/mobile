@@ -73,6 +73,10 @@ function customizeLogger() {
             if (action.type == ActionTypes.REFRESH) {
                 return false;
             }
+            if (action.type == ActionTypes.TRY_STATION_ONCE) {
+                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                return false;
+            }
             if (action.type == ActionTypes.QUERY_NECESSARY) {
                 return false;
             }
