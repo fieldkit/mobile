@@ -41,7 +41,7 @@ import Vue from "vue";
 import Promise from "bluebird";
 import routes from "@/routes";
 import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
-import { isIOS } from "tns-core-modules/platform";
+import { isIOS } from "@nativescript/core";
 
 import { AvailableStation } from "@/store/types";
 

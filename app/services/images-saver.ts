@@ -1,7 +1,6 @@
 import _ from "lodash";
-import { path, knownFolders } from "tns-core-modules/file-system";
-import { getPathTimestamp } from "../utilities";
-import { ImageSource } from "tns-core-modules/image-source";
+import { ImageSource, path, knownFolders } from "@nativescript/core";
+import { getPathTimestamp } from "@/utilities";
 import { IncomingImage, SavedImage } from "./types";
 
 export default class ImagesSaver {

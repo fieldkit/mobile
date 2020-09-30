@@ -1,10 +1,9 @@
 import _ from "lodash";
 import moment from "moment";
 import Promise from "bluebird";
-import { knownFolders } from "tns-core-modules/file-system";
-import { Trace } from "@nativescript/core";
-import Firebase from "nativescript-plugin-firebase";
-import { crashlytics } from "nativescript-plugin-firebase";
+import { Trace, knownFolders } from "@nativescript/core";
+import Firebase from "@nativescript/firebase";
+import { crashlytics } from "@nativescript/firebase";
 import Vue from "nativescript-vue";
 import { AuthenticationError } from "./errors";
 import Config from "../config";

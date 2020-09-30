@@ -1,8 +1,6 @@
 import _ from "lodash";
 import Promise from "bluebird";
-import { Folder, knownFolders } from "tns-core-modules/file-system";
-import * as utils from "tns-core-modules/utils/utils";
-import * as platform from "tns-core-modules/platform";
+import { Folder, knownFolders, isAndroid, Utils } from "@nativescript/core";
 
 function recurse(f: any, depth: number, callback) {
     return f.getEntities().then((entities) => {
@@ -57,8 +55,8 @@ export function dumpAllFiles() {
 }
 
 export function getDatabasePath(name: string) {
-    if (platform.isAndroid) {
-        const context = utils.ad.getApplicationContext();
+    if (isAndroid) {
+        const context = Utils.ad.getApplicationContext();
         return context.getDatabasePath(name).getAbsolutePath();
     }
 

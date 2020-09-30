@@ -54,15 +54,13 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
-import Firebase from "nativescript-plugin-firebase";
-import { crashlytics } from "nativescript-plugin-firebase";
-import * as dialogs from "tns-core-modules/ui/dialogs";
-import { knownFolders } from "tns-core-modules/file-system";
+import { crashlytics, analytics } from "@nativescript/firebase";
+import { Dialogs, knownFolders } from "@nativescript/core";
 import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
 import Config from "@/config";
 import routes from "@/routes";
 import Services from "@/services/services";
-import Recalibrate from "./onboarding/Recalibrate";
+import Recalibrate from "./onboarding/Recalibrate.vue";
 import AppSettings from "@/wrappers/app-settings";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
@@ -236,18 +234,16 @@ export default Vue.extend({
             const appSettings = new AppSettings();
             appSettings.remove("completedSetup");
             appSettings.remove("skipCount");
-            dialogs
-                .confirm({
-                    title: _L("resetDoneGoToOnboarding"),
-                    okButtonText: _L("yes"),
-                    cancelButtonText: _L("no"),
-                })
-                .then((result) => {
-                    if (result) {
-                        // navigate to onboarding
-                        this.$navigateTo(routes.onboarding.assembleStation);
-                    }
-                });
+            Dialogs.confirm({
+                title: _L("resetDoneGoToOnboarding"),
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("no"),
+            }).then((result) => {
+                if (result) {
+                    // navigate to onboarding
+                    this.$navigateTo(routes.onboarding.assembleStation);
+                }
+            });
         },
         uploadDiagnostics(this: any) {
             this.$showModal(DiagnosticsModal, {
@@ -331,7 +327,7 @@ export default Vue.extend({
             console.log("send manual crash");
             const globalAny: any = global;
             crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
-            Firebase.analytics.logEvent({
+            analytics.logEvent({
                 key: "app_crash_manual",
             });
         },

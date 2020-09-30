@@ -17,7 +17,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { isIOS } from "tns-core-modules/platform";
+import { isIOS } from "@nativescript/core";
 
 export default Vue.extend({
     name: "ScreenHeader",

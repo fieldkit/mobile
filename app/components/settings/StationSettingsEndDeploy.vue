@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import * as dialogs from "tns-core-modules/ui/dialogs";
+import { Dialogs } from "@nativescript/core";
 import routes from "../../routes";
 
 import SharedComponents from "@/components/shared";
@@ -86,17 +86,15 @@ export default Vue.extend({
         },
         stopRecording(this: any, event) {
             const station = this.$store.getters.legacyStations[this.stationId];
-            return dialogs
-                .confirm({
-                    title: _L("areYouSureStopRecording"),
-                    okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel"),
-                })
-                .then((yes) => {
-                    if (yes) {
-                        return this.$store.dispatch(ActionTypes.END_STATION_DEPLOYMENT, { deviceId: station.deviceId });
-                    }
-                });
+            return Dialogs.confirm({
+                title: _L("areYouSureStopRecording"),
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("cancel"),
+            }).then((yes) => {
+                if (yes) {
+                    return this.$store.dispatch(ActionTypes.END_STATION_DEPLOYMENT, { deviceId: station.deviceId });
+                }
+            });
         },
     },
 });

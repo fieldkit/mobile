@@ -43,7 +43,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import * as dialogs from "tns-core-modules/ui/dialogs";
+import { Dialogs } from "@nativescript/core";
 import routes from "@/routes";
 import * as animations from "./animations";
 
@@ -93,12 +93,11 @@ export default Vue.extend({
 
             this.busy = true;
 
-            return dialogs
-                .confirm({
-                    title: _L("confirmViewDevMenu"),
-                    okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel"),
-                })
+            return Dialogs.confirm({
+                title: _L("confirmViewDevMenu"),
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("cancel"),
+            })
                 .then((yes) => {
                     if (yes) {
                         return this.$navigateTo(routes.developerMenu);

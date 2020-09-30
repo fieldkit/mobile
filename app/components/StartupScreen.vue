@@ -3,9 +3,9 @@
 </template>
 
 <script lang="ts">
-import Firebase from "nativescript-plugin-firebase";
-import { crashlytics } from "nativescript-plugin-firebase";
 import { Component, Vue } from "vue-property-decorator";
+import { isAndroid } from "@nativescript/core";
+import { firebase, analytics, crashlytics } from "@nativescript/firebase";
 
 import registerLifecycleEvents from "@/services/lifecycle";
 import Services from "@/services/services";
@@ -13,7 +13,6 @@ import AppSettings from "@/wrappers/app-settings";
 import Sqlite from "@/wrappers/sqlite";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
-import * as platform from "tns-core-modules/platform";
 import { promiseAfter } from "@/utilities";
 import routes from "@/routes";
 import { Route } from "@/routes/navigate";
@@ -22,9 +21,10 @@ import { ProcessAllStationsTask } from "@/lib/process";
 
 function initializeFirebase(services): Promise<any> {
     console.log("initialize:firebase");
-    return Firebase.init({
-        crashlyticsCollectionEnabled: true,
-    })
+    return firebase
+        .init({
+            crashlyticsCollectionEnabled: true,
+        })
         .then((response) => {
             const globalAny: any = global;
             crashlytics.setString("env", globalAny.TNS_ENV);
@@ -89,7 +89,7 @@ function downloadDatabase(services: Services, url: string): Promise<void> {
         console.log("progress", total, copied);
     };
 
-    const folder = Services.FileSystem().getFolder(platform.isAndroid ? "app" : "");
+    const folder = Services.FileSystem().getFolder(isAndroid ? "app" : "");
     const name = "fieldkit.sqlite3";
     const destination = folder.getFile(name);
 
@@ -115,7 +115,7 @@ function initializeApplication(services): Promise<any> {
 
     return initializeFirebase(services).then(() => {
         console.log("firebase:app_open");
-        return Firebase.analytics
+        return analytics
             .logEvent({
                 key: "app_open",
             })
@@ -156,7 +156,7 @@ function initializeApplication(services): Promise<any> {
                                             .then(() => resumeSession(Services))
                                             .then(() => restartDiscovery(Services.DiscoverStation()))
                                             .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
-										 );
+                                    );
                             })
                     )
                     .catch((err) => {
@@ -188,8 +188,8 @@ export default class StartupScreen extends Vue {
     onPageLoaded(args): Promise<any> {
         console.log("startup loaded");
         return initializeApplication(Services).then(() => {
-			console.log("developer", Config.env.developer);
-			if (Config.env.developer) {
+            console.log("developer", Config.env.developer);
+            if (Config.env.developer) {
                 /*
                 return this.$navigateTo(routes.internal.calibrate, {
                     props: {
@@ -229,7 +229,7 @@ export default class StartupScreen extends Vue {
                     console.log("no test station");
                 }
 				*/
-				console.log("developer")
+                console.log("developer");
                 return this.$navigateTo(routes.stations, {
                     props: {},
                 });

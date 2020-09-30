@@ -89,7 +89,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { getLastSeen, convertBytesToLabel } from "../utilities";
-import { AnimationCurve } from "tns-core-modules/ui/enums";
+import { Enums } from "@nativescript/core";
 import { Timer } from "@/common/timer";
 
 export default Vue.extend({
@@ -132,13 +132,13 @@ export default Vue.extend({
                         .animate({
                             scale: { x: 1, y: 1 },
                             duration: 750,
-                            curve: AnimationCurve.easeOut,
+                            curve: Enums.AnimationCurve.easeOut,
                         })
                         .then(() => {
                             return this.outer.animate({
                                 scale: { x: 0.96, y: 0.96 },
                                 duration: 500,
-                                curve: AnimationCurve.easeIn,
+                                curve: Enums.AnimationCurve.easeIn,
                             });
                         });
                 }

@@ -1,7 +1,6 @@
+import { isAndroid, path, knownFolders } from "@nativescript/core";
 import { AudioPlayerOptions, AudioRecorderOptions, TNSPlayer, TNSRecorder } from "nativescript-audio";
-import { path, knownFolders } from "tns-core-modules/file-system";
-import * as platform from "tns-core-modules/platform";
-import { getPathTimestamp } from "../utilities";
+import { getPathTimestamp } from "@/utilities";
 
 export class NoRecordingAllowedError extends Error {
     constructor() {
@@ -21,7 +20,7 @@ export default class AudioInterface {
         this.recorder = new TNSRecorder();
         this.folder = knownFolders.documents().getFolder("media/audio");
 
-        if (platform.isAndroid) {
+        if (isAndroid) {
             this.extension = ".m4a";
             this.options = {
                 format: 2 /* android.media.MediaRecorder.OutputFormat.MPEG_4 */,
@@ -41,10 +40,10 @@ export default class AudioInterface {
         const filename = path.join(this.folder.path, getPathTimestamp(new Date()) + this.extension);
         const recorderOptions: AudioRecorderOptions = Object.assign({}, this.options, {
             filename: filename,
-            errorCallback: errorObject => {
+            errorCallback: (errorObject) => {
                 console.log("audio: error", errorObject);
             },
-            infoCallback: infoObject => {
+            infoCallback: (infoObject) => {
                 console.log("audio: info", infoObject);
             },
         });
@@ -76,10 +75,10 @@ export default class AudioInterface {
                     await this.player.dispose();
                 }
             },
-            errorCallback: errorObject => {
+            errorCallback: (errorObject) => {
                 console.log("audio: error", errorObject);
             },
-            infoCallback: infoObject => {
+            infoCallback: (infoObject) => {
                 console.log("audio: info", infoObject);
             },
         };

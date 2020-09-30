@@ -16,8 +16,8 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { isAndroid, isIOS } from "tns-core-modules/platform";
-import { TimePicker } from "tns-core-modules/ui/time-picker";
+import { isAndroid, isIOS } from "@nativescript/core";
+import { TimePicker } from "@nativescript/core";
 
 interface Self {
     value: number;

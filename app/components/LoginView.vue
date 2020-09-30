@@ -185,7 +185,7 @@ import routes from "@/routes";
 import { USERNAME, PASSWORD } from "@/secrets";
 import * as ActionTypes from "@/store/actions";
 import Services from "@/services/services";
-import * as dialogs from "tns-core-modules/ui/dialogs";
+import { Dialogs } from "@nativescript/core";
 
 import SharedComponents from "@/components/shared";
 
@@ -325,27 +325,25 @@ export default Vue.extend({
                 });
         },
         forgotPassword(this: any) {
-            dialogs
-                .prompt({
-                    title: _L("forgotTitle"),
-                    message: _L("forgotInstruction"),
-                    inputType: "email",
-                    defaultText: "",
-                    okButtonText: _L("ok"),
-                    cancelButtonText: _L("cancel"),
-                })
-                .then((data) => {
-                    if (data.result) {
-                        return Services.PortalInterface()
-                            .logout(data.text.trim())
-                            .then(() => {
-                                return this.alert(_L("passwordResetSucceeded"));
-                            })
-                            .catch(() => {
-                                return this.alert(_L("passwordResetFailed"));
-                            });
-                    }
-                });
+            Dialogs.prompt({
+                title: _L("forgotTitle"),
+                message: _L("forgotInstruction"),
+                inputType: "email",
+                defaultText: "",
+                okButtonText: _L("ok"),
+                cancelButtonText: _L("cancel"),
+            }).then((data) => {
+                if (data.result) {
+                    return Services.PortalInterface()
+                        .logout(data.text.trim())
+                        .then(() => {
+                            return this.alert(_L("passwordResetSucceeded"));
+                        })
+                        .catch(() => {
+                            return this.alert(_L("passwordResetFailed"));
+                        });
+                }
+            });
         },
         focusEmail(this: any) {
             this.$refs.email.nativeView.focus();

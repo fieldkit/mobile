@@ -48,8 +48,7 @@ import routes from "@/routes";
 import { _T } from "@/utilities";
 import * as ActionTypes from "@/store/actions";
 import { AddStationNetworkAction } from "@/store";
-import * as utils from "tns-core-modules/utils/utils";
-import { isAndroid } from "tns-core-modules/platform";
+import { isAndroid, Utils } from "@nativescript/core";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScreenHeader from "../ScreenHeader.vue";
@@ -132,7 +131,7 @@ export default Vue.extend({
         },
         hideKeyboard(this: any, ev) {
             if (isAndroid) {
-                utils.ad.dismissSoftInput();
+                Utils.ad.dismissSoftInput();
             }
         },
     },

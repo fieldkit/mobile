@@ -111,6 +111,8 @@
 import _ from "lodash";
 import Vue from "vue";
 import routes from "@/routes";
+import { Dialogs } from "@nativescript/core";
+
 import Promise from "bluebird";
 import { getFileName } from "@/utilities";
 
@@ -118,7 +120,6 @@ import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import NoteDisplay from "./NoteDisplay.vue";
 
-import * as dialogs from "tns-core-modules/ui/dialogs";
 import * as MutationTypes from "@/store/mutations";
 import * as ActionTypes from "@/store/actions";
 import * as animations from "../animations";
@@ -277,19 +278,17 @@ export default Vue.extend({
         onPhotoTap(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
-                dialogs
-                    .action({
-                        message: _L("addPhoto"),
-                        cancelButtonText: _L("cancel"),
-                        actions: [_L("takePicture"), _L("selectFromGallery")],
-                    })
-                    .then((choice) => {
-                        if (choice == _L("takePicture")) {
-                            return this.takePicture();
-                        } else if (choice == _L("selectFromGallery")) {
-                            return this.selectPicture();
-                        }
-                    }),
+                Dialogs.action({
+                    message: _L("addPhoto"),
+                    cancelButtonText: _L("cancel"),
+                    actions: [_L("takePicture"), _L("selectFromGallery")],
+                }).then((choice) => {
+                    if (choice == _L("takePicture")) {
+                        return this.takePicture();
+                    } else if (choice == _L("selectFromGallery")) {
+                        return this.selectPicture();
+                    }
+                }),
             ]);
         },
     },

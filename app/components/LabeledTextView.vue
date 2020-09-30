@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { AnimationCurve } from "tns-core-modules/ui/enums";
+import { Enums } from "@nativescript/core";
 
 export default Vue.extend({
     data() {
@@ -79,7 +79,7 @@ export default Vue.extend({
                 opacity: 0.75,
                 translate: { x: 0, y: 0 },
                 duration: 300,
-                curve: AnimationCurve.easeIn,
+                curve: Enums.AnimationCurve.easeIn,
             });
             this.typing = true;
         },

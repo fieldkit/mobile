@@ -85,7 +85,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import { isIOS } from "tns-core-modules/platform";
+import { isIOS } from "@nativescript/core";
 import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
 import routes from "@/routes";
 import * as ActionTypes from "@/store/actions";

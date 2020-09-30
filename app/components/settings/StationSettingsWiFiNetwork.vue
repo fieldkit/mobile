@@ -110,7 +110,7 @@ import SharedComponents from "@/components/shared";
 import WiFi from "./StationSettingsWiFi.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 
-import * as dialogs from "tns-core-modules/ui/dialogs";
+import { Dialogs } from "@nativescript/core";
 
 export default Vue.extend({
     data() {
@@ -205,22 +205,21 @@ export default Vue.extend({
                     })
                     .catch((e) => {
                         console.log(`error: ${e}`);
-                        return Promise.resolve(true)
-                            .then((online) => {
-                                if (online) {
-                                    return alert({
-                                        title: _L("unableToUpdate"),
-                                        message: _L("pleaseLogin"),
-                                        okButtonText: _L("ok"),
-                                    });
-                                } else {
-                                    return alert({
-                                        title: _L("unableToUpdate"),
-                                        message: _L("noteNeedInternet"),
-                                        okButtonText: _L("ok"),
-                                    });
-                                }
-                            });
+                        return Promise.resolve(true).then((online) => {
+                            if (online) {
+                                return alert({
+                                    title: _L("unableToUpdate"),
+                                    message: _L("pleaseLogin"),
+                                    okButtonText: _L("ok"),
+                                });
+                            } else {
+                                return alert({
+                                    title: _L("unableToUpdate"),
+                                    message: _L("noteNeedInternet"),
+                                    okButtonText: _L("ok"),
+                                });
+                            }
+                        });
                     });
             }
         },
@@ -271,30 +270,28 @@ export default Vue.extend({
                 });
         },
         removeNetwork(this: any, network: { ssid: string }) {
-            return dialogs
-                .confirm({
-                    title: _L("areYouSureRemoveNetwork"),
-                    okButtonText: _L("yes"),
-                    cancelButtonText: _L("cancel"),
-                })
-                .then((result) => {
-                    if (result) {
-                        const index = this.networks.findIndex((n) => {
-                            return n.ssid == network.ssid;
-                        });
-                        if (index > -1) {
-                            this.networks.splice(index, 1);
-                        }
-                        return Services.QueryStation()
-                            .sendNetworkSettings(this.station.url, this.networks)
-                            .then((result) => {
-                                this.networks = result.networkSettings.networks;
-                                // in order to match in the interim, must edit station.statusJson
-                                this.deviceStatus.networkSettings = result.networkSettings;
-                                this.station.statusJson = this.deviceStatus;
-                            });
+            return Dialogs.confirm({
+                title: _L("areYouSureRemoveNetwork"),
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("cancel"),
+            }).then((result) => {
+                if (result) {
+                    const index = this.networks.findIndex((n) => {
+                        return n.ssid == network.ssid;
+                    });
+                    if (index > -1) {
+                        this.networks.splice(index, 1);
                     }
-                });
+                    return Services.QueryStation()
+                        .sendNetworkSettings(this.station.url, this.networks)
+                        .then((result) => {
+                            this.networks = result.networkSettings.networks;
+                            // in order to match in the interim, must edit station.statusJson
+                            this.deviceStatus.networkSettings = result.networkSettings;
+                            this.station.statusJson = this.deviceStatus;
+                        });
+                }
+            });
         },
         useNetwork(this: any, event) {
             const network = this.networks.find((n) => {

@@ -1,20 +1,8 @@
-import {
-    on,
-    launchEvent,
-    suspendEvent,
-    resumeEvent,
-    displayedEvent,
-    orientationChangedEvent,
-    exitEvent,
-    lowMemoryEvent,
-    uncaughtErrorEvent,
-    discardedErrorEvent,
-} from "tns-core-modules/application";
-
+import { Application } from "@nativescript/core";
 import DiscoverStation from "./discover-station";
 
 export default function (discoverStation: () => DiscoverStation) {
-    on(launchEvent, (args) => {
+    Application.on(Application.launchEvent, (args) => {
         if (args.android) {
             console.log("lifecycle: launched android: " + args.android + ".");
         } else if (args.ios !== undefined) {
@@ -24,7 +12,7 @@ export default function (discoverStation: () => DiscoverStation) {
         return null;
     });
 
-    on(suspendEvent, (args) => {
+    Application.on(Application.suspendEvent, (args) => {
         if (args.android) {
             console.log("lifecycle: suspend: " + args.android);
         } else if (args.ios) {
@@ -39,7 +27,7 @@ export default function (discoverStation: () => DiscoverStation) {
         return null;
     });
 
-    on(resumeEvent, (args) => {
+    Application.on(Application.resumeEvent, (args) => {
         if (args.android) {
             console.log("lifecycle: resume: " + args.android);
         } else if (args.ios) {
@@ -54,15 +42,15 @@ export default function (discoverStation: () => DiscoverStation) {
         return null;
     });
 
-    on(displayedEvent, (args) => {
+    Application.on(Application.displayedEvent, (args) => {
         console.log("lifecycle: displayedEvent");
     });
 
-    on(orientationChangedEvent, (args) => {
+    Application.on(Application.orientationChangedEvent, (args) => {
         console.log("lifecycle: orientationChangedEvent", args.newValue);
     });
 
-    on(exitEvent, (args) => {
+    Application.on(Application.exitEvent, (args) => {
         if (args.android) {
             if (args.android.isFinishing()) {
                 console.log("lifecycle: exit: " + args.android + " is exiting");
@@ -74,7 +62,7 @@ export default function (discoverStation: () => DiscoverStation) {
         }
     });
 
-    on(lowMemoryEvent, (args) => {
+    Application.on(Application.lowMemoryEvent, (args) => {
         if (args.android) {
             console.log("lifecycle: lowMemory: " + args.android);
         } else if (args.ios) {
@@ -82,11 +70,11 @@ export default function (discoverStation: () => DiscoverStation) {
         }
     });
 
-    on(uncaughtErrorEvent, (args) => {
+    Application.on(Application.uncaughtErrorEvent, (args) => {
         console.log("lifecycle: error: " + args.error);
     });
 
-    on(discardedErrorEvent, (args) => {
+    Application.on(Application.discardedErrorEvent, (args) => {
         console.log("lifecycle: discarded: " + args);
     });
 }

@@ -1,10 +1,10 @@
 import { BetterObservable } from "./rx";
-import { Accuracy } from "tns-core-modules/ui/enums";
-import { GeoLocation } from "../wrappers/geolocation";
-import { promiseAfter, unixNow } from "../utilities";
-import * as MutationTypes from "../store/mutations";
-import { CommonLocations, PhoneLocation } from "../store/types";
-import Config from "../config";
+import { Enums } from "@nativescript/core";
+import { GeoLocation } from "@/wrappers/geolocation";
+import { promiseAfter, unixNow } from "@/utilities";
+import * as MutationTypes from "@/store/mutations";
+import { CommonLocations, PhoneLocation } from "@/store/types";
+import Config from "@/config";
 
 const log = Config.logger("PhoneLocation");
 
@@ -86,28 +86,28 @@ export default class PhoneLocationWatcher extends BetterObservable {
 
     testAccuracies() {
         const high20k = {
-            desiredAccuracy: Accuracy.high,
+            desiredAccuracy: Enums.Accuracy.high,
             updateDistance: 10,
             maximumAge: 20000,
             timeout: 20000,
         };
 
         const any20k = {
-            desiredAccuracy: Accuracy.any,
+            desiredAccuracy: Enums.Accuracy.any,
             updateDistance: 10,
             maximumAge: 20000,
             timeout: 20000,
         };
 
         const high2k = {
-            desiredAccuracy: Accuracy.high,
+            desiredAccuracy: Enums.Accuracy.high,
             updateDistance: 10,
             maximumAge: 2000,
             timeout: 20000,
         };
 
         const any2k = {
-            desiredAccuracy: Accuracy.any,
+            desiredAccuracy: Enums.Accuracy.any,
             updateDistance: 10,
             maximumAge: 2000,
             timeout: 20000,
@@ -125,7 +125,7 @@ export default class PhoneLocationWatcher extends BetterObservable {
     getLocation() {
         return this._geolocation
             .getCurrentLocation({
-                desiredAccuracy: Accuracy.high,
+                desiredAccuracy: Enums.Accuracy.high,
                 updateDistance: 10,
                 maximumAge: 20000,
                 timeout: 20000,

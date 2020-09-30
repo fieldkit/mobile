@@ -1,10 +1,9 @@
 import _ from "lodash";
-import { Utils } from "@nativescript/core";
-import { File, knownFolders } from "tns-core-modules/file-system";
-import { copyLogs } from "../lib/logging";
-import { serializePromiseChain } from "../utilities";
-import { DiagnosticsDirectory, getDatabasePath, listAllFiles, dumpAllFiles } from "../lib/fs";
-import Config, { Build } from "../config";
+import { Device, File, knownFolders } from "@nativescript/core";
+import { copyLogs } from "@/lib/logging";
+import { serializePromiseChain } from "@/utilities";
+import { DiagnosticsDirectory, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
+import Config, { Build } from "@/config";
 
 function uuidv4() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -54,7 +53,7 @@ export default class Diagnostics {
     }
 
     private uploadDeviceInformation(id) {
-        const device = platform.device;
+        const device = Device;
 
         const info = {
             deviceType: device.deviceType,
