@@ -1,4 +1,4 @@
-import i18n from "tns-i18n-deep";
+import i18n from "@/lib/tns-i18n-deep";
 // Note: i18n detects the preferred language on the phone,
 // and this default language initialization does not override that
 i18n("en");
