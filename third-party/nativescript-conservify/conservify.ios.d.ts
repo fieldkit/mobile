@@ -1,4 +1,4 @@
-import { Common, PromiseCallbacks } from "./conservify.common";
+import { PromiseCallbacks } from "./conservify.common";
 interface NetworkingListener {
     onStarted(): void;
     onDiscoveryFailed(): void;
@@ -135,7 +135,7 @@ declare class OpenedFile {
     info(): Promise<{}>;
     delimited(listener: any): Promise<{}>;
 }
-export declare class Conservify extends Common implements ActiveTasks, OtherPromises {
+export declare class Conservify implements ActiveTasks, OtherPromises {
     logger: any;
     active: {
         [key: string]: any;

@@ -1,4 +1,3 @@
-import { Common } from "./conservify.common";
 declare class OpenedFile {
     cfy: Conservify;
     fs: any;
@@ -7,7 +6,7 @@ declare class OpenedFile {
     info(): Promise<{}>;
     delimited(listener: any): Promise<{}>;
 }
-export declare class Conservify extends Common {
+export declare class Conservify {
     logger: any;
     discoveryEvents: any;
     active: {

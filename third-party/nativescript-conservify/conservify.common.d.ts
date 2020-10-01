@@ -1,7 +1,3 @@
-import { Observable } from "tns-core-modules/data/observable";
-export declare class Common extends Observable {
-    constructor();
-}
 export declare class FileSystemError extends Error {
     readonly path: string;
     constructor(message: any, path: any);

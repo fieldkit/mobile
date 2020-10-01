@@ -44,19 +44,17 @@ var OpenedFile = (function () {
         });
     };
     return OpenedFile;
-}());
-var Conservify = (function (_super) {
-    __extends(Conservify, _super);
+})();
+var Conservify = (function () {
     function Conservify(discoveryEvents, logger) {
-        var _this = _super.call(this) || this;
-        _this.logger = logger || console.log;
-        _this.active = {};
-        _this.networkStatus = null;
-        _this.started = null;
-        _this.stopped = null;
-        _this.discoveryEvents = discoveryEvents;
-        var owner = _this;
-        var active = _this.active;
+        this.logger = logger || console.log;
+        this.active = {};
+        this.networkStatus = null;
+        this.started = null;
+        this.stopped = null;
+        this.discoveryEvents = discoveryEvents;
+        var owner = this;
+        var active = this.active;
         var getAndroidContext = function () {
             if (!application_1.android.context) {
                 var cc = new org.conservify.ContextContainer(null);
@@ -64,13 +62,12 @@ var Conservify = (function (_super) {
                     throw new Error("No androidApp.context? Are we being called before application.start?");
                 }
                 return cc.getContext();
-            }
-            else {
+            } else {
                 var cc = new org.conservify.ContextContainer(application_1.android.context);
                 return cc.getContext();
             }
         };
-        _this.networkingListener = new org.conservify.networking.NetworkingListener({
+        this.networkingListener = new org.conservify.networking.NetworkingListener({
             onStarted: function () {
                 owner.started.resolve();
             },
@@ -131,13 +128,12 @@ var Conservify = (function (_super) {
                     };
                     owner.networkStatus.resolve(jsObject);
                     owner.networkStatus = null;
-                }
-                else {
+                } else {
                     owner.logger("onNetworkStatus: no promise!");
                 }
             },
         });
-        _this.uploadListener = new org.conservify.networking.WebTransferListener({
+        this.uploadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
                 owner.logger("upload:onProgress", taskId, bytes, total);
                 if (active[taskId]) {
@@ -146,8 +142,7 @@ var Conservify = (function (_super) {
                     if (progress) {
                         progress(total, bytes, info);
                     }
-                }
-                else {
+                } else {
                     this.logger("upload:onProgress orphaned", taskId, bytes, total);
                 }
             },
@@ -156,13 +151,13 @@ var Conservify = (function (_super) {
                 owner.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
                 if (task) {
-                    var info = task.info, transfer_1 = task.transfer;
+                    var info = task.info,
+                        transfer_1 = task.transfer;
                     var getBody = function () {
                         if (body) {
                             if (contentType.indexOf("application/json") >= 0) {
                                 return JSON.parse(body);
-                            }
-                            else {
+                            } else {
                                 if (transfer_1.isBase64EncodeResponseBody()) {
                                     return Buffer.from(body, "base64");
                                 }
@@ -178,8 +173,7 @@ var Conservify = (function (_super) {
                         statusCode: statusCode,
                         body: getBody(),
                     });
-                }
-                else {
+                } else {
                     owner.logger("upload:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
                 }
             },
@@ -190,13 +184,12 @@ var Conservify = (function (_super) {
                     var info = task.info;
                     delete active[taskId];
                     task.reject(new conservify_common_1.ConnectionError(message, info));
-                }
-                else {
+                } else {
                     owner.logger("upload:onError (orphaned)", taskId, message);
                 }
             },
         });
-        _this.downloadListener = new org.conservify.networking.WebTransferListener({
+        this.downloadListener = new org.conservify.networking.WebTransferListener({
             onProgress: function (taskId, headers, bytes, total) {
                 owner.logger("download:onProgress", taskId, bytes, total);
                 if (active[taskId]) {
@@ -205,8 +198,7 @@ var Conservify = (function (_super) {
                     if (progress) {
                         progress(total, bytes, info);
                     }
-                }
-                else {
+                } else {
                     owner.logger("download:onProgress (orphaned)", taskId, bytes, total);
                 }
             },
@@ -215,13 +207,13 @@ var Conservify = (function (_super) {
                 owner.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
                 var task = active[taskId];
                 if (task) {
-                    var info = task.info, transfer_2 = task.transfer;
+                    var info = task.info,
+                        transfer_2 = task.transfer;
                     var getBody = function () {
                         if (body) {
                             if (contentType.indexOf("application/json") >= 0) {
                                 return JSON.parse(body);
-                            }
-                            else {
+                            } else {
                                 if (transfer_2.isBase64EncodeResponseBody()) {
                                     return Buffer.from(body, "base64");
                                 }
@@ -237,8 +229,7 @@ var Conservify = (function (_super) {
                         statusCode: statusCode,
                         body: getBody(),
                     });
-                }
-                else {
+                } else {
                     owner.logger("download:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
                 }
             },
@@ -249,13 +240,12 @@ var Conservify = (function (_super) {
                     var info = task.info;
                     delete active[taskId];
                     task.reject(new conservify_common_1.ConnectionError(message, info));
-                }
-                else {
+                } else {
                     owner.logger("download:onError (orphaned)", taskId, message);
                 }
             },
         });
-        _this.fsListener = new org.conservify.data.FileSystemListener({
+        this.fsListener = new org.conservify.data.FileSystemListener({
             onFileInfo: function (path, token, info) {
                 owner.logger("fs:onFileInfo", path, token, info);
                 var task = active[token];
@@ -272,8 +262,7 @@ var Conservify = (function (_super) {
                 if (task) {
                     if (records) {
                         task.listener(position, size, records);
-                    }
-                    else {
+                    } else {
                         task.resolve();
                     }
                 }
@@ -287,9 +276,13 @@ var Conservify = (function (_super) {
             },
         });
         var androidContext = getAndroidContext();
-        _this.fileSystem = new org.conservify.data.FileSystem(androidContext, _this.fsListener);
-        _this.networking = new org.conservify.networking.Networking(androidContext, _this.networkingListener, _this.uploadListener, _this.downloadListener);
-        return _this;
+        this.fileSystem = new org.conservify.data.FileSystem(androidContext, this.fsListener);
+        this.networking = new org.conservify.networking.Networking(
+            androidContext,
+            this.networkingListener,
+            this.uploadListener,
+            this.downloadListener
+        );
     }
     Conservify.prototype.start = function (serviceType) {
         var _this = this;
@@ -318,14 +311,12 @@ var Conservify = (function (_super) {
         return Promise.resolve(sampleData.write());
     };
     Conservify.prototype.open = function (path) {
-        if (!this.fileSystem)
-            throw new Error("use before initialize");
+        if (!this.fileSystem) throw new Error("use before initialize");
         return Promise.resolve(new OpenedFile(this, this.fileSystem.open(path)));
     };
     Conservify.prototype.text = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = new org.conservify.networking.WebTransfer();
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
@@ -337,7 +328,9 @@ var Conservify = (function (_super) {
             transfer.setDefaultTimeout(info.defaultTimeout);
         }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.header(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -352,8 +345,7 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.json = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = new org.conservify.networking.WebTransfer();
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
@@ -365,7 +357,9 @@ var Conservify = (function (_super) {
             transfer.setDefaultTimeout(info.defaultTimeout);
         }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.header(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -380,8 +374,7 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.protobuf = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = new org.conservify.networking.WebTransfer();
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
@@ -393,7 +386,9 @@ var Conservify = (function (_super) {
             transfer.setDefaultTimeout(info.defaultTimeout);
         }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.header(key, value);
         }
         if (info.body) {
@@ -413,8 +408,7 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.download = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = new org.conservify.networking.WebTransfer();
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
@@ -426,7 +420,9 @@ var Conservify = (function (_super) {
             transfer.setDefaultTimeout(info.defaultTimeout);
         }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.header(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -441,8 +437,7 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.upload = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = new org.conservify.networking.WebTransfer();
         transfer.setMethod(info.method);
         transfer.setUrl(info.url);
@@ -454,7 +449,9 @@ var Conservify = (function (_super) {
             transfer.setDefaultTimeout(info.defaultTimeout);
         }
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.header(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -469,8 +466,7 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.findConnectedNetwork = function () {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
@@ -481,8 +477,7 @@ var Conservify = (function (_super) {
     };
     Conservify.prototype.scanNetworks = function () {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
@@ -492,6 +487,6 @@ var Conservify = (function (_super) {
         });
     };
     return Conservify;
-}(conservify_common_1.Common));
+})();
 exports.Conservify = Conservify;
 //# sourceMappingURL=conservify.android.js.map
