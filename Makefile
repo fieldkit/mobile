@@ -9,13 +9,12 @@ setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 	mkdir -p backup
 
 .setup-completed:
-	$(ANDROID)/sdkmanager --verbose "system-images;android-25;google_apis;x86"
-	$(ANDROID)/sdkmanager --verbose "system-images;android-26;google_apis;x86"
-	$(ANDROID)/sdkmanager --verbose "system-images;android-27;google_apis;x86"
-	$(ANDROID)/sdkmanager --verbose "system-images;android-28;google_apis;x86"
-	$(ANDROID)/sdkmanager --verbose "platforms;android-28"
+	$(ANDROID)/sdkmanager --verbose "system-images;android-28;google_apis;x86_64"
+	$(ANDROID)/sdkmanager --verbose "system-images;android-29;google_apis;x86_64"
+	$(ANDROID)/sdkmanager --verbose "system-images;android-30;google_apis;x86_64"
+	$(ANDROID)/sdkmanager --verbose "platforms;android-29"
 	$(ANDROID)/sdkmanager --verbose "emulator"
-	echo | $(ANDROID)/avdmanager create avd --force -n test -k "system-images;android-26;google_apis;x86"
+	echo | $(ANDROID)/avdmanager create avd --force -n test -k "system-images;android-29;google_apis;x86_64"
 	touch .setup-completed
 	pip3 install requests
 
