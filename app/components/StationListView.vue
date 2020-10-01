@@ -5,7 +5,7 @@
         <GridLayout rows="*,55">
             <ScrollView row="0">
                 <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
-                    <!-- StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" / -->
+                    <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
                     <NoStationsWannaAdd v-if="stations.length == 0" />
 
@@ -53,7 +53,7 @@ import * as ActionTypes from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
-// import MapModal from "./MapModal.vue";
+import MapModal from "./MapModal.vue";
 
 export default Vue.extend({
     components: {
@@ -114,11 +114,9 @@ export default Vue.extend({
             });
         },
         openModalMap(this: any, ev) {
-            /*
             return this.$showModal(MapModal, {
                 fullscreen: true,
             });
-			*/
         },
     },
 });

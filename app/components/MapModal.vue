@@ -15,7 +15,7 @@
 import Vue from "vue";
 import { mapGetters } from "vuex";
 import StationsMap from "./StationsMap.vue";
-import { screen } from "tns-core-modules/platform/platform";
+import { Screen } from "@nativescript/core";
 
 export default Vue.extend({
     name: "MapModal",
@@ -25,7 +25,7 @@ export default Vue.extend({
     data() {
         return {
             // ios: isIOS,
-            height: screen.mainScreen.heightDIPs - 20,
+            height: Screen.mainScreen.heightDIPs - 20,
         };
     },
     props: {},

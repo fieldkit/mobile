@@ -21,7 +21,7 @@ import StartupScreen from "./components/StartupScreen";
 function configureVueJs(services) {
     Vue.registerElement("DropDown", () => require("nativescript-drop-down").DropDown);
 
-    // Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
+    Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 
     Vue.registerElement("CheckBox", () => require("@nstudio/nativescript-checkbox").CheckBox, {
         model: {
