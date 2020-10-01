@@ -96,6 +96,7 @@ module.exports = (env) => {
     const entryPath = `.${sep}${entryModule}`;
     const entries = env.entries || {};
     entries.bundle = entryPath;
+    entries.application = "./application.android";
 
     const areCoreModulesExternal = Array.isArray(env.externals) && env.externals.some((e) => e.indexOf("@nativescript") > -1);
     if (platform === "ios" && !areCoreModulesExternal && !testing) {
