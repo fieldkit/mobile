@@ -4,13 +4,15 @@ import Promise from "bluebird";
 import { Trace, knownFolders } from "@nativescript/core";
 import Vue from "nativescript-vue";
 import { AuthenticationError } from "./errors";
-import Config from "../config";
-
-const firebase = require("@nativescript/firebase");
+import { crashlytics } from "@nativescript/firebase/crashlytics";
+import { analytics } from "@nativescript/firebase/analytics";
+import Config from "@/config";
 
 const SaveInterval = 10000;
 const logs: string[][] = [];
-const originalConsole = console;
+const originalConsole = {
+    log: console.log,
+};
 const MaximumLogSize = 1024 * 1024 * 5;
 
 function getPrettyTime() {
@@ -64,11 +66,55 @@ export function copyLogs(where) {
                 }
             });
 
-            originalConsole.info("copied", existing.length, where.path);
+            originalConsole.log("copied", existing.length, where.path);
 
             resolve();
         });
     });
+}
+
+function configureGlobalErrorHandling() {
+    try {
+        Trace.setErrorHandler({
+            handlerError(err) {
+                analytics.logEvent({
+                    key: "app_error",
+                });
+                console.log("error", err, err ? err.stack : null);
+            },
+        });
+
+        Trace.enable();
+
+        Promise.onPossiblyUnhandledRejection((reason, promise) => {
+            if (reason instanceof AuthenticationError) {
+                console.log("onPossiblyUnhandledRejection", reason);
+            } else {
+                console.log("onPossiblyUnhandledRejection", reason, reason ? reason.stack : null);
+            }
+        });
+
+        Promise.onUnhandledRejectionHandled((promise) => {
+            console.log("onUnhandledRejectionHandled");
+        });
+
+        // err: error trace
+        // vm: component in which error occured
+        // info: Vue specific error information such as lifecycle hooks, events etc.
+        /*
+        Vue.config.errorHandler = (err, vm, info) => {
+            console.log("vuejs error:", err, err ? err.stack : null);
+        };
+		*/
+
+        Vue.config.warnHandler = (msg, vm, info) => {
+            console.log("vuejs warning:", msg);
+        };
+    } catch (e) {
+        console.log("startup error", e, e ? e.stack : null);
+    }
+
+    return Promise.resolve();
 }
 
 function scrubMessage(message: string): string {
@@ -121,7 +167,11 @@ function wrapLoggingMethod(method) {
             // Send string only representations to Crashlytics,
             // removing time since they do that for us.
             parts.shift();
-            firebase.crashlytics.log(scrubMessage(parts.join(" ")));
+            try {
+                crashlytics.log(scrubMessage(parts.join(" ")));
+            } catch (e) {
+                originalConsole.log("crashlytics", e);
+            }
 
             errors.forEach((error) => {
                 // crashlytics.error(error);
@@ -130,50 +180,6 @@ function wrapLoggingMethod(method) {
             originalConsole.log(e);
         }
     };
-}
-
-function configureGlobalErrorHandling() {
-    try {
-        Trace.setErrorHandler({
-            handlerError(err) {
-                firebase.analytics.logEvent({
-                    key: "app_error",
-                });
-                console.log("error", err, err ? err.stack : null);
-            },
-        });
-
-        Trace.enable();
-
-        Promise.onPossiblyUnhandledRejection((reason, promise) => {
-            if (reason instanceof AuthenticationError) {
-                console.log("onPossiblyUnhandledRejection", reason);
-            } else {
-                console.log("onPossiblyUnhandledRejection", reason, reason ? reason.stack : null);
-            }
-        });
-
-        Promise.onUnhandledRejectionHandled((promise) => {
-            console.log("onUnhandledRejectionHandled");
-        });
-
-        // err: error trace
-        // vm: component in which error occured
-        // info: Vue specific error information such as lifecycle hooks, events etc.
-        /*
-        Vue.config.errorHandler = (err, vm, info) => {
-            console.log("vuejs error:", err, err ? err.stack : null);
-        };
-		*/
-
-        Vue.config.warnHandler = (msg, vm, info) => {
-            console.log("vuejs warning:", msg);
-        };
-    } catch (e) {
-        console.log("startup error", e, e ? e.stack : null);
-    }
-
-    return Promise.resolve();
 }
 
 export default function initializeLogging(info) {

@@ -17,8 +17,9 @@ import routes from "@/routes";
 import { Route } from "@/routes/navigate";
 import Config from "@/config";
 import { ProcessAllStationsTask } from "@/lib/process";
-
-const firebase = require("@nativescript/firebase");
+import { firebase } from "@nativescript/firebase";
+import { crashlytics } from "@nativescript/firebase/crashlytics";
+import { analytics } from "@nativescript/firebase/analytics";
 
 function initializeFirebase(services): Promise<any> {
     console.log("initialize:firebase");
@@ -28,7 +29,7 @@ function initializeFirebase(services): Promise<any> {
         })
         .then((response) => {
             const globalAny: any = global;
-            firebase.crashlytics.setString("env", globalAny.TNS_ENV);
+            crashlytics.setString("env", globalAny.TNS_ENV);
             console.log("firebase:initialized", response);
             return Promise.resolve(true);
         })
@@ -116,7 +117,7 @@ function initializeApplication(services): Promise<any> {
 
     return initializeFirebase(services).then(() => {
         console.log("firebase:app_open");
-        return firebase.analytics
+        return analytics
             .logEvent({
                 key: "app_open",
             })

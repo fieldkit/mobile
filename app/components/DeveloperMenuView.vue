@@ -71,7 +71,8 @@ import DiagnosticsModal from "./DiagnosticsModal.vue";
 
 import { testWithFiles } from "@/lib/testing";
 
-const firebase = require("@nativescript/firebase");
+import { crashlytics } from "@nativescript/firebase/crashlytics";
+import { analytics } from "@nativescript/firebase/analytics";
 
 export default Vue.extend({
     data(this: any) {
@@ -322,13 +323,13 @@ export default Vue.extend({
         },
         crash(this: any) {
             console.log("send crash");
-            firebase.crashlytics.crash();
+            crashlytics.crash();
         },
         manualCrash(this: any) {
             console.log("send manual crash");
             const globalAny: any = global;
-            firebase.crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
-            firebase.analytics.logEvent({
+            crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
+            analytics.logEvent({
                 key: "app_crash_manual",
             });
         },
