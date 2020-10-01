@@ -63,7 +63,7 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { ValueList } from "@proplugins/nativescript-drop-down";
+import { ValueList } from "nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
 import { Interval } from "@/store/types";
 

@@ -19,7 +19,7 @@ import Config, { Build } from "./config";
 import StartupScreen from "./components/StartupScreen";
 
 function configureVueJs(services) {
-    Vue.registerElement("DropDown", () => require("@proplugins/nativescript-drop-down").DropDown);
+    Vue.registerElement("DropDown", () => require("nativescript-drop-down").DropDown);
 
     // Vue.registerElement("Mapbox", () => require("nativescript-mapbox").MapboxView);
 

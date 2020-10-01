@@ -1,0 +1,29 @@
+{
+	"name": "nativescript-drop-down",
+	"version": "5.0.6",
+	"description": "A NativeScript DropDown widget.",
+	"main": "drop-down",
+	"typings": "drop-down.d.ts",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/PeterStaev/NativeScript-Drop-Down"
+	},
+	"keywords": [
+		"NativeScript",
+		"DropDown",
+		"Spinner",
+		"tangra"
+	],
+	"author": "Peter Staev <peter@tangrasoft.com>",
+	"contributors": [
+		"Dick Smith (https://github.com/DickSmith)",
+		"AWhiteSheep (https://github.com/AWhiteSheep)"
+	],
+	"license": "Apache-2.0",
+	"peerDependencies": {
+		"tns-core-modules": ">= 5"
+	},
+	"dependencies": {
+		"ts-node": "^9.0.0"
+	}
+}
