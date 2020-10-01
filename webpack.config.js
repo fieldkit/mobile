@@ -393,5 +393,8 @@ module.exports = (env) => {
         config.plugins.push(new webpack.HotModuleReplacementPlugin());
     }
 
-    return smp.wrap(config);
+    if (false) {
+        return smp.wrap(config);
+    }
+    return config;
 };
