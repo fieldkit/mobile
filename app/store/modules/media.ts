@@ -49,84 +49,86 @@ type ActionParameters = { commit: any; dispatch: any; state: MediaState };
 
 const getters = {};
 
-const actions = {
-    [ActionTypes.AUDIO_RECORD]: ({ commit, dispatch, state }: ActionParameters) => {
-        if (state.recording) throw new Error("already recording");
-        return state.services
-            .audio()
-            .startAudioRecording()
-            .then((path) => {
-                commit(AUDIO_RECORDING_PROGRESS, new ActiveRecording(path));
-            });
-    },
-    [ActionTypes.AUDIO_PAUSE]: ({ commit, dispatch, state }: ActionParameters) => {
-        if (!state.recording) throw new Error("no recording");
-        return state.services
-            .audio()
-            .pauseAudioRecording(state.recording)
-            .then(() => {
-                if (!state.recording) throw new Error("no recording");
-                return commit(AUDIO_RECORDING_PROGRESS, state.recording.pause());
-            });
-    },
-    [ActionTypes.AUDIO_RESUME]: ({ commit, dispatch, state }: ActionParameters) => {
-        if (!state.recording) throw new Error("no recording");
-        return state.services
-            .audio()
-            .resumeAudioRecording(state.recording)
-            .then(() => {
-                if (!state.recording) throw new Error("no recording");
-                commit(AUDIO_RECORDING_PROGRESS, state.recording.resume());
-            });
-    },
-    [ActionTypes.AUDIO_STOP]: ({ commit, dispatch, state }: ActionParameters) => {
-        if (!state.recording) throw new Error("no recording");
-        return state.services
-            .audio()
-            .stopAudioRecording(state.recording)
-            .then(() => {
-                if (!state.recording) throw new Error("no recording");
-                const recording = state.recording;
-                commit(AUDIO_RECORDING_PROGRESS, null);
-                return recording;
-            });
-    },
-    [ActionTypes.TAKE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
-        return Camera.takePicture({
-            keepAspectRatio: true,
-            saveToGallery: true,
-            allowsEditing: false,
-        }).then((asset) => {
-            return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
-        });
-    },
-    [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
-        return Camera.findPicture(options)
-            .then((selection) => selection[0])
-            .then((asset) => {
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.AUDIO_RECORD]: ({ commit, dispatch, state }: ActionParameters) => {
+            if (state.recording) throw new Error("already recording");
+            return state.services
+                .audio()
+                .startAudioRecording()
+                .then((path) => {
+                    commit(AUDIO_RECORDING_PROGRESS, new ActiveRecording(path));
+                });
+        },
+        [ActionTypes.AUDIO_PAUSE]: ({ commit, dispatch, state }: ActionParameters) => {
+            if (!state.recording) throw new Error("no recording");
+            return state.services
+                .audio()
+                .pauseAudioRecording(state.recording)
+                .then(() => {
+                    if (!state.recording) throw new Error("no recording");
+                    return commit(AUDIO_RECORDING_PROGRESS, state.recording.pause());
+                });
+        },
+        [ActionTypes.AUDIO_RESUME]: ({ commit, dispatch, state }: ActionParameters) => {
+            if (!state.recording) throw new Error("no recording");
+            return state.services
+                .audio()
+                .resumeAudioRecording(state.recording)
+                .then(() => {
+                    if (!state.recording) throw new Error("no recording");
+                    commit(AUDIO_RECORDING_PROGRESS, state.recording.resume());
+                });
+        },
+        [ActionTypes.AUDIO_STOP]: ({ commit, dispatch, state }: ActionParameters) => {
+            if (!state.recording) throw new Error("no recording");
+            return state.services
+                .audio()
+                .stopAudioRecording(state.recording)
+                .then(() => {
+                    if (!state.recording) throw new Error("no recording");
+                    const recording = state.recording;
+                    commit(AUDIO_RECORDING_PROGRESS, null);
+                    return recording;
+                });
+        },
+        [ActionTypes.TAKE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
+            return Camera.takePicture({
+                keepAspectRatio: true,
+                saveToGallery: true,
+                allowsEditing: false,
+            }).then((asset) => {
                 return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
             });
-    },
-    [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { asset: any }) => {
-        return state.services
-            .images()
-            .saveImage(new IncomingImage(payload.asset))
-            .then((saved) => {
-                commit(CACHE_PHOTO, saved);
-                return saved;
-            });
-    },
-    [ActionTypes.LOAD_PICTURES]: ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
-        return serializePromiseChain(payload.paths, (path) =>
-            state.services
+        },
+        [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
+            return Camera.findPicture(options)
+                .then((selection) => selection[0])
+                .then((asset) => {
+                    return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
+                });
+        },
+        [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { asset: any }) => {
+            return state.services
                 .images()
-                .fromFile(path)
+                .saveImage(new IncomingImage(payload.asset))
                 .then((saved) => {
                     commit(CACHE_PHOTO, saved);
-                    return {};
-                })
-        );
-    },
+                    return saved;
+                });
+        },
+        [ActionTypes.LOAD_PICTURES]: ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
+            return serializePromiseChain(payload.paths, (path) =>
+                state.services
+                    .images()
+                    .fromFile(path)
+                    .then((saved) => {
+                        commit(CACHE_PHOTO, saved);
+                        return {};
+                    })
+            );
+        },
+    };
 };
 
 const mutations = {
@@ -144,12 +146,14 @@ const mutations = {
     },
 };
 
-const state = () => new MediaState();
+export const media = (services: ServiceRef) => {
+    const state = () => new MediaState();
 
-export const media = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

@@ -16,6 +16,7 @@ import createLogger from "./logger";
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
 import Config from "../config";
+import { Services } from "./modules/utilities";
 
 export * from "./typed-actions";
 
@@ -139,22 +140,22 @@ function customizeLogger() {
     });
 }
 
-export default function () {
+export default function (services: Services) {
     return new Vuex.Store({
         plugins: Config.env.dev ? [customizeLogger()] : [customizeLogger()],
         modules: {
-            nearby,
-            stations,
-            phone,
-            nav,
-            network,
-            map,
-            syncing,
-            firmware,
-            media,
-            notes,
-            portal,
-            cal,
+            nearby: nearby(services),
+            stations: stations(services),
+            phone: phone(services),
+            nav: nav(services),
+            network: network(services),
+            map: map(services),
+            syncing: syncing(services),
+            firmware: firmware(services),
+            media: media(services),
+            notes: notes(services),
+            portal: portal(services),
+            cal: cal(services),
         },
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",

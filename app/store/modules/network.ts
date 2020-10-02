@@ -2,6 +2,7 @@ import Vue from "vue";
 import AppSettings from "../../wrappers/app-settings";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
+import { ServiceRef } from "./utilities";
 
 export class NetworkState {
     online: boolean = false;
@@ -13,17 +14,19 @@ type ActionParameters = { commit: any };
 
 const getters = {};
 
-const actions = {
-    [ActionTypes.INITIALIZE]: ({ commit }: ActionParameters) => {
-        const appSettings = new AppSettings();
-        const token = appSettings.getString("accessToken");
-        if (token) {
-            commit(MutationTypes.LOGIN, token);
-        }
-    },
-    [ActionTypes.AUTHENTICATED]: ({ commit }: ActionParameters) => {
-        commit(MutationTypes.LOGIN);
-    },
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.INITIALIZE]: ({ commit }: ActionParameters) => {
+            const appSettings = new AppSettings();
+            const token = appSettings.getString("accessToken");
+            if (token) {
+                commit(MutationTypes.LOGIN, token);
+            }
+        },
+        [ActionTypes.AUTHENTICATED]: ({ commit }: ActionParameters) => {
+            commit(MutationTypes.LOGIN);
+        },
+    };
 };
 
 const mutations = {
@@ -38,12 +41,14 @@ const mutations = {
     },
 };
 
-const state = () => new NetworkState();
+export const network = (services: ServiceRef) => {
+    const state = () => new NetworkState();
 
-export const network = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

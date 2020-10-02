@@ -28,102 +28,103 @@ export class NearbyState {
 
 type ActionParameters = { commit: any; dispatch: any; state: NearbyState };
 
-const actions = {
-    [ActionTypes.SCAN_FOR_STATIONS]: async ({ dispatch, state }: ActionParameters) => {
-        await state.services.discovery().restart();
-        const candidates = await state.services.db().queryRecentlyActiveAddresses();
-        const offline = candidates;
-        const tries = offline.map((candidate) => dispatch(ActionTypes.TRY_STATION_ONCE, new TryStationAction(candidate)));
-        return await Promise.all(tries);
-    },
-    [ActionTypes.REFRESH]: ({ dispatch, state }: ActionParameters) => {
-        const now = new Date();
-        return Promise.all(
-            Object.values(state.stations).map((nearby) => {
-                if (nearby.old(now) || nearby.tooManyFailures()) {
-                    console.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
-                    return dispatch(ActionTypes.LOST, nearby.info);
-                }
-                return {};
-            })
-        ).then(() => dispatch(ActionTypes.QUERY_NECESSARY));
-    },
-    [ActionTypes.FOUND]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
-        commit(MutationTypes.FIND, info);
-        return dispatch(ActionTypes.QUERY_STATION, info);
-    },
-    [ActionTypes.MAYBE_LOST]: ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
-        const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
-        if (info && !info.transferring) {
-            return dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
-        }
-    },
-    [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {},
-    [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
-        const info = state.stations[payload.deviceId]?.info || null;
-        commit(MutationTypes.LOSE, payload);
-        if (info) {
-            dispatch(new TryStationAction(info));
-        }
-        return;
-    },
-    [ActionTypes.TRY_STATION_ONCE]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
-        if (!payload) throw new Error("payload required");
-        if (!payload.info) throw new Error("payload.info required");
-        return state.services
-            .queryStation()
-            .takeReadings(payload.info.url, state.location)
-            .then((statusReply) => {
-                commit(MutationTypes.FIND, payload.info);
-                commit(MutationTypes.STATION_QUERIED, payload.info);
-                commit(MutationTypes.STATION_ACTIVITY, payload.info);
-                return dispatch(new StationRepliedAction(statusReply, payload.info.url), { root: true });
-            });
-    },
-    [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
-        if (!payload) throw new Error("payload required");
-        if (!payload.info) throw new Error("payload.info required");
-        return await backOff(() => dispatch(ActionTypes.TRY_STATION_ONCE, payload), {
-            maxDelay: 60000,
-            numOfAttempts: 10,
-            startingDelay: 250,
-        });
-    },
-    [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
-        commit(MutationTypes.STATION_QUERIED, info);
-        return state.services
-            .queryStation()
-            .takeReadings(info.url, state.location)
-            .then(
-                (statusReply) => {
-                    commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
-                },
-                (error) => {
-                    if (QueryThrottledError.isInstance(error)) {
-                        console.log("query-stationi:warning", error.message);
-                        return Promise.resolve();
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.SCAN_FOR_STATIONS]: async ({ dispatch, state }: ActionParameters) => {
+            await state.services.discovery().restart();
+            const candidates = await state.services.db().queryRecentlyActiveAddresses();
+            const offline = candidates;
+            const tries = offline.map((candidate) => dispatch(ActionTypes.TRY_STATION_ONCE, new TryStationAction(candidate)));
+            return await Promise.all(tries);
+        },
+        [ActionTypes.REFRESH]: ({ dispatch, state }: ActionParameters) => {
+            const now = new Date();
+            return Promise.all(
+                Object.values(state.stations).map((nearby) => {
+                    if (nearby.old(now) || nearby.tooManyFailures()) {
+                        console.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
+                        return dispatch(ActionTypes.LOST, nearby.info);
                     }
-                    return Promise.reject(error);
-                }
-            );
-    },
-    [ActionTypes.QUERY_NECESSARY]: ({ commit, dispatch, state }: ActionParameters) => {
-        return Promise.all(
-            Object.values(state.stations)
-                .filter((nearby: NearbyStation) => {
-                    if (nearby.transferring) {
-                        console.log("skip nearby transferring station");
-                        return false;
-                    }
-                    const mark = nearby.activity.getTime() > nearby.queried.getTime() ? nearby.activity : nearby.queried;
-                    const now = new Date();
-                    const elapsed = now.getTime() - mark.getTime();
-                    const querying = elapsed > nearby.delay;
-                    return querying;
+                    return {};
                 })
-                .map((nearby: NearbyStation) =>
-                    /*
+            ).then(() => dispatch(ActionTypes.QUERY_NECESSARY));
+        },
+        [ActionTypes.FOUND]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
+            commit(MutationTypes.FIND, info);
+            return dispatch(ActionTypes.QUERY_STATION, info);
+        },
+        [ActionTypes.MAYBE_LOST]: ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+            const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
+            if (info && !info.transferring) {
+                return dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
+            }
+        },
+        [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {},
+        [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+            const info = state.stations[payload.deviceId]?.info || null;
+            commit(MutationTypes.LOSE, payload);
+            if (info) {
+                dispatch(new TryStationAction(info));
+            }
+            return;
+        },
+        [ActionTypes.TRY_STATION_ONCE]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
+            if (!payload) throw new Error("payload required");
+            if (!payload.info) throw new Error("payload.info required");
+            return state.services
+                .queryStation()
+                .takeReadings(payload.info.url, state.location)
+                .then((statusReply) => {
+                    commit(MutationTypes.FIND, payload.info);
+                    commit(MutationTypes.STATION_QUERIED, payload.info);
+                    commit(MutationTypes.STATION_ACTIVITY, payload.info);
+                    return dispatch(new StationRepliedAction(statusReply, payload.info.url), { root: true });
+                });
+        },
+        [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
+            if (!payload) throw new Error("payload required");
+            if (!payload.info) throw new Error("payload.info required");
+            return await backOff(() => dispatch(ActionTypes.TRY_STATION_ONCE, payload), {
+                maxDelay: 60000,
+                numOfAttempts: 10,
+                startingDelay: 250,
+            });
+        },
+        [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
+            commit(MutationTypes.STATION_QUERIED, info);
+            return state.services
+                .queryStation()
+                .takeReadings(info.url, state.location)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.STATION_ACTIVITY, info);
+                        return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                    },
+                    (error) => {
+                        if (QueryThrottledError.isInstance(error)) {
+                            console.log("query-stationi:warning", error.message);
+                            return Promise.resolve();
+                        }
+                        return Promise.reject(error);
+                    }
+                );
+        },
+        [ActionTypes.QUERY_NECESSARY]: ({ commit, dispatch, state }: ActionParameters) => {
+            return Promise.all(
+                Object.values(state.stations)
+                    .filter((nearby: NearbyStation) => {
+                        if (nearby.transferring) {
+                            console.log("skip nearby transferring station");
+                            return false;
+                        }
+                        const mark = nearby.activity.getTime() > nearby.queried.getTime() ? nearby.activity : nearby.queried;
+                        const now = new Date();
+                        const elapsed = now.getTime() - mark.getTime();
+                        const querying = elapsed > nearby.delay;
+                        return querying;
+                    })
+                    .map((nearby: NearbyStation) =>
+                        /*
                     backOff(() => dispatch(ActionTypes.QUERY_STATION, nearby.info), {
                         numOfAttempts: 1,
                         startingDelay: 250,
@@ -132,147 +133,148 @@ const actions = {
                         return dispatch(ActionTypes.LOST, nearby.info);
                     })
 					*/
-                    dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
-                        (reply) => nearby.success(),
-                        (error) => nearby.failure()
+                        dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
+                            (reply) => nearby.success(),
+                            (error) => nearby.failure()
+                        )
                     )
-                )
-        );
-    },
-    [ActionTypes.QUERY_ALL]: ({ commit, dispatch, state }: ActionParameters) => {
-        return Promise.all(Object.values(state.stations).map((station) => dispatch(ActionTypes.QUERY_STATION, station.info)));
-    },
-    [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; name: string }) => {
-        if (!payload?.deviceId) throw new Error("no nearby info");
-        const info = state.stations[payload.deviceId];
-        if (!info) throw new Error("no nearby info");
+            );
+        },
+        [ActionTypes.QUERY_ALL]: ({ commit, dispatch, state }: ActionParameters) => {
+            return Promise.all(Object.values(state.stations).map((station) => dispatch(ActionTypes.QUERY_STATION, station.info)));
+        },
+        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; name: string }) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
 
-        commit(MutationTypes.STATION_QUERIED, info);
-        return state.services
-            .queryStation()
-            .configureName(info.url, payload.name)
-            .then(
-                (statusReply) => {
-                    commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
-                },
-                (error) => {
-                    if (error instanceof QueryThrottledError) {
-                        return error;
+            commit(MutationTypes.STATION_QUERIED, info);
+            return state.services
+                .queryStation()
+                .configureName(info.url, payload.name)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.STATION_ACTIVITY, info);
+                        return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                    },
+                    (error) => {
+                        if (error instanceof QueryThrottledError) {
+                            return error;
+                        }
+                        return Promise.reject(error);
                     }
-                    return Promise.reject(error);
-                }
-            );
-    },
-    [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: AddStationNetworkAction) => {
-        if (!payload?.deviceId) throw new Error("no nearby info");
-        const info = state.stations[payload.deviceId];
-        if (!info) throw new Error("no nearby info");
+                );
+        },
+        [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: AddStationNetworkAction) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
 
-        const networks = [
-            {
-                ssid: payload.ssid,
-                password: payload.password,
-            },
-        ];
+            const networks = [
+                {
+                    ssid: payload.ssid,
+                    password: payload.password,
+                },
+            ];
 
-        commit(MutationTypes.STATION_QUERIED, info);
-        return state.services
-            .queryStation()
-            .sendNetworkSettings(info.url, networks)
-            .then(
-                (statusReply) => {
-                    commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
-                },
-                (error) => {
-                    if (error instanceof QueryThrottledError) {
-                        return error;
+            commit(MutationTypes.STATION_QUERIED, info);
+            return state.services
+                .queryStation()
+                .sendNetworkSettings(info.url, networks)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.STATION_ACTIVITY, info);
+                        return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                    },
+                    (error) => {
+                        if (error instanceof QueryThrottledError) {
+                            return error;
+                        }
+                        return Promise.reject(error);
                     }
-                    return Promise.reject(error);
-                }
-            );
-    },
-    [ActionTypes.CONFIGURE_STATION_SCHEDULES]: (
-        { commit, dispatch, state }: ActionParameters,
-        payload: { deviceId: string; schedules: Schedules }
-    ) => {
-        if (!payload?.deviceId) throw new Error("no nearby info");
-        const info = state.stations[payload.deviceId];
-        if (!info) throw new Error("no nearby info");
+                );
+        },
+        [ActionTypes.CONFIGURE_STATION_SCHEDULES]: (
+            { commit, dispatch, state }: ActionParameters,
+            payload: { deviceId: string; schedules: Schedules }
+        ) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
 
-        commit(MutationTypes.STATION_QUERIED, info);
-        return state.services
-            .queryStation()
-            .configureSchedule(info.url, payload.schedules)
-            .then(
-                (statusReply) => {
-                    commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
-                },
-                (error) => {
-                    if (error instanceof QueryThrottledError) {
-                        return error;
+            commit(MutationTypes.STATION_QUERIED, info);
+            return state.services
+                .queryStation()
+                .configureSchedule(info.url, payload.schedules)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.STATION_ACTIVITY, info);
+                        return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                    },
+                    (error) => {
+                        if (error instanceof QueryThrottledError) {
+                            return error;
+                        }
+                        return Promise.reject(error);
                     }
-                    return Promise.reject(error);
-                }
-            );
-    },
-    [ActionTypes.DEPLOY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
-        if (!payload?.deviceId) throw new Error("no nearby info");
-        const info = state.stations[payload.deviceId];
-        if (!info) throw new Error("no nearby info");
-        commit(MutationTypes.STATION_QUERIED, info);
-        return state.services
-            .queryStation()
-            .startDataRecording(info.url)
-            .then(
-                (statusReply) => {
-                    commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
-                },
-                (error) => {
-                    if (error instanceof QueryThrottledError) {
-                        return error;
+                );
+        },
+        [ActionTypes.DEPLOY_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
+            commit(MutationTypes.STATION_QUERIED, info);
+            return state.services
+                .queryStation()
+                .startDataRecording(info.url)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.STATION_ACTIVITY, info);
+                        return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                    },
+                    (error) => {
+                        if (error instanceof QueryThrottledError) {
+                            return error;
+                        }
+                        return Promise.reject(error);
                     }
-                    return Promise.reject(error);
-                }
-            );
-    },
-    [ActionTypes.END_STATION_DEPLOYMENT]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
-        if (!payload?.deviceId) throw new Error("no nearby info");
-        const info = state.stations[payload.deviceId];
-        if (!info) throw new Error("no nearby info");
-        commit(MutationTypes.STATION_QUERIED, info);
-        return state.services
-            .queryStation()
-            .stopDataRecording(info.url)
-            .then(
-                (statusReply) => {
-                    commit(MutationTypes.STATION_ACTIVITY, info);
-                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
-                },
-                (error) => {
-                    if (error instanceof QueryThrottledError) {
-                        return error;
+                );
+        },
+        [ActionTypes.END_STATION_DEPLOYMENT]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
+            commit(MutationTypes.STATION_QUERIED, info);
+            return state.services
+                .queryStation()
+                .stopDataRecording(info.url)
+                .then(
+                    (statusReply) => {
+                        commit(MutationTypes.STATION_ACTIVITY, info);
+                        return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                    },
+                    (error) => {
+                        if (error instanceof QueryThrottledError) {
+                            return error;
+                        }
+                        return Promise.reject(error);
                     }
-                    return Promise.reject(error);
-                }
-            );
-    },
-    [ActionTypes.SCAN_STATION_NETWORKS]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
-        if (!payload?.deviceId) throw new Error("no nearby info");
-        const info = state.stations[payload.deviceId];
-        if (!info) throw new Error("no nearby info");
-        commit(MutationTypes.STATION_QUERIED, info);
-        return state.services
-            .queryStation()
-            .scanNearbyNetworks(info.url)
-            .then((networksReply) => {
-                commit(MutationTypes.STATION_ACTIVITY, info);
-                return networksReply;
-            });
-    },
+                );
+        },
+        [ActionTypes.SCAN_STATION_NETWORKS]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
+            commit(MutationTypes.STATION_QUERIED, info);
+            return state.services
+                .queryStation()
+                .scanNearbyNetworks(info.url)
+                .then((networksReply) => {
+                    commit(MutationTypes.STATION_ACTIVITY, info);
+                    return networksReply;
+                });
+        },
+    };
 };
 
 const getters = {
@@ -348,12 +350,14 @@ const mutations = {
     },
 };
 
-const state = () => new NearbyState();
+export const nearby = (services: ServiceRef) => {
+    const state = () => new NearbyState();
 
-export const nearby = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

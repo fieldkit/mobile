@@ -1,6 +1,7 @@
 import Vue from "vue";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import * as MutationTypes from "../mutations";
+import { ServiceRef } from "./utilities";
 
 export class PhoneState {
     network: PhoneNetwork = new PhoneNetwork(null);
@@ -9,7 +10,9 @@ export class PhoneState {
 
 const getters = {};
 
-const actions = {};
+const actions = (services: ServiceRef) => {
+    return {};
+};
 
 const mutations = {
     [MutationTypes.RESET]: (state: PhoneState, error: string) => {
@@ -23,12 +26,14 @@ const mutations = {
     },
 };
 
-const state = () => new PhoneState();
+export const phone = (services: ServiceRef) => {
+    const state = () => new PhoneState();
 
-export const phone = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

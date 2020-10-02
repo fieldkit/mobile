@@ -300,80 +300,82 @@ export class SyncingState {
 
 type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
 
-const actions = {
-    [ActionTypes.DOWNLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
-        return Promise.all(syncs.map((dl) => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
-    },
-    [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
-        if (!sync.connected) {
-            throw new Error("refusing to download from disconnected station");
-        }
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.DOWNLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
+            return Promise.all(syncs.map((dl) => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
+        },
+        [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+            if (!sync.connected) {
+                throw new Error("refusing to download from disconnected station");
+            }
 
-        commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
+            commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
 
-        return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
-            const fsFolder = state.services.fs().getFolder(getFilePath(file.path));
-            const fsFile = fsFolder.getFile(getFileName(file.path));
-            return state.services
-                .queryStation()
-                .download(file.url, fsFile.path, (total: number, copied: number, info) => {
-                    commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
-                })
-                .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
-                .catch((error) => {
-                    if (AuthenticationError.isInstance(error)) {
-                        Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
-                    } else {
-                        Vue.set(state.errors, sync.deviceId, TransferError.Other);
-                    }
-                    console.log("error downloading", error, error ? error.stack : null);
-                    return Promise.reject(error);
+            return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
+                const fsFolder = state.services.fs().getFolder(getFilePath(file.path));
+                const fsFile = fsFolder.getFile(getFileName(file.path));
+                return state.services
+                    .queryStation()
+                    .download(file.url, fsFile.path, (total: number, copied: number, info) => {
+                        commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
+                    })
+                    .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
+                    .catch((error) => {
+                        if (AuthenticationError.isInstance(error)) {
+                            Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                        } else {
+                            Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                        }
+                        console.log("error downloading", error, error ? error.stack : null);
+                        return Promise.reject(error);
+                    });
+            })
+                .then(() => dispatch(ActionTypes.LOAD))
+                .finally(() => {
+                    commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
                 });
-        })
-            .then(() => dispatch(ActionTypes.LOAD))
-            .finally(() => {
-                commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
-            });
-    },
-    [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
-        return Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
-    },
-    [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
-        const paths = sync.getPathsToUpload();
-        const downloads = paths.map((path) => state.pending[path]).filter((d) => d != null);
-        if (downloads.length != paths.length) {
-            throw new Error("download missing");
-        }
+        },
+        [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
+            return Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
+        },
+        [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+            const paths = sync.getPathsToUpload();
+            const downloads = paths.map((path) => state.pending[path]).filter((d) => d != null);
+            if (downloads.length != paths.length) {
+                throw new Error("download missing");
+            }
 
-        const totalBytes = _(downloads)
-            .map((d) => d.size)
-            .sum();
+            const totalBytes = _(downloads)
+                .map((d) => d.size)
+                .sum();
 
-        commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
+            commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
 
-        return serializePromiseChain(downloads, (download: Download) => {
-            return state.services
-                .portal()
-                .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
-                    commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
-                })
-                .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
-                .catch((error) => {
-                    if (AuthenticationError.isInstance(error)) {
-                        console.log("error uploading (auth)", error, error ? error.stack : null);
-                        Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
-                    } else {
-                        console.log("error uploading (other)", error, error ? error.stack : null);
-                        Vue.set(state.errors, sync.deviceId, TransferError.Other);
-                    }
-                    return Promise.reject(error);
+            return serializePromiseChain(downloads, (download: Download) => {
+                return state.services
+                    .portal()
+                    .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
+                        commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
+                    })
+                    .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
+                    .catch((error) => {
+                        if (AuthenticationError.isInstance(error)) {
+                            console.log("error uploading (auth)", error, error ? error.stack : null);
+                            Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                        } else {
+                            console.log("error uploading (other)", error, error ? error.stack : null);
+                            Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                        }
+                        return Promise.reject(error);
+                    });
+            })
+                .then(() => dispatch(ActionTypes.LOAD))
+                .finally(() => {
+                    commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
                 });
-        })
-            .then(() => dispatch(ActionTypes.LOAD))
-            .finally(() => {
-                commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
-            });
-    },
+        },
+    };
 };
 
 const getters = {
@@ -527,14 +529,16 @@ const mutations = {
     },
 };
 
-const state = () => new SyncingState();
+export const syncing = (services: ServiceRef) => {
+    const state = () => new SyncingState();
 
-export const syncing = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };
 
 function parseBlocks(blocks) {

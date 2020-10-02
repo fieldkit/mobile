@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Station, PhoneLocation } from "../types";
 import { BoundingRectangle, MapCenter, Location, MappedStations, MappedStation } from "../map-types";
 import * as MutationTypes from "../mutations";
+import { ServiceRef } from "./utilities";
 
 export class MapState {
     phone: Location | null = null;
@@ -19,7 +20,9 @@ const getters = {
     },
 };
 
-const actions = {};
+const actions = (services: ServiceRef) => {
+    return {};
+};
 
 const mutations = {
     [MutationTypes.RESET]: (state: MapState, error: string) => {
@@ -46,12 +49,14 @@ const mutations = {
     },
 };
 
-const state = () => new MapState();
+export const map = (services: ServiceRef) => {
+    const state = () => new MapState();
 
-export const map = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

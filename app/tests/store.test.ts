@@ -30,7 +30,7 @@ describe("Store", () => {
         store.hotUpdate({
             modules: {
                 nearby: {
-                    actions: _.extend(nearby.actions, {
+                    actions: _.extend(nearby(services).actions, {
                         [ActionTypes.TRY_STATION]: () => {
                             return Promise.resolve();
                         },

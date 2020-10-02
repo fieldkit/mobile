@@ -58,65 +58,67 @@ const getters = {
 
 type ActionParameters = { commit: any; dispatch: any; state: CalibrationState };
 
-const actions = {
-    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
-        const updating = _.fromPairs(
-            _.flatten(
-                stations.map((station) =>
-                    station.modules.map((m) => {
-                        if (m.status) {
-                            return [m.moduleId, m.status];
-                        }
-                        return [];
-                    })
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
+            const updating = _.fromPairs(
+                _.flatten(
+                    stations.map((station) =>
+                        station.modules.map((m) => {
+                            if (m.status) {
+                                return [m.moduleId, m.status];
+                            }
+                            return [];
+                        })
+                    )
                 )
-            )
-        );
+            );
 
-        return commit(CALIBRATION_REFRESH, updating);
-    },
-    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
-        const updating = _.fromPairs(
-            payload.statusReply.modules.map((m) => {
-                if (m.status) {
-                    return [m.deviceId, m.status];
-                }
-                return [];
-            })
-        );
+            return commit(CALIBRATION_REFRESH, updating);
+        },
+        [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
+            const updating = _.fromPairs(
+                payload.statusReply.modules.map((m) => {
+                    if (m.status) {
+                        return [m.deviceId, m.status];
+                    }
+                    return [];
+                })
+            );
 
-        return commit(CALIBRATION_REFRESH, updating);
-    },
-    [ActionTypes.CLEAR_SENSOR_CALIBRATION]: ({ commit, dispatch, state }: ActionParameters, payload: ClearAtlasCalibration) => {
-        const info = state.connected[payload.deviceId];
-        if (!info) {
-            throw new Error(`no info for nearby station ${payload.deviceId}`);
-        }
-        const service = new CalibrationService(state.services.conservify());
-        const url = info.url + "/modules/" + payload.position;
-        return service.clearCalibration(url).then((cleared) => {
-            console.log("cal:", "cleared", payload.moduleId, cleared);
-            return commit(CLEARED_CALIBRATION, { [payload.moduleId]: cleared });
-        });
-    },
-    [ActionTypes.CALIBRATE_SENSOR]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
-        const info = state.connected[payload.deviceId];
-        if (!info) {
-            throw new Error(`no info for nearby station ${payload.deviceId}`);
-        }
-        const service = new CalibrationService(state.services.conservify());
-        const url = info.url + "/modules/" + payload.position;
-        const params = {
-            sensorType: payload.sensorType,
-            which: payload.value.which,
-            reference: payload.value.reference,
-            compensations: payload.compensations,
-        };
-        return service.calibrateSensor(url, params).then((calibrated) => {
-            console.log("cal:", "calibrated", payload.moduleId, calibrated);
-            return commit(CALIBRATED, { [payload.moduleId]: calibrated });
-        });
-    },
+            return commit(CALIBRATION_REFRESH, updating);
+        },
+        [ActionTypes.CLEAR_SENSOR_CALIBRATION]: ({ commit, dispatch, state }: ActionParameters, payload: ClearAtlasCalibration) => {
+            const info = state.connected[payload.deviceId];
+            if (!info) {
+                throw new Error(`no info for nearby station ${payload.deviceId}`);
+            }
+            const service = new CalibrationService(state.services.conservify());
+            const url = info.url + "/modules/" + payload.position;
+            return service.clearCalibration(url).then((cleared) => {
+                console.log("cal:", "cleared", payload.moduleId, cleared);
+                return commit(CLEARED_CALIBRATION, { [payload.moduleId]: cleared });
+            });
+        },
+        [ActionTypes.CALIBRATE_SENSOR]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
+            const info = state.connected[payload.deviceId];
+            if (!info) {
+                throw new Error(`no info for nearby station ${payload.deviceId}`);
+            }
+            const service = new CalibrationService(state.services.conservify());
+            const url = info.url + "/modules/" + payload.position;
+            const params = {
+                sensorType: payload.sensorType,
+                which: payload.value.which,
+                reference: payload.value.reference,
+                compensations: payload.compensations,
+            };
+            return service.calibrateSensor(url, params).then((calibrated) => {
+                console.log("cal:", "calibrated", payload.moduleId, calibrated);
+                return commit(CALIBRATED, { [payload.moduleId]: calibrated });
+            });
+        },
+    };
 };
 
 const mutations = {
@@ -145,12 +147,14 @@ const mutations = {
     },
 };
 
-const state = () => new CalibrationState();
+export const cal = (services: ServiceRef) => {
+    const state = () => new CalibrationState();
 
-export const cal = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

@@ -20,80 +20,82 @@ const getters = {};
 
 export const SET_CURRENT_USER = "SET_CURRENT_USER";
 
-const actions = {
-    [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
-        return Promise.all([dispatch(ActionTypes.LOAD_SETTINGS), dispatch(ActionTypes.LOAD_ACCOUNTS)]);
-    },
-    [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
-        return state.services
-            .db()
-            .getSettings()
-            .then((settings) => {
-                commit(MutationTypes.LOAD_SETTINGS, settings);
-            })
-            .catch((e) => console.log(ActionTypes.LOAD_SETTINGS, e));
-    },
-    [ActionTypes.UPDATE_SETTINGS]: ({ commit, dispatch, state }: ActionParameters, settings) => {
-        return state.services
-            .db()
-            .updateSettings(settings)
-            .then((res) => dispatch(ActionTypes.LOAD_SETTINGS).then(() => res))
-            .catch((e) => console.log(ActionTypes.UPDATE_SETTINGS, e));
-    },
-    [ActionTypes.LOAD_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
-        return state.services
-            .db()
-            .getAllAccounts()
-            .then((accounts) => {
-                commit(MutationTypes.LOAD_ACCOUNTS, accounts);
-                const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
-                if (sorted.length > 0) {
-                    console.log("currentUser", sorted); // PRIVACY ANONYMIZE
-                    state.services.portal().setCurrentUser(sorted[0]);
-                    commit(SET_CURRENT_USER, sorted[0]);
-                }
-            })
-            .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
-    },
-    [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-        return state.services
-            .portal()
-            .whoAmI()
-            .then((self) => {
-                console.log("authenticated", self);
-                return state.services
-                    .db()
-                    .addOrUpdateAccounts(self)
-                    .then((all) => {
-                        state.services.portal().setCurrentUser(self);
-                        commit(SET_CURRENT_USER, self);
-                        return dispatch(ActionTypes.LOAD_ACCOUNTS);
-                    })
-                    .catch((e) => console.log(ActionTypes.UPDATE_ACCOUNT, e));
-            });
-    },
-    [ActionTypes.LOGOUT_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
-        return state.services
-            .db()
-            .deleteAllAccounts()
-            .then((all) => {
-                commit(MutationTypes.LOGOUT_ACCOUNTS);
-                return dispatch(ActionTypes.LOAD_ACCOUNTS);
-            })
-            .catch((e) => console.log(ActionTypes.LOGOUT_ACCOUNTS, e));
-    },
-    [ActionTypes.CHANGE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, email: string) => {
-        const chosen = state.accounts.filter((a) => a.email === email);
-        if (chosen.length == 0) throw new Error(`no such account: ${email}`);
-        return state.services
-            .db()
-            .addOrUpdateAccounts(chosen[0])
-            .then((all) => {
-                state.services.portal().setCurrentUser(chosen[0]);
-                commit(SET_CURRENT_USER, chosen[0]);
-            })
-            .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
-    },
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
+            return Promise.all([dispatch(ActionTypes.LOAD_SETTINGS), dispatch(ActionTypes.LOAD_ACCOUNTS)]);
+        },
+        [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
+            return state.services
+                .db()
+                .getSettings()
+                .then((settings) => {
+                    commit(MutationTypes.LOAD_SETTINGS, settings);
+                })
+                .catch((e) => console.log(ActionTypes.LOAD_SETTINGS, e));
+        },
+        [ActionTypes.UPDATE_SETTINGS]: ({ commit, dispatch, state }: ActionParameters, settings) => {
+            return state.services
+                .db()
+                .updateSettings(settings)
+                .then((res) => dispatch(ActionTypes.LOAD_SETTINGS).then(() => res))
+                .catch((e) => console.log(ActionTypes.UPDATE_SETTINGS, e));
+        },
+        [ActionTypes.LOAD_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
+            return state.services
+                .db()
+                .getAllAccounts()
+                .then((accounts) => {
+                    commit(MutationTypes.LOAD_ACCOUNTS, accounts);
+                    const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
+                    if (sorted.length > 0) {
+                        console.log("currentUser", sorted); // PRIVACY ANONYMIZE
+                        state.services.portal().setCurrentUser(sorted[0]);
+                        commit(SET_CURRENT_USER, sorted[0]);
+                    }
+                })
+                .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
+        },
+        [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
+            return state.services
+                .portal()
+                .whoAmI()
+                .then((self) => {
+                    console.log("authenticated", self);
+                    return state.services
+                        .db()
+                        .addOrUpdateAccounts(self)
+                        .then((all) => {
+                            state.services.portal().setCurrentUser(self);
+                            commit(SET_CURRENT_USER, self);
+                            return dispatch(ActionTypes.LOAD_ACCOUNTS);
+                        })
+                        .catch((e) => console.log(ActionTypes.UPDATE_ACCOUNT, e));
+                });
+        },
+        [ActionTypes.LOGOUT_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
+            return state.services
+                .db()
+                .deleteAllAccounts()
+                .then((all) => {
+                    commit(MutationTypes.LOGOUT_ACCOUNTS);
+                    return dispatch(ActionTypes.LOAD_ACCOUNTS);
+                })
+                .catch((e) => console.log(ActionTypes.LOGOUT_ACCOUNTS, e));
+        },
+        [ActionTypes.CHANGE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, email: string) => {
+            const chosen = state.accounts.filter((a) => a.email === email);
+            if (chosen.length == 0) throw new Error(`no such account: ${email}`);
+            return state.services
+                .db()
+                .addOrUpdateAccounts(chosen[0])
+                .then((all) => {
+                    state.services.portal().setCurrentUser(chosen[0]);
+                    commit(SET_CURRENT_USER, chosen[0]);
+                })
+                .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
+        },
+    };
 };
 
 const mutations = {
@@ -123,12 +125,14 @@ const mutations = {
     },
 };
 
-const state = () => new PortalState();
+export const portal = (services: ServiceRef) => {
+    const state = () => new PortalState();
 
-export const portal = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

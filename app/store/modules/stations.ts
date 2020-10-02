@@ -326,44 +326,46 @@ function loadStationsFromDatabase(db): Promise<Station[]> {
 
 type ActionParameters = { commit: any; dispatch: any; state: StationsState };
 
-const actions = {
-    [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
-        return dispatch(ActionTypes.LOAD_STATIONS);
-    },
-    [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
-        return loadStationsFromDatabase(state.services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
-    },
-    [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
-        commit(MutationTypes.STATIONS, stations);
-    },
-    [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
-        const statusReply = payload.statusReply;
-        if ((statusReply?.errors?.length || 0) > 0) {
-            return Promise.reject(new Error(`station error reply`));
-        }
-        return state.services
-            .db()
-            .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
-            .then((station) => dispatch(ActionTypes.LOAD_STATIONS));
-    },
-    [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
-        return state.services
-            .db()
-            .setStationPortalError({ id: status.id }, status.error)
-            .then((station) => commit(STATION_PORTAL_STATUS, status));
-    },
-    [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
-        return state.services
-            .db()
-            .setStationPortalError({ id: status.id }, {})
-            .then(() =>
-                state.services
-                    .db()
-                    .setStationPortalId(status)
-                    .then((station) => commit(STATION_PORTAL_STATUS, status))
-            );
-    },
-    [ActionTypes.UPDATE_PORTAL]: ({ commit }: ActionParameters) => {},
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
+            return dispatch(ActionTypes.LOAD_STATIONS);
+        },
+        [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
+            return loadStationsFromDatabase(state.services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
+        },
+        [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
+            commit(MutationTypes.STATIONS, stations);
+        },
+        [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
+            const statusReply = payload.statusReply;
+            if ((statusReply?.errors?.length || 0) > 0) {
+                return Promise.reject(new Error(`station error reply`));
+            }
+            return state.services
+                .db()
+                .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
+                .then((station) => dispatch(ActionTypes.LOAD_STATIONS));
+        },
+        [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
+            return state.services
+                .db()
+                .setStationPortalError({ id: status.id }, status.error)
+                .then((station) => commit(STATION_PORTAL_STATUS, status));
+        },
+        [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
+            return state.services
+                .db()
+                .setStationPortalError({ id: status.id }, {})
+                .then(() =>
+                    state.services
+                        .db()
+                        .setStationPortalId(status)
+                        .then((station) => commit(STATION_PORTAL_STATUS, status))
+                );
+        },
+        [ActionTypes.UPDATE_PORTAL]: ({ commit }: ActionParameters) => {},
+    };
 };
 
 const mutations = {
@@ -383,12 +385,14 @@ const mutations = {
     },
 };
 
-const state = () => new StationsState();
+export const stations = (services: ServiceRef) => {
+    const state = () => new StationsState();
 
-export const stations = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

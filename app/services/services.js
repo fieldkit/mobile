@@ -40,7 +40,7 @@ export class ServiceFactories {
 export class Services {
     Store() {
         if (!this.store) {
-            this.store = storeFactory();
+            this.store = storeFactory(this);
         }
         return this.store;
     }

@@ -1,5 +1,6 @@
 import * as MutationTypes from "../mutations";
 import { RouteState } from "../../routes/navigate";
+import { ServiceRef } from "./utilities";
 
 export class NavigationState {
     public route: RouteState | null = null;
@@ -7,7 +8,9 @@ export class NavigationState {
 
 const getters = {};
 
-const actions = {};
+const actions = (services: ServiceRef) => {
+    return {};
+};
 
 const mutations = {
     [MutationTypes.NAVIGATION]: (state: NavigationState, route: RouteState) => {
@@ -17,10 +20,12 @@ const mutations = {
 
 const state = () => new NavigationState();
 
-export const nav = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+export const nav = (services: ServiceRef) => {
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

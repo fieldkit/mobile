@@ -200,42 +200,47 @@ export const NOTES_SAVED = "NOTES_SAVED";
 
 const getters = {};
 
-const actions = {
-    [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
-        return state.services
-            .db()
-            .getAllNotes()
-            .then((all) => all.map((row) => Notes.fromRow(row)))
-            .then((all) => commit(LOAD_NOTES_ALL, all));
-    },
-    [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
-    [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
-    [ActionTypes.STATION_LOCATION]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number; location: string }) => {
-        commit(NOTES_LOCATION, payload);
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
+            return state.services
+                .db()
+                .getAllNotes()
+                .then((all) => all.map((row) => Notes.fromRow(row)))
+                .then((all) => commit(LOAD_NOTES_ALL, all));
+        },
+        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
+        [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
+        [ActionTypes.STATION_LOCATION]: (
+            { commit, dispatch, state }: ActionParameters,
+            payload: { stationId: number; location: string }
+        ) => {
+            commit(NOTES_LOCATION, payload);
 
-        return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
-    },
-    [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number }) => {
-        return state.services
-            .db()
-            .addOrUpdateNotes(state.stations[payload.stationId])
-            .then(() => {
-                commit(NOTES_SAVED, payload);
-            });
-    },
-    [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-        const syncing = state.services
-            .updater()
-            .addOrUpdateStations()
-            .catch((error) => {
-                // Don't let this error prevent authentication.
-                return {};
-            });
+            return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
+        },
+        [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number }) => {
+            return state.services
+                .db()
+                .addOrUpdateNotes(state.stations[payload.stationId])
+                .then(() => {
+                    commit(NOTES_SAVED, payload);
+                });
+        },
+        [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
+            const syncing = state.services
+                .updater()
+                .addOrUpdateStations()
+                .catch((error) => {
+                    // Don't let this error prevent authentication.
+                    return {};
+                });
 
-        return Promise.resolve({
-            syncing: syncing,
-        });
-    },
+            return Promise.resolve({
+                syncing: syncing,
+            });
+        },
+    };
 };
 
 const mutations = {
@@ -293,12 +298,14 @@ const mutations = {
     },
 };
 
-const state = () => new NotesState();
+export const notes = (services: ServiceRef) => {
+    const state = () => new NotesState();
 
-export const notes = {
-    namespaced: false,
-    state,
-    getters,
-    actions,
-    mutations,
+    return {
+        namespaced: false,
+        state,
+        getters,
+        actions: actions(services),
+        mutations,
+    };
 };

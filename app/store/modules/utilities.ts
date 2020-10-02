@@ -4,7 +4,6 @@ import DiscoverStation from "../../services/discover-station";
 import DatabaseInterface from "../../services/db-interface";
 import QueryStation from "../../services/query-station";
 
-
 export interface FileSystem {
     getFolder(path: string): any;
 }
