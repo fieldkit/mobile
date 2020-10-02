@@ -6,7 +6,7 @@ import * as utils from "@nativescript/core/utils/utils";
 import * as http from "@nativescript/core/http";
 import { Color } from "@nativescript/core/color";
 import { MapboxCommon, MapboxViewBase, MapStyle } from "./mapbox.common";
-import { GeoUtils } from "./geo.utils";
+import { GeoUtils } from './geo.utils';
 // Export the enums for devs not using TS
 export { MapStyle };
 let _markers = [];
@@ -28,7 +28,8 @@ const _setMapboxMapOptions = (mapView, settings) => {
     if (settings.center && settings.center.lat && settings.center.lng) {
         let centerCoordinate = CLLocationCoordinate2DMake(settings.center.lat, settings.center.lng);
         mapView.setCenterCoordinateZoomLevelAnimated(centerCoordinate, settings.zoomLevel, false);
-    } else {
+    }
+    else {
         mapView.setZoomLevelAnimated(settings.zoomLevel, false);
     }
     mapView.showsUserLocation = settings.showUserLocation;
@@ -37,25 +38,34 @@ const _setMapboxMapOptions = (mapView, settings) => {
 const _getMapStyle = (input) => {
     if (/^mapbox:\/\/styles/.test(input) || /^http:\/\//.test(input) || /^https:\/\//.test(input)) {
         return NSURL.URLWithString(input);
-    } else if (/^~\//.test(input)) {
-        const assetPath = "file://" + fs.knownFolders.currentApp().path + "/";
+    }
+    else if (/^~\//.test(input)) {
+        const assetPath = 'file://' + fs.knownFolders.currentApp().path + '/';
         input = input.replace(/^~\//, assetPath);
         return NSURL.URLWithString(input);
-    } else if (input === MapStyle.LIGHT || input === MapStyle.LIGHT.toString()) {
+    }
+    else if (input === MapStyle.LIGHT || input === MapStyle.LIGHT.toString()) {
         return MGLStyle.lightStyleURL;
-    } else if (input === MapStyle.DARK || input === MapStyle.DARK.toString()) {
+    }
+    else if (input === MapStyle.DARK || input === MapStyle.DARK.toString()) {
         return MGLStyle.darkStyleURL;
-    } else if (input === MapStyle.OUTDOORS || input === MapStyle.OUTDOORS.toString()) {
+    }
+    else if (input === MapStyle.OUTDOORS || input === MapStyle.OUTDOORS.toString()) {
         return MGLStyle.outdoorsStyleURL;
-    } else if (input === MapStyle.SATELLITE || input === MapStyle.SATELLITE.toString()) {
+    }
+    else if (input === MapStyle.SATELLITE || input === MapStyle.SATELLITE.toString()) {
         return MGLStyle.satelliteStyleURL;
-    } else if (input === MapStyle.SATELLITE_STREETS || input === MapStyle.SATELLITE_STREETS.toString()) {
+    }
+    else if (input === MapStyle.SATELLITE_STREETS || input === MapStyle.SATELLITE_STREETS.toString()) {
         return MGLStyle.satelliteStreetsStyleURL;
-    } else if (input === MapStyle.TRAFFIC_DAY || input === MapStyle.TRAFFIC_DAY.toString()) {
+    }
+    else if (input === MapStyle.TRAFFIC_DAY || input === MapStyle.TRAFFIC_DAY.toString()) {
         return NSURL.URLWithString("mapbox://styles/mapbox/traffic-day-v2");
-    } else if (input === MapStyle.TRAFFIC_NIGHT || input === MapStyle.TRAFFIC_NIGHT.toString()) {
+    }
+    else if (input === MapStyle.TRAFFIC_NIGHT || input === MapStyle.TRAFFIC_NIGHT.toString()) {
         return NSURL.URLWithString("mapbox://styles/mapbox/traffic-night-v2");
-    } else {
+    }
+    else {
         return MGLStyle.streetsStyleURL;
     }
 };
@@ -75,11 +85,11 @@ const _getTrackingMode = (input) => {
 };
 // ------------------------------------------------------------------------
 /**
- * Map View Class instantiated from XML
- *
- * This class is created by the NativeScript XML view parsing
- * code.
- */
+* Map View Class instantiated from XML
+*
+* This class is created by the NativeScript XML view parsing
+* code.
+*/
 export class MapboxView extends MapboxViewBase {
     constructor() {
         super(...arguments);
@@ -93,8 +103,8 @@ export class MapboxView extends MapboxViewBase {
     }
     // ------------------------------------------------------
     /**
-     * programmatically include settings
-     */
+    * programmatically include settings
+    */
     setConfig(settings) {
         console.log("MapboxView::setConfig(): settings:", settings);
         this.settings = settings;
@@ -111,48 +121,49 @@ export class MapboxView extends MapboxViewBase {
     }
     // -------------------------------------------------------
     /**
-     * init the native view.
-     *
-     * FIXME: It appears that the order of events is different between iOS and Android.
-     * In the demo under Android, the main-page event handler is called first then the one
-     * in the plugin. Under iOS it's the reverse.
-     *
-     * The symptom is that any properties that reference a binding aren't available
-     * at the time this method is called. For example {{access_token}}.
-     *
-     * I'm sure there is something I do not understand about how this is supposed to work
-     * and that the handstands below are not necessary.
-     */
+    * init the native view.
+    *
+    * FIXME: It appears that the order of events is different between iOS and Android.
+    * In the demo under Android, the main-page event handler is called first then the one
+    * in the plugin. Under iOS it's the reverse.
+    *
+    * The symptom is that any properties that reference a binding aren't available
+    * at the time this method is called. For example {{access_token}}.
+    *
+    * I'm sure there is something I do not understand about how this is supposed to work
+    * and that the handstands below are not necessary.
+    */
     initNativeView() {
         console.log("MapboxView::initNativeView(): top");
         this.nativeView.owner = this;
         super.initNativeView();
         console.log("MapboxView::initNativeView(): after super.initNativeView()");
         // wait for the view to be fully loaded before initializing the map
-        this.on("loaded", () => {
+        this.on('loaded', () => {
             console.log("MapboxView::initNativeView(): on - loaded");
             if (!this.initialized) {
                 console.log("MapboxView::initNativeView(): initializing map");
                 this.initMap();
                 this.initialized = true;
-            } else {
+            }
+            else {
                 console.log("MapboxView::initNativeView(): map already initialized.");
             }
         });
-        this.on("unloaded", () => {
+        this.on('unloaded', () => {
             console.log("MapboxView::initNativeView(): on - unloaded");
         });
     }
     // -------------------------------------------------------
     /**
-     * when the view is destroyed.
-     *
-     * This is called by the framework when the view is destroyed (made not visible).
-     *
-     * However, it does not seem to be called when the page is unloaded.
-     *
-     * @link https://docs.nativescript.org/plugins/ui-plugin-custom
-     */
+    * when the view is destroyed.
+    *
+    * This is called by the framework when the view is destroyed (made not visible).
+    *
+    * However, it does not seem to be called when the page is unloaded.
+    *
+    * @link https://docs.nativescript.org/plugins/ui-plugin-custom
+    */
     async disposeNativeView() {
         console.log("MapboxView::disposeNativeView(): top");
         this.nativeView.owner = null;
@@ -163,21 +174,21 @@ export class MapboxView extends MapboxViewBase {
     }
     // ---------------------------------------------------
     /**
-     * returns a reference to the class Mapbox API shim instance
-     *
-     * @see Mapbox
-     */
+    * returns a reference to the class Mapbox API shim instance
+    *
+    * @see Mapbox
+    */
     getMapboxApi() {
         return this.mapbox;
     }
     // ----------------------------------------------------
     /**
-     * initialize the map
-     *
-     * @see MGLMapViewDelegateImpl
-     *
-     * @todo FIXME: figure out why the accessToken property (which is using a binding in the demo XML) isn't set before we arrive here.
-     */
+    * initialize the map
+    *
+    * @see MGLMapViewDelegateImpl
+    *
+    * @todo FIXME: figure out why the accessToken property (which is using a binding in the demo XML) isn't set before we arrive here.
+    */
     initMap() {
         console.log("MapboxView::initMap() top with settings:", this.settings);
         // FIXME: HACK: if we are arriving here because of an XML parse the property evaluations may not have
@@ -200,7 +211,8 @@ export class MapboxView extends MapboxViewBase {
         }
         if (!this.settings) {
             this.settings = Mapbox.merge(this.config, Mapbox.defaults);
-        } else {
+        }
+        else {
             this.settings = Mapbox.merge(this.settings, Mapbox.defaults);
         }
         if (!this.nativeMapView) {
@@ -209,10 +221,7 @@ export class MapboxView extends MapboxViewBase {
             // called in a setTimeout call at the bottom.
             let drawMap = () => {
                 MGLAccountManager.accessToken = this.settings.accessToken;
-                this.nativeMapView = MGLMapView.alloc().initWithFrameStyleURL(
-                    CGRectMake(0, 0, this.nativeView.frame.size.width, this.nativeView.frame.size.height),
-                    _getMapStyle(this.settings.style)
-                );
+                this.nativeMapView = MGLMapView.alloc().initWithFrameStyleURL(CGRectMake(0, 0, this.nativeView.frame.size.width, this.nativeView.frame.size.height), _getMapStyle(this.settings.style));
                 // this delegate class is defined later in this file and is where, in Obj-C land,
                 // callbacks are delivered and handled.
                 this.nativeMapView.delegate = this.delegate = MGLMapViewDelegateImpl.new().initWithCallback(() => {
@@ -224,14 +233,14 @@ export class MapboxView extends MapboxViewBase {
                         eventName: MapboxViewBase.mapReadyEvent,
                         object: this,
                         map: this,
-                        ios: this.nativeMapView,
+                        ios: this.nativeMapView
                     });
                     // no permission required, but to align with Android we fire the event anyway
                     this.notify({
                         eventName: MapboxViewBase.locationPermissionGrantedEvent,
                         object: this,
                         map: this,
-                        ios: this.nativeMapView,
+                        ios: this.nativeMapView
                     });
                 });
                 _setMapboxMapOptions(this.nativeMapView, this.settings);
@@ -245,7 +254,7 @@ export class MapboxView extends MapboxViewBase {
                         eventName: MapboxViewBase.moveBeginEvent,
                         object: this,
                         map: this,
-                        ios: this.nativeMapView,
+                        ios: this.nativeMapView
                     });
                 }, this.nativeMapView);
             };
@@ -263,35 +272,35 @@ export class MapboxView extends MapboxViewBase {
 }
 // -----------------------------------------------------------------------------------------------------------------------
 /**
- * a custom user location marker
- *
- * We want to add some behavior to the user location marker to visibly
- * show the user when locations are being stored and when they are not.
- *
- * Sadly, it's not as easy under iOS as it is on Android. It involves
- * creating a custom annotation view.
- *
- * @link https://docs.mapbox.com/ios/maps/examples/user-location-annotation/
- */
+* a custom user location marker
+*
+* We want to add some behavior to the user location marker to visibly
+* show the user when locations are being stored and when they are not.
+*
+* Sadly, it's not as easy under iOS as it is on Android. It involves
+* creating a custom annotation view.
+*
+* @link https://docs.mapbox.com/ios/maps/examples/user-location-annotation/
+*/
 export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationView {
     /**
-     * init
-     *
-     * @link https://docs.nativescript.org/core-concepts/ios-runtime/HelloWorld
-     */
+    * init
+    *
+    * @link https://docs.nativescript.org/core-concepts/ios-runtime/HelloWorld
+    */
     init() {
         this.size = 48;
         super.initWithFrame(CGRectMake(0, 0, this.size, this.size));
         this.renderModeChanged = true;
-        this.userLocationRenderMode = "NORMAL";
+        this.userLocationRenderMode = 'NORMAL';
         return this;
     }
     /**
-     * update
-     *
-     * The note from the Objective-C sample indicates this method may be called quite
-     * often so it needs to be kept lightweight.
-     */
+    * update
+    *
+    * The note from the Objective-C sample indicates this method may be called quite
+    * often so it needs to be kept lightweight.
+    */
     update() {
         if (CLLocationCoordinate2DIsValid(this.userLocation.coordinate)) {
             // if it's the first time here, setup the layers that make up the
@@ -299,24 +308,24 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
             if (!this.dot) {
                 this.drawNonTrackingLocationMarker();
             }
-            if (this.userLocationRenderMode == "GPS") {
+            if (this.userLocationRenderMode == 'GPS') {
                 this.updateHeading();
             }
         }
     }
     /**
-     * Draw the GPS tracking arrow.
-     *
-     * @link https://docs.nativescript.org/ns-framework-modules/color
-     */
+    * Draw the GPS tracking arrow.
+    *
+    * @link https://docs.nativescript.org/ns-framework-modules/color
+    */
     drawTrackingLocationMarker() {
         console.log("CustomerUserLocationAnnotatinView::drawTrackingLocationMarker()");
         this.drawTrackingDot();
         this.drawArrow();
     } // end of setupLayers()
     /**
-     * draw the non-tracking marker
-     */
+    * draw the non-tracking marker
+    */
     drawNonTrackingLocationMarker() {
         console.log("CustomerUserLocationAnnotatinView::drawNonTrackingLocationMarker()");
         this.drawNonTrackingDot();
@@ -326,8 +335,8 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
         }
     }
     /**
-     * draw the tracking dot.
-     */
+    * draw the tracking dot.
+    */
     drawTrackingDot() {
         this.size = 48;
         // we need to adjust the size of the bounds of the marker. The Tracking marker
@@ -343,15 +352,16 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
         dot.borderColor = whiteColor.ios.CGColor;
         if (!this.dot) {
             this.layer.addSublayer(dot);
-        } else {
+        }
+        else {
             this.layer.replaceSublayerWith(this.dot, dot);
         }
         // QUESTION: does GC catch this?
         this.dot = dot;
     }
     /**
-     * draw the non-tracking dot.
-     */
+    * draw the non-tracking dot.
+    */
     drawNonTrackingDot() {
         this.size = 24;
         this.bounds = CGRectMake(0, 0, this.size, this.size);
@@ -365,15 +375,16 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
         dot.borderColor = whiteColor.ios.CGColor;
         if (!this.dot) {
             this.layer.addSublayer(dot);
-        } else {
+        }
+        else {
             this.layer.replaceSublayerWith(this.dot, dot);
         }
         // QUESTION: does GC catch this?
         this.dot = dot;
     }
     /**
-     * draw an arrow
-     */
+    * draw an arrow
+    */
     drawArrow() {
         let arrow = CAShapeLayer.layer();
         arrow.path = this.arrowPath();
@@ -382,29 +393,30 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
         arrow.fillColor = this.dot.borderColor;
         if (!this.arrow) {
             this.layer.addSublayer(arrow);
-        } else {
+        }
+        else {
             this.layer.replaceSublayerWith(this.arrow, arrow);
         }
         // QUESTION: Does GC catch this?
         this.arrow = arrow;
     }
     /**
-     * update arrow heading
-     *
-     * @link https://docs.nativescript.org/core-concepts/ios-runtime/types/C-Functions
-     */
+    * update arrow heading
+    *
+    * @link https://docs.nativescript.org/core-concepts/ios-runtime/types/C-Functions
+    */
     updateHeading() {
         // just to avoid a possible race condition where the arrow isnt' drawn yet
         if (!this.arrow) {
             return;
         }
-        if (typeof this.userLocation == "undefined") {
+        if (typeof this.userLocation == 'undefined') {
             return;
         }
-        if (typeof this.userLocation.heading == "undefined" || this.userLocation.heading === null) {
+        if ((typeof this.userLocation.heading == 'undefined') || (this.userLocation.heading === null)) {
             return;
         }
-        if (typeof this.userLocation.heading.trueHeading == "undefined" || this.userLocation.heading.trueHeading === null) {
+        if ((typeof this.userLocation.heading.trueHeading == 'undefined') || (this.userLocation.heading.trueHeading === null)) {
             return;
         }
         if (this.userLocation.heading.trueHeading > 0) {
@@ -417,7 +429,7 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
             // let rotation : number = MGLRadiansFromDegrees( this.mapView.direction - this.userLocation.heading.trueHeading );
             let degrees = this.mapView.direction - this.userLocation.heading.trueHeading;
             // in radians
-            let rotation = (degrees * Math.PI) / 180;
+            let rotation = degrees * Math.PI / 180;
             rotation = -rotation;
             // if the difference would be perceptible, rotate the arrow.
             if (fabs(rotation) > 0.01) {
@@ -427,13 +439,14 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
                 this.arrow.setAffineTransform(CGAffineTransformRotate(CGAffineTransformIdentity, rotation));
                 CATransaction.commit();
             }
-        } else {
+        }
+        else {
             this.arrow.hidden = true;
         }
     }
     /**
-     * Calculate the vector path for an arrow
-     */
+    * Calculate the vector path for an arrow
+    */
     arrowPath() {
         let max = this.size / 2;
         let pad = 3;
@@ -451,16 +464,17 @@ export class CustomUserLocationAnnotationView extends MGLUserLocationAnnotationV
         return bezierPath.CGPath;
     }
     /**
-     * change Render mode
-     *
-     * @param {string} renderMode
-     */
+    * change Render mode
+    *
+    * @param {string} renderMode
+    */
     changeUserLocationRenderMode(renderMode) {
         console.log("CustomUserLocationAnnotatinView::changeUserLocationRenderMode(): changing mode to '" + renderMode + "'");
         this.userLocationRenderMode = renderMode;
-        if (renderMode == "GPS") {
+        if (renderMode == 'GPS') {
             this.drawTrackingLocationMarker();
-        } else {
+        }
+        else {
             this.drawNonTrackingLocationMarker();
         }
     }
@@ -479,30 +493,30 @@ export class Mapbox extends MapboxCommon {
     }
     // --------------------------------------------------------------------
     /**
-     * set the mapboxMapInstance
-     *
-     * @see MapboxView::initMap()
-     */
+    * set the mapboxMapInstance
+    *
+    * @see MapboxView::initMap()
+    */
     setMapboxMapInstance(mapboxMapInstance) {
         this._mapboxMapInstance = mapboxMapInstance;
     }
     // --------------------------------------------------------------------
     /**
-     * set the mapboxViewInstance
-     *
-     * @see MapboxView::initMap();
-     */
+    * set the mapboxViewInstance
+    *
+    * @see MapboxView::initMap();
+    */
     setMapboxViewInstance(mapboxViewInstance) {
         this._mapboxViewInstance = mapboxViewInstance;
     }
     // --------------------------------------------------------------------
     /**
-     * event handler shim
-     *
-     * Initialize our event handler shim so that we can intercept events here.
-     *
-     * @param { MapboxView } mapboxView
-     */
+    * event handler shim
+    *
+    * Initialize our event handler shim so that we can intercept events here.
+    *
+    * @param { MapboxView } mapboxView
+    */
     initEventHandlerShim(settings, mapboxNativeViewInstance) {
         console.log("Mapbox:initEventHandlerShim(): top");
         this.setOnMapClickListener((point) => {
@@ -511,51 +525,40 @@ export class Mapbox extends MapboxCommon {
     }
     // --------------------------------------------------------------------------------
     /**
-     * register a map event handler
-     *
-     * The NativeScript ContentView base class as on() and off() methods.
-     */
-    onMapEvent(eventName, id, callback, nativeMapView) {}
+    * register a map event handler
+    *
+    * The NativeScript ContentView base class as on() and off() methods.
+    */
+    onMapEvent(eventName, id, callback, nativeMapView) {
+    }
     // -------------------------------------------------------------------------------
-    offMapEvent(eventName, id, nativeMapView) {}
+    offMapEvent(eventName, id, nativeMapView) {
+    }
     // ------------------------------------------------------------------------
     /**
-     * checks for a click event on a circle.
-     *
-     * For the moment we have to handle map click events long hand ourselves for circles.
-     *
-     * When we catch an event we'll check the eventHandlers map to see if the
-     * given layer is listed. If it is we invoke it's callback.
-     *
-     * If there are multiple overlapping circles only the first one in the list will be called.
-     *
-     * We also check the location of the click to see if it's inside any
-     * circles and raise the event accordingly.
-     *
-     * @todo detect the top circle in the overlapping circles case.
-     */
+    * checks for a click event on a circle.
+    *
+    * For the moment we have to handle map click events long hand ourselves for circles.
+    *
+    * When we catch an event we'll check the eventHandlers map to see if the
+    * given layer is listed. If it is we invoke it's callback.
+    *
+    * If there are multiple overlapping circles only the first one in the list will be called.
+    *
+    * We also check the location of the click to see if it's inside any
+    * circles and raise the event accordingly.
+    *
+    * @todo detect the top circle in the overlapping circles case.
+    */
     checkForCircleClickEvent(point) {
         console.log("Mapbox:checkForCircleClickEvent(): got click event with point:", point);
         // is this point within a circle?
         for (let i = 0; i < this.circles.length; i++) {
             console.log("Mapbox:checkForCircleClickEvent(): checking circle with radius:", this.circles[i].radius);
-            if (
-                GeoUtils.isLocationInCircle(
-                    point.lng,
-                    point.lat,
-                    this.circles[i].center[0],
-                    this.circles[i].center[1],
-                    this.circles[i].radius
-                )
-            ) {
-                console.log(
-                    "Mapbox:checkForCircleClickEvent() Point is in circle with id '" +
-                        this.circles[i].id +
-                        "' invoking callbacks, if any. Callback list is:",
-                    this.eventCallbacks
-                );
-                for (let x = 0; x < this.eventCallbacks["click"].length; x++) {
-                    let entry = this.eventCallbacks["click"][x];
+            if (GeoUtils.isLocationInCircle(point.lng, point.lat, this.circles[i].center[0], this.circles[i].center[1], this.circles[i].radius)) {
+                console.log("Mapbox:checkForCircleClickEvent() Point is in circle with id '" + this.circles[i].id + "' invoking callbacks, if any. Callback list is:", this.eventCallbacks);
+                for (let x = 0; x < this.eventCallbacks['click'].length; x++) {
+                    let entry = this.eventCallbacks['click'][x];
                     if (entry.id == this.circles[i].id) {
                         console.log("Mapbox:checkForCircleClickEvent(): calling callback for '" + entry.id + "'");
                         return entry.callback(point);
@@ -567,10 +570,10 @@ export class Mapbox extends MapboxCommon {
     } // end of checkForCircleClickEvent()
     // -------------------------------------------------------------------------------
     /**
-     * create an display the map
-     *
-     * @todo FIXME: This method is not called. See MapboxView::initMap().
-     */
+    * create an display the map
+    *
+    * @todo FIXME: This method is not called. See MapboxView::initMap().
+    */
     show(options) {
         console.log("Mapbox::show(): top with options:", options);
         return new Promise((resolve, reject) => {
@@ -587,21 +590,13 @@ export class Mapbox extends MapboxCommon {
                 if (this._mapboxViewInstance) {
                     this._mapboxViewInstance.removeFromSuperview();
                 }
-                const view = UIApplication.sharedApplication.keyWindow.rootViewController.view,
-                    frameRect = view.frame,
-                    mapFrame = CGRectMake(
-                        settings.margins.left,
-                        settings.margins.top,
-                        frameRect.size.width - settings.margins.left - settings.margins.right,
-                        frameRect.size.height - settings.margins.top - settings.margins.bottom
-                    ),
-                    styleURL = _getMapStyle(settings.style);
+                const view = UIApplication.sharedApplication.keyWindow.rootViewController.view, frameRect = view.frame, mapFrame = CGRectMake(settings.margins.left, settings.margins.top, frameRect.size.width - settings.margins.left - settings.margins.right, frameRect.size.height - settings.margins.top - settings.margins.bottom), styleURL = _getMapStyle(settings.style);
                 MGLAccountManager.accessToken = settings.accessToken;
                 this._mapboxViewInstance = MGLMapView.alloc().initWithFrameStyleURL(mapFrame, styleURL);
                 _setMapboxMapOptions(this._mapboxViewInstance, settings);
                 this._mapboxViewInstance.delegate = MGLMapViewDelegateImpl.new().initWithCallback((mapView) => {
                     resolve({
-                        ios: mapView,
+                        ios: mapView
                     });
                 });
                 _markers = [];
@@ -610,7 +605,8 @@ export class Mapbox extends MapboxCommon {
                 setTimeout(() => {
                     view.addSubview(this._mapboxViewInstance);
                 }, 500);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.show: " + ex);
                 reject(ex);
             }
@@ -623,7 +619,8 @@ export class Mapbox extends MapboxCommon {
                     this._mapboxViewInstance.removeFromSuperview();
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.hide: " + ex);
                 reject(ex);
             }
@@ -636,10 +633,12 @@ export class Mapbox extends MapboxCommon {
                     let view = UIApplication.sharedApplication.keyWindow.rootViewController.view;
                     view.addSubview(this._mapboxViewInstance);
                     resolve();
-                } else {
+                }
+                else {
                     reject("No map found");
                 }
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.unhide: " + ex);
                 reject(ex);
             }
@@ -659,43 +658,43 @@ export class Mapbox extends MapboxCommon {
     // Life Cycle Hooks - Required on Android
     // ----------------------------------------
     /**
-     * on Start
-     */
+    * on Start
+    */
     onStart(nativeMap) {
         return Promise.resolve();
     }
     // ----------------------------------------------
     /**
-     * on Resume
-     */
+    * on Resume
+    */
     onResume(nativeMap) {
         return Promise.resolve();
     }
     // ----------------------------------------------
     /**
-     * on Pause
-     */
+    * on Pause
+    */
     onPause(nativeMap) {
         return Promise.resolve();
     }
     // ----------------------------------------------
     /**
-     * on Stop
-     */
+    * on Stop
+    */
     onStop(nativeMap) {
         return Promise.resolve();
     }
     // ----------------------------------------------
     /**
-     * on Low Memory
-     */
+    * on Low Memory
+    */
     onLowMemory(nativeMap) {
         return Promise.resolve();
     }
     // ----------------------------------------------
     /**
-     * on Destroy
-     */
+    * on Destroy
+    */
     onDestroy(nativeMap) {
         return Promise.resolve();
     }
@@ -703,8 +702,8 @@ export class Mapbox extends MapboxCommon {
     // onSaveInstanceState( Bundle outState)
     // ----------------------------------------
     /**
-     * explicitly set a map style
-     */
+    * explicitly set a map style
+    */
     setMapStyle(style, nativeMap) {
         return new Promise((resolve, reject) => {
             try {
@@ -717,7 +716,8 @@ export class Mapbox extends MapboxCommon {
                     resolve();
                 });
                 theMap.styleURL = _getMapStyle(style);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setMapStyle: " + ex);
                 reject(ex);
             }
@@ -730,7 +730,8 @@ export class Mapbox extends MapboxCommon {
                 const theMap = nativeMap || this._mapboxViewInstance;
                 _addMarkers(markers, theMap);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.addMarkers: " + ex);
                 reject(ex);
             }
@@ -741,22 +742,24 @@ export class Mapbox extends MapboxCommon {
             try {
                 const theMap = nativeMap || this._mapboxViewInstance;
                 let markersToRemove = [];
-                _markers.forEach((marker) => {
+                _markers.forEach(marker => {
                     if (!ids || (marker.id && ids.indexOf(marker.id) > -1)) {
                         markersToRemove.push(marker.ios);
                     }
                 });
                 // remove markers from cache
                 if (ids) {
-                    _markers = _markers.filter((marker) => ids.indexOf(marker.id) < 0);
-                } else {
+                    _markers = _markers.filter(marker => ids.indexOf(marker.id) < 0);
+                }
+                else {
                     _markers = [];
                 }
                 if (markersToRemove.length > 0) {
                     theMap.removeAnnotations(markersToRemove);
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.removeMarkers: " + ex);
                 reject(ex);
             }
@@ -770,7 +773,8 @@ export class Mapbox extends MapboxCommon {
                 let coordinate = CLLocationCoordinate2DMake(options.lat, options.lng);
                 theMap.setCenterCoordinateAnimated(coordinate, animated);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setCenter: " + ex);
                 reject(ex);
             }
@@ -783,9 +787,10 @@ export class Mapbox extends MapboxCommon {
                 let coordinate = theMap.centerCoordinate;
                 resolve({
                     lat: coordinate.latitude,
-                    lng: coordinate.longitude,
+                    lng: coordinate.longitude
                 });
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.getCenter: " + ex);
                 reject(ex);
             }
@@ -800,10 +805,12 @@ export class Mapbox extends MapboxCommon {
                 if (level >= 0 && level <= 20) {
                     theMap.setZoomLevelAnimated(level, animated);
                     resolve();
-                } else {
+                }
+                else {
                     reject("invalid ZoomLevel, use any double value from 0 to 20 (like 8.3)");
                 }
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setZoomLevel: " + ex);
                 reject(ex);
             }
@@ -814,7 +821,8 @@ export class Mapbox extends MapboxCommon {
             try {
                 let theMap = nativeMap || this._mapboxViewInstance;
                 resolve(theMap.zoomLevel);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.getZoomLevel: " + ex);
                 reject(ex);
             }
@@ -827,15 +835,12 @@ export class Mapbox extends MapboxCommon {
                 let cam = theMap.camera;
                 cam.pitch = options.tilt;
                 const durationMs = options.duration ? options.duration : 5000;
-                theMap.setCameraWithDurationAnimationTimingFunction(
-                    cam,
-                    durationMs / 1000,
-                    CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut)
-                );
+                theMap.setCameraWithDurationAnimationTimingFunction(cam, durationMs / 1000, CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut));
                 setTimeout(() => {
                     resolve();
                 }, durationMs);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setTilt: " + ex);
                 reject(ex);
             }
@@ -846,7 +851,8 @@ export class Mapbox extends MapboxCommon {
             try {
                 let theMap = nativeMap || this._mapboxViewInstance;
                 resolve(theMap.camera.pitch);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.getTilt: " + ex);
                 reject(ex);
             }
@@ -859,28 +865,30 @@ export class Mapbox extends MapboxCommon {
                 const loc = theMap.userLocation;
                 if (loc === null) {
                     reject("Location not available");
-                } else {
+                }
+                else {
                     resolve({
                         location: {
                             lat: loc.coordinate.latitude,
-                            lng: loc.coordinate.longitude,
+                            lng: loc.coordinate.longitude
                         },
-                        speed: loc.location ? loc.location.speed : 0,
+                        speed: loc.location ? loc.location.speed : 0
                     });
                 }
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.getUserLocation: " + ex);
                 reject(ex);
             }
         });
     }
     /**
-     * convert string to camera mode constant.
-     *
-     * Supported modes on iOS are different than on Android.
-     *
-     * @todo come up with a reasonable set of cross platform defaults.
-     */
+    * convert string to camera mode constant.
+    *
+    * Supported modes on iOS are different than on Android.
+    *
+    * @todo come up with a reasonable set of cross platform defaults.
+    */
     _stringToCameraMode(mode) {
         switch (mode) {
             case "NONE":
@@ -908,30 +916,30 @@ export class Mapbox extends MapboxCommon {
     _stringToRenderMode(mode) {
         let renderMode;
         switch (mode) {
-            case "NORMAL":
-                return "NORMAL";
-            case "COMPASS":
-                return "COMPASS";
-            case "GPS":
-                return "GPS";
+            case 'NORMAL':
+                return 'NORMAL';
+            case 'COMPASS':
+                return 'COMPASS';
+            case 'GPS':
+                return 'GPS';
         }
     }
     /**
-     * show a user location marker
-     *
-     * This method must not be called before location permissions have been granted.
-     *
-     * Supported options under iOS are:
-     *
-     * - renderMode
-     * - cameraMode
-     * - clickListener
-     *
-     * Other options are ignored. Compare with the android version that supports a
-     * different set of options.
-     *
-     * @param {object} options
-     */
+    * show a user location marker
+    *
+    * This method must not be called before location permissions have been granted.
+    *
+    * Supported options under iOS are:
+    *
+    * - renderMode
+    * - cameraMode
+    * - clickListener
+    *
+    * Other options are ignored. Compare with the android version that supports a
+    * different set of options.
+    *
+    * @param {object} options
+    */
     showUserLocationMarker(options, nativeMap) {
         return new Promise((resolve, reject) => {
             try {
@@ -946,11 +954,12 @@ export class Mapbox extends MapboxCommon {
                 // tell the delegate to tell the CustomerLocationAnnotationView to change the
                 // appearance of the marker.
                 delegate.changeUserLocationRenderMode(this.userLocationRenderMode);
-                if (typeof options.clickListener != "undefined") {
+                if (typeof options.clickListener != 'undefined') {
                     delegate.setUserLocationClickListener(options.clickListener);
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.getUserLocation: " + ex);
                 reject(ex);
             }
@@ -958,15 +967,16 @@ export class Mapbox extends MapboxCommon {
     }
     // ------------------------------------------------------------------------------
     /**
-     * hide the user location marker
-     *
-     * @todo unfinished
-     */
+    * hide the user location marker
+    *
+    * @todo unfinished
+    */
     hideUserLocationMarker(nativeMap) {
         return new Promise((resolve, reject) => {
             try {
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.getUserLocation: " + ex);
                 reject(ex);
             }
@@ -974,39 +984,35 @@ export class Mapbox extends MapboxCommon {
     }
     // --------------------------------------------------------------------------------
     /**
-     * Change the mode of the user location marker
-     *
-     * Used to change the camera tracking and render modes of an existing
-     * marker.
-     *
-     * The marker must be configured using showUserLocationMarker before this method
-     * can called.
-     */
+    * Change the mode of the user location marker
+    *
+    * Used to change the camera tracking and render modes of an existing
+    * marker.
+    *
+    * The marker must be configured using showUserLocationMarker before this method
+    * can called.
+    */
     changeUserLocationMarkerMode(renderModeString, cameraModeString, nativeMap) {
         return new Promise((resolve, reject) => {
             try {
                 let theMap = nativeMap || this._mapboxViewInstance;
-                console.log(
-                    "Mapbox::changeUserLocationMarkerMode(): changing renderMode to '" +
-                        renderModeString +
-                        "' cameraMode '" +
-                        cameraModeString +
-                        "'"
-                );
+                console.log("Mapbox::changeUserLocationMarkerMode(): changing renderMode to '" + renderModeString + "' cameraMode '" + cameraModeString + "'");
                 theMap.userTrackingMode = this._stringToCameraMode(cameraModeString);
                 let delegate = theMap.delegate;
                 let renderMode = this._stringToRenderMode(renderModeString);
                 delegate.changeUserLocationRenderMode(renderMode);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.showUserLocationMarker: " + ex);
                 reject(ex);
             }
         });
     }
     /**
-     * ignored on iOS
-     */
-    forceUserLocationUpdate(location, nativeMap) {}
+    * ignored on iOS
+    */
+    forceUserLocationUpdate(location, nativeMap) {
+    }
     // --------------------------------------------------------------
     queryRenderedFeatures(options, nativeMap) {
         return new Promise((resolve, reject) => {
@@ -1038,7 +1044,8 @@ export class Mapbox extends MapboxCommon {
                     });
                 }
                 resolve(result);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.queryRenderedFeatures: " + ex);
                 reject(ex);
             }
@@ -1053,7 +1060,7 @@ export class Mapbox extends MapboxCommon {
                 return;
             }
             const coordinateArray = [];
-            points.forEach((point) => coordinateArray.push([point.lng, point.lat]));
+            points.forEach(point => coordinateArray.push([point.lng, point.lat]));
             const polygonID = `polygon_${options.id || new Date().getTime()}`;
             if (theMap.style.sourceWithIdentifier(polygonID)) {
                 reject("Remove the polygon with this id first with 'removePolygons': " + polygonID);
@@ -1083,27 +1090,15 @@ export class Mapbox extends MapboxCommon {
             theMap.style.addSource(source);
             if (options.strokeColor || options.strokeWidth || options.strokeOpacity) {
                 const strokeLayer = MGLLineStyleLayer.alloc().initWithIdentifierSource(polygonID + "_stroke", source);
-                strokeLayer.lineColor = NSExpression.expressionForConstantValue(
-                    !options.strokeColor
-                        ? UIColor.blackColor
-                        : options.strokeColor instanceof Color
-                        ? options.strokeColor.ios
-                        : new Color(options.strokeColor).ios
-                );
+                strokeLayer.lineColor = NSExpression.expressionForConstantValue(!options.strokeColor ? UIColor.blackColor : (options.strokeColor instanceof Color ? options.strokeColor.ios : new Color(options.strokeColor).ios));
                 strokeLayer.lineWidth = NSExpression.expressionForConstantValue(options.strokeWidth || 5);
-                strokeLayer.lineOpacity = NSExpression.expressionForConstantValue(
-                    options.strokeOpacity === undefined ? 1 : options.strokeOpacity
-                );
+                strokeLayer.lineOpacity = NSExpression.expressionForConstantValue(options.strokeOpacity === undefined ? 1 : options.strokeOpacity);
                 theMap.style.addLayer(strokeLayer);
             }
-            const layer = MGLFillStyleLayer.alloc().initWithIdentifierSource(polygonID, source);
-            layer.fillColor = NSExpression.expressionForConstantValue(
-                !options.fillColor
-                    ? UIColor.blackColor
-                    : options.fillColor instanceof Color
-                    ? options.fillColor.ios
-                    : new Color(options.fillColor).ios
-            );
+            const layer = MGLFillStyleLayer
+                .alloc()
+                .initWithIdentifierSource(polygonID, source);
+            layer.fillColor = NSExpression.expressionForConstantValue(!options.fillColor ? UIColor.blackColor : (options.fillColor instanceof Color ? options.fillColor.ios : new Color(options.fillColor).ios));
             layer.fillOpacity = NSExpression.expressionForConstantValue(options.fillOpacity === undefined ? 1 : options.fillOpacity);
             theMap.style.addLayer(layer);
             resolve();
@@ -1119,16 +1114,14 @@ export class Mapbox extends MapboxCommon {
                 return;
             }
             const coordinateArray = [];
-            points.forEach((point) => coordinateArray.push([point.lng, point.lat]));
+            points.forEach(point => coordinateArray.push([point.lng, point.lat]));
             const polylineID = "polyline_" + (options.id || new Date().getTime());
             // this would otherwise crash the app
             if (theMap.style.sourceWithIdentifier(polylineID)) {
                 reject("Remove the polyline with this id first with 'removePolylines': " + polylineID);
                 return;
             }
-            const geoJSON = `{"type": "FeatureCollection", "features": [{"type": "Feature","properties": {},"geometry": {"type": "LineString", "coordinates": ${JSON.stringify(
-                coordinateArray
-            )}}}]}`;
+            const geoJSON = `{"type": "FeatureCollection", "features": [{"type": "Feature","properties": {},"geometry": {"type": "LineString", "coordinates": ${JSON.stringify(coordinateArray)}}}]}`;
             const geoDataStr = NSString.stringWithString(geoJSON);
             const geoData = geoDataStr.dataUsingEncoding(NSUTF8StringEncoding);
             const geoDataBase64Enc = geoData.base64EncodedStringWithOptions(0);
@@ -1137,9 +1130,7 @@ export class Mapbox extends MapboxCommon {
             const source = MGLShapeSource.alloc().initWithIdentifierShapeOptions(polylineID, shape, null);
             theMap.style.addSource(source);
             const layer = MGLLineStyleLayer.alloc().initWithIdentifierSource(polylineID, source);
-            layer.lineColor = NSExpression.expressionForConstantValue(
-                !options.color ? UIColor.blackColor : options.color instanceof Color ? options.color.ios : new Color(options.color).ios
-            );
+            layer.lineColor = NSExpression.expressionForConstantValue(!options.color ? UIColor.blackColor : (options.color instanceof Color ? options.color.ios : new Color(options.color).ios));
             layer.lineWidth = NSExpression.expressionForConstantValue(options.width || 5);
             layer.lineOpacity = NSExpression.expressionForConstantValue(options.opacity === undefined ? 1 : options.opacity);
             theMap.style.addLayer(layer);
@@ -1165,7 +1156,7 @@ export class Mapbox extends MapboxCommon {
     removePolys(polyType, ids, nativeMap) {
         return new Promise((resolve) => {
             let theMap = nativeMap || this._mapboxViewInstance;
-            ids.forEach((id) => this.removePolyById(theMap, polyType + id));
+            ids.forEach(id => this.removePolyById(theMap, polyType + id));
             resolve();
         });
     }
@@ -1196,15 +1187,12 @@ export class Mapbox extends MapboxCommon {
                     cam.pitch = options.tilt;
                 }
                 let durationMs = options.duration ? options.duration : 10000;
-                theMap.setCameraWithDurationAnimationTimingFunction(
-                    cam,
-                    durationMs / 1000,
-                    CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut)
-                );
+                theMap.setCameraWithDurationAnimationTimingFunction(cam, durationMs / 1000, CAMediaTimingFunction.functionWithName(kCAMediaTimingFunctionEaseInEaseOut));
                 setTimeout(() => {
                     resolve();
                 }, durationMs);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.animateCamera: " + ex);
                 reject(ex);
             }
@@ -1212,9 +1200,9 @@ export class Mapbox extends MapboxCommon {
     }
     // ------------------------------------------------------------------------------
     /**
-     * sets a map level click listener
-     *
-     */
+    * sets a map level click listener
+    *
+    */
     setOnMapClickListener(listener, nativeMap) {
         return new Promise((resolve, reject) => {
             try {
@@ -1224,8 +1212,8 @@ export class Mapbox extends MapboxCommon {
                     return;
                 }
                 // adding the tap handler to the map object so it's not garbage collected.
-                theMap["mapTapHandler"] = MapTapHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
-                const tapGestureRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(theMap["mapTapHandler"], "tap");
+                theMap['mapTapHandler'] = MapTapHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
+                const tapGestureRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(theMap['mapTapHandler'], "tap");
                 // cancel the default tap handler
                 for (let i = 0; i < theMap.gestureRecognizers.count; i++) {
                     let recognizer = theMap.gestureRecognizers.objectAtIndex(i);
@@ -1235,7 +1223,8 @@ export class Mapbox extends MapboxCommon {
                 }
                 theMap.addGestureRecognizer(tapGestureRecognizer);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setOnMapClickListener: " + ex);
                 reject(ex);
             }
@@ -1250,11 +1239,8 @@ export class Mapbox extends MapboxCommon {
                     return;
                 }
                 // adding the longPress handler to the map oject so it's not GC'd
-                theMap["mapLongPressHandler"] = MapLongPressHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
-                const longPressGestureRecognizer = UILongPressGestureRecognizer.alloc().initWithTargetAction(
-                    theMap["mapLongPressHandler"],
-                    "longPress"
-                );
+                theMap['mapLongPressHandler'] = MapLongPressHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
+                const longPressGestureRecognizer = UILongPressGestureRecognizer.alloc().initWithTargetAction(theMap['mapLongPressHandler'], "longPress");
                 // cancel the default longPress handler
                 for (let i = 0; i < theMap.gestureRecognizers.count; i++) {
                     let recognizer = theMap.gestureRecognizers.objectAtIndex(i);
@@ -1264,7 +1250,8 @@ export class Mapbox extends MapboxCommon {
                 }
                 theMap.addGestureRecognizer(longPressGestureRecognizer);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setOnMapClickListener: " + ex);
                 reject(ex);
             }
@@ -1279,28 +1266,29 @@ export class Mapbox extends MapboxCommon {
                     return;
                 }
                 // adding the pan handler to the map oject so it's not GC'd
-                theMap["mapPanHandler"] = MapPanHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
+                theMap['mapPanHandler'] = MapPanHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
                 // there's already a pan recognizer, so find it and attach a target action
                 for (let i = 0; i < theMap.gestureRecognizers.count; i++) {
                     let recognizer = theMap.gestureRecognizers.objectAtIndex(i);
                     if (recognizer instanceof UIPanGestureRecognizer) {
-                        recognizer.addTargetAction(theMap["mapPanHandler"], "pan");
+                        recognizer.addTargetAction(theMap['mapPanHandler'], "pan");
                         break;
                     }
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setOnScrollListener: " + ex);
                 reject(ex);
             }
         });
     }
     /**
-     * simulates onMoveBegin single event callback
-     *
-     * This will call the listener provided once per pan akin to the way
-     * onMoveBegin on the Android side works.
-     */
+    * simulates onMoveBegin single event callback
+    *
+    * This will call the listener provided once per pan akin to the way
+    * onMoveBegin on the Android side works.
+    */
     setOnMoveBeginListener(listener, nativeMap) {
         return new Promise((resolve, reject) => {
             try {
@@ -1310,19 +1298,20 @@ export class Mapbox extends MapboxCommon {
                     return;
                 }
                 // adding the pan handler to the map oject so it's not GC'd
-                theMap["mapOnMoveBeginHandler"] = MapPanHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
+                theMap['mapOnMoveBeginHandler'] = MapPanHandlerImpl.initWithOwnerAndListenerForMap(new WeakRef(this), listener, theMap);
                 // tell the panHandler that we're only interested in the first pan per pan gesture
-                theMap["mapOnMoveBeginHandler"].setOnMoveBegin();
+                theMap['mapOnMoveBeginHandler'].setOnMoveBegin();
                 // there's already a pan recognizer, so find it and attach a target action
                 for (let i = 0; i < theMap.gestureRecognizers.count; i++) {
                     let recognizer = theMap.gestureRecognizers.objectAtIndex(i);
                     if (recognizer instanceof UIPanGestureRecognizer) {
-                        recognizer.addTargetAction(theMap["mapOnMoveBeginHandler"], "pan");
+                        recognizer.addTargetAction(theMap['mapOnMoveBeginHandler'], "pan");
                         break;
                     }
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setOnScrollListener: " + ex);
                 reject(ex);
             }
@@ -1354,13 +1343,14 @@ export class Mapbox extends MapboxCommon {
                     north: visibleBounds.ne.latitude,
                     east: visibleBounds.ne.longitude,
                     south: visibleBounds.sw.latitude,
-                    west: visibleBounds.sw.longitude,
+                    west: visibleBounds.sw.longitude
                 };
                 resolve({
                     bounds: bounds,
-                    zoomLevel: theMap.zoomLevel,
+                    zoomLevel: theMap.zoomLevel
                 });
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.getViewport: " + ex);
                 reject(ex);
             }
@@ -1376,7 +1366,7 @@ export class Mapbox extends MapboxCommon {
                 }
                 let bounds = {
                     sw: CLLocationCoordinate2DMake(options.bounds.south, options.bounds.west),
-                    ne: CLLocationCoordinate2DMake(options.bounds.north, options.bounds.east),
+                    ne: CLLocationCoordinate2DMake(options.bounds.north, options.bounds.east)
                 };
                 let animated = options.animated === undefined || options.animated;
                 // support defined padding
@@ -1384,11 +1374,12 @@ export class Mapbox extends MapboxCommon {
                     top: 25,
                     left: 25,
                     bottom: 25,
-                    right: 25,
+                    right: 25
                 });
                 theMap.setVisibleCoordinateBoundsEdgePaddingAnimated(bounds, padding, animated);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.setViewport: " + ex);
                 reject(ex);
             }
@@ -1402,14 +1393,9 @@ export class Mapbox extends MapboxCommon {
                 let neCoordinate = CLLocationCoordinate2DMake(options.bounds.north, options.bounds.east);
                 let bounds = {
                     sw: swCoordinate,
-                    ne: neCoordinate,
+                    ne: neCoordinate
                 };
-                let region = MGLTilePyramidOfflineRegion.alloc().initWithStyleURLBoundsFromZoomLevelToZoomLevel(
-                    styleURL,
-                    bounds,
-                    options.minZoom,
-                    options.maxZoom
-                );
+                let region = MGLTilePyramidOfflineRegion.alloc().initWithStyleURLBoundsFromZoomLevelToZoomLevel(styleURL, bounds, options.minZoom, options.maxZoom);
                 if (options.accessToken) {
                     MGLAccountManager.accessToken = options.accessToken;
                 }
@@ -1424,11 +1410,8 @@ export class Mapbox extends MapboxCommon {
                             name: userInfo.objectForKey("name"),
                             completed: offlinePackProgress.countOfResourcesCompleted,
                             expected: offlinePackProgress.countOfResourcesExpected,
-                            percentage:
-                                Math.round(
-                                    (offlinePackProgress.countOfResourcesCompleted / offlinePackProgress.countOfResourcesExpected) * 10000
-                                ) / 100,
-                            complete: complete,
+                            percentage: Math.round((offlinePackProgress.countOfResourcesCompleted / offlinePackProgress.countOfResourcesExpected) * 10000) / 100,
+                            complete: complete
                         });
                         if (complete) {
                             resolve();
@@ -1441,7 +1424,7 @@ export class Mapbox extends MapboxCommon {
                     let error = notification.userInfo[MGLOfflinePackUserInfoKeyError];
                     reject({
                         name: userInfo.objectForKey("name"),
-                        error: "Download error. " + error,
+                        error: "Download error. " + error
                     });
                 });
                 _addObserver(MGLOfflinePackMaximumMapboxTilesReachedNotification, (notification) => {
@@ -1451,19 +1434,21 @@ export class Mapbox extends MapboxCommon {
                     console.log(`Offline region '${userInfo.objectForKey("name")}' reached the tile limit of ${maximumCount}`);
                 });
                 // Store some data for identification purposes alongside the downloaded resources.
-                let userInfo = { name: options.name };
+                let userInfo = { "name": options.name };
                 let context = NSKeyedArchiver.archivedDataWithRootObject(userInfo);
                 // Create and register an offline pack with the shared offline storage object.
                 MGLOfflineStorage.sharedOfflineStorage.addPackForRegionWithContextCompletionHandler(region, context, (pack, error) => {
                     if (error) {
                         // The pack couldn’t be created for some reason.
                         reject(error.localizedFailureReason);
-                    } else {
+                    }
+                    else {
                         // Start downloading.
                         pack.resume();
                     }
                 });
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.downloadOfflineRegion: " + ex);
                 reject(ex);
             }
@@ -1491,12 +1476,13 @@ export class Mapbox extends MapboxCommon {
                             north: region.bounds.ne.latitude,
                             east: region.bounds.ne.longitude,
                             south: region.bounds.sw.latitude,
-                            west: region.bounds.sw.longitude,
-                        },
+                            west: region.bounds.sw.longitude
+                        }
                     });
                 }
                 resolve(regions);
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.listOfflineRegions: " + ex);
                 reject(ex);
             }
@@ -1521,7 +1507,8 @@ export class Mapbox extends MapboxCommon {
                             if (error) {
                                 // The pack couldn’t be deleted for some reason.
                                 reject(error.localizedFailureReason);
-                            } else {
+                            }
+                            else {
                                 resolve();
                                 // don't return, see note below
                             }
@@ -1532,7 +1519,8 @@ export class Mapbox extends MapboxCommon {
                 if (!found) {
                     reject("Region not found");
                 }
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.deleteOfflineRegion: " + ex);
                 reject(ex);
             }
@@ -1547,7 +1535,8 @@ export class Mapbox extends MapboxCommon {
                     return;
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.deleteOfflineRegion: " + ex);
                 reject(ex);
             }
@@ -1555,13 +1544,13 @@ export class Mapbox extends MapboxCommon {
     }
     // -------------------------------------------------------------------------------------
     /**
-     * add a vector or geojson source
-     *
-     * Add a source that can then be referenced in the style specification
-     * passed to addLayer().
-     *
-     * @link https://docs.mapbox.com/mapbox-gl-js/api/#map#addsource
-     */
+    * add a vector or geojson source
+    *
+    * Add a source that can then be referenced in the style specification
+    * passed to addLayer().
+    *
+    * @link https://docs.mapbox.com/mapbox-gl-js/api/#map#addsource
+    */
     addSource(id, options, nativeMap) {
         return new Promise((resolve, reject) => {
             try {
@@ -1580,7 +1569,7 @@ export class Mapbox extends MapboxCommon {
                     case "vector":
                         source = MGLVectorTileSource.alloc().initWithIdentifierConfigurationURL(id, NSURL.URLWithString(url));
                         break;
-                    case "geojson":
+                    case 'geojson':
                         // has a source with this id already been defined? If so, then it is an error (because attempting
                         // to add another source with the same id will crash the app.
                         if (theMap.style.sourceWithIdentifier(id)) {
@@ -1588,7 +1577,7 @@ export class Mapbox extends MapboxCommon {
                             return;
                         }
                         // under iOS we handle lines and circles differently
-                        if (options.data.geometry.type == "LineString") {
+                        if (options.data.geometry.type == 'LineString') {
                             // after hours and hours of trial and error, I finally stumbled upon how to set things
                             // up so that MGLPolylineFeature.polylineWithCoordinatesCount works.
                             //
@@ -1607,13 +1596,8 @@ export class Mapbox extends MapboxCommon {
                                 let newCoord = CLLocationCoordinate2DMake(coordinates[i][1], coordinates[i][0]);
                                 clCoordsArray[i] = newCoord;
                             }
-                            console.log(
-                                "Mapbox:addSource(): after CLLocationCoordinate2D array before creating polyline source from clCoordsArray"
-                            );
-                            let polyline = MGLPolylineFeature.polylineWithCoordinatesCount(
-                                new interop.Reference(CLLocationCoordinate2D, clCoordsArray),
-                                coordinates.length
-                            );
+                            console.log("Mapbox:addSource(): after CLLocationCoordinate2D array before creating polyline source from clCoordsArray");
+                            let polyline = MGLPolylineFeature.polylineWithCoordinatesCount(new interop.Reference(CLLocationCoordinate2D, clCoordsArray), coordinates.length);
                             source = MGLShapeSource.alloc().initWithIdentifierShapeOptions(id, polyline, null);
                             theMap.style.addSource(source);
                             // To support handling click events on lines and circles, we keep the underlying
@@ -1622,13 +1606,14 @@ export class Mapbox extends MapboxCommon {
                             // FIXME: There should be a way to get the original feature back out from the source
                             // but I have not yet figured out how.
                             this.lines.push({
-                                type: "line",
+                                type: 'line',
                                 id: id,
                                 clCoordsArray: clCoordsArray,
                                 numCoords: coordinates.length,
-                                source: source,
+                                source: source
                             });
-                        } else if (options.data.geometry.type == "Point") {
+                        }
+                        else if (options.data.geometry.type == 'Point') {
                             // FIXME: should be able to just call addSource here for type geoJson
                             console.log("Mapbox:addSource(): before addSource with options:", options);
                             const geoJSON = `{"type": "FeatureCollection", "features": [ ${JSON.stringify(options.data)}]}`;
@@ -1647,17 +1632,15 @@ export class Mapbox extends MapboxCommon {
                             const geo = NSData.alloc().initWithBase64EncodedStringOptions(geoDataBase64Enc, null);
                             console.log("Mapbox:addSource(): before shape with id '" + id + "'");
                             const shape = MGLShape.shapeWithDataEncodingError(geo, NSUTF8StringEncoding);
-                            console.log(
-                                "Mapbox:addSource(): after shape before second alloc with id '" + id + "' and shape '" + shape + "'"
-                            );
+                            console.log("Mapbox:addSource(): after shape before second alloc with id '" + id + "' and shape '" + shape + "'");
                             const source = MGLShapeSource.alloc().initWithIdentifierShapeOptions(id, shape, null);
                             console.log("Mapbox:addSource(): before addSource");
                             theMap.style.addSource(source);
                             // probably a circle
                             this.circles.push({
-                                type: "line",
+                                type: 'line',
                                 id: id,
-                                center: options.data.geometry.coordinates,
+                                center: options.data.geometry.coordinates
                             });
                         }
                         break;
@@ -1673,7 +1656,8 @@ export class Mapbox extends MapboxCommon {
                 }
                 theMap.style.addSource(source);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.addSource: " + ex);
                 reject(ex);
             }
@@ -1681,8 +1665,8 @@ export class Mapbox extends MapboxCommon {
     }
     // -------------------------------------------------------------------------------------
     /**
-     * remove a vector source by id
-     */
+    * remove a vector source by id
+    */
     removeSource(id, nativeMap) {
         return new Promise((resolve, reject) => {
             try {
@@ -1700,20 +1684,17 @@ export class Mapbox extends MapboxCommon {
                 // if we've cached the underlying feature, remove it.
                 //
                 // since we don't know if it's a line or a circle we have to check both lists.
-                let offset = this.lines.findIndex((entry) => {
-                    return entry.id == id;
-                });
+                let offset = this.lines.findIndex((entry) => { return entry.id == id; });
                 if (offset != -1) {
                     this.lines.splice(offset, 1);
                 }
-                offset = this.circles.findIndex((entry) => {
-                    return entry.id == id;
-                });
+                offset = this.circles.findIndex((entry) => { return entry.id == id; });
                 if (offset != -1) {
                     this.circles.splice(offset, 1);
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.removeSource: " + ex);
                 reject(ex);
             }
@@ -1721,30 +1702,30 @@ export class Mapbox extends MapboxCommon {
     }
     // -------------------------------------------------------------------------------------
     /**
-     * a rough analogue to the mapbox-gl-js addLayer() method
-     *
-     * It would be nice if this {N} API matched the mapbox-gl-js API which
-     * would make it much easier to share mapping applications between the web
-     * and {N} apps.
-     *
-     * This method accepts a Mapbox-GL-JS style specification JSON object with some
-     * limitations:
-     *
-     * - the source: must be a GeoJSON object.
-     * - only a subset of paint properties are available.
-     *
-     * @param {object} style - a style following the Mapbox style specification.
-     * @param {any} nativeMapView - native map view (com.mapbox.mapboxsdk.maps.MapView)
-     *
-     * @link https://docs.mapbox.com/mapbox-gl-js/style-spec/#layers
-     */
+    * a rough analogue to the mapbox-gl-js addLayer() method
+    *
+    * It would be nice if this {N} API matched the mapbox-gl-js API which
+    * would make it much easier to share mapping applications between the web
+    * and {N} apps.
+    *
+    * This method accepts a Mapbox-GL-JS style specification JSON object with some
+    * limitations:
+    *
+    * - the source: must be a GeoJSON object.
+    * - only a subset of paint properties are available.
+    *
+    * @param {object} style - a style following the Mapbox style specification.
+    * @param {any} nativeMapView - native map view (com.mapbox.mapboxsdk.maps.MapView)
+    *
+    * @link https://docs.mapbox.com/mapbox-gl-js/style-spec/#layers
+    */
     addLayer(style, nativeMapView) {
         let retval;
         switch (style.type) {
-            case "line":
+            case 'line':
                 retval = this.addLineLayer(style, nativeMapView);
                 break;
-            case "circle":
+            case 'circle':
                 retval = this.addCircleLayer(style, nativeMapView);
                 break;
             default:
@@ -1755,12 +1736,12 @@ export class Mapbox extends MapboxCommon {
     }
     // --------------------------------------------------------------
     /**
-     * remove layer by ID
-     *
-     * Removes a layer given a layer id
-     *
-     * @param {string} id
-     */
+    * remove layer by ID
+    *
+    * Removes a layer given a layer id
+    *
+    * @param {string} id
+    */
     removeLayer(id, nativeMapViewInstance) {
         return new Promise((resolve, reject) => {
             try {
@@ -1774,7 +1755,8 @@ export class Mapbox extends MapboxCommon {
                 theMap.style.removeLayer(layer);
                 console.log("Mapbox:removeLayer(): after removing layer " + id);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Mapbox:removeLayer() Error : " + ex);
                 reject(ex);
             }
@@ -1782,131 +1764,131 @@ export class Mapbox extends MapboxCommon {
     } // end of removeLayer()
     // -------------------------------------------------------------------------------------
     /**
-     * add a line layer
-     *
-     * Draws a line layer based on a mapbox-gl-js Mapbox Style.
-     *
-     * What sucks about this is that there is apparently no facility to add an event listener to a layer.
-     *
-     * The idea for this method is to make sharing code between mapbox-gl-js Typescript web applications
-     * and {N} native applications easier.
-     *
-     * For the moment this method only supports a source type of 'geojson'.
-     *
-     * Example style for a line:
-     *
-     * {
-     * 'id': someid,
-     * 'type': 'line',
-     * 'source': {
-     *   'type': 'geojson',
-     *   'data': {
-     *     "type": "Feature",
-     *       "geometry": {
-     *       "type": "LineString",
-     *         "coordinates": [ [ lng, lat ], [ lng, lat ], ..... ]
-     *       }
-     *     }
-     *   }
-     * },
-     * 'layout': {
-     *   'line-cap': 'round',
-     *   'line-join': 'round'
-     * },
-     * 'paint': {
-     *   'line-color': '#ed6498',
-     *   'line-width': 5,
-     *   'line-opacity': .8,
-     *   'line-dash-array': [ 1, 1, 1, ..]
-     * }
-     *
-     * Do not call this method directly. Use addLayer().
-     *
-     * 'source' may also refer to a vector source
-     *
-     * 'source': {
-     *    'type': 'vector',
-     *    'url': '<url of vector source>'
-     *  }
-     *
-     * or it may be a string referring to the id of an already added source as in
-     *
-     * 'source': '<id of source>'
-     *
-     * To enable catching of click events on a line, when a click handler is added
-     * to a line (using the onMapEvent() method above), the Annotations plugin is used to
-     * draw an invisible clickable line over the line layer. Sadly, the Annotations
-     * plugin does not support all the nice styling options of the line Layer so we're
-     * pushed into this compromise of drawing two lines, one for it's styling and the
-     * other for it's click handling.
-     *
-     * @param {object} style - a style following the Mapbox style specification.
-     * @param {any} nativeMapView - native map view (com.mapbox.mapboxsdk.maps.MapView)
-     *
-     * @return {Promise<any>}
-     *
-     * @see addLineAnnotation()
-     * @see onMapEvent()
-     *
-     * @link https://docs.mapbox.com/mapbox-gl-js/style-spec/#layers
-     * @link https://docs.mapbox.com/android/api/map-sdk/7.1.2/com/mapbox/mapboxsdk/maps/Style.html#addSource-com.mapbox.mapboxsdk.style.sources.Source-
-     * @link https://docs.nativescript.org/core-concepts/android-runtime/marshalling/java-to-js#array-of-primitive-types
-     */
+    * add a line layer
+    *
+    * Draws a line layer based on a mapbox-gl-js Mapbox Style.
+    *
+    * What sucks about this is that there is apparently no facility to add an event listener to a layer.
+    *
+    * The idea for this method is to make sharing code between mapbox-gl-js Typescript web applications
+    * and {N} native applications easier.
+    *
+    * For the moment this method only supports a source type of 'geojson'.
+    *
+    * Example style for a line:
+    *
+    * {
+    * 'id': someid,
+    * 'type': 'line',
+    * 'source': {
+    *   'type': 'geojson',
+    *   'data': {
+    *     "type": "Feature",
+    *       "geometry": {
+    *       "type": "LineString",
+    *         "coordinates": [ [ lng, lat ], [ lng, lat ], ..... ]
+    *       }
+    *     }
+    *   }
+    * },
+    * 'layout': {
+    *   'line-cap': 'round',
+    *   'line-join': 'round'
+    * },
+    * 'paint': {
+    *   'line-color': '#ed6498',
+    *   'line-width': 5,
+    *   'line-opacity': .8,
+    *   'line-dash-array': [ 1, 1, 1, ..]
+    * }
+    *
+    * Do not call this method directly. Use addLayer().
+    *
+    * 'source' may also refer to a vector source
+    *
+    * 'source': {
+    *    'type': 'vector',
+    *    'url': '<url of vector source>'
+    *  }
+    *
+    * or it may be a string referring to the id of an already added source as in
+    *
+    * 'source': '<id of source>'
+    *
+    * To enable catching of click events on a line, when a click handler is added
+    * to a line (using the onMapEvent() method above), the Annotations plugin is used to
+    * draw an invisible clickable line over the line layer. Sadly, the Annotations
+    * plugin does not support all the nice styling options of the line Layer so we're
+    * pushed into this compromise of drawing two lines, one for it's styling and the
+    * other for it's click handling.
+    *
+    * @param {object} style - a style following the Mapbox style specification.
+    * @param {any} nativeMapView - native map view (com.mapbox.mapboxsdk.maps.MapView)
+    *
+    * @return {Promise<any>}
+    *
+    * @see addLineAnnotation()
+    * @see onMapEvent()
+    *
+    * @link https://docs.mapbox.com/mapbox-gl-js/style-spec/#layers
+    * @link https://docs.mapbox.com/android/api/map-sdk/7.1.2/com/mapbox/mapboxsdk/maps/Style.html#addSource-com.mapbox.mapboxsdk.style.sources.Source-
+    * @link https://docs.nativescript.org/core-concepts/android-runtime/marshalling/java-to-js#array-of-primitive-types
+    */
     addLineLayer(style, nativeMapViewInstance) {
         return new Promise((resolve, reject) => {
             try {
                 const theMap = nativeMapViewInstance || this._mapboxViewInstance;
-                if (style.type != "line") {
+                if (style.type != 'line') {
                     reject("Non line style passed to addLineLayer()");
                 }
                 // the source may be of type geojson or it may be the id of a source added by addSource().
                 let sourceId = null;
-                if (typeof style.source != "string") {
-                    sourceId = style.id + "_source";
+                if (typeof style.source != 'string') {
+                    sourceId = style.id + '_source';
                     this.addSource(sourceId, style.source);
-                } else {
+                }
+                else {
                     sourceId = style.source;
                 }
                 const layer = MGLLineStyleLayer.alloc().initWithIdentifierSource(style.id, theMap.style.sourceWithIdentifier(sourceId));
                 // color
-                let color = "black";
-                if (style.paint && style.paint["line-color"]) {
-                    color = style.paint["line-color"];
+                let color = 'black';
+                if (style.paint && style.paint['line-color']) {
+                    color = style.paint['line-color'];
                 }
                 layer.lineColor = NSExpression.expressionForConstantValue(new Color(color).ios);
                 console.log("Mapbox:addLineLayer(): after line color");
                 // line width
                 let width = 5;
-                if (style.paint && style.paint["line-width"]) {
-                    width = style.paint["line-width"];
+                if (style.paint && style.paint['line-width']) {
+                    width = style.paint['line-width'];
                 }
                 layer.lineWidth = NSExpression.expressionForConstantValue(width);
                 console.log("Mapbox:addLineLayer(): after line width");
                 let opacity = 1;
-                if (style.paint && style.paint["line-opacity"]) {
-                    opacity = style.paint["line-opacity"];
+                if (style.paint && style.paint['line-opacity']) {
+                    opacity = style.paint['line-opacity'];
                 }
                 layer.lineOpacity = NSExpression.expressionForConstantValue(opacity);
                 console.log("Mapbox:addLineLayer(): after opacity");
                 // line dash array
-                if (style.paint && style.paint["line-dash-array"]) {
+                if (style.paint && style.paint['line-dash-array']) {
                     let dashArray = [];
-                    for (let i = 0; i < style.paint["line-dash-array"].length; i++) {
-                        dashArray[i] = NSExpression.expressionForConstantValue(style.paint["line-dash-array"][i]);
+                    for (let i = 0; i < style.paint['line-dash-array'].length; i++) {
+                        dashArray[i] = NSExpression.expressionForConstantValue(style.paint['line-dash-array'][i]);
                     }
                     layer.lineDashPattern = NSExpression.expressionForConstantValue(dashArray);
                 }
                 theMap.style.addLayer(layer);
                 console.log("Mapbox:addLineLayer(): after adding layer.");
-                let lineEntry = this.lines.find((entry) => {
-                    return entry.id == sourceId;
-                });
+                let lineEntry = this.lines.find((entry) => { return entry.id == sourceId; });
                 if (lineEntry) {
                     lineEntry.layer = layer;
                 }
                 console.log("Mapbox:addLineLayer(): pushed line:", this.lines[this.lines.length - 1]);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Mapbox:addLineLayer() Error : " + ex);
                 reject(ex);
             }
@@ -1914,21 +1896,21 @@ export class Mapbox extends MapboxCommon {
     } // end of addLineLayer
     // -------------------------------------------------------------------------------------
     /**
-     * Add a point to a line
-     *
-     * This method appends a point to a line and is useful for drawing a users track.
-     *
-     * The process for adding a point to a line is different in the iOS sdk than in
-     * the Android java sdk.
-     *
-     * @param {id} id - id of line to add a point to.
-     * @param {array} lnglat - [lng,lat] to append to the line.
-     *
-     * @link https://github.com/mapbox/mapbox-gl-native/issues/13983
-     * @link https://docs.mapbox.com/ios/maps/examples/runtime-animate-line/
-     *
-     * @todo this does not update the invisible clickable overlay.
-     */
+    * Add a point to a line
+    *
+    * This method appends a point to a line and is useful for drawing a users track.
+    *
+    * The process for adding a point to a line is different in the iOS sdk than in
+    * the Android java sdk.
+    *
+    * @param {id} id - id of line to add a point to.
+    * @param {array} lnglat - [lng,lat] to append to the line.
+    *
+    * @link https://github.com/mapbox/mapbox-gl-native/issues/13983
+    * @link https://docs.mapbox.com/ios/maps/examples/runtime-animate-line/
+    *
+    * @todo this does not update the invisible clickable overlay.
+    */
     addLinePoint(id, lnglat, nativeMapView) {
         return new Promise((resolve, reject) => {
             try {
@@ -1941,9 +1923,7 @@ export class Mapbox extends MapboxCommon {
                 // As a result of this, we keep the original feature in the lines list and use that
                 // as the data source for the line. As each point is added, we append it to the
                 // feature and reset the json source for the displayed line.
-                let lineEntry = this.lines.find((entry) => {
-                    return entry.id == id;
-                });
+                let lineEntry = this.lines.find((entry) => { return entry.id == id; });
                 if (!lineEntry) {
                     reject("No such line layer '" + id + "'");
                     return;
@@ -1955,7 +1935,7 @@ export class Mapbox extends MapboxCommon {
                 // I originally tried realloc here but as soon as I try to add an entry an exception is thrown
                 // indicating it's a read only property; hence the alloc, copy, and free here.
                 let bytes = lineEntry.numCoords * 2 * interop.sizeof(interop.types.double);
-                let buffer = malloc(bytes + 2 * interop.sizeof(interop.types.double));
+                let buffer = malloc(bytes + (2 * interop.sizeof(interop.types.double)));
                 let newCoordsArray = new interop.Reference(CLLocationCoordinate2D, buffer);
                 for (let i = 0; i < lineEntry.numCoords; i++) {
                     newCoordsArray[i] = lineEntry.clCoordsArray[i];
@@ -1963,15 +1943,13 @@ export class Mapbox extends MapboxCommon {
                 lineEntry.numCoords++;
                 newCoordsArray[lineEntry.numCoords - 1] = CLLocationCoordinate2DMake(lnglat[1], lnglat[0]);
                 free(lineEntry.clCoordsArray);
-                let polyline = MGLPolylineFeature.polylineWithCoordinatesCount(
-                    new interop.Reference(CLLocationCoordinate2D, newCoordsArray),
-                    lineEntry.numCoords
-                );
+                let polyline = MGLPolylineFeature.polylineWithCoordinatesCount(new interop.Reference(CLLocationCoordinate2D, newCoordsArray), lineEntry.numCoords);
                 lineEntry.clCoordsArray = newCoordsArray;
                 // now update the source
                 lineEntry.source.shape = polyline;
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Mapbox:addLinePoint() Error : " + ex);
                 reject(ex);
             }
@@ -1979,142 +1957,141 @@ export class Mapbox extends MapboxCommon {
     } // end of addLinePoint()
     // -------------------------------------------------------------------------------------
     /**
-     * add a circle Layer
-     *
-     * Draw a circle based on a Mapbox style.
-     *
-     * Mapbox Native Android layers do not support click handlers. Unfortunately, we cannot use
-     * the same Annotations approach that we do for lines to get a click handler because
-     * circles drawn by the Annotations plugin do not support stops so there's no making them
-     * smaller as we zoom out. Instead, we have our own click handler (see handleClickEvent() above)
-     * to determine when a click has occured inside a circle.
-     *
-     * In order to support the click handler an additional circle-radius property, in meters, must
-     * be included.
-     *
-     * {
-     *  "id": someid,
-     *  "type": 'circle',
-     *  "radius-meters": 500,   // FIXME: radius in meters used for in-circle click detection.
-     *  "source": {
-     *    "type": 'geojson',
-     *    "data": {
-     *      "type": "Feature",
-     *      "geometry": {
-     *        "type": "Point",
-     *        "coordinates": [ lng, lat ]
-     *      }
-     *    }
-     *  },
-     *  "paint": {
-     *    "circle-radius": {
-     *      "stops": [
-     *        [0, 0],
-     *        [20, 8000 ]
-     *      ],
-     *      "base": 2
-     *    },
-     *    'circle-opacity': 0.05,
-     *    'circle-color': '#ed6498',
-     *    'circle-stroke-width': 2,
-     *    'circle-stroke-color': '#ed6498'
-     *  }
-     *
-     * @param {object} style a Mapbox style describing the circle draw.
-     * @param {object} nativeMap view.
-     *
-     * @link https://github.com/NativeScript/NativeScript/issues/6971
-     * @link https://stackoverflow.com/questions/54890753/how-to-call-objective-c-nsexpression-format-from-nativescript/54913932#54913932
-     */
+    * add a circle Layer
+    *
+    * Draw a circle based on a Mapbox style.
+    *
+    * Mapbox Native Android layers do not support click handlers. Unfortunately, we cannot use
+    * the same Annotations approach that we do for lines to get a click handler because
+    * circles drawn by the Annotations plugin do not support stops so there's no making them
+    * smaller as we zoom out. Instead, we have our own click handler (see handleClickEvent() above)
+    * to determine when a click has occured inside a circle.
+    *
+    * In order to support the click handler an additional circle-radius property, in meters, must
+    * be included.
+    *
+    * {
+    *  "id": someid,
+    *  "type": 'circle',
+    *  "radius-meters": 500,   // FIXME: radius in meters used for in-circle click detection.
+    *  "source": {
+    *    "type": 'geojson',
+    *    "data": {
+    *      "type": "Feature",
+    *      "geometry": {
+    *        "type": "Point",
+    *        "coordinates": [ lng, lat ]
+    *      }
+    *    }
+    *  },
+    *  "paint": {
+    *    "circle-radius": {
+    *      "stops": [
+    *        [0, 0],
+    *        [20, 8000 ]
+    *      ],
+    *      "base": 2
+    *    },
+    *    'circle-opacity': 0.05,
+    *    'circle-color': '#ed6498',
+    *    'circle-stroke-width': 2,
+    *    'circle-stroke-color': '#ed6498'
+    *  }
+    *
+    * @param {object} style a Mapbox style describing the circle draw.
+    * @param {object} nativeMap view.
+    *
+    * @link https://github.com/NativeScript/NativeScript/issues/6971
+    * @link https://stackoverflow.com/questions/54890753/how-to-call-objective-c-nsexpression-format-from-nativescript/54913932#54913932
+    */
     addCircleLayer(style, nativeMapViewInstance) {
         return new Promise((resolve, reject) => {
             try {
                 const theMap = nativeMapViewInstance || this._mapboxViewInstance;
-                if (style.type != "circle") {
+                if (style.type != 'circle') {
                     reject("Non circle style passed to addCircleLayer()");
                 }
-                if (typeof style.source != "undefined") {
+                if (typeof style.source != 'undefined') {
                     reject("Missing source.");
                 }
                 // the source may be of type geojson, vector,  or it may be the id of a source added by addSource().
                 let sourceId = null;
-                if (typeof style.source != "string") {
-                    sourceId = style.id + "_source";
+                if (typeof style.source != 'string') {
+                    sourceId = style.id + '_source';
                     this.addSource(sourceId, style.source);
-                } else {
+                }
+                else {
                     sourceId = style.source;
                 }
                 console.log("Mapbox:addCircleLayer(): after adding source");
                 const layer = MGLCircleStyleLayer.alloc().initWithIdentifierSource(style.id, theMap.style.sourceWithIdentifier(sourceId));
                 // color
-                let color = "black";
-                if (style.paint && style.paint["circle-color"]) {
-                    color = style.paint["circle-color"];
+                let color = 'black';
+                if (style.paint && style.paint['circle-color']) {
+                    color = style.paint['circle-color'];
                 }
                 layer.circleColor = NSExpression.expressionForConstantValue(new Color(color).ios);
                 console.log("Mapbox:addCircleLayer(): after circle color");
                 // stroke color
-                let strokeColor = "black";
-                if (style.paint && style.paint["circle-stroke-color"]) {
-                    strokeColor = style.paint["circle-stroke-color"];
+                let strokeColor = 'black';
+                if (style.paint && style.paint['circle-stroke-color']) {
+                    strokeColor = style.paint['circle-stroke-color'];
                 }
                 layer.circleStrokeColor = NSExpression.expressionForConstantValue(new Color(strokeColor).ios);
                 // stroke width
                 let width = 5;
-                if (style.paint && style.paint["circle-stroke-width"]) {
-                    width = style.paint["circle-stroke-width"];
+                if (style.paint && style.paint['circle-stroke-width']) {
+                    width = style.paint['circle-stroke-width'];
                 }
                 layer.circleStrokeWidth = NSExpression.expressionForConstantValue(width);
                 console.log("Mapbox:addCircleLayer(): after stroke width");
                 let opacity = 1;
-                if (style.paint && style.paint["circle-opacity"]) {
-                    opacity = style.paint["circe-opacity"];
+                if (style.paint && style.paint['circle-opacity']) {
+                    opacity = style.paint['circe-opacity'];
                 }
                 layer.circleOpacity = NSExpression.expressionForConstantValue(opacity);
                 console.log("Mapbox:addCircleLayer(): after opacity");
                 // we have two options for a radius. We might have a fixed float or an expression
                 let radius = 15;
-                if (style.paint && typeof style.paint["circle-radius"] == "number") {
-                    layer.circleRadius = NSExpression.expressionForConstantValue(style.paint["circle-radius"]);
-                } else {
-                    if (!style.paint["circle-radius"].stops) {
+                if (style.paint && typeof style.paint['circle-radius'] == 'number') {
+                    layer.circleRadius = NSExpression.expressionForConstantValue(style.paint['circle-radius']);
+                }
+                else {
+                    if (!style.paint['circle-radius'].stops) {
                         reject("No radius or stops provided to addCircleLayer.");
                         return;
                     }
                     // for the moment we assume we have a set of stops and a base.
                     let stopKeys = [];
                     let stopValues = [];
-                    console.log("Mapbox:addCircleLayer(): adding '" + style.paint["circle-radius"].stops.length + "' stops");
+                    console.log("Mapbox:addCircleLayer(): adding '" + style.paint['circle-radius'].stops.length + "' stops");
                     // this took forever to figure out. There is some NativeScript bug and the type definition for
                     // NSExpression is not clear. We have to create an NSDictionary with two arrays. The first array is the
                     // values and the second one is the keys. They have to be in ascending order. Once an NSDictionary is created
                     // we have to create an NSArray with that.
-                    for (let i = 0; i < style.paint["circle-radius"].stops.length; i++) {
-                        stopKeys[i] = style.paint["circle-radius"].stops[i][0];
-                        stopValues[i] = style.paint["circle-radius"].stops[i][1];
+                    for (let i = 0; i < style.paint['circle-radius'].stops.length; i++) {
+                        stopKeys[i] = style.paint['circle-radius'].stops[i][0];
+                        stopValues[i] = style.paint['circle-radius'].stops[i][1];
                     }
                     let base = 2;
-                    if (style.paint["circle-radius"].stops.base) {
-                        base = style.paint["circle-radius"].stops.base;
+                    if (style.paint['circle-radius'].stops.base) {
+                        base = style.paint['circle-radius'].stops.base;
                     }
                     console.log("Mapbox:addCircleLayer(): pushing circleRadius with base:", base);
                     let nsDict = new NSDictionary(stopValues, stopKeys);
                     let nsArray = NSArray.arrayWithArray([nsDict]);
-                    layer.circleRadius = NSExpression.expressionWithFormatArgumentArray(
-                        "mgl_interpolate:withCurveType:parameters:stops:( $zoomLevel, 'exponential', 2, %@)",
-                        nsArray
-                    );
+                    layer.circleRadius = NSExpression.expressionWithFormatArgumentArray("mgl_interpolate:withCurveType:parameters:stops:( $zoomLevel, 'exponential', 2, %@)", nsArray);
                     console.log("Mapbox:addCircleLayer(): after setting circle radius expression");
                 }
                 theMap.style.addLayer(layer);
-                let circleEntry = this.circles.find((entry) => {
-                    return entry.id == sourceId;
-                });
+                let circleEntry = this.circles.find((entry) => { return entry.id == sourceId; });
                 if (circleEntry) {
-                    (circleEntry.radius = style["circle-radius"]), (circleEntry.layer = layer);
+                    circleEntry.radius = style['circle-radius'],
+                        circleEntry.layer = layer;
                 }
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Mapbox:addCircleLayer() Error : " + ex);
                 reject(ex);
             }
@@ -2122,7 +2099,7 @@ export class Mapbox extends MapboxCommon {
     } // end of addCircleLayer()
     // ---------------------------------------------------------------------
     addGeoJsonClustered(options, nativeMap) {
-        throw new Error("Method not implemented.");
+        throw new Error('Method not implemented.');
     }
     /**
     *
@@ -2249,7 +2226,8 @@ export class Mapbox extends MapboxCommon {
                 }
                 theMap.setUserTrackingModeAnimated(_getTrackingMode(options.mode), options.animated !== false);
                 resolve();
-            } catch (ex) {
+            }
+            catch (ex) {
                 console.log("Error in mapbox.trackUser: " + ex);
                 reject(ex);
             }
@@ -2257,14 +2235,9 @@ export class Mapbox extends MapboxCommon {
     }
 }
 const _addObserver = (eventName, callback) => {
-    return NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-        eventName,
-        null,
-        NSOperationQueue.mainQueue,
-        callback
-    );
+    return NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(eventName, null, NSOperationQueue.mainQueue, callback);
 };
-const _downloadImage = (marker) => {
+const _downloadImage = marker => {
     return new Promise((resolve, reject) => {
         console.log(">> _downloadImage");
         // to cache..
@@ -2275,27 +2248,25 @@ const _downloadImage = (marker) => {
             return;
         }
         // ..or not to cache
-        http.getImage(marker.icon).then(
-            (output) => {
-                marker.iconDownloaded = output.ios;
-                _markerIconDownloadCache[marker.icon] = marker.iconDownloaded;
-                resolve(marker);
-            },
-            (ignoredError) => {
-                console.log(`Download failed for ${marker.icon} with error: ${ignoredError}`);
-                resolve(marker);
-            }
-        );
+        http.getImage(marker.icon).then((output) => {
+            marker.iconDownloaded = output.ios;
+            _markerIconDownloadCache[marker.icon] = marker.iconDownloaded;
+            resolve(marker);
+        }, (ignoredError) => {
+            console.log(`Download failed for ${marker.icon} with error: ${ignoredError}`);
+            resolve(marker);
+        });
     });
 };
 const _downloadMarkerImages = (markers) => {
     let iterations = [];
     let result = [];
-    markers.forEach((marker) => {
+    markers.forEach(marker => {
         if (marker.icon && marker.icon.startsWith("http")) {
-            let p = _downloadImage(marker).then((mark) => result.push(mark));
+            let p = _downloadImage(marker).then(mark => result.push(mark));
             iterations.push(p);
-        } else {
+        }
+        else {
             result.push(marker);
         }
     });
@@ -2312,7 +2283,7 @@ const _addMarkers = (markers, nativeMap) => {
     }
     let theMap = nativeMap || this._mapboxViewInstance;
     _downloadMarkerImages(markers).then((updatedMarkers) => {
-        updatedMarkers.forEach((marker) => {
+        updatedMarkers.forEach(marker => {
             let lat = marker.lat;
             let lng = marker.lng;
             let point = MGLPointAnnotation.new();
@@ -2327,7 +2298,7 @@ const _addMarkers = (markers, nativeMap) => {
             }
             marker.ios = point;
             marker.update = (newSettings) => {
-                _markers.forEach((_marker) => {
+                _markers.forEach(_marker => {
                     if (marker.id === _marker.id) {
                         if (newSettings.onTap !== undefined) {
                             _marker.onTap = newSettings.onTap;
@@ -2355,126 +2326,125 @@ const _addMarkers = (markers, nativeMap) => {
         });
     });
 };
-// -------------------------------------------------------------------------------------------------
-/**
- * "Delegate" for catching mapview events
- *
- * @link https://docs.nativescript.org/core-concepts/ios-runtime/how-to/ObjC-Subclassing#typescript-delegate-example
- */
-class MGLMapViewDelegateImpl extends NSObject {
-    static new() {
-        return super.new();
+var MGLMapViewDelegateImpl = /** @class */ (function (_super) {
+    __extends(MGLMapViewDelegateImpl, _super);
+    function MGLMapViewDelegateImpl() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
+    MGLMapViewDelegateImpl.new = function () {
+        return _super.new.call(this);
+    };
     // -----------------------
     /**
-     * initialize with the mapReady callback
-     */
-    initWithCallback(mapLoadedCallback) {
+    * initialize with the mapReady callback
+    */
+    MGLMapViewDelegateImpl.prototype.initWithCallback = function (mapLoadedCallback) {
         console.log("MGLMapViewDelegateImpl::initWithCallback()");
         this.mapLoadedCallback = mapLoadedCallback;
         return this;
-    }
+    };
     // -----------------------
     /**
-     * set a reference to the mapboxAPI instance
-     */
-    setMapboxApi(api) {
+    * set a reference to the mapboxAPI instance
+    */
+    MGLMapViewDelegateImpl.prototype.setMapboxApi = function (api) {
         this.mapboxApi = api;
-    }
+    };
     // -----------------------
     /**
-     * set the user location click listener callback
-     */
-    setUserLocationClickListener(callback) {
+    * set the user location click listener callback
+    */
+    MGLMapViewDelegateImpl.prototype.setUserLocationClickListener = function (callback) {
         this.userLocationClickListener = callback;
-    }
+    };
     // -----------------------
     /**
-     * set user location marker modes
-     */
-    changeUserLocationRenderMode(userLocationRenderMode) {
+    * set user location marker modes
+    */
+    MGLMapViewDelegateImpl.prototype.changeUserLocationRenderMode = function (userLocationRenderMode) {
         this.userLocationAnnotationView.changeUserLocationRenderMode(userLocationRenderMode);
-    }
+    };
     // -----------------------
     /**
-     * set style loaded callback.
-     *
-     * set an optional callback to be invoked when a style set with
-     * setMapStyle() is finished loading
-     *
-     * @param {function} callback function with loaded style as parameter.
-     *
-     * @see Mapbox:setMapStyle()
-     */
-    setStyleLoadedCallback(callback) {
+    * set style loaded callback.
+    *
+    * set an optional callback to be invoked when a style set with
+    * setMapStyle() is finished loading
+    *
+    * @param {function} callback function with loaded style as parameter.
+    *
+    * @see Mapbox:setMapStyle()
+    */
+    MGLMapViewDelegateImpl.prototype.setStyleLoadedCallback = function (callback) {
         this.styleLoadedCallback = callback;
-    }
+    };
     // -----------------------
     /**
-     * map ready callback
-     */
-    mapViewDidFinishLoadingMap(mapView) {
+    * map ready callback
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewDidFinishLoadingMap = function (mapView) {
         console.log("MGLMapViewDelegateImpl:mapViewDidFinishLoadingMap(): top");
         if (this.mapLoadedCallback !== undefined) {
             this.mapLoadedCallback(mapView);
             // this should be fired only once, but it's also fired when the style changes, so just remove the callback
             this.mapLoadedCallback = undefined;
         }
-    }
+    };
     // ------------------------
-    mapViewDidFinishRenderingMapFullyRendered(mapView, fullyRendered) {
+    MGLMapViewDelegateImpl.prototype.mapViewDidFinishRenderingMapFullyRendered = function (mapView, fullyRendered) {
         console.log("MGLMapViewDelegateImpl:mapViewDidFinishRenderingMapFullyRendered(): rendered is:", fullyRendered);
-    }
+    };
     // ------------------------
     /**
-     * Callback when the style has been loaded.
-     *
-     * Based on my testing, it looks like this callback is invoked multiple times.
-     *
-     * @see Mapbox:setMapStyle()
-     *
-     * @link https://mapbox.github.io/mapbox-gl-native/macos/0.3.0/Protocols/MGLMapViewDelegate.html#/c:objc(pl)MGLMapViewDelegate(im)mapView:didFinishLoadingStyle:
-     */
-    mapViewDidFinishLoadingStyle(mapView) {
+    * Callback when the style has been loaded.
+    *
+    * Based on my testing, it looks like this callback is invoked multiple times.
+    *
+    * @see Mapbox:setMapStyle()
+    *
+    * @link https://mapbox.github.io/mapbox-gl-native/macos/0.3.0/Protocols/MGLMapViewDelegate.html#/c:objc(pl)MGLMapViewDelegate(im)mapView:didFinishLoadingStyle:
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewDidFinishLoadingStyle = function (mapView) {
         console.log("MGLMapViewDelegateImpl:mapViewDidFinishLoadingStyle(): callback called.");
         if (this.styleLoadedCallback !== undefined) {
             this.styleLoadedCallback(mapView);
             // to avoid multiple calls. This is only invoked from setMapStyle().
             this.styleLoadedCallback = undefined;
         }
-    }
+    };
     // ------------------------
     /**
-     * disable the default user location callout
-     *
-     * This took forever to find. The default iOS click handler for the user location
-     * marker is about useless. It just displays "You Are Here". The examples do not
-     * show how to disable it.
-     */
-    mapViewAnnotationCanShowCallout(mapView, annotation) {
+    * disable the default user location callout
+    *
+    * This took forever to find. The default iOS click handler for the user location
+    * marker is about useless. It just displays "You Are Here". The examples do not
+    * show how to disable it.
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewAnnotationCanShowCallout = function (mapView, annotation) {
         if (annotation.isKindOfClass(MGLUserLocation.class())) {
             return false;
-        } else {
+        }
+        else {
             return true;
         }
-    }
+    };
     // -------------------------
-    mapViewDidFailLoadingMapWithError(mapView, error) {
+    MGLMapViewDelegateImpl.prototype.mapViewDidFailLoadingMapWithError = function (mapView, error) {
         // console.log("mapViewDidFailLoadingMapWithError: " + error);
-    }
+    };
     // ---------------------------------------
-    mapViewDidChangeUserTrackingModeAnimated(mapView, mode, animated) {
+    MGLMapViewDelegateImpl.prototype.mapViewDidChangeUserTrackingModeAnimated = function (mapView, mode, animated) {
         // console.log("mapViewDidChangeUserTrackingModeAnimated: " + mode);
-    }
+    };
     // ----------------------------------------
     /**
-     * fired when the marker icon is about to be rendered - return null for the default icon
-     */
-    mapViewImageForAnnotation(mapView, annotation) {
-        let cachedMarker = this.getTappedMarkerDetails(annotation);
+    * fired when the marker icon is about to be rendered - return null for the default icon
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewImageForAnnotation = function (mapView, annotation) {
+        var cachedMarker = this.getTappedMarkerDetails(annotation);
         if (cachedMarker) {
             if (cachedMarker.reuseIdentifier) {
-                let reusedImage = mapView.dequeueReusableAnnotationImageWithIdentifier(cachedMarker.reuseIdentifier);
+                var reusedImage = mapView.dequeueReusableAnnotationImageWithIdentifier(cachedMarker.reuseIdentifier);
                 if (reusedImage) {
                     return reusedImage;
                 }
@@ -2483,30 +2453,31 @@ class MGLMapViewDelegateImpl extends NSObject {
             // .. for instance in the mapViewDidDeselectAnnotationView / mapViewDidSelectAnnotationView / mapViewViewForAnnotation delegate
             if (cachedMarker.icon) {
                 if (cachedMarker.icon.startsWith("res://")) {
-                    let resourceName = cachedMarker.icon.substring("res://".length);
-                    let imageSource = imgSrc.fromResource(resourceName);
+                    var resourceName = cachedMarker.icon.substring("res://".length);
+                    var imageSource = imgSrc.fromResource(resourceName);
                     if (imageSource === null) {
-                        console.log(`Unable to locate ${resourceName}`);
-                    } else {
+                        console.log("Unable to locate " + resourceName);
+                    }
+                    else {
                         cachedMarker.reuseIdentifier = cachedMarker.icon;
                         return MGLAnnotationImage.annotationImageWithImageReuseIdentifier(imageSource.ios, cachedMarker.reuseIdentifier);
                     }
-                } else if (cachedMarker.icon.startsWith("http")) {
+                }
+                else if (cachedMarker.icon.startsWith("http")) {
                     if (cachedMarker.iconDownloaded !== null) {
                         cachedMarker.reuseIdentifier = cachedMarker.icon;
-                        return MGLAnnotationImage.annotationImageWithImageReuseIdentifier(
-                            cachedMarker.iconDownloaded,
-                            cachedMarker.reuseIdentifier
-                        );
+                        return MGLAnnotationImage.annotationImageWithImageReuseIdentifier(cachedMarker.iconDownloaded, cachedMarker.reuseIdentifier);
                     }
-                } else {
+                }
+                else {
                     console.log("Please use res://resourceName, http(s)://imageUrl or iconPath to use a local path");
                 }
-            } else if (cachedMarker.iconPath) {
-                let appPath = fs.knownFolders.currentApp().path;
-                let iconFullPath = appPath + "/" + cachedMarker.iconPath;
+            }
+            else if (cachedMarker.iconPath) {
+                var appPath = fs.knownFolders.currentApp().path;
+                var iconFullPath = appPath + "/" + cachedMarker.iconPath;
                 if (fs.File.exists(iconFullPath)) {
-                    let image = imgSrc.fromFile(iconFullPath).ios;
+                    var image = imgSrc.fromFile(iconFullPath).ios;
                     // perhaps add resize options for nice retina rendering (although you can now use the 'icon' param instead)
                     cachedMarker.reuseIdentifier = cachedMarker.iconPath;
                     return MGLAnnotationImage.annotationImageWithImageReuseIdentifier(image, cachedMarker.reuseIdentifier);
@@ -2514,180 +2485,189 @@ class MGLMapViewDelegateImpl extends NSObject {
             }
         }
         return null;
-    }
+    };
     // ---------------------------------------------
     /**
-     * fired when one of the callout's accessoryviews is tapped (not currently used)
-     */
-    mapViewAnnotationCalloutAccessoryControlTapped(mapView, annotation, control) {}
+    * fired when one of the callout's accessoryviews is tapped (not currently used)
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewAnnotationCalloutAccessoryControlTapped = function (mapView, annotation, control) {
+    };
     // --------------------------------------------
     /**
-     * fired when a marker is tapped
-     */
-    mapViewDidSelectAnnotation(mapView, annotation) {
+    * fired when a marker is tapped
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewDidSelectAnnotation = function (mapView, annotation) {
         console.log("MGLMapViewDelegateImpl::mapViewDidSelectAnntation()");
         if (annotation.isKindOfClass(MGLUserLocation.class())) {
             console.log("MGLMapViewDelegateImpl::mapViewDidSelectAnnotation(): tapped the user location button");
-            if (typeof this.userLocationClickListener != "undefined") {
+            if (typeof this.userLocationClickListener != 'undefined') {
                 this.userLocationClickListener(annotation);
                 return;
             }
             mapView.deselectAnnotationAnimated(annotation, false);
         }
-        let cachedMarker = this.getTappedMarkerDetails(annotation);
+        var cachedMarker = this.getTappedMarkerDetails(annotation);
         if (cachedMarker && cachedMarker.onTap) {
             cachedMarker.onTap(cachedMarker);
         }
-    }
+    };
     // ----------------------------------------------------------------------------------
     /**
-     * fired when a callout is tapped
-     */
-    mapViewTapOnCalloutForAnnotation(mapView, annotation) {
-        let cachedMarker = this.getTappedMarkerDetails(annotation);
+    * fired when a callout is tapped
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewTapOnCalloutForAnnotation = function (mapView, annotation) {
+        var cachedMarker = this.getTappedMarkerDetails(annotation);
         if (cachedMarker && cachedMarker.onCalloutTap) {
             cachedMarker.onCalloutTap(cachedMarker);
         }
-    }
+    };
     // -----------------------------------------------------------------------------------
-    getTappedMarkerDetails(tapped) {
-        for (let m in _markers) {
-            let cached = _markers[m];
+    MGLMapViewDelegateImpl.prototype.getTappedMarkerDetails = function (tapped) {
+        for (var m in _markers) {
+            var cached = _markers[m];
             // don't compare lat/lng types as they're not the same (same for (sub)title, they may be null vs undefined)
             // tslint:disable-next-line:triple-equals
-            if (
-                cached.lat == tapped.coordinate.latitude &&
+            if (cached.lat == tapped.coordinate.latitude &&
                 // tslint:disable-next-line:triple-equals
                 cached.lng == tapped.coordinate.longitude &&
                 // tslint:disable-next-line:triple-equals
                 cached.title == tapped.title &&
                 // tslint:disable-next-line:triple-equals
-                cached.subtitle == tapped.subtitle
-            ) {
+                cached.subtitle == tapped.subtitle) {
                 return cached;
             }
         }
-    }
+    };
     // ------------------------------------------------------------------------------------
     /**
-     * override the standard location marker
-     */
-    mapViewViewForAnnotation(mapView, annotation) {
+    * override the standard location marker
+    */
+    MGLMapViewDelegateImpl.prototype.mapViewViewForAnnotation = function (mapView, annotation) {
         console.log("MGLMapViewDelegateImpl::mapViewViewForAnnotation() top");
         if (annotation.isKindOfClass(MGLUserLocation.class())) {
             this.userLocationAnnotationView = CustomUserLocationAnnotationView.alloc().init();
             return this.userLocationAnnotationView;
         }
         return null;
+    };
+    MGLMapViewDelegateImpl.ObjCProtocols = [MGLMapViewDelegate];
+    return MGLMapViewDelegateImpl;
+}(NSObject));
+var MapTapHandlerImpl = /** @class */ (function (_super) {
+    __extends(MapTapHandlerImpl, _super);
+    function MapTapHandlerImpl() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-} // end of MGLMapViewDelegateImpl
-MGLMapViewDelegateImpl.ObjCProtocols = [MGLMapViewDelegate];
-// --------------------------------------------------------------------------------------
-class MapTapHandlerImpl extends NSObject {
-    static initWithOwnerAndListenerForMap(owner, listener, mapView) {
-        let handler = MapTapHandlerImpl.new();
+    MapTapHandlerImpl.initWithOwnerAndListenerForMap = function (owner, listener, mapView) {
+        var handler = MapTapHandlerImpl.new();
         handler._owner = owner;
         handler._listener = listener;
         handler._mapView = mapView;
         return handler;
-    }
-    tap(recognizer) {
-        const tapPoint = recognizer.locationInView(this._mapView);
-        const tapCoordinate = this._mapView.convertPointToCoordinateFromView(tapPoint, this._mapView);
+    };
+    MapTapHandlerImpl.prototype.tap = function (recognizer) {
+        var tapPoint = recognizer.locationInView(this._mapView);
+        var tapCoordinate = this._mapView.convertPointToCoordinateFromView(tapPoint, this._mapView);
         this._listener({
             lat: tapCoordinate.latitude,
-            lng: tapCoordinate.longitude,
+            lng: tapCoordinate.longitude
         });
+    };
+    MapTapHandlerImpl.ObjCExposedMethods = {
+        "tap": { returns: interop.types.void, params: [interop.types.id] }
+    };
+    return MapTapHandlerImpl;
+}(NSObject));
+var MapLongPressHandlerImpl = /** @class */ (function (_super) {
+    __extends(MapLongPressHandlerImpl, _super);
+    function MapLongPressHandlerImpl() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-}
-MapTapHandlerImpl.ObjCExposedMethods = {
-    tap: { returns: interop.types.void, params: [interop.types.id] },
-};
-class MapLongPressHandlerImpl extends NSObject {
-    static initWithOwnerAndListenerForMap(owner, listener, mapView) {
-        let handler = MapLongPressHandlerImpl.new();
+    MapLongPressHandlerImpl.initWithOwnerAndListenerForMap = function (owner, listener, mapView) {
+        var handler = MapLongPressHandlerImpl.new();
         handler._owner = owner;
         handler._listener = listener;
         handler._mapView = mapView;
         return handler;
-    }
-    longPress(recognizer) {
-        const longPressPoint = recognizer.locationInView(this._mapView);
-        const longPressCoordinate = this._mapView.convertPointToCoordinateFromView(longPressPoint, this._mapView);
+    };
+    MapLongPressHandlerImpl.prototype.longPress = function (recognizer) {
+        var longPressPoint = recognizer.locationInView(this._mapView);
+        var longPressCoordinate = this._mapView.convertPointToCoordinateFromView(longPressPoint, this._mapView);
         this._listener({
             lat: longPressCoordinate.latitude,
-            lng: longPressCoordinate.longitude,
+            lng: longPressCoordinate.longitude
         });
+    };
+    MapLongPressHandlerImpl.ObjCExposedMethods = {
+        "longPress": { returns: interop.types.void, params: [interop.types.id] }
+    };
+    return MapLongPressHandlerImpl;
+}(NSObject));
+var MapPanHandlerImpl = /** @class */ (function (_super) {
+    __extends(MapPanHandlerImpl, _super);
+    function MapPanHandlerImpl() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-}
-MapLongPressHandlerImpl.ObjCExposedMethods = {
-    longPress: { returns: interop.types.void, params: [interop.types.id] },
-};
-/**
- * pan handler
- *
- * This is used by the OnScrollListener
- */
-class MapPanHandlerImpl extends NSObject {
-    static initWithOwnerAndListenerForMap(owner, listener, mapView) {
-        let handler = MapPanHandlerImpl.new();
+    MapPanHandlerImpl.initWithOwnerAndListenerForMap = function (owner, listener, mapView) {
+        var handler = MapPanHandlerImpl.new();
         handler._owner = owner;
         handler._listener = listener;
         handler._mapView = mapView;
         handler.onMoveBegin = false;
         return handler;
-    }
-    setOnMoveBegin() {
+    };
+    MapPanHandlerImpl.prototype.setOnMoveBegin = function () {
         this.onMoveBegin = true;
-    }
-    pan(recognizer) {
-        const panPoint = recognizer.locationInView(this._mapView);
-        const panCoordinate = this._mapView.convertPointToCoordinateFromView(panPoint, this._mapView);
+    };
+    MapPanHandlerImpl.prototype.pan = function (recognizer) {
+        var panPoint = recognizer.locationInView(this._mapView);
+        var panCoordinate = this._mapView.convertPointToCoordinateFromView(panPoint, this._mapView);
         console.log("MapPanHandlerImpl::pan(): top with state:", recognizer.state);
         // if this is the beginning of the pan simulate the Android onMoveBegin
         //
         // See the objc platform declarations in objc!UIKit.d.ts. It doesn't quite match the apple documention
         if (this.onMoveBegin) {
-            if (recognizer.state == 1 /* Began */) {
+            if (recognizer.state == UIGestureRecognizerState.Began) {
                 console.log("MapPanHandlerImpl::pan(): calling onMoveBegin listener");
                 this._listener({
                     lat: panCoordinate.latitude,
-                    lng: panCoordinate.longitude,
+                    lng: panCoordinate.longitude
                 });
             }
             return;
         }
         this._listener({
             lat: panCoordinate.latitude,
-            lng: panCoordinate.longitude,
+            lng: panCoordinate.longitude
         });
+    };
+    MapPanHandlerImpl.ObjCExposedMethods = {
+        "pan": { returns: interop.types.void, params: [interop.types.id] }
+    };
+    return MapPanHandlerImpl;
+}(NSObject));
+var MapSwipeHandlerImpl = /** @class */ (function (_super) {
+    __extends(MapSwipeHandlerImpl, _super);
+    function MapSwipeHandlerImpl() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-}
-MapPanHandlerImpl.ObjCExposedMethods = {
-    pan: { returns: interop.types.void, params: [interop.types.id] },
-};
-/**
- * swipe handler
- *
- * Current unused
- */
-class MapSwipeHandlerImpl extends NSObject {
-    static initWithOwnerAndListenerForMap(owner, listener, mapView) {
-        let handler = MapSwipeHandlerImpl.new();
+    MapSwipeHandlerImpl.initWithOwnerAndListenerForMap = function (owner, listener, mapView) {
+        var handler = MapSwipeHandlerImpl.new();
         handler._owner = owner;
         handler._listener = listener;
         handler._mapView = mapView;
         return handler;
-    }
-    swipe(recognizer) {
-        const swipePoint = recognizer.locationInView(this._mapView);
-        const swipeCoordinate = this._mapView.convertPointToCoordinateFromView(swipePoint, this._mapView);
+    };
+    MapSwipeHandlerImpl.prototype.swipe = function (recognizer) {
+        var swipePoint = recognizer.locationInView(this._mapView);
+        var swipeCoordinate = this._mapView.convertPointToCoordinateFromView(swipePoint, this._mapView);
         this._listener({
             lat: swipeCoordinate.latitude,
-            lng: swipeCoordinate.longitude,
+            lng: swipeCoordinate.longitude
         });
-    }
-}
-MapSwipeHandlerImpl.ObjCExposedMethods = {
-    swipe: { returns: interop.types.void, params: [interop.types.id] },
-};
+    };
+    MapSwipeHandlerImpl.ObjCExposedMethods = {
+        "swipe": { returns: interop.types.void, params: [interop.types.id] }
+    };
+    return MapSwipeHandlerImpl;
+}(NSObject));

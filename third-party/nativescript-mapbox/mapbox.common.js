@@ -3,31 +3,29 @@ import { booleanConverter, Property } from "@nativescript/core";
 // ------------------------------------------------------------
 export var MapStyle;
 (function (MapStyle) {
-    MapStyle[(MapStyle["DARK"] = "dark")] = "DARK";
-    MapStyle[(MapStyle["OUTDOORS"] = "outdoors")] = "OUTDOORS";
-    MapStyle[(MapStyle["LIGHT"] = "light")] = "LIGHT";
-    MapStyle[(MapStyle["SATELLITE"] = "satellite")] = "SATELLITE";
-    MapStyle[(MapStyle["SATELLITE_STREETS"] = "satellite_streets")] = "SATELLITE_STREETS";
-    MapStyle[(MapStyle["STREETS"] = "streets")] = "STREETS";
-    MapStyle[(MapStyle["TRAFFIC_DAY"] = "traffic_day")] = "TRAFFIC_DAY";
-    MapStyle[(MapStyle["TRAFFIC_NIGHT"] = "traffic_night")] = "TRAFFIC_NIGHT";
+    MapStyle[MapStyle["DARK"] = "dark"] = "DARK";
+    MapStyle[MapStyle["OUTDOORS"] = "outdoors"] = "OUTDOORS";
+    MapStyle[MapStyle["LIGHT"] = "light"] = "LIGHT";
+    MapStyle[MapStyle["SATELLITE"] = "satellite"] = "SATELLITE";
+    MapStyle[MapStyle["SATELLITE_STREETS"] = "satellite_streets"] = "SATELLITE_STREETS";
+    MapStyle[MapStyle["STREETS"] = "streets"] = "STREETS";
+    MapStyle[MapStyle["TRAFFIC_DAY"] = "traffic_day"] = "TRAFFIC_DAY";
+    MapStyle[MapStyle["TRAFFIC_NIGHT"] = "traffic_night"] = "TRAFFIC_NIGHT";
 })(MapStyle || (MapStyle = {}));
 // ------------------------------------------------------------
 export class MapboxCommon {
     static merge(obj1, obj2) {
         let result = {}; // return result
-        for (let i in obj1) {
-            // for every property in obj1
-            if (i in obj2 && typeof obj1[i] === "object" && i !== null) {
+        for (let i in obj1) { // for every property in obj1
+            if ((i in obj2) && (typeof obj1[i] === "object") && (i !== null)) {
                 result[i] = this.merge(obj1[i], obj2[i]); // if it's an object, merge
-            } else {
+            }
+            else {
                 result[i] = obj1[i]; // add it to result
             }
         }
-        for (let i in obj2) {
-            // add the remaining properties from object 2
-            if (i in result) {
-                // conflict
+        for (let i in obj2) { // add the remaining properties from object 2
+            if (i in result) { // conflict
                 continue;
             }
             result[i] = obj2[i];
@@ -35,12 +33,12 @@ export class MapboxCommon {
         return result;
     }
     requestFineLocationPermission() {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             resolve();
         });
     }
     hasFineLocationPermission() {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             resolve(true);
         });
     }
@@ -52,7 +50,7 @@ MapboxCommon.defaults = {
         left: 0,
         right: 0,
         top: 0,
-        bottom: 0,
+        bottom: 0
     },
     zoomLevel: 0,
     showUserLocation: false,
@@ -63,25 +61,25 @@ MapboxCommon.defaults = {
     disableScroll: false,
     disableZoom: false,
     disableTilt: false,
-    delay: 0,
+    delay: 0
 };
 // ----------------------------------------------------------------------------------------
 /**
- * common base for views created in XML.
- *
- * Instead of returning a reference to the Mapbox API instance (class Mapbox) from the view
- * the author decided to implement shim methods for a subset of the API. I'm not sure what the
- * reasoning was.
- *
- * @see Mapbox
- */
+* common base for views created in XML.
+*
+* Instead of returning a reference to the Mapbox API instance (class Mapbox) from the view
+* the author decided to implement shim methods for a subset of the API. I'm not sure what the
+* reasoning was.
+*
+* @see Mapbox
+*/
 export class MapboxViewCommonBase extends ContentView {
     // -----------------------------------------------------------------
     /**
-     * map event
-     *
-     * The base NativeScript ContentView class has on() and off() methods.
-     */
+    * map event
+    *
+    * The base NativeScript ContentView class has on() and off() methods.
+    */
     onMapEvent(eventName, id, callback) {
         console.log("MapboxViewCommonBase:on(): top");
         return this.mapbox.onMapEvent(eventName, id, callback, this.getNativeMapView());
@@ -266,10 +264,10 @@ export class MapboxViewCommonBase extends ContentView {
 }
 // -----------------------------------------------------------------
 /**
- * Properties definitions for the Mapbox XML tag.
- *
- * @link https://docs.nativescript.org/plugins/ui-plugin-custom
- */
+* Properties definitions for the Mapbox XML tag.
+*
+* @link https://docs.nativescript.org/plugins/ui-plugin-custom
+*/
 export const mapReadyProperty = new Property({ name: "mapReady" });
 mapReadyProperty.register(MapboxViewCommonBase);
 export const zoomLevelProperty = new Property({ name: "zoomLevel" });
@@ -285,64 +283,64 @@ longitudeProperty.register(MapboxViewCommonBase);
 export const showUserLocationProperty = new Property({
     name: "showUserLocation",
     defaultValue: MapboxCommon.defaults.showUserLocation,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 showUserLocationProperty.register(MapboxViewCommonBase);
 export const hideLogoProperty = new Property({
     name: "hideLogo",
     defaultValue: MapboxCommon.defaults.hideLogo,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 hideLogoProperty.register(MapboxViewCommonBase);
 export const hideAttributionProperty = new Property({
     name: "hideAttribution",
     defaultValue: MapboxCommon.defaults.hideAttribution,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 hideAttributionProperty.register(MapboxViewCommonBase);
 export const hideCompassProperty = new Property({
     name: "hideCompass",
     defaultValue: MapboxCommon.defaults.hideCompass,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 hideCompassProperty.register(MapboxViewCommonBase);
 export const disableZoomProperty = new Property({
     name: "disableZoom",
     defaultValue: MapboxCommon.defaults.disableZoom,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 disableZoomProperty.register(MapboxViewCommonBase);
 export const disableRotationProperty = new Property({
     name: "disableRotation",
     defaultValue: MapboxCommon.defaults.disableRotation,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 disableRotationProperty.register(MapboxViewCommonBase);
 export const disableScrollProperty = new Property({
     name: "disableScroll",
     defaultValue: MapboxCommon.defaults.disableScroll,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 disableScrollProperty.register(MapboxViewCommonBase);
 export const disableTiltProperty = new Property({
     name: "disableTilt",
     defaultValue: MapboxCommon.defaults.disableTilt,
-    valueConverter: booleanConverter,
+    valueConverter: booleanConverter
 });
 disableTiltProperty.register(MapboxViewCommonBase);
 export const delayProperty = new Property({ name: "delay" });
 delayProperty.register(MapboxViewCommonBase);
 // -------------------------------------------------------------------------------------
 /**
- * base class for views created in XML
- *
- * This is the glue that creates a config object based on the XML attributes passed to
- * the Mapbox XML tag.
- *
- * @see MapboxView
- *
- * @link https://docs.nativescript.org/plugins/ui-plugin-custom
- */
+* base class for views created in XML
+*
+* This is the glue that creates a config object based on the XML attributes passed to
+* the Mapbox XML tag.
+*
+* @see MapboxView
+*
+* @link https://docs.nativescript.org/plugins/ui-plugin-custom
+*/
 export class MapboxViewBase extends MapboxViewCommonBase {
     constructor() {
         // this took forever to find. The component-builder module apparently
