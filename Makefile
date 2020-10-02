@@ -62,8 +62,8 @@ android-release: setup
 	npm install
 	$(MAKE) refresh-cms-data || true
 	$(MAKE) platform-libraries
-	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
-	cd $(APP) && tns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
+	cd $(APP) && ns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD)
+	cd $(APP) && ns build android --release --env.sourceMap --key-store-path $(FK_APP_RELEASE_STORE_FILE) --key-store-password $(FK_APP_RELEASE_STORE_PASSWORD) --key-store-alias $(FK_APP_RELEASE_KEY_ALIAS) --key-store-alias-password $(FK_APP_RELEASE_KEY_PASSWORD) --aab
 
 ios-release: setup
 	security list-keychains
@@ -76,9 +76,9 @@ ios-release: setup
 	npm install
 	$(MAKE) refresh-cms-data || true
 	if [ -d $(APP)/platforms/ios ]; then                \
-		cd $(APP) && tns platform clean ios || true    ;\
+		cd $(APP) && ns platform clean ios || true    ;\
 	else                                                \
-		cd $(APP) && tns platform add ios || true      ;\
+		cd $(APP) && ns platform add ios || true      ;\
 	fi
 	$(MAKE) platform-libraries
 	cd $(APP) && ns build ios --provision || true
