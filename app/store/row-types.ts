@@ -97,4 +97,5 @@ export interface AccountsTableRow {
     email: string;
     portalId: string;
     token: string;
+    usedAt: Date;
 }

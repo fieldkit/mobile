@@ -16,7 +16,7 @@ import createLogger from "./logger";
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
 import Config from "../config";
-import { Services } from "./modules/utilities";
+import { Services, ServiceRef } from "./modules/utilities";
 
 export * from "./typed-actions";
 
@@ -140,7 +140,9 @@ function customizeLogger() {
     });
 }
 
-export default function (services: Services) {
+export default function (rawServices: Services) {
+    const services = new ServiceRef(() => rawServices);
+
     return new Vuex.Store({
         plugins: Config.env.dev ? [customizeLogger()] : [customizeLogger()],
         modules: {

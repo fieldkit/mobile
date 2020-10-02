@@ -4,7 +4,6 @@ import { Services } from "../services/services";
 import { prepareReply } from "../services/query-station";
 import { MockStationReplies } from "./utilities";
 import * as ActionTypes from "@/store/actions";
-import * as MutationTypes from "@/store/mutations";
 import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "../utilities";
 
@@ -62,8 +61,6 @@ describe("Syncing", () => {
         mockStation = new MockStationReplies(services);
 
         store = services.Store();
-
-        store.commit(MutationTypes.SERVICES, () => services);
     });
 
     afterEach(() => {});

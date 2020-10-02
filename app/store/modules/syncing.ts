@@ -12,7 +12,7 @@ import {
     ServiceInfo,
     SortableStationSorter,
 } from "../types";
-import { Services, ServiceRef } from "./utilities";
+import { ServiceRef } from "./utilities";
 import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
 import { AuthenticationError } from "../../lib/errors";
@@ -289,7 +289,6 @@ export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatu
 };
 
 export class SyncingState {
-    services: ServiceRef = new ServiceRef();
     syncs: StationSyncStatus[] = [];
     progress: { [index: string]: StationProgress } = {};
     pending: { [index: string]: Download } = {};
@@ -313,14 +312,14 @@ const actions = (services: ServiceRef) => {
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
 
             return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
-                const fsFolder = state.services.fs().getFolder(getFilePath(file.path));
+                const fsFolder = services.fs().getFolder(getFilePath(file.path));
                 const fsFile = fsFolder.getFile(getFileName(file.path));
-                return state.services
+                return services
                     .queryStation()
                     .download(file.url, fsFile.path, (total: number, copied: number, info) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                     })
-                    .then(({ headers }) => state.services.db().insertDownload(sync.makeRow(file, headers)))
+                    .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
                     .catch((error) => {
                         if (AuthenticationError.isInstance(error)) {
                             Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
@@ -353,12 +352,12 @@ const actions = (services: ServiceRef) => {
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
 
             return serializePromiseChain(downloads, (download: Download) => {
-                return state.services
+                return services
                     .portal()
                     .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                     })
-                    .then(({ headers }) => state.services.db().markDownloadAsUploaded(download))
+                    .then(({ headers }) => services.db().markDownloadAsUploaded(download))
                     .catch((error) => {
                         if (AuthenticationError.isInstance(error)) {
                             console.log("error uploading (auth)", error, error ? error.stack : null);
@@ -464,9 +463,6 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
 const mutations = {
     [MutationTypes.RESET]: (state: SyncingState, error: string) => {
         Object.assign(state, new SyncingState());
-    },
-    [MutationTypes.SERVICES]: (state: SyncingState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
         Vue.set(state, "stations", stations);

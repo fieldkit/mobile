@@ -3,7 +3,7 @@ import Vue from "vue";
 import { Station, FirmwareInfo } from "../types";
 import * as MutationTypes from "../mutations";
 import * as ActionTypes from "../actions";
-import { Services, ServiceRef } from "./utilities";
+import { ServiceRef } from "./utilities";
 
 export interface FirmwareTableRow {
     id: number;
@@ -31,7 +31,6 @@ export class Firmware {
 }
 
 export class FirmwareState {
-    services: ServiceRef = new ServiceRef();
     available: Firmware[] = [];
     stations: { [index: number]: FirmwareInfo } = {};
 }
@@ -55,13 +54,13 @@ const actions = (services: ServiceRef) => {
             });
         },
         [ActionTypes.FIRMWARE_REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
-            return state.services
+            return services
                 .firmware()
                 .downloadFirmware()
                 .then(() => dispatch(RELOAD_FIRMWARE));
         },
         [RELOAD_FIRMWARE]: ({ commit, dispatch, state }: ActionParameters) => {
-            return state.services
+            return services
                 .db()
                 .getAllFirmware()
                 .then((all) => all.map((row) => Firmware.fromRow(row)))
@@ -73,9 +72,6 @@ const actions = (services: ServiceRef) => {
 const mutations = {
     [MutationTypes.RESET]: (state: FirmwareState, error: string) => {
         Object.assign(state, new FirmwareState());
-    },
-    [MutationTypes.SERVICES]: (state: FirmwareState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.STATIONS]: (state: FirmwareState, stations: Station[]) => {
         state.stations = _(stations)

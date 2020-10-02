@@ -11,7 +11,6 @@ import Services from "@/services/services";
 import AppSettings from "@/wrappers/app-settings";
 import Sqlite from "@/wrappers/sqlite";
 import * as ActionTypes from "@/store/actions";
-import * as MutationTypes from "@/store/mutations";
 import { promiseAfter } from "@/utilities";
 import routes from "@/routes";
 import { Route } from "@/routes/navigate";
@@ -138,11 +137,6 @@ function initializeApplication(services): Promise<any> {
                             .then(() => services.Database().checkSettings())
                             .then(() => services.Database().checkConfig())
                             .then(() => {
-                                console.log("services:setup");
-
-                                // This uses a function so that the services object doesn't get spammed into the logs.
-                                Services.Store().commit(MutationTypes.SERVICES, () => Services);
-
                                 console.log("services:ready");
 
                                 return Services.Store()

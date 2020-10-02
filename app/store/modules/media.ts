@@ -3,7 +3,7 @@ import Vue from "vue";
 import Camera from "@/wrappers/camera";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Services, ServiceRef } from "./utilities";
+import { ServiceRef } from "./utilities";
 import { IncomingImage } from "@/services/types";
 import { serializePromiseChain } from "@/utilities";
 
@@ -40,7 +40,6 @@ export class ActiveRecording {
 }
 
 export class MediaState {
-    public services: ServiceRef = new ServiceRef();
     public recording: ActiveRecording | null = null;
     public photoCache: { [index: string]: any } = {};
 }
@@ -53,7 +52,7 @@ const actions = (services: ServiceRef) => {
     return {
         [ActionTypes.AUDIO_RECORD]: ({ commit, dispatch, state }: ActionParameters) => {
             if (state.recording) throw new Error("already recording");
-            return state.services
+            return services
                 .audio()
                 .startAudioRecording()
                 .then((path) => {
@@ -62,7 +61,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.AUDIO_PAUSE]: ({ commit, dispatch, state }: ActionParameters) => {
             if (!state.recording) throw new Error("no recording");
-            return state.services
+            return services
                 .audio()
                 .pauseAudioRecording(state.recording)
                 .then(() => {
@@ -72,7 +71,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.AUDIO_RESUME]: ({ commit, dispatch, state }: ActionParameters) => {
             if (!state.recording) throw new Error("no recording");
-            return state.services
+            return services
                 .audio()
                 .resumeAudioRecording(state.recording)
                 .then(() => {
@@ -82,7 +81,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.AUDIO_STOP]: ({ commit, dispatch, state }: ActionParameters) => {
             if (!state.recording) throw new Error("no recording");
-            return state.services
+            return services
                 .audio()
                 .stopAudioRecording(state.recording)
                 .then(() => {
@@ -109,7 +108,7 @@ const actions = (services: ServiceRef) => {
                 });
         },
         [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { asset: any }) => {
-            return state.services
+            return services
                 .images()
                 .saveImage(new IncomingImage(payload.asset))
                 .then((saved) => {
@@ -119,7 +118,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.LOAD_PICTURES]: ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
             return serializePromiseChain(payload.paths, (path) =>
-                state.services
+                services
                     .images()
                     .fromFile(path)
                     .then((saved) => {
@@ -134,9 +133,6 @@ const actions = (services: ServiceRef) => {
 const mutations = {
     [MutationTypes.RESET]: (state: MediaState, error: string) => {
         Object.assign(state, new MediaState());
-    },
-    [MutationTypes.SERVICES]: (state: MediaState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
     },
     [AUDIO_RECORDING_PROGRESS]: (state: MediaState, payload: ActiveRecording) => {
         Vue.set(state, "recording", payload);

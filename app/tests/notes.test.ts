@@ -23,8 +23,6 @@ describe("Notes", () => {
         await services.CreateDb().initialize();
 
         store = services.Store();
-
-        store.commit(MutationTypes.SERVICES, () => services);
     });
 
     afterEach(() => {});

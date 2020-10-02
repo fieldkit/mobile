@@ -4,7 +4,7 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
-import { Services, ServiceRef } from "./utilities";
+import { ServiceRef } from "./utilities";
 import { StationRepliedAction, AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
 
 import { backOff } from "exponential-backoff";
@@ -31,8 +31,8 @@ type ActionParameters = { commit: any; dispatch: any; state: NearbyState };
 const actions = (services: ServiceRef) => {
     return {
         [ActionTypes.SCAN_FOR_STATIONS]: async ({ dispatch, state }: ActionParameters) => {
-            await state.services.discovery().restart();
-            const candidates = await state.services.db().queryRecentlyActiveAddresses();
+            await services.discovery().restart();
+            const candidates = await services.db().queryRecentlyActiveAddresses();
             const offline = candidates;
             const tries = offline.map((candidate) => dispatch(ActionTypes.TRY_STATION_ONCE, new TryStationAction(candidate)));
             return await Promise.all(tries);
@@ -71,7 +71,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.TRY_STATION_ONCE]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
             if (!payload) throw new Error("payload required");
             if (!payload.info) throw new Error("payload.info required");
-            return state.services
+            return services
                 .queryStation()
                 .takeReadings(payload.info.url, state.location)
                 .then((statusReply) => {
@@ -92,7 +92,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
             commit(MutationTypes.STATION_QUERIED, info);
-            return state.services
+            return services
                 .queryStation()
                 .takeReadings(info.url, state.location)
                 .then(
@@ -149,7 +149,7 @@ const actions = (services: ServiceRef) => {
             if (!info) throw new Error("no nearby info");
 
             commit(MutationTypes.STATION_QUERIED, info);
-            return state.services
+            return services
                 .queryStation()
                 .configureName(info.url, payload.name)
                 .then(
@@ -178,7 +178,7 @@ const actions = (services: ServiceRef) => {
             ];
 
             commit(MutationTypes.STATION_QUERIED, info);
-            return state.services
+            return services
                 .queryStation()
                 .sendNetworkSettings(info.url, networks)
                 .then(
@@ -203,7 +203,7 @@ const actions = (services: ServiceRef) => {
             if (!info) throw new Error("no nearby info");
 
             commit(MutationTypes.STATION_QUERIED, info);
-            return state.services
+            return services
                 .queryStation()
                 .configureSchedule(info.url, payload.schedules)
                 .then(
@@ -224,7 +224,7 @@ const actions = (services: ServiceRef) => {
             const info = state.stations[payload.deviceId];
             if (!info) throw new Error("no nearby info");
             commit(MutationTypes.STATION_QUERIED, info);
-            return state.services
+            return services
                 .queryStation()
                 .startDataRecording(info.url)
                 .then(
@@ -245,7 +245,7 @@ const actions = (services: ServiceRef) => {
             const info = state.stations[payload.deviceId];
             if (!info) throw new Error("no nearby info");
             commit(MutationTypes.STATION_QUERIED, info);
-            return state.services
+            return services
                 .queryStation()
                 .stopDataRecording(info.url)
                 .then(
@@ -266,7 +266,7 @@ const actions = (services: ServiceRef) => {
             const info = state.stations[payload.deviceId];
             if (!info) throw new Error("no nearby info");
             commit(MutationTypes.STATION_QUERIED, info);
-            return state.services
+            return services
                 .queryStation()
                 .scanNearbyNetworks(info.url)
                 .then((networksReply) => {
@@ -286,9 +286,6 @@ const getters = {
 const mutations = {
     [MutationTypes.RESET]: (state: NearbyState, error: string) => {
         Object.assign(state, new NearbyState());
-    },
-    [MutationTypes.SERVICES]: (state: NearbyState, services: () => Services) => {
-        state.services = new ServiceRef(services);
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {
         if (!state.stations[info.deviceId]) {

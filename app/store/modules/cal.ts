@@ -4,7 +4,7 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Station, ServiceInfo } from "../types";
 import { StationRepliedAction } from "@/store/typed-actions";
-import { Services, ServiceRef } from "./utilities";
+import { ServiceRef } from "./utilities";
 import CalibrationService from "@/services/calibration-service";
 
 import { GlobalGetters } from "./global";
@@ -35,7 +35,6 @@ export class CalibrateAtlas {
 }
 
 export class CalibrationState {
-    services: ServiceRef = new ServiceRef();
     status: { [index: string]: ModuleStatus } = {};
     connected: { [index: string]: ServiceInfo } = {};
 }
@@ -93,7 +92,7 @@ const actions = (services: ServiceRef) => {
             if (!info) {
                 throw new Error(`no info for nearby station ${payload.deviceId}`);
             }
-            const service = new CalibrationService(state.services.conservify());
+            const service = new CalibrationService(services.conservify());
             const url = info.url + "/modules/" + payload.position;
             return service.clearCalibration(url).then((cleared) => {
                 console.log("cal:", "cleared", payload.moduleId, cleared);
@@ -105,7 +104,7 @@ const actions = (services: ServiceRef) => {
             if (!info) {
                 throw new Error(`no info for nearby station ${payload.deviceId}`);
             }
-            const service = new CalibrationService(state.services.conservify());
+            const service = new CalibrationService(services.conservify());
             const url = info.url + "/modules/" + payload.position;
             const params = {
                 sensorType: payload.sensorType,
@@ -132,9 +131,6 @@ const mutations = {
     [MutationTypes.LOSE]: (state: CalibrationState, info: ServiceInfo) => {
         // console.log("cal:lose", info);
         Vue.set(state.connected, info.deviceId, null);
-    },
-    [MutationTypes.SERVICES]: (state: CalibrationState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
     },
     [CALIBRATED]: (state: CalibrationState, payload: { [index: string]: object | any }) => {
         Vue.set(state, "status", { ...state.status, ...payload });

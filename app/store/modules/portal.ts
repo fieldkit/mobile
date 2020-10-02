@@ -2,7 +2,7 @@ import _ from "lodash";
 import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { ServiceRef, Services } from "~/store/modules/utilities";
+import { ServiceRef } from "~/store/modules/utilities";
 import { AccountsTableRow, SettingsTableRow } from "~/store/row-types";
 import { CurrentUser } from "@/services/portal-interface";
 
@@ -26,7 +26,7 @@ const actions = (services: ServiceRef) => {
             return Promise.all([dispatch(ActionTypes.LOAD_SETTINGS), dispatch(ActionTypes.LOAD_ACCOUNTS)]);
         },
         [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return state.services
+            return services
                 .db()
                 .getSettings()
                 .then((settings) => {
@@ -35,14 +35,14 @@ const actions = (services: ServiceRef) => {
                 .catch((e) => console.log(ActionTypes.LOAD_SETTINGS, e));
         },
         [ActionTypes.UPDATE_SETTINGS]: ({ commit, dispatch, state }: ActionParameters, settings) => {
-            return state.services
+            return services
                 .db()
                 .updateSettings(settings)
                 .then((res) => dispatch(ActionTypes.LOAD_SETTINGS).then(() => res))
                 .catch((e) => console.log(ActionTypes.UPDATE_SETTINGS, e));
         },
         [ActionTypes.LOAD_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return state.services
+            return services
                 .db()
                 .getAllAccounts()
                 .then((accounts) => {
@@ -50,23 +50,23 @@ const actions = (services: ServiceRef) => {
                     const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
                     if (sorted.length > 0) {
                         console.log("currentUser", sorted); // PRIVACY ANONYMIZE
-                        state.services.portal().setCurrentUser(sorted[0]);
+                        services.portal().setCurrentUser(sorted[0]);
                         commit(SET_CURRENT_USER, sorted[0]);
                     }
                 })
                 .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
         },
         [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-            return state.services
+            return services
                 .portal()
                 .whoAmI()
                 .then((self) => {
                     console.log("authenticated", self);
-                    return state.services
+                    return services
                         .db()
                         .addOrUpdateAccounts(self)
                         .then((all) => {
-                            state.services.portal().setCurrentUser(self);
+                            services.portal().setCurrentUser(self);
                             commit(SET_CURRENT_USER, self);
                             return dispatch(ActionTypes.LOAD_ACCOUNTS);
                         })
@@ -74,7 +74,7 @@ const actions = (services: ServiceRef) => {
                 });
         },
         [ActionTypes.LOGOUT_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return state.services
+            return services
                 .db()
                 .deleteAllAccounts()
                 .then((all) => {
@@ -86,11 +86,11 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.CHANGE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, email: string) => {
             const chosen = state.accounts.filter((a) => a.email === email);
             if (chosen.length == 0) throw new Error(`no such account: ${email}`);
-            return state.services
+            return services
                 .db()
                 .addOrUpdateAccounts(chosen[0])
                 .then((all) => {
-                    state.services.portal().setCurrentUser(chosen[0]);
+                    services.portal().setCurrentUser(chosen[0]);
                     commit(SET_CURRENT_USER, chosen[0]);
                 })
                 .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
@@ -110,9 +110,6 @@ const mutations = {
     },
     [MutationTypes.LOGOUT]: (state: PortalState) => {
         Vue.set(state, "authenticated", false);
-    },
-    [MutationTypes.SERVICES]: (state: PortalState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.LOAD_SETTINGS]: (state: PortalState, settings: SettingsTableRow) => {
         Vue.set(state, "settings", settings[0].settingsObject);

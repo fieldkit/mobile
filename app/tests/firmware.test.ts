@@ -5,7 +5,6 @@ import { prepareReply } from "../services/query-station";
 import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
 
-import * as MutationTypes from "@/store/mutations";
 import { StationRepliedAction } from "@/store/typed-actions";
 
 function addFakeFirmware(services: Services) {
@@ -62,8 +61,6 @@ describe("Firmware", () => {
         mockStation = new MockStationReplies(services);
 
         store = services.Store();
-
-        store.commit(MutationTypes.SERVICES, () => services);
     });
 
     afterEach(() => {});

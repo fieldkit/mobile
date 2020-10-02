@@ -16,7 +16,7 @@ export class ApiUnexpectedStatus extends Error {
 
 export interface CurrentUser {
     name: string;
-    portalId: number;
+    portalId: string;
     email: string;
     token: string;
     usedAt: Date | null;

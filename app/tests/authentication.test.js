@@ -7,7 +7,6 @@ describe("Authentication", () => {
 
     beforeEach(() => {
         services = new Services();
-        services.Store().commit(MutationTypes.SERVICES, () => services);
         return services
             .CreateDb()
             .initialize()

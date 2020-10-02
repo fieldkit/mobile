@@ -9,6 +9,7 @@ import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 import { PhoneLocation, CommonLocations } from "@/store/types";
 import { StationRepliedAction } from "@/store/typed-actions";
+import { ServiceRef } from "@/store/modules/utilities";
 
 import { nearby } from "@/store/modules/nearby";
 
@@ -30,7 +31,7 @@ describe("Store", () => {
         store.hotUpdate({
             modules: {
                 nearby: {
-                    actions: _.extend(nearby(services).actions, {
+                    actions: _.extend(nearby(new ServiceRef(() => services)).actions, {
                         [ActionTypes.TRY_STATION]: () => {
                             return Promise.resolve();
                         },
@@ -38,8 +39,6 @@ describe("Store", () => {
                 },
             },
         });
-
-        store.commit(MutationTypes.SERVICES, () => services);
     });
 
     afterEach(() => {});

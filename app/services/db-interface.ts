@@ -10,9 +10,9 @@ const log = Config.logger("DbInterface");
 export interface UserAccount {
     name: string;
     email: string;
-    portalId: number;
+    portalId: string;
     token: string;
-    usedAt: Date;
+    usedAt: Date | null;
 }
 
 export default class DatabaseInterface {

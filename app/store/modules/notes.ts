@@ -2,7 +2,7 @@ import _ from "lodash";
 import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { Services, ServiceRef } from "./utilities";
+import { ServiceRef } from "./utilities";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
 
@@ -203,7 +203,7 @@ const getters = {};
 const actions = (services: ServiceRef) => {
     return {
         [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
-            return state.services
+            return services
                 .db()
                 .getAllNotes()
                 .then((all) => all.map((row) => Notes.fromRow(row)))
@@ -217,10 +217,10 @@ const actions = (services: ServiceRef) => {
         ) => {
             commit(NOTES_LOCATION, payload);
 
-            return state.services.db().addOrUpdateNotes(state.stations[payload.stationId]);
+            return services.db().addOrUpdateNotes(state.stations[payload.stationId]);
         },
         [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number }) => {
-            return state.services
+            return services
                 .db()
                 .addOrUpdateNotes(state.stations[payload.stationId])
                 .then(() => {
@@ -228,7 +228,7 @@ const actions = (services: ServiceRef) => {
                 });
         },
         [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-            const syncing = state.services
+            const syncing = services
                 .updater()
                 .addOrUpdateStations()
                 .catch((error) => {
@@ -246,9 +246,6 @@ const actions = (services: ServiceRef) => {
 const mutations = {
     [MutationTypes.RESET]: (state: NotesState, error: string) => {
         Object.assign(state, new NotesState());
-    },
-    [MutationTypes.SERVICES]: (state: NotesState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.STATIONS]: (state: NotesState, stations: Station[]) => {
         return stations.map((station) => {

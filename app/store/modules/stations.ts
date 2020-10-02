@@ -20,12 +20,11 @@ import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
 import { HttpStatusReply, AtlasStatus } from "@/store/http_reply";
 import { GlobalState } from "./global";
-import { Services, ServiceRef } from "./utilities";
+import { ServiceRef } from "./utilities";
 
 export const STATION_PORTAL_STATUS = "STATION_PORTAL_STATUS";
 
 export class StationsState {
-    services: ServiceRef = new ServiceRef();
     all: Station[] = [];
 }
 
@@ -332,7 +331,7 @@ const actions = (services: ServiceRef) => {
             return dispatch(ActionTypes.LOAD_STATIONS);
         },
         [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return loadStationsFromDatabase(state.services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
+            return loadStationsFromDatabase(services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
         },
         [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
             commit(MutationTypes.STATIONS, stations);
@@ -342,23 +341,23 @@ const actions = (services: ServiceRef) => {
             if ((statusReply?.errors?.length || 0) > 0) {
                 return Promise.reject(new Error(`station error reply`));
             }
-            return state.services
+            return services
                 .db()
                 .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
                 .then((station) => dispatch(ActionTypes.LOAD_STATIONS));
         },
         [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
-            return state.services
+            return services
                 .db()
                 .setStationPortalError({ id: status.id }, status.error)
                 .then((station) => commit(STATION_PORTAL_STATUS, status));
         },
         [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
-            return state.services
+            return services
                 .db()
                 .setStationPortalError({ id: status.id }, {})
                 .then(() =>
-                    state.services
+                    services
                         .db()
                         .setStationPortalId(status)
                         .then((station) => commit(STATION_PORTAL_STATUS, status))
@@ -371,9 +370,6 @@ const actions = (services: ServiceRef) => {
 const mutations = {
     [MutationTypes.RESET]: (state: StationsState, error: string) => {
         Object.assign(state, new StationsState());
-    },
-    [MutationTypes.SERVICES]: (state: StationsState, services: () => Services) => {
-        Vue.set(state, "services", new ServiceRef(services));
     },
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {
         Vue.set(state, "all", stations);
