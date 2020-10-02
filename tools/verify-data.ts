@@ -59,7 +59,7 @@ async function downloadAllPhotos(flows: any): Promise<any> {
             for (const image of simple.images) {
                 const relativeUrl = image.url;
                 const url = baseUrl + relativeUrl;
-                const path = "app/images/reader" + relativeUrl;
+                const path = "../app/images/reader" + relativeUrl;
                 console.log("downloading", url, path);
                 await saveToFile(url, path);
             }
@@ -77,7 +77,7 @@ async function main() {
     await downloadAllPhotos(incoming);
 
     console.log("looks good!");
-    await fsPromises.writeFile("app/data/flows.json", JSON.stringify(incoming, null, 4));
+    await fsPromises.writeFile("../app/data/flows.json", JSON.stringify(incoming, null, 4));
 }
 
 Promise.resolve(main())
