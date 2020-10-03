@@ -1,4 +1,4 @@
-import Promise from "bluebird";
+import Bluebird from "bluebird";
 import { Connectivity } from "@/wrappers/connectivity";
 import { promiseAfter } from "@/utilities";
 import * as ActionTypes from "@/store/actions";
@@ -73,7 +73,7 @@ class NetworkMonitor {
     }
 
     private watch() {
-        return Promise.delay(10000).then(() => this.issue().finally(() => this.watch()));
+        return Bluebird.delay(10000).then(() => this.issue().finally(() => this.watch()));
     }
 
     private issue() {
@@ -142,11 +142,11 @@ export default class DiscoverStation {
         return this.monitoring;
     }
 
-    public restart(): Promise<never> {
-        return this.stopServiceDiscovery().then(() => Promise.delay(500).then(() => this.startServiceDiscovery()));
+    public restart(): Promise<any> {
+        return this.stopServiceDiscovery().then(() => Bluebird.delay(500).then(() => this.startServiceDiscovery()));
     }
 
-    public startServiceDiscovery(): Promise<never> {
+    public startServiceDiscovery(): Promise<any> {
         this.networkMonitor.start();
 
         if (this.monitoring) {
@@ -156,7 +156,7 @@ export default class DiscoverStation {
         return this.conservify.start("_fk._tcp");
     }
 
-    public stopServiceDiscovery(): Promise<never> {
+    public stopServiceDiscovery(): Promise<any> {
         this.monitoring = false;
         this.stations = {};
         return Promise.resolve(this.conservify.stop());

@@ -133,7 +133,8 @@ Bluebird.config({
     asyncHooks: true,
 });
 
-global.Promise = Bluebird;
+// This causes all kinds of chaos on iOS under NS7
+// global.Promise = Bluebird;
 
 // Logging stuff, this includes our hooks to save logs as well as
 // configure logging on Promise failures and funneling errors to
