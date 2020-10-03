@@ -130,3 +130,10 @@ watch: setup
 
 update-third-party:
 	third-party/update.sh
+
+ios-devices:
+	xcrun xctrace list devices
+	idevice_id --list
+
+ios-logs:
+	idevicesyslog --udid `idevice_id --list` -p "mobile(NativeScript)"

@@ -33,6 +33,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.SCAN_FOR_STATIONS]: async ({ dispatch, state }: ActionParameters) => {
             await services.discovery().restart();
             const candidates = await services.db().queryRecentlyActiveAddresses();
+            console.log("nearby:scan", candidates);
             const offline = candidates;
             const tries = offline.map((candidate) => dispatch(ActionTypes.TRY_STATION_ONCE, new TryStationAction(candidate)));
             return await Promise.all(tries);
