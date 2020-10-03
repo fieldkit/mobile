@@ -1,6 +1,6 @@
 import { ObservableArray } from "data/observable-array";
-import { CoercibleProperty, CSSType, makeParser, makeValidator, Property, View } from "ui/core/view";
-import { addWeakEventListener, removeWeakEventListener } from "ui/core/weak-event-listener";
+import { CoercibleProperty, CSSType, makeParser, makeValidator, Property, View, } from "ui/core/view";
+import { addWeakEventListener, removeWeakEventListener, } from "ui/core/weak-event-listener";
 import * as types from "utils/types";
 export * from "ui/core/view";
 let DropDownBase = class DropDownBase extends View {
@@ -15,14 +15,18 @@ let DropDownBase = class DropDownBase extends View {
         if (this.isValueListIn) {
             return items.getDisplay(index);
         }
-        const item = this.isItemsSourceIn ? this.items.getItem(index) : this.items[index];
+        const item = this.isItemsSourceIn
+            ? this.items.getItem(index)
+            : this.items[index];
         return item === undefined || item === null ? index + "" : item + "";
     }
 };
 DropDownBase.openedEvent = "opened";
 DropDownBase.closedEvent = "closed";
 DropDownBase.selectedIndexChangedEvent = "selectedIndexChanged";
-DropDownBase = __decorate([CSSType("DropDown")], DropDownBase);
+DropDownBase = __decorate([
+    CSSType("DropDown")
+], DropDownBase);
 export { DropDownBase };
 export class ValueList extends ObservableArray {
     getDisplay(index) {
@@ -69,7 +73,8 @@ export const selectedIndexProperty = new CoercibleProperty({
             if (value > max) {
                 value = max;
             }
-        } else {
+        }
+        else {
             value = null;
         }
         return value;

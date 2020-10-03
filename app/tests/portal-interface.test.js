@@ -12,7 +12,6 @@ describe("UserAuth", () => {
     beforeEach(async () => {
         services = new Services();
         portalInterface = services.PortalInterface();
-        services.Store().commit(MutationTypes.SERVICES, () => services);
         await services.CreateDb().initialize();
         await new Fixtures(services.Database()).addMinimum();
     });

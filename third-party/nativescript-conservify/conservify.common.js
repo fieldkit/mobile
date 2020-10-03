@@ -8,7 +8,7 @@ var FileSystemError = (function (_super) {
         return _this;
     }
     return FileSystemError;
-})(Error);
+}(Error));
 exports.FileSystemError = FileSystemError;
 var ConnectionError = (function (_super) {
     __extends(ConnectionError, _super);
@@ -18,6 +18,6 @@ var ConnectionError = (function (_super) {
         return _this;
     }
     return ConnectionError;
-})(Error);
+}(Error));
 exports.ConnectionError = ConnectionError;
 //# sourceMappingURL=conservify.common.js.map

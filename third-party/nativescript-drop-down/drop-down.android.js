@@ -2,28 +2,24 @@ import { Color } from "color";
 import { placeholderColorProperty } from "ui/editable-text-base/editable-text-base-common";
 import { Label } from "ui/label";
 import { StackLayout } from "ui/layouts/stack-layout";
-import { textAlignmentProperty, textDecorationProperty } from "ui/text-base";
-import { backgroundColorProperty, colorProperty, fontInternalProperty, fontSizeProperty } from "ui/styling/style-properties";
+import { textAlignmentProperty, textDecorationProperty, } from "ui/text-base";
+import { backgroundColorProperty, colorProperty, fontInternalProperty, fontSizeProperty, } from "ui/styling/style-properties";
 import * as types from "utils/types";
-import {
-    DropDownBase,
-    hintProperty,
-    itemsPaddingProperty,
-    itemsProperty,
-    itemsTextAlignmentProperty,
-    selectedIndexProperty,
-} from "./drop-down-common";
+import { DropDownBase, hintProperty, itemsPaddingProperty, itemsProperty, itemsTextAlignmentProperty, selectedIndexProperty, } from "./drop-down-common";
 export * from "./drop-down-common";
 const LABELVIEWID = "spinner-label";
 export var RealizedViewType;
 (function (RealizedViewType) {
-    RealizedViewType[(RealizedViewType["ItemView"] = 0)] = "ItemView";
-    RealizedViewType[(RealizedViewType["DropDownView"] = 1)] = "DropDownView";
+    RealizedViewType[RealizedViewType["ItemView"] = 0] = "ItemView";
+    RealizedViewType[RealizedViewType["DropDownView"] = 1] = "DropDownView";
 })(RealizedViewType || (RealizedViewType = {}));
 export class DropDown extends DropDownBase {
     constructor() {
         super(...arguments);
-        this._realizedItems = [new Map(), new Map()];
+        this._realizedItems = [
+            new Map(),
+            new Map(),
+        ];
     }
     createNativeView() {
         initializeTNSSpinner();
@@ -168,17 +164,16 @@ export class DropDown extends DropDownBase {
         for (const item of realizedItems) {
             item.forEach((view) => {
                 if (isIncludeHintIn || !view.isHintViewIn) {
-                    if (
-                        property === "textAlignment" ||
+                    if (property === "textAlignment" ||
                         property === "textDecoration" ||
                         property === "fontInternal" ||
                         property === "fontSize" ||
                         property === "color" ||
-                        property === "placeholderColor"
-                    ) {
+                        property === "placeholderColor") {
                         const label = view.getViewById(LABELVIEWID);
                         label.style[property] = value;
-                    } else {
+                    }
+                    else {
                         view.style[property] = value;
                     }
                 }
@@ -201,58 +196,58 @@ function initializeTNSSpinner() {
         return;
     }
     var TNSSpinnerImpl = /** @class */ (function (_super) {
-        __extends(TNSSpinnerImpl, _super);
-        function TNSSpinnerImpl(owner) {
-            var _this = _super.call(this, owner.get()._context) || this;
-            _this.owner = owner;
-            _this._isOpenedIn = false;
-            return global.__native(_this);
-        }
-        Object.defineProperty(TNSSpinnerImpl.prototype, "itemsTextAlignment", {
-            get: function () {
-                return this._itemsTextAlignment;
-            },
-            set: function (value) {
-                this._itemsTextAlignment = value;
-            },
-            enumerable: true,
-            configurable: true,
+    __extends(TNSSpinnerImpl, _super);
+    function TNSSpinnerImpl(owner) {
+        var _this = _super.call(this, owner.get()._context) || this;
+        _this.owner = owner;
+        _this._isOpenedIn = false;
+        return global.__native(_this);
+    }
+    Object.defineProperty(TNSSpinnerImpl.prototype, "itemsTextAlignment", {
+        get: function () {
+            return this._itemsTextAlignment;
+        },
+        set: function (value) {
+            this._itemsTextAlignment = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TNSSpinnerImpl.prototype, "itemsPadding", {
+        get: function () {
+            return this._itemsPadding;
+        },
+        set: function (value) {
+            this._itemsPadding = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TNSSpinnerImpl.prototype.performClick = function () {
+        var owner = this.owner.get();
+        this._isOpenedIn = true;
+        owner.notify({
+            eventName: DropDownBase.openedEvent,
+            object: owner,
         });
-        Object.defineProperty(TNSSpinnerImpl.prototype, "itemsPadding", {
-            get: function () {
-                return this._itemsPadding;
-            },
-            set: function (value) {
-                this._itemsPadding = value;
-            },
-            enumerable: true,
-            configurable: true,
-        });
-        TNSSpinnerImpl.prototype.performClick = function () {
+        return _super.prototype.performClick.call(this);
+    };
+    TNSSpinnerImpl.prototype.onWindowFocusChanged = function (hasWindowFocus) {
+        _super.prototype.onWindowFocusChanged.call(this, hasWindowFocus);
+        if (this._isOpenedIn && hasWindowFocus) {
             var owner = this.owner.get();
-            this._isOpenedIn = true;
             owner.notify({
-                eventName: DropDownBase.openedEvent,
+                eventName: DropDownBase.closedEvent,
                 object: owner,
             });
-            return _super.prototype.performClick.call(this);
-        };
-        TNSSpinnerImpl.prototype.onWindowFocusChanged = function (hasWindowFocus) {
-            _super.prototype.onWindowFocusChanged.call(this, hasWindowFocus);
-            if (this._isOpenedIn && hasWindowFocus) {
-                var owner = this.owner.get();
-                owner.notify({
-                    eventName: DropDownBase.closedEvent,
-                    object: owner,
-                });
-                this._isOpenedIn = false;
-            }
-        };
-        TNSSpinnerImpl.prototype.onDetachedFromWindowX = function () {
-            _super.prototype.onDetachedFromWindow.call(this);
-        };
-        return TNSSpinnerImpl;
-    })(android.widget.Spinner);
+            this._isOpenedIn = false;
+        }
+    };
+    TNSSpinnerImpl.prototype.onDetachedFromWindowX = function () {
+        _super.prototype.onDetachedFromWindow.call(this);
+    };
+    return TNSSpinnerImpl;
+}(android.widget.Spinner));
     TNSSpinner = TNSSpinnerImpl;
 }
 let DropDownAdapter;
@@ -261,110 +256,114 @@ function initializeDropDownAdapter() {
         return;
     }
     var DropDownAdapterImpl = /** @class */ (function (_super) {
-        __extends(DropDownAdapterImpl, _super);
-        function DropDownAdapterImpl(owner) {
-            var _this = _super.call(this) || this;
-            _this.owner = owner;
-            return global.__native(_this);
+    __extends(DropDownAdapterImpl, _super);
+    function DropDownAdapterImpl(owner) {
+        var _this = _super.call(this) || this;
+        _this.owner = owner;
+        return global.__native(_this);
+    }
+    DropDownAdapterImpl.prototype.isEnabled = function (i) {
+        return i !== 0;
+    };
+    DropDownAdapterImpl.prototype.getCount = function () {
+        // In some strange situations owner can become null (see #181)
+        if (!this.owner) {
+            return 0;
         }
-        DropDownAdapterImpl.prototype.isEnabled = function (i) {
-            return i !== 0;
-        };
-        DropDownAdapterImpl.prototype.getCount = function () {
-            // In some strange situations owner can become null (see #181)
-            if (!this.owner) {
-                return 0;
+        var owner = this.owner.get();
+        return (owner && owner.items ? owner.items.length : 0) + 1; // +1 for the hint
+    };
+    DropDownAdapterImpl.prototype.getItem = function (i) {
+        // In some strange situations owner can become null (see #181)
+        if (!this.owner) {
+            return "";
+        }
+        var owner = this.owner.get();
+        if (i === 0) {
+            return owner.hint;
+        }
+        var realIndex = i - 1;
+        return owner._getItemAsString(realIndex);
+    };
+    DropDownAdapterImpl.prototype.getItemId = function (i) {
+        return long(i);
+    };
+    DropDownAdapterImpl.prototype.hasStableIds = function () {
+        return true;
+    };
+    DropDownAdapterImpl.prototype.getView = function (index, convertView, parent) {
+        return this._generateView(index, convertView, parent, RealizedViewType.ItemView);
+    };
+    DropDownAdapterImpl.prototype.getDropDownView = function (index, convertView, parent) {
+        return this._generateView(index, convertView, parent, RealizedViewType.DropDownView);
+    };
+    DropDownAdapterImpl.prototype._generateView = function (index, convertView, parent, realizedViewType) {
+        // In some strange situations owner can become null (see #181)
+        if (!this.owner) {
+            return null;
+        }
+        var owner = this.owner.get();
+        if (!owner) {
+            return null;
+        }
+        var view = owner._getRealizedView(convertView, realizedViewType);
+        if (view) {
+            if (!view.parent) {
+                owner._addView(view);
+                convertView = view.android;
             }
-            var owner = this.owner.get();
-            return (owner && owner.items ? owner.items.length : 0) + 1; // +1 for the hint
-        };
-        DropDownAdapterImpl.prototype.getItem = function (i) {
-            // In some strange situations owner can become null (see #181)
-            if (!this.owner) {
-                return "";
+            var label = view.getViewById(LABELVIEWID);
+            label.text = this.getItem(index);
+            // Copy root styles to view
+            if (owner.style.color) {
+                label.style.color = owner.style.color;
             }
-            var owner = this.owner.get();
-            if (i === 0) {
-                return owner.hint;
+            if (owner.style.placeholderColor) {
+                label.style.placeholderColor = owner.style.placeholderColor;
             }
-            var realIndex = i - 1;
-            return owner._getItemAsString(realIndex);
-        };
-        DropDownAdapterImpl.prototype.getItemId = function (i) {
-            return long(i);
-        };
-        DropDownAdapterImpl.prototype.hasStableIds = function () {
-            return true;
-        };
-        DropDownAdapterImpl.prototype.getView = function (index, convertView, parent) {
-            return this._generateView(index, convertView, parent, RealizedViewType.ItemView);
-        };
-        DropDownAdapterImpl.prototype.getDropDownView = function (index, convertView, parent) {
-            return this._generateView(index, convertView, parent, RealizedViewType.DropDownView);
-        };
-        DropDownAdapterImpl.prototype._generateView = function (index, convertView, parent, realizedViewType) {
-            // In some strange situations owner can become null (see #181)
-            if (!this.owner) {
-                return null;
+            label.style.textDecoration = owner.style.textDecoration;
+            label.style.textAlignment =
+                owner.nativeView.itemsTextAlignment !==
+                    itemsTextAlignmentProperty.defaultValue && realizedViewType === 1
+                    ? owner.nativeView.itemsTextAlignment
+                    : owner.style.textAlignment;
+            label.style.fontInternal = owner.style.fontInternal;
+            if (owner.style.fontSize) {
+                label.style.fontSize = owner.style.fontSize;
             }
-            var owner = this.owner.get();
-            if (!owner) {
-                return null;
+            view.style.backgroundColor = owner.style.backgroundColor;
+            view.style.padding =
+                owner.nativeView.itemsPadding !== itemsPaddingProperty.defaultValue &&
+                    realizedViewType === 1
+                    ? owner.nativeView.itemsPadding
+                    : owner.style.padding;
+            view.style.height = owner.style.height;
+            if (realizedViewType === RealizedViewType.DropDownView) {
+                view.style.opacity = owner.style.opacity;
             }
-            var view = owner._getRealizedView(convertView, realizedViewType);
-            if (view) {
-                if (!view.parent) {
-                    owner._addView(view);
-                    convertView = view.android;
+            view.isHintViewIn = false;
+            // Hint View styles
+            if (index === 0) {
+                if (label.style.placeholderColor) {
+                    label.style.color = label.style.placeholderColor;
                 }
-                var label = view.getViewById(LABELVIEWID);
-                label.text = this.getItem(index);
-                // Copy root styles to view
-                if (owner.style.color) {
-                    label.style.color = owner.style.color;
+                else {
+                    label.style.color = new Color(255, 148, 150, 148);
                 }
-                if (owner.style.placeholderColor) {
-                    label.style.placeholderColor = owner.style.placeholderColor;
+                view.isHintViewIn = true;
+                // HACK: if there is no hint defined, make the view in the drop down virtually invisible.
+                if (realizedViewType === RealizedViewType.DropDownView &&
+                    (types.isNullOrUndefined(owner.hint) || owner.hint === "")) {
+                    view.height = 1;
                 }
-                label.style.textDecoration = owner.style.textDecoration;
-                label.style.textAlignment =
-                    owner.nativeView.itemsTextAlignment !== itemsTextAlignmentProperty.defaultValue && realizedViewType === 1
-                        ? owner.nativeView.itemsTextAlignment
-                        : owner.style.textAlignment;
-                label.style.fontInternal = owner.style.fontInternal;
-                if (owner.style.fontSize) {
-                    label.style.fontSize = owner.style.fontSize;
-                }
-                view.style.backgroundColor = owner.style.backgroundColor;
-                view.style.padding =
-                    owner.nativeView.itemsPadding !== itemsPaddingProperty.defaultValue && realizedViewType === 1
-                        ? owner.nativeView.itemsPadding
-                        : owner.style.padding;
-                view.style.height = owner.style.height;
-                if (realizedViewType === RealizedViewType.DropDownView) {
-                    view.style.opacity = owner.style.opacity;
-                }
-                view.isHintViewIn = false;
-                // Hint View styles
-                if (index === 0) {
-                    if (label.style.placeholderColor) {
-                        label.style.color = label.style.placeholderColor;
-                    } else {
-                        label.style.color = new Color(255, 148, 150, 148);
-                    }
-                    view.isHintViewIn = true;
-                    // HACK: if there is no hint defined, make the view in the drop down virtually invisible.
-                    if (realizedViewType === RealizedViewType.DropDownView && (types.isNullOrUndefined(owner.hint) || owner.hint === "")) {
-                        view.height = 1;
-                    }
-                    // END HACK
-                }
-                owner._realizedItems[realizedViewType].set(convertView, view);
+                // END HACK
             }
-            return convertView;
-        };
-        return DropDownAdapterImpl;
-    })(android.widget.BaseAdapter);
+            owner._realizedItems[realizedViewType].set(convertView, view);
+        }
+        return convertView;
+    };
+    return DropDownAdapterImpl;
+}(android.widget.BaseAdapter));
     DropDownAdapter = DropDownAdapterImpl;
 }
 let DropDownItemSelectedListener;
@@ -373,37 +372,36 @@ function initializeDropDownItemSelectedListener() {
         return;
     }
     var DropDownItemSelectedListenerImpl = /** @class */ (function (_super) {
-        __extends(DropDownItemSelectedListenerImpl, _super);
-        function DropDownItemSelectedListenerImpl(owner) {
-            var _this = _super.call(this) || this;
-            _this.owner = owner;
-            return global.__native(_this);
+    __extends(DropDownItemSelectedListenerImpl, _super);
+    function DropDownItemSelectedListenerImpl(owner) {
+        var _this = _super.call(this) || this;
+        _this.owner = owner;
+        return global.__native(_this);
+    }
+    DropDownItemSelectedListenerImpl.prototype.onItemSelected = function (parent, convertView, index, id) {
+        var owner = this.owner.get();
+        var oldIndex = owner.selectedIndex;
+        var newIndex = index === 0 ? null : index - 1;
+        owner.selectedIndex = newIndex;
+        if (newIndex !== oldIndex) {
+            owner.notify({
+                eventName: DropDownBase.selectedIndexChangedEvent,
+                object: owner,
+                oldIndex: oldIndex,
+                newIndex: newIndex,
+            });
+            // Seems if the user does not select an item the control reuses the views on the next open.
+            // So it should be safe to clear the cache once the user selects an item (and not when the dropdown is closed)
+            owner._clearCache(RealizedViewType.DropDownView);
         }
-        DropDownItemSelectedListenerImpl.prototype.onItemSelected = function (parent, convertView, index, id) {
-            var owner = this.owner.get();
-            var oldIndex = owner.selectedIndex;
-            var newIndex = index === 0 ? null : index - 1;
-            owner.selectedIndex = newIndex;
-            if (newIndex !== oldIndex) {
-                owner.notify({
-                    eventName: DropDownBase.selectedIndexChangedEvent,
-                    object: owner,
-                    oldIndex: oldIndex,
-                    newIndex: newIndex,
-                });
-                // Seems if the user does not select an item the control reuses the views on the next open.
-                // So it should be safe to clear the cache once the user selects an item (and not when the dropdown is closed)
-                owner._clearCache(RealizedViewType.DropDownView);
-            }
-        };
-        DropDownItemSelectedListenerImpl.prototype.onNothingSelected = function () {
-            /* Currently Not Needed */
-        };
-        DropDownItemSelectedListenerImpl = __decorate(
-            [Interfaces([android.widget.AdapterView.OnItemSelectedListener])],
-            DropDownItemSelectedListenerImpl
-        );
-        return DropDownItemSelectedListenerImpl;
-    })(java.lang.Object);
+    };
+    DropDownItemSelectedListenerImpl.prototype.onNothingSelected = function () {
+        /* Currently Not Needed */
+    };
+    DropDownItemSelectedListenerImpl = __decorate([
+        Interfaces([android.widget.AdapterView.OnItemSelectedListener])
+    ], DropDownItemSelectedListenerImpl);
+    return DropDownItemSelectedListenerImpl;
+}(java.lang.Object));
     DropDownItemSelectedListener = DropDownItemSelectedListenerImpl;
 }
