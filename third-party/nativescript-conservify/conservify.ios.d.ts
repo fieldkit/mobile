@@ -153,7 +153,7 @@ export declare class Conservify implements ActiveTasks, OtherPromises {
     constructor(discoveryEvents: any, logger: any);
     getTask(id: string): any;
     removeTask(id: string): void;
-    stop(): void;
+    stop(): Promise<void>;
     start(serviceType: string): Promise<{}>;
     writeSampleData(): Promise<string>;
     open(path: any): Promise<OpenedFile>;
