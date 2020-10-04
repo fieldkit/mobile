@@ -83,7 +83,7 @@ export default Vue.extend({
             }
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
-        onRemoveAudio(this: any, note, media) {
+        onRemoveAudio(this: any, media) {
             this.$store.commit(MutationTypes.REMOVE_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
