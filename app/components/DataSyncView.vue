@@ -206,7 +206,7 @@ export default Vue.extend({
             if (this.closed[sync.deviceId] === false) {
                 return true;
             }
-            return sync.connected;
+            return sync.connected || !sync.isComplete;
         },
         prettyDate(this: any, date) {
             if (!date) {
