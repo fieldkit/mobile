@@ -8,7 +8,7 @@
                     class="small-round"
                     src="~/images/Icon_Play.png"
                     v-if="playing != r"
-                    @tap="(ev) => playAudio(ev, r)"
+                    @tap="(ev) => startPlaying(ev, r)"
                 />
                 <Image
                     col="0"
