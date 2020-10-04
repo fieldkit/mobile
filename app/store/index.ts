@@ -19,6 +19,9 @@ import Config from "../config";
 import { Services, ServiceRef } from "./modules/utilities";
 
 export * from "./typed-actions";
+export * from "./modules/nearby";
+export * from "./modules/stations";
+export * from "./modules/media";
 
 function customizeLogger() {
     return createLogger({

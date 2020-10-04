@@ -26,16 +26,30 @@
 <script lang="ts">
 import Vue from "vue";
 import * as ActionTypes from "@/store/actions";
+import { ActiveRecording } from "@/store";
+import { Timer } from "@/common/timer";
 
 export default Vue.extend({
     data() {
-        return {};
+        return {
+            timer: null,
+            now: new Date(),
+        };
     },
     props: {},
     computed: {
-        recording(this: any) {
+        recording(this: any): ActiveRecording {
+            console.log("recording", this.$store.state.media.recording, this.now);
             return this.$store.state.media.recording;
         },
+    },
+    mounted(this: any) {
+        this.timer = new Timer(1000, () => {
+            this.now = new Date();
+        });
+    },
+    destroyed(this: any) {
+        this.timer.stop();
     },
     methods: {
         onPageLoaded(args) {},
