@@ -17,7 +17,7 @@
                 v-if="playing == r"
                 @tap="(ev) => stopPlaying(ev, r)"
             />
-            <Label col="1" :text="getFileName(r)" :data="getFileName(r)" textWrap="true" @tap="(ev) => playAudio(ev, r)" />
+            <Label col="1" :text="getFileName(r)" :data="getFileName(r)" textWrap="true" @tap="(ev) => toggleAudio(ev, r)" />
             <Image col="2" width="20" class="small-round" src="~/images/Icon_Delete.png" @tap="(ev) => removeRecording(ev, r)" />
         </GridLayout>
     </StackLayout>
@@ -41,14 +41,37 @@ export default Vue.extend({
             const parts = media.path.split("/");
             return parts[parts.length - 1];
         },
-        playAudio(this: any, ev, media) {
-            return this.$services.Audio().playRecordedFile(media.path);
+        toggleAudio(this: any, ev, media) {
+            if (this.playing) {
+                return this.stopPlaying(media);
+            }
+            return this.startPlaying(media);
+        },
+        startPlaying(this: any, media) {
+            return this.$services
+                .Audio()
+                .playRecordedFile(media.path, () => {
+                    this.playing = null;
+                })
+                .then(() => {
+                    this.playing = media;
+                });
         },
         stopPlaying(this: any, media) {
-            return this.$services.Audio().pausePlayer();
+            if (this.playing === null) {
+                return Promise.resolve();
+            }
+            return this.$services
+                .Audio()
+                .stopPlayer()
+                .then(() => {
+                    this.playing = null;
+                });
         },
         removeRecording(this: any, ev, media) {
-            return this.$emit("remove-audio", media);
+            return this.stopPlaying().then(() => {
+                return this.$emit("remove-audio", media);
+            });
         },
     },
 });

@@ -65,7 +65,11 @@ export default class AudioInterface {
         return this.recorder.stop();
     }
 
-    public playRecordedFile(path: string): Promise<any> {
+    public isPlaying(): boolean {
+        return this.player.isAudioPlaying();
+    }
+
+    public playRecordedFile(path: string, doneCallback: () => void): Promise<any> {
         console.log("audio:play", path);
         const playerOptions: AudioPlayerOptions = {
             audioFile: path,
@@ -75,6 +79,7 @@ export default class AudioInterface {
                 if (!playerOptions.loop) {
                     await this.player.dispose();
                 }
+                doneCallback();
             },
             errorCallback: (errorObject) => {
                 console.log("audio-play:error", errorObject);
@@ -85,6 +90,12 @@ export default class AudioInterface {
         };
 
         return this.player.playFromFile(playerOptions);
+    }
+
+    public stopPlayer(): Promise<any> {
+        return this.player.pause().then(() => {
+            return this.player.dispose();
+        });
     }
 
     public pausePlayer(): Promise<any> {
