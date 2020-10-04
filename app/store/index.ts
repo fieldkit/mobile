@@ -22,7 +22,7 @@ export * from "./typed-actions";
 
 function customizeLogger() {
     return createLogger({
-        filter(mutation, stateBefore, stateAfter) {
+        filter(mutation, _stateBefore, _stateAfter) {
             if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
                 console.log("mutation:", mutation.type);
                 return false;
@@ -61,7 +61,7 @@ function customizeLogger() {
                 console.log("mutation:", mutation.type);
                 return false;
             }
-            if (mutation.type == MutationTypes.ATTACH_NOTE_MEDIA) {
+            if (/MEDIA/.test(mutation.type)) {
                 console.log("mutation:", JSON.stringify(mutation));
                 return false;
             }

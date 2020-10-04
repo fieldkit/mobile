@@ -51,14 +51,12 @@ export default Vue.extend({
         },
         note(this: any) {
             if (this.editingKey) {
-                console.log("data", this.editingKey, this.notes);
                 return this.notes.notes[this.editingKey] || new NoteData();
             }
             return null;
         },
         help(this: any) {
             if (this.editingKey) {
-                console.log("help", this.editingKey, this.notes);
                 return this.notes.help[this.editingKey];
             }
             return null;
@@ -67,7 +65,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {},
         onSaveNote(this: any, { form }) {
-            console.log("saving", this.editingKey, form);
+            console.log("notes-view:saving", this.editingKey, form);
 
             this.$store.commit(MutationTypes.UPDATE_NOTE, { stationId: this.stationId, key: this.editingKey, update: form });
 
