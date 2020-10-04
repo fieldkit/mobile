@@ -9,11 +9,11 @@ export class NoRecordingAllowedError extends Error {
 }
 
 export default class AudioInterface {
-    player: any;
-    recorder: any;
-    folder: any;
-    extension: string;
-    options: any;
+    private readonly player: TNSPlayer;
+    private readonly recorder: TNSRecorder;
+    private readonly folder: any;
+    private readonly extension: string;
+    private readonly options: any;
 
     constructor(services) {
         this.player = new TNSPlayer();
@@ -32,7 +32,7 @@ export default class AudioInterface {
         }
     }
 
-    startAudioRecording() {
+    public startAudioRecording(): Promise<string> {
         if (!TNSRecorder.CAN_RECORD()) {
             return Promise.reject(new NoRecordingAllowedError());
         }
@@ -53,48 +53,51 @@ export default class AudioInterface {
         });
     }
 
-    pauseAudioRecording() {
+    public pauseAudioRecording(): Promise<any> {
         return this.recorder.pause();
     }
 
-    resumeAudioRecording() {
+    public resumeAudioRecording(): Promise<any> {
         return this.recorder.resume();
     }
 
-    stopAudioRecording() {
+    public stopAudioRecording(): Promise<any> {
         return this.recorder.stop();
     }
 
-    playRecordedFile(filename) {
+    public playRecordedFile(path: string): Promise<any> {
+        console.log("audio:play", path);
         const playerOptions: AudioPlayerOptions = {
-            audioFile: filename,
+            audioFile: path,
             loop: false,
             completeCallback: async (...args) => {
-                console.log("audio: complete", filename, args);
+                console.log("audio-play:complete", path, args);
                 if (!playerOptions.loop) {
                     await this.player.dispose();
                 }
             },
             errorCallback: (errorObject) => {
-                console.log("audio: error", errorObject);
+                console.log("audio-play:error", errorObject);
             },
             infoCallback: (infoObject) => {
-                console.log("audio: info", infoObject);
+                console.log("audio-play:info", infoObject);
             },
         };
 
         return this.player.playFromFile(playerOptions);
     }
 
-    pausePlayer() {
+    public pausePlayer(): Promise<any> {
         return this.player.pause();
     }
 
-    getDuration() {
-        return this.player.getAudioTrackDuration;
+    public getDuration(): Promise<string> {
+        return this.player.getAudioTrackDuration();
     }
 
-    deleteRecordedFile(filename) {
-        return this.folder.getFile(filename + this.extension).remove();
+    public deleteRecordedFile(name: string): Promise<string> {
+        console.log("audio:remove", name);
+        this.folder.getFile(name + this.extension).remove();
+        return Promise.resolve(name);
     }
 }
