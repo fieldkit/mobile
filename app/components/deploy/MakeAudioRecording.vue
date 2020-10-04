@@ -94,9 +94,11 @@ export default Vue.extend({
     border-radius: 4;
     border-color: $fk-gray-lighter;
 }
+/*
 .small-round {
     width: 40;
     padding: 2;
     border-radius: 20;
 }
+*/
 </style>

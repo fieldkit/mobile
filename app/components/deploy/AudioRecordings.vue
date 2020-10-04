@@ -93,9 +93,11 @@ export default Vue.extend({
 .link-style {
     color: $fk-primary-blue;
 }
+/*
 .small-round {
     width: 40;
     padding: 2;
     border-radius: 20;
 }
+*/
 </style>
