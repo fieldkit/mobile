@@ -81,7 +81,7 @@ export default Vue.extend({
     },
     methods: {
         addAccount() {
-            return this.$navigateTo(routes.appSettings.accountAdd);
+            return this.$navigateTo(routes.appSettings.accountAdd, {});
         },
         logoutAll() {
             return Services.PortalInterface().logout();

@@ -56,7 +56,7 @@ export default Vue.extend({
         },
         back() {},
         skip() {
-            return this.$navigateTo(routes.stations);
+            return this.$navigateTo(routes.stations, {});
         },
     },
 });
