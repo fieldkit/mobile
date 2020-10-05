@@ -9,7 +9,7 @@ import { createAdaptedDataServices } from "./data-services";
 /**
  * NativeScript requires this to wire up the JS context in this thread.
  */
-require("globals");
+require("globals"); // eslint-disable-line nativescript/no-short-imports
 
 try {
     console.log(`worker:starting`);

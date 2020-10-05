@@ -56,11 +56,14 @@
         "@types/mocha": "~5.2.5",
         "@types/node": "^10.12.30",
         "@types/yup": "^0.29.7",
+        "@typescript-eslint/eslint-plugin": "^4.4.0",
+        "@typescript-eslint/parser": "^4.4.0",
         "babel-jest": "^26.0.1",
         "babel-loader": "^8.1.0",
         "chai": "^4.2.0",
         "electron-devtools-installer": "^3.0.0",
         "eslint": "^7.10.0",
+        "eslint-plugin-nativescript": "0.0.0",
         "eslint-plugin-vue": "^6.2.2",
         "jest": "^26.1.0",
         "jest-runner-tsc": "^1.6.0",
@@ -87,7 +90,8 @@
     "scripts": {
         "test": "jest",
         "e2e": "node ./node_modules/nativescript-dev-appium/check-dev-deps.js &&  tsc -p e2e  &&  mocha --opts ./e2e/config/mocha.opts ",
-        "e2e-watch": "tsc -p e2e --watch"
+        "e2e-watch": "tsc -p e2e --watch",
+        "esl": "npx eslint --ext=ts app"
     },
     "main": "app"
 }

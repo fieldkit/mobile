@@ -1,0 +1,16 @@
+{
+	"parser": "@typescript-eslint/parser",
+	"parserOptions": {
+		"sourceType": "module",
+		"project": "./tsconfig.json"
+	},
+	"plugins": ["nativescript"],
+	"rules": {
+		"nativescript/no-short-imports": "error"
+	},
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:@typescript-eslint/recommended-requiring-type-checking"
+	]
+}
