@@ -35,7 +35,7 @@ prettier:
 
 $(APP)/node_modules:
 	rm -rf $(APP)/node_modules/*/.git $(APP)/node_modules/fk-*-protocol
-	cd $(APP) && npm cache clean --force && (npm install || npm install)
+	cd $(APP) && npm install
 	git config core.hooksPath .githooks
 
 jenkins: setup
