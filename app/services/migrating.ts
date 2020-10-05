@@ -8,16 +8,16 @@ import Config from "../config";
 const log = Config.logger("Migrations");
 
 export default class Migrating {
-    up(db) {
-        return this._initialize(db)
+    public up(db) {
+        return this.initialize(db)
             .then(() => {
-                const all = this._resolve();
+                const all = this.resolve();
 
-                return serializePromiseChain(all, migration => {
+                return serializePromiseChain(all, (migration) => {
                     log.verbose("migration: check", migration.version, migration.name);
-                    return this._isNecessary(db, migration).then(necessary => {
+                    return this.isNecessary(db, migration).then((necessary) => {
                         if (necessary) {
-                            return this._migrateUp(db, migration);
+                            return this.migrateUp(db, migration);
                         }
                         return {
                             migration,
@@ -26,16 +26,16 @@ export default class Migrating {
                     });
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 log.error("error:", err, err ? err.stack : null);
                 return Promise.reject(err);
             });
     }
 
-    _migrateUp(db, migration) {
+    private migrateUp(db, migration) {
         log.info("migration: up", migration.version, migration.name);
-        return Promise.resolve(migration.instance.up(db)).then(action => {
-            return this._markRan(db, migration).then(() => {
+        return Promise.resolve(migration.instance.up(db)).then((action) => {
+            return this.markRan(db, migration).then(() => {
                 return {
                     migration,
                     skipped: false,
@@ -44,7 +44,7 @@ export default class Migrating {
         });
     }
 
-    _resolve() {
+    private resolve() {
         const nameRe = /(\w+)_(\d+_\d+)/;
         return _(AllMigrations)
             .map((k, v) => {
@@ -53,31 +53,36 @@ export default class Migrating {
                     ctor: k,
                 };
             })
-            .filter(v => v.match)
-            .map(row => {
-                return {
-                    name: row.match[1],
-                    version: row.match[2],
-                    order: moment(row.match[2], "YYYYMMDD_HHmmss"),
-                    instance: new row.ctor(),
-                };
+            .map((row) => {
+                if (!row.match) {
+                    return [];
+                }
+                return [
+                    {
+                        name: row.match[1],
+                        version: row.match[2],
+                        order: moment(row.match[2], "YYYYMMDD_HHmmss"),
+                        instance: new row.ctor(),
+                    },
+                ];
             })
-            .sortBy(v => v.order)
+            .flatten()
+            .sortBy((v) => v.order)
             .value();
     }
 
-    _isNecessary(db, migration) {
-        return db.query("SELECT * FROM migrations WHERE version = ?", [migration.version]).then(found => {
+    private isNecessary(db, migration) {
+        return db.query("SELECT * FROM migrations WHERE version = ?", [migration.version]).then((found) => {
             return found.length == 0;
         });
     }
 
-    _markRan(db, migration) {
+    private markRan(db, migration) {
         log.info("marking ran", migration.version);
         return db.query("INSERT INTO migrations (version) VALUES (?)", [migration.version]);
     }
 
-    _initialize(db) {
+    private initialize(db) {
         return db.query(`CREATE TABLE IF NOT EXISTS migrations (id INTEGER PRIMARY KEY AUTOINCREMENT, version TEXT NOT NULL)`).then(() => {
             return db.query(`CREATE UNIQUE INDEX IF NOT EXISTS migrations_idx ON migrations (version)`);
         });
