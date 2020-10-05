@@ -2,7 +2,7 @@ import Vue from "vue";
 import AppSettings from "../../wrappers/app-settings";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 
 export class NetworkState {
     online: boolean = false;

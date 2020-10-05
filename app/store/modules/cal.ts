@@ -4,7 +4,7 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Station, ServiceInfo } from "../types";
 import { StationRepliedAction } from "@/store/typed-actions";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 import CalibrationService from "@/services/calibration-service";
 
 import { GlobalGetters } from "./global";

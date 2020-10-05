@@ -2,13 +2,12 @@ import _ from "lodash";
 import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { ServiceRef } from "~/store/modules/utilities";
+import { ServiceRef } from "@/services";
 import { AccountsTableRow, SettingsTableRow } from "~/store/row-types";
 import { CurrentUser } from "@/services/portal-interface";
 
 export class PortalState {
     authenticated: boolean = false;
-    services: ServiceRef = new ServiceRef();
     settings: any;
     accounts: any;
     currentUser: CurrentUser | null = null;

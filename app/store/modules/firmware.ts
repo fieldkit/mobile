@@ -3,7 +3,7 @@ import Vue from "vue";
 import { Station, FirmwareInfo } from "../types";
 import * as MutationTypes from "../mutations";
 import * as ActionTypes from "../actions";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 
 export interface FirmwareTableRow {
     id: number;

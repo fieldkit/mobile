@@ -2,7 +2,7 @@ import _ from "lodash";
 import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
 
@@ -59,7 +59,6 @@ export enum Keys {
 }
 
 export class NotesState {
-    public services: ServiceRef = new ServiceRef();
     public stations: { [index: number]: Notes } = {};
 }
 

@@ -20,7 +20,7 @@ import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
 import { HttpStatusReply, AtlasStatus } from "@/store/http_reply";
 import { GlobalState } from "./global";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 
 export const STATION_PORTAL_STATUS = "STATION_PORTAL_STATUS";
 

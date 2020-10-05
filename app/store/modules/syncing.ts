@@ -12,7 +12,7 @@ import {
     ServiceInfo,
     SortableStationSorter,
 } from "../types";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
 import { AuthenticationError } from "../../lib/errors";

@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import * as MutationTypes from "../mutations";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 
 export class PhoneState {
     network: PhoneNetwork = new PhoneNetwork(null);

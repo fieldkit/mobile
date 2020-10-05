@@ -1,7 +1,7 @@
 import Config from "@/config";
 import storeFactory from "@/store";
 import { TaskQueue } from "@/lib/tasks";
-import { ServiceRef } from "@/store/modules/utilities";
+import { ServiceRef } from "./index";
 
 class DiscoveryEvents {
     constructor() {

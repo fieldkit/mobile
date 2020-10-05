@@ -9,7 +9,7 @@ import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 import { PhoneLocation, CommonLocations } from "@/store/types";
 import { StationRepliedAction } from "@/store/typed-actions";
-import { ServiceRef } from "@/store/modules/utilities";
+import { ServiceRef } from "@/services";
 
 import { nearby } from "@/store/modules/nearby";
 

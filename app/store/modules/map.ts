@@ -2,7 +2,7 @@ import _ from "lodash";
 import { Station, PhoneLocation } from "../types";
 import { BoundingRectangle, MapCenter, Location, MappedStations, MappedStation } from "../map-types";
 import * as MutationTypes from "../mutations";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 
 export class MapState {
     phone: Location | null = null;

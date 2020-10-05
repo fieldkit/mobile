@@ -3,7 +3,7 @@ import Vue from "vue";
 import Camera from "@/wrappers/camera";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 import { IncomingImage } from "@/services/types";
 import { serializePromiseChain } from "@/utilities";
 

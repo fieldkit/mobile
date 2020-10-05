@@ -1,6 +1,6 @@
 import * as MutationTypes from "../mutations";
 import { RouteState } from "../../routes/navigate";
-import { ServiceRef } from "./utilities";
+import { ServiceRef } from "@/services";
 
 export class NavigationState {
     public route: RouteState | null = null;

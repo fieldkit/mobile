@@ -1,5 +1,8 @@
 import _ from "lodash";
 import Vuex from "vuex";
+import createLogger from "./logger";
+import Config from "@/config";
+
 import { nearby } from "./modules/nearby";
 import { stations } from "./modules/stations";
 import { phone } from "./modules/phone";
@@ -12,11 +15,10 @@ import { media } from "./modules/media";
 import { notes } from "./modules/notes";
 import { portal } from "./modules/portal";
 import { cal } from "./modules/cal";
-import createLogger from "./logger";
+
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
-import Config from "../config";
-import { Services, ServiceRef } from "./modules/utilities";
+import { Services, ServiceRef } from "@/services";
 
 export * from "./typed-actions";
 export * from "./modules/nearby";
@@ -27,7 +29,7 @@ function customizeLogger() {
     return createLogger({
         filter(mutation, _stateBefore, _stateAfter) {
             if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
-                console.log("mutation:", mutation.type);
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
                 return false;
             }
             if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {

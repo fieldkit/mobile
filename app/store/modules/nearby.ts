@@ -4,8 +4,8 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
-import { ServiceRef } from "./utilities";
 import { StationRepliedAction, AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
+import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
 
@@ -20,7 +20,6 @@ export interface Schedules {
 }
 
 export class NearbyState {
-    services: ServiceRef = new ServiceRef();
     stations: { [index: string]: NearbyStation } = {};
     expired: { [index: string]: NearbyStation } = {};
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;

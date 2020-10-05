@@ -1,8 +1,14 @@
-import PortalInterface from "../../services/portal-interface";
-import PortalUpdater from "../../services/portal-updater";
-import DiscoverStation from "../../services/discover-station";
-import DatabaseInterface from "../../services/db-interface";
-import QueryStation from "../../services/query-station";
+export * from "./portal-interface";
+export * from "./portal-updater";
+export * from "./discover-station";
+export * from "./db-interface";
+export * from "./query-station";
+
+import PortalInterface from "./portal-interface";
+import PortalUpdater from "./portal-updater";
+import DiscoverStation from "./discover-station";
+import DatabaseInterface from "./db-interface";
+import QueryStation from "./query-station";
 
 export interface FileSystem {
     getFolder(path: string): any;
@@ -28,7 +34,7 @@ export interface Services {
 export type ServicesFactory = () => Services;
 
 export class ServiceRef {
-    constructor(private readonly services: ServicesFactory | null = null) {}
+    constructor(private readonly services: ServicesFactory) {}
 
     public db(): DatabaseInterface {
         return this.verify().Database();
