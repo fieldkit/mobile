@@ -159,13 +159,13 @@ export default class SynchronizeNotes {
 
         const modifications = _(localByKey)
             .mapValues((value, key) => {
-                console.log("merging", value);
+                console.log("synchronize-notes:merging", JSON.stringify(value));
 
                 const photoIds = value.photos.map((m) => media[m.path]).filter((v) => v);
                 const audioIds = value.audio.map((m) => media[m.path]).filter((v) => v);
                 const mediaIds = [...photoIds, ...audioIds];
 
-                console.log("media-ids", mediaIds);
+                console.log("synchronize-notes:media-ids", JSON.stringify(mediaIds));
 
                 if (portalExisting[key]) {
                     const localBody = value.body;
