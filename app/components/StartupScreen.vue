@@ -213,9 +213,13 @@ export default class StartupScreen extends Vue {
                 return this.$navigateTo(routes.stations, {
                     props: {},
                 });
+                return this.$navigateTo(routes.dataSync, {
+                    props: {},
+                });
+				*/
                 if (Services.Store().getters.stationCalibrations[1]) {
-                    // return this.$navigateTo(routes.deploy.start, {
-                    return this.$navigateTo(routes.deploy.notes, {
+                    return this.$navigateTo(routes.deploy.start, {
+                        // return this.$navigateTo(routes.deploy.notes, {
                         // return this.$navigateTo(routes.deploy.review, {
                         // return this.$navigateTo(routes.stationSettings, {
                         // return this.$navigateTo(routes.stationDetail, {
@@ -227,10 +231,6 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-				*/
-                return this.$navigateTo(routes.dataSync, {
-                    props: {},
-                });
             }
 
             console.log("first navigate");
