@@ -164,7 +164,6 @@ export default Vue.extend({
                 return this.$navigateTo(routes.deploy.notes, {
                     props: {
                         stationId: this.stationId,
-                        station: this.currentStation,
                     },
                 });
             });
@@ -175,7 +174,6 @@ export default Vue.extend({
                 this.$navigateTo(routes.stationDetail, {
                     props: {
                         stationId: this.stationId,
-                        station: this.currentStation,
                     },
                 }),
             ]);

@@ -175,34 +175,6 @@ export default Vue.extend({
                 },
             });
         },
-        /*
-        onSaveNote(this: any, { form }) {
-            console.log("saving", this.editingKey, form);
-
-            this.$store.commit(MutationTypes.UPDATE_NOTE, { stationId: this.stationId, key: this.editingKey, update: form });
-
-            return this.$store
-                .dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId })
-                .then(() => {
-                    this.editingKey = null;
-                })
-                .then(() => {
-                    console.log("saved");
-                });
-        },
-        onAttachNoteMedia(this: any, media) {
-            if (NoteMedia.isAudio(media)) {
-                this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
-            } else {
-                this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, photo: media });
-            }
-            return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
-        },
-        onRemoveAudio(this: any, note, media) {
-            this.$store.commit(MutationTypes.REMOVE_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
-            return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
-        },
-		*/
         takePicture(this: any) {
             return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
