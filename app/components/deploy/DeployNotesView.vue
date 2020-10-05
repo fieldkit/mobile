@@ -49,10 +49,22 @@
                             <WrapLayout orientation="horizontal">
                                 <StackLayout v-for="(photo, index) in photos" :key="photo.path" class="photo-display">
                                     <StackLayout v-if="photoCache[photo.path]">
-                                        <Image :src="photoCache[photo.path]" stretch="aspectFit" decodeWidth="400" decodeHeight="400" />
+                                        <Image
+                                            :src="photoCache[photo.path]"
+                                            stretch="aspectFit"
+                                            decodeWidth="400"
+                                            decodeHeight="400"
+                                            loadMode="async"
+                                        />
                                     </StackLayout>
                                     <StackLayout v-if="!photoCache[photo.path] && photo.path">
-                                        <Image :src="photo.path" stretch="aspectFit" decodeWidth="400" decodeHeight="400" />
+                                        <Image
+                                            :src="photo.path"
+                                            stretch="aspectFit"
+                                            decodeWidth="400"
+                                            decodeHeight="400"
+                                            loadMode="async"
+                                        />
                                     </StackLayout>
                                 </StackLayout>
                                 <StackLayout class="photo-btn" @tap="onPhotoTap">
