@@ -49,7 +49,10 @@
                             <WrapLayout orientation="horizontal">
                                 <StackLayout v-for="(photo, index) in photos" :key="photo.path" class="photo-display">
                                     <StackLayout v-if="photoCache[photo.path]">
-                                        <Image :src="photoCache[photo.path]" stretch="aspectFit" />
+                                        <Image :src="photoCache[photo.path]" stretch="aspectFit" decodeWidth="400" decodeHeight="400" />
+                                    </StackLayout>
+                                    <StackLayout v-if="!photoCache[photo.path] && photo.path">
+                                        <Image :src="photo.path" stretch="aspectFit" decodeWidth="400" decodeHeight="400" />
                                     </StackLayout>
                                 </StackLayout>
                                 <StackLayout class="photo-btn" @tap="onPhotoTap">
@@ -161,13 +164,14 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(this: any, args) {
-            console.log("notes", this.$store.state.notes.stations[this.stationId]);
-            const paths = this.$store.state.notes.stations[this.stationId].photos.map((p) => p.path);
-            return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
+            if (false) {
+                console.log("notes", this.$store.state.notes.stations[this.stationId]);
+                const paths = this.$store.state.notes.stations[this.stationId].photos.map((p) => p.path);
+                return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
+            }
         },
         openNote(this: any, ev, key) {
             console.log("opening", key);
-            // this.editingKey = key;
             return this.$navigateTo(routes.deploy.editing, {
                 props: {
                     stationId: this.stationId,
