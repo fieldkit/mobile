@@ -1,4 +1,4 @@
 declare module "nativescript-worker-loader!*" {
-    const content: any;
+    const content: any; // eslint-disable-line
     export = content;
 }

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
-import Promise from "bluebird";
+import Bluebird from "bluebird";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
 const isObject = function (o) {
@@ -9,7 +9,7 @@ const isObject = function (o) {
 const isArray = function (a) {
     return Array.isArray(a);
 };
-const toCamel = (s) => {
+const toCamel = (s: string) => {
     return s.replace(/([-_][a-z])/gi, ($1) => {
         return $1.toUpperCase().replace("-", "").replace("_", "");
     });
@@ -44,12 +44,12 @@ export function getPathTimestamp(ts) {
 export function serializePromiseChain(all, fn) {
     return all.reduce((accum, value, index) => {
         return accum.then((allValues) => {
-            return Promise.resolve(fn(value, index)).then((singleValue) => {
+            return Bluebird.resolve(fn(value, index)).then((singleValue) => {
                 allValues.push(singleValue);
                 return allValues;
             });
         });
-    }, Promise.resolve([]));
+    }, Bluebird.resolve([]));
 }
 
 export function promiseAfter(t: number, v?: any) {
@@ -60,7 +60,7 @@ export function promiseAfter(t: number, v?: any) {
             },
         };
     }
-    return Promise.delay(t).then(() => v);
+    return Bluebird.delay(t).then(() => v);
 }
 
 export function hexStringToByteWiseString(str) {
@@ -130,7 +130,7 @@ export function _T(key): any {
     return node;
 }
 
-export function convertOldFirmwareResponse(module) {
+export function convertOldFirmwareResponse(module: { name: string; sensors: { name: string }[] }): string {
     // compensate for old firmware
     if (module.name.indexOf("modules") != 0) {
         module.name = "modules." + module.name;
@@ -142,9 +142,9 @@ export function convertOldFirmwareResponse(module) {
     return module.name;
 }
 
-const lastRunTimes = {};
+const lastRunTimes: { [index: string]: number } = {};
 
-export function onlyAllowEvery(seconds, action, otherwise) {
+export function onlyAllowEvery(seconds: number, action: () => Promise<any>, otherwise: () => any): () => Promise<any> {
     const id = _.uniqueId();
     lastRunTimes[id] = 0;
     return () => {
@@ -154,7 +154,7 @@ export function onlyAllowEvery(seconds, action, otherwise) {
             return action();
         } else {
             console.log("onlyAllowEvery throttled");
-            return Promise.resolve(otherwise());
+            return Bluebird.resolve(otherwise());
         }
     };
 }

@@ -80,7 +80,7 @@ export interface NotesTableRow {
     createdAt: string;
     updatedAt: string;
     notes: string;
-    notesObject: object | null;
+    notesObject: any | null;
 }
 
 export interface SettingsTableRow {

@@ -4,7 +4,7 @@ export interface HasLocation {
 }
 
 export class Location implements HasLocation {
-    constructor(public readonly latitude: number, public readonly longitude) {}
+    constructor(public readonly latitude: number, public readonly longitude: number) {}
 
     maximum(other: Location): Location {
         return new Location(
@@ -49,7 +49,7 @@ export class BoundingRectangle {
         );
     }
 
-    static around(center: Location, margin: number) {
+    static around(center: Location, margin: number): BoundingRectangle {
         /*
 		At 38 degrees North latitude:
 		One degree of latitude equals approximately 364,000 feet (69

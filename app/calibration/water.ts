@@ -21,7 +21,16 @@ export class AtlasCalValue extends CalibrationValue {
     }
 }
 
-function PhCommon() {
+interface CommonProperties {
+    sensor: string;
+    unitOfMeasure: string;
+    title: string;
+    subtitle: string;
+    icon: string;
+    done: string;
+}
+
+function PhCommon(): CommonProperties {
     return {
         sensor: "ph",
         unitOfMeasure: "pH",
@@ -32,7 +41,7 @@ function PhCommon() {
     };
 }
 
-function DoCommon() {
+function DoCommon(): CommonProperties {
     return {
         sensor: "do",
         unitOfMeasure: "mg/L",
@@ -43,7 +52,7 @@ function DoCommon() {
     };
 }
 
-function EcCommon() {
+function EcCommon(): CommonProperties {
     return {
         sensor: "ec",
         unitOfMeasure: "μS",
@@ -281,7 +290,7 @@ const EcDual = () => {
     ]);
 };
 
-export function Common() {
+export function Common(): { [index: string]: CommonProperties } {
     return {
         "modules.water.ph": PhCommon(),
         "modules.water.ec": EcCommon(),

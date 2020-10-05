@@ -1,5 +1,5 @@
 export class Timer {
-    private id: any | null;
+    private id: ReturnType<typeof setInterval> | null;
     public counter = 0;
 
     constructor(interval: number, callback: (c: number) => void) {
@@ -9,7 +9,7 @@ export class Timer {
         }, interval);
     }
 
-    public stop() {
+    public stop(): void {
         if (this.id) {
             clearInterval(this.id);
             this.id = null;

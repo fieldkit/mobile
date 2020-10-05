@@ -1,7 +1,7 @@
-// import { CalibrationValue } from "./model";
+import { Component } from "vue";
 
 export class CalibrationVisual {
-    constructor(public readonly component: any) {}
+    constructor(public readonly component: Component) {}
 }
 
 export interface CommonInfo {
@@ -28,7 +28,7 @@ export class CheckVisual extends CalibrationVisual implements CheckInfo {
     public readonly done: string;
     public readonly skip: string;
 
-    constructor(component: any, info: CheckInfo) {
+    constructor(component: Component, info: CheckInfo) {
         super(component);
         this.sensor = info.sensor;
         this.unitOfMeasure = info.unitOfMeasure;

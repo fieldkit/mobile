@@ -11,4 +11,4 @@ declare global {
     function _L(key: string, ...args: any[]): string;
 }
 
-declare var TNS_ENV: string;
+declare const TNS_ENV: string;

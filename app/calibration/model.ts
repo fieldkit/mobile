@@ -7,13 +7,11 @@ export class Ids {
     private static c = 0;
 
     static make(): string {
-        return "ids-" + Ids.c++;
+        return `ids-${Ids.c++}`;
     }
 }
 
-export abstract class CalibrationValue {
-    constructor() {}
-}
+export abstract class CalibrationValue {}
 
 export class CalibratingSensor {
     constructor(
@@ -31,8 +29,6 @@ export class CalibratingSensor {
 
 export abstract class CalibrationStep {
     public readonly id = Ids.make();
-
-    constructor() {}
 
     abstract get children(): CalibrationStep[];
 
