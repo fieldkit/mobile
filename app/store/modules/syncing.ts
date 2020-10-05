@@ -309,11 +309,14 @@ const actions = (services: ServiceRef) => {
                 throw new Error("refusing to download from disconnected station");
             }
 
+            console.log("syncing:download", sync.downloads);
+
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
 
             return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
                 const fsFolder = services.fs().getFolder(getFilePath(file.path));
                 const fsFile = fsFolder.getFile(getFileName(file.path));
+                console.log("syncing:download", file.url, fsFile);
                 return services
                     .queryStation()
                     .download(file.url, fsFile.path, (total: number, copied: number, info) => {
@@ -349,9 +352,12 @@ const actions = (services: ServiceRef) => {
                 .map((d) => d.size)
                 .sum();
 
+            console.log("syncing:upload", downloads);
+
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
 
             return serializePromiseChain(downloads, (download: Download) => {
+                console.log("syncing:upload", sync.name, download);
                 return services
                     .portal()
                     .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
