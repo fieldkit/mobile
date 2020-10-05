@@ -38,6 +38,7 @@ export interface ReplySchedule {
 
 export interface ReplySchedules {
     readings: ReplySchedule;
+    network: ReplySchedule;
 }
 
 export interface ReplyStatus {

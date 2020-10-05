@@ -1,11 +1,13 @@
 import _ from "lodash";
-import Config from "../config";
-import { onlyAllowEvery } from "../utilities";
-import Services from "./services";
+import Config from "@/config";
+import { onlyAllowEvery } from "@/utilities";
+import { Services } from "@/services";
 
 const log = Config.logger("StationFirmware");
 
 type ProgressCallback = ({ progress: number }) => void;
+
+const NoopProgress: ProgressCallback = ({ progress: number }) => {};
 
 function transformProgress(callback: ProgressCallback, fn: (number) => number) {
     if (_.isFunction(callback)) {
@@ -39,7 +41,7 @@ export default class StationFirmware {
         );
     }
 
-    public downloadFirmware(progressCallback: ProgressCallback, force: boolean): Promise<any> {
+    public downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force: boolean = false): Promise<any> {
         log.info("downloading firmware");
         return this.services
             .PortalInterface()
@@ -173,7 +175,7 @@ export default class StationFirmware {
         });
     }
 
-    public haveFirmware(): Promise<any> {
+    public haveFirmware(): Promise<boolean> {
         return this.services
             .Database()
             .getLatestFirmware()

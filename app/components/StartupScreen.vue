@@ -7,10 +7,10 @@ import { Component, Vue } from "vue-property-decorator";
 import { isAndroid } from "@nativescript/core";
 
 import registerLifecycleEvents from "@/services/lifecycle";
-import Services from "@/services/services";
+import { Services } from "@/services";
+import ServicesSingleton from "@/services/services";
 import AppSettings from "@/wrappers/app-settings";
 import Sqlite from "@/wrappers/sqlite";
-import * as ActionTypes from "@/store/actions";
 import { promiseAfter } from "@/utilities";
 import routes from "@/routes";
 import { Route } from "@/routes/navigate";
@@ -20,7 +20,10 @@ import { firebase } from "@nativescript/firebase";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 
-function initializeFirebase(services): Promise<any> {
+import { OurStore } from "@/store";
+import * as ActionTypes from "@/store/actions";
+
+function initializeFirebase(services: Services): Promise<any> {
     console.log("initialize:firebase");
     return firebase
         .init({
@@ -50,7 +53,7 @@ function restartDiscovery(discoverStation): null {
     return null;
 }
 
-function updateStore(store): Promise<any> {
+function updateStore(store: OurStore): Promise<any> {
     promiseAfter(1000)
         .then(() => store.dispatch(ActionTypes.REFRESH))
         .catch((err) => {
@@ -61,9 +64,9 @@ function updateStore(store): Promise<any> {
     return Promise.resolve();
 }
 
-function enableLocationServices(): Promise<any> {
+function enableLocationServices(services: Services): Promise<any> {
     // On iOS this can take a while, so we do this in the background.
-    Services.PhoneLocation().enableAndGetLocation();
+    services.PhoneLocation().enableAndGetLocation();
 
     return Promise.resolve();
 }
@@ -90,7 +93,7 @@ function downloadDatabase(services: Services, url: string): Promise<void> {
         console.log("progress", total, copied);
     };
 
-    const folder = Services.FileSystem().getFolder(isAndroid ? "app" : "");
+    const folder = services.FileSystem().getFolder(isAndroid ? "app" : "");
     const name = "fieldkit.sqlite3";
     const destination = folder.getFile(name);
 
@@ -111,7 +114,7 @@ function downloadDatabase(services: Services, url: string): Promise<void> {
         });
 }
 
-function initializeApplication(services): Promise<any> {
+function initializeApplication(services: Services): Promise<any> {
     const started = new Date();
 
     return initializeFirebase(services).then(() => {
@@ -139,19 +142,20 @@ function initializeApplication(services): Promise<any> {
                             .then(() => {
                                 console.log("services:ready");
 
-                                return Services.Store()
+                                return services
+                                    .Store()
                                     .dispatch(ActionTypes.LOAD)
                                     .then(() =>
                                         Promise.resolve()
                                             .then(() => services.DiscoverStation().startServiceDiscovery())
-                                            .then(() => Services.Store().dispatch(ActionTypes.INITIALIZE))
-                                            .then(() => enableLocationServices())
+                                            .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
+                                            .then(() => enableLocationServices(services))
                                             .then(() => services.PortalUpdater().start())
                                             .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
-                                            .then(() => updateStore(Services.Store()))
-                                            .then(() => resumeSession(Services))
-                                            .then(() => restartDiscovery(Services.DiscoverStation()))
-                                            .then(() => Services.Tasks().enqueue(new ProcessAllStationsTask()))
+                                            .then(() => updateStore(services.Store()))
+                                            .then(() => resumeSession(services))
+                                            .then(() => restartDiscovery(services.DiscoverStation()))
+                                            .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
                                     );
                             })
                     )
@@ -167,10 +171,10 @@ function initializeApplication(services): Promise<any> {
     });
 }
 
-function getFirstRoute(): Route {
+function getFirstRoute(services: Services): Route {
     const appSettings = new AppSettings();
 
-    if (Services.PortalInterface().isLoggedIn()) {
+    if (services.PortalInterface().isLoggedIn()) {
         return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2
             ? routes.stations
             : routes.onboarding.assembleStation;
@@ -182,8 +186,10 @@ function getFirstRoute(): Route {
 @Component
 export default class StartupScreen extends Vue {
     onPageLoaded(args): Promise<any> {
+        const services: Services = ServicesSingleton;
+
         console.log("startup loaded");
-        return initializeApplication(Services).then(() => {
+        return initializeApplication(services).then(() => {
             console.log("developer", Config.env.developer);
             if (Config.env.developer) {
                 /*
@@ -217,7 +223,7 @@ export default class StartupScreen extends Vue {
                     props: {},
                 });
 				*/
-                if (Services.Store().getters.stationCalibrations[1]) {
+                if (services.Store().getters.stationCalibrations[1]) {
                     return this.$navigateTo(routes.deploy.start, {
                         // return this.$navigateTo(routes.deploy.notes, {
                         // return this.$navigateTo(routes.deploy.review, {
@@ -235,7 +241,7 @@ export default class StartupScreen extends Vue {
 
             console.log("first navigate");
 
-            return this.$navigateTo(getFirstRoute(), {
+            return this.$navigateTo(getFirstRoute(services), {
                 clearHistory: true,
             });
         });

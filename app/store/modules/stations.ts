@@ -147,6 +147,7 @@ class StationStatusFactory {
                     interval: 60,
                 },
             ],
+            network: [],
         };
         const fields: StationCreationFields = {
             id: null,

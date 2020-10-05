@@ -1,12 +1,11 @@
 import axios from "axios";
-import * as MutationTypes from "../store/mutations";
-import { Services } from "../services/services";
+import { ServicesImpl } from "../services/services";
 
 describe("Authentication", () => {
     let services;
 
     beforeEach(() => {
-        services = new Services();
+        services = new ServicesImpl();
         return services
             .CreateDb()
             .initialize()

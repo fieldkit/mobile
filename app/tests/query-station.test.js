@@ -1,4 +1,4 @@
-import { Services } from "../services/services";
+import { ServicesImpl } from "../services/services";
 import { MockStationReplies } from "./utilities";
 import Fixtures from "./fixtures.js";
 
@@ -10,7 +10,7 @@ describe("QueryStation", () => {
     let dbInterface;
 
     beforeEach(async () => {
-        services = new Services();
+        services = new ServicesImpl();
         dbInterface = services.Database();
         queryStation = services.QueryStation();
         mockStation = new MockStationReplies(services);
@@ -33,7 +33,7 @@ describe("QueryStation", () => {
             ],
         });
 
-        return queryStation.getStatus(url).then(body => {
+        return queryStation.getStatus(url).then((body) => {
             expect(body.liveReadings).toBeDefined();
             expect(mockStation.mock.calls.length).toBe(1);
         });
@@ -53,7 +53,7 @@ describe("QueryStation", () => {
             liveReadings: [{ modules: [{ module: {} }], time: 1565734980 }],
         });
 
-        return queryStation.takeReadings(url).then(body => {
+        return queryStation.takeReadings(url).then((body) => {
             expect(body.liveReadings).toBeDefined();
             expect(mockStation.mock.calls.length).toBe(1);
         });
@@ -75,7 +75,7 @@ describe("QueryStation", () => {
             },
         });
 
-        return queryStation.takeReadings(url).then(body => {
+        return queryStation.takeReadings(url).then((body) => {
             expect(body.liveReadings).toBeDefined();
             expect(mockStation.mock.calls.length).toBe(1);
         });

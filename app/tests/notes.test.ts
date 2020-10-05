@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
-import { Services } from "../services/services";
+import { ServicesImpl } from "@/services";
 import FakeTimers from "@sinonjs/fake-timers";
 
 import SynchronizeNotes, { PatchPortalNotes, Ids } from "../services/synchronize-notes";
@@ -19,7 +19,7 @@ describe("Notes", () => {
         clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
         clock.tick(10);
 
-        services = new Services();
+        services = new ServicesImpl();
         await services.CreateDb().initialize();
 
         store = services.Store();

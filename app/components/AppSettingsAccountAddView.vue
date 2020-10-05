@@ -320,7 +320,7 @@ export default Vue.extend({
                 });
         },
         forgotPassword(this: any) {
-            Dialogs.prompt({
+            return Dialogs.prompt({
                 title: _L("forgotTitle"),
                 message: _L("forgotInstruction"),
                 inputType: "email",
@@ -329,8 +329,9 @@ export default Vue.extend({
                 cancelButtonText: _L("cancel"),
             }).then((data) => {
                 if (data.result) {
-                    return Services.PortalInterface()
-                        .logout(data.text.trim())
+                    return this.$services
+                        .PortalInterface()
+                        .logout()
                         .then(() => {
                             return this.alert(_L("passwordResetSucceeded"));
                         })

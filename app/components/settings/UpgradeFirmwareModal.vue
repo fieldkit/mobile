@@ -81,7 +81,7 @@ export default Vue.extend({
                     if (!yes) {
                         console.log("no firmware");
                         this.error = true;
-                        return { error: true };
+                        return;
                     }
 
                     console.log("upgrading firmware");

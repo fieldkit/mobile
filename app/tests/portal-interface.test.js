@@ -1,6 +1,5 @@
 import axios from "axios";
-import * as MutationTypes from "../store/mutations";
-import { Services } from "../services/services";
+import { ServicesImpl } from "../services/services";
 import Fixtures from "./fixtures.js";
 
 jest.mock("axios");
@@ -10,7 +9,7 @@ describe("UserAuth", () => {
     let portalInterface;
 
     beforeEach(async () => {
-        services = new Services();
+        services = new ServicesImpl();
         portalInterface = services.PortalInterface();
         await services.CreateDb().initialize();
         await new Fixtures(services.Database()).addMinimum();

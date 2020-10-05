@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
-import { Services } from "../services/services";
-import { prepareReply } from "../services/query-station";
+import { Services, ServicesImpl, prepareReply } from "@/services";
 import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
 
@@ -56,7 +55,7 @@ describe("Firmware", () => {
         clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
         clock.tick(10);
 
-        services = new Services();
+        services = new ServicesImpl();
         await services.CreateDb().initialize();
         mockStation = new MockStationReplies(services);
 

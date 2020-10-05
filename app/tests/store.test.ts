@@ -1,6 +1,5 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
-import { Services } from "../services/services";
 import { prepareReply } from "../services/query-station";
 import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
@@ -9,7 +8,7 @@ import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 import { PhoneLocation, CommonLocations } from "@/store/types";
 import { StationRepliedAction } from "@/store/typed-actions";
-import { ServiceRef } from "@/services";
+import { ServicesImpl, ServiceRef } from "@/services";
 
 import { nearby } from "@/store/modules/nearby";
 
@@ -23,7 +22,7 @@ describe("Store", () => {
         clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
         clock.tick(10);
 
-        services = new Services();
+        services = new ServicesImpl();
         mockStation = new MockStationReplies(services);
         await services.CreateDb().initialize();
         store = services.Store();

@@ -1,4 +1,4 @@
-import { Services, ServiceFactories } from "@/services/services";
+import { Services, ServiceFactories } from "@/services";
 import { FileLike } from "@/lib/fs";
 
 type DelimitedCallback = (position: number, size: number, records: any) => void;

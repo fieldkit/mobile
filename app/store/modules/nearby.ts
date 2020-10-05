@@ -3,21 +3,11 @@ import Vue from "vue";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
+import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations, Schedules } from "../types";
 import { StationRepliedAction, AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
 import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
-
-export interface Schedule {
-    intervals: { start: number; end: number; interval: number }[];
-    duration: number;
-}
-
-export interface Schedules {
-    readings: Schedule;
-    network: Schedule;
-}
 
 export class NearbyState {
     stations: { [index: string]: NearbyStation } = {};

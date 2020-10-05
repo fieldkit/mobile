@@ -1,22 +1,36 @@
-export * from "./portal-interface";
-export * from "./portal-updater";
-export * from "./discover-station";
-export * from "./db-interface";
-export * from "./query-station";
+import { OurStore } from "@/store";
 
 import PortalInterface from "./portal-interface";
 import PortalUpdater from "./portal-updater";
 import DiscoverStation from "./discover-station";
 import DatabaseInterface from "./db-interface";
 import QueryStation from "./query-station";
+import PhoneLocation from "./phone-location";
+import StationFirmware from "./station-firmware";
+import CreateDb from "./create-db";
+import ImagesSaver from "./images-saver";
+import AudioInterface from "./audio-interface";
+import { TaskQueue } from "@/lib/tasks";
+
+export * from "./portal-interface";
+export * from "./portal-updater";
+export * from "./discover-station";
+export * from "./db-interface";
+export * from "./query-station";
+export * from "./services";
 
 export interface FileSystem {
     getFolder(path: string): any;
+    getFile(path: string): any;
+    listFolder(path: string): any;
 }
 
 export interface LegacyHooks {}
 
-export interface Conservify {}
+export interface Conservify {
+    open(path: string): any;
+    download(info: any): Promise<any>;
+}
 
 export interface Services {
     Database(): DatabaseInterface;
@@ -26,9 +40,13 @@ export interface Services {
     PortalUpdater(): PortalUpdater;
     DiscoverStation(): DiscoverStation;
     Conservify(): Conservify;
-    StationFirmware(): any;
-    Audio(): any;
-    Images(): any;
+    StationFirmware(): StationFirmware;
+    Audio(): AudioInterface;
+    Images(): ImagesSaver;
+    Store(): OurStore;
+    Tasks(): TaskQueue;
+    CreateDb(): CreateDb;
+    PhoneLocation(): PhoneLocation;
 }
 
 export type ServicesFactory = () => Services;

@@ -184,7 +184,6 @@ import Vue from "vue";
 import routes from "@/routes";
 import { USERNAME, PASSWORD } from "@/secrets";
 import * as ActionTypes from "@/store/actions";
-import Services from "@/services/services";
 import { Dialogs } from "@nativescript/core";
 
 import SharedComponents from "@/components/shared";
@@ -289,7 +288,8 @@ export default Vue.extend({
         },
         login(this: any) {
             this.processing = true;
-            return Services.PortalInterface()
+            return this.$services
+                .PortalInterface()
                 .login(this.user)
                 .then((token) => {
                     return this.$store.dispatch(ActionTypes.AUTHENTICATED).then(() => {
@@ -312,7 +312,8 @@ export default Vue.extend({
                 return this.alert(_L("noMatch"));
             }
 
-            return Services.PortalInterface()
+            return this.$services
+                .PortalInterface()
                 .register(this.user)
                 .then(() => {
                     this.processing = false;
@@ -325,7 +326,7 @@ export default Vue.extend({
                 });
         },
         forgotPassword(this: any) {
-            Dialogs.prompt({
+            return Dialogs.prompt({
                 title: _L("forgotTitle"),
                 message: _L("forgotInstruction"),
                 inputType: "email",
@@ -334,8 +335,9 @@ export default Vue.extend({
                 cancelButtonText: _L("cancel"),
             }).then((data) => {
                 if (data.result) {
-                    return Services.PortalInterface()
-                        .logout(data.text.trim())
+                    return this.$services
+                        .PortalInterface()
+                        .logout()
                         .then(() => {
                             return this.alert(_L("passwordResetSucceeded"));
                         })

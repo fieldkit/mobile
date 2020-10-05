@@ -119,9 +119,10 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             this.page = args.object;
-            let user = Services.PortalInterface().getCurrentUser();
+            const user = Services.PortalInterface().getCurrentUser();
+            if (!user) throw new Error("no user");
             this.userName = user.name;
-            let deviceStatus = this.station.statusJson;
+            const deviceStatus = this.station.statusJson;
             if (deviceStatus && deviceStatus.loraSettings) {
                 let deviceEui = deviceStatus.loraSettings.deviceEui;
                 if (deviceEui) {

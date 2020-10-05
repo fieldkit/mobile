@@ -5,7 +5,7 @@ import { serializePromiseChain } from "@/utilities";
 import { DiagnosticsDirectory, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
 import Config, { Build } from "@/config";
 
-function uuidv4() {
+function uuidv4(): string {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
         var r = (Math.random() * 16) | 0,
             v = c == "x" ? r : (r & 0x3) | 0x8;
@@ -14,15 +14,15 @@ function uuidv4() {
 }
 
 export default class Diagnostics {
-    readonly services: any;
-    readonly baseUrl: string;
+    private readonly services: any;
+    private readonly baseUrl: string;
 
     constructor(services) {
         this.services = services;
         this.baseUrl = "https://code.conservify.org/diagnostics";
     }
 
-    upload(progress) {
+    public upload(progress): Promise<{ reference: { phrase: string }; id: string }> {
         const id = uuidv4();
 
         console.log("upload diagnostics", id);
@@ -49,10 +49,11 @@ export default class Diagnostics {
             )
             .catch((err) => {
                 console.log(`diagnostics error: ${err}`);
+                return err;
             });
     }
 
-    private uploadDeviceInformation(id) {
+    private uploadDeviceInformation(id: string): Promise<any> {
         const device = Device;
 
         const info = {

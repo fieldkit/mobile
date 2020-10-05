@@ -1,5 +1,5 @@
 import _ from "lodash";
-import Vuex from "vuex";
+import Vuex, { Store } from "vuex";
 import createLogger from "./logger";
 import Config from "@/config";
 
@@ -20,10 +20,16 @@ import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
 import { Services, ServiceRef } from "@/services";
 
+export * from "./types";
 export * from "./typed-actions";
 export * from "./modules/nearby";
 export * from "./modules/stations";
 export * from "./modules/media";
+export * from "./modules/global";
+
+import { GlobalState } from "./modules/global";
+
+export type OurStore = Store<GlobalState>;
 
 function customizeLogger() {
     return createLogger({
@@ -145,7 +151,7 @@ function customizeLogger() {
     });
 }
 
-export default function (rawServices: Services) {
+export default function (rawServices: Services): OurStore {
     const services = new ServiceRef(() => rawServices);
 
     return new Vuex.Store({

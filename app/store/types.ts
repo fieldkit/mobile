@@ -209,6 +209,7 @@ export class Schedule {
 
 export interface Schedules {
     readings: Schedule;
+    network: Schedule;
 }
 
 export interface StationCreationFields {

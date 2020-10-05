@@ -6,6 +6,7 @@ import { PhoneState } from "./phone";
 import { NetworkState } from "./network";
 import { SyncingState } from "./syncing";
 import { NotesState } from "./notes";
+import { PortalState } from "./portal";
 
 import { AvailableStation, LegacyStation } from "../types";
 
@@ -18,6 +19,7 @@ export interface GlobalState {
     readonly network: NetworkState;
     readonly syncing: SyncingState;
     readonly notes: NotesState;
+    readonly portal: PortalState;
 }
 
 export interface GlobalGetters {

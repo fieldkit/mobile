@@ -1,5 +1,5 @@
 import Sqlite from "../wrappers/sqlite";
-import { Services } from "../services/services";
+import { ServicesImpl } from "../services/services";
 
 describe("Sqlite Wrapper", () => {
     let sqlite;
@@ -13,7 +13,7 @@ describe("Sqlite Wrapper", () => {
             expect.assertions(1);
 
             return expect(
-                sqlite.open(":memory:").then(db => {
+                sqlite.open(":memory:").then((db) => {
                     return db;
                 })
             ).resolves.toBeDefined();
@@ -23,7 +23,7 @@ describe("Sqlite Wrapper", () => {
             expect.assertions(1);
 
             return expect(
-                sqlite.open(":memory:").then(db => {
+                sqlite.open(":memory:").then((db) => {
                     return db.execute("CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)");
                 })
             ).resolves.toBeDefined();
@@ -33,7 +33,7 @@ describe("Sqlite Wrapper", () => {
             expect.assertions(1);
 
             return expect(
-                sqlite.open(":memory:").then(db => {
+                sqlite.open(":memory:").then((db) => {
                     return db.execute("CREATE NOTABLE people (id INTEGER PRIMARY KEY, name TEXT)");
                 })
             ).rejects.toBeDefined();
@@ -46,23 +46,23 @@ describe("Sqlite Wrapper", () => {
         beforeAll(() => {
             return sqlite
                 .open(":memory:")
-                .then(db => {
+                .then((db) => {
                     testdb = db;
                     return testdb.execute("CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)");
                 })
-                .then(db => {
+                .then((db) => {
                     return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Jacob')");
                 })
-                .then(db => {
+                .then((db) => {
                     return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Libbey')");
                 })
-                .then(db => {
+                .then((db) => {
                     return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Bradley')");
                 })
-                .then(db => {
+                .then((db) => {
                     return testdb.execute("INSERT INTO people (id, name) VALUES (NULL, 'Shah')");
                 })
-                .then(db => {
+                .then((db) => {
                     return testdb;
                 });
         });
@@ -107,11 +107,9 @@ describe("Sqlite Wrapper", () => {
         it("should successfully create a new database", () => {
             expect.assertions(1);
 
-			const services = new Services();
+            const services = new ServicesImpl();
 
-            return expect(
-                services.CreateDb().initialize()
-            ).resolves.toBeDefined();
+            return expect(services.CreateDb().initialize()).resolves.toBeDefined();
         });
     });
 });

@@ -21,7 +21,7 @@ export default class CreateDB {
         return this.promisedDatabase;
     }
 
-    initialize(userInvokedDelete: boolean | null, path: string | null) {
+    initialize(userInvokedDelete: boolean = false, path: string | null = null) {
         console.log("opening", userInvokedDelete);
         return this._open(path)
             .then(() => {
