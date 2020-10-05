@@ -10,7 +10,7 @@ timestamps {
             }
 
 			stage ("android-sdk") {
-				sh "rm -rf android-sdk"
+				// sh "rm -rf android-sdk"
 				sh "rm -f android-sdk-setup.sh*"
 				sh "wget https://raw.githubusercontent.com/conservify/dev-ops/main/android-sdk/android-sdk-setup.sh"
 				sh "bash android-sdk-setup.sh"
@@ -32,8 +32,6 @@ timestamps {
             stage ('build') {
                 def props = readProperties(file: "private/gradle.properties")
                 sh """
-pwd
-
 export PATH=$PATH:node_modules/.bin
 export ANDROID_HOME=`pwd`/android-sdk
 export FK_APP_RELEASE_STORE_FILE=private/${props.FK_APP_RELEASE_STORE_FILE}
@@ -44,7 +42,6 @@ export FK_APP_RELEASE_KEY_PASSWORD=${props.FK_APP_RELEASE_KEY_PASSWORD}
 set -x
 env
 
-find . -name google-services.json
 make clean-secrets
 make android-release
 """
