@@ -86,11 +86,15 @@ function configureGlobalErrorHandling() {
 
         Trace.enable();
 
-        Promise.onPossiblyUnhandledRejection((reason, promise) => {
+        Promise.onPossiblyUnhandledRejection((reason: Error, promise: Promise) => {
             if (reason instanceof AuthenticationError) {
                 console.log("onPossiblyUnhandledRejection", reason);
             } else {
-                console.log("onPossiblyUnhandledRejection", reason, reason ? reason.stack : null);
+                if (/Animation cancelled/.test(reason.message)) {
+                    console.log("onPossiblyUnhandledRejection", reason);
+                } else {
+                    console.log("onPossiblyUnhandledRejection", reason, reason ? reason.stack : null);
+                }
             }
         });
 
