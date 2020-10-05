@@ -185,7 +185,12 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(args) {},
+        onPageLoaded(this: any, args) {
+            console.log(
+                "data-view:syncs",
+                this.syncs.map((s) => s.lastSeen)
+            );
+        },
         onPageUnloaded(args) {},
         onToggle(this: any, sync) {
             Vue.set(this.closed, sync.deviceId, this.opened(sync));
