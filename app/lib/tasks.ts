@@ -1,8 +1,6 @@
 import _ from "lodash";
 import { DataServices } from "./data-services";
 
-export { DataServices };
-
 export interface WorkerMessage {
     data: { id: number; task: { taskName: string } };
 }

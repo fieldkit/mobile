@@ -58,7 +58,7 @@ import { Dialogs, knownFolders } from "@nativescript/core";
 import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
 import Config from "@/config";
 import routes from "@/routes";
-import Services from "@/services/services";
+import Services from "@/services/singleton";
 import Recalibrate from "./onboarding/Recalibrate.vue";
 import AppSettings from "@/wrappers/app-settings";
 import * as ActionTypes from "@/store/actions";

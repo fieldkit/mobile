@@ -1,18 +1,15 @@
 import _ from "lodash";
-import Services from "@/services/services";
+import Services from "@/services/singleton";
 
 import { TaskWorker } from "./tasks";
 import { SaveReadingsTask } from "./database";
 import { ProcessAllStationsTask, ProcessStationFilesTask } from "./process";
 import { createAdaptedDataServices } from "./data-services";
 
-/**
- * NativeScript requires this to wire up the JS context in this thread.
- */
 require("globals"); // eslint-disable-line nativescript/no-short-imports
 
 try {
-    console.log(`worker:starting`);
+    console.log(`worker:starting`, Services);
 
     const context: Worker = self as any;
     const services = createAdaptedDataServices(Services);

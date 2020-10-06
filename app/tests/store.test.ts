@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
-import { prepareReply } from "../services/query-station";
+import { prepareReply } from "../store/http_reply";
 import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
 

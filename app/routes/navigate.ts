@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { Store } from "../store/types";
 import * as MutationTypes from "../store/mutations";
 
 export interface NavigateOptions {
@@ -35,7 +34,7 @@ export class Route {
 
 type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<any>;
 
-export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
+export default function navigatorFactory(store: any, navigateTo: NavigateToFunc) {
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<any> => {
         if (pageOrRoute instanceof Route) {
             store.commit(MutationTypes.NAVIGATION, pageOrRoute.combine(options));

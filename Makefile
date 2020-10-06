@@ -137,3 +137,6 @@ ios-devices:
 
 ios-logs:
 	idevicesyslog --udid `idevice_id --list` -p "mobile(NativeScript)"
+
+cycle-checks:
+	npx madge --circular --extensions ts ./app

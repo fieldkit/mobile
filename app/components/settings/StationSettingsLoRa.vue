@@ -86,7 +86,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Services from "../../services/services";
 
 import SharedComponents from "@/components/shared";
 import Networks from "./StationSettingsNetworks.vue";
@@ -119,7 +118,7 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             this.page = args.object;
-            const user = Services.PortalInterface().getCurrentUser();
+            const user = this.$services.PortalInterface().getCurrentUser();
             if (!user) throw new Error("no user");
             this.userName = user.name;
             const deviceStatus = this.station.statusJson;
@@ -194,7 +193,8 @@ export default Vue.extend({
                     appKey: appKey,
                 };
 
-                Services.QueryStation()
+                this.$services
+                    .QueryStation()
                     .sendLoraSettings(this.station.url, sendableLora)
                     .then((result) => {
                         this.goBack();

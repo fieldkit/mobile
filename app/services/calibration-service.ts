@@ -3,6 +3,7 @@ import protobuf from "protobufjs";
 import { promiseAfter } from "@/utilities";
 import Config from "@/config";
 import { AtlasSensorType } from "@/calibration";
+import { fixupCalibrationStatus } from "@/store/http_reply";
 
 const atlasRoot: any = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
 const AtlasQuery = atlasRoot.lookupType("fk_atlas.WireAtlasQuery");
@@ -14,21 +15,15 @@ const sensorTypeLookup = _.invert(SensorType.values);
 const AtlasQueryType = atlasRoot.lookup("fk_atlas.QueryType");
 const AtlasCalibrationOperation = atlasRoot.lookup("fk_atlas.CalibrationOperation");
 // const TempCalibrations = atlasRoot.lookup("fk_atlas.TempCalibrations");
-const DoCalibrations = atlasRoot.lookup("fk_atlas.DoCalibrations");
-const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
-const EcCalibrations = atlasRoot.lookup("fk_atlas.EcCalibrations");
+// const DoCalibrations = atlasRoot.lookup("fk_atlas.DoCalibrations");
+// const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
+// const EcCalibrations = atlasRoot.lookup("fk_atlas.EcCalibrations");
 // const DoCalibrationsCommand = atlasRoot.lookup("fk_atlas.DoCalibrateCommand");
 const PhCalibrationsCommand = atlasRoot.lookup("fk_atlas.PhCalibrateCommand");
 const EcCalibrationsCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
 // const OrpCalibrations = atlasRoot.lookup("fk_atlas.OrpCalibrations");
 
 const log = Config.logger("CalibrationService");
-
-function numberOfOnes(n) {
-    n = n - ((n >> 1) & 0x55555555);
-    n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-    return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
-}
 
 export interface CalibrationAttempt {
     sensorType: AtlasSensorType;
@@ -37,50 +32,6 @@ export interface CalibrationAttempt {
     compensations: {
         temperature: number | null;
     };
-}
-
-export function fixupStatus(reply) {
-    switch (reply.calibration.type) {
-        case SensorType.values.SENSOR_PH:
-            reply.calibration.total = numberOfOnes(reply.calibration.ph);
-            reply.calibration.phStatus = {
-                low: reply.calibration.ph & PhCalibrations.values.PH_LOW,
-                middle: reply.calibration.ph & PhCalibrations.values.PH_MIDDLE,
-                high: reply.calibration.ph & PhCalibrations.values.PH_HIGH,
-            };
-            break;
-        case SensorType.values.SENSOR_TEMP:
-            reply.calibration.total = numberOfOnes(reply.calibration.temp);
-            reply.calibration.tempStatus = {};
-            break;
-        case SensorType.values.SENSOR_ORP:
-            reply.calibration.total = numberOfOnes(reply.calibration.orp);
-            reply.calibration.orpStatus = {};
-            break;
-        case SensorType.values.SENSOR_DO:
-            reply.calibration.total = numberOfOnes(reply.calibration.dissolvedOxygen);
-            reply.calibration.doStatus = {
-                atm: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ATMOSPHERE,
-                zero: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ZERO,
-            };
-            break;
-        case SensorType.values.SENSOR_EC:
-            reply.calibration.total = numberOfOnes(reply.calibration.ec);
-            reply.calibration.ecStatus = {
-                dry: reply.calibration.ec & EcCalibrations.values.EC_DRY,
-                single: reply.calibration.ec & EcCalibrations.values.EC_SINGLE,
-                low: reply.calibration.ec & EcCalibrations.values.EC_DUAL_LOW,
-                high: reply.calibration.ec & EcCalibrations.values.EC_DUAL_HIGH,
-            };
-            break;
-        case SensorType.values.SENSOR_NONE:
-            break;
-        default:
-            console.warn("unexpected calibration type");
-            break;
-    }
-
-    return reply;
 }
 
 export default class CalibrationService {
@@ -374,7 +325,7 @@ export default class CalibrationService {
         reply.typeName = replyTypeLookup[reply.type];
         if (reply.calibration) {
             reply.calibration.typeName = sensorTypeLookup[reply.calibration.type];
-            reply = fixupStatus(reply);
+            reply = fixupCalibrationStatus(reply);
         }
         return reply;
     }

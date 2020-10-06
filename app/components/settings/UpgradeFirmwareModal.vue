@@ -25,7 +25,6 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import Services from "../../services/services";
 
 export default Vue.extend({
     data() {
@@ -59,7 +58,8 @@ export default Vue.extend({
 
             if (this.downloadOnly) {
                 console.log("downloading only");
-                return Services.StationFirmware()
+                return this.$services
+                    .StationFirmware()
                     .downloadFirmware(updateProgress, true)
                     .then((status) => {
                         console.log("status", status);
@@ -73,7 +73,8 @@ export default Vue.extend({
             }
 
             console.log("checking for firmware");
-            return Services.StationFirmware()
+            return this.$services
+                .StationFirmware()
                 .haveFirmware()
                 .then((yes) => {
                     console.log("firmware check", yes);
@@ -85,7 +86,8 @@ export default Vue.extend({
                     }
 
                     console.log("upgrading firmware");
-                    return Services.StationFirmware()
+                    return this.$services
+                        .StationFirmware()
                         .upgradeStation(this.station.url, updateProgress)
                         .then((status) => {
                             console.log("status", status);

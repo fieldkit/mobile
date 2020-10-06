@@ -14,7 +14,6 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import Services from "../services/services";
 
 export default Vue.extend({
     data() {
@@ -34,7 +33,8 @@ export default Vue.extend({
         onLoaded(this: any) {
             console.log("diagnostics loaded");
 
-            return Services.Diagnostics()
+            return this.$services
+                .Diagnostics()
                 .upload((progress) => {
                     this.update(progress);
                 })

@@ -1,5 +1,6 @@
 import * as ActionTypes from "../store/actions";
-import { Station, Store } from "../store/types";
+import { Station } from "../store/types";
+import { Store } from "../store/our-store";
 import PortalInterface from "./portal-interface";
 import FileSystem from "../wrappers/file-system";
 import SynchronizeNotes, { Ids } from "./synchronize-notes";

@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { ServicesImpl } from "@/services";
-import { prepareReply } from "../services/query-station";
+import { prepareReply } from "../store/http_reply";
 import { MockStationReplies } from "./utilities";
 import * as ActionTypes from "@/store/actions";
 import FakeTimers from "@sinonjs/fake-timers";

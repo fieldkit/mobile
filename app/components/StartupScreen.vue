@@ -8,7 +8,7 @@ import { isAndroid } from "@nativescript/core";
 
 import registerLifecycleEvents from "@/services/lifecycle";
 import { Services } from "@/services";
-import ServicesSingleton from "@/services/services";
+import ServicesSingleton from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import Sqlite from "@/wrappers/sqlite";
 import { promiseAfter } from "@/utilities";

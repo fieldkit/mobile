@@ -28,14 +28,14 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "../../routes";
-import Services from "@/services/services";
+import Services from "@/services/singleton";
 
 import SharedComponents from "@/components/shared";
-import General from "./StationSettingsGeneral";
-import Networks from "./StationSettingsNetworks";
-import Firmware from "./StationSettingsFirmware";
-import Modules from "./StationSettingsModuleList";
-import EndDeploy from "./StationSettingsEndDeploy";
+import General from "./StationSettingsGeneral.vue";
+import Networks from "./StationSettingsNetworks.vue";
+import Firmware from "./StationSettingsFirmware.vue";
+import Modules from "./StationSettingsModuleList.vue";
+import EndDeploy from "./StationSettingsEndDeploy.vue";
 
 export default Vue.extend({
     data(this: any) {

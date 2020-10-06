@@ -1,6 +1,4 @@
-import { decodeAndPrepare } from "../services/query-station";
-import { GlobalState } from "./modules/global";
-import { HttpStatusReply, ReplyStream, AtlasStatus } from "./http_reply";
+import { decodeAndPrepare, HttpStatusReply, ReplyStream, AtlasStatus } from "./http_reply";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
 
@@ -464,17 +462,6 @@ export class AvailableStation {
         this.downloads = station?.downloads || [];
         this.connected = nearby != null;
     }
-}
-
-interface GlobalGetters {
-    legacyStations: { [index: number]: LegacyStation };
-}
-
-export interface Store {
-    commit(type: string, mutation: any): void;
-    dispatch(type: string, action: any): Promise<any>;
-    readonly state: GlobalState;
-    readonly getters: GlobalGetters;
 }
 
 export class PhoneLocation {

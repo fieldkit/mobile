@@ -12,7 +12,7 @@ import Vuex from "vuex";
 // import RadGauge from "nativescript-ui-gauge/vue";
 
 import initializeLogging from "./lib/logging";
-import Services from "./services/services";
+import Services from "./services/singleton";
 import navigatorFactory from "./routes/navigate";
 import Config, { Build } from "./config";
 

@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
-import { Store } from "../store/types";
+import { Store } from "../store/our-store";
 import PortalInterface from "./portal-interface";
 import FileSystem from "../wrappers/file-system";
 import { Notes } from "../store/modules/notes";
