@@ -363,8 +363,8 @@ const actions = (services: ServiceRef) => {
                     .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                     })
-                    .then(({ headers }) => services.db().markDownloadAsUploaded(download))
-                    .catch((error) => {
+                    .then(() => services.db().markDownloadAsUploaded(download))
+                    .catch((error: Error) => {
                         if (AuthenticationError.isInstance(error)) {
                             console.log("error uploading (auth)", error, error ? error.stack : null);
                             Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
@@ -437,13 +437,6 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
 
         const downloaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
         const uploaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
-
-        if (false) {
-            console.log("syncing", "uploads", uploads);
-            console.log("syncing", "downloads", downloads);
-            console.log("syncing", "downloaded", downloaded);
-            console.log("syncing", "uploaded", uploaded);
-        }
 
         return new StationSyncStatus(
             station.id,
