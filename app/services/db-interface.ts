@@ -368,6 +368,12 @@ export default class DatabaseInterface {
             .then((rows) => console.log(rows));
     }
 
+    public forgetDownloads() {
+        return this.getDatabase()
+            .then((db) => db.query("DELETE FROM streams"))
+            .then(() => this.getDatabase());
+    }
+
     private updateStream(db, streamId, stream) {
         const updates: Promise<any>[] = [];
 

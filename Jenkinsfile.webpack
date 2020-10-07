@@ -1,0 +1,36 @@
+@Library('conservify') _
+
+properties([
+	pipelineTriggers([githubPush()]),
+	buildDiscarder(logRotator(numToKeepStr: '5')),
+	disableConcurrentBuilds(),
+])
+
+timestamps {
+    node ("jenkins-aws-ubuntu") {
+        try {
+            stage ('git') {
+                checkout scm
+            }
+
+            stage ('npm') {
+				sh "npm install"
+				sh "cp app/secrets.ts.template app/secrets.ts"
+            }
+
+            stage ('webpack:ios') {
+				sh "node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --env.ios --no-cache"
+            }
+
+            stage ('webpack:android') {
+				sh "node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android"
+            }
+
+            notifySuccess()
+        }
+        catch (Exception e) {
+            notifyFailure()
+            throw e;
+        }
+    }
+}
