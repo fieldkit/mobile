@@ -1,6 +1,9 @@
 @Library('conservify') _
 
-conservifyProperties([ disableConcurrentBuilds() ])
+properties([
+	buildDiscarder(logRotator(numToKeepStr: '5')),
+	disableConcurrentBuilds(),
+])
 
 timestamps {
     node ("jenkins-aws-ubuntu") {
