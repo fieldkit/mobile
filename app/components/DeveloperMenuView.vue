@@ -40,6 +40,7 @@
 
                 <Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
+                <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
@@ -184,6 +185,21 @@ export default Vue.extend({
         forgetUploads(this: any) {
             return Services.Database()
                 .forgetUploads()
+                .then(() => {
+                    return Services.Store()
+                        .dispatch(ActionTypes.LOAD)
+                        .then(() => {
+                            return alert({
+                                title: _L("devOptions"),
+                                message: "Done",
+                                okButtonText: _L("ok"),
+                            });
+                        });
+                });
+        },
+        forgetDownloads(this: any) {
+            return Services.Database()
+                .forgetDownloads()
                 .then(() => {
                     return Services.Store()
                         .dispatch(ActionTypes.LOAD)
