@@ -86,7 +86,7 @@ ios-release: setup
 	xcrun simctl list
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
-	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap
+	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap --log trace
 	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --release --env.sourceMap
 
 android-logs:
