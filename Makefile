@@ -75,12 +75,15 @@ ios-release: setup
 	rm -rf $(APP)/node_modules/fk-*-protocol
 	npm install
 	$(MAKE) refresh-cms-data || true
-	if [ -d $(APP)/platforms/ios ]; then                \
+	if [ -d $(APP)/platforms/ios ]; then               \
 		cd $(APP) && ns platform clean ios || true    ;\
-	else                                                \
+	else                                               \
 		cd $(APP) && ns platform add ios || true      ;\
 	fi
 	$(MAKE) platform-libraries
+	xcode-select -p
+	xcodebuild -version
+	xcrun simctl list
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
 	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap
