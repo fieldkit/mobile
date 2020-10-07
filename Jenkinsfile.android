@@ -34,6 +34,7 @@ timestamps {
                 sh """
 export PATH=$PATH:node_modules/.bin
 export ANDROID_HOME=`pwd`/android-sdk
+export LANG=en_US.UTF-8
 export FK_APP_RELEASE_STORE_FILE=private/${props.FK_APP_RELEASE_STORE_FILE}
 export FK_APP_RELEASE_KEY_ALIAS=${props.FK_APP_RELEASE_KEY_ALIAS}
 set +x
