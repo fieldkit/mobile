@@ -194,42 +194,46 @@ export default class StartupScreen extends Vue {
             if (Config.env.developer) {
                 /*
                 return this.$navigateTo(routes.internal.calibrate, {
+                    clearHistory: true,
                     props: {
                         stationId: 2,
                         position: 0,
                     },
                 });
                 return this.$navigateTo(routes.onboarding.assembleStation, {
+                    clearHistory: true,
                     props: {},
                 });
                 return this.$navigateTo(routes.login, {
+                    clearHistory: true,
                     props: {},
                 });
                 return this.$navigateTo(routes.reader.flow, {
+                    clearHistory: true,
                     props: {
                         flowName: "onboarding",
                     },
                 });
                 return this.$navigateTo(routes.appSettings.account, {
+                    clearHistory: true,
                     props: {},
                 });
                 return this.$navigateTo(routes.developerMenu, {
-                    props: {},
-                });
-                return this.$navigateTo(routes.stations, {
+                    clearHistory: true,
                     props: {},
                 });
                 return this.$navigateTo(routes.dataSync, {
+                    clearHistory: true,
                     props: {},
                 });
-				*/
                 if (services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.deploy.start, {
-                        // return this.$navigateTo(routes.deploy.notes, {
+                     return this.$navigateTo(routes.deploy.start, {
+                    // return this.$navigateTo(routes.deploy.notes, {
                         // return this.$navigateTo(routes.deploy.review, {
                         // return this.$navigateTo(routes.stationSettings, {
                         // return this.$navigateTo(routes.stationDetail, {
                         // return this.$navigateTo(routes.onboarding.recalibrate, {
+                        clearHistory: true,
                         props: {
                             stationId: 1,
                         },
@@ -237,6 +241,11 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+				*/
+                return this.$navigateTo(routes.stations, {
+                    clearHistory: true,
+                    props: {},
+                });
             }
 
             console.log("first navigate");
