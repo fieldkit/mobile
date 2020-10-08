@@ -1,28 +1,30 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <Header
-            :title="activeStep.visual.title"
-            :subtitle="activeStep.visual.subtitle"
-            :icon="activeStep.visual.icon"
-            @back="(ev) => onBack(ev, activeStep)"
-        />
-        <StackLayout>
-            <Success v-if="success" />
-            <Failure v-if="failure" />
-            <template v-if="!(success || failure)">
-                <component
-                    :is="activeStep.visual.component"
-                    :sensor="sensor"
-                    :step="activeStep"
-                    :progress="progress"
-                    @done="(ev) => onDone(ev, activeStep)"
-                    @back="(ev) => onBack(ev, activeStep)"
-                    @clear="(ev) => onClear(ev, activeStep)"
-                    @calibrate="(ev) => onCalibrate(ev, activeStep)"
-                    @cancel="(ev) => onCancel(ev, activeStep)"
-                />
-            </template>
-        </StackLayout>
+        <template v-if="activeStep">
+            <Header
+                :title="activeStep.visual.title"
+                :subtitle="activeStep.visual.subtitle"
+                :icon="activeStep.visual.icon"
+                @back="(ev) => onBack(ev, activeStep)"
+            />
+            <StackLayout>
+                <Success v-if="success" />
+                <Failure v-if="failure" />
+                <template v-if="!(success || failure)">
+                    <component
+                        :is="activeStep.visual.component"
+                        :sensor="sensor"
+                        :step="activeStep"
+                        :progress="progress"
+                        @done="(ev) => onDone(ev, activeStep)"
+                        @back="(ev) => onBack(ev, activeStep)"
+                        @clear="(ev) => onClear(ev, activeStep)"
+                        @calibrate="(ev) => onCalibrate(ev, activeStep)"
+                        @cancel="(ev) => onCancel(ev, activeStep)"
+                    />
+                </template>
+            </StackLayout>
+        </template>
     </Page>
 </template>
 <script lang="ts">
@@ -122,13 +124,15 @@ export default Vue.extend({
         deviceId(this: any) {
             return this.$store.getters.legacyStations[this.stationId].deviceId;
         },
-        activeStep(this: any): VisualCalibrationStep {
+        activeStep(this: any): VisualCalibrationStep | null {
             const step = _.first(this.getRemainingSteps());
             if (step instanceof VisualCalibrationStep) {
                 return step;
             }
-            // TODO Maybe remove, since this clutters logs on our exiting.
-            throw new Error("no active step");
+            console.log("steps", this.getAllVisualSteps());
+            console.log("completed", this.completed);
+            console.log("remaining", this.getRemainingSteps());
+            return null;
         },
         progress(this: any) {
             return (this.completed.length / this.getAllVisualSteps().length) * 100;
