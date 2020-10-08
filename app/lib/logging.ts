@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import Promise from "bluebird";
 import { Trace, knownFolders } from "@nativescript/core";
-import Vue from "nativescript-vue";
+import Vue from "vue";
 import { AuthenticationError } from "./errors";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
