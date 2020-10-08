@@ -129,10 +129,7 @@ export default Vue.extend({
             if (step instanceof VisualCalibrationStep) {
                 return step;
             }
-            console.log("steps", this.getAllVisualSteps());
-            console.log("completed", this.completed);
-            console.log("remaining", this.getRemainingSteps());
-            return null;
+            return this.getLastStep();
         },
         progress(this: any) {
             return (this.completed.length / this.getAllVisualSteps().length) * 100;
@@ -141,6 +138,10 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             // console.log("cal:", "strategy", this.strategy);
+        },
+        getLastStep(this: any): VisualCalibrationStep {
+            const all = this.getAllVisualSteps();
+            return all[all.length - 1];
         },
         getAllVisualSteps(this: any): VisualCalibrationStep[] {
             const steps: CalibrationStep[] = this.strategy.allChildren;
