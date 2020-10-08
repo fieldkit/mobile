@@ -4,7 +4,7 @@ import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import { Store } from "../store/our-store";
 import PortalInterface from "./portal-interface";
-import FileSystem from "../wrappers/file-system";
+import { FileSystem } from "@/services";
 import { Notes } from "../store/modules/notes";
 import { getPathTimestamp, serializePromiseChain } from "../utilities";
 

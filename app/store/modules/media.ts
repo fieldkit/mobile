@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
-import Camera from "@/wrappers/camera";
+import * as Camera from "@nativescript/camera";
+import * as ImagePicker from "@nativescript/imagepicker";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { ServiceRef } from "@/services";
@@ -100,8 +101,14 @@ const actions = (services: ServiceRef) => {
                 return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
             });
         },
-        [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
-            return Camera.findPicture(options)
+        [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters) => {
+            const context = ImagePicker.create({
+                mode: "single",
+            });
+
+            return context
+                .authorize()
+                .then(() => context.present())
                 .then((selection) => selection[0])
                 .then((asset) => {
                     return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
