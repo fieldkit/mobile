@@ -18,6 +18,14 @@ timestamps {
 				sh "cp app/secrets.ts.template app/secrets.ts"
             }
 
+            stage ('tests') {
+				sh "make test"
+            }
+
+            stage ('checks') {
+				sh "make checks"
+            }
+
             stage ('webpack:ios') {
 				sh "make webpack-ios"
             }
