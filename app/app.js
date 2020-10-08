@@ -8,8 +8,7 @@ import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
 import VueDevtools from "nativescript-vue-devtools";
 import Vuex from "vuex";
-// import RadChart from "nativescript-ui-chart/vue";
-// import RadGauge from "nativescript-ui-gauge/vue";
+import RadGauge from "nativescript-ui-gauge/vue";
 
 import initializeLogging from "./lib/logging";
 import Services from "./services/singleton";
@@ -91,8 +90,7 @@ function configureVueJs(services) {
 
     Vue.use(ServicesPlugin);
     Vue.use(Vuex);
-    // Vue.use(RadChart);
-    // Vue.use(RadGauge);
+    Vue.use(RadGauge);
 
     // Pass i18n's global variable to Vue
     Vue.prototype._L = _L;
