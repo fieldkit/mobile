@@ -38,7 +38,6 @@ export default Vue.extend({
             now: new Date(),
         };
     },
-    props: {},
     computed: {
         recording(this: any): ActiveRecording {
             console.log("recording", this.$store.state.media.recording, this.now);

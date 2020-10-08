@@ -50,13 +50,18 @@ export default Vue.extend({
             return this.startPlaying(media);
         },
         startPlaying(this: any, media) {
+            console.log("recording:playing");
             return this.$services
                 .Audio()
-                .playRecordedFile(media.path, () => {
+                .playRecordedFile(media.path, ({ error }) => {
+                    console.log("recording:playback:done", error);
                     this.playing = null;
                 })
                 .then(() => {
                     this.playing = media;
+                })
+                .catch((err) => {
+                    console.log("audio:play:error", err);
                 });
         },
         stopPlaying(this: any, media) {
@@ -68,9 +73,13 @@ export default Vue.extend({
                 .stopPlayer()
                 .then(() => {
                     this.playing = null;
+                })
+                .catch((err) => {
+                    console.log("audio:stop:error", err);
                 });
         },
         removeRecording(this: any, ev, media) {
+            console.log("recording:remove", media);
             return this.stopPlaying().then(() => {
                 return this.$emit("remove-audio", media);
             });
