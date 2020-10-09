@@ -19,9 +19,14 @@ export interface FileSystem {
     listFolder(path: string): any;
 }
 
+interface Connected {
+    connectedWifi?: { ssid: string };
+}
+
 export interface Conservify {
     open(path: string): any;
     download(info: any): Promise<any>;
+    findConnectedNetwork(): Promise<Connected>;
 }
 
 export {

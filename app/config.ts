@@ -57,24 +57,24 @@ const configs: { [index: string]: SimpleConfig } = {
 };
 
 interface SimpleLogger {
-    noop(...args): void;
-    info(...args): void;
-    verbose(...args): void;
-    error(...args): void;
+    noop(...args: any[]): void;
+    info(...args: any[]): void;
+    verbose(...args: any[]): void;
+    error(...args: any[]): void;
 }
 
 function loggerFactory(name: string): SimpleLogger {
     return {
-        noop: function (...args) {},
-        info: function (...args) {
+        noop: function (...args: any[]) {},
+        info: function (...args: any[]) {
             args.unshift(name);
             console.log.apply(console, args);
         },
-        verbose: function (...args) {
+        verbose: function (...args: any[]) {
             args.unshift(name);
             // console.log.apply(console, args);
         },
-        error: function (...args) {
+        error: function (...args: any[]) {
             args.unshift(name);
             console.error.apply(console, args);
         },
@@ -98,8 +98,6 @@ function getConfig(): FinalConfig {
     return Object.assign({}, envs, configs["default"], loggerConfig, getDeveloperConfig());
 }
 
-const final = getConfig();
-
 export const Build = {
     buildTime: FK_BUILD_TIMESTAMP || "",
     buildNumber: FK_BUILD_NUMBER || "",
@@ -107,5 +105,7 @@ export const Build = {
     gitHash: FK_GIT_COMMIT || "",
     gitBranch: FK_GIT_BRANCH || "",
 };
+
+const final: FinalConfig = getConfig();
 
 export default final;

@@ -1,4 +1,5 @@
 import Bluebird from "bluebird";
+import { Services, OurStore } from "@/services";
 import { Connectivity } from "@/wrappers/connectivity";
 import { promiseAfter } from "@/utilities";
 import * as ActionTypes from "@/store/actions";
@@ -24,7 +25,7 @@ class Station {
         this.deviceId = info.name;
         this.host = info.host;
         this.port = info.port;
-        this.url = this.scheme + "://" + this.host + ":" + this.port + "/fk/v1";
+        this.url = `${this.scheme}://${this.host}:${this.port}/fk/v1`;
     }
 
     public get found(): FoundService {
@@ -34,11 +35,11 @@ class Station {
 
 class NetworkMonitor {
     private readonly FixedAddresses: string[] = ["192.168.2.1"];
-    private readonly store: any;
-    private enabled: boolean = false;
-    private wifi: boolean = false;
+    private readonly store: OurStore;
+    private enabled = false;
+    private wifi = false;
 
-    constructor(private readonly services: any) {
+    constructor(private readonly services: Services) {
         this.store = services.Store();
         console.log("network-monitor: ctor");
     }
@@ -65,24 +66,26 @@ class NetworkMonitor {
                         this.wifi = false;
                         break;
                 }
-                this.issue();
+                void this.issue();
             } catch (e) {
                 log.error("network-monitor", e);
             }
         });
 
-        this.watch();
+        void this.watch();
     }
 
-    private watch() {
-        return Bluebird.delay(10000).then(() => this.issue().finally(() => this.watch()));
+    private watch(): Promise<void> {
+        return Bluebird.delay(10000).then(() => this.issue().finally(() => void this.watch()));
     }
 
-    private issue() {
+    private issue(): Promise<void> {
         return this.services
             .Conservify()
             .findConnectedNetwork()
-            .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(status.connectedWifi?.ssid, this.wifi)));
+            .then((status) =>
+                this.store.commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(status.connectedWifi?.ssid || null, this.wifi))
+            );
     }
 
     private handleWifiChange() {
@@ -91,16 +94,16 @@ class NetworkMonitor {
 
     private tryFixedAddresses(): Promise<void> {
         return Promise.all(
-            this.FixedAddresses.map((ip) =>
+            this.FixedAddresses.map((ip: string) =>
                 this.services
                     .QueryStation()
                     .getStatus("http://" + ip + "/fk/v1")
                     .then(
                         (status) => {
-                            console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
-                            this.services.DiscoverStation().onFoundService({
+                            console.log("found device in ap mode", status.status.identity.deviceId, status.status.identity.device);
+                            return this.services.DiscoverStation().onFoundService({
                                 type: "_fk._tcp",
-                                name: status.identity.deviceId,
+                                name: status.status.identity.deviceId,
                                 host: ip,
                                 port: 80,
                             });
@@ -114,14 +117,6 @@ class NetworkMonitor {
             return;
         });
     }
-
-    protected couldBeStation(ssid) {
-        const parts = ssid.split(" ");
-        if (parts.length != 3) {
-            return false;
-        }
-        return Number(parts[2]) > 0;
-    }
 }
 
 export class FoundService {
@@ -134,7 +129,7 @@ export class LostService {
 
 export default class DiscoverStation {
     protected readonly networkMonitor: NetworkMonitor;
-    private readonly store: any;
+    private readonly store: OurStore;
     private readonly conservify: any;
     private readonly pending: { [index: string]: any };
     private stations: { [index: string]: Station } = {};
@@ -153,27 +148,27 @@ export default class DiscoverStation {
         return this.monitoring;
     }
 
-    public restart(): Promise<any> {
+    public restart(): Promise<void> {
         return this.stopServiceDiscovery().then(() => Bluebird.delay(500).then(() => this.startServiceDiscovery()));
     }
 
-    public startServiceDiscovery(): Promise<any> {
+    public startServiceDiscovery(): Promise<void> {
         this.networkMonitor.start();
 
         if (this.monitoring) {
-            return Promise.resolve(true);
+            return Promise.resolve();
         }
         this.monitoring = true;
         return this.conservify.start("_fk._tcp");
     }
 
-    public stopServiceDiscovery(): Promise<any> {
+    public stopServiceDiscovery(): Promise<void> {
         this.monitoring = false;
         this.stations = {};
         return Promise.resolve(this.conservify.stop());
     }
 
-    protected onFoundService(info: FoundService): Promise<any> {
+    public onFoundService(info: FoundService): Promise<void> {
         const key = this.makeKey(info);
         const station = new Station(info);
 
@@ -190,7 +185,7 @@ export default class DiscoverStation {
         return this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
     }
 
-    protected onLostService(info: LostService): Promise<any> {
+    public onLostService(info: LostService): Promise<void> {
         const key = this.makeKey(info);
 
         if (!this.stations[key]) {

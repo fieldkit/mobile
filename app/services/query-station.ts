@@ -5,7 +5,7 @@ import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors
 import { PhoneLocation } from "../store/types";
 import Config from "../config";
 
-import { prepareReply } from "../store/http_reply";
+import { prepareReply, HttpStatusReply } from "../store/http_reply";
 
 // const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
 // const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
@@ -36,7 +36,7 @@ export default class QueryStation {
         this._conservify = services.Conservify();
     }
 
-    private buildLocateMessage(queryType: number, locate: PhoneLocation) {
+    private buildLocateMessage(queryType: number, locate: PhoneLocation | null) {
         if (locate) {
             return HttpQuery.create({
                 type: queryType,
@@ -56,14 +56,14 @@ export default class QueryStation {
         }
     }
 
-    getStatus(address: string, locate: PhoneLocation) {
+    getStatus(address: string, locate: PhoneLocation | null = null): Promise<HttpStatusReply> {
         const message = this.buildLocateMessage(QueryType.values.QUERY_STATUS, locate);
         return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
 
-    takeReadings(address: string, locate: PhoneLocation) {
+    takeReadings(address: string, locate: PhoneLocation): Promise<any> {
         const message = this.buildLocateMessage(QueryType.values.QUERY_TAKE_READINGS, locate);
         return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
@@ -82,7 +82,7 @@ export default class QueryStation {
         });
     }
 
-    stopDataRecording(address) {
+    stopDataRecording(address: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: false },
@@ -93,7 +93,7 @@ export default class QueryStation {
         });
     }
 
-    public scanNearbyNetworks(address) {
+    public scanNearbyNetworks(address: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_SCAN_NETWORKS,
         });
@@ -103,7 +103,7 @@ export default class QueryStation {
         });
     }
 
-    public configureSchedule(address, schedule) {
+    public configureSchedule(address: string, schedule) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             schedules: { modifying: true, ...schedule },
@@ -115,7 +115,7 @@ export default class QueryStation {
         });
     }
 
-    sendNetworkSettings(address, networks) {
+    sendNetworkSettings(address: string, networks) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             networkSettings: { networks: networks },
@@ -126,7 +126,7 @@ export default class QueryStation {
         });
     }
 
-    sendLoraSettings(address, lora) {
+    sendLoraSettings(address: string, lora) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
@@ -136,7 +136,7 @@ export default class QueryStation {
         });
     }
 
-    configureName(address, name) {
+    configureName(address: string, name: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             identity: { name: name },
@@ -147,7 +147,7 @@ export default class QueryStation {
         });
     }
 
-    calculateDownloadSize(url): Promise<CalculatedSize> {
+    calculateDownloadSize(url: string): Promise<CalculatedSize> {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject(new StationQueryError("ignored"));
         }
@@ -178,7 +178,7 @@ export default class QueryStation {
         });
     }
 
-    queryLogs(url) {
+    queryLogs(url: string) {
         return this._trackActivityAndThrottle(url, () => {
             return this._conservify
                 .text({
@@ -200,7 +200,7 @@ export default class QueryStation {
         });
     }
 
-    download(url, path, progress) {
+    download(url: string, path: string, progress) {
         return this._trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .download({
@@ -220,7 +220,7 @@ export default class QueryStation {
         });
     }
 
-    uploadFirmware(url, path, progress) {
+    uploadFirmware(url: string, path: string, progress) {
         return this._trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .upload({
@@ -237,7 +237,7 @@ export default class QueryStation {
         });
     }
 
-    uploadViaApp(address) {
+    uploadViaApp(address: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             transmission: {
@@ -254,7 +254,7 @@ export default class QueryStation {
         });
     }
 
-    uploadOverWifi(address, transmissionUrl, transmissionToken) {
+    uploadOverWifi(address: string, transmissionUrl, transmissionToken) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             transmission: {
@@ -325,7 +325,7 @@ export default class QueryStation {
             });
     }
 
-    private _trackActivityAndThrottle(url, factory) {
+    private _trackActivityAndThrottle(url: string, factory) {
         return this._trackActivity({ url: url, throttle: true }, factory);
     }
 
@@ -334,7 +334,7 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    stationQuery(url, message) {
+    stationQuery(url: string, message) {
         return this._trackActivityAndThrottle(url, () => {
             if (!Config.developer.stationFilter(url)) {
                 return Promise.reject(new StationQueryError("ignored"));

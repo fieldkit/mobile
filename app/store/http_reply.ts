@@ -84,7 +84,7 @@ export function decodeAndPrepare(reply) {
     return prepareReply(HttpReply.decodeDelimited(reply));
 }
 
-function numberOfOnes(n) {
+function numberOfOnes(n: number): number {
     n = n - ((n >> 1) & 0x55555555);
     n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
     return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
@@ -169,7 +169,7 @@ const MandatoryStatus = {
     },
 };
 
-export function prepareReply(reply) {
+export function prepareReply(reply): HttpStatusReply {
     if (reply.errors && reply.errors.length > 0) {
         return reply;
     }
@@ -225,5 +225,5 @@ export function prepareReply(reply) {
         fixupSchedule(reply.schedules.lora);
     }
 
-    return deepmerge.all([MandatoryStatus, reply]);
+    return deepmerge.all([MandatoryStatus, reply]) as HttpStatusReply;
 }
