@@ -1,6 +1,6 @@
 import _ from "lodash";
 import moment from "moment";
-import Promise from "bluebird";
+import Bluebird from "bluebird";
 import { Trace, knownFolders } from "@nativescript/core";
 import Vue from "vue";
 import { AuthenticationError } from "./errors";
@@ -86,7 +86,7 @@ function configureGlobalErrorHandling() {
 
         Trace.enable();
 
-        Promise.onPossiblyUnhandledRejection((reason: Error, promise: Promise) => {
+        Bluebird.onPossiblyUnhandledRejection((reason: Error, promise: Promise<any>) => {
             if (reason instanceof AuthenticationError) {
                 console.log("onPossiblyUnhandledRejection", reason);
             } else {
@@ -98,9 +98,11 @@ function configureGlobalErrorHandling() {
             }
         });
 
-        Promise.onUnhandledRejectionHandled((promise) => {
+        /*
+        Promise.onUnhandledRejectionHandled((promise: Promise<any>) => {
             console.log("onUnhandledRejectionHandled");
         });
+		*/
 
         // err: error trace
         // vm: component in which error occured

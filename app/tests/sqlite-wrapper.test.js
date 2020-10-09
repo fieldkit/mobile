@@ -26,7 +26,7 @@ describe("Sqlite Wrapper", () => {
                 sqlite.open(":memory:").then((db) => {
                     return db.execute("CREATE TABLE people (id INTEGER PRIMARY KEY, name TEXT)");
                 })
-            ).resolves.toBeDefined();
+            ).resolves.toBeUndefined();
         });
 
         it("opening and executing malformed CREATE TABLE", () => {

@@ -1,23 +1,23 @@
 const appSettings = require("tns-core-modules/application-settings");
 
 export default class AppSettings {
-    public getString(key: string) {
+    public getString(key: string): string {
         return appSettings.getString(key);
     }
 
-    public setString(stringKey: string, stringValue: string) {
-        return appSettings.setString(stringKey, stringValue);
+    public setString(key: string, value: string): void {
+        appSettings.setString(key, value);
     }
 
-    public getNumber(numKey: string) {
-        return appSettings.getNumber(numKey);
+    public getNumber(key: string): number {
+        return appSettings.getNumber(key);
     }
 
-    public setNumber(numKey: string, numValue: number) {
-        return appSettings.setNumber(numKey, numValue);
+    public setNumber(key: string, value: number): void {
+        appSettings.setNumber(key, value);
     }
 
-    public remove(key: string) {
-        return appSettings.remove(key);
+    public remove(key: string): void {
+        appSettings.remove(key);
     }
 }

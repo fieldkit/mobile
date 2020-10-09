@@ -1,13 +1,15 @@
 declare module "nativescript-sqlite" {
-    let RESULTASOBJECT: number;
-    let HAS_COMMERCIAL: boolean;
-    let HAS_ENCRYPTION: boolean;
-    let HAS_SYNC: boolean;
+    type Rows = any[];
 
-    declare type Rows = any[];
+    type Callback = (err: Error, db: SqliteMain) => void;
 
-    declare class SqliteMain {
-        constructor(name: string);
+    class SqliteMain {
+        static RESULTSASOBJECT: number;
+        static HAS_COMMERCIAL: boolean;
+        static HAS_ENCRYPTION: boolean;
+        static HAS_SYNC: boolean;
+
+        constructor(name: string, callback: Callback);
 
         resultType(type: number): void;
         all(query: string, params: undefined | any[]): Promise<Rows>;

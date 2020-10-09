@@ -1,4 +1,6 @@
-import Sqlite, { Rows } from "nativescript-sqlite";
+import Sqlite from "nativescript-sqlite";
+
+export type Rows = any[];
 
 class DatabaseWrapper {
     constructor(private readonly db: Sqlite) {
@@ -16,13 +18,11 @@ class DatabaseWrapper {
         );
     }
 
-    public execute(sql: string, params: undefined | any[] = undefined): Promise<Rows> {
-        return this.db.execSQL(sql, params).then((res: Rows) => {
-            return res ? res : this;
-        });
+    public execute(sql: string, params: undefined | any[] = undefined): Promise<void> {
+        return this.db.execSQL(sql, params).then(() => {});
     }
 
-    public batch(sql: string | string[]): Promise<Rows> {
+    public batch(sql: string | string[]): Promise<Rows[]> {
         // console.log("BATCH", sql);
         const sqlArray: string[] = (() => {
             if (!Array.isArray(sql)) {
@@ -34,7 +34,7 @@ class DatabaseWrapper {
         return sqlArray.reduce((promise: Promise<Rows>, item: string) => {
             return promise
                 .then((values: Rows[]) =>
-                    this.execute(item).then((value: Rows) => {
+                    this.query(item).then((value: Rows) => {
                         values.push(value);
                         return values;
                     })
@@ -73,7 +73,7 @@ export default class SqliteNativeScript {
         return Sqlite.exists(name);
     }
 
-    public copy(name: string): boolean {
-        return Sqlite.copyDatabase(name);
+    public copy(name: string): void {
+        Sqlite.copyDatabase(name);
     }
 }

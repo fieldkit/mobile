@@ -41,8 +41,8 @@ export function getPathTimestamp(ts) {
     return moment(ts).utc().format("YYYYMMDD_hhmmss");
 }
 
-export function serializePromiseChain(all, fn) {
-    return all.reduce((accum, value, index) => {
+export function serializePromiseChain(all: any[], fn) {
+    return all.reduce((accum: Promise<any>, value: any, index: number) => {
         return accum.then((allValues) => {
             return Bluebird.resolve(fn(value, index)).then((singleValue) => {
                 allValues.push(singleValue);
@@ -52,57 +52,50 @@ export function serializePromiseChain(all, fn) {
     }, Bluebird.resolve([]));
 }
 
-export function promiseAfter(t: number, v?: any) {
-    if (t == 0) {
-        return {
-            then: (cb) => {
-                return cb();
-            },
-        };
-    }
+export function promiseAfter(t: number, v?: any): Promise<any> {
     return Bluebird.delay(t).then(() => v);
 }
 
-export function hexStringToByteWiseString(str) {
+export function hexStringToByteWiseString(str: string): string {
     return str
         .split("")
-        .map((c, i) => {
+        .map((c: string, i: number) => {
             return (i + 1) % 2 == 0 ? c + " " : c;
         })
         .join("");
 }
 
-export function convertBytesToLabel(bytes) {
+export function convertBytesToLabel(bytes: number): string {
     // convert to kilobytes or megabytes
     if (bytes < 1000000.0) {
-        return Math.round(bytes / 1024.0) + " KB";
+        return `${Math.round(bytes / 1024.0)} KB`;
     }
-    return Math.round(bytes / 1048576.0) + " MB";
+    return `${Math.round(bytes / 1048576.0)} MB`;
 }
 
-export function unixNow() {
+export function unixNow(): number {
     return Math.round(new Date().getTime() / 1000);
 }
 
-export function getLastSeen(date) {
+export function getLastSeen(date): string {
     if (!date) {
         return "";
     }
     if (date && typeof date == "string") {
         date = new Date(date);
     }
-    let month = date.getMonth() + 1;
-    let day = date.getDate();
-    let year = date.getFullYear();
-    let today = new Date();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const today = new Date();
     // if same day, return time instead
     if (today.getMonth() + 1 == month && today.getDate() == day && today.getFullYear() == year) {
         return getFormattedTime(date);
     }
-    return month + "/" + day + "/" + year;
+    return `${month}/${day}/${year}`;
 }
 
-export function getFormattedTime(date: Date) {
+export function getFormattedTime(date: Date): string {
     if (!date) {
         return "";
     }
@@ -112,9 +105,9 @@ export function getFormattedTime(date: Date) {
     const origHour = date.getHours();
     const suffix = origHour < 12 ? " AM" : " PM";
     const hour = origHour % 12 == 0 ? 12 : origHour % 12;
-    let origMinutes = date.getMinutes();
+    const origMinutes = date.getMinutes();
     const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
-    return hour + ":" + minutes + suffix;
+    return `${hour}:${minutes}${suffix}`;
 }
 
 export function _T(key: string): string {
