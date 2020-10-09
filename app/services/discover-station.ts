@@ -33,6 +33,7 @@ class Station {
 }
 
 class NetworkMonitor {
+    private readonly FixedAddresses: string[] = ["192.168.2.1"];
     private readonly store: any;
     private enabled: boolean = false;
     private wifi: boolean = false;
@@ -58,6 +59,7 @@ class NetworkMonitor {
                 switch (newType) {
                     case Connectivity.connectionType.wifi:
                         this.wifi = true;
+                        this.handleWifiChange();
                         break;
                     default:
                         this.wifi = false;
@@ -83,25 +85,34 @@ class NetworkMonitor {
             .then((status) => this.store.commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(status.connectedWifi?.ssid, this.wifi)));
     }
 
-    protected tryFixedAddress() {
-        const ip = "192.168.2.1";
-        this.services
-            .QueryStation()
-            .getStatus("http://" + ip + "/fk/v1")
-            .then(
-                (status) => {
-                    console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
-                    this.services.DiscoverStation().onFoundService({
-                        type: "_fk._tcp",
-                        name: status.identity.deviceId,
-                        host: ip,
-                        port: 80,
-                    });
-                },
-                () => {
-                    console.log("no devices in ap mode");
-                }
-            );
+    private handleWifiChange() {
+        void Bluebird.delay(1000).then(() => this.tryFixedAddresses());
+    }
+
+    private tryFixedAddresses(): Promise<void> {
+        return Promise.all(
+            this.FixedAddresses.map((ip) =>
+                this.services
+                    .QueryStation()
+                    .getStatus("http://" + ip + "/fk/v1")
+                    .then(
+                        (status) => {
+                            console.log("found device in ap mode", status.identity.deviceId, status.identity.device);
+                            this.services.DiscoverStation().onFoundService({
+                                type: "_fk._tcp",
+                                name: status.identity.deviceId,
+                                host: ip,
+                                port: 80,
+                            });
+                        },
+                        () => {
+                            console.log("no devices in ap mode");
+                        }
+                    )
+            )
+        ).then(() => {
+            return;
+        });
     }
 
     protected couldBeStation(ssid) {
