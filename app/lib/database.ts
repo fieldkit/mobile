@@ -43,7 +43,7 @@ export class AggregateSummary {
 export class Summaries {
     constructor(public readonly summaries: AggregateSummary[]) {}
 
-    public makeDefaultParams() {
+    public makeDefaultParams(): DataQueryParams {
         const aggSummary = this.pickAggregate();
         return new DataQueryParams(aggSummary.start, aggSummary.end, aggSummary.sensorIds, aggSummary.name);
     }

@@ -63,7 +63,7 @@ function EcCommon(): CommonProperties {
     };
 }
 
-const PhQuick = () => {
+const PhQuick = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
     return new CalibrationStrategy("modules.water.ph", _L("quickCalibration"), _L("quickCalibration"), [
@@ -105,7 +105,7 @@ const PhQuick = () => {
     ]);
 };
 
-const Ph3 = () => {
+const Ph3 = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
     return new CalibrationStrategy("modules.water.ph", _L("threePointCalibration"), _L("threePointCalibration"), [
@@ -191,7 +191,7 @@ const Ph3 = () => {
     ]);
 };
 
-const DissolvedOxygen = () => {
+const DissolvedOxygen = (): CalibrationStrategy => {
     const doCommon = DoCommon();
 
     return new CalibrationStrategy("modules.water.do", _L("waterDissolvedOxygen"), _L("waterDissolvedOxygen"), [
@@ -226,7 +226,7 @@ const DissolvedOxygen = () => {
     ]);
 };
 
-const EcDual = () => {
+const EcDual = (): CalibrationStrategy => {
     const ecCommon = EcCommon();
 
     return new CalibrationStrategy("modules.water.ec", _L("waterConductivity"), _L("waterConductivity"), [
@@ -298,7 +298,7 @@ export function Common(): { [index: string]: CommonProperties } {
     };
 }
 
-export default function () {
+export default function (): CalibrationStrategy[] {
     console.log("creating water strategies");
     return [PhQuick(), Ph3(), DissolvedOxygen(), EcDual()];
 }

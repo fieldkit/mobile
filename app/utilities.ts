@@ -117,16 +117,22 @@ export function getFormattedTime(date: Date) {
     return hour + ":" + minutes + suffix;
 }
 
-export function _T(key): any {
+export function _T(key: string): string {
     const value = _L(key);
     if (value) {
         return value;
     }
     const parts = key.split(".");
-    let node = _T(parts.shift());
+    if (parts.length == 0) throw new Error(`invalid _T key: ${key}`);
+    let word = parts.shift();
+    if (!word) throw new Error(`error finding key: ${key}`);
+    let node = _T(word);
     while (parts.length > 0) {
-        node = node[parts.shift()];
+        word = parts.shift();
+        if (!word) throw new Error(`error finding key: ${key}`);
+        node = node[word];
     }
+    if (!node) throw new Error(`error finding key: ${key}`);
     return node;
 }
 

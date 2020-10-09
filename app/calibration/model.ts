@@ -13,6 +13,11 @@ export class Ids {
 
 export abstract class CalibrationValue {}
 
+export interface ModuleCalibration {
+    type: number;
+    total: number;
+}
+
 export class CalibratingSensor {
     constructor(
         public readonly stationId: number,
@@ -22,7 +27,7 @@ export class CalibratingSensor {
         public readonly unitOfMeasure: string,
         public readonly reading: number,
         public readonly calibrationValue: CalibrationValue,
-        public readonly moduleCalibration: any | null,
+        public readonly moduleCalibration: ModuleCalibration | null,
         public readonly sensors: { [index: string]: number }
     ) {}
 }
