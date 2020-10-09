@@ -6,7 +6,6 @@ import Vue from "vue";
 import { AuthenticationError } from "./errors";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
-import Config from "@/config";
 
 const SaveInterval = 10000;
 const logs: string[][] = [];
@@ -192,10 +191,6 @@ export default function initializeLogging(info) {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
     const globalAny: any = global;
     if (globalAny.TNS_ENV === "test") {
-        return;
-    }
-
-    if (Config.logging.SaveLogs === false) {
         return;
     }
 
