@@ -126,10 +126,10 @@ images:
   done; \
 
 test: setup
-	jest --silent
+	node_modules/.bin/jest --silent
 
 watch: setup
-	jest --silent --watch
+	node_modules/.bin/jest --silent --watch
 
 update-third-party:
 	third-party/update.sh
