@@ -275,7 +275,7 @@ export default class CalibrationService {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url, message) {
+    private stationQuery(url: string, message) {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject("ignored");
         }
@@ -290,7 +290,10 @@ export default class CalibrationService {
             })
             .then(
                 (response) => {
-                    if (response.body.length == 0) {
+                    console.log("cal:response", response);
+                    console.log("cal:response", response.body);
+
+                    if (response && response.body && response.body.length == 0) {
                         log.info(url, "calibration query success", "<empty>");
                         return {};
                     }

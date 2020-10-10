@@ -226,18 +226,13 @@ export default class StartupScreen extends Vue {
                     clearHistory: true,
                     props: {},
                 });
-                return this.$navigateTo(routes.stations, {
-                    clearHistory: true,
-                    props: {},
-                });
-				*/
                 if (services.Store().getters.stationCalibrations[1]) {
                     // return this.$navigateTo(routes.deploy.start, {
                     // return this.$navigateTo(routes.deploy.notes, {
                     // return this.$navigateTo(routes.deploy.review, {
                     // return this.$navigateTo(routes.stationSettings, {
                     // return this.$navigateTo(routes.stationDetail, {
-                    return this.$navigateTo(routes.onboarding.recalibrate, {
+                    // return this.$navigateTo(routes.onboarding.recalibrate, {
                         clearHistory: true,
                         props: {
                             stationId: 1,
@@ -246,6 +241,11 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+				*/
+                return this.$navigateTo(routes.stations, {
+                    clearHistory: true,
+                    props: {},
+                });
             }
 
             console.log("first navigate");
