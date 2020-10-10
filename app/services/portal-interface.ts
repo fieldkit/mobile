@@ -9,7 +9,7 @@ import * as ActionTypes from "../store/actions";
 type ProgressFunc = (total: number, copied: number, info: object) => void;
 
 export class ApiUnexpectedStatus extends Error {
-    constructor(message) {
+    constructor(message: string) {
         super(message);
     }
 }

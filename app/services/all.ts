@@ -23,9 +23,15 @@ interface Connected {
     connectedWifi?: { ssid: string };
 }
 
+export interface TransferInfo {
+    //
+}
+
 export interface Conservify {
     open(path: string): any;
+    text(info: any): Promise<any>;
     download(info: any): Promise<any>;
+    upload(info: any): Promise<any>;
     findConnectedNetwork(): Promise<Connected>;
 }
 
