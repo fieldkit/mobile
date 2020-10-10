@@ -200,9 +200,12 @@ export default Vue.extend({
             return this.$store.dispatch(action).then(
                 (cleared) => {
                     console.log("cal:", "cleared");
-                    return /*this.notifySuccess()*/ true;
+                    return this.notifySuccess();
                 },
-                () => this.notifyFailure()
+                (err) => {
+                    console.log("cal:error", err, err ? err.stack : null);
+                    return this.notifyFailure();
+                }
             );
         },
         onCalibrate(this: any, ev: any, step: CalibrationStep) {
@@ -228,9 +231,12 @@ export default Vue.extend({
             return this.$store.dispatch(action).then(
                 (calibrated) => {
                     console.log("cal:", "calibrated");
-                    return Promise.all([Promise.resolve(this.onDone(ev, step))]);
+                    return Promise.resolve(this.onDone(ev, step));
                 },
-                () => this.notifyFailure()
+                (err) => {
+                    console.log("cal:error", err, err ? err.stack : null);
+                    return this.notifyFailure();
+                }
             );
         },
         notifySuccess(this: any) {
