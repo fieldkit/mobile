@@ -4,7 +4,7 @@
     "repository": "<fill-your-repository-here>",
     "dependencies": {
         "@nativescript/camera": "^5.0.2",
-        "@nativescript/core": "^7.0.10",
+        "@nativescript/core": "^7.0.11",
         "@nativescript/firebase": "^11.0.0",
         "@nativescript/geolocation": "^7.0.0",
         "@nativescript/imagepicker": "~1.0.0",
