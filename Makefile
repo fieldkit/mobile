@@ -155,3 +155,9 @@ webpack-android:
 
 webpack-ios:
 	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --env.ios --no-cache
+
+webpack-android-watch:
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android -w
+
+webpack-ios-watch:
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.ios -w
