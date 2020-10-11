@@ -27,11 +27,11 @@ timestamps {
             }
 
             stage ('webpack:ios') {
-				sh "make webpack-ios"
+				sh "make ios-webpack"
             }
 
             stage ('webpack:android') {
-				sh "make webpack-android"
+				sh "make android-webpack"
             }
 
             notifySuccess()
