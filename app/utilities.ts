@@ -1,43 +1,49 @@
 import _ from "lodash";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import Bluebird from "bluebird";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
+// eslint-disable-next-line
 const isObject = function (o: any): boolean {
     return o === Object(o) && !isArray(o) && typeof o !== "function";
 };
+// eslint-disable-next-line
 const isArray = function (a: any): boolean {
     return Array.isArray(a);
 };
+// eslint-disable-next-line
 const toCamel = (s: string): string => {
     return s.replace(/([-_][a-z])/gi, ($1) => {
         return $1.toUpperCase().replace("-", "").replace("_", "");
     });
 };
-export function keysToCamel(o) {
+// eslint-disable-next-line
+export function keysToCamel(o: any): any {
     if (isObject(o)) {
         const n = {};
 
         Object.keys(o).forEach((k) => {
+            // eslint-disable-next-line
             n[toCamel(k)] = keysToCamel(o[k]);
         });
 
         return n;
     } else if (isArray(o)) {
-        return o.map((i) => {
-            return keysToCamel(i);
+        // eslint-disable-next-line
+        return o.map((i: any) => {
+            return keysToCamel(i); // eslint-disable-line
         });
     }
 
-    return o;
+    return o; // eslint-disable-line
 }
 
-export function sqliteToJs(o) {
-    // TODO Handle booleans.
-    return keysToCamel(o);
+// eslint-disable-next-line
+export function sqliteToJs(o: any): any {
+    return keysToCamel(o); // eslint-disable-line
 }
 
-export function getPathTimestamp(ts) {
+export function getPathTimestamp(ts: Moment | Date | string | number): string {
     return moment(ts).utc().format("YYYYMMDD_hhmmss");
 }
 
@@ -113,19 +119,17 @@ export function getFormattedTime(date: Date): string {
 }
 
 export function _T(key: string): string {
-    const value = _L(key);
-    if (value) {
-        return value;
-    }
-    const parts = key.split(".");
+    const value: string | undefined = _L(key);
+    if (value) return value;
+    const parts: string[] = key.split(".");
     if (parts.length == 0) throw new Error(`invalid _T key: ${key}`);
-    let word = parts.shift();
+    let word = parts.shift()!; // eslint-disable-line
     if (!word) throw new Error(`error finding key: ${key}`);
     let node = _T(word);
     while (parts.length > 0) {
-        word = parts.shift();
+        word = parts.shift()!; // eslint-disable-line
         if (!word) throw new Error(`error finding key: ${key}`);
-        node = node[word];
+        node = node[word]; // eslint-disable-line
     }
     if (!node) throw new Error(`error finding key: ${key}`);
     return node;
@@ -161,7 +165,7 @@ export function onlyAllowEvery<V>(seconds: number, action: () => Promise<V>, oth
 }
 
 export function validateStationName(name: string): { required: boolean; long: boolean; any: boolean; characters: boolean } {
-    const matches = name.match(/^[ \w\d~!@#$%^&*()-.'`]*$/);
+    const matches = /^[ \w\d~!@#$%^&*()-.'`]*$/.exec(name);
     const required = name.length == 0;
     const characters = !matches || matches.length == 0;
     const long = name.length > 40;

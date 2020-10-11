@@ -36,6 +36,7 @@ jest.mock("tns-core-modules/application-settings");
 
 jest.mock("../wrappers/sqlite");
 jest.mock("../wrappers/app-settings");
+jest.mock("../wrappers/file-system");
 
 jest.mock("../calibration/Check.vue");
 jest.mock("../calibration/Prepare.vue");

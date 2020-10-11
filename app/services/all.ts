@@ -12,12 +12,7 @@ import CreateDb from "./create-db";
 import ImagesSaver from "./images-saver";
 import AudioInterface from "./audio-interface";
 import { TaskQueue } from "@/lib/tasks";
-
-export interface FileSystem {
-    getFolder(path: string): any;
-    getFile(path: string): any;
-    listFolder(path: string): any;
-}
+import FileSystem from "@/wrappers/file-system";
 
 interface Connected {
     connectedWifi?: { ssid: string };
@@ -50,4 +45,5 @@ export {
     AudioInterface,
     TaskQueue,
     OurStore,
+    FileSystem,
 };

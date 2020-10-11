@@ -167,7 +167,6 @@ export class ServicesImpl implements Services {
 
     public FileSystem(): FileSystem {
         if (!this.fileSystem) {
-            const FileSystem = require("../wrappers/file-system").default;
             this.fileSystem = new FileSystem();
         }
         return this.unwrap(this.fileSystem);

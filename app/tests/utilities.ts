@@ -1,11 +1,10 @@
 import protobuf from "protobufjs";
 import crypto from "crypto";
 
-const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
-const HttpReply = appRoot.lookupType("fk_app.HttpReply");
-
-const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
-const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
+const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol")); // eslint-disable-line
+const HttpReply = appRoot.lookupType("fk_app.HttpReply"); // eslint-disable-line
+const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol")); // eslint-disable-line
+const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply"); // eslint-disable-line
 
 export function randomHexString() {
     return crypto.randomBytes(16).toString("hex");
