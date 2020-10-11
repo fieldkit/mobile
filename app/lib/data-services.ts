@@ -1,15 +1,10 @@
-import { Services /*, ServiceFactories*/ } from "@/services";
+import { OpenedFile } from "@/wrappers/networking";
+import { Services } from "@/services";
 import { FileLike } from "@/lib/fs";
 
-type DelimitedCallback = (position: number, size: number, records: any) => void;
-
 export interface TinyServices {
-    open(path: string): Promise<ConservifyFile>;
+    open(path: string): Promise<OpenedFile>;
     listFolder(path: string): Promise<FileLike[]>;
-}
-
-export interface ConservifyFile {
-    delimited(callback: DelimitedCallback): Promise<any>;
 }
 
 class DataServicesAdapter implements TinyServices {
@@ -18,7 +13,7 @@ class DataServicesAdapter implements TinyServices {
         this.services.FileSystem();
     }
 
-    public open(path: string): Promise<ConservifyFile> {
+    public open(path: string): Promise<OpenedFile> {
         return this.services.Conservify().open(path);
     }
 
@@ -49,7 +44,7 @@ class WorkerDataServices implements TinyServices {
 */
 
 export class StubDataServices implements TinyServices {
-    public open(path: string): Promise<ConservifyFile> {
+    public open(path: string): Promise<OpenedFile> {
         throw new Error("unimplemented");
     }
 

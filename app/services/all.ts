@@ -13,22 +13,7 @@ import ImagesSaver from "./images-saver";
 import AudioInterface from "./audio-interface";
 import { TaskQueue } from "@/lib/tasks";
 import FileSystem from "@/wrappers/file-system";
-
-interface Connected {
-    connectedWifi?: { ssid: string };
-}
-
-export interface TransferInfo {
-    //
-}
-
-export interface Conservify {
-    open(path: string): any;
-    text(info: any): Promise<any>;
-    download(info: any): Promise<any>;
-    upload(info: any): Promise<any>;
-    findConnectedNetwork(): Promise<Connected>;
-}
+import Conservify from "@/wrappers/networking";
 
 export {
     PortalInterface,
@@ -46,4 +31,5 @@ export {
     TaskQueue,
     OurStore,
     FileSystem,
+    Conservify,
 };

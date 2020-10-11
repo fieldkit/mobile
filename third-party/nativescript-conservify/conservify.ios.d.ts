@@ -1,4 +1,4 @@
-import { PromiseCallbacks } from "./conservify.common";
+import { PromiseCallbacks, TransferInfo } from "./conservify.common";
 interface NetworkingListener {
     onStarted(): void;
     onDiscoveryFailed(): void;
@@ -153,19 +153,19 @@ export declare class Conservify implements ActiveTasks, OtherPromises {
     constructor(discoveryEvents: any, logger: any);
     getTask(id: string): any;
     removeTask(id: string): void;
-    stop(): Promise<boolean>;
-    start(serviceType: string): Promise<{}>;
-    writeSampleData(): Promise<string>;
-    open(path: any): Promise<OpenedFile>;
-    json(info: any): Promise<{}>;
-    text(info: any): Promise<{}>;
-    protobuf(info: any): Promise<{}>;
-    download(info: any): Promise<{}>;
-    upload(info: any): Promise<{}>;
+    stop(): Promise<any>;
+    start(serviceType: string): Promise<any>;
+    writeSampleData(): Promise<any>;
+    open(path: string): Promise<OpenedFile>;
+    json(info: TransferInfo): Promise<any>;
+    text(info: TransferInfo): Promise<any>;
+    protobuf(info: TransferInfo): Promise<any>;
+    download(info: TransferInfo): Promise<any>;
+    upload(info: TransferInfo): Promise<any>;
     getDiscoveryEvents(): any;
     getStartedPromise(): PromiseCallbacks;
     getNetworkStatusPromise(): PromiseCallbacks;
-    findConnectedNetwork(): Promise<{}>;
-    scanNetworks(): Promise<{}>;
+    findConnectedNetwork(): Promise<any>;
+    scanNetworks(): Promise<any>;
 }
 export {};
