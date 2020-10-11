@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import { Station, FirmwareInfo } from "../types";
 import * as MutationTypes from "../mutations";
 import * as ActionTypes from "../actions";
@@ -35,7 +36,7 @@ export class FirmwareState {
     stations: { [index: number]: FirmwareInfo } = {};
 }
 type ModuleState = FirmwareState;
-type ActionParameters = { commit: any; dispatch: any; state: ModuleState };
+type ActionParameters = ActionContext<ModuleState, never>;
 
 export const RELOAD_FIRMWARE = "RELOAD_FIRMWARE";
 export const AVAILABLE_FIRMWARE = "AVAILABLE_FIRMWARE";

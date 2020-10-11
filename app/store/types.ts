@@ -30,7 +30,7 @@ export class Module {
     }
 
     private getImage(name: string): string {
-        const images = {
+        const images: { [index: string]: string } = {
             "modules.distance": "~/images/Icon_Distance_Module.png",
             "modules.weather": "~/images/Icon_Weather_Module.png ",
             "modules.water.ec": "~/images/Icon_WaterConductivity_Module.png",
@@ -51,11 +51,11 @@ export enum FileType {
 }
 
 export class FileTypeUtils {
-    public static toString(ft: FileType) {
+    public static toString(ft: FileType): string {
         return FileType[ft].toLowerCase();
     }
 
-    public static fromString(s: string) {
+    public static fromString(s: string): FileType {
         if (/meta/.test(s)) {
             return FileType.Meta;
         }
@@ -99,7 +99,7 @@ export class Download {
     }
 
     public get blocks(): string {
-        return this.firstBlock + "," + this.lastBlock;
+        return `${this.firstBlock},${this.lastBlock}`;
     }
 }
 
@@ -138,15 +138,6 @@ export class Stream {
         s.portalFirstBlock = o.portalFirstBlock;
         s.portalLastBlock = o.portalLastBlock;
         s.updated = new Date(o.updated);
-        if (false) {
-            console.log(
-                "StreamRow",
-                o.stationId,
-                [o.deviceFirstBlock, o.deviceLastBlock],
-                [o.downloadFirstBlock, o.downloadLastBlock],
-                [o.portalFirstBlock, o.portalLastBlock]
-            );
-        }
         return s;
     }
 
@@ -168,7 +159,7 @@ export class Stream {
         return FileTypeUtils.fromString(this.type);
     }
 
-    keepingFrom(o: Stream | null) {
+    keepingFrom(o: Stream | null): Stream {
         if (!o) {
             return this;
         }
@@ -210,6 +201,8 @@ export interface Schedules {
     network: Schedule;
 }
 
+export type PortalError = string;
+
 export interface StationCreationFields {
     id: number | null;
     deviceId: string;
@@ -225,7 +218,7 @@ export interface StationCreationFields {
     serializedStatus: string;
     lastSeen: Date;
     portalId: number | null;
-    portalHttpError: object | null;
+    portalHttpError: PortalError | null;
 }
 
 export class FirmwareInfo {
@@ -241,7 +234,7 @@ export class FirmwareInfo {
 export interface StationPortalStatus {
     id: number;
     portalId: number | null;
-    error: object | null;
+    error: PortalError | null;
 }
 
 export class Station implements StationCreationFields {
@@ -259,7 +252,7 @@ export class Station implements StationCreationFields {
     public readonly serializedStatus: string;
     public readonly lastSeen: Date;
     private _portalId: number | null;
-    private _portalHttpError: object | null;
+    private _portalHttpError: PortalError | null;
     public readonly modules: Module[] = [];
     public readonly streams: Stream[] = [];
     public readonly downloads: Download[] = [];
@@ -268,11 +261,11 @@ export class Station implements StationCreationFields {
         return this._portalId;
     }
 
-    public get portalHttpError(): object | null {
+    public get portalHttpError(): PortalError | null {
         return this._portalHttpError;
     }
 
-    public updatePortalStatus(status: StationPortalStatus) {
+    public updatePortalStatus(status: StationPortalStatus): void {
         if (status.portalId) {
             this._portalId = status.portalId;
         }
@@ -318,9 +311,9 @@ export class Station implements StationCreationFields {
         return [coordinates.latitude, coordinates.longitude].map((v) => v.toFixed(2)).join(", ");
     }
 
-    private decodedStatus: object | null = null;
+    private decodedStatus: HttpStatusReply | null = null;
 
-    protected decodeStatusReply(): any {
+    protected decodeStatusReply(): HttpStatusReply {
         if (this.decodedStatus == null) {
             if (this.serializedStatus !== null && this.serializedStatus.length > 0) {
                 try {
@@ -331,17 +324,18 @@ export class Station implements StationCreationFields {
                 }
             }
         }
+        if (!this.decodedStatus) throw new Error("no decoded status");
         return this.decodedStatus;
     }
 
     public firmwareInfo(): FirmwareInfo | null {
-        const statusReply = this.decodeStatusReply();
+        const statusReply: HttpStatusReply = this.decodeStatusReply();
         const fw = statusReply?.status?.firmware || null;
         if (!fw) {
             console.log("malformed status reply", statusReply);
             return null;
         }
-        return new FirmwareInfo(fw.version, fw.build, fw.number, fw.timestamp, fw.hash);
+        return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
     }
 }
 
@@ -362,7 +356,7 @@ export class LegacyStation extends Station {
         return this.deployStartTime != null;
     }
 
-    public statusJson(): any {
+    public statusJson(): HttpStatusReply {
         return this.decodeStatusReply();
     }
 }

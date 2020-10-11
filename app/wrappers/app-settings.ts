@@ -1,4 +1,12 @@
-const appSettings = require("tns-core-modules/application-settings");
+interface Settings {
+    getString(key: string): string;
+    getNumber(key: string): number;
+    setString(key: string, value: string): void;
+    setNumber(key: string, value: number): void;
+    remove(key: string): void;
+}
+
+const appSettings = require("tns-core-modules/application-settings") as Settings;
 
 export default class AppSettings {
     public getString(key: string): string {

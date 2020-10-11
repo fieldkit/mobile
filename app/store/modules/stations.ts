@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 import {
@@ -14,6 +15,7 @@ import {
     StationPortalStatus,
     SortableStationSorter,
     Schedules,
+    PortalError,
 } from "@/store/types";
 import { StationRepliedAction } from "@/store/typed-actions";
 import { HasLocation } from "@/store/map-types";
@@ -266,7 +268,7 @@ class StationDatabaseFactory {
         return null;
     }
 
-    private parseHttpError(column: string | null): object | null {
+    private parseHttpError(column: string | null): PortalError | null {
         if (column && column.length > 0) {
             try {
                 return JSON.parse(column);
@@ -320,7 +322,7 @@ function loadStationsFromDatabase(db): Promise<Station[]> {
     );
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: StationsState };
+type ActionParameters = ActionContext<StationsState, never>;
 
 const actions = (services: ServiceRef) => {
     return {

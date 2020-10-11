@@ -1,16 +1,17 @@
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import AppSettings from "../../wrappers/app-settings";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { ServiceRef } from "@/services";
 
 export class NetworkState {
-    online: boolean = false;
-    authenticated: boolean = false;
-    station: boolean = false;
+    online = false;
+    authenticated = false;
+    station = false;
 }
 
-type ActionParameters = { commit: any };
+type ActionParameters = ActionContext<NetworkState, never>;
 
 const getters = {};
 

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
@@ -15,7 +16,7 @@ export class NearbyState {
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: NearbyState };
+type ActionParameters = ActionContext<NearbyState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
@@ -43,10 +44,10 @@ const actions = (services: ServiceRef) => {
             commit(MutationTypes.FIND, info);
             return dispatch(ActionTypes.QUERY_STATION, info);
         },
-        [ActionTypes.MAYBE_LOST]: ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+        [ActionTypes.MAYBE_LOST]: async ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
             const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
             if (info && !info.transferring) {
-                return dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
+                await dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
             }
         },
         [ActionTypes.PROBABLY_LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {},

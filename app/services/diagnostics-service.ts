@@ -84,7 +84,7 @@ export default class Diagnostics {
 
     private uploadArchived(): Promise<any> {
         return this.getAllFiles(DiagnosticsDirectory).then((files) => {
-            return serializePromiseChain(files, (path, index) => {
+            return serializePromiseChain(files, (path: string, index: number) => {
                 const relative = path.replace(DiagnosticsDirectory, "");
                 console.log("uploading", path, relative);
                 return this.services

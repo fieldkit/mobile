@@ -3,13 +3,13 @@ import moment from "moment";
 import Bluebird from "bluebird";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
-const isObject = function (o) {
+const isObject = function (o: any): boolean {
     return o === Object(o) && !isArray(o) && typeof o !== "function";
 };
-const isArray = function (a) {
+const isArray = function (a: any): boolean {
     return Array.isArray(a);
 };
-const toCamel = (s: string) => {
+const toCamel = (s: string): string => {
     return s.replace(/([-_][a-z])/gi, ($1) => {
         return $1.toUpperCase().replace("-", "").replace("_", "");
     });
@@ -41,18 +41,20 @@ export function getPathTimestamp(ts) {
     return moment(ts).utc().format("YYYYMMDD_hhmmss");
 }
 
-export function serializePromiseChain(all: any[], fn) {
-    return all.reduce((accum: Promise<any>, value: any, index: number) => {
-        return accum.then((allValues) => {
-            return Bluebird.resolve(fn(value, index)).then((singleValue) => {
+export type SerializeFunc<V, R> = (value: V, index: number) => Promise<R>;
+
+export function serializePromiseChain<V, R>(all: V[], fn: SerializeFunc<V, R>): Promise<R[]> {
+    return all.reduce((accum: Promise<R[]>, value: V, index: number) => {
+        return accum.then((allValues: R[]) => {
+            return Bluebird.resolve(fn(value, index)).then((singleValue: R) => {
                 allValues.push(singleValue);
                 return allValues;
             });
         });
-    }, Bluebird.resolve([]));
+    }, Bluebird.resolve([]) as Promise<R[]>);
 }
 
-export function promiseAfter(t: number, v?: any): Promise<any> {
+export function promiseAfter<V>(t: number, v?: V): Promise<V> {
     return Bluebird.delay(t).then(() => v);
 }
 
@@ -77,11 +79,11 @@ export function unixNow(): number {
     return Math.round(new Date().getTime() / 1000);
 }
 
-export function getLastSeen(date): string {
+export function getLastSeen(date: Date | string | null): string {
     if (!date) {
         return "";
     }
-    if (date && typeof date == "string") {
+    if (typeof date == "string") {
         date = new Date(date);
     }
     const month = date.getMonth() + 1;
@@ -106,7 +108,7 @@ export function getFormattedTime(date: Date): string {
     const suffix = origHour < 12 ? " AM" : " PM";
     const hour = origHour % 12 == 0 ? 12 : origHour % 12;
     const origMinutes = date.getMinutes();
-    const minutes = origMinutes < 10 ? "0" + origMinutes : origMinutes;
+    const minutes = origMinutes < 10 ? `0${origMinutes}` : origMinutes;
     return `${hour}:${minutes}${suffix}`;
 }
 
@@ -143,7 +145,7 @@ export function convertOldFirmwareResponse(module: { name: string; sensors: { na
 
 const lastRunTimes: { [index: string]: number } = {};
 
-export function onlyAllowEvery(seconds: number, action: () => Promise<any>, otherwise: () => any): () => Promise<any> {
+export function onlyAllowEvery<V>(seconds: number, action: () => Promise<V>, otherwise: () => V): () => Promise<V> {
     const id = _.uniqueId();
     lastRunTimes[id] = 0;
     return () => {

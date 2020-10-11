@@ -1,9 +1,10 @@
 import _ from "lodash";
-import Config from "../config";
-import Settings from "../settings";
-import { sqliteToJs } from "../utilities";
-import { Download, FileTypeUtils, Station } from "../store/types";
-import { AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow } from "../store/row-types";
+import Config from "@/config";
+import Settings from "@/settings";
+import { sqliteToJs } from "@/utilities";
+import { Download, FileTypeUtils, Station } from "@/store/types";
+import { AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow } from "@/store/row-types";
+import { Services } from "@/services";
 
 const log = Config.logger("DbInterface");
 
@@ -16,19 +17,16 @@ export interface UserAccount {
 }
 
 export default class DatabaseInterface {
-    services: any;
+    constructor(private readonly services: Services) {}
 
-    constructor(services) {
-        this.services = services;
-    }
-
-    public checkConfig() {
+    public checkConfig(): Promise<void> {
         return this.getConfig().then((rows) => {
             if (rows.length == 0) {
                 console.log("config: initializing", Config);
                 return this.insertConfig(Config);
             } else {
                 console.log("config: actual", rows[0]);
+                return;
             }
         });
     }
@@ -574,7 +572,7 @@ export default class DatabaseInterface {
         });
     }
 
-    public markDownloadAsUploaded(download: Download) {
+    public markDownloadAsUploaded(download: Download): Promise<void> {
         if (download.stationId === null || download.fileType === null) {
             console.log("malformed download row", download.stationId, download.fileType, download);
             throw new Error("malformed download row");
@@ -724,13 +722,14 @@ export default class DatabaseInterface {
             .catch((err) => Promise.reject(new Error(`error fetching notes: ${err}`)));
     }
 
-    public checkSettings() {
+    public checkSettings(): Promise<void> {
         return this.getSettings().then((result) => {
             if (result.length == 0) {
                 console.log("settings: initializing", Settings);
                 return this.insertSettings(Settings);
             } else {
                 console.log("existing settings: ", result[0]);
+                return;
             }
         });
     }

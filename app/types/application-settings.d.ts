@@ -4,7 +4,7 @@ declare module "tns-core-modules/application-settings" {
         static getNumber(key: string): number;
         static setString(key: string, value: string): void;
         static setNumber(key: string, value: number): void;
-        static remove(key: string);
+        static remove(key: string): void;
     }
     export = Settings;
 }

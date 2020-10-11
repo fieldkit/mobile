@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { ServiceRef } from "@/services";
@@ -18,11 +19,11 @@ export class NoteMedia {
     }
 
     public static onlyAudio(media: NoteMedia[]): NoteMedia[] {
-        return media.filter(NoteMedia.isAudio);
+        return media.filter(NoteMedia.isAudio.bind(this));
     }
 
     public static onlyPhotos(media: NoteMedia[]): NoteMedia[] {
-        return media.filter(NoteMedia.isPhoto);
+        return media.filter(NoteMedia.isPhoto.bind(this));
     }
 
     public static isPhoto(nm: NoteMedia): boolean {
@@ -115,7 +116,7 @@ export class Notes {
     public get completed(): string {
         const notes = [this.studyObjective, this.sitePurpose, this.siteCriteria, this.siteDescription];
         const total = notes.length + 1;
-        const filled = notes.filter(this.isNoteCompleted);
+        const filled = notes.filter(this.isNoteCompleted.bind(this));
         const done = filled.length + (this.photos.length > 0 ? 1 : 0);
         const percentage = (done / total) * 100;
         return percentage.toFixed(0);
@@ -191,7 +192,7 @@ export class Notes {
     }
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: NotesState };
+type ActionParameters = ActionContext<NotesState, never>;
 
 export const LOAD_NOTES_ALL = "LOAD_NOTES_ALL";
 export const NOTES_LOCATION = "NOTES_LOCATION";

@@ -54,12 +54,61 @@ export interface ReplySchedules {
 }
 
 export interface ReplyStatus {
-    identity: any;
-    gps: any;
-    recording: any;
-    memory: any;
-    power: any;
+    identity: {
+        device: string;
+        stream: string;
+        deviceId: string;
+        firmware: string;
+        build: string;
+        number: string;
+        generation: string;
+        generationId: string;
+        name: string;
+    };
+    gps: {
+        enabled: number;
+        fix: number;
+        time: number;
+        satellites;
+        number;
+        longitude: number;
+        latitude: number;
+        altitude: number;
+    };
+    recording: {
+        enabled: number;
+        startedTime: number;
+        location: {
+            longitude: number;
+            latitude: number;
+            time: number;
+        };
+    };
+    memory: {
+        sramAvailable: number;
+        programFlashAvailable: number;
+        extendedMemoryAvailable: number;
+        dataMemoryInstalled: number;
+        dataMemoryUsed: number;
+        dataMemoryConsumption: number;
+    };
+    power: {
+        battery: {
+            voltage: number;
+            percentage: number;
+        };
+        solar: {
+            voltage: number;
+        };
+    };
     schedules: ReplySchedules;
+    firmware: {
+        version: string;
+        build: string;
+        number: string;
+        timestamp: number;
+        hash: string;
+    };
 }
 
 export interface ReplyStream {

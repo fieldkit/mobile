@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as Camera from "@nativescript/camera";
 import * as ImagePicker from "@nativescript/imagepicker";
 import * as ActionTypes from "../actions";
@@ -45,7 +46,7 @@ export class MediaState {
     public photoCache: { [index: string]: any } = {};
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: MediaState };
+type ActionParameters = ActionContext<MediaState, never>;
 
 const getters = {};
 
