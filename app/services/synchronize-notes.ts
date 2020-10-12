@@ -78,7 +78,7 @@ export default class SynchronizeNotes {
     }
 
     private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes): Promise<{ [index: string]: number }> {
-        const allPortalMedia = [...portalNotes.media, ..._.flatten(portalNotes.notes.map((n) => n.media))];
+        const allPortalMedia = [...(portalNotes.media || []), ..._.flatten(portalNotes.notes.map((n) => n.media || []))];
         const portalByKey = _.keyBy(
             allPortalMedia.filter((m) => m.key),
             (m) => m.key

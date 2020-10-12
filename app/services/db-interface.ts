@@ -113,6 +113,10 @@ export default class DatabaseInterface {
     }
 
     public setStationPortalId(station) {
+        if (!station.portalId) {
+            console.log(`no portal id`);
+            return Promise.reject(new Error(`no portal id`));
+        }
         return this.getDatabase()
             .then((db) =>
                 db.query("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id])
