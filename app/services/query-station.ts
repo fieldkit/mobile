@@ -374,7 +374,7 @@ export default class QueryStation {
         });
     }
 
-    private getResponseBody(response) {
+    private getResponseBody(response): HttpStatusReply {
         if (Buffer.isBuffer(response.body)) {
             const decoded: any = HttpReply.decodeDelimited(response.body);
             decoded.serialized = response.body.toString("base64");
@@ -383,11 +383,11 @@ export default class QueryStation {
         return response.body;
     }
 
-    private fixupStatus(reply) {
+    private fixupStatus(reply): HttpStatusReply {
         return prepareReply(reply);
     }
 
-    private handlePotentialBusyReply(reply, url: string, message: string): Promise<any> {
+    private handlePotentialBusyReply(reply: HttpStatusReply, url: string, message: string): Promise<HttpStatusReply> {
         if (reply.type != ReplyType.REPLY_BUSY) {
             return Promise.resolve(reply);
         }
@@ -398,7 +398,7 @@ export default class QueryStation {
         return this.retryAfter(delays, url, message);
     }
 
-    private retryAfter(delays: number, url: string, message: string): Promise<any> {
+    private retryAfter(delays: number, url: string, message: string): Promise<HttpStatusReply> {
         log.info(url, "retrying after", delays);
         return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);

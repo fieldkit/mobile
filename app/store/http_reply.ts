@@ -119,6 +119,7 @@ export interface ReplyStream {
 }
 
 export interface HttpStatusReply {
+    type: fk_app.ReplyType;
     status: ReplyStatus;
     modules: ModuleCapabilities[];
     liveReadings: LiveReadings[];
@@ -217,7 +218,7 @@ const MandatoryStatus = {
     },
 };
 
-export function prepareReply(reply): HttpStatusReply {
+export function prepareReply(reply: any /* fk_app.HttpReply */): HttpStatusReply {
     if (reply.errors && reply.errors.length > 0) {
         return reply;
     }

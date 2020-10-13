@@ -30,7 +30,7 @@ export class ServiceFactories {
     }
 
     public createConservify(discoveryEvents: DiscoveryEvents = new DiscoveryEvents()): Conservify {
-        const logger = Config.logger("NativeScriptConservify").noop;
+        const logger = Config.logger("NativeScriptConservify").info;
         return new Conservify(discoveryEvents, logger);
     }
 }
