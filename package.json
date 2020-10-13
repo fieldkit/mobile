@@ -47,7 +47,7 @@
         "@babel/core": "^7.5.5",
         "@babel/preset-env": "^7.5.5",
         "@nativescript/android": "7.0.0",
-        "@nativescript/ios": "7.0.0",
+        "@nativescript/ios": "7.0.1",
         "@nativescript/types": "^7.0.4",
         "@nativescript/webpack": "^3.0.5",
         "@types/bluebird": "^3.5.32",
