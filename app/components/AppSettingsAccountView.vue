@@ -59,7 +59,7 @@ import * as animations from "~/components/animations";
 import * as ActionTypes from "~/store/actions";
 import routes from "@/routes";
 import Promise from "bluebird";
-import Services from "@/services/services";
+import Services from "@/services/singleton";
 
 export default Vue.extend({
     data() {

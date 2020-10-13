@@ -1,28 +1,30 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <Header
-            :title="activeStep.visual.title"
-            :subtitle="activeStep.visual.subtitle"
-            :icon="activeStep.visual.icon"
-            @back="(ev) => onBack(ev, activeStep)"
-        />
-        <StackLayout>
-            <Success v-if="success" />
-            <Failure v-if="failure" />
-            <template v-if="!(success || failure)">
-                <component
-                    :is="activeStep.visual.component"
-                    :sensor="sensor"
-                    :step="activeStep"
-                    :progress="progress"
-                    @done="(ev) => onDone(ev, activeStep)"
-                    @back="(ev) => onBack(ev, activeStep)"
-                    @clear="(ev) => onClear(ev, activeStep)"
-                    @calibrate="(ev) => onCalibrate(ev, activeStep)"
-                    @cancel="(ev) => onCancel(ev, activeStep)"
-                />
-            </template>
-        </StackLayout>
+        <template v-if="activeStep">
+            <Header
+                :title="activeStep.visual.title"
+                :subtitle="activeStep.visual.subtitle"
+                :icon="activeStep.visual.icon"
+                @back="(ev) => onBack(ev, activeStep)"
+            />
+            <StackLayout>
+                <Success v-if="success" />
+                <Failure v-if="failure" />
+                <template v-if="!(success || failure)">
+                    <component
+                        :is="activeStep.visual.component"
+                        :sensor="sensor"
+                        :step="activeStep"
+                        :progress="progress"
+                        @done="(ev) => onDone(ev, activeStep)"
+                        @back="(ev) => onBack(ev, activeStep)"
+                        @clear="(ev) => onClear(ev, activeStep)"
+                        @calibrate="(ev) => onCalibrate(ev, activeStep)"
+                        @cancel="(ev) => onCancel(ev, activeStep)"
+                    />
+                </template>
+            </StackLayout>
+        </template>
     </Page>
 </template>
 <script lang="ts">
@@ -122,13 +124,12 @@ export default Vue.extend({
         deviceId(this: any) {
             return this.$store.getters.legacyStations[this.stationId].deviceId;
         },
-        activeStep(this: any): VisualCalibrationStep {
+        activeStep(this: any): VisualCalibrationStep | null {
             const step = _.first(this.getRemainingSteps());
             if (step instanceof VisualCalibrationStep) {
                 return step;
             }
-            // TODO Maybe remove, since this clutters logs on our exiting.
-            throw new Error("no active step");
+            return this.getLastStep();
         },
         progress(this: any) {
             return (this.completed.length / this.getAllVisualSteps().length) * 100;
@@ -137,6 +138,10 @@ export default Vue.extend({
     methods: {
         onPageLoaded(this: any, args) {
             // console.log("cal:", "strategy", this.strategy);
+        },
+        getLastStep(this: any): VisualCalibrationStep {
+            const all = this.getAllVisualSteps();
+            return all[all.length - 1];
         },
         getAllVisualSteps(this: any): VisualCalibrationStep[] {
             const steps: CalibrationStep[] = this.strategy.allChildren;
@@ -195,9 +200,12 @@ export default Vue.extend({
             return this.$store.dispatch(action).then(
                 (cleared) => {
                     console.log("cal:", "cleared");
-                    return /*this.notifySuccess()*/ true;
+                    return this.notifySuccess();
                 },
-                () => this.notifyFailure()
+                (err) => {
+                    console.log("cal:error", err, err ? err.stack : null);
+                    return this.notifyFailure();
+                }
             );
         },
         onCalibrate(this: any, ev: any, step: CalibrationStep) {
@@ -223,9 +231,12 @@ export default Vue.extend({
             return this.$store.dispatch(action).then(
                 (calibrated) => {
                     console.log("cal:", "calibrated");
-                    return Promise.all([Promise.resolve(this.onDone(ev, step))]);
+                    return Promise.resolve(this.onDone(ev, step));
                 },
-                () => this.notifyFailure()
+                (err) => {
+                    console.log("cal:error", err, err ? err.stack : null);
+                    return this.notifyFailure();
+                }
             );
         },
         notifySuccess(this: any) {

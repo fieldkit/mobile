@@ -17,7 +17,7 @@ class LoadMetaVisitor implements ParsedRecordVisitor {
     constructor(public readonly loader: MetaLoader, public readonly visitor: DataVisitor) {}
 
     public onRecord(data: Buffer, record: ParsedDataRecord): boolean {
-        this.loader.loadMeta(record.parsed.readings.meta).then((meta) => this.visitor.onData(record, meta));
+        void this.loader.loadMeta(record.parsed.readings.meta).then((meta) => this.visitor.onData(record, meta));
         return true;
     }
 }
@@ -52,16 +52,19 @@ export class DataReader implements MetaLoader {
         const metaVisitor = new LoadMetaVisitor(this, visitor);
 
         // Walk each data file, in order.
-        return serializePromiseChain(this.datas, (file) => file.walkRecords(metaVisitor)).then(() => {
-            visitor.onDone();
+        return serializePromiseChain(this.datas, (file) => file.walkRecords(metaVisitor))
+            .then(() => {
+                visitor.onDone();
 
-            return Promise.all(Object.values(this.cached)).then(() => {
-                const done = new Date();
-                const elapsed = done.getTime() - started.getTime();
-                console.log("walk-data:done", elapsed);
+                return Promise.all(Object.values(this.cached)).then(() => {
+                    const done = new Date();
+                    const elapsed = done.getTime() - started.getTime();
+                    console.log("walk-data:done", elapsed);
+                });
+            })
+            .then(() => {
                 return visitor;
             });
-        });
     }
 
     public loadMeta(record: number): Promise<ParsedDataRecord> {

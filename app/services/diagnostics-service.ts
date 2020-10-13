@@ -1,8 +1,9 @@
 import _ from "lodash";
-import { Device, File, knownFolders } from "@nativescript/core";
+import { Device, Folder, File, knownFolders } from "@nativescript/core";
 import { copyLogs } from "@/lib/logging";
 import { serializePromiseChain } from "@/utilities";
 import { DiagnosticsDirectory, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
+import { Services } from "@/services";
 import Config, { Build } from "@/config";
 
 function uuidv4(): string {
@@ -13,16 +14,16 @@ function uuidv4(): string {
     });
 }
 
+export type ProgressFunc = (progress: { id: string; message: string }) => void;
+
 export default class Diagnostics {
-    private readonly services: any;
     private readonly baseUrl: string;
 
-    constructor(services) {
-        this.services = services;
+    constructor(private readonly services: Services) {
         this.baseUrl = "https://code.conservify.org/diagnostics";
     }
 
-    public upload(progress): Promise<{ reference: { phrase: string }; id: string }> {
+    public upload(progress: ProgressFunc): Promise<{ reference: { phrase: string }; id: string }> {
         const id = uuidv4();
 
         console.log("upload diagnostics", id);
@@ -37,6 +38,8 @@ export default class Diagnostics {
             .then(() => this.uploadAppLogs(id))
             .then(() => progress({ id: id, message: "Uploading database." }))
             .then(() => this.uploadDatabase(id))
+            .then(() => progress({ id: id, message: "Uploading bundle." }))
+            .then(() => this.uploadBundle(id))
             .then((reference) =>
                 this.uploadArchived().then(() => {
                     progress({ id: id, message: "Done!" });
@@ -79,9 +82,9 @@ export default class Diagnostics {
         });
     }
 
-    private uploadArchived() {
+    private uploadArchived(): Promise<any> {
         return this.getAllFiles(DiagnosticsDirectory).then((files) => {
-            return serializePromiseChain(files, (path, index) => {
+            return serializePromiseChain(files, (path: string, index: number) => {
                 const relative = path.replace(DiagnosticsDirectory, "");
                 console.log("uploading", path, relative);
                 return this.services
@@ -96,7 +99,7 @@ export default class Diagnostics {
         });
     }
 
-    private uploadAppLogs(id) {
+    private uploadAppLogs(id: string): Promise<any> {
         const copy = this.getDiagnosticsFolder().getFile("uploading.txt");
         return copyLogs(copy).then(() => {
             return this.services
@@ -112,7 +115,20 @@ export default class Diagnostics {
         });
     }
 
-    private uploadDatabase(id) {
+    private uploadBundle(id: string): Promise<any> {
+        const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
+        console.log("diagnostics", path);
+        return this.services
+            .Conservify()
+            .upload({
+                method: "POST",
+                url: this.baseUrl + "/" + id + "/bundle.js",
+                path: path,
+            })
+            .then((response) => response.body);
+    }
+
+    private uploadDatabase(id: string): Promise<any> {
         console.log("getting database path");
         const path = getDatabasePath("fieldkit.sqlite3");
         console.log("diagnostics", path);
@@ -135,7 +151,7 @@ export default class Diagnostics {
         });
     }
 
-    private getDiagnosticsFolder() {
+    private getDiagnosticsFolder(): Folder {
         return knownFolders.documents().getFolder(DiagnosticsDirectory);
     }
 }

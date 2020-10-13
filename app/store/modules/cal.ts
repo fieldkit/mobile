@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { Station, ServiceInfo } from "../types";
@@ -55,7 +56,7 @@ const getters = {
     },
 };
 
-type ActionParameters = { commit: any; dispatch: any; state: CalibrationState };
+type ActionParameters = ActionContext<CalibrationState, never>;
 
 const actions = (services: ServiceRef) => {
     return {

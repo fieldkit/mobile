@@ -7,49 +7,58 @@
                         <FlexboxLayout justifyContent="center" alignItems="center">
                             <Label class="text-center size-16 bold" :text="_L('notifications')"></Label>
                             <GridLayout rows="auto" columns="*" horizontalAlignment="left">
-                                <Label row="0" col="0" text="2" class="notify-num text-center" @loaded="onLabelLoadedCentered"/>
+                                <Label row="0" col="0" text="2" class="notify-num text-center"
+                                       @loaded="onLabelLoadedCentered"/>
                             </GridLayout>
                         </FlexboxLayout>
                     </StackLayout>
                     <StackLayout col="1" class="round-bkgd" verticalAlignment="top" @tap="$modal.close()">
-                        <Image width="18" src="~/images/Icon_Close.png" />
+                        <Image width="18" src="~/images/Icon_Close.png"/>
                     </StackLayout>
                 </GridLayout>
                 <GridLayout v-for="n in activeNotifications" :key="n.id">
                     <GridLayout rows="*,*,*" columns="15*,85*" class="m-x-10 notify-box size-14">
-                        <Image col="0" row="0" :src="n.error ? '~/images/Icon_Warning_error.png' : '~/images/Icon_Notification_Bell.png'" width="21" />
-                        <Label col="1" row="0" :text="n.heading" textWrap="true" class="bold"  @loaded="onLabelLoadedVerticalCentered"/>
+                        <Image col="0" row="0"
+                               :src="n.error ? '~/images/Icon_Warning_error.png' : '~/images/Icon_Notification_Bell.png'"
+                               width="21"/>
+                        <Label col="1" row="0" :text="n.heading" textWrap="true" class="bold"
+                               @loaded="onLabelLoadedVerticalCentered"/>
                         <Label col="1" row="1" :text="n.text" textWrap="true" lineHeight="4"/>
-                        <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold" :dataId="n.id" @tap="dismiss">
+                        <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold" :dataId="n.id"
+                                    @tap="dismiss">
                             <Label col="0" text="Add Field Notes" class="action-btn m-r-15"/>
                             <GridLayout col="1" columns="auto,auto" @tap="toggleMenu" :dataId="n.id">
                                 <Label col="0" :text="_L('dismiss')" class="action-btn" :dataId="n.id" @tap="dismiss"/>
-                                <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2" :class="isAndroid ? 'm-t-2' : 'm-t-8'"/>
+                                <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2"
+                                       :class="isAndroid ? 'm-t-2' : 'm-t-8'"/>
                             </GridLayout>
                         </GridLayout>
                     </GridLayout>
                     <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu === n.id">
-                        <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10" />
-                        <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold" />
+                        <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10"/>
+                        <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold"/>
                     </GridLayout>
                 </GridLayout>
-                <Label :text="_L('notificationArchive')" class="bold size-14 m-x-10 m-t-30 m-b-20"  @loaded="onLabelLoadedVerticalCentered" v-if="dismissedNotifications.length > 0"/>
+                <Label :text="_L('notificationArchive')" class="bold size-14 m-x-10 m-t-30 m-b-20"
+                       @loaded="onLabelLoadedVerticalCentered" v-if="dismissedNotifications.length > 0"/>
                 <GridLayout v-for="n in dismissedNotifications" :key="n.id">
                     <GridLayout rows="*,*,*" columns="15*,85*" class="m-x-10 notify-box size-14">
-                        <Image col="0" row="0" src="~/images/Icon_Archive_Bell.png" width="21" />
-                        <Label col="1" row="0" :text="n.heading" textWrap="true" class="bold"  @loaded="onLabelLoadedVerticalCentered"/>
+                        <Image col="0" row="0" src="~/images/Icon_Archive_Bell.png" width="21"/>
+                        <Label col="1" row="0" :text="n.heading" textWrap="true" class="bold"
+                               @loaded="onLabelLoadedVerticalCentered"/>
                         <Label col="1" row="1" :text="n.text" textWrap="true" lineHeight="4"/>
                         <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold" :dataId="n.id">
                             <Label col="0" :text="'Add Field Notes'" class="action-btn m-r-15"/>
                             <GridLayout col="1" columns="auto,auto" @tap="toggleMenu" :dataId="n.id">
-                                <Label col="0" :text="_L('dismiss')" class="action-btn" />
-                                <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2" :class="isAndroid ? 'm-t-2' : 'm-t-8'"/>
+                                <Label col="0" :text="_L('dismiss')" class="action-btn"/>
+                                <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2"
+                                       :class="isAndroid ? 'm-t-2' : 'm-t-8'"/>
                             </GridLayout>
                         </GridLayout>
                     </GridLayout>
-                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu !== n.id">
-                        <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10" />
-                        <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold" />
+                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu === n.id">
+                        <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10"/>
+                        <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold"/>
                     </GridLayout>
                 </GridLayout>
             </StackLayout>
@@ -59,6 +68,7 @@
 <script lang="ts">
 import Vue from "vue";
 import {isAndroid, Label} from "@nativescript/core";
+
 export default Vue.extend({
     data() {
         return {
@@ -82,7 +92,8 @@ export default Vue.extend({
         }
     },
     methods: {
-        onPageLoaded(this: any, args) {},
+        onPageLoaded(this: any, args) {
+        },
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
             if (isAndroid) {
@@ -149,6 +160,7 @@ export default Vue.extend({
     height: 124;
     margin-bottom: 10;
 }
+
 .action-btn {
     margin-top: 10;
     border-radius: 4;

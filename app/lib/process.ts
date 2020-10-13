@@ -1,5 +1,6 @@
 import _ from "lodash";
-import { DataServices, Task, TaskQueuer } from "./tasks";
+import { DataServices } from "./data-services";
+import { Task, TaskQueuer } from "./tasks";
 import { MergeMetaAndDataVisitor, ReadingsVisitor, Readings } from "./readings";
 import { ReadingsDatabase, SaveReadingsTask } from "./database";
 import { StationReader } from "./parsing";

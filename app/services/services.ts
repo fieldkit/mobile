@@ -1,46 +1,27 @@
 import Config from "@/config";
 
-import PortalInterface from "./portal-interface";
-import PortalUpdater from "./portal-updater";
-import DiscoverStation from "./discover-station";
-import DatabaseInterface from "./db-interface";
-import QueryStation from "./query-station";
-import AudioInterface from "./audio-interface";
-import ImageSaver from "./images-saver";
-import Diagnostics from "./diagnostics-service";
-import CreateDb from "./create-db";
-import CalibrationService from "./calibration-service";
-import StationFirmware from "./station-firmware";
-import PhoneLocation from "./phone-location";
+import {
+    PortalInterface,
+    PortalUpdater,
+    DiscoverStation,
+    DatabaseInterface,
+    Diagnostics,
+    QueryStation,
+    PhoneLocation,
+    StationFirmware,
+    CalibrationService,
+    CreateDb,
+    ImagesSaver,
+    AudioInterface,
+    TaskQueue,
+    Conservify,
+    FileSystem,
+    OurStore,
+} from "./all";
 
-import storeFactory, { OurStore, ServiceInfo } from "@/store";
-import { TaskQueue } from "@/lib/tasks";
-import { Services, FileSystem, Conservify } from "./index";
-
-export interface DiscoveryListener {
-    onFoundService(info: ServiceInfo): void;
-    onLostService(info: ServiceInfo): void;
-}
-
-class DiscoveryEvents implements DiscoveryListener {
-    constructor(private readonly listeners: DiscoveryListener[] = []) {}
-
-    public onFoundService(info: ServiceInfo): void {
-        for (let i = 0; i < this.listeners.length; ++i) {
-            this.listeners[i].onFoundService(info);
-        }
-    }
-
-    public onLostService(info: ServiceInfo): void {
-        for (let i = 0; i < this.listeners.length; ++i) {
-            this.listeners[i].onLostService(info);
-        }
-    }
-
-    public add(listener: DiscoveryListener): void {
-        this.listeners.push(listener);
-    }
-}
+import storeFactory from "@/store";
+import { Services } from "./interface";
+import { DiscoveryEvents } from "./discovery-events";
 
 export class ServiceFactories {
     public createFileSystem(): FileSystem {
@@ -50,7 +31,6 @@ export class ServiceFactories {
 
     public createConservify(discoveryEvents: DiscoveryEvents = new DiscoveryEvents()): Conservify {
         const logger = Config.logger("NativeScriptConservify").noop;
-        const Conservify = require("../wrappers/networking").default;
         return new Conservify(discoveryEvents, logger);
     }
 }
@@ -70,7 +50,7 @@ export class ServicesImpl implements Services {
     private stationFirmware: StationFirmware | null = null;
     private conservify: Conservify | null = null;
     private phoneLocation: PhoneLocation | null = null;
-    private images: ImageSaver | null = null;
+    private images: ImagesSaver | null = null;
     private audioInterface: AudioInterface | null = null;
     private discoveryEvents: DiscoveryEvents | null = null;
 
@@ -155,7 +135,6 @@ export class ServicesImpl implements Services {
     public Conservify(): Conservify {
         if (!this.conservify) {
             const logger = Config.logger("NativeScriptConservify").noop;
-            const Conservify = require("../wrappers/networking").default;
             this.conservify = new Conservify(this.DiscoveryEvents(), logger);
         }
         return this.unwrap(this.conservify);
@@ -186,7 +165,6 @@ export class ServicesImpl implements Services {
 
     public FileSystem(): FileSystem {
         if (!this.fileSystem) {
-            const FileSystem = require("../wrappers/file-system").default;
             this.fileSystem = new FileSystem();
         }
         return this.unwrap(this.fileSystem);
@@ -208,7 +186,7 @@ export class ServicesImpl implements Services {
         return this.unwrap(this.audioInterface);
     }
 
-    public Images(): ImageSaver {
+    public Images(): ImagesSaver {
         if (!this.images) {
             const ImagesSaver = require("./images-saver").default;
             this.images = new ImagesSaver(this);
@@ -216,7 +194,3 @@ export class ServicesImpl implements Services {
         return this.unwrap(this.images);
     }
 }
-
-const services = new ServicesImpl();
-
-export default services;

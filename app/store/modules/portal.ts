@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { ServiceRef } from "@/services";
@@ -7,13 +8,13 @@ import { AccountsTableRow, SettingsTableRow } from "~/store/row-types";
 import { CurrentUser } from "@/services/portal-interface";
 
 export class PortalState {
-    authenticated: boolean = false;
+    authenticated = false;
     settings: any;
     accounts: any;
     currentUser: CurrentUser | null = null;
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: any };
+type ActionParameters = ActionContext<PortalState, never>;
 
 const getters = {};
 
@@ -21,7 +22,7 @@ export const SET_CURRENT_USER = "SET_CURRENT_USER";
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
             return Promise.all([dispatch(ActionTypes.LOAD_SETTINGS), dispatch(ActionTypes.LOAD_ACCOUNTS)]);
         },
         [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
@@ -33,7 +34,7 @@ const actions = (services: ServiceRef) => {
                 })
                 .catch((e) => console.log(ActionTypes.LOAD_SETTINGS, e));
         },
-        [ActionTypes.UPDATE_SETTINGS]: ({ commit, dispatch, state }: ActionParameters, settings) => {
+        [ActionTypes.UPDATE_SETTINGS]: ({ dispatch }: ActionParameters, settings) => {
             return services
                 .db()
                 .updateSettings(settings)

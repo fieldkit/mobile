@@ -103,7 +103,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Services from "../../services/services";
 import * as animations from "@/components/animations";
 
 import SharedComponents from "@/components/shared";
@@ -176,7 +175,8 @@ export default Vue.extend({
         },
         uploadOverWifi(this: any) {
             if (this.wifiUpload) {
-                return Services.QueryStation()
+                return this.$services
+                    .QueryStation()
                     .uploadViaApp(this.station.url)
                     .then((result) => {
                         return this.setWifiUploadStatus(result).then(() => {
@@ -188,10 +188,12 @@ export default Vue.extend({
                         });
                     });
             } else {
-                return Services.PortalInterface()
+                return this.$services
+                    .PortalInterface()
                     .getTransmissionToken()
                     .then((upload) => {
-                        return Services.QueryStation()
+                        return this.$services
+                            .QueryStation()
                             .uploadOverWifi(this.station.url, upload.url, upload.token)
                             .then((result) => {
                                 return this.setWifiUploadStatus(result).then(() => {
@@ -259,7 +261,8 @@ export default Vue.extend({
                 this.networks.push(network);
             }
 
-            Services.QueryStation()
+            return this.$services
+                .QueryStation()
                 .sendNetworkSettings(this.station.url, this.networks)
                 .then((result) => {
                     this.networks = result.networkSettings.networks;
@@ -282,7 +285,8 @@ export default Vue.extend({
                     if (index > -1) {
                         this.networks.splice(index, 1);
                     }
-                    return Services.QueryStation()
+                    return this.$services
+                        .QueryStation()
                         .sendNetworkSettings(this.station.url, this.networks)
                         .then((result) => {
                             this.networks = result.networkSettings.networks;

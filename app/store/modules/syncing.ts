@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import {
@@ -106,8 +107,8 @@ export enum TransferError {
 }
 
 export class StationSyncStatus {
-    public connecting: boolean = false;
-    public disconnected: boolean = false;
+    public connecting = false;
+    public disconnected = false;
 
     /**
      * A little convulated and can be replaced later, just wanna be
@@ -297,14 +298,14 @@ export class SyncingState {
     errors: { [index: string]: TransferError } = {};
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: SyncingState };
+type ActionParameters = ActionContext<SyncingState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.DOWNLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
+        [ActionTypes.DOWNLOAD_ALL]: ({ dispatch }: ActionParameters, syncs: StationSyncStatus[]): Promise<any> => {
             return Promise.all(syncs.map((dl) => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
         },
-        [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+        [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<any> => {
             if (!sync.connected) {
                 throw new Error("refusing to download from disconnected station");
             }
@@ -338,10 +339,10 @@ const actions = (services: ServiceRef) => {
                     commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
                 });
         },
-        [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]) => {
+        [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]): Promise<any> => {
             return Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
         },
-        [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus) => {
+        [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<any> => {
             const paths = sync.getPathsToUpload();
             const downloads = paths.map((path) => state.pending[path]).filter((d) => d != null);
             if (downloads.length != paths.length) {
@@ -363,8 +364,8 @@ const actions = (services: ServiceRef) => {
                     .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                     })
-                    .then(({ headers }) => services.db().markDownloadAsUploaded(download))
-                    .catch((error) => {
+                    .then(() => services.db().markDownloadAsUploaded(download))
+                    .catch((error: Error) => {
                         if (AuthenticationError.isInstance(error)) {
                             console.log("error uploading (auth)", error, error ? error.stack : null);
                             Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
@@ -408,7 +409,8 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
                 const lastBlock = stream.deviceLastBlock;
                 const estimatedBytes = stream.deviceSize - (stream.downloadSize || 0);
                 const typeName = FileTypeUtils.toString(stream.fileType());
-                const url = baseUrl + "/download/" + typeName + (firstBlock > 0 ? "?first=" + firstBlock : "");
+                const queryString = firstBlock > 0 ? `?first=${firstBlock}` : "";
+                const url = baseUrl + "/download/" + typeName + queryString;
                 const filePath = ["downloads", station.deviceId, getPathTimestamp(now), typeName + ".fkpb"].join("/");
                 return new PendingDownload(stream.fileType(), url, filePath, firstBlock, lastBlock, estimatedBytes);
             })
@@ -437,13 +439,6 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
 
         const downloaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
         const uploaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
-
-        if (false) {
-            console.log("syncing", "uploads", uploads);
-            console.log("syncing", "downloads", downloads);
-            console.log("syncing", "downloaded", downloaded);
-            console.log("syncing", "uploaded", uploaded);
-        }
 
         return new StationSyncStatus(
             station.id,
@@ -543,13 +538,13 @@ export const syncing = (services: ServiceRef) => {
     };
 };
 
-function parseBlocks(blocks) {
+function parseBlocks(blocks: [string] | string) {
     if (Array.isArray(blocks)) {
         blocks = blocks[0];
     }
 
     if (!_.isString(blocks)) {
-        throw new Error("invalid fk-blocks header: " + blocks);
+        throw new Error(`invalid fk-blocks header: ${blocks}`);
     }
 
     const parts = blocks
@@ -557,7 +552,7 @@ function parseBlocks(blocks) {
         .map((s) => s.trim())
         .map((s) => Number(s));
     if (parts.length != 2) {
-        throw new Error("invalid fk-blocks header: " + blocks);
+        throw new Error(`invalid fk-blocks header: ${blocks}`);
     }
 
     return {

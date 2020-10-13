@@ -1,0 +1,44 @@
+@Library('conservify') _
+
+properties([
+	pipelineTriggers([githubPush()]),
+	buildDiscarder(logRotator(numToKeepStr: '5')),
+	disableConcurrentBuilds(),
+])
+
+timestamps {
+    node ("jenkins-aws-ubuntu") {
+        try {
+            stage ('git') {
+                checkout scm
+            }
+
+            stage ('npm') {
+				sh "npm install"
+				sh "cp app/secrets.ts.template app/secrets.ts"
+            }
+
+            stage ('tests') {
+				sh "make test"
+            }
+
+            stage ('checks') {
+				sh "make checks"
+            }
+
+            stage ('webpack:ios') {
+				sh "make ios-webpack"
+            }
+
+            stage ('webpack:android') {
+				sh "make android-webpack"
+            }
+
+            notifySuccess()
+        }
+        catch (Exception e) {
+            notifyFailure()
+            throw e;
+        }
+    }
+}

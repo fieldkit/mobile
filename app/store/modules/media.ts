@@ -1,6 +1,8 @@
 import _ from "lodash";
 import Vue from "vue";
-import Camera from "@/wrappers/camera";
+import { ActionContext } from "vuex";
+import * as Camera from "@nativescript/camera";
+import * as ImagePicker from "@nativescript/imagepicker";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { ServiceRef } from "@/services";
@@ -44,7 +46,7 @@ export class MediaState {
     public photoCache: { [index: string]: any } = {};
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: MediaState };
+type ActionParameters = ActionContext<MediaState, never>;
 
 const getters = {};
 
@@ -100,8 +102,14 @@ const actions = (services: ServiceRef) => {
                 return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
             });
         },
-        [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
-            return Camera.findPicture(options)
+        [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters) => {
+            const context = ImagePicker.create({
+                mode: "single",
+            });
+
+            return context
+                .authorize()
+                .then(() => context.present())
                 .then((selection) => selection[0])
                 .then((asset) => {
                     return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });

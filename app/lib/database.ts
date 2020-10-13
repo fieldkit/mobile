@@ -2,7 +2,8 @@ import _ from "lodash";
 import Sqlite from "@/wrappers/sqlite";
 import { sqliteToJs, serializePromiseChain } from "@/utilities";
 import { Readings } from "./readings";
-import { DataServices, Task, TaskQueuer } from "./tasks";
+import { DataServices } from "./data-services";
+import { Task, TaskQueuer } from "./tasks";
 
 export class DataQueryParams {
     public static MaxTime = 8640000000000000;
@@ -42,7 +43,7 @@ export class AggregateSummary {
 export class Summaries {
     constructor(public readonly summaries: AggregateSummary[]) {}
 
-    public makeDefaultParams() {
+    public makeDefaultParams(): DataQueryParams {
         const aggSummary = this.pickAggregate();
         return new DataQueryParams(aggSummary.start, aggSummary.end, aggSummary.sensorIds, aggSummary.name);
     }

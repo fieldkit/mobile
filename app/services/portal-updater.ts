@@ -1,7 +1,8 @@
 import * as ActionTypes from "../store/actions";
-import { Station, Store } from "../store/types";
+import { Station } from "../store/types";
+import { Store } from "../store/our-store";
 import PortalInterface from "./portal-interface";
-import FileSystem from "../wrappers/file-system";
+import { FileSystem } from "@/services";
 import SynchronizeNotes, { Ids } from "./synchronize-notes";
 import { serializePromiseChain } from "../utilities";
 
@@ -20,8 +21,8 @@ export default class PortalUpdater {
         return Promise.resolve();
     }
 
-    public addOrUpdateStations() {
-        return this.portal.isAvailable().then((yes) => {
+    public addOrUpdateStations(): Promise<void> {
+        return this.portal.isAvailable().then((yes: boolean) => {
             if (!yes) {
                 console.log("portal unavailable, offline?");
                 return Promise.resolve();
@@ -34,11 +35,11 @@ export default class PortalUpdater {
 
             console.log("updating stations", this.store.state.stations.all.length);
             const allStations = this.store.state.stations.all;
-            return serializePromiseChain(allStations, (station: Station) => this.update(station));
+            return serializePromiseChain(allStations, (station: Station) => this.update(station)).then(() => {});
         });
     }
 
-    private update(station: Station) {
+    private update(station: Station): Promise<any> {
         if (!station.id) {
             throw new Error("station id is required");
         }

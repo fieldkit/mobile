@@ -6,8 +6,6 @@
                 <Label row="1" :text="_L('calibrationFailed')" class="instruction-heading"></Label>
                 <Label row="2" :text="_L('calibrationErrorOccured')" class="instruction" textWrap="true"></Label>
             </StackLayout>
-            <Button row="1" class="btn btn-primary btn-padded" text="Calibrate Again" @tap="startOver"></Button>
-            <Label row="2" :text="_L('calibrateLater')" class="skip" @tap="skip"></Label>
         </GridLayout>
     </StackLayout>
 </template>

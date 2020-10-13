@@ -1,5 +1,5 @@
 import { ProcessAllStationsTask } from "./process";
-import Services from "@/services/services";
+import Services from "@/services/singleton";
 
 export async function testWithFiles(deviceId: string) {
     Services.Tasks().enqueue(new ProcessAllStationsTask());

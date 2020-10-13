@@ -2,9 +2,9 @@ import _ from "lodash";
 import moment from "moment";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
-import { Store } from "../store/types";
+import { Store } from "../store/our-store";
 import PortalInterface from "./portal-interface";
-import FileSystem from "../wrappers/file-system";
+import { FileSystem } from "@/services";
 import { Notes } from "../store/modules/notes";
 import { getPathTimestamp, serializePromiseChain } from "../utilities";
 
@@ -15,7 +15,7 @@ class MergedNotes {
 export default class SynchronizeNotes {
     constructor(private readonly portal: PortalInterface, private readonly store: Store, private readonly fs: FileSystem) {}
 
-    public synchronize(ids: Ids) {
+    public synchronize(ids: Ids): Promise<any> {
         return this.portal.getStationNotes(ids.portal).then((portalNotes: PortalStationNotesReply) => {
             const mobileNotes = this.store.state.notes.stations[ids.mobile] || new Notes(ids.mobile, new Date(), new Date());
 
@@ -77,8 +77,8 @@ export default class SynchronizeNotes {
         return "application/octet-stream";
     }
 
-    private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes) {
-        const allPortalMedia = [...portalNotes.media, ..._.flatten(portalNotes.notes.map((n) => n.media))];
+    private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes): Promise<{ [index: string]: number }> {
+        const allPortalMedia = [...(portalNotes.media || []), ..._.flatten(portalNotes.notes.map((n) => n.media || []))];
         const portalByKey = _.keyBy(
             allPortalMedia.filter((m) => m.key),
             (m) => m.key
@@ -97,7 +97,7 @@ export default class SynchronizeNotes {
         console.log("local", localByKey);
         console.log("keys", allKeys);
 
-        return serializePromiseChain(allKeys, (key) => {
+        return serializePromiseChain(allKeys, (key: string, index: number) => {
             if (portalByKey[key]) {
                 if (!localByKey[key]) {
                     // Portal has the media and we gotta download.
@@ -131,7 +131,7 @@ export default class SynchronizeNotes {
                         return [destination, portalByKey[key].id];
                     });
                 }
-                return [localByKey[key].path, portalByKey[key].id];
+                return Promise.resolve([localByKey[key].path, portalByKey[key].id]);
             }
             const path = localByKey[key].path;
             const contentType = this.getContentType(path);
@@ -142,7 +142,7 @@ export default class SynchronizeNotes {
                 console.log("upload done", response);
                 return [path, response.data.id];
             });
-        }).then((pathAndId) => {
+        }).then((pathAndId: [string, number][]) => {
             console.log("media paths and ids", pathAndId);
             return _.fromPairs(pathAndId);
         });

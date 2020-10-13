@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
+import { ActionContext } from "vuex";
 import * as ActionTypes from "@/store/actions";
 import * as MutationTypes from "@/store/mutations";
 import {
@@ -14,19 +15,16 @@ import {
     StationPortalStatus,
     SortableStationSorter,
     Schedules,
+    PortalError,
 } from "@/store/types";
 import { StationRepliedAction } from "@/store/typed-actions";
 import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
 import { HttpStatusReply, AtlasStatus } from "@/store/http_reply";
-import { GlobalState } from "./global";
+import { StationsState, GlobalState } from "./global";
 import { ServiceRef } from "@/services";
 
 export const STATION_PORTAL_STATUS = "STATION_PORTAL_STATUS";
-
-export class StationsState {
-    all: Station[] = [];
-}
 
 export const AvailableStationsSorter = (available: AvailableStation[]): AvailableStation[] => {
     return _.orderBy(available, [(available) => SortableStationSorter(available)]);
@@ -270,7 +268,7 @@ class StationDatabaseFactory {
         return null;
     }
 
-    private parseHttpError(column: string | null): object | null {
+    private parseHttpError(column: string | null): PortalError | null {
         if (column && column.length > 0) {
             try {
                 return JSON.parse(column);
@@ -324,7 +322,7 @@ function loadStationsFromDatabase(db): Promise<Station[]> {
     );
 }
 
-type ActionParameters = { commit: any; dispatch: any; state: StationsState };
+type ActionParameters = ActionContext<StationsState, never>;
 
 const actions = (services: ServiceRef) => {
     return {

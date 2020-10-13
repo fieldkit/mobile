@@ -1,12 +1,11 @@
 import _ from "lodash";
 import moment from "moment";
-import Promise from "bluebird";
+import Bluebird from "bluebird";
 import { Trace, knownFolders } from "@nativescript/core";
-import Vue from "nativescript-vue";
+import Vue from "vue";
 import { AuthenticationError } from "./errors";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
-import Config from "@/config";
 
 const SaveInterval = 10000;
 const logs: string[][] = [];
@@ -86,7 +85,7 @@ function configureGlobalErrorHandling() {
 
         Trace.enable();
 
-        Promise.onPossiblyUnhandledRejection((reason: Error, promise: Promise) => {
+        Bluebird.onPossiblyUnhandledRejection((reason: Error, promise: Promise<any>) => {
             if (reason instanceof AuthenticationError) {
                 console.log("onPossiblyUnhandledRejection", reason);
             } else {
@@ -98,9 +97,11 @@ function configureGlobalErrorHandling() {
             }
         });
 
-        Promise.onUnhandledRejectionHandled((promise) => {
+        /*
+        Promise.onUnhandledRejectionHandled((promise: Promise<any>) => {
             console.log("onUnhandledRejectionHandled");
         });
+		*/
 
         // err: error trace
         // vm: component in which error occured
@@ -190,10 +191,6 @@ export default function initializeLogging(info) {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
     const globalAny: any = global;
     if (globalAny.TNS_ENV === "test") {
-        return;
-    }
-
-    if (Config.logging.SaveLogs === false) {
         return;
     }
 

@@ -1,15 +1,10 @@
-import { Services, ServiceFactories } from "@/services";
+import { OpenedFile } from "@/wrappers/networking";
+import { Services } from "@/services";
 import { FileLike } from "@/lib/fs";
 
-type DelimitedCallback = (position: number, size: number, records: any) => void;
-
-interface TinyServices {
-    open(path: string): Promise<ConservifyFile>;
+export interface TinyServices {
+    open(path: string): Promise<OpenedFile>;
     listFolder(path: string): Promise<FileLike[]>;
-}
-
-interface ConservifyFile {
-    delimited(callback: DelimitedCallback): Promise<any>;
 }
 
 class DataServicesAdapter implements TinyServices {
@@ -18,7 +13,7 @@ class DataServicesAdapter implements TinyServices {
         this.services.FileSystem();
     }
 
-    public open(path: string): Promise<ConservifyFile> {
+    public open(path: string): Promise<OpenedFile> {
         return this.services.Conservify().open(path);
     }
 
@@ -27,6 +22,7 @@ class DataServicesAdapter implements TinyServices {
     }
 }
 
+/*
 class WorkerDataServices implements TinyServices {
     private readonly fs: any;
     private readonly conservify: any;
@@ -45,13 +41,26 @@ class WorkerDataServices implements TinyServices {
         return this.fs.listFolder(path);
     }
 }
+*/
+
+export class StubDataServices implements TinyServices {
+    public open(path: string): Promise<OpenedFile> {
+        throw new Error("unimplemented");
+    }
+
+    public listFolder(path: string): Promise<FileLike[]> {
+        throw new Error("unimplemented");
+    }
+}
 
 export type DataServices = () => TinyServices;
 
+/*
 export function createDataServices(): DataServices {
     const dataServices = new WorkerDataServices();
     return () => dataServices;
 }
+*/
 
 export function createAdaptedDataServices(services: Services): DataServices {
     const dataServices = new DataServicesAdapter(services);

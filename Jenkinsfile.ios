@@ -25,6 +25,7 @@ timestamps {
 export PATH=$PATH:$HOME/tools/node/bin:node_modules/.bin
 set +x
 export APP_IOS_KEYCHAIN_PASSWORD=${APP_IOS_KEYCHAIN_PASSWORD}
+export LANG=en_US.UTF-8
 set -x
 env
 

@@ -1,5 +1,5 @@
 import { NearbyState } from "./nearby";
-import { StationsState } from "./stations";
+// import { StationsState } from "./stations";
 import { MapState } from "./map";
 import { NavigationState } from "./nav";
 import { PhoneState } from "./phone";
@@ -8,7 +8,11 @@ import { SyncingState } from "./syncing";
 import { NotesState } from "./notes";
 import { PortalState } from "./portal";
 
-import { AvailableStation, LegacyStation } from "../types";
+import { Station, AvailableStation, LegacyStation } from "../types";
+
+export class StationsState {
+    all: Station[] = [];
+}
 
 export interface GlobalState {
     readonly nearby: NearbyState;

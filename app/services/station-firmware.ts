@@ -9,7 +9,7 @@ type ProgressCallback = ({ progress: number }) => void;
 
 const NoopProgress: ProgressCallback = ({ progress: number }) => {};
 
-function transformProgress(callback: ProgressCallback, fn: (number) => number) {
+function transformProgress(callback: ProgressCallback, fn: (v: number) => number) {
     if (_.isFunction(callback)) {
         return (total: number, copied: number, info: never) => {
             callback({

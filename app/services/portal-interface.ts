@@ -1,15 +1,16 @@
 import _ from "lodash";
 import axios from "axios";
-import AppSettings from "../wrappers/app-settings";
-import { Download, FileTypeUtils } from "../store/types";
-import { AuthenticationError } from "../lib/errors";
+import AppSettings from "@/wrappers/app-settings";
+import { AuthenticationError } from "@/lib/errors";
 import Config from "../config";
-import * as ActionTypes from "../store/actions";
+import * as ActionTypes from "@/store/actions";
+import { Download, FileTypeUtils } from "@/store/types";
+import { Services } from "@/services";
 
 type ProgressFunc = (total: number, copied: number, info: object) => void;
 
 export class ApiUnexpectedStatus extends Error {
-    constructor(message) {
+    constructor(message: string) {
         super(message);
     }
 }
@@ -31,7 +32,7 @@ export default class PortalInterface {
     _appSettings: any;
     _store: any;
 
-    constructor(services) {
+    constructor(services: Services) {
         this._services = services;
         this._dbInterface = services.Database();
         this._fs = services.FileSystem();
@@ -40,7 +41,7 @@ export default class PortalInterface {
         this._store = services.Store();
     }
 
-    private getUri() {
+    private getUri(): Promise<string> {
         return this._dbInterface.getConfig().then((config) => {
             if (config.length == 0) {
                 return Config.baseUri;
@@ -50,7 +51,7 @@ export default class PortalInterface {
         });
     }
 
-    public isAvailable() {
+    public isAvailable(): Promise<boolean> {
         return this.getUri().then((baseUri) =>
             axios({ url: baseUri + "/status" })
                 .then((r) => true)
@@ -58,7 +59,7 @@ export default class PortalInterface {
         );
     }
 
-    public setCurrentUser(currentUser: CurrentUser) {
+    public setCurrentUser(currentUser: CurrentUser): void {
         if (!currentUser) throw new Error(`invalid current user`);
         this._currentUser = currentUser;
         this._appSettings.setString("accessToken", currentUser.token);
@@ -83,15 +84,15 @@ export default class PortalInterface {
         });
     }
 
-    public isLoggedIn() {
+    public isLoggedIn(): boolean {
         return this._appSettings.getString("accessToken") ? true : false;
     }
 
-    public getCurrentToken() {
+    public getCurrentToken(): string | null {
         return this._appSettings.getString("accessToken");
     }
 
-    public login(user) {
+    public login(user): Promise<any> {
         return this.getUri().then((baseUri) =>
             axios({
                 method: "POST",
@@ -104,13 +105,13 @@ export default class PortalInterface {
         );
     }
 
-    public logout() {
+    public logout(): Promise<boolean> {
         this._appSettings.remove("accessToken");
         this._store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
         return Promise.resolve(true);
     }
 
-    public register(user) {
+    public register(user): Promise<any> {
         return this.query({
             method: "POST",
             url: "/users",
@@ -121,7 +122,7 @@ export default class PortalInterface {
         });
     }
 
-    resetPassword(email) {}
+    resetPassword(email: string) {}
 
     public getTransmissionToken(): Promise<{ token: string; url: string }> {
         return this.query({
@@ -131,7 +132,7 @@ export default class PortalInterface {
         });
     }
 
-    public addStation(data) {
+    public addStation(data): Promise<any> {
         return this.query({
             authenticated: true,
             method: "POST",
@@ -140,7 +141,7 @@ export default class PortalInterface {
         });
     }
 
-    public updateStation(data, portalId) {
+    public updateStation(data, portalId): Promise<any> {
         return this.query({
             authenticated: true,
             method: "PATCH",
@@ -149,28 +150,28 @@ export default class PortalInterface {
         });
     }
 
-    public getStationSyncState(deviceId) {
+    public getStationSyncState(deviceId): Promise<any> {
         return this.query({
             authenticated: true,
             url: "/data/devices/" + deviceId + "/summary",
         });
     }
 
-    public getStations() {
+    public getStations(): Promise<any> {
         return this.query({
             authenticated: true,
             url: "/stations",
         });
     }
 
-    public getStationById(id) {
+    public getStationById(id): Promise<any> {
         return this.query({
             authenticated: true,
             url: "/stations/@/" + id,
         });
     }
 
-    public addFieldNote(data) {
+    public addFieldNote(data): Promise<any> {
         return this.query({
             authenticated: true,
             method: "POST",
@@ -179,13 +180,13 @@ export default class PortalInterface {
         });
     }
 
-    public listFirmware(module) {
+    public listFirmware(module): Promise<any> {
         return this.query({
             url: "/firmware" + (module ? "?module=" + module : ""),
         });
     }
 
-    public onlyIfAuthenticated() {
+    public onlyIfAuthenticated(): Promise<boolean> {
         if (!this.isLoggedIn()) {
             return Promise.reject(new AuthenticationError("unauthenticated"));
         }
@@ -197,7 +198,7 @@ export default class PortalInterface {
         });
     }
 
-    public downloadFirmware(url, local, progress) {
+    public downloadFirmware(url: string, local: string, progress): Promise<any> {
         const headers = {
             Authorization: this._appSettings.getString("accessToken"),
         };
@@ -229,7 +230,7 @@ export default class PortalInterface {
         );
     }
 
-    public addFieldNoteMedia(data) {
+    public addFieldNoteMedia(data): Promise<any> {
         const headers = {
             Authorization: this._appSettings.getString("accessToken"),
         };
@@ -346,7 +347,7 @@ export default class PortalInterface {
         );
     }
 
-    private parseToken(token) {
+    private parseToken(token: string): any {
         try {
             const encoded = token.split(".")[1];
             const decoded = Buffer.from(encoded, "base64").toString();
@@ -357,11 +358,11 @@ export default class PortalInterface {
         }
     }
 
-    private handleError(error) {
+    private handleError(error: Error) {
         throw error;
     }
 
-    private getIngestionUri() {
+    private getIngestionUri(): Promise<string> {
         return this._dbInterface.getConfig().then((config) => {
             if (config.length == 0) {
                 return Config.ingestionUri;

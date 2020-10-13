@@ -86,7 +86,7 @@ export interface NotesTableRow {
 export interface SettingsTableRow {
     id: number;
     settings: string;
-    settingsObject: object | null;
+    settingsObject: any | null;
     createdAt: string;
     updatedAt: string;
 }

@@ -1,22 +1,37 @@
-import { isAndroid, path, knownFolders } from "@nativescript/core";
+import { isAndroid, path, knownFolders, Folder } from "@nativescript/core";
 import { AudioPlayerOptions, AudioRecorderOptions, TNSPlayer, TNSRecorder } from "nativescript-audio";
 import { getPathTimestamp } from "@/utilities";
 
+export class VolumeMutedError extends Error {
+    public readonly volumeMutedError = true;
+
+    public static isInstance(err: any): boolean {
+        return err.volumeMutedError === true;
+    }
+}
+
 export class NoRecordingAllowedError extends Error {
+    public readonly noRecordingAllowedError = true;
+
     constructor() {
         super("recording disabled");
+    }
+
+    public static isInstance(err: any): boolean {
+        return err.noRecordingAllowedError === true;
     }
 }
 
 export default class AudioInterface {
     private readonly player: TNSPlayer;
     private readonly recorder: TNSRecorder;
-    private readonly folder: any;
+    private readonly folder: Folder;
     private readonly extension: string;
     private readonly options: any;
 
-    constructor(services) {
+    constructor() {
         this.player = new TNSPlayer();
+        this.player.debug = true;
         this.recorder = new TNSRecorder();
         this.folder = knownFolders.documents().getFolder("media/audio");
 
@@ -69,27 +84,41 @@ export default class AudioInterface {
         return this.player.isAudioPlaying();
     }
 
-    public playRecordedFile(path: string, doneCallback: () => void): Promise<any> {
-        console.log("audio:play", path);
+    public playRecordedFile(path: string, doneCallback: ({ error: boolean }) => void): Promise<any> {
+        console.log("audio:play", path, this.player.volume);
+        if (!path) return Promise.reject(new Error("no audio file"));
+        if (!doneCallback) return Promise.reject(new Error("no callback"));
+        if (this.player.volume == 0) {
+            this.player.volume = 1;
+            console.log("audio:play:muted", this.player.volume);
+            /*
+			// Wish this worked.
+            if (this.player.volume == 0) {
+                return Promise.reject(new VolumeMutedError());
+            }
+			*/
+        }
         const playerOptions: AudioPlayerOptions = {
             audioFile: path,
+            autoPlay: true,
             loop: false,
-            completeCallback: async (...args) => {
+            completeCallback: (...args) => {
                 console.log("audio-play:complete", path, args);
-                if (!playerOptions.loop) {
-                    await this.player.dispose();
-                }
-                doneCallback();
+                doneCallback({ error: false });
             },
             errorCallback: (errorObject) => {
                 console.log("audio-play:error", errorObject);
+                doneCallback({ error: true });
             },
             infoCallback: (infoObject) => {
                 console.log("audio-play:info", infoObject);
             },
         };
 
-        return this.player.playFromFile(playerOptions);
+        return this.player.playFromFile(playerOptions).then((value) => {
+            console.log("audio:play:done");
+            return value;
+        });
     }
 
     public stopPlayer(): Promise<any> {

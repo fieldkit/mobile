@@ -1,8 +1,9 @@
 <template>
-    <FlexboxLayout justifyContent="center" alignItems="center" class="notify-footer" @tap="showNotifications" @loaded="onLoaded">
-        <Label class="size-14 m-t-5 m-b-5" :text="_L('notifications')" horizontalAlignment="right" />
+    <FlexboxLayout justifyContent="center" alignItems="center" class="notify-footer" @tap="showNotifications"
+                   @loaded="onLoaded">
+        <Label class="size-14 m-t-5 m-b-5" :text="_L('notifications')" horizontalAlignment="right"/>
         <GridLayout rows="auto" columns="*" horizontalAlignment="left">
-            <Label row="0" col="0" :text="notificationCodes.length" class="notify-num text-center" />
+            <Label row="0" col="0" :text="notificationCodes.length" class="notify-num text-center"/>
         </GridLayout>
     </FlexboxLayout>
 </template>
@@ -60,7 +61,8 @@ export default Vue.extend({
         },
     },
     methods: {
-        onLoaded(this: any) {},
+        onLoaded(this: any) {
+        },
         showNotifications(this: any) {
             const options = {
                 props: {
@@ -76,11 +78,13 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+
 .notify-footer {
     border-top-color: $fk-gray-lighter;
     color: $fk-primary-black;
     border-top-width: 1;
 }
+
 .notify-num {
     font-size: 8;
     color: white;

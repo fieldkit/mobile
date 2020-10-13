@@ -1,10 +1,37 @@
-import { Common } from './conservify.common';
+import { Common } from "./conservify.common";
+
+type LoggerFunc = (...args: any[]) => void;
+
+export declare interface DiscoveryEvents {}
+
+export declare type DelimitedCallback = (position: number, size: number, records: any) => void;
+
+export declare type ProgressFunc = (total: number, copied: number, info) => void;
+
+export declare interface OpenedFile {
+    delimited(callback: DelimitedCallback): Promise<any>;
+}
+
+export declare interface TransferInfo {
+    url: string;
+    method?: string;
+    body?: string;
+    path?: string;
+    connectionTimeout?: number;
+    defaultTimeout?: number;
+    headers?: { [index: string]: string };
+    progress?: ProgressFunc;
+}
 
 export declare class Conservify extends Common {
-    constructor();
-    start(serviceType: any): Promise<{}>;
-    json(info: any): Promise<{}>;
-    protobuf(info: any): Promise<{}>;
-    download(info: any): Promise<{}>;
-    scanNetworks(): Promise<{}>;
+    constructor(discoveryEvents: DiscoveryEvents, logger: LoggerFunc);
+    start(serviceType: TransferInfo): Promise<any>;
+    text(info: TransferInfo): Promise<any>;
+    json(info: TransferInfo): Promise<any>;
+    protobuf(info: TransferInfo): Promise<any>;
+    download(info: TransferInfo): Promise<any>;
+    upload(info: TransferInfo): Promise<any>;
+    scanNetworks(): Promise<any>;
+    findConnectedNetwork(): Promise<any>;
+    open(path: string): Promise<OpenedFile>;
 }

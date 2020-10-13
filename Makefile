@@ -1,5 +1,5 @@
 ANDROID ?= $(HOME)/Android/Sdk/tools/bin
-APP ?= ./
+APP ?= .
 
 NSSQLITE = nativescript-sqlite-commercial-1.3.2.tgz
 
@@ -75,15 +75,18 @@ ios-release: setup
 	rm -rf $(APP)/node_modules/fk-*-protocol
 	npm install
 	$(MAKE) refresh-cms-data || true
-	if [ -d $(APP)/platforms/ios ]; then                \
+	if [ -d $(APP)/platforms/ios ]; then               \
 		cd $(APP) && ns platform clean ios || true    ;\
-	else                                                \
+	else                                               \
 		cd $(APP) && ns platform add ios || true      ;\
 	fi
 	$(MAKE) platform-libraries
+	xcode-select -p
+	xcodebuild -version
+	xcrun simctl list
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
-	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap
+	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap --log trace
 	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --release --env.sourceMap
 
 android-logs:
@@ -123,10 +126,10 @@ images:
   done; \
 
 test: setup
-	jest --silent
+	node_modules/.bin/jest --silent
 
 watch: setup
-	jest --silent --watch
+	node_modules/.bin/jest --silent --watch
 
 update-third-party:
 	third-party/update.sh
@@ -137,3 +140,24 @@ ios-devices:
 
 ios-logs:
 	idevicesyslog --udid `idevice_id --list` -p "mobile(NativeScript)"
+
+cycle-checks:
+	npx madge --circular --extensions ts ./app
+
+webpack: setup webpack-android webpack-ios
+
+checks: setup
+	npx eslint --ext=ts app || true
+	$(MAKE) cycle-checks
+
+android-webpack:
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android
+
+android-webpack-watch:
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.android -w
+
+ios-webpack:
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --env.ios --no-cache
+
+ios-webpack-watch:
+	node --max_old_space_size=4096 --preserve-symlinks node_modules/webpack/bin/webpack.js --config=webpack.config.js --env.externals=~/package.json --env.externals=package.json --env.appPath=app --env.appResourcesPath=app/App_Resources --env.nativescriptLibPath=node_modules/nativescript/lib/nativescript-cli-lib.js --env.verbose --env.sourceMap --no-cache --env.ios -w

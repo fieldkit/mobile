@@ -1,15 +1,19 @@
 import _ from "lodash";
 import protobuf from "protobufjs";
-import deepmerge from "deepmerge";
 import { unixNow, promiseAfter } from "../utilities";
 import { QueryThrottledError, StationQueryError, HttpError } from "../lib/errors";
 import { PhoneLocation } from "../store/types";
 import Config from "../config";
 
-import { fixupStatus } from "./calibration-service";
+import { prepareReply, HttpStatusReply } from "../store/http_reply";
 
-const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
-const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
+// const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
+// const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
+const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
+const HttpQuery: any = appRoot.lookupType("fk_app.HttpQuery");
+const HttpReply: any = appRoot.lookupType("fk_app.HttpReply");
+const QueryType: any = appRoot.lookup("fk_app.QueryType");
+const ReplyType: any = appRoot.lookup("fk_app.ReplyType");
 
 export class CalculatedSize {
     constructor(public readonly size: number) {}
@@ -20,111 +24,7 @@ export interface TrackActivityOptions {
     throttle: boolean;
 }
 
-const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
-const HttpQuery: any = appRoot.lookupType("fk_app.HttpQuery");
-const HttpReply: any = appRoot.lookupType("fk_app.HttpReply");
-const QueryType: any = appRoot.lookup("fk_app.QueryType");
-const ReplyType: any = appRoot.lookup("fk_app.ReplyType");
-
 const log = Config.logger("QueryStation");
-
-const MandatoryStatus = {
-    status: {
-        identity: {},
-        power: {
-            battery: {
-                percentage: 0.0,
-            },
-        },
-        memory: {
-            dataMemoryConsumption: 0,
-        },
-        recording: {
-            enabled: false,
-        },
-        gps: {
-            latitude: 0,
-            longitude: 0,
-        },
-    },
-};
-
-export function decodeAndPrepare(reply) {
-    return prepareReply(HttpReply.decodeDelimited(reply));
-}
-
-function prepareModule(m: any): any {
-    m.deviceId = Buffer.from(m.id).toString("hex");
-    m.id = null;
-    if (m.status && /*_.isArray(m.status) &&*/ m.status.length > 0) {
-        if (m.name.indexOf("modules.water.") == 0) {
-            const buffer = Buffer.from(m.status);
-            m.status = fixupStatus(AtlasReply.decode(buffer));
-        } else {
-            console.log("unknown module status", m);
-        }
-    }
-    return m;
-}
-
-export function prepareReply(reply) {
-    if (reply.errors && reply.errors.length > 0) {
-        return reply;
-    }
-
-    // NOTE deepmerge ruins deviceId.
-    if (reply.status && reply.status.identity) {
-        reply.status.identity.deviceId = Buffer.from(reply.status.identity.deviceId).toString("hex");
-        reply.status.identity.generationId = Buffer.from(reply.status.identity.generation).toString("hex");
-        reply.status.identity.generation = null;
-    }
-    if (reply.modules && Array.isArray(reply.modules)) {
-        reply.modules.map((m) => {
-            return prepareModule(m);
-        });
-    }
-    if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
-        reply.liveReadings.map((lr) => {
-            lr.modules
-                .filter((m) => m.module && m.module.id)
-                .map((m) => {
-                    return prepareModule(m.module);
-                });
-        });
-    }
-    if (reply.streams && reply.streams.length > 0) {
-        reply.streams.forEach((s) => {
-            s.block = s.block ? s.block : 0;
-            s.size = s.size ? s.size : 0;
-        });
-    }
-
-    const fixupSchedule = (schedule) => {
-        if (schedule && schedule.intervals) {
-            schedule.intervals.forEach((i) => {
-                i.start = i.start || 0;
-                i.end = i.end || 0;
-                i.interval = i.interval || 0;
-            });
-        }
-    };
-
-    if (reply.status?.schedules) {
-        fixupSchedule(reply.status.schedules.readings);
-        fixupSchedule(reply.status.schedules.network);
-        fixupSchedule(reply.status.schedules.gps);
-        fixupSchedule(reply.status.schedules.lora);
-    }
-
-    if (reply.schedules) {
-        fixupSchedule(reply.schedules.readings);
-        fixupSchedule(reply.schedules.network);
-        fixupSchedule(reply.schedules.gps);
-        fixupSchedule(reply.schedules.lora);
-    }
-
-    return deepmerge.all([MandatoryStatus, reply]);
-}
 
 export default class QueryStation {
     _conservify: any;
@@ -136,7 +36,7 @@ export default class QueryStation {
         this._conservify = services.Conservify();
     }
 
-    private buildLocateMessage(queryType: number, locate: PhoneLocation) {
+    private buildLocateMessage(queryType: number, locate: PhoneLocation | null) {
         if (locate) {
             return HttpQuery.create({
                 type: queryType,
@@ -156,14 +56,14 @@ export default class QueryStation {
         }
     }
 
-    getStatus(address: string, locate: PhoneLocation) {
+    getStatus(address: string, locate: PhoneLocation | null = null): Promise<HttpStatusReply> {
         const message = this.buildLocateMessage(QueryType.values.QUERY_STATUS, locate);
         return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
         });
     }
 
-    takeReadings(address: string, locate: PhoneLocation) {
+    takeReadings(address: string, locate: PhoneLocation): Promise<any> {
         const message = this.buildLocateMessage(QueryType.values.QUERY_TAKE_READINGS, locate);
         return this.stationQuery(address, message).then((reply) => {
             return this._fixupStatus(reply);
@@ -182,7 +82,7 @@ export default class QueryStation {
         });
     }
 
-    stopDataRecording(address) {
+    stopDataRecording(address: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: false },
@@ -193,7 +93,7 @@ export default class QueryStation {
         });
     }
 
-    public scanNearbyNetworks(address) {
+    public scanNearbyNetworks(address: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_SCAN_NETWORKS,
         });
@@ -203,7 +103,7 @@ export default class QueryStation {
         });
     }
 
-    public configureSchedule(address, schedule) {
+    public configureSchedule(address: string, schedule) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             schedules: { modifying: true, ...schedule },
@@ -215,7 +115,7 @@ export default class QueryStation {
         });
     }
 
-    sendNetworkSettings(address, networks) {
+    sendNetworkSettings(address: string, networks) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             networkSettings: { networks: networks },
@@ -226,7 +126,7 @@ export default class QueryStation {
         });
     }
 
-    sendLoraSettings(address, lora) {
+    sendLoraSettings(address: string, lora) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
@@ -236,7 +136,7 @@ export default class QueryStation {
         });
     }
 
-    configureName(address, name) {
+    configureName(address: string, name: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             identity: { name: name },
@@ -247,7 +147,7 @@ export default class QueryStation {
         });
     }
 
-    calculateDownloadSize(url): Promise<CalculatedSize> {
+    calculateDownloadSize(url: string): Promise<CalculatedSize> {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject(new StationQueryError("ignored"));
         }
@@ -278,7 +178,7 @@ export default class QueryStation {
         });
     }
 
-    queryLogs(url) {
+    queryLogs(url: string) {
         return this._trackActivityAndThrottle(url, () => {
             return this._conservify
                 .text({
@@ -300,7 +200,7 @@ export default class QueryStation {
         });
     }
 
-    download(url, path, progress) {
+    download(url: string, path: string, progress) {
         return this._trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .download({
@@ -320,7 +220,7 @@ export default class QueryStation {
         });
     }
 
-    uploadFirmware(url, path, progress) {
+    uploadFirmware(url: string, path: string, progress) {
         return this._trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .upload({
@@ -337,7 +237,7 @@ export default class QueryStation {
         });
     }
 
-    uploadViaApp(address) {
+    uploadViaApp(address: string) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             transmission: {
@@ -354,7 +254,7 @@ export default class QueryStation {
         });
     }
 
-    uploadOverWifi(address, transmissionUrl, transmissionToken) {
+    uploadOverWifi(address: string, transmissionUrl, transmissionToken) {
         const message = HttpQuery.create({
             type: QueryType.values.QUERY_CONFIGURE,
             transmission: {
@@ -425,7 +325,7 @@ export default class QueryStation {
             });
     }
 
-    private _trackActivityAndThrottle(url, factory) {
+    private _trackActivityAndThrottle(url: string, factory) {
         return this._trackActivity({ url: url, throttle: true }, factory);
     }
 
@@ -434,7 +334,7 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    stationQuery(url, message) {
+    stationQuery(url: string, message) {
         return this._trackActivityAndThrottle(url, () => {
             if (!Config.developer.stationFilter(url)) {
                 return Promise.reject(new StationQueryError("ignored"));

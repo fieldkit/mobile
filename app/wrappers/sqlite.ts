@@ -1,41 +1,45 @@
 import Sqlite from "nativescript-sqlite";
 
+export type Rows = any[];
+
 class DatabaseWrapper {
-    constructor(db) {
-        this.db = db;
+    constructor(private readonly db: Sqlite) {
         this.db.resultType(Sqlite.RESULTSASOBJECT);
     }
 
-    query(sql, params) {
+    public query(sql: string, params: undefined | any[] = undefined): Promise<Rows> {
+        // console.log("QUERY", sql, params);
         return this.db.all(sql, params).then(
-            (rows) => rows,
-            (err) => {
+            (rows: Rows) => rows,
+            (err: Error) => {
                 console.log("SQL error", sql, params, err, err ? err.stack : null);
                 return Promise.reject(err);
             }
         );
     }
 
-    execute(sql, params) {
-        return this.db.execSQL(sql, params).then((res) => {
-            return res ? res : this;
-        });
+    public execute(sql: string, params: undefined | any[] = undefined): Promise<void> {
+        return this.db.execSQL(sql, params).then(() => {});
     }
 
-    batch(sql) {
-        let sqlArray = sql;
-        if (!Array.isArray(sql)) {
-            sqlArray = [sql];
-        }
-        return sqlArray.reduce((promise, item, index) => {
+    public batch(sql: string | string[]): Promise<Rows[]> {
+        // console.log("BATCH", sql);
+        const sqlArray: string[] = (() => {
+            if (!Array.isArray(sql)) {
+                return [sql];
+            }
+            return sql;
+        })();
+
+        return sqlArray.reduce((promise: Promise<Rows>, item: string) => {
             return promise
-                .then((values) =>
-                    this.execute(item).then((value) => {
+                .then((values: Rows[]) =>
+                    this.query(item).then((value: Rows) => {
                         values.push(value);
                         return values;
                     })
                 )
-                .catch((err) => {
+                .catch((err: Error) => {
                     console.log("SQL error", sql, err, err ? err.stack : null);
                     return Promise.reject(err);
                 });
@@ -44,7 +48,7 @@ class DatabaseWrapper {
 }
 
 export default class SqliteNativeScript {
-    open(name) {
+    public open(name: string): Promise<DatabaseWrapper> {
         console.log("sqlite:opening", name, Sqlite.HAS_COMMERCIAL, Sqlite.HAS_ENCRYPTION, Sqlite.HAS_SYNC);
 
         return new Promise((resolve, reject) => {
@@ -58,19 +62,18 @@ export default class SqliteNativeScript {
         });
     }
 
-    delete(name) {
+    public delete(name: string): Promise<void> {
         if (Sqlite.exists(name)) {
             Sqlite.deleteDatabase(name);
         }
-
-        return Promise.resolve({});
+        return Promise.resolve();
     }
 
-    exists(name) {
+    public exists(name: string): boolean {
         return Sqlite.exists(name);
     }
 
-    copy(name) {
-        return Sqlite.copyDatabase(name);
+    public copy(name: string): void {
+        Sqlite.copyDatabase(name);
     }
 }

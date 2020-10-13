@@ -59,7 +59,7 @@ export class PrepareVisual extends CalibrationVisual implements PrepareInfo {
     public readonly image: string;
     public readonly done: string;
 
-    constructor(component: any, info: PrepareInfo) {
+    constructor(component: Component, info: PrepareInfo) {
         super(component);
         this.sensor = info.sensor;
         this.unitOfMeasure = info.unitOfMeasure;
@@ -89,7 +89,7 @@ export class WaitVisual extends CalibrationVisual implements WaitInfo {
     public readonly heading: string;
     public readonly done: string;
 
-    constructor(component: any, info: WaitInfo) {
+    constructor(component: Component, info: WaitInfo) {
         super(component);
         this.sensor = info.sensor;
         this.unitOfMeasure = info.unitOfMeasure;

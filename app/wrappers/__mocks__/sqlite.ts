@@ -1,14 +1,13 @@
 import sqlite3 from "sqlite3";
-import Promise from "bluebird";
+
+type Rows = any[];
 
 class DatabaseWrapper {
-    constructor(db) {
-        this.db = db;
-    }
+    constructor(private readonly db: sqlite3.Database) {}
 
-    query(sql, params) {
+    public query(sql: string, params: undefined | any[] = undefined): Promise<Rows> {
         return new Promise((resolve, reject) => {
-            this.db.all(sql, params, (err, rows) => {
+            this.db.all(sql, params, (err: Error, rows: Rows) => {
                 if (err) {
                     console.log(sql, err);
                     reject(err);
@@ -19,41 +18,44 @@ class DatabaseWrapper {
         });
     }
 
-    execute(sql, params) {
+    public execute(sql: string, params: undefined | any[] = undefined): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.db.run(sql, params, function (err) {
+            this.db.run(sql, params, function (err: Error) {
                 if (err) {
                     console.log(sql, err);
                     reject(err);
                     return;
                 }
-                resolve(this.lastID);
+                resolve();
             });
         });
     }
 
-    batch(sql) {
-        let sqlArray = sql;
-        if (!Array.isArray(sql)) {
-            sqlArray = [sql];
-        }
-        return sqlArray.reduce((promise, item, index) => {
+    public batch(sql: string | string[]): Promise<Rows[]> {
+        const sqlArray: string[] = (() => {
+            if (!Array.isArray(sql)) {
+                return [sql];
+            }
+            return sql;
+        })();
+        return sqlArray.reduce((promise: Promise<Rows[]>, item: string) => {
             return promise
-                .then((values) =>
-                    this.execute(item).then((value) => {
+                .then((values: Rows[]) =>
+                    this.query(item).then((value: Rows) => {
                         values.push(value);
                         return values;
                     })
                 )
-                .catch((err) => {
+                .catch((err: Error) => {
                     console.log("SQL error", sql, err);
+                    return Promise.reject(err);
                 });
         }, Promise.resolve([]));
     }
 }
 
 export default class SqliteNodeJs {
-    open(name) {
+    public open(name: string): Promise<DatabaseWrapper> {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database(name, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
                 if (err) {
@@ -65,15 +67,15 @@ export default class SqliteNodeJs {
         });
     }
 
-    delete(name) {
-        return Promise.resolve({});
+    public delete(/*name: string*/): Promise<void> {
+        return Promise.resolve();
     }
 
-    exists(name) {
+    public exists(/*name: string*/): boolean {
         return false;
     }
 
-    copy(name) {
+    public copy(/*name: string*/): boolean {
         return false;
     }
 }
