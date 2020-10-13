@@ -40,7 +40,7 @@ export default class CalibrationService {
         });
 
         return this.stationQuery(address, message).then((reply) => {
-            return this._fixupReply(reply);
+            return this.fixupReply(reply);
         });
     }
 
@@ -110,7 +110,7 @@ export default class CalibrationService {
             },
         });
         return this.stationQuery(address, message).then((reply) => {
-            return this._fixupReply(reply);
+            return this.fixupReply(reply);
         });
     }
 
@@ -269,7 +269,7 @@ export default class CalibrationService {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url: string, message) {
+    private stationQuery(url: string, message: any) {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject("ignored");
         }
@@ -286,14 +286,15 @@ export default class CalibrationService {
                 (response) => {
                     console.log("cal:response", response);
                     console.log("cal:response", response.body);
+                    console.log("cal:response", response.info);
 
                     if (response && response.body && response.body.length == 0) {
                         log.info(url, "calibration query success", "<empty>");
                         return {};
                     }
 
-                    const decoded = this._getResponseBody(response);
-                    return this._handlePotentialRetryReply(decoded, url, message).then((finalReply) => {
+                    const decoded = this.getResponseBody(response);
+                    return this.handlePotentialRetryReply(decoded, url, message).then((finalReply) => {
                         log.info(url, "calibration query success", finalReply);
                         return finalReply;
                     });
@@ -305,7 +306,7 @@ export default class CalibrationService {
             );
     }
 
-    private _getResponseBody(response) {
+    private getResponseBody(response): fk_atlas.WireAtlasReply | any | null {
         if (Buffer.isBuffer(response.body)) {
             return AtlasReply.toObject(AtlasReply.decodeDelimited(response.body), {
                 enums: Number,
@@ -314,7 +315,7 @@ export default class CalibrationService {
         return response.body;
     }
 
-    private _fixupReply(reply) {
+    private fixupReply(reply) {
         if (reply.errors && reply.errors.length > 0) {
             return reply;
         }
@@ -327,7 +328,7 @@ export default class CalibrationService {
         return reply;
     }
 
-    private _handlePotentialRetryReply(reply, url, message) {
+    private handlePotentialRetryReply(reply: any | null, url: string, message) {
         if (reply.type != ReplyType.REPLY_RETRY) {
             return Promise.resolve(reply);
         }
@@ -335,10 +336,10 @@ export default class CalibrationService {
         if (delays == 0) {
             return Promise.reject(new Error("busy"));
         }
-        return this._retryAfter(delays, url, message);
+        return this.retryAfter(delays, url, message);
     }
 
-    private _retryAfter(delays, url, message) {
+    private retryAfter(delays, url: string, message) {
         log.info(url, "retrying calibration query after", delays);
         return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);
