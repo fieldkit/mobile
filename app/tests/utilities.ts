@@ -89,7 +89,8 @@ export class MockStationReplies {
         const response = {
             statusCode: status,
             headers: {
-                "Content-Length": size,
+                "fk-bytes": size,
+                "content-length": size,
             },
         };
 

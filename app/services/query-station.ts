@@ -160,7 +160,13 @@ export default class QueryStation {
                         if (response.statusCode != 204) {
                             return Promise.reject(new HttpError("status", response));
                         }
-                        const size = Number(response.headers["content-length"]);
+                        let size: number = 0;
+                        if (response.headers["fk-bytes"]) {
+                            size = Number(response.headers["fk-bytes"]);
+                        }
+                        if (response.headers["content-length"]) {
+                            size = Number(response.headers["content-length"]);
+                        }
                         return new CalculatedSize(size);
                     },
                     (err) => {

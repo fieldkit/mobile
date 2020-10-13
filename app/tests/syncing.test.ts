@@ -221,8 +221,8 @@ describe("Syncing", () => {
             ]);
 
             // We do both size calculations before downloading.
-            mockStation.queueCalculateDownloadSize(204, 0);
-            mockStation.queueCalculateDownloadSize(204, 0);
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(500, {});
             try {
                 await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
