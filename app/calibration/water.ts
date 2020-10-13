@@ -1,19 +1,14 @@
 import { CalibrationStrategy, CalibrationPointStep, CalibrationValue } from "./model";
 import { CheckVisual, PrepareVisual, WaitVisual } from "./visuals";
-
-import protobuf from "protobufjs";
+import { fk_atlas } from "fk-atlas-protocol/fk-atlas";
 
 import Check from "./Check.vue";
 import Prepare from "./Prepare.vue";
 import Wait from "./Wait.vue";
 
-// TODO Pull this along with calibrate-service boilerplate into a TS wrapper.
-const atlasRoot: any = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
-const DoCalibrateCommand = atlasRoot.lookup("fk_atlas.DoCalibrateCommand");
-const PhCalibrateCommand = atlasRoot.lookup("fk_atlas.PhCalibrateCommand");
-const EcCalibrateCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
-// const TempCalibrateCommand = atlasRoot.lookup("fk_atlas.TempCalibrateCommand");
-// const OrpCalibrateCommand = atlasRoot.lookup("fk_atlas.OrpCalibrateCommand");
+const DoCalibrateCommand = fk_atlas.DoCalibrateCommand;
+const PhCalibrateCommand = fk_atlas.PhCalibrateCommand;
+const EcCalibrateCommand = fk_atlas.EcCalibrateCommand;
 
 export class AtlasCalValue extends CalibrationValue {
     constructor(public readonly reference: number, public readonly which: number) {
@@ -67,7 +62,7 @@ const PhQuick = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
     return new CalibrationStrategy("modules.water.ph", _L("quickCalibration"), _L("quickCalibration"), [
-        new CalibrationPointStep(new AtlasCalValue(6.86, PhCalibrateCommand.values.CALIBRATE_PH_MIDDLE), [
+        new CalibrationPointStep(new AtlasCalValue(6.86, PhCalibrateCommand.CALIBRATE_PH_MIDDLE), [
             new CheckVisual(Check, {
                 ...phCommon,
                 heading: _L("quickPhCalibration"),
@@ -109,7 +104,7 @@ const Ph3 = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
     return new CalibrationStrategy("modules.water.ph", _L("threePointCalibration"), _L("threePointCalibration"), [
-        new CalibrationPointStep(new AtlasCalValue(7, PhCalibrateCommand.values.CALIBRATE_PH_MIDDLE), [
+        new CalibrationPointStep(new AtlasCalValue(7, PhCalibrateCommand.CALIBRATE_PH_MIDDLE), [
             new CheckVisual(Check, {
                 ...phCommon,
                 heading: _L("threePointCalibration"),
@@ -144,7 +139,7 @@ const Ph3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new AtlasCalValue(4, PhCalibrateCommand.values.CALIBRATE_PH_LOW), [
+        new CalibrationPointStep(new AtlasCalValue(4, PhCalibrateCommand.CALIBRATE_PH_LOW), [
             new PrepareVisual(Prepare, {
                 ...phCommon,
                 heading: _L("lowPointCalibration"),
@@ -166,7 +161,7 @@ const Ph3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new AtlasCalValue(10, PhCalibrateCommand.values.CALIBRATE_PH_HIGH), [
+        new CalibrationPointStep(new AtlasCalValue(10, PhCalibrateCommand.CALIBRATE_PH_HIGH), [
             new PrepareVisual(Prepare, {
                 ...phCommon,
                 heading: _L("highPointCalibration"),
@@ -195,7 +190,7 @@ const DissolvedOxygen = (): CalibrationStrategy => {
     const doCommon = DoCommon();
 
     return new CalibrationStrategy("modules.water.do", _L("waterDissolvedOxygen"), _L("waterDissolvedOxygen"), [
-        new CalibrationPointStep(new AtlasCalValue(0.0, DoCalibrateCommand.values.CALIBRATE_DO_ATMOSPHERE), [
+        new CalibrationPointStep(new AtlasCalValue(0.0, DoCalibrateCommand.CALIBRATE_DO_ATMOSPHERE), [
             new CheckVisual(Check, {
                 ...doCommon,
                 heading: _L("dissovedOxygenCalibration"),
@@ -230,7 +225,7 @@ const EcDual = (): CalibrationStrategy => {
     const ecCommon = EcCommon();
 
     return new CalibrationStrategy("modules.water.ec", _L("waterConductivity"), _L("waterConductivity"), [
-        new CalibrationPointStep(new AtlasCalValue(0.0, EcCalibrateCommand.values.CALIBRATE_EC_DRY), [
+        new CalibrationPointStep(new AtlasCalValue(0.0, EcCalibrateCommand.CALIBRATE_EC_DRY), [
             new CheckVisual(Check, {
                 ...ecCommon,
                 heading: _L("waterConductivity"),
@@ -258,7 +253,7 @@ const EcDual = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new AtlasCalValue(12880, EcCalibrateCommand.values.CALIBRATE_EC_SINGLE), [
+        new CalibrationPointStep(new AtlasCalValue(12880, EcCalibrateCommand.CALIBRATE_EC_SINGLE), [
             new PrepareVisual(Prepare, {
                 ...ecCommon,
                 heading: _L("part2Wet"),

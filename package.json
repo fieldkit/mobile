@@ -87,6 +87,7 @@
         "typescript": "^4.0.3",
         "vue": "^2.6.12",
         "vue-loader": "^15.9.2",
+        "webpack-dev-server": "^3.11.0",
         "yup": "^0.29.3"
     },
     "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
