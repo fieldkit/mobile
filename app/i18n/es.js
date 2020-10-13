@@ -350,6 +350,9 @@ module.exports = {
     lastReading: "Última lectura",
     // NotificationFooter.vue
     notifications: "Notificaciones",
+    notificationRemindLater: "Remind Later",
+    notificationDontRemind: "Don't Remind",
+    notificationArchive: "Archive",
     portalProblemHeading: "Problema con la conexión Portal",
     encounteredAPortalError: "Se ha detectado un error al conectar con el Portal.",
     unableToUpdateHeading: "No se puede actualizar Portal",
