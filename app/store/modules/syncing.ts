@@ -13,7 +13,7 @@ import {
     ServiceInfo,
     SortableStationSorter,
 } from "../types";
-import { ServiceRef } from "@/services";
+import { ServiceRef, CalculatedSize } from "@/services";
 import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
 import { AuthenticationError } from "../../lib/errors";
@@ -298,6 +298,13 @@ export class SyncingState {
     errors: { [index: string]: TransferError } = {};
 }
 
+function querySizes(services: ServiceRef, downloads: PendingDownload[]): Promise<CalculatedSize[]> {
+    return serializePromiseChain(downloads, (download: PendingDownload) => {
+        console.log("size:", download.url);
+        return services.queryStation().calculateDownloadSize(download.url);
+    });
+}
+
 type ActionParameters = ActionContext<SyncingState, never>;
 
 const actions = (services: ServiceRef) => {
@@ -312,32 +319,37 @@ const actions = (services: ServiceRef) => {
 
             console.log("syncing:download", sync.downloads);
 
-            commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
+            return querySizes(services, sync.downloads).then((sizes) => {
+                console.log("syncing:sizes", sizes);
 
-            return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
-                const fsFolder = services.fs().getFolder(getFilePath(file.path));
-                const fsFile = fsFolder.getFile(getFileName(file.path));
-                console.log("syncing:download", file.url, fsFile);
-                return services
-                    .queryStation()
-                    .download(file.url, fsFile.path, (total: number, copied: number, info) => {
-                        commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
-                    })
-                    .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
-                    .catch((error) => {
-                        if (AuthenticationError.isInstance(error)) {
-                            Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
-                        } else {
-                            Vue.set(state.errors, sync.deviceId, TransferError.Other);
-                        }
-                        console.log("error downloading", error, error ? error.stack : null);
-                        return Promise.reject(error);
+                const totalBytes = _.sum((sizes) => sizes.size);
+
+                commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, totalBytes));
+                return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
+                    const fsFolder = services.fs().getFolder(getFilePath(file.path));
+                    const fsFile = fsFolder.getFile(getFileName(file.path));
+                    console.log("syncing:download", file.url, fsFile);
+                    return services
+                        .queryStation()
+                        .download(file.url, fsFile.path, (total: number, copied: number, info) => {
+                            commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
+                        })
+                        .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
+                        .catch((error) => {
+                            if (AuthenticationError.isInstance(error)) {
+                                Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                            } else {
+                                Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                            }
+                            console.log("error downloading", error, error ? error.stack : null);
+                            return Promise.reject(error);
+                        });
+                })
+                    .then(() => dispatch(ActionTypes.LOAD))
+                    .finally(() => {
+                        commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
                     });
-            })
-                .then(() => dispatch(ActionTypes.LOAD))
-                .finally(() => {
-                    commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
-                });
+            });
         },
         [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]): Promise<any> => {
             return Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
