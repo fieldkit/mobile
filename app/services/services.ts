@@ -134,7 +134,7 @@ export class ServicesImpl implements Services {
 
     public Conservify(): Conservify {
         if (!this.conservify) {
-            const logger = Config.logger("NativeScriptConservify").noop;
+            const logger = Config.logger("NativeScriptConservify").info;
             this.conservify = new Conservify(this.DiscoveryEvents(), logger);
         }
         return this.unwrap(this.conservify);

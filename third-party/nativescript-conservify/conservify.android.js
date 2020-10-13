@@ -146,7 +146,7 @@ var Conservify = (function () {
                     }
                 }
                 else {
-                    this.logger("upload:onProgress orphaned", taskId, bytes, total);
+                    owner.logger("upload:onProgress orphaned", taskId, bytes, total);
                 }
             },
             onComplete: function (taskId, headers, contentType, body, statusCode) {
@@ -156,17 +156,21 @@ var Conservify = (function () {
                 if (task) {
                     var info = task.info, transfer_1 = task.transfer;
                     var getBody = function () {
+                        owner.logger("parsing:body", body);
                         if (body) {
                             if (contentType.indexOf("application/json") >= 0) {
+                                owner.logger("parsing:body:json");
                                 return JSON.parse(body);
                             }
                             else {
                                 if (transfer_1.isBase64EncodeResponseBody()) {
+                                    owner.logger("parsing:body:base64");
                                     return Buffer.from(body, "base64");
                                 }
                                 return body;
                             }
                         }
+                        owner.logger("parsing:body:null");
                         return null;
                     };
                     delete active[taskId];
