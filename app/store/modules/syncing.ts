@@ -529,6 +529,10 @@ const mutations = {
     },
     [MutationTypes.TRANSFER_PROGRESS]: (state: SyncingState, progress: TransferProgress) => {
         const before = state.progress[progress.deviceId];
+        if (!before) {
+            console.log(`dropped progress: ${progress.deviceId}`);
+            return;
+        }
         Vue.set(state.progress, progress.deviceId, before.include(progress));
         Vue.set(state, "syncs", makeStationSyncs(state));
     },
