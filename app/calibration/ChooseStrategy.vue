@@ -51,6 +51,10 @@ export default Vue.extend({
             type: Object,
             required: true,
         },
+        busy: {
+            type: Boolean,
+            required: true,
+        },
     },
     data(): { selected: number } {
         return {

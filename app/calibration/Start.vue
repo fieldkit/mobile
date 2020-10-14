@@ -1,7 +1,7 @@
 <template>
     <Page @loaded="onPageLoaded">
         <Header :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <ChooseStrategy :moduleKey="moduleKey" :strategies="strategies" :visual="visual" @choose="choose" />
+        <ChooseStrategy :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @choose="choose" />
     </Page>
 </template>
 
@@ -40,8 +40,10 @@ export default Vue.extend({
             default: true,
         },
     },
-    data(): {} {
-        return {};
+    data(): { busy: boolean } {
+        return {
+            busy: false,
+        };
     },
     computed: {
         module(this: any) {

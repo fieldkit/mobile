@@ -37,10 +37,10 @@
 
             <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
 
-            <Button class="btn btn-padded" text="Clear" @tap="clear" />
+            <Button class="btn btn-padded" text="Clear" :isEnabled="!busy" @tap="clear" />
         </StackLayout>
         <StackLayout row="1">
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
+            <Button class="btn btn-primary btn-padded" :isEnabled="!busy" :text="visual.done" @tap="done" />
         </StackLayout>
     </GridLayout>
 </template>
@@ -72,6 +72,10 @@ export default Vue.extend({
         },
         progress: {
             type: Number,
+            required: true,
+        },
+        busy: {
+            type: Boolean,
             required: true,
         },
     },

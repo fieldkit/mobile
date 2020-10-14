@@ -22,7 +22,12 @@
             />
         </StackLayout>
         <StackLayout row="1">
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="calibrate" :isEnabled="doneWaiting || debugging" />
+            <Button
+                class="btn btn-primary btn-padded"
+                :text="visual.done"
+                @tap="calibrate"
+                :isEnabled="!busy && (doneWaiting || debugging)"
+            />
         </StackLayout>
     </GridLayout>
 </template>
@@ -59,6 +64,10 @@ export default Vue.extend({
         },
         progress: {
             type: Number,
+            required: true,
+        },
+        busy: {
+            type: Boolean,
             required: true,
         },
     },

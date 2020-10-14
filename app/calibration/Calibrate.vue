@@ -17,6 +17,7 @@
                         :sensor="sensor"
                         :step="activeStep"
                         :progress="progress"
+                        :busy="busy"
                         @done="(ev) => onDone(ev, activeStep)"
                         @back="(ev) => onBack(ev, activeStep)"
                         @clear="(ev) => onClear(ev, activeStep)"
@@ -69,11 +70,12 @@ export default Vue.extend({
             default: true,
         },
     },
-    data(): { success: boolean; cleared: boolean; failure: boolean; completed: CalibrationStep[] } {
+    data(): { success: boolean; cleared: boolean; failure: boolean; busy: boolean; completed: CalibrationStep[] } {
         return {
             success: false,
             cleared: false,
             failure: false,
+            busy: false,
             completed: [],
         };
     },
@@ -206,16 +208,22 @@ export default Vue.extend({
             const sensor: CalibratingSensor = this.sensor;
             const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
             console.log("cal:", "clearing", action);
-            return this.$store.dispatch(action).then(
-                (cleared) => {
-                    console.log("cal:", "cleared");
-                    return this.notifyCleared();
-                },
-                (err) => {
-                    console.log("cal:error", err, err ? err.stack : null);
-                    return this.notifyFailure();
-                }
-            );
+            this.busy = true;
+            return this.$store
+                .dispatch(action)
+                .then(
+                    (cleared) => {
+                        console.log("cal:", "cleared");
+                        return this.notifyCleared();
+                    },
+                    (err) => {
+                        console.log("cal:error", err, err ? err.stack : null);
+                        return this.notifyFailure();
+                    }
+                )
+                .finally(() => {
+                    this.busy = false;
+                });
         },
         onCalibrate(this: any, ev: any, step: CalibrationStep) {
             const sensor: CalibratingSensor = this.sensor;
@@ -237,16 +245,22 @@ export default Vue.extend({
                 compensations
             );
             console.log("cal:", "calibrate", action);
-            return this.$store.dispatch(action).then(
-                (calibrated) => {
-                    console.log("cal:", "calibrated");
-                    return Promise.resolve(this.onDone(ev, step));
-                },
-                (err) => {
-                    console.log("cal:error", err, err ? err.stack : null);
-                    return this.notifyFailure();
-                }
-            );
+            this.busy = true;
+            return this.$store
+                .dispatch(action)
+                .then(
+                    (calibrated) => {
+                        console.log("cal:", "calibrated");
+                        return Promise.resolve(this.onDone(ev, step));
+                    },
+                    (err) => {
+                        console.log("cal:error", err, err ? err.stack : null);
+                        return this.notifyFailure();
+                    }
+                )
+                .finally(() => {
+                    this.busy = false;
+                });
         },
         notifyCleared(this: any) {
             this.cleared = true;

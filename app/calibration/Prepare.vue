@@ -43,6 +43,10 @@ export default Vue.extend({
             type: Number,
             required: true,
         },
+        busy: {
+            type: Boolean,
+            required: true,
+        },
     },
     data() {
         return {};
