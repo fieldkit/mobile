@@ -8,7 +8,8 @@
                 @back="(ev) => onBack(ev, activeStep)"
             />
             <StackLayout>
-                <Success v-if="success" />
+                <Success v-if="cleared" text="Cleared" />
+                <Success v-if="success" :text="_L('calibrated')" />
                 <Failure v-if="failure" />
                 <template v-if="!(success || failure) && sensor">
                     <component
@@ -68,9 +69,10 @@ export default Vue.extend({
             default: true,
         },
     },
-    data(): { success: boolean; failure: boolean; completed: CalibrationStep[] } {
+    data(): { success: boolean; cleared: boolean; failure: boolean; completed: CalibrationStep[] } {
         return {
             success: false,
+            cleared: false,
             failure: false,
             completed: [],
         };
@@ -207,7 +209,7 @@ export default Vue.extend({
             return this.$store.dispatch(action).then(
                 (cleared) => {
                     console.log("cal:", "cleared");
-                    return this.notifySuccess();
+                    return this.notifyCleared();
                 },
                 (err) => {
                     console.log("cal:error", err, err ? err.stack : null);
@@ -245,6 +247,12 @@ export default Vue.extend({
                     return this.notifyFailure();
                 }
             );
+        },
+        notifyCleared(this: any) {
+            this.cleared = true;
+            return Promise.delay(3000).then(() => {
+                this.cleared = false;
+            });
         },
         notifySuccess(this: any) {
             this.success = true;
