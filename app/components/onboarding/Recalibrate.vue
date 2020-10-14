@@ -1,10 +1,10 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="140,*,140">
-            <GridLayout row="0" rows="auto,auto" columns="*" class="m-y-20">
+        <GridLayout rows="auto,*,140">
+            <GridLayout row="0" rows="auto,auto" columns="*" class="">
                 <StackLayout row="0" verticalAlignment="middle">
                     <ConnectionStatusHeader :connected="currentStation.connected" />
-                    <Label class="title text-center" :text="currentStation.name" textWrap="true"></Label>
+                    <Label class="m-y-20 title text-center" :text="currentStation.name" textWrap="true"></Label>
                 </StackLayout>
                 <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
                     <Image
