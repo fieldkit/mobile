@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded" @unloaded="onPageUnloaded">
+    <Page @loaded="onPageLoaded">
         <PlatformHeader row="0" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
 
         <GridLayout rows="*,55">
@@ -161,6 +161,7 @@ import moment from "moment";
 
 import Vue from "vue";
 import * as ActionTypes from "@/store/actions";
+import { StationSyncStatus } from "@/store";
 import routes from "@/routes";
 import Config from "@/config";
 
@@ -180,7 +181,7 @@ export default Vue.extend({
         };
     },
     computed: {
-        syncs(this: any) {
+        syncs(this: any): StationSyncStatus {
             return this.$store.getters.syncs;
         },
     },
@@ -191,7 +192,6 @@ export default Vue.extend({
                 this.syncs.map((s) => s.lastSeen)
             );
         },
-        onPageUnloaded(args) {},
         onToggle(this: any, sync) {
             Vue.set(this.closed, sync.deviceId, this.opened(sync));
             log.info("toggle", sync.name, this.closed[sync.deviceId]);

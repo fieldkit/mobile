@@ -291,6 +291,7 @@ export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatu
 
 export class SyncingState {
     syncs: StationSyncStatus[] = [];
+    busy: { [index: string]: boolean } = {};
     progress: { [index: string]: StationProgress } = {};
     pending: { [index: string]: Download } = {};
     connected: { [index: string]: ServiceInfo } = {};
@@ -317,39 +318,47 @@ const actions = (services: ServiceRef) => {
                 throw new Error("refusing to download from disconnected station");
             }
 
+            if (state.busy[sync.deviceId]) {
+                throw new Error("refusing to download while already busy");
+            }
+
+            state.busy[sync.deviceId] = true;
+
             console.log("syncing:download", sync.downloads);
 
-            return querySizes(services, sync.downloads).then((sizes) => {
-                console.log("syncing:sizes", sizes);
+            return querySizes(services, sync.downloads)
+                .then((sizes) => {
+                    console.log("syncing:sizes", sizes);
 
-                const totalBytes = _.sum((sizes) => sizes.size);
+                    const totalBytes = _.sum((sizes) => sizes.size);
 
-                commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, totalBytes));
-                return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
-                    const fsFolder = services.fs().getFolder(getFilePath(file.path));
-                    const fsFile = fsFolder.getFile(getFileName(file.path));
-                    console.log("syncing:download", file.url, fsFile);
-                    return services
-                        .queryStation()
-                        .download(file.url, fsFile.path, (total: number, copied: number, info) => {
-                            commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
-                        })
-                        .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
-                        .catch((error) => {
-                            if (AuthenticationError.isInstance(error)) {
-                                Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
-                            } else {
-                                Vue.set(state.errors, sync.deviceId, TransferError.Other);
-                            }
-                            console.log("error downloading", error, error ? error.stack : null);
-                            return Promise.reject(error);
-                        });
-                })
-                    .then(() => dispatch(ActionTypes.LOAD))
-                    .finally(() => {
-                        commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+                    commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, totalBytes));
+                    return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
+                        const fsFolder = services.fs().getFolder(getFilePath(file.path));
+                        const fsFile = fsFolder.getFile(getFileName(file.path));
+                        console.log("syncing:download", file.url, fsFile);
+                        return services
+                            .queryStation()
+                            .download(file.url, fsFile.path, (total: number, copied: number, info) => {
+                                commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
+                            })
+                            .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
+                            .catch((error) => {
+                                if (AuthenticationError.isInstance(error)) {
+                                    Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                                } else {
+                                    Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                                }
+                                console.log("error downloading", error, error ? error.stack : null);
+                                return Promise.reject(error);
+                            });
                     });
-            });
+                })
+                .then(() => dispatch(ActionTypes.LOAD))
+                .finally(() => {
+                    commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+                    state.busy[sync.deviceId] = false;
+                });
         },
         [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]): Promise<any> => {
             return Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
@@ -360,6 +369,12 @@ const actions = (services: ServiceRef) => {
             if (downloads.length != paths.length) {
                 throw new Error("download missing");
             }
+
+            if (state.busy[sync.deviceId]) {
+                throw new Error("refusing to upload while already busy");
+            }
+
+            state.busy[sync.deviceId] = true;
 
             const totalBytes = _(downloads)
                 .map((d) => d.size)
@@ -391,6 +406,7 @@ const actions = (services: ServiceRef) => {
                 .then(() => dispatch(ActionTypes.LOAD))
                 .finally(() => {
                     commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+                    state.busy[sync.deviceId] = false;
                 });
         },
     };

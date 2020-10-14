@@ -24,6 +24,7 @@ export * from "./types";
 export * from "./typed-actions";
 export * from "./modules/nearby";
 export * from "./modules/stations";
+export * from "./modules/syncing";
 export * from "./modules/media";
 export * from "./modules/global";
 
