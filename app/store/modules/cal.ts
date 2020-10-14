@@ -6,7 +6,7 @@ import * as MutationTypes from "../mutations";
 import { Station, ServiceInfo } from "../types";
 import { StationRepliedAction } from "@/store/typed-actions";
 import { ServiceRef } from "@/services";
-import CalibrationService from "@/services/calibration-service";
+import CalibrationService, { WireAtlasReply } from "@/services/calibration-service";
 
 import { GlobalGetters } from "./global";
 
@@ -102,9 +102,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.CALIBRATE_SENSOR]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
             const info = state.connected[payload.deviceId];
-            if (!info) {
-                throw new Error(`no info for nearby station ${payload.deviceId}`);
-            }
+            if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);
             const service = new CalibrationService(services.conservify());
             const url = info.url + "/modules/" + payload.position;
             const params = {
@@ -113,7 +111,7 @@ const actions = (services: ServiceRef) => {
                 reference: payload.value.reference,
                 compensations: payload.compensations,
             };
-            return service.calibrateSensor(url, params).then((calibrated) => {
+            return service.calibrateSensor(url, params).then((calibrated: WireAtlasReply) => {
                 console.log("cal:", "calibrated", payload.moduleId, calibrated);
                 return commit(CALIBRATED, { [payload.moduleId]: calibrated });
             });
