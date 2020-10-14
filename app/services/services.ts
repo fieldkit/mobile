@@ -30,7 +30,7 @@ export class ServiceFactories {
     }
 
     public createConservify(discoveryEvents: DiscoveryEvents = new DiscoveryEvents()): Conservify {
-        const logger = Config.logger("NativeScriptConservify").info;
+        const logger = Config.logger("NativeScriptConservify").noop;
         return new Conservify(discoveryEvents, logger);
     }
 }
@@ -134,7 +134,7 @@ export class ServicesImpl implements Services {
 
     public Conservify(): Conservify {
         if (!this.conservify) {
-            const logger = Config.logger("NativeScriptConservify").info;
+            const logger = Config.logger("NativeScriptConservify").noop;
             this.conservify = new Conservify(this.DiscoveryEvents(), logger);
         }
         return this.unwrap(this.conservify);
