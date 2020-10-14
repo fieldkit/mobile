@@ -117,9 +117,16 @@ export default class CalibrationService {
                 temperature: data.compensations.temperature,
             },
         });
-        return this.stationQuery(address, message).then((reply) => {
-            return this.fixupReply(reply);
-        });
+        return this.stationQuery(address, message)
+            .then((reply) => {
+                return this.fixupReply(reply);
+            })
+            .then((reply) => {
+                if (reply.errors?.length > 0) {
+                    throw new Error(`calibration failed: ${reply}`);
+                }
+                return reply;
+            });
     }
 
     protected getDryEcRef(temp: number): number {
