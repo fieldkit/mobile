@@ -1,9 +1,12 @@
 <template>
     <Page>
         <Header :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <GridLayout rows="auto,*">
+        <GridLayout rows="auto,*,auto">
             <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
-            <ChooseStrategy row="1" :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @choose="choose" />
+            <ChooseStrategy row="1" :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @selected="selected" />
+            <StackLayout row="2">
+                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="currentStation.connected" />
+            </StackLayout>
         </GridLayout>
     </Page>
 </template>
@@ -46,9 +49,10 @@ export default Vue.extend({
             default: true,
         },
     },
-    data(): { busy: boolean } {
+    data(): { busy: boolean; strategy: CalibrationStrategy | null } {
         return {
             busy: false,
+            strategy: null,
         };
     },
     computed: {
@@ -77,13 +81,19 @@ export default Vue.extend({
         },
     },
     methods: {
-        choose(this: any, strategy: CalibrationStrategy): Promise<any> {
-            console.log("strategy", strategy);
+        selected(this: any, strategy: CalibrationStrategy): void {
+            console.log("strategy", strategy.id);
+            this.strategy = strategy;
+        },
+        done(this: any): Promise<any> {
+            if (!this.strategy) {
+                this.strategy = this.strategies[0];
+            }
             return this.$navigateTo(Calibrate, {
                 props: {
                     stationId: this.stationId,
                     position: this.position,
-                    strategy: strategy,
+                    strategy: this.strategy,
                 },
             });
         },
