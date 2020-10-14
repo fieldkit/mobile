@@ -51,13 +51,6 @@ export interface Schedule {
     intervals: Interval[];
 }
 
-interface Self {
-    scheduleType: number;
-    schedule: Schedule;
-    isScheduleSimple: (s: Schedule) => boolean;
-    $emit: (name, value) => {};
-}
-
 export default Vue.extend({
     name: "ScheduleEditor",
     components: {
@@ -69,51 +62,51 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): { scheduleType: number } {
         return {
             scheduleType: 0,
         };
     },
     computed: {
-        isSimple(this: Self) {
+        isSimple(): boolean {
             return this.scheduleType == 0;
         },
-        isComplex(this: Self) {
+        isComplex(): boolean {
             return this.scheduleType == 1;
         },
-        canRemove(this: Self) {
+        canRemove(): boolean {
             return this.schedule.intervals.length > 1;
         },
     },
-    mounted(this: Self) {
+    mounted(): void {
         console.log("schedule-editor:mounted", this.schedule);
         if (this.schedule.intervals.length == 0) throw new Error("one schedule interval required");
         this.scheduleType = this.isScheduleSimple(this.schedule) ? 0 : 1;
     },
     methods: {
-        isScheduleSimple(this: Self, schedule: Schedule) {
+        isScheduleSimple(schedule: Schedule): boolean {
             if (schedule.intervals.length > 1) return false;
             const interval = schedule.intervals[0];
             if (interval.start != 0) return false;
             if (interval.end < 86400 - 60) return false;
             return true;
         },
-        changeScheduleType(this: Self, ev: any, scheduleType: number) {
+        changeScheduleType(ev: any, scheduleType: number): void {
             this.scheduleType = scheduleType;
         },
-        addInterval(this: Self) {
+        addInterval(): void {
             const newSchedule = _.clone(this.schedule);
             newSchedule.intervals.push(new Interval(0, 86400, 60));
             console.log("add-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
-        removeInterval(this: Self, interval: Interval) {
+        removeInterval(interval: Interval): void {
             const newSchedule = _.clone(this.schedule);
             newSchedule.intervals = _.without(newSchedule.intervals, interval);
             console.log("remove-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
         },
-        onChangeInterval(this: Self, index: number, interval: Interval) {
+        onChangeInterval(index: number, interval: Interval): void {
             const newSchedule = _.clone(this.schedule);
             newSchedule.intervals[index] = interval;
             console.log("change-interval", JSON.stringify(newSchedule));

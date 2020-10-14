@@ -3,6 +3,7 @@ import { Services } from "@/services";
 declare module "vue/types/vue" {
     interface Vue {
         $navigateTo(where: any, options: any): Promise<any>;
+        $showModal(comp: any, options: any): Promise<any>;
         $services: Services;
     }
 }

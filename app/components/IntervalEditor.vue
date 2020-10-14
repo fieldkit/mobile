@@ -67,20 +67,6 @@ import { ValueList } from "nativescript-drop-down";
 import TimeField from "./TimeFieldModalPicker.vue";
 import { Interval } from "@/store/types";
 
-interface Self {
-    interval: Interval;
-    fullDay: boolean;
-    form: { quantity: string; duration: number };
-    focus: boolean;
-    errors: { quantity: { numeric: boolean; required: boolean; minimum: boolean } };
-    durations: { display: string; value: number; duration: number }[];
-    updateForm: (interval: Interval) => any;
-    $emit: (type, value) => any;
-    onQuantityChange: (ev: any, fireChange: boolean) => any;
-    onChange: (fireChange: boolean) => any;
-    items: any;
-}
-
 export default Vue.extend({
     name: "IntervalEditor",
     components: {
@@ -96,7 +82,13 @@ export default Vue.extend({
             default: false,
         },
     },
-    data() {
+    data(): {
+        focus: boolean;
+        durations: { display: string; value: number; duration: number }[];
+        items: any;
+        form: { quantity: string; duration: number };
+        errors: { quantity: { required: boolean; numeric: boolean; minimum: boolean } };
+    } {
         const durations = [
             { display: "Minutes", value: 60, duration: 60 },
             { display: "Hours", value: 60 * 60, duration: 60 * 60 },
@@ -119,20 +111,20 @@ export default Vue.extend({
         };
     },
     computed: {
-        fieldClass(this: Self) {
+        fieldClass(): string {
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
-        summary(this: Self) {
+        summary(): string {
             return "every";
         },
     },
-    mounted(this: Self) {
+    mounted(): void {
         console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay);
         this.items = new ValueList(this.durations);
-        return this.updateForm(this.interval);
+        this.updateForm(this.interval);
     },
     methods: {
-        updateForm(this: Self, interval: Interval) {
+        updateForm(interval: Interval): void {
             console.log("interval-editor:updating", JSON.stringify(interval));
             const minutes = interval.interval / 60;
             if (minutes >= 60) {
@@ -141,7 +133,7 @@ export default Vue.extend({
             this.form.quantity = String(Math.ceil(interval.interval / this.form.duration));
             console.log("interval-editor:updated", JSON.stringify(this.form));
         },
-        onChange(this: Self, ev) {
+        onChange(ev: any): void {
             this.errors.quantity.numeric = false;
             this.errors.quantity.required = false;
             this.errors.quantity.minimum = false;
@@ -172,7 +164,7 @@ export default Vue.extend({
             console.log("interval-editor:seconds", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
         },
-        onChangeStart(this: Self, time: number) {
+        onChangeStart(time: number): void {
             const newInterval = {
                 start: time,
                 end: this.interval.end,
@@ -182,7 +174,7 @@ export default Vue.extend({
             console.log("interval-editor:start", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
         },
-        onChangeEnd(this: Self, time: number) {
+        onChangeEnd(time: number): void {
             const newInterval = {
                 start: this.interval.start,
                 end: time,
@@ -192,25 +184,25 @@ export default Vue.extend({
             console.log("interval-editor:end", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
         },
-        onFocus(this: Self) {
+        onFocus(): void {
             this.focus = true;
         },
-        onBlur(this: Self) {
+        onBlur(): void {
             this.focus = false;
             this.onChange(true);
         },
-        onQuantityChange(this: Self, ev, fireChange: boolean) {
+        onQuantityChange(ev, fireChange: boolean): void {
             // value is undefined for onBlur
             if (ev && ev.value) {
                 this.form.quantity = ev.value;
                 return this.onChange(fireChange);
             }
         },
-        onDurationChange(this: Self, ev, ...args) {
+        onDurationChange(ev, ...args): void {
             this.form.duration = this.durations[ev.newIndex].duration;
             return this.onChange(true);
         },
-        indexOf(this: Self, duration: number) {
+        indexOf(duration: number): number {
             for (let v of this.durations) {
                 if (v.duration === duration) {
                     return this.durations.indexOf(v);

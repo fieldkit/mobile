@@ -175,36 +175,36 @@ export default Vue.extend({
         ...SharedComponents,
         NoStationsWannaAdd,
     },
-    data() {
+    data(): { closed: { [index: string]: boolean } } {
         return {
             closed: {},
         };
     },
     computed: {
-        syncs(this: any): StationSyncStatus {
+        syncs(): StationSyncStatus[] {
             return this.$store.getters.syncs;
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(): void {
             console.log(
                 "data-view:syncs",
                 this.syncs.map((s) => s.lastSeen)
             );
         },
-        onToggle(this: any, sync) {
+        onToggle(sync: StationSyncStatus): void {
             Vue.set(this.closed, sync.deviceId, this.opened(sync));
             log.info("toggle", sync.name, this.closed[sync.deviceId]);
         },
-        onDownload(this: any, sync) {
+        onDownload(sync: StationSyncStatus): Promise<any> {
             log.info("download", sync);
             return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
         },
-        onUpload(this: any, sync) {
+        onUpload(sync: StationSyncStatus): Promise<any> {
             log.info("upload", sync);
             return this.$store.dispatch(ActionTypes.UPLOAD_STATION, sync);
         },
-        opened(this: any, sync) {
+        opened(sync: StationSyncStatus): boolean {
             if (this.closed[sync.deviceId] === true) {
                 return false;
             }
@@ -213,14 +213,14 @@ export default Vue.extend({
             }
             return sync.connected || !sync.isComplete;
         },
-        prettyDate(this: any, date) {
+        prettyDate(date: any): string {
             if (!date) {
                 return "N/A";
             }
             return moment(date).format("MM/DD/YYYY");
         },
-        goToAddStation(this: any) {
-            return this.$navigateTo(routes.onboarding.start);
+        goToAddStation(): Promise<any> {
+            return this.$navigateTo(routes.onboarding.start, {});
         },
     },
 });
