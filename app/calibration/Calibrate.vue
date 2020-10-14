@@ -10,7 +10,7 @@
             <StackLayout>
                 <Success v-if="success" />
                 <Failure v-if="failure" />
-                <template v-if="!(success || failure)">
+                <template v-if="!(success || failure) && sensor">
                     <component
                         :is="activeStep.visual.component"
                         :sensor="sensor"
@@ -76,50 +76,57 @@ export default Vue.extend({
         };
     },
     computed: {
-        sensor(this: any) {
-            const station = this.$store.getters.legacyStations[this.stationId];
-            if (!station) throw new Error(`station missing: ${this.stationId}`);
-            const module = station.modules[this.position];
-            if (!module) throw new Error(`module missing: ${this.stationId} ${this.position}`);
+        sensor(this: any): CalibratingSensor | null {
+            try {
+                const station = this.$store.getters.legacyStations[this.stationId];
+                if (!station) throw new Error(`station missing: ${this.stationId}`);
+                const module = station.modules[this.position];
+                if (!module) throw new Error(`module missing: ${this.stationId} ${this.position}`);
 
-            console.log("module-full", module);
+                console.log("module-full", module);
 
-            const moduleId = module.moduleId;
-            console.log("module-id", moduleId);
+                const moduleId = module.moduleId;
 
-            const moduleCalibration = this.$store.state.cal.status[moduleId]?.calibration || null;
-            console.log("module-cal", moduleCalibration);
+                console.log("module-id", moduleId);
+                console.log("module-cal-status", this.$store.state.cal.status);
 
-            if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
+                const moduleCalibration = this.$store.state.cal.status[moduleId]?.calibration || null;
+                console.log("module-cal", moduleCalibration);
 
-            const displaySensor = module.sensors[0];
-            const stationSensors = _.fromPairs(
-                _.flatten(
-                    station.modules.map((module) => {
-                        return module.sensors.map((sensor) => {
-                            return [module.name + "." + sensor.name, sensor.reading];
-                        });
-                    })
-                )
-            ) as { [index: string]: number };
+                if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
 
-            console.log("station-sensors", stationSensors);
+                const displaySensor = module.sensors[0];
+                const stationSensors = _.fromPairs(
+                    _.flatten(
+                        station.modules.map((module) => {
+                            return module.sensors.map((sensor) => {
+                                return [module.name + "." + sensor.name, sensor.reading];
+                            });
+                        })
+                    )
+                ) as { [index: string]: number };
 
-            const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
+                console.log("station-sensors", stationSensors);
 
-            console.log("cal-value", calibrationValue);
+                const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
 
-            return new CalibratingSensor(
-                this.stationId,
-                moduleId,
-                station.connected,
-                this.position,
-                displaySensor.unitOfMeasure,
-                displaySensor.reading,
-                calibrationValue,
-                moduleCalibration,
-                stationSensors
-            );
+                console.log("cal-value", calibrationValue);
+
+                return new CalibratingSensor(
+                    this.stationId,
+                    moduleId,
+                    station.connected,
+                    this.position,
+                    displaySensor.unitOfMeasure,
+                    displaySensor.reading,
+                    calibrationValue,
+                    moduleCalibration,
+                    stationSensors
+                );
+            } catch (error) {
+                console.log(`calibration error: ${error}`, error ? error.stack : null);
+                return null;
+            }
         },
         deviceId(this: any) {
             return this.$store.getters.legacyStations[this.stationId].deviceId;
