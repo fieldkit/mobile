@@ -1,13 +1,17 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <Header :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <ChooseStrategy :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @choose="choose" />
+        <GridLayout rows="auto,*">
+            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
+            <ChooseStrategy row="1" :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @choose="choose" />
+        </GridLayout>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { _T } from "../utilities";
+import { _T } from "@/utilities";
+import { Station, Module } from "@/store/types";
 
 import Header from "./Header.vue";
 import Calibrate from "./Calibrate.vue";
@@ -15,6 +19,7 @@ import ChooseStrategy from "./ChooseStrategy.vue";
 
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import StationSettingsModuleList from "../components/settings/StationSettingsModuleList.vue";
+import ConnectionStatusHeader from "../components/ConnectionStatusHeader.vue";
 
 import { calibrationStrategies } from "./strategies";
 import { CalibrationStrategy } from "./model";
@@ -25,6 +30,7 @@ export default Vue.extend({
     name: "Start",
     components: {
         Header,
+        ConnectionStatusHeader,
         ChooseStrategy,
     },
     props: {
@@ -46,17 +52,20 @@ export default Vue.extend({
         };
     },
     computed: {
-        module(this: any) {
-            const station = this.$store.getters.stationsById[this.stationId];
+        currentStation(this: any): Station {
+            return this.$store.getters.stationCalibrations[this.stationId];
+        },
+        module(this: any): Module {
+            const station: Station = this.$store.getters.stationsById[this.stationId];
             const module = station.modules.find((m) => m.position === this.position);
             if (!module) throw new Error("unable to find module");
             console.log("station-module", module.name);
             return module;
         },
-        moduleKey(this: any) {
+        moduleKey(this: any): string {
             return this.module.name;
         },
-        strategies(this: any) {
+        strategies(this: any): CalibrationStrategy[] {
             return calibrationStrategies().getModuleStrategies(this.moduleKey);
         },
         visual(this: any) {
@@ -68,10 +77,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
-            // console.log("loaded", calibrationStrategies);
-        },
-        choose(this: any, strategy: CalibrationStrategy) {
+        choose(this: any, strategy: CalibrationStrategy): Promise<any> {
             console.log("strategy", strategy);
             return this.$navigateTo(Calibrate, {
                 props: {
@@ -81,7 +87,7 @@ export default Vue.extend({
                 },
             });
         },
-        back(this: any) {
+        back(this: any): Promise<any> {
             console.log("Start::back", this.fromSettings);
             if (this.fromSettings) {
                 return this.$navigateTo(StationSettingsModuleList, {

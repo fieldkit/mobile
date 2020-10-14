@@ -50,8 +50,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "../../routes";
-import { _T } from "../../utilities";
+import routes from "@/routes";
+import { _T } from "@/utilities";
+import { Station } from "@/store/types";
 
 import { ModuleCalibration } from "@/calibration/model";
 
@@ -70,27 +71,30 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): { loading: boolean } {
         return {
             loading: false,
         };
     },
     computed: {
-        currentStation(this: any) {
+        currentStation(this: any): Station {
             return this.$store.getters.stationCalibrations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(this: any, args): void {
             console.log("recalibrating", this.stationId);
         },
-        goToStations(this: any) {
+        goToStations(this: any): Promise<any> {
             return this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });
         },
-        calibrateModule(this: any, m: ModuleCalibration) {
+        calibrateModule(this: any, m: ModuleCalibration): Promise<any> {
+            if (!this.currentStation.connected) {
+                return Promise.resolve();
+            }
             return this.$navigateTo(routes.calibration.start, {
                 clearHistory: true,
                 props: {

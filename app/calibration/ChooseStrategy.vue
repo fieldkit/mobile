@@ -1,7 +1,7 @@
 <template>
     <StackLayout>
         <GridLayout rows="*,80">
-            <StackLayout row="0">
+            <ScrollView row="0">
                 <StackLayout class="choice-container">
                     <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
                     <Label
@@ -21,7 +21,7 @@
                         <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
                     </StackLayout>
                 </StackLayout>
-            </StackLayout>
+            </ScrollView>
             <StackLayout row="1">
                 <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
             </StackLayout>

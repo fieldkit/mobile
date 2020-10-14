@@ -16,7 +16,7 @@ export class AtlasCalValue extends CalibrationValue {
     }
 }
 
-interface CommonProperties {
+export interface CommonProperties {
     sensor: string;
     unitOfMeasure: string;
     title: string;
