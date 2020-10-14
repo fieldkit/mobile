@@ -1,7 +1,7 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="140,auto,*,140">
-            <GridLayout row="0" rows="auto, auto" columns="*" class="m-y-20">
+        <GridLayout rows="140,*,140">
+            <GridLayout row="0" rows="auto,auto" columns="*" class="m-y-20">
                 <StackLayout row="0" verticalAlignment="middle">
                     <ConnectionStatusHeader :connected="currentStation.connected" />
                     <Label class="title text-center" :text="currentStation.name" textWrap="true"></Label>
@@ -30,6 +30,7 @@
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
+            <StackLayout row="1" v-else><!-- TODO No Modules --></StackLayout>
 
             <StackLayout row="2" verticalAlignment="bottom" class="m-x-10">
                 <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
