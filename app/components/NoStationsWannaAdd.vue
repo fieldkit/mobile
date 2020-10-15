@@ -19,8 +19,8 @@ export default Vue.extend({
         },
     },
     methods: {
-        goToAddStation(this: any) {
-            return this.$navigateTo(routes.onboarding.start);
+        goToAddStation(): Promise<any> {
+            return this.$navigateTo(routes.onboarding.start, {});
         },
     },
 });

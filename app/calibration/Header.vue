@@ -34,11 +34,8 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
-        return {};
-    },
     methods: {
-        back(this: any) {
+        back(): void {
             this.$emit("back");
         },
     },

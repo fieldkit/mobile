@@ -1,27 +1,23 @@
 import _ from "lodash";
-import protobuf from "protobufjs";
-import { promiseAfter } from "@/utilities";
 import Config from "@/config";
+import { promiseAfter } from "@/utilities";
+import { Conservify } from "@/services";
 import { AtlasSensorType } from "@/calibration";
 import { fixupCalibrationStatus } from "@/store/http_reply";
+import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
+export * from "./atlas-types";
 
-const atlasRoot: any = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
-const AtlasQuery = atlasRoot.lookupType("fk_atlas.WireAtlasQuery");
-const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
-const ReplyType = atlasRoot.lookup("fk_atlas.ReplyType");
-const replyTypeLookup = _.invert(ReplyType.values);
-const SensorType = atlasRoot.lookup("fk_atlas.SensorType");
-const sensorTypeLookup = _.invert(SensorType.values);
-const AtlasQueryType = atlasRoot.lookup("fk_atlas.QueryType");
-const AtlasCalibrationOperation = atlasRoot.lookup("fk_atlas.CalibrationOperation");
-// const TempCalibrations = atlasRoot.lookup("fk_atlas.TempCalibrations");
-// const DoCalibrations = atlasRoot.lookup("fk_atlas.DoCalibrations");
-// const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
-// const EcCalibrations = atlasRoot.lookup("fk_atlas.EcCalibrations");
-// const DoCalibrationsCommand = atlasRoot.lookup("fk_atlas.DoCalibrateCommand");
-const PhCalibrationsCommand = atlasRoot.lookup("fk_atlas.PhCalibrateCommand");
-const EcCalibrationsCommand = atlasRoot.lookup("fk_atlas.EcCalibrateCommand");
-// const OrpCalibrations = atlasRoot.lookup("fk_atlas.OrpCalibrations");
+const AtlasQuery = AtlasProto.WireAtlasQuery;
+const AtlasReply = AtlasProto.WireAtlasReply;
+const ReplyType = AtlasProto.ReplyType;
+const SensorType = AtlasProto.SensorType;
+const AtlasQueryType = AtlasProto.QueryType;
+const AtlasCalibrationOperation = AtlasProto.CalibrationOperation;
+const PhCalibrationsCommand = AtlasProto.PhCalibrateCommand;
+const EcCalibrationsCommand = AtlasProto.EcCalibrateCommand;
+
+const replyTypeLookup = _.invert(ReplyType);
+const sensorTypeLookup = _.invert(SensorType);
 
 const log = Config.logger("CalibrationService");
 
@@ -35,18 +31,18 @@ export interface CalibrationAttempt {
 }
 
 export default class CalibrationService {
-    constructor(private readonly conservify: any) {}
+    constructor(private readonly conservify: Conservify) {}
 
-    public clearCalibration(address) {
+    public clearCalibration(address: string): Promise<AtlasProto.WireAtlasReply> {
         const message = AtlasQuery.create({
-            type: AtlasQueryType.values.QUERY_NONE,
+            type: AtlasQueryType.QUERY_NONE,
             calibration: {
-                operation: AtlasCalibrationOperation.values.CALIBRATION_CLEAR,
+                operation: AtlasCalibrationOperation.CALIBRATION_CLEAR,
             },
         });
 
         return this.stationQuery(address, message).then((reply) => {
-            return this._fixupReply(reply);
+            return this.fixupReply(reply);
         });
     }
 
@@ -56,17 +52,20 @@ export default class CalibrationService {
                 break;
             }
             case AtlasSensorType.Ph: {
+                if (!data.compensations.temperature) {
+                    return data.reference;
+                }
                 switch (data.which) {
-                    case PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE: {
+                    case PhCalibrationsCommand.CALIBRATE_PH_MIDDLE: {
                         return this.getQuickPhRef(data.compensations.temperature);
                     }
-                    case PhCalibrationsCommand.values.CALIBRATE_PH_LOW: {
+                    case PhCalibrationsCommand.CALIBRATE_PH_LOW: {
                         return this.getLowPhRef(data.compensations.temperature);
                     }
-                    case PhCalibrationsCommand.values.CALIBRATE_PH_MIDDLE: {
+                    case PhCalibrationsCommand.CALIBRATE_PH_MIDDLE: {
                         return this.getMidPhRef(data.compensations.temperature);
                     }
-                    case PhCalibrationsCommand.values.CALIBRATE_PH_HIGH: {
+                    case PhCalibrationsCommand.CALIBRATE_PH_HIGH: {
                         return this.getHighPhRef(data.compensations.temperature);
                     }
                 }
@@ -82,17 +81,20 @@ export default class CalibrationService {
                 break;
             }
             case AtlasSensorType.Ec: {
+                if (!data.compensations.temperature) {
+                    return data.reference;
+                }
                 switch (data.which) {
-                    case EcCalibrationsCommand.values.CALIBRATE_EC_DRY: {
+                    case EcCalibrationsCommand.CALIBRATE_EC_DRY: {
                         return this.getDryEcRef(data.compensations.temperature);
                     }
-                    case EcCalibrationsCommand.values.CALIBRATE_EC_SINGLE: {
+                    case EcCalibrationsCommand.CALIBRATE_EC_SINGLE: {
                         return this.getLowEcRef(data.compensations.temperature);
                     }
-                    case EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_LOW: {
+                    case EcCalibrationsCommand.CALIBRATE_EC_DUAL_LOW: {
                         return this.getLowEcRef(data.compensations.temperature);
                     }
-                    case EcCalibrationsCommand.values.CALIBRATE_EC_DUAL_HIGH: {
+                    case EcCalibrationsCommand.CALIBRATE_EC_DUAL_HIGH: {
                         return this.getHighEcRef(data.compensations.temperature);
                     }
                 }
@@ -102,12 +104,12 @@ export default class CalibrationService {
         return data.reference;
     }
 
-    public calibrateSensor(address: string, data: CalibrationAttempt) {
+    public calibrateSensor(address: string, data: CalibrationAttempt): Promise<AtlasProto.WireAtlasReply> {
         const adjusted = this.applyCompensation(data);
         const message = AtlasQuery.create({
-            type: AtlasQueryType.values.QUERY_NONE,
+            type: AtlasQueryType.QUERY_NONE,
             calibration: {
-                operation: AtlasCalibrationOperation.values.CALIBRATION_SET,
+                operation: AtlasCalibrationOperation.CALIBRATION_SET,
                 which: data.which,
                 value: adjusted,
             },
@@ -115,16 +117,23 @@ export default class CalibrationService {
                 temperature: data.compensations.temperature,
             },
         });
-        return this.stationQuery(address, message).then((reply) => {
-            return this._fixupReply(reply);
-        });
+        return this.stationQuery(address, message)
+            .then((reply) => {
+                return this.fixupReply(reply);
+            })
+            .then((reply) => {
+                if (reply.errors?.length > 0) {
+                    throw new Error(`calibration failed: ${reply}`);
+                }
+                return reply;
+            });
     }
 
-    protected getDryEcRef(temp) {
+    protected getDryEcRef(temp: number): number {
         return 0;
     }
 
-    protected getLowEcRef(temp) {
+    protected getLowEcRef(temp: number): number {
         let ref = 12880;
         if (temp <= 5) {
             ref = 8220;
@@ -150,7 +159,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    protected getHighEcRef(temp) {
+    protected getHighEcRef(temp: number): number {
         let ref = 80000;
         if (temp <= 5) {
             ref = 53500;
@@ -176,7 +185,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    protected getQuickPhRef(temp) {
+    protected getQuickPhRef(temp: number): number {
         let ref = 6.86;
         if (temp <= 10) {
             ref = 6.92;
@@ -192,7 +201,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    protected getLowPhRef(temp) {
+    protected getLowPhRef(temp: number): number {
         let ref = 4;
         if (temp <= 5) {
             ref = 4;
@@ -218,7 +227,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    protected getMidPhRef(temp) {
+    protected getMidPhRef(temp: number): number {
         let ref = 7;
         if (temp <= 5) {
             ref = 7.09;
@@ -244,7 +253,7 @@ export default class CalibrationService {
         return ref;
     }
 
-    protected getHighPhRef(temp) {
+    protected getHighPhRef(temp: number): number {
         let ref = 10;
         if (temp <= 5) {
             ref = 10.25;
@@ -275,7 +284,7 @@ export default class CalibrationService {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url: string, message) {
+    private stationQuery(url: string, message: AtlasProto.WireAtlasQuery): Promise<AtlasProto.WireAtlasReply> {
         if (!Config.developer.stationFilter(url)) {
             return Promise.reject("ignored");
         }
@@ -286,7 +295,7 @@ export default class CalibrationService {
             .protobuf({
                 method: "POST",
                 url: url,
-                body: binaryQuery,
+                body: binaryQuery as any,
             })
             .then(
                 (response) => {
@@ -295,11 +304,11 @@ export default class CalibrationService {
 
                     if (response && response.body && response.body.length == 0) {
                         log.info(url, "calibration query success", "<empty>");
-                        return {};
+                        return new AtlasProto.WireAtlasReply();
                     }
 
-                    const decoded = this._getResponseBody(response);
-                    return this._handlePotentialRetryReply(decoded, url, message).then((finalReply) => {
+                    const decoded = this.getResponseBody(response);
+                    return this.handlePotentialRetryReply(decoded, url, message).then((finalReply) => {
                         log.info(url, "calibration query success", finalReply);
                         return finalReply;
                     });
@@ -311,7 +320,7 @@ export default class CalibrationService {
             );
     }
 
-    private _getResponseBody(response) {
+    private getResponseBody(response: any): AtlasProto.WireAtlasReply | any | null {
         if (Buffer.isBuffer(response.body)) {
             return AtlasReply.toObject(AtlasReply.decodeDelimited(response.body), {
                 enums: Number,
@@ -320,7 +329,7 @@ export default class CalibrationService {
         return response.body;
     }
 
-    private _fixupReply(reply) {
+    private fixupReply(reply: any): AtlasProto.WireAtlasReply {
         if (reply.errors && reply.errors.length > 0) {
             return reply;
         }
@@ -333,18 +342,22 @@ export default class CalibrationService {
         return reply;
     }
 
-    private _handlePotentialRetryReply(reply, url, message) {
-        if (reply.type != ReplyType.values.REPLY_RETRY) {
+    private handlePotentialRetryReply(
+        reply: AtlasProto.WireAtlasReply,
+        url: string,
+        message: AtlasProto.WireAtlasQuery
+    ): Promise<AtlasProto.WireAtlasReply> {
+        if (reply.type != ReplyType.REPLY_RETRY) {
             return Promise.resolve(reply);
         }
         const delays = _.sumBy(reply.errors, "delay");
         if (delays == 0) {
             return Promise.reject(new Error("busy"));
         }
-        return this._retryAfter(delays, url, message);
+        return this.retryAfter(delays, url, message);
     }
 
-    private _retryAfter(delays, url, message) {
+    private retryAfter(delays: number, url: string, message: AtlasProto.WireAtlasQuery): Promise<AtlasProto.WireAtlasReply> {
         log.info(url, "retrying calibration query after", delays);
         return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);

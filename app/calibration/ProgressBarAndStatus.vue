@@ -23,11 +23,11 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     methods: {
-        reconnection(this: any) {
+        reconnection(): void {
             console.log("reconnection", this.progress);
         },
     },

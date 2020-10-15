@@ -29,7 +29,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-
 import CircularProgressBar from "../components/CircularProgressBar.vue";
 
 export default Vue.extend({
@@ -58,14 +57,14 @@ export default Vue.extend({
             default: null,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        elapsedMs(this: any) {
+        elapsedMs(): number {
             return this.elapsed * 1000;
         },
-        unitIsPrefix(this: any) {
+        unitIsPrefix(): boolean {
             return this.unitOfMeasure.toLowerCase() == "ph";
         },
     },

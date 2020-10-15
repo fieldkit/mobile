@@ -22,7 +22,7 @@ import FieldNoteForm from "./FieldNoteForm.vue";
 import * as MutationTypes from "@/store/mutations";
 import * as ActionTypes from "@/store/actions";
 
-import { NoteData, NoteMedia } from "@/store/modules/notes";
+import { Station, Notes, NoteData, NoteMedia, NoteHelp, NoteForm } from "@/store";
 
 export default Vue.extend({
     components: {
@@ -39,23 +39,23 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        notes(this: any) {
+        notes(): Notes {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation(this: any) {
+        currentStation(): Station {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        note(this: any) {
+        note(): NoteData | null {
             if (this.editingKey) {
                 return this.notes.notes[this.editingKey] || new NoteData();
             }
             return null;
         },
-        help(this: any) {
+        help(): NoteHelp | null {
             if (this.editingKey) {
                 return this.notes.help[this.editingKey];
             }
@@ -63,17 +63,17 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {},
-        onSaveNote(this: any, { form }) {
+        onPageLoaded(): void {},
+        onSaveNote(form: NoteForm): Promise<any> {
             console.log("notes-view:saving", this.editingKey, form);
 
             this.$store.commit(MutationTypes.UPDATE_NOTE, { stationId: this.stationId, key: this.editingKey, update: form });
 
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId }).then(() => {
-                return this.$navigateBack();
+                return this.$navigateBack({});
             });
         },
-        onAttachNoteMedia(this: any, media) {
+        onAttachNoteMedia(media: NoteMedia): Promise<any> {
             if (NoteMedia.isAudio(media)) {
                 this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
             } else {
@@ -81,12 +81,12 @@ export default Vue.extend({
             }
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
-        onRemoveAudio(this: any, media) {
+        onRemoveAudio(media: NoteMedia): Promise<any> {
             this.$store.commit(MutationTypes.REMOVE_NOTE_MEDIA, { stationId: this.stationId, key: this.editingKey, audio: media });
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
         },
-        onCancelEditing(this: any) {
-            return this.$navigateBack();
+        onCancelEditing(): Promise<any> {
+            return this.$navigateBack({});
         },
     },
 });

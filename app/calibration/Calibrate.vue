@@ -8,14 +8,16 @@
                 @back="(ev) => onBack(ev, activeStep)"
             />
             <StackLayout>
-                <Success v-if="success" />
+                <Success v-if="cleared" text="Cleared" />
+                <Success v-if="success" :text="_L('calibrated')" />
                 <Failure v-if="failure" />
-                <template v-if="!(success || failure)">
+                <template v-if="!(success || failure) && sensor">
                     <component
                         :is="activeStep.visual.component"
                         :sensor="sensor"
                         :step="activeStep"
                         :progress="progress"
+                        :busy="busy"
                         @done="(ev) => onDone(ev, activeStep)"
                         @back="(ev) => onBack(ev, activeStep)"
                         @clear="(ev) => onClear(ev, activeStep)"
@@ -29,8 +31,7 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import { _T } from "../utilities";
-import Promise from "bluebird";
+import { _T, promiseAfter } from "@/utilities";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -43,6 +44,9 @@ import StationSettingsModules from "../components/settings/StationSettingsModule
 
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { ClearAtlasCalibration, CalibrateAtlas } from "../store/modules/cal";
+import { AtlasCalValue } from "./water";
+
+import { LegacyStation } from "@/store";
 
 export default Vue.extend({
     name: "Calibrate",
@@ -68,104 +72,116 @@ export default Vue.extend({
             default: true,
         },
     },
-    data(): { success: boolean; failure: boolean; completed: CalibrationStep[] } {
+    data(): { success: boolean; cleared: boolean; failure: boolean; busy: boolean; completed: CalibrationStep[] } {
         return {
             success: false,
+            cleared: false,
             failure: false,
+            busy: false,
             completed: [],
         };
     },
     computed: {
-        sensor(this: any) {
-            const station = this.$store.getters.legacyStations[this.stationId];
-            if (!station) throw new Error(`station missing: ${this.stationId}`);
-            const module = station.modules[this.position];
-            if (!module) throw new Error(`module missing: ${this.stationId} ${this.position}`);
-
-            console.log("module-full", module);
-
-            const moduleId = module.moduleId;
-            console.log("module-id", moduleId);
-
-            const moduleCalibration = this.$store.state.cal.status[moduleId]?.calibration || null;
-            console.log("module-cal", moduleCalibration);
-
-            if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
-
-            const displaySensor = module.sensors[0];
-            const stationSensors = _.fromPairs(
-                _.flatten(
-                    station.modules.map((module) => {
-                        return module.sensors.map((sensor) => {
-                            return [module.name + "." + sensor.name, sensor.reading];
-                        });
-                    })
-                )
-            ) as { [index: string]: number };
-
-            console.log("station-sensors", stationSensors);
-
-            const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
-
-            console.log("cal-value", calibrationValue);
-
-            return new CalibratingSensor(
-                this.stationId,
-                moduleId,
-                station.connected,
-                this.position,
-                displaySensor.unitOfMeasure,
-                displaySensor.reading,
-                calibrationValue,
-                moduleCalibration,
-                stationSensors
-            );
+        station(): LegacyStation | null {
+            return this.$store.getters.legacyStations[this.stationId];
         },
-        deviceId(this: any) {
+        sensor(): CalibratingSensor | null {
+            try {
+                const station = this.station;
+                if (!station) throw new Error(`station missing: ${this.stationId}`);
+                const module = station.modules[this.position];
+                if (!module) throw new Error(`module missing: ${this.stationId} ${this.position}`);
+
+                console.log("module-full", module);
+
+                const moduleId = module.moduleId;
+
+                console.log("module-id", moduleId);
+                console.log("module-cal-status", this.$store.state.cal.status);
+
+                const moduleCalibration = this.$store.state.cal.status[moduleId]?.calibration || null;
+                console.log("module-cal", moduleCalibration);
+
+                if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
+
+                const displaySensor = module.sensors[0];
+                const stationSensors = _.fromPairs(
+                    _.flatten(
+                        station.modules.map((module) => {
+                            return module.sensors.map((sensor) => {
+                                return [module.name + "." + sensor.name, sensor.reading];
+                            });
+                        })
+                    )
+                ) as { [index: string]: number };
+
+                console.log("station-sensors", stationSensors);
+
+                const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
+
+                console.log("cal-value", calibrationValue);
+
+                return new CalibratingSensor(
+                    this.stationId,
+                    moduleId,
+                    station.connected,
+                    this.position,
+                    displaySensor.unitOfMeasure,
+                    displaySensor.reading,
+                    calibrationValue,
+                    moduleCalibration,
+                    stationSensors
+                );
+            } catch (error) {
+                console.log(`calibration error: ${error}`, error ? error.stack : null);
+                return null;
+            }
+        },
+        deviceId(): string {
             return this.$store.getters.legacyStations[this.stationId].deviceId;
         },
-        activeStep(this: any): VisualCalibrationStep | null {
+        activeStep(): VisualCalibrationStep {
             const step = _.first(this.getRemainingSteps());
             if (step instanceof VisualCalibrationStep) {
                 return step;
             }
             return this.getLastStep();
         },
-        progress(this: any) {
+        progress(): number {
             return (this.completed.length / this.getAllVisualSteps().length) * 100;
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args): void {
             // console.log("cal:", "strategy", this.strategy);
         },
-        getLastStep(this: any): VisualCalibrationStep {
+        getLastStep(): VisualCalibrationStep {
             const all = this.getAllVisualSteps();
             return all[all.length - 1];
         },
-        getAllVisualSteps(this: any): VisualCalibrationStep[] {
+        getAllVisualSteps(): VisualCalibrationStep[] {
             const steps: CalibrationStep[] = this.strategy.allChildren;
             return steps.filter((step: any): step is VisualCalibrationStep => step.visual !== undefined);
         },
-        getRemainingSteps(this: any): VisualCalibrationStep[] {
+        getRemainingSteps(): CalibrationStep[] {
             return _.without(this.getAllVisualSteps(), ...this.completed);
         },
-        onDone(this: any, ev: any, step: CalibrationStep) {
+        onDone(ev: any, step: CalibrationStep): Promise<void> {
             this.completed.push(step);
             console.log("cal:", "done", step);
             if (this.getRemainingSteps().length > 0) {
-                return;
+                return Promise.resolve();
             }
 
             console.log("cal", "finished");
             return this.notifySuccess().then(() => {
-                return this.navigateBack(ev, step);
+                return this.navigateBack();
             });
         },
-        onCancel(this: any, ev: any, step: CalibrationStep) {
+        onCancel(ev: any, step: CalibrationStep): void {
             console.log("cal:", "cancel", step);
         },
-        navigateBack(this: any) {
+        navigateBack(): Promise<any> {
             console.log("navigateBack", this.fromSettings);
             if (this.fromSettings) {
                 return this.$navigateTo(StationSettingsModules, {
@@ -181,7 +197,7 @@ export default Vue.extend({
                 });
             }
         },
-        onBack(this: any, ev: any, step: CalibrationStep) {
+        onBack(ev: any, step: CalibrationStep): Promise<any> {
             console.log("cal:", "back", step, "completed", this.completed.length);
             if (this.completed.length == 0) {
                 return this.$navigateTo(Start, {
@@ -192,62 +208,94 @@ export default Vue.extend({
                 });
             }
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
+            return Promise.resolve();
         },
-        onClear(this: any, ev: any, step: CalibrationStep) {
-            const sensor: CalibratingSensor = this.sensor;
-            const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
-            console.log("cal:", "clearing", action);
-            return this.$store.dispatch(action).then(
-                (cleared) => {
-                    console.log("cal:", "cleared");
-                    return this.notifySuccess();
-                },
-                (err) => {
-                    console.log("cal:error", err, err ? err.stack : null);
-                    return this.notifyFailure();
-                }
-            );
-        },
-        onCalibrate(this: any, ev: any, step: CalibrationStep) {
-            const sensor: CalibratingSensor = this.sensor;
-            console.log("cal:", "sensor", sensor);
-            if (!sensor.moduleCalibration) {
-                throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
+        onClear(ev: any, step: CalibrationStep): Promise<any> {
+            if (!this.station || !this.station.connected) {
+                return Promise.reject(new Error("station offline: no clear"));
             }
-            const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
-            const compensations = {
-                temperature: maybeWaterTemp || null,
-            };
-            const calibrationValue = this.strategy.getStepCalibrationValue(step);
-            const action = new CalibrateAtlas(
-                this.deviceId,
-                sensor.moduleId,
-                this.position,
-                sensor.moduleCalibration.type,
-                calibrationValue,
-                compensations
-            );
-            console.log("cal:", "calibrate", action);
-            return this.$store.dispatch(action).then(
-                (calibrated) => {
-                    console.log("cal:", "calibrated");
-                    return Promise.resolve(this.onDone(ev, step));
-                },
-                (err) => {
-                    console.log("cal:error", err, err ? err.stack : null);
-                    return this.notifyFailure();
+            return Promise.resolve().then(() => {
+                const sensor = this.sensor;
+                if (!sensor) {
+                    return Promise.resolve();
                 }
-            );
+                const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
+                console.log("cal:", "clearing", action);
+                this.busy = true;
+                return this.$store
+                    .dispatch(action)
+                    .then(
+                        (cleared) => {
+                            console.log("cal:", "cleared");
+                            return this.notifyCleared();
+                        },
+                        (err) => {
+                            console.log("cal:error", err, err ? err.stack : null);
+                            return this.notifyFailure();
+                        }
+                    )
+                    .finally(() => {
+                        this.busy = false;
+                    });
+            });
         },
-        notifySuccess(this: any) {
+        onCalibrate(ev: any, step: CalibrationStep): Promise<any> {
+            if (!this.station || !this.station.connected) {
+                return Promise.reject(new Error("station offline: no calibrate"));
+            }
+            return Promise.resolve().then(() => {
+                const sensor: CalibratingSensor | null = this.sensor;
+                console.log("cal:", "sensor", sensor);
+                if (!sensor || !sensor.moduleCalibration) {
+                    throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
+                }
+                const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
+                const compensations = {
+                    temperature: maybeWaterTemp || null,
+                };
+                const calibrationValue = this.strategy.getStepCalibrationValue(step);
+                const action = new CalibrateAtlas(
+                    this.deviceId,
+                    sensor.moduleId,
+                    this.position,
+                    sensor.moduleCalibration.type,
+                    calibrationValue as AtlasCalValue,
+                    compensations
+                );
+                console.log("cal:", "calibrate", action);
+                this.busy = true;
+                return this.$store
+                    .dispatch(action)
+                    .then(
+                        (calibrated) => {
+                            console.log("cal:", "calibrated");
+                            return Promise.resolve(this.onDone(ev, step));
+                        },
+                        (err) => {
+                            console.log("cal:error", err, err ? err.stack : null);
+                            return this.notifyFailure();
+                        }
+                    )
+                    .finally(() => {
+                        this.busy = false;
+                    });
+            });
+        },
+        notifyCleared(): Promise<void> {
+            this.cleared = true;
+            return promiseAfter(3000).then(() => {
+                this.cleared = false;
+            });
+        },
+        notifySuccess(): Promise<void> {
             this.success = true;
-            return Promise.delay(3000).then(() => {
+            return promiseAfter(3000).then(() => {
                 this.success = false;
             });
         },
-        notifyFailure(this: any) {
+        notifyFailure(): Promise<void> {
             this.failure = true;
-            return Promise.delay(3000).then(() => {
+            return promiseAfter(3000).then(() => {
                 this.failure = false;
             });
         },

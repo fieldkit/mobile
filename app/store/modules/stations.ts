@@ -122,11 +122,11 @@ class StationStatusFactory {
     constructor(private readonly statusReply: HttpStatusReply) {}
 
     create(): Station {
-        if (!this.statusReply.status.identity.deviceId || !_.isString(this.statusReply.status.identity.deviceId)) {
+        if (!this.statusReply.status?.identity?.deviceId || !_.isString(this.statusReply.status?.identity?.deviceId)) {
             console.log("malformed status", this.statusReply);
             throw new Error(`station missing deviceId`);
         }
-        if (!this.statusReply.status.identity.generationId || !_.isString(this.statusReply.status.identity.generationId)) {
+        if (!this.statusReply.status?.identity?.generationId || !_.isString(this.statusReply.status?.identity?.generationId)) {
             console.log("malformed status", this.statusReply);
             throw new Error(`station missing generation`);
         }

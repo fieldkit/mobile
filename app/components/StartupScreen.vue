@@ -222,7 +222,7 @@ export default class StartupScreen extends Vue {
                     clearHistory: true,
                     props: {},
                 });
-                return this.$navigateTo(routes.dataSync, {
+                return this.$navigateTo(routes.stations, {
                     clearHistory: true,
                     props: {},
                 });
@@ -232,7 +232,7 @@ export default class StartupScreen extends Vue {
                     // return this.$navigateTo(routes.deploy.review, {
                     // return this.$navigateTo(routes.stationSettings, {
                     // return this.$navigateTo(routes.stationDetail, {
-                    // return this.$navigateTo(routes.onboarding.recalibrate, {
+                    return this.$navigateTo(routes.onboarding.recalibrate, {
                         clearHistory: true,
                         props: {
                             stationId: 1,
@@ -242,7 +242,7 @@ export default class StartupScreen extends Vue {
                     console.log("no test station");
                 }
 				*/
-                return this.$navigateTo(routes.stations, {
+                return this.$navigateTo(routes.dataSync, {
                     clearHistory: true,
                     props: {},
                 });

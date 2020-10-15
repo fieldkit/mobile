@@ -325,7 +325,7 @@ export default class PortalInterface {
             refreshToken: token.refresh_token,
         };
 
-        console.log("refreshing token", requestBody);
+        console.log("refreshing token");
 
         return this.getUri().then((baseUri) =>
             axios({
@@ -338,7 +338,7 @@ export default class PortalInterface {
                         return this.query(_.extend({ refreshed: true }, original));
                     });
                 })
-                .catch((error) => {
+                .catch((error: Error) => {
                     console.log("refresh failed", error);
                     return this.logout().then((_) => {
                         return Promise.reject(error);

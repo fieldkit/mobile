@@ -37,16 +37,16 @@
 
             <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
 
-            <Button class="btn btn-padded" text="Clear" @tap="clear" />
+            <Button class="btn btn-padded" text="Clear" :isEnabled="!busy" @tap="clear" />
         </StackLayout>
         <StackLayout row="1">
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
+            <Button class="btn btn-primary btn-padded" :isEnabled="!busy" :text="visual.done" @tap="done" />
         </StackLayout>
     </GridLayout>
 </template>
 
 <script lang="ts">
-import { VisualCalibrationStep, CalibratingSensor } from "./model";
+import { VisualCalibrationStep, CalibratingSensor, ModuleCalibration } from "./model";
 import { CheckVisual } from "./visuals";
 
 import { _T } from "../utilities";
@@ -74,26 +74,30 @@ export default Vue.extend({
             type: Number,
             required: true,
         },
+        busy: {
+            type: Boolean,
+            required: true,
+        },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        visual(this: any): CheckVisual {
-            return this.step.visual;
+        visual(): CheckVisual {
+            return this.step.visual as CheckVisual;
         },
-        existing(this: any) {
+        existing(): ModuleCalibration | null {
             return this.sensor.moduleCalibration;
         },
     },
     methods: {
-        back(this: any) {
+        back(): void {
             this.$emit("back");
         },
-        done(this: any) {
+        done(): void {
             this.$emit("done");
         },
-        clear(this: any) {
+        clear(): void {
             this.$emit("clear");
         },
     },

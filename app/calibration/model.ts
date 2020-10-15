@@ -25,7 +25,7 @@ export class CalibratingSensor {
         public readonly connected: boolean,
         public readonly position: number,
         public readonly unitOfMeasure: string,
-        public readonly reading: number,
+        public readonly reading: number | null,
         public readonly calibrationValue: CalibrationValue,
         public readonly moduleCalibration: ModuleCalibration | null,
         public readonly sensors: { [index: string]: number }
@@ -80,7 +80,6 @@ export class CalibrationStrategy extends CalibrationStep {
     public getStepCalibrationValue(step: CalibrationStep): CalibrationValue {
         // NOTE Right now all our given step's instances will be grandchildren of us.
         const containing = _.first(this.steps.filter((p) => p.children.includes(step)));
-
         if (containing instanceof CalibrationPointStep) {
             if (!containing.value) {
                 throw new Error("containing step has invalid calibration value");

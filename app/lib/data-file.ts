@@ -1,11 +1,10 @@
 import _ from "lodash";
-import protobuf from "protobufjs";
 import { FileType } from "@/store/types";
 import { DataServices } from "./data-services";
+import { fk_data } from "fk-data-protocol/fk-data";
 
-const dataRoot = protobuf.Root.fromJSON(require("fk-data-protocol"));
-const PbDataRecord = dataRoot.lookupType("fk_data.DataRecord");
-const PbSignedRecord = dataRoot.lookupType("fk_data.SignedRecord");
+const PbDataRecord = fk_data.DataRecord;
+const PbSignedRecord = fk_data.SignedRecord;
 
 export interface DataRecord {
     metadata: { deviceId: Buffer; generation: Buffer };

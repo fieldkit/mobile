@@ -12,6 +12,8 @@ import { ServicesImpl, ServiceRef } from "@/services";
 
 import { nearby } from "@/store/modules/nearby";
 
+import { fk_app } from "fk-app-protocol/fk-app";
+
 describe("Store", () => {
     let services;
     let mockStation;
@@ -41,6 +43,13 @@ describe("Store", () => {
     });
 
     afterEach(() => {});
+
+    describe("importing typed messages", () => {
+        it.only("should work", () => {
+            const HttpReply = fk_app.HttpReply;
+            console.log(HttpReply);
+        });
+    });
 
     describe("nearby stations", () => {
         it("should be blank to begin with and add stations when found", async () => {

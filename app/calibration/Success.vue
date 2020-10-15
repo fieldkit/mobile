@@ -2,18 +2,22 @@
     <StackLayout height="100%" backgroundColor="white" verticalAlignment="middle">
         <GridLayout rows="auto, auto" columns="*">
             <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
-            <Label row="1" :text="_L('calibrated')" class="instruction-heading"></Label>
+            <Label row="1" :text="text" class="instruction-heading"></Label>
         </GridLayout>
     </StackLayout>
 </template>
 
 <script lang="ts">
-import { _T } from "../utilities";
 import Vue from "vue";
 
 export default Vue.extend({
     name: "Success",
-    props: {},
+    props: {
+        text: {
+            type: String,
+            default: "",
+        },
+    },
     data() {
         return {};
     },

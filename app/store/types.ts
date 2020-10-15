@@ -186,7 +186,7 @@ export class Interval implements IntervalLike {
 }
 
 export class Schedule {
-    constructor(public readonly intervals: IntervalLike[] = []) {}
+    constructor(public intervals: IntervalLike[] = []) {}
 
     public static getMinimum(s: Schedule): Schedule {
         if (!s.intervals || s.intervals.length == 0) {

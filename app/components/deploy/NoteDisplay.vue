@@ -10,10 +10,12 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import { NoteForm } from "@/store";
+
 export default Vue.extend({
     props: {
         note: {
-            type: Object,
+            type: Object as () => NoteForm,
             required: true,
         },
     },

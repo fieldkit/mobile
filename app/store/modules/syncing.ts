@@ -13,7 +13,7 @@ import {
     ServiceInfo,
     SortableStationSorter,
 } from "../types";
-import { ServiceRef } from "@/services";
+import { ServiceRef, CalculatedSize } from "@/services";
 import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName } from "../../utilities";
 import { DownloadTableRow } from "../row-types";
 import { AuthenticationError } from "../../lib/errors";
@@ -291,11 +291,19 @@ export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatu
 
 export class SyncingState {
     syncs: StationSyncStatus[] = [];
+    busy: { [index: string]: boolean } = {};
     progress: { [index: string]: StationProgress } = {};
     pending: { [index: string]: Download } = {};
     connected: { [index: string]: ServiceInfo } = {};
     stations: Station[] = [];
     errors: { [index: string]: TransferError } = {};
+}
+
+function querySizes(services: ServiceRef, downloads: PendingDownload[]): Promise<CalculatedSize[]> {
+    return serializePromiseChain(downloads, (download: PendingDownload) => {
+        console.log("size:", download.url);
+        return services.queryStation().calculateDownloadSize(download.url);
+    });
 }
 
 type ActionParameters = ActionContext<SyncingState, never>;
@@ -310,33 +318,46 @@ const actions = (services: ServiceRef) => {
                 throw new Error("refusing to download from disconnected station");
             }
 
+            if (state.busy[sync.deviceId]) {
+                throw new Error("refusing to download while already busy");
+            }
+
+            state.busy[sync.deviceId] = true;
+
             console.log("syncing:download", sync.downloads);
 
-            commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, 0));
+            return querySizes(services, sync.downloads)
+                .then((sizes) => {
+                    console.log("syncing:sizes", sizes);
 
-            return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
-                const fsFolder = services.fs().getFolder(getFilePath(file.path));
-                const fsFile = fsFolder.getFile(getFileName(file.path));
-                console.log("syncing:download", file.url, fsFile);
-                return services
-                    .queryStation()
-                    .download(file.url, fsFile.path, (total: number, copied: number, info) => {
-                        commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
-                    })
-                    .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
-                    .catch((error) => {
-                        if (AuthenticationError.isInstance(error)) {
-                            Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
-                        } else {
-                            Vue.set(state.errors, sync.deviceId, TransferError.Other);
-                        }
-                        console.log("error downloading", error, error ? error.stack : null);
-                        return Promise.reject(error);
+                    const totalBytes = _.sum((sizes) => sizes.size);
+
+                    commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, totalBytes));
+                    return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
+                        const fsFolder = services.fs().getFolder(getFilePath(file.path));
+                        const fsFile = fsFolder.getFile(getFileName(file.path));
+                        console.log("syncing:download", file.url, fsFile);
+                        return services
+                            .queryStation()
+                            .download(file.url, fsFile.path, (total: number, copied: number, info) => {
+                                commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
+                            })
+                            .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
+                            .catch((error) => {
+                                if (AuthenticationError.isInstance(error)) {
+                                    Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
+                                } else {
+                                    Vue.set(state.errors, sync.deviceId, TransferError.Other);
+                                }
+                                console.log("error downloading", error, error ? error.stack : null);
+                                return Promise.reject(error);
+                            });
                     });
-            })
+                })
                 .then(() => dispatch(ActionTypes.LOAD))
                 .finally(() => {
                     commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+                    state.busy[sync.deviceId] = false;
                 });
         },
         [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]): Promise<any> => {
@@ -348,6 +369,12 @@ const actions = (services: ServiceRef) => {
             if (downloads.length != paths.length) {
                 throw new Error("download missing");
             }
+
+            if (state.busy[sync.deviceId]) {
+                throw new Error("refusing to upload while already busy");
+            }
+
+            state.busy[sync.deviceId] = true;
 
             const totalBytes = _(downloads)
                 .map((d) => d.size)
@@ -379,6 +406,7 @@ const actions = (services: ServiceRef) => {
                 .then(() => dispatch(ActionTypes.LOAD))
                 .finally(() => {
                     commit(MutationTypes.TRANSFER_CLOSE, sync.deviceId);
+                    state.busy[sync.deviceId] = false;
                 });
         },
     };
@@ -517,6 +545,10 @@ const mutations = {
     },
     [MutationTypes.TRANSFER_PROGRESS]: (state: SyncingState, progress: TransferProgress) => {
         const before = state.progress[progress.deviceId];
+        if (!before) {
+            console.log(`dropped progress: ${progress.deviceId}`);
+            return;
+        }
         Vue.set(state.progress, progress.deviceId, before.include(progress));
         Vue.set(state, "syncs", makeStationSyncs(state));
     },

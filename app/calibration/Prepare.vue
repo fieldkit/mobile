@@ -43,20 +43,24 @@ export default Vue.extend({
             type: Number,
             required: true,
         },
+        busy: {
+            type: Boolean,
+            required: true,
+        },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        visual(this: any): PrepareVisual {
-            return this.step.visual;
+        visual(): PrepareVisual {
+            return this.step.visual as PrepareVisual;
         },
     },
     methods: {
-        back(this: any) {
+        back(): void {
             this.$emit("back");
         },
-        done(this: any) {
+        done(): void {
             this.$emit("done");
         },
     },

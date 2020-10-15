@@ -20,7 +20,6 @@ describe("Progress", () => {
 
     it("should track progress over multiple downloads", () => {
         console.log("_________________________________________________________");
-        console.log(sp);
 
         expect(sp.decimal).toEqual(0.0);
 
@@ -35,6 +34,33 @@ describe("Progress", () => {
         sp = sp.include(new TransferProgress("device-id", "path-1", 100, 100));
 
         expect(sp.decimal).toEqual(1.0);
+
+        sp = sp.include(new TransferProgress("device-id", "path-2", 100, 0));
+
+        expect(sp.decimal).toEqual(0.5);
+
+        sp = sp.include(new TransferProgress("device-id", "path-2", 100, 50));
+
+        expect(sp.decimal).toEqual(0.75);
+    });
+
+    it("should track progress over multiple downloads when all are known to begin with", () => {
+        console.log("_________________________________________________________");
+
+        expect(sp.decimal).toEqual(0.0);
+
+        sp = sp.include(new TransferProgress("device-id", "path-1", 100, 0));
+        sp = sp.include(new TransferProgress("device-id", "path-2", 100, 0));
+
+        expect(sp.decimal).toEqual(0.0);
+
+        sp = sp.include(new TransferProgress("device-id", "path-1", 100, 50));
+
+        expect(sp.decimal).toEqual(0.25);
+
+        sp = sp.include(new TransferProgress("device-id", "path-1", 100, 100));
+
+        expect(sp.decimal).toEqual(0.5);
 
         sp = sp.include(new TransferProgress("device-id", "path-2", 100, 0));
 
@@ -121,6 +147,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -192,6 +220,9 @@ describe("Syncing", () => {
                 ),
             ]);
 
+            // We do both size calculations before downloading.
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(500, {});
             try {
                 await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -278,6 +309,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -349,6 +382,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -460,6 +495,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -535,6 +572,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "1,5" });
             mockStation.queueDownload(200, { "fk-blocks": "100,200" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -579,6 +618,8 @@ describe("Syncing", () => {
             expect(store.getters.syncs[0].downloads.length).toStrictEqual(2);
             expect(store.getters.syncs[0].uploads.length).toStrictEqual(0);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -622,6 +663,8 @@ describe("Syncing", () => {
             expect(store.getters.syncs[0].downloads.length).toStrictEqual(2);
             expect(store.getters.syncs[0].uploads.length).toStrictEqual(0);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -638,6 +681,8 @@ describe("Syncing", () => {
             const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "1,5" });
             mockStation.queueDownload(200, { "fk-blocks": "100,200" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
@@ -706,6 +751,8 @@ describe("Syncing", () => {
                 ),
             ]);
 
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,110" });
             await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);

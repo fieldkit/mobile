@@ -1,13 +1,20 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <Header :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <ChooseStrategy :moduleKey="moduleKey" :strategies="strategies" :visual="visual" @choose="choose" />
+        <GridLayout rows="auto,*,auto">
+            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
+            <ChooseStrategy row="1" :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @selected="selected" />
+            <StackLayout row="2">
+                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="currentStation.connected" />
+            </StackLayout>
+        </GridLayout>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { _T } from "../utilities";
+import { _T } from "@/utilities";
+import { Station, Module } from "@/store/types";
 
 import Header from "./Header.vue";
 import Calibrate from "./Calibrate.vue";
@@ -15,16 +22,18 @@ import ChooseStrategy from "./ChooseStrategy.vue";
 
 import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import StationSettingsModuleList from "../components/settings/StationSettingsModuleList.vue";
+import ConnectionStatusHeader from "../components/ConnectionStatusHeader.vue";
 
 import { calibrationStrategies } from "./strategies";
 import { CalibrationStrategy } from "./model";
 
-import { Common } from "./water";
+import { CommonProperties, Common } from "./water";
 
 export default Vue.extend({
     name: "Start",
     components: {
         Header,
+        ConnectionStatusHeader,
         ChooseStrategy,
     },
     props: {
@@ -37,27 +46,34 @@ export default Vue.extend({
             required: true,
         },
         fromSettings: {
+            type: Boolean,
             default: true,
         },
     },
-    data(): {} {
-        return {};
+    data(): { busy: boolean; strategy: CalibrationStrategy | null } {
+        return {
+            busy: false,
+            strategy: null,
+        };
     },
     computed: {
-        module(this: any) {
-            const station = this.$store.getters.stationsById[this.stationId];
+        currentStation(): Station {
+            return this.$store.getters.stationCalibrations[this.stationId];
+        },
+        module(): Module {
+            const station: Station = this.$store.getters.stationsById[this.stationId];
             const module = station.modules.find((m) => m.position === this.position);
             if (!module) throw new Error("unable to find module");
             console.log("station-module", module.name);
             return module;
         },
-        moduleKey(this: any) {
+        moduleKey(): string {
             return this.module.name;
         },
-        strategies(this: any) {
+        strategies(): CalibrationStrategy[] {
             return calibrationStrategies().getModuleStrategies(this.moduleKey);
         },
-        visual(this: any) {
+        visual(): CommonProperties {
             const common = Common();
             console.log("common", common, this.moduleKey);
             const visual = common[this.moduleKey];
@@ -66,20 +82,23 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
-            // console.log("loaded", calibrationStrategies);
+        selected(strategy: CalibrationStrategy): void {
+            console.log("strategy", strategy.id);
+            this.strategy = strategy;
         },
-        choose(this: any, strategy: CalibrationStrategy) {
-            console.log("strategy", strategy);
+        done(): Promise<any> {
+            if (!this.strategy) {
+                this.strategy = this.strategies[0];
+            }
             return this.$navigateTo(Calibrate, {
                 props: {
                     stationId: this.stationId,
                     position: this.position,
-                    strategy: strategy,
+                    strategy: this.strategy,
                 },
             });
         },
-        back(this: any) {
+        back(): Promise<any> {
             console.log("Start::back", this.fromSettings);
             if (this.fromSettings) {
                 return this.$navigateTo(StationSettingsModuleList, {
