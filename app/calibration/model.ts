@@ -25,7 +25,7 @@ export class CalibratingSensor {
         public readonly connected: boolean,
         public readonly position: number,
         public readonly unitOfMeasure: string,
-        public readonly reading: number,
+        public readonly reading: number | null,
         public readonly calibrationValue: CalibrationValue,
         public readonly moduleCalibration: ModuleCalibration | null,
         public readonly sensors: { [index: string]: number }

@@ -31,7 +31,7 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import { _T, promiseAfter } from "../utilities";
+import { _T, promiseAfter } from "@/utilities";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -45,6 +45,8 @@ import StationSettingsModules from "../components/settings/StationSettingsModule
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { ClearAtlasCalibration, CalibrateAtlas } from "../store/modules/cal";
 import { AtlasCalValue } from "./water";
+
+import { LegacyStation } from "@/store";
 
 export default Vue.extend({
     name: "Calibrate",
@@ -80,9 +82,12 @@ export default Vue.extend({
         };
     },
     computed: {
+        station(): LegacyStation | null {
+            return this.$store.getters.legacyStations[this.stationId];
+        },
         sensor(): CalibratingSensor | null {
             try {
-                const station = this.$store.getters.legacyStations[this.stationId];
+                const station = this.station;
                 if (!station) throw new Error(`station missing: ${this.stationId}`);
                 const module = station.modules[this.position];
                 if (!module) throw new Error(`module missing: ${this.stationId} ${this.position}`);
@@ -206,65 +211,75 @@ export default Vue.extend({
             return Promise.resolve();
         },
         onClear(ev: any, step: CalibrationStep): Promise<any> {
-            const sensor = this.sensor;
-            if (!sensor) {
-                return Promise.resolve();
+            if (!this.station || !this.station.connected) {
+                return Promise.reject(new Error("station offline: no clear"));
             }
-            const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
-            console.log("cal:", "clearing", action);
-            this.busy = true;
-            return this.$store
-                .dispatch(action)
-                .then(
-                    (cleared) => {
-                        console.log("cal:", "cleared");
-                        return this.notifyCleared();
-                    },
-                    (err) => {
-                        console.log("cal:error", err, err ? err.stack : null);
-                        return this.notifyFailure();
-                    }
-                )
-                .finally(() => {
-                    this.busy = false;
-                });
+            return Promise.resolve().then(() => {
+                const sensor = this.sensor;
+                if (!sensor) {
+                    return Promise.resolve();
+                }
+                const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
+                console.log("cal:", "clearing", action);
+                this.busy = true;
+                return this.$store
+                    .dispatch(action)
+                    .then(
+                        (cleared) => {
+                            console.log("cal:", "cleared");
+                            return this.notifyCleared();
+                        },
+                        (err) => {
+                            console.log("cal:error", err, err ? err.stack : null);
+                            return this.notifyFailure();
+                        }
+                    )
+                    .finally(() => {
+                        this.busy = false;
+                    });
+            });
         },
         onCalibrate(ev: any, step: CalibrationStep): Promise<any> {
-            const sensor: CalibratingSensor | null = this.sensor;
-            console.log("cal:", "sensor", sensor);
-            if (!sensor || !sensor.moduleCalibration) {
-                throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
+            if (!this.station || !this.station.connected) {
+                return Promise.reject(new Error("station offline: no calibrate"));
             }
-            const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
-            const compensations = {
-                temperature: maybeWaterTemp || null,
-            };
-            const calibrationValue = this.strategy.getStepCalibrationValue(step);
-            const action = new CalibrateAtlas(
-                this.deviceId,
-                sensor.moduleId,
-                this.position,
-                sensor.moduleCalibration.type,
-                calibrationValue as AtlasCalValue,
-                compensations
-            );
-            console.log("cal:", "calibrate", action);
-            this.busy = true;
-            return this.$store
-                .dispatch(action)
-                .then(
-                    (calibrated) => {
-                        console.log("cal:", "calibrated");
-                        return Promise.resolve(this.onDone(ev, step));
-                    },
-                    (err) => {
-                        console.log("cal:error", err, err ? err.stack : null);
-                        return this.notifyFailure();
-                    }
-                )
-                .finally(() => {
-                    this.busy = false;
-                });
+            return Promise.resolve().then(() => {
+                const sensor: CalibratingSensor | null = this.sensor;
+                console.log("cal:", "sensor", sensor);
+                if (!sensor || !sensor.moduleCalibration) {
+                    throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
+                }
+                const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
+                const compensations = {
+                    temperature: maybeWaterTemp || null,
+                };
+                const calibrationValue = this.strategy.getStepCalibrationValue(step);
+                const action = new CalibrateAtlas(
+                    this.deviceId,
+                    sensor.moduleId,
+                    this.position,
+                    sensor.moduleCalibration.type,
+                    calibrationValue as AtlasCalValue,
+                    compensations
+                );
+                console.log("cal:", "calibrate", action);
+                this.busy = true;
+                return this.$store
+                    .dispatch(action)
+                    .then(
+                        (calibrated) => {
+                            console.log("cal:", "calibrated");
+                            return Promise.resolve(this.onDone(ev, step));
+                        },
+                        (err) => {
+                            console.log("cal:error", err, err ? err.stack : null);
+                            return this.notifyFailure();
+                        }
+                    )
+                    .finally(() => {
+                        this.busy = false;
+                    });
+            });
         },
         notifyCleared(): Promise<void> {
             this.cleared = true;
