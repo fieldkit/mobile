@@ -158,8 +158,10 @@ export default class QueryStation {
                 .then(
                     (response) => {
                         if (response.statusCode != 204) {
+                            console.log("http-status", response.statusCode, response.headers);
                             return Promise.reject(new HttpError("status", response));
                         }
+
                         let size: number = 0;
                         if (response.headers["fk-bytes"]) {
                             size = Number(response.headers["fk-bytes"]);
@@ -167,14 +169,12 @@ export default class QueryStation {
                         if (response.headers["content-length"]) {
                             size = Number(response.headers["content-length"]);
                         }
+
+                        console.log("size", size, response.headers);
                         return new CalculatedSize(size);
                     },
                     (err) => {
-                        if (false) {
-                            console.log(url, "query error", err, err ? err.stack : null);
-                        } else {
-                            console.log(url, "query error", err.message);
-                        }
+                        console.log(url, "query error", err.message);
                         return Promise.reject(err);
                     }
                 );
@@ -192,11 +192,7 @@ export default class QueryStation {
                         return response.body;
                     },
                     (err) => {
-                        if (false) {
-                            console.log(url, "query error", err, err ? err.stack : null);
-                        } else {
-                            console.log(url, "query error", err.message);
-                        }
+                        console.log(url, "query error", err.message);
                         return Promise.reject(err);
                     }
                 );
