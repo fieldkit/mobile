@@ -127,9 +127,9 @@ import _ from "lodash";
 import Vue from "vue";
 import routes from "@/routes";
 import { Dialogs } from "@nativescript/core";
+import { Station, Notes, NoteMedia } from "@/store";
 
-import Promise from "bluebird";
-import { getFileName } from "@/utilities";
+import { promiseAfter, getFileName } from "@/utilities";
 
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -139,28 +139,26 @@ import * as MutationTypes from "@/store/mutations";
 import * as ActionTypes from "@/store/actions";
 import * as animations from "../animations";
 
-import { NoteMedia } from "@/store/modules/notes";
-
 export default Vue.extend({
     components: {
         ...SharedComponents,
         ConnectionStatusHeader,
         NoteDisplay,
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        notes(this: any) {
+        notes(): Notes {
             return this.$store.state.notes.stations[this.stationId];
         },
-        photos(this: any): NoteMedia[] {
+        photos(): NoteMedia[] {
             return _.uniqBy(this.notes.photos, (m) => m.path);
         },
-        currentStation(this: any) {
+        currentStation(): Station {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        photoCache(this: any) {
+        photoCache(): { [index: string]: any } {
             return this.$store.state.media.photoCache;
         },
     },
@@ -175,14 +173,15 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args): Promise<void> {
             if (false) {
                 console.log("notes", this.$store.state.notes.stations[this.stationId]);
                 const paths = this.$store.state.notes.stations[this.stationId].photos.map((p) => p.path);
                 return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
             }
+            return Promise.resolve();
         },
-        openNote(this: any, ev, key) {
+        openNote(ev, key: string): Promise<any> {
             console.log("opening", key);
             return this.$navigateTo(routes.deploy.editing, {
                 props: {
@@ -191,10 +190,10 @@ export default Vue.extend({
                 },
             });
         },
-        takePicture(this: any) {
+        takePicture(): Promise<any> {
             return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
-                return Promise.delay(100).then(() => {
+                return promiseAfter(100).then(() => {
                     this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
                         stationId: this.stationId,
                         key: null,
@@ -204,10 +203,10 @@ export default Vue.extend({
                 });
             });
         },
-        selectPicture(this: any) {
+        selectPicture(): Promise<any> {
             return this.$store.dispatch(ActionTypes.FIND_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
-                return Promise.delay(100).then(() => {
+                return promiseAfter(100).then(() => {
                     this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
                         stationId: this.stationId,
                         key: null,
@@ -217,22 +216,10 @@ export default Vue.extend({
                 });
             });
         },
-        goBack(this: any, ev) {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateBack({
-                    props: {
-                        stationId: this.stationId,
-                    },
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
-                    },
-                }),
-            ]);
+        goBack(ev: any): Promise<any> {
+            return Promise.all([animations.pressed(ev), this.$navigateBack({})]);
         },
-        onNavCancel(this: any, ev) {
+        onNavCancel(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -242,7 +229,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToReview(this: any, ev) {
+        goToReview(ev: any): Promise<any> {
             console.log("navigating to review");
             return Promise.all([
                 animations.pressed(ev),
@@ -253,7 +240,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        onBackToDetail(this: any, ev) {
+        onBackToDetail(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -263,7 +250,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        onPhotoTap(this: any, ev) {
+        onPhotoTap(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 Dialogs.action({
@@ -276,6 +263,7 @@ export default Vue.extend({
                     } else if (choice == _L("selectFromGallery")) {
                         return this.selectPicture();
                     }
+                    return;
                 }),
             ]);
         },

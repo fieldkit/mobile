@@ -55,12 +55,12 @@ export default Vue.extend({
         };
     },
     methods: {
-        choose(this: any, strategy: any, index: number) {
+        choose(strategy: any, index: number): void {
             console.log("choose strategy", index);
             this.selected = index;
             this.$emit("selected", this.strategies[this.selected]);
         },
-        back(this: any) {
+        back(): void {
             console.log("back");
             this.$emit("back");
         },

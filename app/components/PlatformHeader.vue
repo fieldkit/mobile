@@ -37,12 +37,12 @@
     </ActionBar>
 </template>
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import { Frame, isIOS } from "@nativescript/core";
 
 export default Vue.extend({
     name: "PlatformHeader",
-    data: () => {
+    data(): { ios: boolean } {
         return {
             ios: isIOS,
         };
@@ -57,16 +57,16 @@ export default Vue.extend({
             default: null,
         },
         onBack: {
-            type: Function,
-            default: () => {},
+            type: Function as PropType<(ev: any) => void>,
+            default: (ev: any) => {},
         },
         onCancel: {
-            type: Function,
-            default: () => {},
+            type: Function as PropType<(ev: any) => void>,
+            default: (ev: any) => {},
         },
         onSettings: {
-            type: Function,
-            default: () => {},
+            type: Function as PropType<(ev: any) => void>,
+            default: (ev: any) => {},
         },
         canCancel: {
             type: Boolean,
@@ -87,21 +87,20 @@ export default Vue.extend({
         },
     },
     computed: {
-        classes(this: any): string {
+        classes(): string {
             const c: string[] = [];
             if (this.bottomMargin || this.ios) c.push("m-b-20");
-            if (this.actionBar) c.push("header-container");
             if (this.ios) c.push("ios");
             if (!this.ios) c.push("android");
             return c.join(" ");
         },
-        haveBackStack(this: any): boolean {
+        haveBackStack(): boolean {
             const frame = Frame.topmost();
             console.log("platform-header:backStack", frame.backStack.length);
             return frame.backStack.length > 0;
         },
     },
-    mounted() {
+    mounted(): void {
         // https://docs.nativescript.org/ui/action-bar
         console.log("platform-header:mounted", this.ios, this.canNavigateSettings, this.canNavigateBack);
         // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
@@ -109,15 +108,19 @@ export default Vue.extend({
         console.log("platform-header:backStack", frame.backStack.length);
     },
     methods: {
-        raiseBack(this: any, ev) {
+        raiseBack(ev): void {
             console.log("platform-header:back");
             this.$emit("back");
-            this.onBack(ev);
+            if (this.onBack) {
+                this.onBack(ev);
+            }
         },
-        raiseCancel(this: any, ev) {
+        raiseCancel(ev): void {
             console.log("platform-header:cancel");
             this.$emit("cancel");
-            this.onCancel(ev);
+            if (this.onCancel) {
+                this.onCancel(ev);
+            }
         },
     },
 });

@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { VisualCalibrationStep, CalibratingSensor } from "./model";
+import { VisualCalibrationStep, CalibratingSensor, ModuleCalibration } from "./model";
 import { CheckVisual } from "./visuals";
 
 import { _T } from "../utilities";
@@ -79,25 +79,25 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        visual(this: any): CheckVisual {
-            return this.step.visual;
+        visual(): CheckVisual {
+            return this.step.visual as CheckVisual;
         },
-        existing(this: any) {
+        existing(): ModuleCalibration | null {
             return this.sensor.moduleCalibration;
         },
     },
     methods: {
-        back(this: any) {
+        back(): void {
             this.$emit("back");
         },
-        done(this: any) {
+        done(): void {
             this.$emit("done");
         },
-        clear(this: any) {
+        clear(): void {
             this.$emit("clear");
         },
     },

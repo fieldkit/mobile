@@ -80,7 +80,6 @@ export class CalibrationStrategy extends CalibrationStep {
     public getStepCalibrationValue(step: CalibrationStep): CalibrationValue {
         // NOTE Right now all our given step's instances will be grandchildren of us.
         const containing = _.first(this.steps.filter((p) => p.children.includes(step)));
-
         if (containing instanceof CalibrationPointStep) {
             if (!containing.value) {
                 throw new Error("containing step has invalid calibration value");

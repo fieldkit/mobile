@@ -31,8 +31,7 @@
 </template>
 <script lang="ts">
 import _ from "lodash";
-import { _T } from "../utilities";
-import Promise from "bluebird";
+import { _T, promiseAfter } from "../utilities";
 
 import Vue from "vue";
 import Header from "./Header.vue";
@@ -45,6 +44,7 @@ import StationSettingsModules from "../components/settings/StationSettingsModule
 
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
 import { ClearAtlasCalibration, CalibrateAtlas } from "../store/modules/cal";
+import { AtlasCalValue } from "./water";
 
 export default Vue.extend({
     name: "Calibrate",
@@ -80,7 +80,7 @@ export default Vue.extend({
         };
     },
     computed: {
-        sensor(this: any): CalibratingSensor | null {
+        sensor(): CalibratingSensor | null {
             try {
                 const station = this.$store.getters.legacyStations[this.stationId];
                 if (!station) throw new Error(`station missing: ${this.stationId}`);
@@ -132,51 +132,51 @@ export default Vue.extend({
                 return null;
             }
         },
-        deviceId(this: any) {
+        deviceId(): string {
             return this.$store.getters.legacyStations[this.stationId].deviceId;
         },
-        activeStep(this: any): VisualCalibrationStep | null {
+        activeStep(): VisualCalibrationStep {
             const step = _.first(this.getRemainingSteps());
             if (step instanceof VisualCalibrationStep) {
                 return step;
             }
             return this.getLastStep();
         },
-        progress(this: any) {
+        progress(): number {
             return (this.completed.length / this.getAllVisualSteps().length) * 100;
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args): void {
             // console.log("cal:", "strategy", this.strategy);
         },
-        getLastStep(this: any): VisualCalibrationStep {
+        getLastStep(): VisualCalibrationStep {
             const all = this.getAllVisualSteps();
             return all[all.length - 1];
         },
-        getAllVisualSteps(this: any): VisualCalibrationStep[] {
+        getAllVisualSteps(): VisualCalibrationStep[] {
             const steps: CalibrationStep[] = this.strategy.allChildren;
             return steps.filter((step: any): step is VisualCalibrationStep => step.visual !== undefined);
         },
-        getRemainingSteps(this: any): VisualCalibrationStep[] {
+        getRemainingSteps(): CalibrationStep[] {
             return _.without(this.getAllVisualSteps(), ...this.completed);
         },
-        onDone(this: any, ev: any, step: CalibrationStep) {
+        onDone(ev: any, step: CalibrationStep): Promise<void> {
             this.completed.push(step);
             console.log("cal:", "done", step);
             if (this.getRemainingSteps().length > 0) {
-                return;
+                return Promise.resolve();
             }
 
             console.log("cal", "finished");
             return this.notifySuccess().then(() => {
-                return this.navigateBack(ev, step);
+                return this.navigateBack();
             });
         },
-        onCancel(this: any, ev: any, step: CalibrationStep) {
+        onCancel(ev: any, step: CalibrationStep): void {
             console.log("cal:", "cancel", step);
         },
-        navigateBack(this: any) {
+        navigateBack(): Promise<any> {
             console.log("navigateBack", this.fromSettings);
             if (this.fromSettings) {
                 return this.$navigateTo(StationSettingsModules, {
@@ -192,7 +192,7 @@ export default Vue.extend({
                 });
             }
         },
-        onBack(this: any, ev: any, step: CalibrationStep) {
+        onBack(ev: any, step: CalibrationStep): Promise<any> {
             console.log("cal:", "back", step, "completed", this.completed.length);
             if (this.completed.length == 0) {
                 return this.$navigateTo(Start, {
@@ -203,9 +203,13 @@ export default Vue.extend({
                 });
             }
             this.completed = _.without(this.completed, this.completed[this.completed.length - 1]);
+            return Promise.resolve();
         },
-        onClear(this: any, ev: any, step: CalibrationStep) {
-            const sensor: CalibratingSensor = this.sensor;
+        onClear(ev: any, step: CalibrationStep): Promise<any> {
+            const sensor = this.sensor;
+            if (!sensor) {
+                return Promise.resolve();
+            }
             const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
             console.log("cal:", "clearing", action);
             this.busy = true;
@@ -225,10 +229,10 @@ export default Vue.extend({
                     this.busy = false;
                 });
         },
-        onCalibrate(this: any, ev: any, step: CalibrationStep) {
-            const sensor: CalibratingSensor = this.sensor;
+        onCalibrate(ev: any, step: CalibrationStep): Promise<any> {
+            const sensor: CalibratingSensor | null = this.sensor;
             console.log("cal:", "sensor", sensor);
-            if (!sensor.moduleCalibration) {
+            if (!sensor || !sensor.moduleCalibration) {
                 throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
             }
             const maybeWaterTemp = sensor.sensors["modules.water.temp.temp"];
@@ -241,7 +245,7 @@ export default Vue.extend({
                 sensor.moduleId,
                 this.position,
                 sensor.moduleCalibration.type,
-                calibrationValue,
+                calibrationValue as AtlasCalValue,
                 compensations
             );
             console.log("cal:", "calibrate", action);
@@ -262,21 +266,21 @@ export default Vue.extend({
                     this.busy = false;
                 });
         },
-        notifyCleared(this: any) {
+        notifyCleared(): Promise<void> {
             this.cleared = true;
-            return Promise.delay(3000).then(() => {
+            return promiseAfter(3000).then(() => {
                 this.cleared = false;
             });
         },
-        notifySuccess(this: any) {
+        notifySuccess(): Promise<void> {
             this.success = true;
-            return Promise.delay(3000).then(() => {
+            return promiseAfter(3000).then(() => {
                 this.success = false;
             });
         },
-        notifyFailure(this: any) {
+        notifyFailure(): Promise<void> {
             this.failure = true;
-            return Promise.delay(3000).then(() => {
+            return promiseAfter(3000).then(() => {
                 this.failure = false;
             });
         },

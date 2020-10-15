@@ -21,7 +21,7 @@ import Vue from "vue";
 import { Enums } from "@nativescript/core";
 
 export default Vue.extend({
-    data() {
+    data(): { typing: boolean; focus: boolean } {
         return {
             typing: false,
             focus: false,
@@ -42,29 +42,29 @@ export default Vue.extend({
         },
     },
     computed: {
-        fieldClass(this: any) {
+        fieldClass(): string {
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
     },
     methods: {
-        onFocus(this: any, ev) {
+        onFocus(ev: any): void {
             this.focus = true;
             this.$emit("focus", ev);
         },
-        onChange(this: any, ev) {
+        onChange(ev: any): void {
             const value = ev.value;
             if (!this.typing && value) {
-                this.animateLabel(this.$refs.label.nativeView);
+                this.animateLabel((this.$refs.label as any).nativeView);
             } else if (!value) {
                 this.typing = false;
             }
             this.$emit("input", ev.value);
         },
-        onBlur(this: any, ev) {
+        onBlur(ev: any): void {
             this.focus = false;
             this.$emit("blur", ev);
         },
-        animateLabel(this: any, nativeView) {
+        animateLabel(nativeView: any): void {
             nativeView.opacity = 0;
             nativeView.translateX = 5;
             nativeView.translateY = 20;

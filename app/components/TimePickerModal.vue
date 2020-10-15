@@ -17,17 +17,21 @@
 <script lang="ts">
 import Vue from "vue";
 export default Vue.extend({
-    data() {
+    data(): { displayTime: string } {
         return {
             displayTime: "",
         };
     },
-    props: ["selectedTime"],
+	props: {
+		selectedTime: {
+			type: String
+		}
+	}
     methods: {
-        onShownModally(args) {
+        onShownModally(): void {
             this.displayTime = this.selectedTime;
         },
-        onSubmit(event) {
+        onSubmit(): void {
             this.$modal.close(this.displayTime);
         },
     },

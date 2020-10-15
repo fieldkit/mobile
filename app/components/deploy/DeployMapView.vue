@@ -52,7 +52,7 @@
                                 horizontalAlignment="left"
                                 :text="_L('locationOver255')"
                                 textWrap="true"
-                                :visibility="form.v.longLength ? 'visible' : 'collapsed'"
+                                :visibility="form.v.long ? 'visible' : 'collapsed'"
                             />
                             <Label
                                 class="validation-error"
@@ -89,7 +89,7 @@ import { isIOS } from "@nativescript/core";
 import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
 import routes from "@/routes";
 import * as ActionTypes from "@/store/actions";
-import { Schedule } from "@/store/types";
+import { Schedule, Station, Notes } from "@/store";
 
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -102,7 +102,20 @@ export default Vue.extend({
         ConnectionStatusHeader,
         ScheduleEditor,
     },
-    data() {
+    data(): {
+        ios: boolean;
+        mapboxToken: string;
+        form: {
+            location: string;
+            schedule: any;
+            v: {
+                any: boolean;
+                required: boolean;
+                characters: boolean;
+                long: boolean;
+            };
+        };
+    } {
         return {
             ios: isIOS,
             mapboxToken: MAPBOX_ACCESS_TOKEN,
@@ -113,7 +126,7 @@ export default Vue.extend({
                     any: false,
                     required: false,
                     characters: false,
-                    longLength: false,
+                    long: false,
                 },
             },
         };
@@ -128,23 +141,24 @@ export default Vue.extend({
         },
     },
     computed: {
-        currentNotes(this: any) {
+        currentNotes(): Notes {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation(this: any) {
+        currentStation(): Station {
             return this.$store.getters.legacyStations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args: any): void {
             this.form.location = this.currentNotes.location || "";
             this.form.schedule = Schedule.getMinimum(this.currentStation.schedules.readings);
         },
-        onMapReady(this: any, args) {
-            this.map = args.map;
+        onMapReady(args: any): void {
+            const thisAny = this as any;
+            thisAny.map = args.map;
             this.displayStation();
         },
-        goBack(this: any, ev) {
+        goBack(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -159,7 +173,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToNext(this: any, event) {
+        goToNext(ev: any): Promise<any> {
             return this.saveForm().then(() => {
                 return this.$navigateTo(routes.deploy.notes, {
                     props: {
@@ -168,7 +182,7 @@ export default Vue.extend({
                 });
             });
         },
-        onNavCancel(this: any, ev) {
+        onNavCancel(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -178,35 +192,36 @@ export default Vue.extend({
                 }),
             ]);
         },
-        displayStation(this: any) {
+        displayStation(): void {
+            const thisAny = this as any;
             const station = this.$store.getters.legacyStations[this.stationId];
             const location = station.location();
             if (!location) {
                 return;
             }
-            this.map.setCenter({
+            thisAny.map.setCenter({
                 lat: location.latitude,
                 lng: location.longitude,
                 animated: false,
             });
-            this.map.setZoomLevel({
+            thisAny.map.setZoomLevel({
                 level: 14,
             });
-            this.mapMarker = {
+            const mapMarker = {
                 lat: location.latitude,
                 lng: location.longitude,
                 title: station.name,
                 subtitle: _L("readyToDeploy"),
                 iconPath: "images/Icon_Map_Dot.png",
             };
-            this.map.addMarkers([this.mapMarker]);
+            thisAny.map.addMarkers([mapMarker]);
         },
-        checkLocationName(this: any) {
+        checkLocationName(): boolean {
             this.form.v = {
-                required: false,
-                long: false,
-                characters: false,
                 any: false,
+                required: false,
+                characters: false,
+                long: false,
             };
 
             this.form.v.required = this.form.location.length == 0;
@@ -216,11 +231,11 @@ export default Vue.extend({
             this.form.v.any = this.form.v.required || this.form.v.long || this.form.v.characters;
             return !this.form.v.any;
         },
-        onScheduleChange(this: any, schedule) {
+        onScheduleChange(schedule: any): void {
             console.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
-        saveForm(this: any) {
+        saveForm(): Promise<any> {
             if (!this.checkLocationName()) {
                 return Promise.reject(new Error("validation error"));
             }

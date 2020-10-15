@@ -57,14 +57,14 @@ export default Vue.extend({
             default: null,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        elapsedMs(this: any): number {
+        elapsedMs(): number {
             return this.elapsed * 1000;
         },
-        unitIsPrefix(this: any): boolean {
+        unitIsPrefix(): boolean {
             return this.unitOfMeasure.toLowerCase() == "ph";
         },
     },

@@ -45,11 +45,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import IntervalEditor from "./IntervalEditor.vue";
-import { Interval } from "@/store/types";
-
-export interface Schedule {
-    intervals: Interval[];
-}
+import { Schedule, Interval } from "@/store";
 
 export default Vue.extend({
     name: "ScheduleEditor",
@@ -58,7 +54,7 @@ export default Vue.extend({
     },
     props: {
         schedule: {
-            type: Object,
+            type: Object as () => Schedule,
             required: true,
         },
     },

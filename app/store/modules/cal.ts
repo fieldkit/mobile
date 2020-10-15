@@ -10,7 +10,7 @@ import CalibrationService, { WireAtlasReply } from "@/services/calibration-servi
 
 import { GlobalGetters } from "./global";
 
-import { calibrationStrategies, ModuleStatus, AtlasSensorType, StationCalibration } from "@/calibration";
+import { calibrationStrategies, ModuleStatus, AtlasSensorType, StationCalibration, AtlasCalValue } from "@/calibration";
 
 export const CALIBRATED = "CALIBRATED";
 export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
@@ -30,7 +30,7 @@ export class CalibrateAtlas {
         public readonly moduleId: string,
         public readonly position: number,
         public readonly sensorType: AtlasSensorType,
-        public readonly value: { which: number; reference: number },
+        public readonly value: AtlasCalValue,
         public readonly compensations: { temperature: number | null }
     ) {}
 }

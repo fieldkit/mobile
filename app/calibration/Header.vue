@@ -35,7 +35,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        back(this: any) {
+        back(): void {
             this.$emit("back");
         },
     },

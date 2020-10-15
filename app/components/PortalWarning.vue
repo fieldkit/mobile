@@ -7,11 +7,11 @@ import _ from "lodash";
 import Vue from "vue";
 
 export default Vue.extend({
-    data() {
+    data(): {} {
         return {};
     },
     props: {},
-    mounted(this: any) {
+    mounted(): void {
         console.log("mounted!");
     },
     methods: {},

@@ -74,7 +74,7 @@ export default Vue.extend({
     },
     props: {
         interval: {
-            type: Object,
+            type: Object as () => Interval,
             required: true,
         },
         fullDay: {

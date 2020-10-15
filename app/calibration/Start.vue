@@ -27,7 +27,7 @@ import ConnectionStatusHeader from "../components/ConnectionStatusHeader.vue";
 import { calibrationStrategies } from "./strategies";
 import { CalibrationStrategy } from "./model";
 
-import { Common } from "./water";
+import { CommonProperties, Common } from "./water";
 
 export default Vue.extend({
     name: "Start",
@@ -46,6 +46,7 @@ export default Vue.extend({
             required: true,
         },
         fromSettings: {
+            type: Boolean,
             default: true,
         },
     },
@@ -56,23 +57,23 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(this: any): Station {
+        currentStation(): Station {
             return this.$store.getters.stationCalibrations[this.stationId];
         },
-        module(this: any): Module {
+        module(): Module {
             const station: Station = this.$store.getters.stationsById[this.stationId];
             const module = station.modules.find((m) => m.position === this.position);
             if (!module) throw new Error("unable to find module");
             console.log("station-module", module.name);
             return module;
         },
-        moduleKey(this: any): string {
+        moduleKey(): string {
             return this.module.name;
         },
-        strategies(this: any): CalibrationStrategy[] {
+        strategies(): CalibrationStrategy[] {
             return calibrationStrategies().getModuleStrategies(this.moduleKey);
         },
-        visual(this: any) {
+        visual(): CommonProperties {
             const common = Common();
             console.log("common", common, this.moduleKey);
             const visual = common[this.moduleKey];
@@ -81,11 +82,11 @@ export default Vue.extend({
         },
     },
     methods: {
-        selected(this: any, strategy: CalibrationStrategy): void {
+        selected(strategy: CalibrationStrategy): void {
             console.log("strategy", strategy.id);
             this.strategy = strategy;
         },
-        done(this: any): Promise<any> {
+        done(): Promise<any> {
             if (!this.strategy) {
                 this.strategy = this.strategies[0];
             }
@@ -97,7 +98,7 @@ export default Vue.extend({
                 },
             });
         },
-        back(this: any): Promise<any> {
+        back(): Promise<any> {
             console.log("Start::back", this.fromSettings);
             if (this.fromSettings) {
                 return this.$navigateTo(StationSettingsModuleList, {
