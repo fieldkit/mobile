@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <Page @loaded="onPageLoaded">
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
