@@ -197,12 +197,22 @@ export default Vue.extend({
             log.info("toggle", sync.name, this.closed[sync.deviceId]);
         },
         onDownload(sync: StationSyncStatus): Promise<any> {
-            log.info("download", sync);
-            return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
+            try {
+                log.info("download", sync);
+                return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
+            } catch (error) {
+                log.info("error", error);
+                return Promise.resolve();
+            }
         },
         onUpload(sync: StationSyncStatus): Promise<any> {
-            log.info("upload", sync);
-            return this.$store.dispatch(ActionTypes.UPLOAD_STATION, sync);
+            try {
+                log.info("upload", sync);
+                return this.$store.dispatch(ActionTypes.UPLOAD_STATION, sync);
+            } catch (error) {
+                log.info("error", error);
+                return Promise.resolve();
+            }
         },
         opened(sync: StationSyncStatus): boolean {
             if (this.closed[sync.deviceId] === true) {
