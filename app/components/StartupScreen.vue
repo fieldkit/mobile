@@ -214,10 +214,6 @@ export default class StartupScreen extends Vue {
                         flowName: "onboarding",
                     },
                 });
-                return this.$navigateTo(routes.appSettings.account, {
-                    clearHistory: true,
-                    props: {},
-                });
                 return this.$navigateTo(routes.developerMenu, {
                     clearHistory: true,
                     props: {},
@@ -230,13 +226,12 @@ export default class StartupScreen extends Vue {
                     clearHistory: true,
                     props: {},
                 });
-				*/
                 if (services.Store().getters.stationCalibrations[1]) {
                     // return this.$navigateTo(routes.deploy.start, {
                     // return this.$navigateTo(routes.deploy.notes, {
                     // return this.$navigateTo(routes.deploy.review, {
                     // return this.$navigateTo(routes.stationSettings, {
-                    return this.$navigateTo(routes.stationDetail, {
+                    // return this.$navigateTo(routes.stationDetail, {
                         // return this.$navigateTo(routes.onboarding.recalibrate, {
                         clearHistory: true,
                         props: {
@@ -246,6 +241,11 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
+				*/
+                return this.$navigateTo(routes.appSettings.account, {
+                    clearHistory: true,
+                    props: {},
+                });
             }
 
             console.log("first navigate");

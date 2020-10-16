@@ -20,16 +20,16 @@
                                 @returnPress="focusEmail"
                                 @focus="showActive"
                                 @blur="checkName"
-                            ></TextField>
-                            <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong"></StackLayout>
-                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName"></Label>
+                            />
+                            <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong" />
+                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName" />
                             <Label
                                 class="validation-error"
                                 id="name-too-long"
                                 :text="_L('nameOver255')"
                                 textWrap="true"
                                 v-show="nameTooLong"
-                            ></Label>
+                            />
                         </StackLayout>
 
                         <StackLayout row="1" class="input-field">
@@ -300,6 +300,7 @@ export default Vue.extend({
                     });
                 })
                 .catch((error) => {
+                    console.log("error", error);
                     this.processing = false;
                     if (!this.navigatedAway) {
                         return this.alert(_L("loginFailed"));

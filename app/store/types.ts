@@ -329,13 +329,18 @@ export class Station implements StationCreationFields {
     }
 
     public firmwareInfo(): FirmwareInfo | null {
-        const statusReply: HttpStatusReply = this.decodeStatusReply();
-        const fw = statusReply?.status?.firmware || null;
-        if (!fw) {
-            console.log("malformed status reply", statusReply);
+        try {
+            const statusReply: HttpStatusReply = this.decodeStatusReply();
+            const fw = statusReply?.status?.firmware || null;
+            if (!fw) {
+                console.log("malformed status reply", statusReply);
+                return null;
+            }
+            return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
+        } catch (error) {
+            console.log(`no firmwareInfo: ${error}`);
             return null;
         }
-        return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
     }
 }
 

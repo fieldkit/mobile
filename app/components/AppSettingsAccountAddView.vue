@@ -295,6 +295,7 @@ export default Vue.extend({
                     });
                 })
                 .catch((error) => {
+                    console.log("error", error);
                     this.processing = false;
                     if (!this.navigatedAway) {
                         return this.alert(_L("loginFailed"));
