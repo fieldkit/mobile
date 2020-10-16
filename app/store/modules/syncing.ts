@@ -302,7 +302,13 @@ export class SyncingState {
 function querySizes(services: ServiceRef, downloads: PendingDownload[]): Promise<CalculatedSize[]> {
     return serializePromiseChain(downloads, (download: PendingDownload) => {
         console.log("size:", download.url);
-        return services.queryStation().calculateDownloadSize(download.url);
+        return services
+            .queryStation()
+            .calculateDownloadSize(download.url)
+            .then((size: CalculatedSize) => {
+                console.log("size:", download.url, size);
+                return size;
+            });
     });
 }
 
