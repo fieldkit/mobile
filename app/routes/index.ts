@@ -30,7 +30,7 @@ import AppSettingsNotifications from "../components/AppSettingsNotificationsView
 
 import FlowView from "@/reader/FlowView.vue";
 
-import { Route } from "./navigate";
+import { inferNames, Route } from "./navigate";
 import AppSettingsPermissions from "~/components/AppSettingsPermissionsView.vue";
 import AppSettingsHelp from "~/components/AppSettingsHelpView.vue";
 import AppSettingsHelpAppVersion from "~/components/AppSettingsHelpAppVersionView.vue";
@@ -100,5 +100,7 @@ const routes = {
         flow: new Route(FlowView, {}),
     },
 };
+
+inferNames(routes);
 
 export default routes;

@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { Component } from "vue";
 import * as MutationTypes from "../store/mutations";
 
 export interface NavigateOptions {
@@ -19,8 +20,25 @@ export interface RouteState {
     clear?: boolean;
 }
 
+export type RouteTable = {
+    [index: string]: RouteTable | Route;
+};
+
+export function inferNames(routes: RouteTable, prefix = ""): void {
+    for (const key of Object.keys(routes)) {
+        const value = routes[key];
+        if (value instanceof Route) {
+            value.name = prefix + key;
+        } else {
+            inferNames(value as RouteTable, key + "/");
+        }
+    }
+}
+
 export class Route {
-    constructor(public readonly page: any, public readonly state: RouteState) {}
+    public name: string = "unknown";
+
+    constructor(public readonly page: Component, public readonly state: RouteState) {}
 
     combine(options: NavigateOptions | null): RouteState {
         if (options && options.props) {
@@ -37,7 +55,8 @@ type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<an
 export default function navigatorFactory(store: any, navigateTo: NavigateToFunc) {
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<any> => {
         if (pageOrRoute instanceof Route) {
-            store.commit(MutationTypes.NAVIGATION, pageOrRoute.combine(options));
+            const routeState = pageOrRoute.combine(options);
+            store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name });
             return navigateTo(pageOrRoute.page, options);
         }
         console.log("nav: deprecated navigateTo");
