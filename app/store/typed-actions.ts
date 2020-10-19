@@ -14,6 +14,12 @@ export class TryStationAction {
     constructor(public readonly info: ServiceInfo) {}
 }
 
+export class TryStationOnceAction {
+    type = ActionTypes.TRY_STATION_ONCE;
+
+    constructor(public readonly info: ServiceInfo) {}
+}
+
 /*
 export class AttachNoteMediaAction {
     type = ActionTypes.ATTACH_NOTE_MEDIA;
