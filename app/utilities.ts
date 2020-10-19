@@ -73,6 +73,28 @@ export function hexStringToByteWiseString(str: string): string {
         .join("");
 }
 
+export class LabelledElapsedTime {
+    constructor(public readonly time: string, public readonly label: string) {}
+}
+
+export function getLabelledElapsedTime(a: Date, b: Date): LabelledElapsedTime {
+    const elapsed = (a.getTime() - b.getTime()) / 1000;
+    const seconds = Math.floor(elapsed % 60);
+    const minutes = Math.floor((elapsed / 60) % 60);
+    const hours = Math.floor((elapsed / (60 * 60)) % 24);
+    const days = Math.floor(elapsed / (60 * 60 * 24));
+
+    const secondsStr = seconds < 10 ? "0" + seconds : seconds;
+    const minutesStr = minutes < 10 ? "0" + minutes : minutes;
+    const hoursStr = hours < 10 ? "0" + hours : hours;
+
+    if (days > 1) {
+        return new LabelledElapsedTime(days + ":" + hoursStr + ":" + minutesStr, _L("daysHrsMin"));
+    } else {
+        return new LabelledElapsedTime(hoursStr + ":" + minutesStr + ":" + secondsStr, _L("hrsMinSec"));
+    }
+}
+
 export function convertBytesToLabel(bytes: number): string {
     // convert to kilobytes or megabytes
     if (bytes < 1000000.0) {

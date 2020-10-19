@@ -214,11 +214,11 @@ export default class StartupScreen extends Vue {
                         flowName: "onboarding",
                     },
                 });
-                return this.$navigateTo(routes.appSettings.account, {
+                return this.$navigateTo(routes.developerMenu, {
                     clearHistory: true,
                     props: {},
                 });
-                return this.$navigateTo(routes.developerMenu, {
+                return this.$navigateTo(routes.stations, {
                     clearHistory: true,
                     props: {},
                 });
@@ -232,7 +232,7 @@ export default class StartupScreen extends Vue {
                     // return this.$navigateTo(routes.deploy.review, {
                     // return this.$navigateTo(routes.stationSettings, {
                     // return this.$navigateTo(routes.stationDetail, {
-                    // return this.$navigateTo(routes.onboarding.recalibrate, {
+                        // return this.$navigateTo(routes.onboarding.recalibrate, {
                         clearHistory: true,
                         props: {
                             stationId: 1,
@@ -242,7 +242,7 @@ export default class StartupScreen extends Vue {
                     console.log("no test station");
                 }
 				*/
-                return this.$navigateTo(routes.stations, {
+                return this.$navigateTo(routes.appSettings.account, {
                     clearHistory: true,
                     props: {},
                 });

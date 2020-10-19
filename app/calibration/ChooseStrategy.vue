@@ -1,32 +1,25 @@
 <template>
-    <StackLayout>
-        <GridLayout rows="*,80">
-            <StackLayout row="0">
-                <StackLayout class="choice-container">
-                    <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
-                    <Label
-                        class="choice-why"
-                        textWrap="true"
-                        text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
-                    />
+    <ScrollView>
+        <StackLayout class="choice-container">
+            <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
+            <Label
+                class="choice-why"
+                textWrap="true"
+                text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
+            />
 
-                    <StackLayout
-                        v-for="(strategy, index) in strategies"
-                        :key="index"
-                        class="strategy-container"
-                        v-bind:class="{ selected: selected === index }"
-                        @tap="choose(strategy, index)"
-                    >
-                        <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
-                        <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
-                    </StackLayout>
-                </StackLayout>
+            <StackLayout
+                v-for="(strategy, index) in strategies"
+                :key="index"
+                class="strategy-container"
+                v-bind:class="{ selected: selected === index }"
+                @tap="choose(strategy, index)"
+            >
+                <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
+                <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
             </StackLayout>
-            <StackLayout row="1">
-                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" />
-            </StackLayout>
-        </GridLayout>
-    </StackLayout>
+        </StackLayout>
+    </ScrollView>
 </template>
 
 <script lang="ts">
@@ -51,6 +44,10 @@ export default Vue.extend({
             type: Object,
             required: true,
         },
+        busy: {
+            type: Boolean,
+            required: true,
+        },
     },
     data(): { selected: number } {
         return {
@@ -58,15 +55,12 @@ export default Vue.extend({
         };
     },
     methods: {
-        choose(this: any, strategy: any, index: number) {
+        choose(strategy: any, index: number): void {
             console.log("choose strategy", index);
             this.selected = index;
+            this.$emit("selected", this.strategies[this.selected]);
         },
-        done(this: any) {
-            console.log("done");
-            this.$emit("choose", this.strategies[this.selected]);
-        },
-        back(this: any) {
+        back(): void {
             console.log("back");
             this.$emit("back");
         },

@@ -93,7 +93,7 @@ const actions = (services: ServiceRef) => {
                     },
                     (error) => {
                         if (QueryThrottledError.isInstance(error)) {
-                            console.log("query-stationi:warning", error.message);
+                            console.log("query-station:warning", error.message);
                             return Promise.resolve();
                         }
                         return Promise.reject(error);
@@ -105,7 +105,6 @@ const actions = (services: ServiceRef) => {
                 Object.values(state.stations)
                     .filter((nearby: NearbyStation) => {
                         if (nearby.transferring) {
-                            console.log("skip nearby transferring station");
                             return false;
                         }
                         const mark = nearby.activity.getTime() > nearby.queried.getTime() ? nearby.activity : nearby.queried;
@@ -115,15 +114,6 @@ const actions = (services: ServiceRef) => {
                         return querying;
                     })
                     .map((nearby: NearbyStation) =>
-                        /*
-                    backOff(() => dispatch(ActionTypes.QUERY_STATION, nearby.info), {
-                        numOfAttempts: 1,
-                        startingDelay: 250,
-                    }).catch((error) => {
-                        console.log("query-necessary failed", nearby.info);
-                        return dispatch(ActionTypes.LOST, nearby.info);
-                    })
-					*/
                         dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
                             (reply) => nearby.success(),
                             (error) => nearby.failure()

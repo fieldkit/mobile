@@ -49,24 +49,30 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
-import { getLastSeen, _T, convertOldFirmwareResponse } from "../utilities";
+import { getLastSeen, _T, convertOldFirmwareResponse } from "@/utilities";
+import { Station, Module, Sensor } from "@/store";
 
 export default Vue.extend({
     name: "ModuleListView",
-    data: () => {
+    data(): { closed: any } {
         return {
             closed: {},
         };
     },
-    props: { station: { required: true } },
+    props: {
+        station: {
+            type: Object as () => Station,
+            required: true,
+        },
+    },
     methods: {
-        getDisplayReading(s) {
+        getDisplayReading(s): string {
             if (s.reading === null) {
                 return "--";
             }
             return s.reading.toFixed(1);
         },
-        getDisplayIcon(s) {
+        getDisplayIcon(s): string {
             if (s.trend > 0) {
                 return "~/images/Icon_Increase.png";
             }
@@ -75,24 +81,24 @@ export default Vue.extend({
             }
             return "~/images/Icon_Neutral.png";
         },
-        onPageLoaded(args) {},
-        onUnloaded() {},
-        lastSeen(this: any) {
-            if (!this.station || !this.station.updated) {
+        onPageLoaded(): void {},
+        onUnloaded(): void {},
+        lastSeen(): string {
+            if (!this.station || !this.station.lastSeen) {
                 return "";
             }
-            return _L("lastReading") + " " + getLastSeen(this.station.updated);
+            return _L("lastReading") + " " + getLastSeen(this.station.lastSeen);
         },
-        getModuleName(module) {
-            const newName = convertOldFirmwareResponse(module);
+        getModuleName(mod: Module): string {
+            const newName = convertOldFirmwareResponse(mod);
             return _T(newName + ".name");
         },
-        getSensorName(module, sensor) {
-            const newName = convertOldFirmwareResponse(module);
+        getSensorName(mod: Module, sensor: Sensor): string {
+            const newName = convertOldFirmwareResponse(mod);
             return _T(newName + ".sensors." + sensor.name);
         },
-        getModuleImage(module) {
-            switch (module.name) {
+        getModuleImage(mod: Module): string {
+            switch (mod.name) {
                 case "modules.distance":
                     return "~/images/Icon_Distance_Module.png";
                 case "modules.weather":
@@ -113,15 +119,15 @@ export default Vue.extend({
                     return "~/images/Icon_Generic_Module.png";
             }
         },
-        emitModuleTapped(this: any, module) {
-            this.$emit("module-tapped", module);
+        emitModuleTapped(mod: Module): void {
+            this.$emit("module-tapped", mod);
         },
-        toggleContainer(this: any, module) {
-            console.log("toggle", this.closed[module.position]);
-            if (this.closed[module.position] === true) {
-                Vue.set(this.closed, module.position, false);
+        toggleContainer(mod: Module): void {
+            console.log("toggle", this.closed[mod.position]);
+            if (this.closed[mod.position] === true) {
+                Vue.set(this.closed, mod.position, false);
             } else {
-                Vue.set(this.closed, module.position, true);
+                Vue.set(this.closed, mod.position, true);
             }
             console.log("toggle", this.closed);
         },

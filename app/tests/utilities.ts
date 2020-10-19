@@ -6,8 +6,25 @@ const HttpReply = appRoot.lookupType("fk_app.HttpReply"); // eslint-disable-line
 const atlasRoot = protobuf.Root.fromJSON(require("fk-atlas-protocol")); // eslint-disable-line
 const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply"); // eslint-disable-line
 
-export function randomHexString() {
+export function randomHexString(): string {
     return crypto.randomBytes(16).toString("hex");
+}
+
+type HttpHeaders = { [index: string]: string };
+
+interface FakeStation {
+    name: string;
+    generationId: string;
+    deviceId: string;
+    moduleIds: string[];
+}
+
+interface FakeStreams {
+    time: number;
+    size: number;
+    block: number;
+    name: string;
+    path: string;
 }
 
 export class MockStationReplies {
@@ -19,6 +36,8 @@ export class MockStationReplies {
     downloadMock: any;
     upload: any;
     uploadMock: any;
+    json: any;
+    jsonMock: any;
 
     constructor(services) {
         this.services = services;
@@ -46,9 +65,16 @@ export class MockStationReplies {
         });
         this.uploadMock = this.upload.mock;
         services.PortalInterface().uploadPreviouslyDownloaded = this.upload;
+
+        this.json = jest.fn(() => {
+            console.log("TESTS: no more mocked json");
+            return Promise.reject(new Error("TESTS: no more mocked json"));
+        });
+        this.jsonMock = this.json.mock;
+        services.Conservify().json = this.json;
     }
 
-    queueUpload(status, headers) {
+    public queueUpload(status: number, headers: HttpHeaders): MockStationReplies {
         const response = {
             statusCode: status,
             headers: headers,
@@ -59,7 +85,21 @@ export class MockStationReplies {
         return this;
     }
 
-    queueDownload(status, headers) {
+    public queueCalculateDownloadSize(status: number, size: number): MockStationReplies {
+        const response = {
+            statusCode: status,
+            headers: {
+                "fk-bytes": size,
+                "content-length": size,
+            },
+        };
+
+        this.json.mockReturnValueOnce(Promise.resolve(response));
+
+        return this;
+    }
+
+    public queueDownload(status: number, headers: HttpHeaders): MockStationReplies {
         const response = {
             statusCode: status,
             headers: headers,
@@ -70,7 +110,7 @@ export class MockStationReplies {
         return this;
     }
 
-    queueBody(body) {
+    public queueBody(body: any): MockStationReplies {
         const encoded = HttpReply.encodeDelimited(body).finish();
         const response = {
             body: Buffer.from(encoded),
@@ -79,7 +119,7 @@ export class MockStationReplies {
         return this.queueResponse(response);
     }
 
-    queueAtlasBody(body) {
+    public queueAtlasBody(body: any): MockStationReplies {
         const encoded = AtlasReply.encodeDelimited(body).finish();
         const response = {
             body: Buffer.from(encoded),
@@ -88,7 +128,7 @@ export class MockStationReplies {
         return this.queueResponse(response);
     }
 
-    newFakeStation() {
+    public newFakeStation(): FakeStation {
         return {
             name: "Fake Station",
             generationId: randomHexString(),
@@ -97,7 +137,7 @@ export class MockStationReplies {
         };
     }
 
-    newStreams(meta, data) {
+    public newStreams(meta: number, data: number): FakeStreams[] {
         return [
             {
                 time: 0,
@@ -116,7 +156,7 @@ export class MockStationReplies {
         ];
     }
 
-    newFakeStatusReply(station, gps, streams = null) {
+    public newFakeStatusReply(station, gps, streams = null) {
         const defaultStreams = this.newStreams(1, 34);
         const statusStreams = streams || defaultStreams;
         const serialized = Buffer.from(
@@ -187,7 +227,7 @@ export class MockStationReplies {
         };
     }
 
-    newFakeReadingsReply(station) {
+    public newFakeReadingsReply(station) {
         this.now += 1;
         return {
             errors: [],
@@ -292,20 +332,20 @@ export class MockStationReplies {
         };
     }
 
-    queueStatusReply(station) {
+    public queueStatusReply(station): MockStationReplies {
         return this.queueBody(this.newFakeStatusReply(station, null, null));
     }
 
-    queueReadingsReply(station) {
+    public queueReadingsReply(station): MockStationReplies {
         return this.queueBody(this.newFakeReadingsReply(station));
     }
 
-    queueNoReply() {
+    public queueNoReply(): MockStationReplies {
         this.call.mockReturnValueOnce(Promise.reject(new Error("fake connection error")));
         return this;
     }
 
-    queueResponse(response) {
+    public queueResponse(response): MockStationReplies {
         this.call.mockReturnValueOnce(Promise.resolve(response));
         return this;
     }

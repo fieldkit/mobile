@@ -109,8 +109,9 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "../../routes";
-import * as ActionTypes from "../../store/actions";
+import * as ActionTypes from "@/store/actions";
 import * as animations from "../animations";
+import { Station, Notes, NoteForm } from "@/store";
 
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -126,36 +127,32 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        notes(this: any) {
+        notes(this: any): Notes {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation(this: any) {
+        currentStation(this: any): Station {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        photoCache(this: any) {
+        photoCache(this: any): any {
             return this.$store.state.media.photoCache;
         },
-        visibleNotes(this: any) {
+        visibleNotes(this: any): NoteForm[] {
             return [this.notes.studyObjective, this.notes.sitePurpose, this.notes.siteCriteria, this.notes.siteDescription];
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(): void {
             console.log("review loaded", this.stationId);
             console.log("review loaded", this.currentStation);
-            this.page = args.object;
         },
-        goBack(this: any, ev) {
+        goBack(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateBack({
-                    props: {
-                        stationId: this.stationId,
-                    },
                     transition: {
                         name: "slideRight",
                         duration: 250,
@@ -164,7 +161,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        editLocation(this: any, ev) {
+        editLocation(ev: any): Promise<any> {
             return Promise.all([
                 this.$navigateTo(routes.deploy.start, {
                     props: {
@@ -173,7 +170,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        editNotes(this: any, ev) {
+        editNotes(ev: any): Promise<any> {
             return Promise.all([
                 this.$navigateTo(routes.deploy.notes, {
                     props: {
@@ -182,7 +179,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        deployStation(this: any, ev, station) {
+        deployStation(ev: any, station: Station): Promise<any> {
             ev.object.text = _L("processing");
 
             return this.$store.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {

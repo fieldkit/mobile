@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <Page @loaded="onPageLoaded">
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
@@ -47,10 +47,12 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Promise from "bluebird";
 import routes from "@/routes";
+import { promiseAfter } from "@/utilities";
 
 import * as animations from "./animations";
+
+import { Station, Notes } from "@/store";
 
 import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
@@ -68,13 +70,13 @@ export default Vue.extend({
             default: false,
         },
     },
-    data() {
+    data(): { newlyDeployed: boolean } {
         return {
             newlyDeployed: false,
         };
     },
     computed: {
-        notificationCodes(this: any) {
+        notificationCodes(this: any): string[] {
             const codes: string[] = [];
             const portal = this.currentStation.portalHttpError;
             if (portal && portal.name) {
@@ -82,13 +84,13 @@ export default Vue.extend({
             }
             return codes;
         },
-        isDeployed(this: any) {
+        isDeployed(this: any): boolean {
             return this.currentStation.deployStartTime != null;
         },
-        notes(this: any) {
+        notes(this: any): Notes {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation(this: any) {
+        currentStation(this: any): Station {
             if (!this.$store.getters.legacyStations) {
                 throw new Error(`missing legacyStations`);
             }
@@ -102,14 +104,14 @@ export default Vue.extend({
         NotificationFooter,
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(this: any, args): void {
             console.log("loading station detail");
 
             this.completeSetup();
 
             console.log("loaded station detail", this.stationId);
         },
-        goBack(this: any, ev) {
+        goBack(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
@@ -124,14 +126,14 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDeploy(this: any, ev) {
+        goToDeploy(ev: any): Promise<any> {
             return this.$navigateTo(routes.deploy.start, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goToFieldNotes(this: any) {
+        goToFieldNotes(): Promise<any> {
             return this.$navigateTo(routes.deploy.notes, {
                 props: {
                     stationId: this.stationId,
@@ -139,7 +141,7 @@ export default Vue.extend({
                 },
             });
         },
-        goToSettings(this: any, ev) {
+        goToSettings(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
@@ -150,7 +152,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDetail(this: any, ev) {
+        goToDetail(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -160,30 +162,17 @@ export default Vue.extend({
                 }),
             ]);
         },
-        stopProcesses(this: any) {
-            if (this.intervalTimer) {
-                clearInterval(this.intervalTimer);
-            }
-            if (this.$refs.statusBox) {
-                this.$refs.statusBox.stopProcesses();
-            }
-        },
-        onUnloaded(this: any) {
-            this.stopProcesses();
-        },
-        completeSetup(this: any) {
-            this.loading = false;
-
+        completeSetup(): Promise<any> {
             if (this.redirectedFromDeploy) {
                 this.newlyDeployed = true;
-                return Promise.delay(3000).then(() => {
+                return promiseAfter(3000).then(() => {
                     this.newlyDeployed = false;
                 });
             }
 
             return Promise.resolve();
         },
-        getDeployedStatus(this: any) {
+        getDeployedStatus(): string {
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
     },

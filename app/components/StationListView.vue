@@ -64,7 +64,7 @@ export default Vue.extend({
     computed: {
         ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
     },
-    data() {
+    data(): { busy: boolean; scanning: boolean } {
         return {
             busy: false,
             scanning: false,
@@ -72,11 +72,11 @@ export default Vue.extend({
     },
     watch: {},
     methods: {
-        onPageLoaded() {},
-        getDeployStatus(this: any, station: AvailableStation) {
+        onPageLoaded(): void {},
+        getDeployStatus(station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
-        goToDetail(this: any, ev, station) {
+        goToDetail(ev, station): Promise<any> {
             return Promise.all([
                 animations.pressed(ev.object),
                 this.$navigateTo(routes.stationDetail, {
@@ -86,9 +86,9 @@ export default Vue.extend({
                 }),
             ]);
         },
-        showDev(this: any) {
+        showDev(): Promise<any> {
             if (this.busy) {
-                return;
+                return Promise.resolve();
             }
 
             this.busy = true;
@@ -100,20 +100,21 @@ export default Vue.extend({
             })
                 .then((yes) => {
                     if (yes) {
-                        return this.$navigateTo(routes.developerMenu);
+                        return this.$navigateTo(routes.developerMenu, {});
                     }
+                    return;
                 })
                 .finally(() => {
                     this.busy = false;
                 });
         },
-        onDoubleTap(this: any) {
+        onDoubleTap(): Promise<any> {
             this.scanning = true;
             return this.$store.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
                 this.scanning = false;
             });
         },
-        openModalMap(this: any, ev) {
+        openModalMap(ev: any): Promise<any> {
             return this.$showModal(MapModal, {
                 fullscreen: true,
             });

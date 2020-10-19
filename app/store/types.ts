@@ -186,7 +186,7 @@ export class Interval implements IntervalLike {
 }
 
 export class Schedule {
-    constructor(public readonly intervals: IntervalLike[] = []) {}
+    constructor(public intervals: IntervalLike[] = []) {}
 
     public static getMinimum(s: Schedule): Schedule {
         if (!s.intervals || s.intervals.length == 0) {
@@ -329,13 +329,18 @@ export class Station implements StationCreationFields {
     }
 
     public firmwareInfo(): FirmwareInfo | null {
-        const statusReply: HttpStatusReply = this.decodeStatusReply();
-        const fw = statusReply?.status?.firmware || null;
-        if (!fw) {
-            console.log("malformed status reply", statusReply);
+        try {
+            const statusReply: HttpStatusReply = this.decodeStatusReply();
+            const fw = statusReply?.status?.firmware || null;
+            if (!fw) {
+                console.log("malformed status reply", statusReply);
+                return null;
+            }
+            return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
+        } catch (error) {
+            console.log(`no firmwareInfo: ${error}`);
             return null;
         }
-        return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
     }
 }
 

@@ -22,7 +22,7 @@ export default Vue.extend({
     components: {
         StationsMap,
     },
-    data() {
+    data(): { height: number } {
         return {
             // ios: isIOS,
             height: Screen.mainScreen.heightDIPs - 20,
@@ -33,11 +33,11 @@ export default Vue.extend({
         ...mapGetters({ mappedStations: "mappedStations" }),
     },
     methods: {
-        onClose(this: any) {
+        onClose(): void {
             console.log("onClose");
             this.$modal.close();
         },
-        onOpenedDetails(this: any) {
+        onOpenedDetails(): void {
             console.log("onOpenedDetails");
             this.$modal.close();
         },

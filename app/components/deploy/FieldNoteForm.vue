@@ -41,6 +41,7 @@
 <script lang="ts">
 import Vue from "vue";
 
+import { NoteData, NoteHelp } from "@/store";
 import LabeledTextView from "../LabeledTextView.vue";
 import MakeAudioRecording from "./MakeAudioRecording.vue";
 import AudioRecordings from "./AudioRecordings.vue";
@@ -53,15 +54,15 @@ export default Vue.extend({
     },
     props: {
         note: {
-            type: Object,
+            type: Object as () => NoteData,
             required: true,
         },
         help: {
-            type: Object,
+            type: Object as () => NoteHelp,
             required: true,
         },
     },
-    data() {
+    data(): { audioReady: boolean; form: { body: string } } {
         return {
             audioReady: false,
             form: {
@@ -70,27 +71,27 @@ export default Vue.extend({
         };
     },
     methods: {
-        onPageLoaded(args) {},
-        onUnloaded() {},
-        onCancel(this: any) {
+        onPageLoaded(): void {},
+        onUnloaded(): void {},
+        onCancel(): void {
             console.log("note cancel", this.form);
             this.$emit("cancel");
         },
-        onSave(this: any) {
+        onSave() {
             console.log("note save", this.form);
             this.$emit("save", { form: this.form });
         },
-        onAudioTap(this: any, ev) {
+        onAudioTap() {
             this.audioReady = !this.audioReady;
         },
-        onAudioDone(...args) {
+        onAudioDone(...args): void {
             this.$emit("attach-media", ...args);
         },
-        raiseRemoveAudio(...args) {
+        raiseRemoveAudio(...args): void {
             this.$emit("remove-audio", ...args);
         },
-        maybeDismissKeyboard(this: any) {
-            this.$refs.noteBody.nativeView.dismissSoftInput();
+        maybeDismissKeyboard(): void {
+            (this.$refs.noteBody as any).nativeView.dismissSoftInput();
         },
     },
 });

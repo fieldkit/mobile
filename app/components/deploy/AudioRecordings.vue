@@ -26,6 +26,8 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import { NoteMedia } from "@/store";
+
 export default Vue.extend({
     props: {
         recordings: {
@@ -33,23 +35,23 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): { playing: NoteMedia | null } {
         return {
             playing: null,
         };
     },
     methods: {
-        getFileName(this: any, media) {
+        getFileName(this: any, media: NoteMedia) {
             const parts = media.path.split("/");
             return parts[parts.length - 1];
         },
-        toggleAudio(this: any, ev, media) {
+        toggleAudio(this: any, ev, media: NoteMedia) {
             if (this.playing) {
                 return this.stopPlaying(media);
             }
             return this.startPlaying(media);
         },
-        startPlaying(this: any, media) {
+        startPlaying(this: any, media: NoteMedia) {
             console.log("recording:playing");
             return this.$services
                 .Audio()
@@ -64,7 +66,7 @@ export default Vue.extend({
                     console.log("audio:play:error", err);
                 });
         },
-        stopPlaying(this: any, media) {
+        stopPlaying(this: any, media: NoteMedia) {
             if (this.playing === null) {
                 return Promise.resolve();
             }
@@ -78,7 +80,7 @@ export default Vue.extend({
                     console.log("audio:stop:error", err);
                 });
         },
-        removeRecording(this: any, ev, media) {
+        removeRecording(this: any, ev, media: NoteMedia) {
             console.log("recording:remove", media);
             return this.stopPlaying().then(() => {
                 return this.$emit("remove-audio", media);

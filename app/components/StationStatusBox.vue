@@ -1,74 +1,61 @@
 <template>
-    <StackLayout
-        id="station-status-box-container"
-        :class="'m-10 ' + (loading ? '' : 'bordered-container')"
-        @loaded="onPageLoaded"
-        @unloaded="onUnloaded"
-    >
+    <StackLayout id="station-status-box-container" :class="'m-10 ' + (loading ? '' : 'bordered-container')">
         <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">
             <!-- recording status -->
             <StackLayout row="0" col="0" class="m-t-10">
-                <Label class="text-center size-16" :text="station.deployed ? _L('recordingData') : _L('notRecording')"></Label>
+                <Label class="text-center size-16" :text="station.deployed ? _L('recordingData') : _L('notRecording')" />
             </StackLayout>
+
             <!-- battery level -->
             <StackLayout v-if="station.connected" row="0" col="1" class="m-t-10">
                 <FlexboxLayout class="m-r-10" justifyContent="flex-end">
-                    <Label class="m-r-5 size-12 lighter" :text="batteryLevel"></Label>
-                    <Image width="25" :src="batteryImage"></Image>
+                    <Label class="m-r-5 size-12 lighter" :text="batteryLevel" />
+                    <Image width="25" :src="batteryImage" />
                 </FlexboxLayout>
             </StackLayout>
+
             <!-- recording time -->
             <GridLayout row="1" col="0" rows="auto" columns="*" class="m-t-10">
                 <StackLayout row="0" id="outer-circle" />
                 <StackLayout row="0" id="inner-circle">
-                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="recording.time"></Label>
-                    <Label class="size-12 rec-time" :text="recording.label"></Label>
+                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="recording.time" />
+                    <Label class="size-12 rec-time" :text="recording.label" />
                 </StackLayout>
             </GridLayout>
+
             <!-- connected status and available memory -->
             <StackLayout row="1" col="1">
                 <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
-                    <Image rowSpan="2" col="0" width="20" v-if="station.connected && !syncing" src="~/images/Icon_Connected.png"></Image>
-                    <Image
-                        rowSpan="2"
-                        col="0"
-                        width="20"
-                        v-if="!station.connected && !syncing"
-                        src="~/images/Icon_not_Connected.png"
-                    ></Image>
-                    <Image rowSpan="2" col="0" height="20" width="20" :src="dataSyncingIcon" v-if="syncing"></Image>
+                    <Image rowSpan="2" col="0" width="20" v-if="station.connected && !syncing" src="~/images/Icon_Connected.png" />
+                    <Image rowSpan="2" col="0" width="20" v-if="!station.connected && !syncing" src="~/images/Icon_not_Connected.png" />
+                    <Image rowSpan="2" col="0" height="20" width="20" :src="dataSyncingIcon" v-if="syncing" />
                     <Label
                         row="0"
                         col="1"
                         class="m-t-10 m-l-10 size-14"
                         :text="this.station.connected ? _L('connected') : _L('notConnected')"
                         v-if="!syncing"
-                    ></Label>
-                    <Label
-                        row="1"
-                        col="1"
-                        class="m-l-10 m-t-2 m-b-5 size-12"
-                        :text="lastSeen"
-                        v-if="!syncing && !station.connected"
-                    ></Label>
-                    <Label row="0" col="1" class="m-10 size-14" :text="dataSyncMessage" v-if="syncing"></Label>
+                    />
+                    <Label row="1" col="1" class="m-l-10 m-t-2 m-b-5 size-12" :text="lastSeen" v-if="!syncing && !station.connected" />
+                    <Label row="0" col="1" class="m-10 size-14" :text="dataSyncMessage" v-if="syncing" />
                 </GridLayout>
                 <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
-                    <Image col="0" rowSpan="3" width="20" src="~/images/Icon_memory.png"></Image>
-                    <Label row="0" col="1" class="m-t-15 m-l-10 size-14" horizontalAlignment="left" :text="_L('memoryUsed')"></Label>
+                    <Image col="0" rowSpan="3" width="20" src="~/images/Icon_memory.png" />
+                    <Label row="0" col="1" class="m-t-15 m-l-10 size-14" horizontalAlignment="left" :text="_L('memoryUsed')" />
                     <Label
                         row="1"
                         col="1"
                         class="m-l-10 m-t-2 m-b-5 size-12"
                         horizontalAlignment="left"
                         :text="displayConsumedMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
-                    ></Label>
+                    />
                     <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
-                        <StackLayout row="0" class="memory-bar"></StackLayout>
-                        <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar"></StackLayout>
+                        <StackLayout row="0" class="memory-bar" />
+                        <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar" />
                     </GridLayout>
                 </GridLayout>
             </StackLayout>
+
             <!-- deploy button -->
             <StackLayout row="2" colSpan="2" class="m-l-10 m-r-10">
                 <Button
@@ -78,7 +65,8 @@
                     :text="_L('deploy')"
                     automationText="deployButton"
                     @tap="emitDeployTap"
-                ></Button>
+                />
+
                 <!-- placeholder if no deploy button -->
                 <StackLayout height="20" v-if="station.deployed" />
             </StackLayout>
@@ -88,86 +76,59 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { getLastSeen, convertBytesToLabel } from "../utilities";
-import { Enums } from "@nativescript/core";
+import { getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/utilities";
+// import { Enums } from "@nativescript/core";
 import { Timer } from "@/common/timer";
+import { Station } from "@/store";
+
+interface OtherData {
+    timer: Timer;
+    page: any;
+}
 
 export default Vue.extend({
     name: "StationStatusBox",
-    data: () => {
+    data(): { loading: boolean; syncing: boolean; dataSyncingIcon: string; dataSyncMessage: string; now: Date } {
         return {
-            loading: true,
+            loading: false,
             syncing: false,
             dataSyncingIcon: "~/images/Icon_Syncing_blue.png",
             dataSyncMessage: "",
             now: new Date(),
         };
     },
-    mounted(this: any) {
-        this.timer = new Timer(1000, (counter) => {
+    mounted(): void {
+        this.otherData.timer = new Timer(1000, (counter) => {
             this.now = new Date();
         });
     },
-    destroyed(this: any) {
-        this.timer.stop();
+    destroyed(): void {
+        this.otherData.timer.stop();
     },
     computed: {
-        displayConsumedMemory(this: any) {
+        otherData(): OtherData {
+            return (this as unknown) as OtherData;
+        },
+        displayConsumedMemory(): string {
+            if (!this.station.consumedMemory) return "";
             return convertBytesToLabel(this.station.consumedMemory);
         },
-        displayTotalMemory(this: any) {
+        displayTotalMemory(): string {
+            if (!this.station.totalMemory) return "";
             return convertBytesToLabel(this.station.totalMemory);
         },
-        recording(this: any) {
+        recording(): { time: string; label: string } {
             if (this.station.deployStartTime) {
-                const now = this.now;
-                const elapsed = (now.getTime() - this.station.deployStartTime.getTime()) / 1000;
-                const seconds = Math.floor(elapsed % 60);
-                const minutes = Math.floor((elapsed / 60) % 60);
-                const hours = Math.floor((elapsed / (60 * 60)) % 24);
-                const days = Math.floor(elapsed / (60 * 60 * 24));
-
-                if (seconds % 2 == 0 && this.outer) {
-                    this.outer
-                        .animate({
-                            scale: { x: 1, y: 1 },
-                            duration: 750,
-                            curve: Enums.AnimationCurve.easeOut,
-                        })
-                        .then(() => {
-                            return this.outer.animate({
-                                scale: { x: 0.96, y: 0.96 },
-                                duration: 500,
-                                curve: Enums.AnimationCurve.easeIn,
-                            });
-                        });
-                }
-
-                const secondsStr = seconds < 10 ? "0" + seconds : seconds;
-                const minutesStr = minutes < 10 ? "0" + minutes : minutes;
-                const hoursStr = hours < 10 ? "0" + hours : hours;
-
-                if (days > 1) {
-                    return {
-                        time: days + ":" + hoursStr + ":" + minutesStr,
-                        label: _L("daysHrsMin"),
-                    };
-                } else {
-                    return {
-                        time: hoursStr + ":" + minutesStr + ":" + secondsStr,
-                        label: _L("hrsMinSec"),
-                    };
-                }
-            } else {
-                return {
-                    time: "00:00:00",
-                    label: "",
-                };
+                return getLabelledElapsedTime(this.now, this.station.deployStartTime);
             }
+            return {
+                time: "00:00:00",
+                label: "",
+            };
         },
-        batteryImage(this: any) {
+        batteryImage(): string {
             const battery = this.station.batteryLevel;
-            if (battery == 0) {
+            if (battery == null || battery == 0) {
                 return "~/images/Icon_Battery_0.png";
             } else if (battery <= 20) {
                 return "~/images/Icon_Battery_20.png";
@@ -181,63 +142,25 @@ export default Vue.extend({
                 return "~/images/Icon_Battery_100.png";
             }
         },
-        batteryLevel(this: any) {
-            if (this.station.batteryLevel != 0 && !this.station.batteryLevel) {
-                return _L("unknown");
-            }
+        batteryLevel(): string {
+            if (this.station.batteryLevel != 0 && !this.station.batteryLevel) return _L("unknown");
             return this.station.batteryLevel + "%";
         },
-        lastSeen(this: any) {
-            if (!this.station.updated) {
-                return "";
-            }
-            return _L("since") + " " + getLastSeen(this.station.updated);
+        lastSeen(): string {
+            console.log("lastSeen", this.station.lastSeen);
+            if (!this.station.lastSeen) return _L("unknown");
+            return _L("since") + " " + getLastSeen(this.station.lastSeen);
         },
     },
     props: {
         station: {
+            type: Object as () => Station,
             required: true,
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
-            this.page = args.object;
-
-            this.updateStation(this.station);
-        },
-        onUnloaded(this: any) {
-            this.stopProcesses();
-        },
-        emitDeployTap(this: any) {
+        emitDeployTap(): void {
             this.$emit("deployTapped");
-        },
-        updateStation(this: any, station) {
-            this.loading = false;
-            if (this.station.deployStartTime) {
-                this.outer = this.page.getViewById("outer-circle");
-                this.inner = this.page.getViewById("inner-circle");
-                this.outer.className = this.outer.className + " active";
-                this.inner.className = this.inner.className + " active";
-            }
-            if (this.station.consumedMemoryPercent) {
-                this.page.addCss("#station-memory-bar {width: " + this.station.consumedMemoryPercent + "%;}");
-            }
-        },
-        updateStatus(this: any, data) {
-            if (data.consumedMemoryPercent) {
-                this.page.addCss("#station-memory-bar {width: " + data.consumedMemoryPercent + "%;}");
-            }
-        },
-        rotateSyncingIcon(this: any) {
-            this.dataSyncingIcon =
-                this.dataSyncingIcon == "~/images/Icon_Syncing_blue.png"
-                    ? "~/images/Icon_Syncing2_blue.png"
-                    : "~/images/Icon_Syncing_blue.png";
-        },
-        stopProcesses(this: any) {
-            if (this.syncIconIntervalTimer) {
-                clearInterval(this.syncIconIntervalTimer);
-            }
         },
     },
 });

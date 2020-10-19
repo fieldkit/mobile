@@ -32,50 +32,51 @@ import { ActiveRecording } from "@/store";
 import { Timer } from "@/common/timer";
 
 export default Vue.extend({
-    data() {
+    data(): { timer: any; now: Date } {
         return {
             timer: null,
             now: new Date(),
         };
     },
     computed: {
-        recording(this: any): ActiveRecording {
+        recording(): ActiveRecording {
             console.log("recording", this.$store.state.media.recording, this.now);
             return this.$store.state.media.recording;
         },
     },
-    mounted(this: any) {
+    mounted(): void {
         this.timer = new Timer(1000, () => {
             this.now = new Date();
         });
     },
-    destroyed(this: any) {
+    destroyed(): void {
         this.timer.stop();
     },
     methods: {
-        onPageLoaded(args) {},
-        onUnloaded() {},
-        startOrResume(this: any) {
+        onPageLoaded(): void {},
+        onUnloaded(): void {},
+        startOrResume(): Promise<any> {
             if (this.recording) {
                 return this.$store.dispatch(ActionTypes.AUDIO_RESUME);
             }
             return this.$store.dispatch(ActionTypes.AUDIO_RECORD);
         },
-        pause(this: any) {
+        pause(): Promise<any> {
             return this.$store.dispatch(ActionTypes.AUDIO_PAUSE);
         },
-        stop(this: any) {
+        stop(): Promise<any> {
             return this.$store.dispatch(ActionTypes.AUDIO_STOP).then((recording) => {
                 return this.$emit("stop", recording);
             });
         },
-        cancel(this: any) {
+        cancel(): Promise<any> {
             if (this.$store.state.media.recording) {
                 return this.$store.dispatch(ActionTypes.AUDIO_STOP).then(() => {
                     return this.$emit("cancel");
                 });
             }
-            return this.$emit("cancel");
+            this.$emit("cancel");
+            return Promise.resolve();
         },
     },
 });

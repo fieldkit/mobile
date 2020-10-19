@@ -1,14 +1,13 @@
 import deepmerge from "deepmerge";
-import protobuf from "protobufjs";
+import { fk_app } from "fk-app-protocol/fk-app";
+import { fk_atlas } from "fk-atlas-protocol/fk-atlas";
 
-const appRoot = protobuf.Root.fromJSON(require("fk-app-protocol"));
-const HttpReply: any = appRoot.lookupType("fk_app.HttpReply");
-const atlasRoot: any = protobuf.Root.fromJSON(require("fk-atlas-protocol"));
-const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply");
-const SensorType = atlasRoot.lookup("fk_atlas.SensorType");
-const DoCalibrations = atlasRoot.lookup("fk_atlas.DoCalibrations");
-const PhCalibrations = atlasRoot.lookup("fk_atlas.PhCalibrations");
-const EcCalibrations = atlasRoot.lookup("fk_atlas.EcCalibrations");
+const HttpReply = fk_app.HttpReply;
+const AtlasReply = fk_atlas.WireAtlasReply;
+const SensorType = fk_atlas.SensorType;
+const DoCalibrations = fk_atlas.DoCalibrations;
+const PhCalibrations = fk_atlas.PhCalibrations;
+const EcCalibrations = fk_atlas.EcCalibrations;
 
 export interface LiveSensorReading {
     sensor: SensorCapabilities;
@@ -120,6 +119,7 @@ export interface ReplyStream {
 }
 
 export interface HttpStatusReply {
+    type: fk_app.ReplyType;
     status: ReplyStatus;
     modules: ModuleCapabilities[];
     liveReadings: LiveReadings[];
@@ -141,39 +141,39 @@ function numberOfOnes(n: number): number {
 
 export function fixupCalibrationStatus(reply) {
     switch (reply.calibration.type) {
-        case SensorType.values.SENSOR_PH:
+        case SensorType.SENSOR_PH:
             reply.calibration.total = numberOfOnes(reply.calibration.ph);
             reply.calibration.phStatus = {
-                low: reply.calibration.ph & PhCalibrations.values.PH_LOW,
-                middle: reply.calibration.ph & PhCalibrations.values.PH_MIDDLE,
-                high: reply.calibration.ph & PhCalibrations.values.PH_HIGH,
+                low: reply.calibration.ph & PhCalibrations.PH_LOW,
+                middle: reply.calibration.ph & PhCalibrations.PH_MIDDLE,
+                high: reply.calibration.ph & PhCalibrations.PH_HIGH,
             };
             break;
-        case SensorType.values.SENSOR_TEMP:
+        case SensorType.SENSOR_TEMP:
             reply.calibration.total = numberOfOnes(reply.calibration.temp);
             reply.calibration.tempStatus = {};
             break;
-        case SensorType.values.SENSOR_ORP:
+        case SensorType.SENSOR_ORP:
             reply.calibration.total = numberOfOnes(reply.calibration.orp);
             reply.calibration.orpStatus = {};
             break;
-        case SensorType.values.SENSOR_DO:
+        case SensorType.SENSOR_DO:
             reply.calibration.total = numberOfOnes(reply.calibration.dissolvedOxygen);
             reply.calibration.doStatus = {
-                atm: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ATMOSPHERE,
-                zero: reply.calibration.dissolvedOxygen & DoCalibrations.values.DO_ZERO,
+                atm: reply.calibration.dissolvedOxygen & DoCalibrations.DO_ATMOSPHERE,
+                zero: reply.calibration.dissolvedOxygen & DoCalibrations.DO_ZERO,
             };
             break;
-        case SensorType.values.SENSOR_EC:
+        case SensorType.SENSOR_EC:
             reply.calibration.total = numberOfOnes(reply.calibration.ec);
             reply.calibration.ecStatus = {
-                dry: reply.calibration.ec & EcCalibrations.values.EC_DRY,
-                single: reply.calibration.ec & EcCalibrations.values.EC_SINGLE,
-                low: reply.calibration.ec & EcCalibrations.values.EC_DUAL_LOW,
-                high: reply.calibration.ec & EcCalibrations.values.EC_DUAL_HIGH,
+                dry: reply.calibration.ec & EcCalibrations.EC_DRY,
+                single: reply.calibration.ec & EcCalibrations.EC_SINGLE,
+                low: reply.calibration.ec & EcCalibrations.EC_DUAL_LOW,
+                high: reply.calibration.ec & EcCalibrations.EC_DUAL_HIGH,
             };
             break;
-        case SensorType.values.SENSOR_NONE:
+        case SensorType.SENSOR_NONE:
             break;
         default:
             console.warn("unexpected calibration type");
@@ -218,7 +218,7 @@ const MandatoryStatus = {
     },
 };
 
-export function prepareReply(reply): HttpStatusReply {
+export function prepareReply(reply: any /* fk_app.HttpReply */): HttpStatusReply {
     if (reply.errors && reply.errors.length > 0) {
         return reply;
     }

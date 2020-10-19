@@ -16,13 +16,18 @@
             <CircularTimer
                 :progress="waitingProgress"
                 :animated="true"
-                :elapsed="elapsed"
+                :elapsed="remaining"
                 :unitOfMeasure="sensor.unitOfMeasure"
                 :reading="sensor.reading"
             />
         </StackLayout>
         <StackLayout row="1">
-            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="calibrate" :isEnabled="doneWaiting || debugging" />
+            <Button
+                class="btn btn-primary btn-padded"
+                :text="visual.done"
+                @tap="calibrate"
+                :isEnabled="!busy && (doneWaiting || debugging)"
+            />
         </StackLayout>
     </GridLayout>
 </template>
@@ -61,6 +66,10 @@ export default Vue.extend({
             type: Number,
             required: true,
         },
+        busy: {
+            type: Boolean,
+            required: true,
+        },
     },
     data() {
         return {
@@ -73,22 +82,22 @@ export default Vue.extend({
         visual(this: any): WaitVisual {
             return this.step.visual;
         },
-        waitingProgress(this: any) {
+        waitingProgress(this: any): number {
             return (this.elapsed / this.visual.seconds) * 100;
         },
-        elapsed(this: any) {
+        elapsed(this: any): number {
             return (this.now.getTime() - this.started.getTime()) / 1000;
         },
-        remaining(this: any) {
+        remaining(this: any): number {
             return Math.max(this.visual.seconds - this.elapsed, 0);
         },
-        doneWaiting(this: any) {
+        doneWaiting(this: any): boolean {
             return this.remaining === 0;
         },
-        debugging() {
+        debugging(): boolean {
             return Config.env.developer;
         },
-        expected(this: any) {
+        expected(this: any): number | null {
             return this.sensor.calibrationValue?.reference?.toFixed(2) || null;
         },
     },
