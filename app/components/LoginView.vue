@@ -193,7 +193,24 @@ export default Vue.extend({
     components: {
         ...SharedComponents,
     },
-    data(this: any) {
+    data(): {
+        isLoggingIn: boolean;
+        processing: boolean;
+        noName: boolean;
+        nameTooLong: boolean;
+        noEmail: boolean;
+        emailNotValid: boolean;
+        noPassword: boolean;
+        passwordTooShort: boolean;
+        passwordsNotMatch: boolean;
+        navigatedAway: boolean;
+        user: {
+            name: string;
+            email: string;
+            password: string;
+            confirmPassword: string;
+        };
+    } {
         return {
             isLoggingIn: true,
             processing: false,
@@ -215,28 +232,37 @@ export default Vue.extend({
     },
     props: {
         resetUser: {
+            type: Boolean,
             required: false,
         },
     },
+    computed: {
+        thisAny(this: any): any {
+            return this as any;
+        },
+        thisPage(this: any): any {
+            return this.thisAny.page;
+        },
+    },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args: any): void {
             // logging out sends resetUser = true
-            this.page = args.object;
+            this.thisAny.page = args.object;
             if (USERNAME && PASSWORD && !this.resetUser) {
                 this.user.email = USERNAME;
                 this.user.password = PASSWORD;
                 this.login();
             }
         },
-        toggleForm() {
+        toggleForm(): void {
             this.isLoggingIn = !this.isLoggingIn;
         },
-        showActive(this: any, event) {
-            let spacer = this.page.getViewById(event.object.id + "-spacer");
+        showActive(event: any): void {
+            let spacer = this.thisPage.getViewById(event.object.id + "-spacer");
             spacer.className = "spacer-top active";
         },
-        checkName(this: any, event) {
-            let spacer = this.page.getViewById("name-field-spacer");
+        checkName(event: any): void {
+            let spacer = this.thisPage.getViewById("name-field-spacer");
             spacer.className = "spacer-top";
             this.noName = !this.user.name || this.user.name.length == 0;
             if (this.noName) {
@@ -244,8 +270,8 @@ export default Vue.extend({
             }
             this.nameTooLong = this.user.name.length > 255;
         },
-        checkEmail(this: any, event) {
-            let spacer = this.page.getViewById("email-field-spacer");
+        checkEmail(event: any): void {
+            let spacer = this.thisPage.getViewById("email-field-spacer");
             spacer.className = "spacer-top";
             this.noEmail = !this.user.email || this.user.email.length == 0;
             if (this.noEmail) {
@@ -254,8 +280,8 @@ export default Vue.extend({
             let emailPattern = /^([a-zA-Z0-9_+\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
             this.emailNotValid = !emailPattern.test(this.user.email);
         },
-        checkPassword(this: any, event) {
-            let spacer = this.page.getViewById("password-field-spacer");
+        checkPassword(event: any): void {
+            let spacer = this.thisPage.getViewById("password-field-spacer");
             spacer.className = "spacer-top";
             this.noPassword = !this.user.password || this.user.password.length == 0;
             if (this.noPassword) {
@@ -263,20 +289,22 @@ export default Vue.extend({
             }
             this.passwordTooShort = this.user.password.length < 10;
         },
-        checkConfirmPassword(this: any, event) {
-            let spacer = this.page.getViewById("confirm-password-field-spacer");
+        checkConfirmPassword(event): void {
+            let spacer = this.thisPage.getViewById("confirm-password-field-spacer");
             spacer.className = "spacer-top";
             this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
         },
-        continueOffline(this: any) {
+        continueOffline(): Promise<any> {
             if (!this.navigatedAway) {
                 this.navigatedAway = true;
                 return this.$navigateTo(routes.onboarding.assembleStation, { clearHistory: true });
             }
+            return Promise.resolve();
         },
-        submit(this: any) {
+        submit(): Promise<any> {
             if (!this.user.email || !this.user.password) {
-                return this.alert(_L("provideBoth"));
+                this.alert(_L("provideBoth"));
+                return Promise.resolve();
             }
 
             this.processing = true;
@@ -286,7 +314,7 @@ export default Vue.extend({
                 return this.register();
             }
         },
-        login(this: any) {
+        login(): Promise<any> {
             this.processing = true;
             return this.$services
                 .PortalInterface()
@@ -307,10 +335,11 @@ export default Vue.extend({
                     }
                 });
         },
-        register(this: any) {
+        register(): Promise<any> {
             if (this.user.password != this.user.confirmPassword) {
                 this.processing = false;
-                return this.alert(_L("noMatch"));
+                this.alert(_L("noMatch"));
+                return Promise.resolve();
             }
 
             return this.$services
@@ -326,7 +355,7 @@ export default Vue.extend({
                     return this.alert(_L("accountCreateFailed"));
                 });
         },
-        forgotPassword(this: any) {
+        forgotPassword(): Promise<any> {
             return Dialogs.prompt({
                 title: _L("forgotTitle"),
                 message: _L("forgotInstruction"),
@@ -346,20 +375,21 @@ export default Vue.extend({
                             return this.alert(_L("passwordResetFailed"));
                         });
                 }
+                return Promise.resolve();
             });
         },
-        focusEmail(this: any) {
-            this.$refs.email.nativeView.focus();
+        focusEmail(): void {
+            (this.$refs.email as any).nativeView.focus();
         },
-        focusPassword(this: any) {
-            this.$refs.password.nativeView.focus();
+        focusPassword(): void {
+            (this.$refs.password as any).nativeView.focus();
         },
-        focusConfirmPassword(this: any) {
+        focusConfirmPassword(): void {
             if (!this.isLoggingIn) {
-                this.$refs.confirmPassword.nativeView.focus();
+                (this.$refs.confirmPassword as any).nativeView.focus();
             }
         },
-        alert(this: any, message) {
+        alert(message: string): void {
             return alert({
                 title: "FieldKit",
                 okButtonText: _L("ok"),
