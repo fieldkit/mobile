@@ -17,6 +17,10 @@ interface FakeStation {
     generationId: string;
     deviceId: string;
     moduleIds: string[];
+    serviceInfo: {
+        url: string;
+        deviceId: string;
+    };
 }
 
 interface FakeStreams {
@@ -129,11 +133,16 @@ export class MockStationReplies {
     }
 
     public newFakeStation(): FakeStation {
+        const deviceId = randomHexString();
         return {
             name: "Fake Station",
+            deviceId: deviceId,
             generationId: randomHexString(),
-            deviceId: randomHexString(),
             moduleIds: [randomHexString(), randomHexString(), randomHexString(), randomHexString()],
+            serviceInfo: {
+                url: "http://127.0.0.1:2380",
+                deviceId: deviceId,
+            },
         };
     }
 
@@ -156,7 +165,7 @@ export class MockStationReplies {
         ];
     }
 
-    public newFakeStatusReply(station, gps, streams = null) {
+    public newFakeStatusReply(station: FakeStation, gps: any = null, streams: FakeStreams[] | null = null): any {
         const defaultStreams = this.newStreams(1, 34);
         const statusStreams = streams || defaultStreams;
         const serialized = Buffer.from(
@@ -227,7 +236,7 @@ export class MockStationReplies {
         };
     }
 
-    public newFakeReadingsReply(station) {
+    public newFakeReadingsReply(station: FakeStation): any {
         this.now += 1;
         return {
             errors: [],
@@ -332,11 +341,11 @@ export class MockStationReplies {
         };
     }
 
-    public queueStatusReply(station): MockStationReplies {
+    public queueStatusReply(station: FakeStation): MockStationReplies {
         return this.queueBody(this.newFakeStatusReply(station, null, null));
     }
 
-    public queueReadingsReply(station): MockStationReplies {
+    public queueReadingsReply(station: FakeStation): MockStationReplies {
         return this.queueBody(this.newFakeReadingsReply(station));
     }
 
@@ -345,7 +354,7 @@ export class MockStationReplies {
         return this;
     }
 
-    public queueResponse(response): MockStationReplies {
+    public queueResponse(response: any): MockStationReplies {
         this.call.mockReturnValueOnce(Promise.resolve(response));
         return this;
     }

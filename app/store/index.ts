@@ -16,9 +16,11 @@ import { notes } from "./modules/notes";
 import { portal } from "./modules/portal";
 import { cal } from "./modules/cal";
 
-import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
+import * as MutationTypes from "./mutations";
 import { Services, ServiceRef } from "@/services";
+
+export { ActionTypes, MutationTypes };
 
 export * from "./types";
 export * from "./typed-actions";

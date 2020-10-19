@@ -1,15 +1,14 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { ServicesImpl } from "@/services";
-import { prepareReply } from "../store/http_reply";
 import { MockStationReplies } from "./utilities";
-import * as ActionTypes from "@/store/actions";
 import FakeTimers from "@sinonjs/fake-timers";
-import { getPathTimestamp } from "../utilities";
+import { getPathTimestamp } from "@/utilities";
 
-import { FileTypeUtils, FileType, TransferProgress } from "@/store/types";
-import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store/modules/syncing";
-import { StationRepliedAction } from "@/store/typed-actions";
+import { ActionTypes } from "@/store";
+import { prepareReply } from "@/store/http_reply";
+import { TryStationOnceAction, StationRepliedAction, FileTypeUtils, FileType, TransferProgress } from "@/store";
+import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store";
 
 describe("Progress", () => {
     let sp: StationProgress;
@@ -18,56 +17,54 @@ describe("Progress", () => {
         sp = new StationProgress("device-id", true, 0);
     });
 
+    it("TryStationOnceAction should disable throttling", async () => {
+        expect.assertions(2);
+
+        const clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 1000 });
+        clock.tick(10);
+
+        const services = new ServicesImpl();
+        const store = services.Store();
+        const mockStation = new MockStationReplies(services);
+        const streams1 = mockStation.newStreams(1, 100);
+        const fake = mockStation.newFakeStation();
+        await services.CreateDb().initialize();
+
+        const spy = jest.spyOn(services.QueryStation(), "takeReadings");
+
+        mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+        await store.dispatch(new TryStationOnceAction(fake.serviceInfo));
+
+        expect(spy.mock.calls.length).toBe(1);
+        expect(spy.mock.calls[0][2]).toEqual({ throttle: false });
+    });
+
     it("should track progress over multiple downloads", () => {
-        console.log("_________________________________________________________");
-
         expect(sp.decimal).toEqual(0.0);
-
         sp = sp.include(new TransferProgress("device-id", "path-1", 100, 0));
-
         expect(sp.decimal).toEqual(0.0);
-
         sp = sp.include(new TransferProgress("device-id", "path-1", 100, 50));
-
         expect(sp.decimal).toEqual(0.5);
-
         sp = sp.include(new TransferProgress("device-id", "path-1", 100, 100));
-
         expect(sp.decimal).toEqual(1.0);
-
         sp = sp.include(new TransferProgress("device-id", "path-2", 100, 0));
-
         expect(sp.decimal).toEqual(0.5);
-
         sp = sp.include(new TransferProgress("device-id", "path-2", 100, 50));
-
         expect(sp.decimal).toEqual(0.75);
     });
 
     it("should track progress over multiple downloads when all are known to begin with", () => {
-        console.log("_________________________________________________________");
-
         expect(sp.decimal).toEqual(0.0);
-
         sp = sp.include(new TransferProgress("device-id", "path-1", 100, 0));
         sp = sp.include(new TransferProgress("device-id", "path-2", 100, 0));
-
         expect(sp.decimal).toEqual(0.0);
-
         sp = sp.include(new TransferProgress("device-id", "path-1", 100, 50));
-
         expect(sp.decimal).toEqual(0.25);
-
         sp = sp.include(new TransferProgress("device-id", "path-1", 100, 100));
-
         expect(sp.decimal).toEqual(0.5);
-
         sp = sp.include(new TransferProgress("device-id", "path-2", 100, 0));
-
         expect(sp.decimal).toEqual(0.5);
-
         sp = sp.include(new TransferProgress("device-id", "path-2", 100, 50));
-
         expect(sp.decimal).toEqual(0.75);
     });
 });
