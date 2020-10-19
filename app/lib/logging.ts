@@ -22,14 +22,14 @@ function getLogsFile() {
     return knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
 }
 
-function getExistingLogs(file) {
+function getExistingLogs(file): string {
     if (file.size < MaximumLogSize) {
         return file.readTextSync() || "";
     }
     return "";
 }
 
-function flush() {
+function flush(): Promise<void> {
     const appending = _(logs)
         .map((log) => {
             return scrubMessage(_(log).join(" ")) + "\n";
@@ -41,7 +41,7 @@ function flush() {
     return new Promise((resolve, reject) => {
         const file = getLogsFile();
         const existing = getExistingLogs(file);
-        const replacing = existing + appending + "\n";
+        const replacing = (existing + appending + "\n").replace("\n\n", "\n");
 
         file.writeTextSync(replacing, (err) => {
             if (err) {

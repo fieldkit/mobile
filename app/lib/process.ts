@@ -23,7 +23,7 @@ class SaveReadingsVisitor implements ReadingsVisitor {
         this.flush();
     }
 
-    private flush() {
+    private flush(): void {
         this.tasks.enqueue(new SaveReadingsTask(this.deviceId, this.purge, this.pending));
         this.pending = [];
         this.purge = false;
@@ -54,10 +54,6 @@ export class ProcessStationFilesTask extends Task {
 
 export class ProcessAllStationsTask extends Task {
     public readonly taskName = "ProcessAllStationsTask";
-
-    constructor() {
-        super();
-    }
 
     private getAllDeviceIds(): Promise<string[]> {
         return listAllFiles(DownloadsDirectory).then((files) => {

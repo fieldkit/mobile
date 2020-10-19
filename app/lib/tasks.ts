@@ -31,7 +31,7 @@ export class TaskWorker {
         console.log("worker:ctor", Object.keys(this.map));
     }
 
-    public message(message: WorkerMessage) {
+    public message(message: WorkerMessage): void {
         if (!message.data.task) {
             console.log(`worker:malformed-message`);
             return;
@@ -98,7 +98,7 @@ export class TaskQueue implements TaskQueuer {
     private index: number = 0;
     private counter: number = 0;
 
-    public start(size: number, workerFunc: any) {
+    public start(size: number, workerFunc: any): void {
         for (let i = 0; i < size; ++i) {
             const worker = workerFunc();
             worker.onmessage = (message) => {
