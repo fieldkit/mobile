@@ -99,3 +99,17 @@ export interface AccountsTableRow {
     token: string;
     usedAt: Date;
 }
+
+export interface NotificationsTableRow {
+    id: number,
+    key: string,
+    kind: string,
+    created: number,
+    silenced: boolean,
+    dismissed_at: number,
+    satisfied_at: number,
+    project: string,
+    user: string,
+    station: string,
+    actions: string
+}

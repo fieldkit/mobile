@@ -15,6 +15,7 @@ import { media } from "./modules/media";
 import { notes } from "./modules/notes";
 import { portal } from "./modules/portal";
 import { cal } from "./modules/cal";
+import { notifications } from "./modules/notifications";
 
 import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
@@ -169,6 +170,7 @@ export default function (rawServices: Services): OurStore {
             notes: notes(services),
             portal: portal(services),
             cal: cal(services),
+            notifications: notifications(services),
         },
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",

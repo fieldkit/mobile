@@ -1,10 +1,11 @@
 import _ from "lodash";
 import Config from "@/config";
 import Settings from "@/settings";
-import { sqliteToJs } from "@/utilities";
-import { Download, FileTypeUtils, Station } from "@/store/types";
-import { AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow } from "@/store/row-types";
-import { Services } from "@/services";
+import {sqliteToJs} from "@/utilities";
+import {Download, FileTypeUtils, Station} from "@/store/types";
+import {AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow} from "@/store/row-types";
+import {Services} from "@/services";
+import {Notification} from "~/store/modules/notifications";
 
 const log = Config.logger("DbInterface");
 
@@ -17,7 +18,8 @@ export interface UserAccount {
 }
 
 export default class DatabaseInterface {
-    constructor(private readonly services: Services) {}
+    constructor(private readonly services: Services) {
+    }
 
     public checkConfig(): Promise<void> {
         return this.getConfig().then((rows) => {
@@ -178,7 +180,7 @@ export default class DatabaseInterface {
         ];
         return this.getDatabase().then((db) =>
             db.execute(
-                `
+                    `
 					UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?,
 						   deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?,
 						   schedules = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
@@ -265,7 +267,10 @@ export default class DatabaseInterface {
 
         return Promise.all([
             Promise.all(
-                adding.map((name) => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
+                adding.map((name) => this.insertSensor(_.merge({
+                    moduleId: module.moduleId,
+                    deviceId: module.moduleId
+                }, incoming[name])))
             ),
             Promise.all(removed.map((name) => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
             Promise.all(
@@ -316,7 +321,7 @@ export default class DatabaseInterface {
         return Promise.all([
             Promise.all(
                 adding.map((moduleId) =>
-                    this.insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
+                    this.insertModule(_.extend({stationId: stationId}, incoming[moduleId])).then(() =>
                         this.synchronizeSensors(db, moduleId, incoming[moduleId], [])
                     )
                 )
@@ -356,7 +361,7 @@ export default class DatabaseInterface {
             new Date(),
         ];
         return db.execute(
-            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
             values
         );
     }
@@ -394,7 +399,7 @@ export default class DatabaseInterface {
         if (stream.downloadSize !== null && stream.downloadFirstBlock !== null && stream.downloadLastBlock !== null) {
             updates.push(
                 db.query(
-                    `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ? WHERE id = ?`,
+                        `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ? WHERE id = ?`,
                     [stream.downloadSize, stream.downloadFirstBlock, stream.downloadLastBlock, stream.updated, streamId]
                 )
             );
@@ -435,7 +440,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) =>
             db
                 .execute(
-                    `
+                        `
 					INSERT INTO stations (device_id,
 						generation_id, name, url, status,
 						deploy_start_time, battery_level, consumed_memory, total_memory,
@@ -473,7 +478,7 @@ export default class DatabaseInterface {
                     if (id === null) {
                         return this.insertStation(station);
                     }
-                    return this.updateStation(_.merge({}, station, { id: id }));
+                    return this.updateStation(_.merge({}, station, {id: id}));
                 })
                 .then(() => this.getStationIdByDeviceId(station.deviceId))
                 .then((stationId) =>
@@ -537,7 +542,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) => {
             return db
                 .execute(
-                    `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
+                        `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
 					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         download.stationId,
@@ -564,7 +569,7 @@ export default class DatabaseInterface {
                     ];
                     console.log("downloaded", download.firstBlock, download.lastBlock);
                     return db.execute(
-                        `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
+                            `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
 							                download_first_block = MIN(COALESCE(download_first_block, 0xffffffff), ?),
 							                download_last_block = MAX(COALESCE(download_last_block, 0), ?),
 							                device_last_block = MAX(COALESCE(device_last_block, 0), ?)
@@ -591,7 +596,7 @@ export default class DatabaseInterface {
                     FileTypeUtils.toString(download.fileType),
                 ];
                 return db.execute(
-                    `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
+                        `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
 							            portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
 							            portal_last_block = MAX(COALESCE(portal_last_block, 0), ?)
 					 WHERE station_id = ? AND type = ?`,
@@ -676,7 +681,7 @@ export default class DatabaseInterface {
                 ];
                 return this.getDatabase().then((db) =>
                     db.execute(
-                        `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                            `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                         values
                     )
                 );
@@ -692,6 +697,7 @@ export default class DatabaseInterface {
                 throw new Error(`error serializing notes JSON: ${err}`);
             }
         }
+
         return this.getDatabase()
             .then((db) =>
                 db.query(`SELECT id FROM notes WHERE station_id = ?`, [notes.stationId]).then((maybeId) => {
@@ -793,7 +799,7 @@ export default class DatabaseInterface {
                     }
                     const values = [account.name, account.email, account.portalId, account.token, new Date(), maybeId[0].id];
                     return db.execute(
-                        `UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, used_at = ? WHERE id = ?`,
+                            `UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, used_at = ? WHERE id = ?`,
                         values
                     );
                 })
@@ -803,5 +809,76 @@ export default class DatabaseInterface {
 
     public deleteAllAccounts(): Promise<AccountsTableRow[]> {
         return this.getDatabase().then((db) => db.query(`DELETE FROM accounts`));
+    }
+
+    public getAllNotifications(): Promise<AccountsTableRow[]> {
+        return this.getDatabase()
+            .then((db) => db.query("SELECT * FROM notifications"))
+            .then((rows) => sqliteToJs(rows))
+            .then((rows) =>
+                rows.map((row) => {
+                    try {
+                        return {
+                            ...row,
+                            project: JSON.parse(row.project),
+                            user: JSON.parse(row.user),
+                            station: JSON.parse(row.station)
+                        };
+                    } catch (err) {
+                        log.error(`error deserializing notifications JSON: ${err}`);
+                        log.error(`JSON: ${row}`);
+                    }
+                    return row;
+                })
+            )
+            .catch((err) => Promise.reject(new Error(`error fetching notifications: ${err}`)));
+    }
+
+    public addNotification(notification: Notification): Promise<AccountsTableRow> {
+        console.log("addNotifications", notification);
+        return this.getDatabase()
+            .then((db) =>
+                db.query(`SELECT id FROM notifications WHERE key = ?`, [notification.key]).then((maybeId) => {
+                    if (maybeId.length == 0) {
+                        const values = [
+                            notification.key,
+                            notification.kind,
+                            new Date(),
+                            notification.silenced,
+                            JSON.stringify(notification.project),
+                            JSON.stringify(notification.user),
+                            JSON.stringify(notification.station),
+                            notification.actions
+                        ];
+                        return db.execute(`INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, values);
+                    }
+                })
+            )
+            .catch((err) => Promise.reject(new Error(`error adding notifications: ${err}`)));
+    }
+
+    public updateNotification(notification: Notification): Promise<AccountsTableRow> {
+        console.log("updateNotification", notification);
+        return this.getDatabase()
+            .then((db) =>
+                db.query(`SELECT * FROM notifications WHERE key = ?`, [notification.key]).then((maybe) => {
+                    if (maybe.length > 0) {
+                        const dbValues = maybe[0];
+                        const values = [
+                            notification.key ?? dbValues.key,
+                            notification.kind ?? dbValues.kind,
+                            notification.silenced ?? dbValues.silenced,
+                            notification.dismissed_at ?? dbValues.dismissed_at,
+                            notification.satisfied_at ?? dbValues.satisfied_at,
+                            notification.project ? JSON.stringify(notification.project) : dbValues.project,
+                            notification.user ? JSON.stringify(notification.user) : dbValues.user,
+                            notification.station ? JSON.stringify(notification.station) : dbValues.station,
+                            notification.actions ?? dbValues.actions
+                        ];
+                        return db.execute(`UPDATE notifications SET key = ?, kind = ?, silenced = ?, dismissed_at = ?, satisfied_at = ?, project = ?, user = ?, station = ?, actions = ? WHERE id = ?`, values);
+                    }
+                })
+            )
+            .catch((err) => Promise.reject(new Error(`error updating notifications: ${err}`)));
     }
 }
