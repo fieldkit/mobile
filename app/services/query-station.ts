@@ -12,6 +12,8 @@ const HttpReply = fk_app.HttpReply;
 const QueryType = fk_app.QueryType;
 const ReplyType = fk_app.ReplyType;
 
+export type ProgressCallback = (total: number, bytes: number, info: any) => void;
+
 export class CalculatedSize {
     constructor(public readonly size: number) {}
 }
@@ -19,6 +21,11 @@ export class CalculatedSize {
 export interface TrackActivityOptions {
     url: string;
     throttle: boolean;
+}
+
+export interface QueryOptions {
+    url?: string;
+    throttle?: boolean;
 }
 
 const log = Config.logger("QueryStation");
@@ -60,9 +67,9 @@ export default class QueryStation {
         });
     }
 
-    public takeReadings(address: string, locate: PhoneLocation): Promise<HttpStatusReply> {
+    public takeReadings(address: string, locate: PhoneLocation, options: QueryOptions = {}): Promise<HttpStatusReply> {
         const message = this.buildLocateMessage(QueryType.QUERY_TAKE_READINGS, locate);
-        return this.stationQuery(address, message).then((reply) => {
+        return this.stationQuery(address, message, options).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
@@ -199,7 +206,7 @@ export default class QueryStation {
         });
     }
 
-    public download(url: string, path: string, progress) {
+    public download(url: string, path: string, progress: ProgressCallback) {
         return this.trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .download({
@@ -219,7 +226,7 @@ export default class QueryStation {
         });
     }
 
-    public uploadFirmware(url: string, path: string, progress) {
+    public uploadFirmware(url: string, path: string, progress: ProgressCallback) {
         return this.trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .upload({
@@ -329,8 +336,9 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url: string, message) {
-        return this.trackActivityAndThrottle(url, () => {
+    private stationQuery(url: string, message: any, options: QueryOptions = {}) {
+        const finalOptions = _.extend({ url: url, throttle: true }, options);
+        return this.trackActivity(finalOptions, () => {
             if (!Config.developer.stationFilter(url)) {
                 return Promise.reject(new StationQueryError("ignored"));
             }

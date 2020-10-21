@@ -5,7 +5,7 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations, Schedules } from "../types";
-import { StationRepliedAction, AddStationNetworkAction, TryStationAction } from "@/store/typed-actions";
+import { StationRepliedAction, AddStationNetworkAction, TryStationAction, TryStationOnceAction } from "@/store/typed-actions";
 import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
@@ -23,9 +23,22 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.SCAN_FOR_STATIONS]: async ({ dispatch, state }: ActionParameters) => {
             await services.discovery().restart();
             const candidates = await services.db().queryRecentlyActiveAddresses();
-            console.log("nearby:scan", candidates);
+            console.log(
+                "nearby:scan",
+                candidates.map((c) => {
+                    const now = new Date();
+                    const row = new Date(c.time);
+                    const minutes = (now.getTime() - row.getTime()) / 1000 / 60;
+                    return _.extend(
+                        {
+                            minutes: minutes,
+                        },
+                        c
+                    );
+                })
+            );
             const offline = candidates;
-            const tries = offline.map((candidate) => dispatch(ActionTypes.TRY_STATION_ONCE, new TryStationAction(candidate)));
+            const tries = offline.map((candidate) => dispatch(new TryStationOnceAction(candidate)));
             return await Promise.all(tries);
         },
         [ActionTypes.REFRESH]: ({ dispatch, state }: ActionParameters) => {
@@ -59,12 +72,12 @@ const actions = (services: ServiceRef) => {
             }
             return;
         },
-        [ActionTypes.TRY_STATION_ONCE]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
+        [ActionTypes.TRY_STATION_ONCE]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationOnceAction) => {
             if (!payload) throw new Error("payload required");
             if (!payload.info) throw new Error("payload.info required");
             return services
                 .queryStation()
-                .takeReadings(payload.info.url, state.location)
+                .takeReadings(payload.info.url, state.location, { throttle: false })
                 .then((statusReply) => {
                     commit(MutationTypes.FIND, payload.info);
                     commit(MutationTypes.STATION_QUERIED, payload.info);
@@ -75,7 +88,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
             if (!payload) throw new Error("payload required");
             if (!payload.info) throw new Error("payload.info required");
-            return await backOff(() => dispatch(ActionTypes.TRY_STATION_ONCE, payload), {
+            return await backOff(() => dispatch(new TryStationOnceAction(payload.info)), {
                 maxDelay: 60000,
                 numOfAttempts: 10,
                 startingDelay: 250,

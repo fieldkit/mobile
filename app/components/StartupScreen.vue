@@ -218,10 +218,6 @@ export default class StartupScreen extends Vue {
                     clearHistory: true,
                     props: {},
                 });
-                return this.$navigateTo(routes.stations, {
-                    clearHistory: true,
-                    props: {},
-                });
                 return this.$navigateTo(routes.dataSync, {
                     clearHistory: true,
                     props: {},
@@ -241,8 +237,12 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-				*/
                 return this.$navigateTo(routes.appSettings.account, {
+                    clearHistory: true,
+                    props: {},
+                });
+				*/
+                return this.$navigateTo(routes.stations, {
                     clearHistory: true,
                     props: {},
                 });

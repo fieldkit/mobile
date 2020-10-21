@@ -1,7 +1,7 @@
-import { Component } from "vue";
+export type VueComponent = any;
 
 export class CalibrationVisual {
-    constructor(public readonly component: Component) {}
+    constructor(public readonly component: VueComponent) {}
 }
 
 export interface CommonInfo {
@@ -28,7 +28,7 @@ export class CheckVisual extends CalibrationVisual implements CheckInfo {
     public readonly done: string;
     public readonly skip: string;
 
-    constructor(component: Component, info: CheckInfo) {
+    constructor(component: VueComponent, info: CheckInfo) {
         super(component);
         this.sensor = info.sensor;
         this.unitOfMeasure = info.unitOfMeasure;
@@ -59,7 +59,7 @@ export class PrepareVisual extends CalibrationVisual implements PrepareInfo {
     public readonly image: string;
     public readonly done: string;
 
-    constructor(component: Component, info: PrepareInfo) {
+    constructor(component: VueComponent, info: PrepareInfo) {
         super(component);
         this.sensor = info.sensor;
         this.unitOfMeasure = info.unitOfMeasure;
@@ -89,7 +89,7 @@ export class WaitVisual extends CalibrationVisual implements WaitInfo {
     public readonly heading: string;
     public readonly done: string;
 
-    constructor(component: Component, info: WaitInfo) {
+    constructor(component: VueComponent, info: WaitInfo) {
         super(component);
         this.sensor = info.sensor;
         this.unitOfMeasure = info.unitOfMeasure;

@@ -519,11 +519,11 @@ export default class DatabaseInterface {
         });
     }
 
-    public queryRecentlyActiveAddresses(): Promise<{ deviceId: string; url: string }[]> {
+    public queryRecentlyActiveAddresses(): Promise<{ deviceId: string; url: string; time: string }[]> {
         return this.getDatabase().then((db) =>
             db
                 .query(
-                    "SELECT sa.url, s.device_id FROM station_addresses AS sa JOIN stations AS s ON (sa.station_id = s.id) ORDER BY sa.time DESC"
+                    "SELECT sa.url, s.device_id, time FROM station_addresses AS sa JOIN stations AS s ON (sa.station_id = s.id) ORDER BY sa.time DESC"
                 )
                 .then((rows) => sqliteToJs(rows))
                 .then((rows) => {
