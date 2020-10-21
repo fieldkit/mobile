@@ -48,6 +48,7 @@ import Vue from "vue";
 import routes from "@/routes";
 import {isAndroid, Label} from "@nativescript/core";
 import * as ActionTypes from "@/store/actions";
+import {Notification} from "@/store/modules/notifications";
 import * as animations from "~/components/animations";
 import NotificationItem from "~/components/NotificationItem.vue";
 import Promise from "bluebird";
@@ -69,14 +70,14 @@ export default Vue.extend({
             return this.$store.state.notifications.notifications;
         },
         activeNotifications() {
-            return this.$store.state.notifications.notifications.filter((item: any) => item.silenced === "false");
+            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === "false");
         },
         dismissedNotifications() {
-            return this.$store.state.notifications.notifications.filter((item: any) => item.silenced === "true");
+            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === "true");
         }
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args) {
         },
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
@@ -90,10 +91,10 @@ export default Vue.extend({
                 lbl.android.setGravity(16);
             }
         },
-        goBack(this: any, event) {
+        goBack(this:any, event) {
             return Promise.all([
                 animations.pressed(event),
-                this.$navigateTo(routes.appSettings.list, {}),
+                this.$navigateTo(routes.stations, {}),
             ]);
         },
         toggleMenu(this: any, notification) {

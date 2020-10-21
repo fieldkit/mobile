@@ -14,7 +14,7 @@ export interface Notification {
     key: string,
     kind: string,
     created: number,
-    silenced: boolean,
+    silenced: string,
     dismissed_at: number,
     satisfied_at: number,
     project: string,

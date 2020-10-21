@@ -3,7 +3,13 @@ import Config from "@/config";
 import Settings from "@/settings";
 import {sqliteToJs} from "@/utilities";
 import {Download, FileTypeUtils, Station} from "@/store/types";
-import {AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow} from "@/store/row-types";
+import {
+    AccountsTableRow,
+    DownloadTableRow,
+    NotesTableRow,
+    NotificationsTableRow,
+    StationAddressRow
+} from "@/store/row-types";
 import {Services} from "@/services";
 import {Notification} from "~/store/modules/notifications";
 
@@ -811,7 +817,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) => db.query(`DELETE FROM accounts`));
     }
 
-    public getAllNotifications(): Promise<AccountsTableRow[]> {
+    public getAllNotifications(): Promise<NotesTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM notifications"))
             .then((rows) => sqliteToJs(rows))
@@ -834,7 +840,7 @@ export default class DatabaseInterface {
             .catch((err) => Promise.reject(new Error(`error fetching notifications: ${err}`)));
     }
 
-    public addNotification(notification: Notification): Promise<AccountsTableRow> {
+    public addNotification(notification: Notification): Promise<NotificationsTableRow> {
         console.log("addNotifications", notification);
         return this.getDatabase()
             .then((db) =>
@@ -857,7 +863,7 @@ export default class DatabaseInterface {
             .catch((err) => Promise.reject(new Error(`error adding notifications: ${err}`)));
     }
 
-    public updateNotification(notification: Notification | any): Promise<AccountsTableRow> {
+    public updateNotification(notification: Notification | any): Promise<NotificationsTableRow> {
         console.log("updateNotification", notification);
         return this.getDatabase()
             .then((db) =>

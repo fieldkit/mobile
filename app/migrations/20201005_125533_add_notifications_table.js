@@ -8,7 +8,7 @@ export class AddNotificationsTable_20201005_125533 extends Migration {
                 key TEXT NOT NULL,
                 kind TEXT NOT NULL,
                 created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                silenced BOOL NOT NULL DEFAULT false,
+                silenced TEXT NOT NULL,
                 dismissed_at TIMESTAMP,
                 satisfied_at TIMESTAMP,
                 project TEXT,

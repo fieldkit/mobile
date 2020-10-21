@@ -7,7 +7,7 @@
             <Label col="1" row="0" :text="notificationsKind[notification.kind].heading" textWrap="true" class="bold"
                    @loaded="onLabelLoadedVerticalCentered"/>
             <Label col="1" row="1" :text="notificationsKind[notification.kind].text" textWrap="true" lineHeight="4"/>
-            <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold" @tap="dismiss">
+            <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold">
                 <Label col="0" text="Add Field Notes" class="action-btn m-r-15"/>
                 <GridLayout col="1" columns="auto,auto" @tap="toggleMenu">
                     <Label col="0" :text="_L('dismiss')" class="action-btn" @tap="dismiss"/>
@@ -73,7 +73,7 @@ export default Vue.extend({
         }
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args) {
         },
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
