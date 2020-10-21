@@ -103,7 +103,7 @@ export default Vue.extend({
             this.$store.dispatch(ActionTypes.DISMISS_NOTIFICATION, {key: notification.key, silenced: true});
         },
         satisfy(this: any, notification) {
-            this.$store.dispatch(ActionTypes.SATISFY_NOTIFICATION, {key: notification.key);
+            this.$store.dispatch(ActionTypes.SATISFY_NOTIFICATION, {key: notification.key});
         }
     },
 });

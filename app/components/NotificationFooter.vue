@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import NotificationModal from "./NotificationModal";
+import routes from "@/routes";
 
 export default Vue.extend({
     props: {
@@ -19,28 +19,11 @@ export default Vue.extend({
             required: true,
         },
     },
-    // computed: {
-    //     notifications(this: any) {
-    //         return this.notificationCodes.map((code) => {
-    //             if (this.displayNotifications[code]) {
-    //                 return this.displayNotifications[code];
-    //             }
-    //             return this.displayNotifications["unknown"];
-    //         });
-    //     },
-    // },
     methods: {
         onLoaded(this: any) {
         },
         showNotifications(this: any) {
             return this.$navigateTo(routes.notifications, {});
-            // const options = {
-            //     props: {
-            //         notifications: this.notifications,
-            //     },
-            //     fullscreen: true,
-            // };
-            // return this.$showModal(NotificationModal, options);
         },
     },
 });

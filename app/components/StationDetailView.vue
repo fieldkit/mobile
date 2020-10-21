@@ -82,12 +82,6 @@ export default Vue.extend({
     computed: {
         notifications(this: any): string[] {
             return this.$store.state.notifications.notifications;
-            // const codes: string[] = [];
-            // const portal = this.currentStation.portalHttpError;
-            // if (portal && portal.name) {
-            //     codes.push(portal.name);
-            // }
-            // return codes;
         },
         isDeployed(this: any): boolean {
             return this.currentStation.deployStartTime != null;

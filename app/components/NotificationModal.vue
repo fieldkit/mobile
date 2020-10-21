@@ -27,14 +27,15 @@
                         <GridLayout col="1" row="2" columns="auto,auto" class="size-12 bold" :dataId="n.id"
                                     @tap="dismiss">
                             <Label col="0" text="Add Field Notes" class="action-btn m-r-15"/>
-                            <GridLayout col="1" columns="auto,auto" @tap="toggleMenu" :dataId="n.id" :dataVisible="false">
+                            <GridLayout col="1" columns="auto,auto" @tap="toggleMenu" :dataId="n.id">
                                 <Label col="0" :text="_L('dismiss')" class="action-btn" :dataId="n.id" @tap="dismiss"/>
                                 <Image col="1" src="~/images/Icon_Menu_Down.png" width="8" class="m-l-2"
                                        :class="isAndroid ? 'm-t-2' : 'm-t-8'"/>
                             </GridLayout>
                         </GridLayout>
                     </GridLayout>
-                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu.includes(n.id)">
+                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right"
+                                v-if="showMenu.includes(n.id)">
                         <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10"/>
                         <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold"/>
                     </GridLayout>
@@ -56,7 +57,8 @@
                             </GridLayout>
                         </GridLayout>
                     </GridLayout>
-                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu.includes(n.id)">
+                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right"
+                                v-if="showMenu.includes(n.id)">
                         <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10"/>
                         <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold"/>
                     </GridLayout>
