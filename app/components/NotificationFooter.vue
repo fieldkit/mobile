@@ -3,7 +3,7 @@
                    @loaded="onLoaded">
         <Label class="size-14 m-t-5 m-b-5" :text="_L('notifications')" horizontalAlignment="right"/>
         <GridLayout rows="auto" columns="*" horizontalAlignment="left">
-            <Label row="0" col="0" :text="notificationCodes.length" class="notify-num text-center"/>
+            <Label row="0" col="0" :text="notifications.length" class="notify-num text-center"/>
         </GridLayout>
     </FlexboxLayout>
 </template>
@@ -13,64 +13,34 @@ import Vue from "vue";
 import NotificationModal from "./NotificationModal";
 
 export default Vue.extend({
-    data() {
-        return {
-            displayNotifications: {
-                unknown: {
-                    heading: _L("portalProblemHeading"),
-                    text: _L("encounteredAPortalError"),
-                    error: true,
-                },
-                "station-owner-conflict": {
-                    heading: _L("unableToUpdateHeading"),
-                    text: _L("doNotHavePortalPermission"),
-                    error: true,
-                },
-                authentication: {
-                    heading: _L("unableToAccessHeading"),
-                    text: _L("notAuthorizedToUpdatePortal"),
-                    error: true,
-                },
-                "calibration-required": {
-                    heading: _L("unableToAccessHeading"),
-                    text: _L("notAuthorizedToUpdatePortal"),
-                    error: true,
-                },
-                "station-deployed": {
-                    heading: _L("unableToAccessHeading"),
-                    text: _L("notAuthorizedToUpdatePortal"),
-                    error: true,
-                },
-            },
-        };
-    },
     props: {
-        notificationCodes: {
+        notifications: {
             type: Array,
             required: true,
         },
     },
-    computed: {
-        notifications(this: any) {
-            return this.notificationCodes.map((code) => {
-                if (this.displayNotifications[code]) {
-                    return this.displayNotifications[code];
-                }
-                return this.displayNotifications["unknown"];
-            });
-        },
-    },
+    // computed: {
+    //     notifications(this: any) {
+    //         return this.notificationCodes.map((code) => {
+    //             if (this.displayNotifications[code]) {
+    //                 return this.displayNotifications[code];
+    //             }
+    //             return this.displayNotifications["unknown"];
+    //         });
+    //     },
+    // },
     methods: {
         onLoaded(this: any) {
         },
         showNotifications(this: any) {
-            const options = {
-                props: {
-                    notifications: this.notifications,
-                },
-                fullscreen: true,
-            };
-            return this.$showModal(NotificationModal, options);
+            return this.$navigateTo(routes.notifications, {});
+            // const options = {
+            //     props: {
+            //         notifications: this.notifications,
+            //     },
+            //     fullscreen: true,
+            // };
+            // return this.$showModal(NotificationModal, options);
         },
     },
 });
