@@ -115,7 +115,7 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes, portal, cal } = state;
+            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes, portal, cal, notifications } = state;
             return {
                 nav,
                 phone,
@@ -131,6 +131,7 @@ function customizeLogger() {
                 },
                 portal,
                 cal,
+                notifications,
                 stations: {
                     deviceIds: _(stations.all)
                         .keyBy((s) => s.deviceId)

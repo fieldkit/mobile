@@ -857,7 +857,7 @@ export default class DatabaseInterface {
             .catch((err) => Promise.reject(new Error(`error adding notifications: ${err}`)));
     }
 
-    public updateNotification(notification: Notification): Promise<AccountsTableRow> {
+    public updateNotification(notification: Notification | any): Promise<AccountsTableRow> {
         console.log("updateNotification", notification);
         return this.getDatabase()
             .then((db) =>
@@ -867,14 +867,16 @@ export default class DatabaseInterface {
                         const values = [
                             notification.key ?? dbValues.key,
                             notification.kind ?? dbValues.kind,
-                            notification.silenced ?? dbValues.silenced,
+                            notification.silenced,
                             notification.dismissed_at ?? dbValues.dismissed_at,
                             notification.satisfied_at ?? dbValues.satisfied_at,
                             notification.project ? JSON.stringify(notification.project) : dbValues.project,
                             notification.user ? JSON.stringify(notification.user) : dbValues.user,
                             notification.station ? JSON.stringify(notification.station) : dbValues.station,
-                            notification.actions ?? dbValues.actions
+                            notification.actions ?? dbValues.actions,
+                            notification.id
                         ];
+
                         return db.execute(`UPDATE notifications SET key = ?, kind = ?, silenced = ?, dismissed_at = ?, satisfied_at = ?, project = ?, user = ?, station = ?, actions = ? WHERE id = ?`, values);
                     }
                 })

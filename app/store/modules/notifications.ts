@@ -40,7 +40,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.LOAD_NOTIFICATIONS]: ({commit, dispatch, state}: ActionParameters) => {
             return services
                 .db()
-                .getSettings()
+                .getAllNotifications()
                 .then((notifications) => {
                     commit(MutationTypes.LOAD_NOTIFICATIONS, notifications);
                 })
@@ -62,7 +62,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.DISMISS_NOTIFICATION]: ({commit, dispatch, state}: ActionParameters, payload: { key: string, silenced: boolean }) => {
             const notification = {
-                ...state.notifications[payload.key],
+                ...state.notifications.find(item => item.key === payload.key),
                 silenced: payload.silenced,
                 dismissed_at: new Date()
             };
@@ -75,7 +75,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.SATISFY_NOTIFICATION]: ({commit, dispatch, state}: ActionParameters, payload: { key: string }) => {
             const notification = {
-                ...state.notifications[payload.key],
+                ...state.notifications.find(item => item.key === payload.key),
                 dismissed_at: new Date()
             };
 
