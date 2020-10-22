@@ -67,8 +67,8 @@ function customizeLogger() {
                     "mutation:",
                     mutation.type,
                     _(mutation.payload)
-                        .map((s) => s.name)
-                        .value()
+                        .map((s) => [s.name, s.connected])
+                        .fromPairs()
                 );
                 return false;
             }
