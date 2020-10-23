@@ -5,6 +5,7 @@ interface NetworkingListener {
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
     onNetworkStatusWithStatus(status: NetworkingStatus): void;
+    onSimpleDiscoveryWithService(service: ServiceInfo): void;
 }
 declare var NetworkingListener: {
     prototype: NetworkingListener;
@@ -109,6 +110,7 @@ declare class MyNetworkingListener extends NSObject implements NetworkingListene
     onDiscoveryFailed(): void;
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
+    onSimpleDiscoveryWithService(service: ServiceInfo): void;
     onNetworkStatusWithStatus(status: NetworkingStatus): void;
 }
 interface ActiveTasks {

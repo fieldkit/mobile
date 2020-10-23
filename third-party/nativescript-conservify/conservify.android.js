@@ -95,6 +95,15 @@ var Conservify = (function () {
                     port: service.getPort(),
                 });
             },
+            onSimpleDiscovery: function (service) {
+                owner.logger("onSimpleDiscovery", service.getName(), service.getType());
+                owner.discoveryEvents.onSimpleDiscovery({
+                    name: service.getName(),
+                    type: service.getType(),
+                    host: service.getAddress(),
+                    port: service.getPort(),
+                });
+            },
             onNetworkStatus: function (status) {
                 if (owner.networkStatus) {
                     var getConnectedWifi = function () {
