@@ -90,14 +90,14 @@ function customizeLogger() {
                 return false;
             }
             if (action.type == ActionTypes.TRY_STATION_ONCE) {
-                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                console.log("action:", action.type, JSON.stringify(action.payload));
                 return false;
             }
             if (action.type == ActionTypes.QUERY_NECESSARY) {
                 return false;
             }
             if (action.type == ActionTypes.QUERY_STATION) {
-                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                console.log("action:", action.type, JSON.stringify(action.payload));
                 return false;
             }
             if (action.type == ActionTypes.STATION_REPLY) {
