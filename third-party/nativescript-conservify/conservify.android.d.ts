@@ -25,7 +25,7 @@ export declare class Conservify {
     networking: org.conservify.networking.Networking;
     fileSystem: org.conservify.data.FileSystem;
     constructor(discoveryEvents: any, logger: any);
-    start(serviceType: string): Promise<any>;
+    start(serviceTypeSearch: ?string, serviceNameSelf: ?string, serviceTypeSelf: ?string): Promise<any>;
     stop(): Promise<any>;
     writeSampleData(): Promise<any>;
     open(path: string): Promise<OpenedFile>;

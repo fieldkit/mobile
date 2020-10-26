@@ -337,7 +337,7 @@ var Conservify = (function () {
         console.log("stopped (ignored, ios)");
         return Promise.resolve(true);
     };
-    Conservify.prototype.start = function (serviceType) {
+    Conservify.prototype.start = function (serviceTypeSearch, serviceNameSelf, serviceTypeSelf) {
         var _this = this;
         if (this.started) {
             return Promise.resolve(true);
@@ -347,8 +347,12 @@ var Conservify = (function () {
                 resolve: resolve,
                 reject: reject,
             };
-            _this.logger("starting...");
-            _this.networking.serviceDiscovery.startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(serviceType, null, null);
+            _this.logger("starting:", serviceTypeSearch, serviceNameSelf, serviceTypeSelf);
+            _this.networking.serviceDiscovery.startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(
+                serviceTypeSearch,
+                serviceNameSelf,
+                serviceTypeSelf
+            );
         });
     };
     Conservify.prototype.writeSampleData = function () {

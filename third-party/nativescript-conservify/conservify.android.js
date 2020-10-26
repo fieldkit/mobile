@@ -291,15 +291,15 @@ var Conservify = (function () {
             this.downloadListener
         );
     }
-    Conservify.prototype.start = function (serviceType) {
+    Conservify.prototype.start = function (serviceTypeSearch, serviceNameSelf, serviceTypeSelf) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             _this.started = {
                 resolve: resolve,
                 reject: reject,
             };
-            _this.logger("starting...");
-            _this.networking.getServiceDiscovery().start(serviceType, null, null);
+            _this.logger("starting:", serviceTypeSearch, serviceNameSelf, serviceTypeSelf);
+            _this.networking.getServiceDiscovery().start(serviceTypeSearch, serviceNameSelf, serviceTypeSelf);
         });
     };
     Conservify.prototype.stop = function () {
