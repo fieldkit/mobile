@@ -192,6 +192,17 @@ export default class StartupScreen extends Vue {
         return initializeApplication(services).then(() => {
             console.log("developer", Config.env.developer);
             if (Config.env.developer) {
+                // if (services.Store().getters.stationCalibrations[1]) {
+                //     return this.$navigateTo(routes.onboarding.recalibrate, {
+                //         clearHistory: true,
+                //         props: {
+                //             stationId: 1,
+                //         },
+                //
+                //     });
+                // } else {
+                //     console.log("no test station");
+                // }
                 /*
                 return this.$navigateTo(routes.internal.calibrate, {
                     clearHistory: true,
@@ -242,10 +253,10 @@ export default class StartupScreen extends Vue {
                     props: {},
                 });
 				*/
-                return this.$navigateTo(routes.stations, {
-                    clearHistory: true,
-                    props: {},
-                });
+                // return this.$navigateTo(routes.stations, {
+                //     clearHistory: true,
+                //     props: {},
+                // });
             }
 
             console.log("first navigate");

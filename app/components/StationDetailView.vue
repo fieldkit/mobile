@@ -1,12 +1,13 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
+        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack"
+                        :onSettings="goToSettings"/>
         <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
                         <StackLayout orientation="vertical">
-                            <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
+                            <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation"/>
                             <GridLayout
                                 order="2"
                                 rows="auto"
@@ -15,7 +16,8 @@
                                 @tap="goToFieldNotes"
                             >
                                 <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
-                                <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
+                                <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10"
+                                       verticalAlignment="middle"/>
                                 <Label
                                     col="2"
                                     :text="notes.completed + '% ' + _L('complete')"
@@ -24,7 +26,16 @@
                                     v-if="notes.completed && notes.completed > 0"
                                 />
                             </GridLayout>
-                            <ModuleList order="3" :station="currentStation" />
+                            <ModuleList order="3" :station="currentStation"/>
+                            <GridLayout rows="auto,30,60,auto" columns="*" class="m-10 text-center bordered-container p-b-20"
+                                        v-if="currentStation.modules.length === 0">
+                                <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
+                                <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>
+                                <Label row="2" :text="_L('noModulesAttachedBody')" class="size-16" width="260"
+                                       textWrap="true"></Label>
+                                <Button row="3" class="btn btn-primary btn-padded m-30" :text="_L('addModules')"
+                                        :isEnabled="true" @tap="addModule"/>
+                            </GridLayout>
                         </StackLayout>
                     </GridLayout>
 
@@ -32,15 +43,16 @@
                         <GridLayout top="75" width="100%">
                             <StackLayout class="deployed-dialog-container">
                                 <Image width="60" src="~/images/Icon_Success.png"></Image>
-                                <Label :text="_L('stationDeployed')" class="deployed-dialog-text" />
+                                <Label :text="_L('stationDeployed')" class="deployed-dialog-text"/>
                             </StackLayout>
                         </GridLayout>
                     </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
 
-            <NotificationFooter row="1" :onClose="goToDetail" :notificationCodes="notificationCodes" v-if="notificationCodes.length > 0" />
-            <ScreenFooter :row="notificationCodes.length > 0 ? '2' : '1'" active="stations" />
+            <NotificationFooter row="1" :onClose="goToDetail" :notificationCodes="notificationCodes"
+                                v-if="notificationCodes.length > 0"/>
+            <ScreenFooter :row="notificationCodes.length > 0 ? '2' : '1'" active="stations"/>
         </GridLayout>
     </Page>
 </template>
@@ -48,11 +60,11 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { promiseAfter } from "@/utilities";
+import {promiseAfter} from "@/utilities";
 
 import * as animations from "./animations";
 
-import { Station, Notes } from "@/store";
+import {Station, Notes} from "@/store";
 
 import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
@@ -175,6 +187,14 @@ export default Vue.extend({
         getDeployedStatus(): string {
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
+        addModule(this: any): Promise<any> {
+            return this.$navigateTo(routes.onboarding.addModule, {
+                clearHistory: true,
+                props: {
+                    stationId: this.stationId,
+                },
+            });
+        },
     },
 });
 </script>
@@ -187,6 +207,7 @@ export default Vue.extend({
     border-color: $fk-gray-lighter;
     border-width: 1;
 }
+
 .blue {
     color: $fk-primary-blue;
 }
@@ -200,8 +221,14 @@ export default Vue.extend({
     height: 225;
     padding-top: 50;
 }
+
 .deployed-dialog-text {
     margin-top: 20;
     font-size: 18;
+}
+
+.small {
+    width: 50;
+    margin: 20;
 }
 </style>
