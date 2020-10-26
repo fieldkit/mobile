@@ -5,7 +5,7 @@ interface NetworkingListener {
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
     onNetworkStatusWithStatus(status: NetworkingStatus): void;
-    onSimpleDiscoveryWithService(service: ServiceInfo): void;
+    onUdpMessageWithMessage(message: UdpMessage): void;
 }
 declare var NetworkingListener: {
     prototype: NetworkingListener;
@@ -47,6 +47,10 @@ declare class ServiceInfo extends NSObject {
     name: string;
     host: string;
     port: number;
+}
+declare class UdpMessage extends NSObject {
+    address: string;
+    data: string;
 }
 declare class ReadOptions extends NSObject {
     static alloc(): ReadOptions;
@@ -110,7 +114,7 @@ declare class MyNetworkingListener extends NSObject implements NetworkingListene
     onDiscoveryFailed(): void;
     onFoundServiceWithService(service: ServiceInfo): void;
     onLostServiceWithService(service: ServiceInfo): void;
-    onSimpleDiscoveryWithService(service: ServiceInfo): void;
+    onUdpMessageWithMessage(message: UdpMessage): void;
     onNetworkStatusWithStatus(status: NetworkingStatus): void;
 }
 interface ActiveTasks {

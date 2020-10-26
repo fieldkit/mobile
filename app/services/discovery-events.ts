@@ -1,8 +1,8 @@
-import { ServiceInfo } from "@/store";
+import { UdpMessage, ServiceInfo } from "@/store";
 
 export interface DiscoveryListener {
     onFoundService(info: ServiceInfo): void;
-    onSimpleDiscovery(info: ServiceInfo): void;
+    onUdpMessage(info: UdpMessage): void;
     onLostService(info: ServiceInfo): void;
 }
 
@@ -21,9 +21,9 @@ export class DiscoveryEvents implements DiscoveryListener {
         }
     }
 
-    public onSimpleDiscovery(info: ServiceInfo): void {
+    public onUdpMessage(message: UdpMessage): void {
         for (let i = 0; i < this.listeners.length; ++i) {
-            this.listeners[i].onSimpleDiscovery(info);
+            this.listeners[i].onUdpMessage(message);
         }
     }
 

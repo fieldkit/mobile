@@ -2,9 +2,8 @@ import Bluebird from "bluebird";
 import { Services, OurStore } from "@/services";
 import { Connectivity } from "@/wrappers/connectivity";
 import { promiseAfter } from "@/utilities";
-import * as ActionTypes from "@/store/actions";
-import * as MutationTypes from "@/store/mutations";
-import { PhoneNetwork } from "@/store/types";
+import { ActionTypes, MutationTypes, PhoneNetwork, UdpMessage } from "@/store";
+import { fk_app } from "fk-app-protocol/fk-app";
 import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");
@@ -212,8 +211,12 @@ export default class DiscoverStation {
         });
     }
 
-    public onSimpleDiscovery(info: FoundService): Promise<void> {
-        log.info("simple-discovery:", info);
+    public onUdpMessage(info: UdpMessage): Promise<void> {
+        // const deviceId = info.name[:-1];
+        log.info("udp-message:", info);
+        const buffer = Buffer.from(info.data, "base64");
+        const decoded = fk_app.UdpMessage.decodeDelimited(buffer);
+        log.info("udp-message:", decoded);
         return Promise.resolve();
     }
 
