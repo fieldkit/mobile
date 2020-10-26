@@ -16,9 +16,11 @@ import { notes } from "./modules/notes";
 import { portal } from "./modules/portal";
 import { cal } from "./modules/cal";
 
-import * as MutationTypes from "./mutations";
 import * as ActionTypes from "./actions";
+import * as MutationTypes from "./mutations";
 import { Services, ServiceRef } from "@/services";
+
+export { ActionTypes, MutationTypes };
 
 export * from "./types";
 export * from "./typed-actions";
@@ -65,8 +67,8 @@ function customizeLogger() {
                     "mutation:",
                     mutation.type,
                     _(mutation.payload)
-                        .map((s) => s.name)
-                        .value()
+                        .map((s) => [s.name, s.connected])
+                        .fromPairs()
                 );
                 return false;
             }
@@ -88,14 +90,14 @@ function customizeLogger() {
                 return false;
             }
             if (action.type == ActionTypes.TRY_STATION_ONCE) {
-                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                console.log("action:", action.type, JSON.stringify(action.payload));
                 return false;
             }
             if (action.type == ActionTypes.QUERY_NECESSARY) {
                 return false;
             }
             if (action.type == ActionTypes.QUERY_STATION) {
-                console.log("action:", action.type, JSON.stringify(action.payload.url));
+                console.log("action:", action.type, JSON.stringify(action.payload));
                 return false;
             }
             if (action.type == ActionTypes.STATION_REPLY) {

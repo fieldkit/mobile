@@ -54,7 +54,7 @@ export function dumpAllFiles() {
     });
 }
 
-export function getDatabasePath(name: string) {
+export function getDatabasePath(name: string): string {
     if (isAndroid) {
         const context = Utils.ad.getApplicationContext();
         return context.getDatabasePath(name).getAbsolutePath();

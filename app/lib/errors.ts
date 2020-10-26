@@ -1,7 +1,7 @@
 export class AuthenticationError extends Error {
     public readonly authenticated = false;
 
-    constructor(message) {
+    constructor(message: string) {
         super(message);
         this.name = "AuthenticationError";
     }
@@ -14,7 +14,7 @@ export class AuthenticationError extends Error {
 export class StationQueryError extends Error {
     public readonly stationQuery = false;
 
-    constructor(message) {
+    constructor(message: string) {
         super(message);
         this.name = "StationQueryError";
     }
@@ -27,7 +27,7 @@ export class StationQueryError extends Error {
 export class BusyError extends Error {
     public readonly busy = false;
 
-    constructor(message) {
+    constructor(message: string) {
         super(message);
         this.name = "BusyError";
     }
@@ -40,7 +40,7 @@ export class BusyError extends Error {
 export class QueryThrottledError extends Error {
     public readonly throttled = true;
 
-    constructor(message) {
+    constructor(message: string) {
         super(message);
         this.name = "QueryThrottledError";
     }
@@ -53,7 +53,7 @@ export class QueryThrottledError extends Error {
 export class HttpError extends Error {
     public readonly http = true;
 
-    constructor(message, public readonly response: any) {
+    constructor(message: string, public readonly response: any) {
         super(message);
         this.name = "HttpError";
     }

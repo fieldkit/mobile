@@ -77,7 +77,6 @@ export default Vue.extend({
     },
     watch: {
         mappedStations(this: any) {
-            console.log("mappedStations:changed");
             this.showStations();
         },
     },

@@ -2,6 +2,7 @@ import { ServiceInfo } from "@/store";
 
 export interface DiscoveryListener {
     onFoundService(info: ServiceInfo): void;
+    onSimpleDiscovery(info: ServiceInfo): void;
     onLostService(info: ServiceInfo): void;
 }
 
@@ -17,6 +18,12 @@ export class DiscoveryEvents implements DiscoveryListener {
     public onLostService(info: ServiceInfo): void {
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onLostService(info);
+        }
+    }
+
+    public onSimpleDiscovery(info: ServiceInfo): void {
+        for (let i = 0; i < this.listeners.length; ++i) {
+            this.listeners[i].onSimpleDiscovery(info);
         }
     }
 

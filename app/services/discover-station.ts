@@ -212,6 +212,11 @@ export default class DiscoverStation {
         });
     }
 
+    public onSimpleDiscovery(info: FoundService): Promise<void> {
+        log.info("simple-discovery:", info);
+        return Promise.resolve();
+    }
+
     private makeKey(station): string {
         return station.name;
     }
