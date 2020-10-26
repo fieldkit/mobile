@@ -299,7 +299,7 @@ var Conservify = (function () {
                 reject: reject,
             };
             _this.logger("starting...");
-            _this.networking.getServiceDiscovery().start(serviceType);
+            _this.networking.getServiceDiscovery().start(serviceType, null, null);
         });
     };
     Conservify.prototype.stop = function () {

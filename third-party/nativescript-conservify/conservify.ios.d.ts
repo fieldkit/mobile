@@ -77,7 +77,7 @@ declare class FileSystem extends NSObject {
     newToken(): string;
 }
 declare class ServiceDiscovery extends NSObject {
-    startWithServiceType(serviceType: string): void;
+    startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(serviceTypeSearch: string, serviceNameSelf: ?string, serviceTypeSelf: ?string): void;
 }
 declare class Web extends NSObject {
     simpleWithInfo(info: WebTransfer): string;

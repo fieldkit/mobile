@@ -8,6 +8,12 @@ import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");
 
+export interface DecodedUdpMessage {
+    readonly address: string;
+    readonly deviceId: string;
+    readonly status: fk_app.UdpStatus;
+}
+
 class Station {
     public readonly scheme: string = "http";
     public readonly type: string;
@@ -211,16 +217,25 @@ export default class DiscoverStation {
         });
     }
 
-    public onUdpMessage(info: UdpMessage): Promise<void> {
-        // const deviceId = info.name[:-1];
-        log.info("udp-message:", info);
-        const buffer = Buffer.from(info.data, "base64");
+    private decodeUdpMessage(message: UdpMessage): DecodedUdpMessage {
+        const buffer = Buffer.from(message.data, "base64");
         const decoded = fk_app.UdpMessage.decodeDelimited(buffer);
-        log.info("udp-message:", decoded);
+        const deviceId = Buffer.from(decoded.deviceId).toString("hex");
+        return {
+            address: message.address,
+            deviceId: deviceId,
+            status: decoded.status || fk_app.UdpStatus.UDP_STATUS_ONLINE,
+        };
+    }
+
+    public onUdpMessage(message: UdpMessage): Promise<void> {
+        log.info("udp-message:", message);
+        const decoded = this.decodeUdpMessage(message);
+        log.info("udp-decoded:", decoded);
         return Promise.resolve();
     }
 
-    private makeKey(station): string {
+    private makeKey(station: { name: string }): string {
         return station.name;
     }
 }

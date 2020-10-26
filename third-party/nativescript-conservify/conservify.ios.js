@@ -348,7 +348,7 @@ var Conservify = (function () {
                 reject: reject,
             };
             _this.logger("starting...");
-            _this.networking.serviceDiscovery.startWithServiceType(serviceType);
+            _this.networking.serviceDiscovery.startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(serviceType, null, null);
         });
     };
     Conservify.prototype.writeSampleData = function () {
