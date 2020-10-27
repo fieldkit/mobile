@@ -361,6 +361,10 @@ module.exports = {
     doNotHavePortalPermission: "We do not have permission to update the Portal for this station. It may belong to another user.",
     unableToAccessHeading: "Unable to access Portal",
     notAuthorizedToUpdatePortal: "We are currently not authorized to update the Portal. Are you logged in?",
+    stationDeployedHeading: "Station Deployed",
+    stationDeployedText: "Station Deployed Text",
+    calibrationRequiredHeading: "Calibration Required",
+    calibrationRequiredText: "calibration Required Text",
     // NotificationView.vue
     dismiss: "Dismiss",
     // ScreenFooter.vue

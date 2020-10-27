@@ -14,3 +14,4 @@ export * from "./20200831_100000_add_settings_table.js";
 export * from "./20200831_102000_add_accounts_table.js";
 export * from "./20200914_114116_add_account_time_stamp.js";
 export * from "./20200929_125831_add_connection_history.js";
+export * from "./20201005_125533_add_notifications_table.js"

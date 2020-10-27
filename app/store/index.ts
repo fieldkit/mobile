@@ -15,6 +15,7 @@ import { media } from "./modules/media";
 import { notes } from "./modules/notes";
 import { portal } from "./modules/portal";
 import { cal } from "./modules/cal";
+import { notifications } from "./modules/notifications";
 
 import * as ActionTypes from "./actions";
 import * as MutationTypes from "./mutations";
@@ -120,7 +121,7 @@ function customizeLogger() {
             return true;
         },
         transformer(state) {
-            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes, portal, cal } = state;
+            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes, portal, cal, notifications } = state;
             return {
                 nav,
                 phone,
@@ -136,6 +137,7 @@ function customizeLogger() {
                 },
                 portal,
                 cal,
+                notifications,
                 stations: {
                     deviceIds: _(stations.all)
                         .keyBy((s) => s.deviceId)
@@ -177,6 +179,7 @@ export default function (rawServices: Services): OurStore {
             notes: notes(services),
             portal: portal(services),
             cal: cal(services),
+            notifications: notifications(services),
         },
         // This was causing a call stack error (_traverse)
         strict: false, // process.env.NODE_ENV !== "production",

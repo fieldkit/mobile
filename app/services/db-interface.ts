@@ -3,8 +3,9 @@ import Config from "@/config";
 import Settings from "@/settings";
 import { sqliteToJs } from "@/utilities";
 import { Download, FileTypeUtils, Station } from "@/store/types";
-import { AccountsTableRow, DownloadTableRow, NotesTableRow, StationAddressRow } from "@/store/row-types";
+import { AccountsTableRow, DownloadTableRow, NotesTableRow, NotificationsTableRow, StationAddressRow } from "@/store/row-types";
 import { Services } from "@/services";
+import { Notification } from "~/store/modules/notifications";
 
 const log = Config.logger("DbInterface");
 
@@ -265,7 +266,17 @@ export default class DatabaseInterface {
 
         return Promise.all([
             Promise.all(
-                adding.map((name) => this.insertSensor(_.merge({ moduleId: module.moduleId, deviceId: module.moduleId }, incoming[name])))
+                adding.map((name) =>
+                    this.insertSensor(
+                        _.merge(
+                            {
+                                moduleId: module.moduleId,
+                                deviceId: module.moduleId,
+                            },
+                            incoming[name]
+                        )
+                    )
+                )
             ),
             Promise.all(removed.map((name) => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
             Promise.all(
@@ -692,6 +703,7 @@ export default class DatabaseInterface {
                 throw new Error(`error serializing notes JSON: ${err}`);
             }
         }
+
         return this.getDatabase()
             .then((db) =>
                 db.query(`SELECT id FROM notes WHERE station_id = ?`, [notes.stationId]).then((maybeId) => {
@@ -803,5 +815,85 @@ export default class DatabaseInterface {
 
     public deleteAllAccounts(): Promise<AccountsTableRow[]> {
         return this.getDatabase().then((db) => db.query(`DELETE FROM accounts`));
+    }
+
+    public getAllNotifications(): Promise<NotesTableRow[]> {
+        return this.getDatabase()
+            .then((db) => db.query("SELECT * FROM notifications"))
+            .then((rows) => sqliteToJs(rows))
+            .then((rows) =>
+                rows.map((row) => {
+                    try {
+                        return {
+                            ...row,
+                            silenced: row.silenced === "true" ? true : false,
+                            project: JSON.parse(row.project),
+                            user: JSON.parse(row.user),
+                            station: JSON.parse(row.station),
+                        };
+                    } catch (err) {
+                        log.error(`error deserializing notifications JSON: ${err}`);
+                        log.error(`JSON: ${row}`);
+                    }
+                    return row;
+                })
+            )
+            .catch((err) => Promise.reject(new Error(`error fetching notifications: ${err}`)));
+    }
+
+    public addNotification(notification: Notification): Promise<NotificationsTableRow> {
+        console.log("addNotifications", notification);
+        return this.getDatabase()
+            .then((db) =>
+                db.query(`SELECT id FROM notifications WHERE key = ?`, [notification.key]).then((maybeId) => {
+                    if (maybeId.length == 0) {
+                        const values = [
+                            notification.key,
+                            notification.kind,
+                            Number(new Date()),
+                            notification.silenced,
+                            JSON.stringify(notification.project),
+                            JSON.stringify(notification.user),
+                            JSON.stringify(notification.station),
+                            notification.actions,
+                        ];
+                        return db.execute(
+                            `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                            values
+                        );
+                    }
+                })
+            )
+            .catch((err) => Promise.reject(new Error(`error adding notifications: ${err}`)));
+    }
+
+    public updateNotification(notification: Notification): Promise<NotificationsTableRow> {
+        console.log("updateNotification", notification);
+        return this.getDatabase()
+            .then((db) =>
+                db.query(`SELECT * FROM notifications WHERE key = ?`, [notification.key]).then((maybe) => {
+                    if (maybe.length > 0) {
+                        const dbValues = maybe[0];
+                        const values = [
+                            notification.key ?? dbValues.key,
+                            notification.kind ?? dbValues.kind,
+                            notification.silenced === true ? "true" : "false",
+                            notification.dismissed_at ?? dbValues.dismissed_at,
+                            notification.satisfied_at ?? dbValues.satisfied_at,
+                            notification.project ? JSON.stringify(notification.project) : dbValues.project,
+                            notification.user ? JSON.stringify(notification.user) : dbValues.user,
+                            notification.station ? JSON.stringify(notification.station) : dbValues.station,
+                            notification.actions ?? dbValues.actions,
+                            notification.id,
+                        ];
+
+                        return db.execute(
+                            `UPDATE notifications SET key = ?, kind = ?, silenced = ?, dismissed_at = ?, satisfied_at = ?, project = ?, user = ?, station = ?, actions = ? WHERE id = ?`,
+                            values
+                        );
+                    }
+                })
+            )
+            .catch((err) => Promise.reject(new Error(`error updating notifications: ${err}`)));
     }
 }

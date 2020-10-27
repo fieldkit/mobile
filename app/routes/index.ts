@@ -42,6 +42,7 @@ import AppSettingsAppearance from "~/components/AppSettingsAppearanceView.vue";
 import AppSettingsAppearanceLanguage from "~/components/AppSettingsAppearanceLanguageView.vue";
 import AppSettingsAppearanceFontSize from "~/components/AppSettingsAppearanceFontSizeView.vue";
 import AddModuleView from "~/components/onboarding/AddModuleView.vue";
+import NotificationsView from "~/components/NotificationsView.vue";
 
 const routes = {
     login: new Route(Login, { login: true }),
@@ -101,6 +102,7 @@ const routes = {
     reader: {
         flow: new Route(FlowView, {}),
     },
+    notifications: new Route(NotificationsView, {}),
 };
 
 inferNames(routes);

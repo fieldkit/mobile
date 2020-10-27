@@ -1,7 +1,7 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
-        <GridLayout :rows="notificationCodes.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
+        <GridLayout :rows="notifications.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
@@ -56,8 +56,8 @@
                 </GridLayout>
             </ScrollView>
 
-            <NotificationFooter row="1" :onClose="goToDetail" :notificationCodes="notificationCodes" v-if="notificationCodes.length > 0" />
-            <ScreenFooter :row="notificationCodes.length > 0 ? '2' : '1'" active="stations" />
+            <NotificationFooter row="1" :onClose="goToDetail" :notifications="notifications" v-if="notifications.length > 0" />
+            <ScreenFooter :row="notifications.length > 0 ? '2' : '1'" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -75,6 +75,7 @@ import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
 import ModuleList from "./ModuleList.vue";
 import NotificationFooter from "./NotificationFooter.vue";
+import * as ActionTypes from "~/store/actions";
 
 export default Vue.extend({
     props: {
@@ -93,21 +94,16 @@ export default Vue.extend({
         };
     },
     computed: {
-        notificationCodes(this: any): string[] {
-            const codes: string[] = [];
-            const portal = this.currentStation.portalHttpError;
-            if (portal && portal.name) {
-                codes.push(portal.name);
-            }
-            return codes;
+        notifications(): string[] {
+            return this.$store.state.notifications.notifications;
         },
-        isDeployed(this: any): boolean {
+        isDeployed(): boolean {
             return this.currentStation.deployStartTime != null;
         },
-        notes(this: any): Notes {
+        notes(): Notes {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation(this: any): Station {
+        currentStation(): Station {
             if (!this.$store.getters.legacyStations) {
                 throw new Error(`missing legacyStations`);
             }
@@ -143,7 +139,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDeploy(ev) {
+        goToDeploy() {
             return this.$navigateTo(routes.deploy.start, {
                 props: {
                     stationId: this.stationId,
@@ -182,7 +178,20 @@ export default Vue.extend({
         completeSetup() {
             if (this.redirectedFromDeploy) {
                 this.newlyDeployed = true;
-                return promiseAfter(3000).then(() => {
+
+                return Promise.all([
+                    this.$store.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                        key: `${this.$store.state.portal.currentUser.id}/${this.currentStation.id}/station-deployed`,
+                        kind: "station-deployed",
+                        created: new Date(),
+                        silenced: "false",
+                        project: {},
+                        user: this.$store.state.portal.currentUser,
+                        station: this.currentStation,
+                        actions: {},
+                    }),
+                    promiseAfter(3000)
+                ]).then(() => {
                     this.newlyDeployed = false;
                 });
             }

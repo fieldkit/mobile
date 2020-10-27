@@ -34,7 +34,8 @@
                             </GridLayout>
                         </GridLayout>
                     </GridLayout>
-                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu === n.id">
+                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right"
+                                v-if="showMenu.includes(n.id)">
                         <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10"/>
                         <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold"/>
                     </GridLayout>
@@ -56,7 +57,8 @@
                             </GridLayout>
                         </GridLayout>
                     </GridLayout>
-                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right" v-if="showMenu === n.id">
+                    <GridLayout rows="*,*" class="size-12 menu" horizontalAlignment="right"
+                                v-if="showMenu.includes(n.id)">
                         <Label row="0" :text="_L('notificationRemindLater')" textWrap="true" class="bold m-b-10"/>
                         <Label row="1" :text="_L('notificationDontRemind')" textWrap="true" class="bold"/>
                     </GridLayout>
@@ -72,7 +74,7 @@ import {isAndroid, Label} from "@nativescript/core";
 export default Vue.extend({
     data() {
         return {
-            showMenu: -1
+            showMenu: []
         };
     },
     props: {
@@ -107,7 +109,7 @@ export default Vue.extend({
             }
         },
         toggleMenu(this: any, event) {
-            this.showMenu = this.showMenu == event.object.dataId ? -1 : event.object.dataId;
+            this.showMenu = this.showMenu.includes(event.object.dataId) ? [] : [event.object.dataId];
         },
         dismiss(this: any, event) {
             // Change color when pressed
@@ -167,9 +169,9 @@ export default Vue.extend({
 }
 
 .menu {
-    margin-top: 80;
+    margin-top: 60;
     margin-bottom: 10;
-    margin-right: 30;
+    margin-right: 10;
     background-color: $background;
     border-width: 1;
     border-color: $fk-gray-lighter;
