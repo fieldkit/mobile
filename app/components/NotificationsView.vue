@@ -7,14 +7,18 @@
                         <FlexboxLayout justifyContent="center" alignItems="center">
                             <Label class="text-center size-16 bold" :text="_L('notifications')"></Label>
                             <GridLayout rows="auto" columns="*" horizontalAlignment="left">
-                                <Label row="0" col="0" :text="currentNotifications.length"
-                                       class="notify-num text-center"
-                                       @loaded="onLabelLoadedCentered"/>
+                                <Label
+                                    row="0"
+                                    col="0"
+                                    :text="currentNotifications.length"
+                                    class="notify-num text-center"
+                                    @loaded="onLabelLoadedCentered"
+                                />
                             </GridLayout>
                         </FlexboxLayout>
                     </StackLayout>
                     <StackLayout col="1" class="round-bkgd" verticalAlignment="top" @tap="goBack">
-                        <Image width="18" src="~/images/Icon_Close.png"/>
+                        <Image width="18" src="~/images/Icon_Close.png" />
                     </StackLayout>
                 </GridLayout>
                 <GridLayout v-for="activeItem in activeNotifications" :key="activeItem.id">
@@ -24,11 +28,14 @@
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
-                    >
-                    </NotificationItem>
+                    ></NotificationItem>
                 </GridLayout>
-                <Label :text="_L('notificationArchive')" class="bold size-14 m-x-10 m-t-30 m-b-20"
-                       @loaded="onLabelLoadedVerticalCentered" v-if="dismissedNotifications.length > 0"/>
+                <Label
+                    :text="_L('notificationArchive')"
+                    class="bold size-14 m-x-10 m-t-30 m-b-20"
+                    @loaded="onLabelLoadedVerticalCentered"
+                    v-if="dismissedNotifications.length > 0"
+                />
                 <GridLayout v-for="dismissedItem in dismissedNotifications" :key="dismissedItem.id">
                     <NotificationItem
                         :notification="dismissedItem"
@@ -36,8 +43,7 @@
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
-                    >
-                    </NotificationItem>
+                    ></NotificationItem>
                 </GridLayout>
             </StackLayout>
         </ScrollView>
@@ -46,9 +52,9 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import {isAndroid, Label} from "@nativescript/core";
+import { isAndroid, Label } from "@nativescript/core";
 import * as ActionTypes from "@/store/actions";
-import {Notification} from "@/store/modules/notifications";
+import { Notification } from "@/store/modules/notifications";
 import * as animations from "~/components/animations";
 import NotificationItem from "~/components/NotificationItem.vue";
 import Promise from "bluebird";
@@ -56,11 +62,11 @@ import Promise from "bluebird";
 export default Vue.extend({
     data() {
         return {
-            showMenu: []
+            showMenu: [] as Array<number>,
         };
     },
     components: {
-        NotificationItem
+        NotificationItem,
     },
     computed: {
         isAndroid() {
@@ -70,15 +76,14 @@ export default Vue.extend({
             return this.$store.state.notifications.notifications;
         },
         activeNotifications() {
-            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === "false");
+            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === false);
         },
         dismissedNotifications() {
-            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === "true");
-        }
+            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === true);
+        },
     },
     methods: {
-        onPageLoaded(args) {
-        },
+        onPageLoaded(args) {},
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
             if (isAndroid) {
@@ -91,21 +96,18 @@ export default Vue.extend({
                 lbl.android.setGravity(16);
             }
         },
-        goBack(this:any, event) {
-            return Promise.all([
-                animations.pressed(event),
-                this.$navigateTo(routes.stations, {}),
-            ]);
+        goBack(event) {
+            return Promise.all([animations.pressed(event), this.$navigateTo(routes.stations, {})]);
         },
-        toggleMenu(this: any, notification) {
+        toggleMenu(notification) {
             this.showMenu = this.showMenu.includes(notification.id) ? [] : [notification.id];
         },
-        dismiss(this: any, notification) {
-            this.$store.dispatch(ActionTypes.DISMISS_NOTIFICATION, {key: notification.key, silenced: true});
+        dismiss(notification) {
+            this.$store.dispatch(ActionTypes.DISMISS_NOTIFICATION, { key: notification.key, silenced: true });
         },
-        satisfy(this: any, notification) {
-            this.$store.dispatch(ActionTypes.SATISFY_NOTIFICATION, {key: notification.key});
-        }
+        satisfy(notification) {
+            this.$store.dispatch(ActionTypes.SATISFY_NOTIFICATION, { key: notification.key });
+        },
     },
 });
 </script>

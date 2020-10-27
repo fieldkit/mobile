@@ -1,13 +1,12 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack"
-                        :onSettings="goToSettings"/>
+        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
         <GridLayout :rows="notifications.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
                         <StackLayout orientation="vertical">
-                            <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation"/>
+                            <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
                             <GridLayout
                                 order="2"
                                 rows="auto"
@@ -16,8 +15,7 @@
                                 @tap="goToFieldNotes"
                             >
                                 <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
-                                <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10"
-                                       verticalAlignment="middle"/>
+                                <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
                                 <Label
                                     col="2"
                                     :text="notes.completed + '% ' + _L('complete')"
@@ -26,7 +24,7 @@
                                     v-if="notes.completed && notes.completed > 0"
                                 />
                             </GridLayout>
-                            <ModuleList order="3" :station="currentStation"/>
+                            <ModuleList order="3" :station="currentStation" />
                         </StackLayout>
                     </GridLayout>
 
@@ -34,16 +32,15 @@
                         <GridLayout top="75" width="100%">
                             <StackLayout class="deployed-dialog-container">
                                 <Image width="60" src="~/images/Icon_Success.png"></Image>
-                                <Label :text="_L('stationDeployed')" class="deployed-dialog-text"/>
+                                <Label :text="_L('stationDeployed')" class="deployed-dialog-text" />
                             </StackLayout>
                         </GridLayout>
                     </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
 
-            <NotificationFooter row="1" :onClose="goToDetail" :notifications="notifications"
-                                v-if="notifications.length > 0"/>
-            <ScreenFooter :row="notifications.length > 0 ? '2' : '1'" active="stations"/>
+            <NotificationFooter row="1" :onClose="goToDetail" :notifications="notifications" v-if="notifications.length > 0" />
+            <ScreenFooter :row="notifications.length > 0 ? '2' : '1'" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -51,11 +48,11 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import {promiseAfter} from "@/utilities";
+import { promiseAfter } from "@/utilities";
 
 import * as animations from "./animations";
 
-import {Station, Notes} from "@/store";
+import { Station, Notes } from "@/store";
 
 import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
@@ -80,16 +77,16 @@ export default Vue.extend({
         };
     },
     computed: {
-        notifications(this: any): string[] {
+        notifications(): string[] {
             return this.$store.state.notifications.notifications;
         },
-        isDeployed(this: any): boolean {
+        isDeployed(): boolean {
             return this.currentStation.deployStartTime != null;
         },
-        notes(this: any): Notes {
+        notes(): Notes {
             return this.$store.state.notes.stations[this.stationId];
         },
-        currentStation(this: any): Station {
+        currentStation(): Station {
             if (!this.$store.getters.legacyStations) {
                 throw new Error(`missing legacyStations`);
             }
@@ -110,7 +107,7 @@ export default Vue.extend({
 
             console.log("loaded station detail", this.stationId);
         },
-        goBack(ev: any): Promise<any> {
+        goBack(ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
@@ -125,14 +122,14 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDeploy(ev: any): Promise<any> {
+        goToDeploy() {
             return this.$navigateTo(routes.deploy.start, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goToFieldNotes(): Promise<any> {
+        goToFieldNotes() {
             return this.$navigateTo(routes.deploy.notes, {
                 props: {
                     stationId: this.stationId,
@@ -140,7 +137,7 @@ export default Vue.extend({
                 },
             });
         },
-        goToSettings(ev: any): Promise<any> {
+        goToSettings(ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
@@ -151,7 +148,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDetail(ev: any): Promise<any> {
+        goToDetail(ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -161,22 +158,23 @@ export default Vue.extend({
                 }),
             ]);
         },
-        completeSetup(): Promise<any> {
+        completeSetup() {
             if (this.redirectedFromDeploy) {
                 this.newlyDeployed = true;
 
-                this.$store.dispatch(ActionTypes.ADD_NOTIFICATION, {
-                    key: `${this.$store.state.portal.currentUser.id}/${this.currentStation.id}/station-deployed`,
-                    kind: "station-deployed",
-                    created: new Date(),
-                    silenced: "false",
-                    project: {},
-                    user: this.$store.state.portal.currentUser,
-                    station: this.currentStation,
-                    actions: {}
-                });
-
-                return promiseAfter(3000).then(() => {
+                return Promise.all([
+                    this.$store.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                        key: `${this.$store.state.portal.currentUser.id}/${this.currentStation.id}/station-deployed`,
+                        kind: "station-deployed",
+                        created: new Date(),
+                        silenced: "false",
+                        project: {},
+                        user: this.$store.state.portal.currentUser,
+                        station: this.currentStation,
+                        actions: {},
+                    }),
+                    promiseAfter(3000)
+                ]).then(() => {
                     this.newlyDeployed = false;
                 });
             }
