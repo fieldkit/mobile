@@ -3,13 +3,13 @@
         <GridLayout rows="auto,*,80">
             <GridLayout row="0" rows="auto,auto" columns="*" class="">
                 <StackLayout row="0" verticalAlignment="middle">
-                    <ConnectionStatusHeader :connected="currentStation.connected"/>
+                    <ConnectionStatusHeader :connected="currentStation.connected" />
                     <Label class="m-y-20 title text-center" :text="currentStation.name" textWrap="true"></Label>
                 </StackLayout>
                 <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
-                    <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png"/>
-                    <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')"/>
-                    <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')"/>
+                    <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" />
+                    <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
+                    <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')" />
                 </GridLayout>
             </GridLayout>
             <StackLayout row="1">
@@ -28,10 +28,9 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import AppSettings from "@/wrappers/app-settings";
 import * as animations from "../animations";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
-import {Station} from "~/store";
+import { Station } from "~/store";
 
 export default Vue.extend({
     props: {
@@ -46,32 +45,31 @@ export default Vue.extend({
             instruction: "",
             buttonText: "",
             frameImage: "",
-            displayFrame: null,
-            noImageText: null,
+            displayFrame: "",
+            animateFrameTimer: 0,
         };
     },
+
     components: {
-        ConnectionStatusHeader
+        ConnectionStatusHeader,
     },
     computed: {
-        currentStation(this: any): Station {
+        currentStation(): Station {
             return this.$store.getters.stationCalibrations[this.stationId];
         },
     },
     methods: {
         onPageLoaded(this: any) {
-            console.log
-            this._appSettings = new AppSettings();
             this.animateFrames();
 
             if (!this.animateFrameTimer) {
                 this.animateFrameTimer = setInterval(this.animateFrames, 1000);
             }
         },
-        onUnloaded(this: any) {
+        onUnloaded() {
             this.stopAnimation();
         },
-        goNext(this: any, ev) {
+        goNext(ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.onboarding.recalibrate, {
@@ -79,18 +77,16 @@ export default Vue.extend({
                     props: {
                         stationId: this.currentStation.id,
                     },
-
-                })]);
+                }),
+            ]);
         },
         stopAnimation(this: any) {
-            this.displayFrame = null;
+            this.displayFrame = "";
             clearInterval(this.animateFrameTimer);
-            this.animateFrameTimer = null;
         },
-        animateFrames(this: any) {
-            this.frameImage =
-                this.frameImage == "TI_4-A.jpg" ? "TI_4-B.jpg" : "TI_4-A.jpg";
-            this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : null;
+        animateFrames() {
+            this.frameImage = this.frameImage == "TI_4-A.jpg" ? "TI_4-B.jpg" : "TI_4-A.jpg";
+            this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : "";
         },
     },
 });

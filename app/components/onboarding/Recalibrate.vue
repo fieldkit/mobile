@@ -3,7 +3,7 @@
         <GridLayout rows="auto,*,140">
             <GridLayout row="0" rows="auto,auto" columns="*" class="">
                 <StackLayout row="0" verticalAlignment="middle">
-                    <ConnectionStatusHeader :connected="currentStation.connected"/>
+                    <ConnectionStatusHeader :connected="currentStation.connected" />
                     <Label class="m-y-20 title text-center" :text="currentStation.name" textWrap="true"></Label>
                 </StackLayout>
                 <GridLayout row="1" rows="auto, auto" columns="*,*" width="80%" class="m-t-10 m-b-20">
@@ -14,19 +14,19 @@
                         src="~/images/Icon_complete.png"
                         v-if="currentStation.completed && currentStation.modules.length > 0"
                     />
-                    <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" v-else/>
-                    <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')"/>
-                    <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')"/>
+                    <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" v-else />
+                    <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
+                    <Label row="1" col="1" horizontalAlignment="right" :text="_L('setup')" />
                 </GridLayout>
             </GridLayout>
 
             <ScrollView row="1" v-if="currentStation.modules.length > 0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <Label class="instruction" :text="_L('startCalibrationStep1')" lineHeight="4" textWrap="true"/>
-                        <Label class="instruction" :text="_L('startCalibrationStep2')" lineHeight="4" textWrap="true"/>
+                        <Label class="instruction" :text="_L('startCalibrationStep1')" lineHeight="4" textWrap="true" />
+                        <Label class="instruction" :text="_L('startCalibrationStep2')" lineHeight="4" textWrap="true" />
 
-                        <CalibratingModules :station="currentStation" @selected="calibrateModule"/>
+                        <CalibratingModules :station="currentStation" @selected="calibrateModule" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -34,26 +34,21 @@
                 <GridLayout rows="auto,30,60,auto,auto" columns="*" class="m-10 text-center">
                     <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
                     <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>
-                    <Label row="2" :text="_L('noModulesAttachedBody')" class="size-16" width="260"
-                           textWrap="true"></Label>
-                    <Button row="3" class="btn btn-primary btn-padded m-30" :text="_L('addModules')"
-                            :isEnabled="true" @tap="addModule"/>
-                    <Label row="4" :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true"/>
+                    <Label row="2" :text="_L('noModulesAttachedBody')" class="size-16" width="260" textWrap="true"></Label>
+                    <Button row="3" class="btn btn-primary btn-padded m-30" :text="_L('addModules')" :isEnabled="true" @tap="addModule" />
+                    <Label row="4" :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
                 </GridLayout>
             </StackLayout>
             <StackLayout row="2" verticalAlignment="bottom" class="m-x-10" v-if="currentStation.modules.length > 0">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" :isEnabled="true"
-                        @tap="goToStations"/>
-                <Label :text="_L('goToStations')" class="skip" @tap="goToStations" textWrap="true"/>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
+                <Label :text="_L('goToStations')" class="skip" @tap="goToStations" textWrap="true" />
             </StackLayout>
 
-            <StackLayout row="0" rowSpan="3" v-if="loading" height="100%" backgroundColor="white"
-                         verticalAlignment="middle">
+            <StackLayout row="0" rowSpan="3" v-if="loading" height="100%" backgroundColor="white" verticalAlignment="middle">
                 <GridLayout rows="auto, auto" columns="*">
                     <StackLayout row="0" id="loading-circle-blue"></StackLayout>
                     <StackLayout row="0" id="loading-circle-white"></StackLayout>
-                    <Label row="1" class="instruction m-t-30" :text="_L('fetchingStationInfo')" lineHeight="4"
-                           textWrap="true"/>
+                    <Label row="1" class="instruction m-t-30" :text="_L('fetchingStationInfo')" lineHeight="4" textWrap="true" />
                 </GridLayout>
             </StackLayout>
         </GridLayout>
@@ -63,10 +58,9 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import {_T} from "@/utilities";
-import {Station} from "@/store/types";
+import { Station } from "@/store/types";
 
-import {ModuleCalibration} from "@/calibration/model";
+import { ModuleCalibration } from "@/calibration/model";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
@@ -89,28 +83,28 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(this: any): Station {
+        currentStation(): Station {
             return this.$store.getters.stationCalibrations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(this: any, args): void {
+        onPageLoaded(args): void {
             console.log("recalibrating", this.stationId);
         },
-        goToStations(this: any): Promise<any> {
+        goToStations() {
             return this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });
         },
-        goToDetails(this: any): Promise<any> {
+        goToDetails() {
             return this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: this.currentStation.id,
                 },
             });
         },
-        calibrateModule(this: any, m: ModuleCalibration): Promise<any> {
+        calibrateModule(m: ModuleCalibration) {
             if (!this.currentStation.connected) {
                 return Promise.resolve();
             }
@@ -123,7 +117,7 @@ export default Vue.extend({
                 },
             });
         },
-        addModule(this: any): Promise<any> {
+        addModule() {
             return this.$navigateTo(routes.onboarding.addModule, {
                 clearHistory: true,
                 props: {
