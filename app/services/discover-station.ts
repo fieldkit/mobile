@@ -230,9 +230,37 @@ export default class DiscoverStation {
     }
 
     public onUdpMessage(message: UdpMessage): Promise<void> {
-        log.info("udp-message:", message);
-        const decoded = this.decodeUdpMessage(message);
-        log.info("udp-decoded:", decoded);
+        try {
+            const decoded = this.decodeUdpMessage(message);
+            log.info("udp-decoded:", decoded);
+
+            const found: FoundService = {
+                name: decoded.deviceId,
+                host: decoded.address,
+                type: "_fk._tcp",
+                port: 80,
+            };
+
+            const key = this.makeKey(found);
+            const station = new Station(found);
+
+            switch (decoded.status) {
+                case fk_app.UdpStatus.UDP_STATUS_ONLINE: {
+                    if (this.stations[key]) {
+                        return Promise.resolve();
+                    }
+                    this.stations[key] = station;
+                    return this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
+                }
+                case fk_app.UdpStatus.UDP_STATUS_BYE: {
+                    return this.store.dispatch(ActionTypes.LOST, { url: station.url, deviceId: station.deviceId }).then(() => {
+                        delete this.stations[key];
+                    });
+                }
+            }
+        } catch (e) {
+            log.error(`error handling udp: ${message} ${e}`);
+        }
         return Promise.resolve();
     }
 
