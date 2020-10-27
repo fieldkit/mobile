@@ -41,6 +41,7 @@ import AppSettingsAccountAdd from "~/components/AppSettingsAccountAddView.vue";
 import AppSettingsAppearance from "~/components/AppSettingsAppearanceView.vue";
 import AppSettingsAppearanceLanguage from "~/components/AppSettingsAppearanceLanguageView.vue";
 import AppSettingsAppearanceFontSize from "~/components/AppSettingsAppearanceFontSizeView.vue";
+import AddModuleView from "~/components/onboarding/AddModuleView.vue";
 
 const routes = {
     login: new Route(Login, { login: true }),
@@ -82,6 +83,7 @@ const routes = {
         rename: new Route(RenameStation, {}),
         reconnecting: new Route(OnboardingReconnecting, {}),
         recalibrate: new Route(Recalibrate, {}),
+        addModule: new Route(AddModuleView, {}),
     },
 
     // Deployment

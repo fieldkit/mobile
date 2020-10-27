@@ -88,6 +88,8 @@ module.exports = {
     reconnectInstruction: "Para volver a conectarse a su estación, ir a la configuración de Wi-Fi del teléfono móvil y seleccionar el nuevo nombre de la estación de conexión Wi-Fi como se muestra en la pantalla de la estación.",
     // Recalibrate.vue
     goToStations: "Ir a las estaciones",
+    noModulesAttachedTitle: "No Modules Attached",
+    noModulesAttachedBody: "Your stations needs modules in order to complete setup, deploy and capture data.",
     // StationSettingsCaptureSchedule.vue
     // StationSettingsConnectionNote.vue
     mustBeConnected: "Nota: Debe estar conectado a la estación para hacer este cambio.",

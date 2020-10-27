@@ -12,7 +12,7 @@
                         colSpan="2"
                         class="m-b-10 m-l-15 m-r-15"
                         src="~/images/Icon_complete.png"
-                        v-if="currentStation.completed"
+                        v-if="currentStation.completed && currentStation.modules.length > 0"
                     />
                     <Image row="0" colSpan="2" class="m-b-10 m-l-15 m-r-15" src="~/images/Icon_incomplete.png" v-else />
                     <Label row="1" col="0" horizontalAlignment="left" :text="_L('connect')" />
@@ -30,9 +30,16 @@
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
-            <StackLayout row="1" v-else><!-- TODO No Modules --></StackLayout>
-
-            <StackLayout row="2" verticalAlignment="bottom" class="m-x-10">
+            <StackLayout row="1" v-else>
+                <GridLayout rows="auto,30,60,auto,auto" columns="*" class="m-10 text-center">
+                    <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
+                    <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>
+                    <Label row="2" :text="_L('noModulesAttachedBody')" class="size-16" width="260" textWrap="true"></Label>
+                    <Button row="3" class="btn btn-primary btn-padded m-30" :text="_L('addModules')" :isEnabled="true" @tap="addModule" />
+                    <Label row="4" :text="_L('skipStep')" class="skip" @tap="goToDetails" textWrap="true" />
+                </GridLayout>
+            </StackLayout>
+            <StackLayout row="2" verticalAlignment="bottom" class="m-x-10" v-if="currentStation.modules.length > 0">
                 <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" :isEnabled="true" @tap="goToStations" />
                 <Label :text="_L('goToStations')" class="skip" @tap="goToStations" textWrap="true" />
             </StackLayout>
@@ -51,7 +58,6 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { _T } from "@/utilities";
 import { Station } from "@/store/types";
 
 import { ModuleCalibration } from "@/calibration/model";
@@ -77,21 +83,28 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(this: any): Station {
+        currentStation(): Station {
             return this.$store.getters.stationCalibrations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(this: any, args): void {
+        onPageLoaded(args): void {
             console.log("recalibrating", this.stationId);
         },
-        goToStations(this: any): Promise<any> {
+        goToStations() {
             return this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });
         },
-        calibrateModule(this: any, m: ModuleCalibration): Promise<any> {
+        goToDetails() {
+            return this.$navigateTo(routes.stationDetail, {
+                props: {
+                    stationId: this.currentStation.id,
+                },
+            });
+        },
+        calibrateModule(m: ModuleCalibration) {
             if (!this.currentStation.connected) {
                 return Promise.resolve();
             }
@@ -101,6 +114,14 @@ export default Vue.extend({
                     stationId: this.stationId,
                     position: m.position,
                     fromSettings: false,
+                },
+            });
+        },
+        addModule() {
+            return this.$navigateTo(routes.onboarding.addModule, {
+                clearHistory: true,
+                props: {
+                    stationId: this.stationId,
                 },
             });
         },
@@ -119,13 +140,16 @@ export default Vue.extend({
     border-width: 2;
     border-radius: 60%;
 }
+
 #loading-circle-white {
     border-color: $fk-gray-white;
     clip-path: circle(100% at 50% 0);
 }
+
 #loading-circle-blue {
     border-color: $fk-secondary-blue;
 }
+
 .skip {
     padding-top: 10;
     padding-bottom: 10;
@@ -135,6 +159,7 @@ export default Vue.extend({
     text-align: center;
     margin: 10;
 }
+
 .instruction {
     color: $fk-primary-black;
     text-align: center;
@@ -143,5 +168,10 @@ export default Vue.extend({
     margin-bottom: 10;
     margin-right: 30;
     margin-left: 30;
+}
+
+.small {
+    width: 50;
+    margin: 20;
 }
 </style>

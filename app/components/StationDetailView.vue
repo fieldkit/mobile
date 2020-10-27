@@ -25,6 +25,23 @@
                                 />
                             </GridLayout>
                             <ModuleList order="3" :station="currentStation" />
+                            <GridLayout
+                                rows="auto,30,60,auto"
+                                columns="*"
+                                class="m-10 text-center bordered-container p-b-20"
+                                v-if="currentStation.modules.length === 0"
+                            >
+                                <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
+                                <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>
+                                <Label row="2" :text="_L('noModulesAttachedBody')" class="size-16" width="260" textWrap="true"></Label>
+                                <Button
+                                    row="3"
+                                    class="btn btn-primary btn-padded m-30"
+                                    :text="_L('addModules')"
+                                    :isEnabled="true"
+                                    @tap="addModule"
+                                />
+                            </GridLayout>
                         </StackLayout>
                     </GridLayout>
 
@@ -104,14 +121,14 @@ export default Vue.extend({
         NotificationFooter,
     },
     methods: {
-        onPageLoaded(this: any, args): void {
+        onPageLoaded(args): void {
             console.log("loading station detail");
 
             this.completeSetup();
 
             console.log("loaded station detail", this.stationId);
         },
-        goBack(ev: any): Promise<any> {
+        goBack(ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
@@ -126,14 +143,14 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDeploy(ev: any): Promise<any> {
+        goToDeploy(ev) {
             return this.$navigateTo(routes.deploy.start, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goToFieldNotes(): Promise<any> {
+        goToFieldNotes() {
             return this.$navigateTo(routes.deploy.notes, {
                 props: {
                     stationId: this.stationId,
@@ -141,7 +158,7 @@ export default Vue.extend({
                 },
             });
         },
-        goToSettings(ev: any): Promise<any> {
+        goToSettings(ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
@@ -152,7 +169,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDetail(ev: any): Promise<any> {
+        goToDetail(ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
@@ -162,7 +179,7 @@ export default Vue.extend({
                 }),
             ]);
         },
-        completeSetup(): Promise<any> {
+        completeSetup() {
             if (this.redirectedFromDeploy) {
                 this.newlyDeployed = true;
                 return promiseAfter(3000).then(() => {
@@ -174,6 +191,14 @@ export default Vue.extend({
         },
         getDeployedStatus(): string {
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
+        },
+        addModule() {
+            return this.$navigateTo(routes.onboarding.addModule, {
+                clearHistory: true,
+                props: {
+                    stationId: this.stationId,
+                },
+            });
         },
     },
 });
@@ -187,6 +212,7 @@ export default Vue.extend({
     border-color: $fk-gray-lighter;
     border-width: 1;
 }
+
 .blue {
     color: $fk-primary-blue;
 }
@@ -200,8 +226,14 @@ export default Vue.extend({
     height: 225;
     padding-top: 50;
 }
+
 .deployed-dialog-text {
     margin-top: 20;
     font-size: 18;
+}
+
+.small {
+    width: 50;
+    margin: 20;
 }
 </style>
