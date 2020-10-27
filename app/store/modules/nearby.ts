@@ -16,6 +16,34 @@ export class NearbyState {
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 
+class NearbyWrapper {
+    constructor(private readonly state: NearbyState) {}
+
+    public queriedRecentlyByDeviceId(deviceId: string): boolean {
+        const nearby = this.state.stations[deviceId];
+        if (!nearby) {
+            return false;
+        }
+        return this.queriedRecently(nearby);
+    }
+
+    public queriedRecently(nearby: NearbyStation): boolean {
+        if (nearby.transferring) {
+            return true;
+        }
+        const mark = nearby.activity.getTime() > nearby.queried.getTime() ? nearby.activity : nearby.queried;
+        const now = new Date();
+        const elapsed = now.getTime() - mark.getTime();
+        return elapsed < nearby.delay;
+    }
+
+    public needsQuerying(): NearbyStation[] {
+        return Object.values(this.state.stations).filter((nearby: NearbyStation) => {
+            return !this.queriedRecently(nearby);
+        });
+    }
+}
+
 type ActionParameters = ActionContext<NearbyState, never>;
 
 const actions = (services: ServiceRef) => {
@@ -54,6 +82,10 @@ const actions = (services: ServiceRef) => {
             ).then(() => dispatch(ActionTypes.QUERY_NECESSARY));
         },
         [ActionTypes.FOUND]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
+            const wrapper = new NearbyWrapper(state);
+            if (wrapper.queriedRecentlyByDeviceId(info.deviceId)) {
+                return;
+            }
             commit(MutationTypes.FIND, info);
             return dispatch(ActionTypes.QUERY_STATION, info);
         },
@@ -113,24 +145,14 @@ const actions = (services: ServiceRef) => {
                 );
         },
         [ActionTypes.QUERY_NECESSARY]: ({ commit, dispatch, state }: ActionParameters) => {
+            const wrapper = new NearbyWrapper(state);
             return Promise.all(
-                Object.values(state.stations)
-                    .filter((nearby: NearbyStation) => {
-                        if (nearby.transferring) {
-                            return false;
-                        }
-                        const mark = nearby.activity.getTime() > nearby.queried.getTime() ? nearby.activity : nearby.queried;
-                        const now = new Date();
-                        const elapsed = now.getTime() - mark.getTime();
-                        const querying = elapsed > nearby.delay;
-                        return querying;
-                    })
-                    .map((nearby: NearbyStation) =>
-                        dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
-                            (reply) => nearby.success(),
-                            (error) => nearby.failure()
-                        )
+                wrapper.needsQuerying().map((nearby: NearbyStation) =>
+                    dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
+                        (reply) => nearby.success(),
+                        (error) => nearby.failure()
                     )
+                )
             );
         },
         [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; name: string }) => {
