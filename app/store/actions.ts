@@ -8,10 +8,8 @@ export const STATIONS_LOADED = "STATIONS_LOADED";
 
 export const FOUND = "FOUND";
 export const MAYBE_LOST = "MAYBE_LOST";
-export const PROBABLY_LOST = "PROBABLY_LOST";
 export const LOST = "LOST";
 
-export const QUERY_ALL = "QUERY_ALL";
 export const QUERY_NECESSARY = "QUERY_NECESSARY";
 export const QUERY_STATION = "QUERY_STATION";
 export const TRY_STATION = "TRY_STATION";

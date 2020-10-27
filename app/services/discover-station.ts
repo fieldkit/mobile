@@ -9,7 +9,7 @@ import Config from "@/config";
 
 const log = Config.logger("DiscoverStation");
 
-export interface DecodedUdpMessage {
+interface DecodedUdpMessage {
     readonly address: string;
     readonly deviceId: string;
     readonly status: fk_app.UdpStatus;
@@ -126,7 +126,7 @@ class NetworkMonitor {
 }
 
 export default class DiscoverStation {
-    protected readonly networkMonitor: NetworkMonitor;
+    private readonly networkMonitor: NetworkMonitor;
     private readonly store: OurStore;
     private readonly conservify: Conservify;
     private monitoring = false;
