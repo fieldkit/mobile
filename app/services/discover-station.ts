@@ -1,4 +1,5 @@
 import Bluebird from "bluebird";
+import { Device } from "@nativescript/core";
 import { Services, OurStore } from "@/services";
 import { Connectivity } from "@/wrappers/connectivity";
 import { promiseAfter } from "@/utilities";
@@ -164,7 +165,7 @@ export default class DiscoverStation {
             return Promise.resolve();
         }
         this.monitoring = true;
-        return this.conservify.start("_fk._tcp");
+        return this.conservify.start("_fk._tcp", Device.uuid, "_fk._tcp");
     }
 
     public stopServiceDiscovery(): Promise<void> {
