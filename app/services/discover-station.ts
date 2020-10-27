@@ -170,10 +170,6 @@ export default class DiscoverStation {
 
         log.info("found service:", info.type, info.name, info.host, info.port, key);
 
-        if (true) {
-            return;
-        }
-
         this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
 
         return;
@@ -182,23 +178,7 @@ export default class DiscoverStation {
     public onLostService(info: LostService): void {
         log.info("lose service (pending):", info.type, info.name, Config.lossBufferDelay);
 
-        if (true) {
-            return;
-        }
-
-        this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name }).then(() => {
-            /*
-            return (this.pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
-                log.info("lose service (final):", info.type, info.name);
-
-                // delete this.pending[key];
-
-                return this.store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }).then(() => {
-                    // delete this.stations[key];
-                });
-            }));
-*/
-        });
+        this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name });
 
         return;
     }
