@@ -14,6 +14,7 @@ import AudioInterface from "./audio-interface";
 import { TaskQueue } from "@/lib/tasks";
 import FileSystem from "@/wrappers/file-system";
 import Conservify from "@/wrappers/networking";
+import { DiscoveryEvents } from "./discovery-events";
 
 export {
     PortalInterface,
@@ -32,4 +33,5 @@ export {
     OurStore,
     FileSystem,
     Conservify,
+    DiscoveryEvents,
 };

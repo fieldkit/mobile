@@ -1,21 +1,31 @@
-import { UdpMessage, ServiceInfo } from "@/store";
+export class UdpMessage {
+    constructor(public readonly address: string, public readonly data: string) {}
+}
+
+export class FoundService {
+    constructor(public readonly type: string, public readonly name: string, public readonly host: string, public readonly port: number) {}
+}
+
+export class LostService {
+    constructor(public readonly type: string, public readonly name: string) {}
+}
 
 export interface DiscoveryListener {
-    onFoundService(info: ServiceInfo): void;
+    onFoundService(info: FoundService): void;
+    onLostService(info: LostService): void;
     onUdpMessage(info: UdpMessage): void;
-    onLostService(info: ServiceInfo): void;
 }
 
 export class DiscoveryEvents implements DiscoveryListener {
     constructor(private readonly listeners: DiscoveryListener[] = []) {}
 
-    public onFoundService(info: ServiceInfo): void {
+    public onFoundService(info: FoundService): void {
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onFoundService(info);
         }
     }
 
-    public onLostService(info: ServiceInfo): void {
+    public onLostService(info: LostService): void {
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i].onLostService(info);
         }

@@ -77,7 +77,7 @@ declare class FileSystem extends NSObject {
     newToken(): string;
 }
 declare class ServiceDiscovery extends NSObject {
-    startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(serviceTypeSearch: string, serviceNameSelf: ?string, serviceTypeSelf: ?string): void;
+    startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(serviceTypeSearch: string | null, serviceNameSelf: string | null, serviceTypeSelf: string | null): void;
 }
 declare class Web extends NSObject {
     simpleWithInfo(info: WebTransfer): string;
@@ -160,7 +160,7 @@ export declare class Conservify implements ActiveTasks, OtherPromises {
     getTask(id: string): any;
     removeTask(id: string): void;
     stop(): Promise<any>;
-    start(serviceTypeSearch: ?string, serviceNameSelf: ?string, serviceTypeSelf: ?string): Promise<any>;
+    start(serviceTypeSearch?: string | null, serviceNameSelf?: string | null, serviceTypeSelf?: string | null): Promise<any>;
     writeSampleData(): Promise<any>;
     open(path: string): Promise<OpenedFile>;
     json(info: TransferInfo): Promise<any>;

@@ -2,11 +2,6 @@ import { decodeAndPrepare, HttpStatusReply, ReplyStream, AtlasStatus } from "./h
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
 
-export interface UdpMessage {
-    readonly address: string;
-    readonly data: string;
-}
-
 export class Sensor {
     constructor(
         public readonly id: number | null,

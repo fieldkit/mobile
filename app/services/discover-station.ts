@@ -1,9 +1,9 @@
 import Bluebird from "bluebird";
 import { Device } from "@nativescript/core";
-import { Services, OurStore } from "@/services";
+import { Conservify, Services, OurStore } from "@/services";
 import { Connectivity } from "@/wrappers/connectivity";
-import { promiseAfter } from "@/utilities";
-import { ActionTypes, MutationTypes, PhoneNetwork, UdpMessage } from "@/store";
+import { ActionTypes, MutationTypes, PhoneNetwork } from "@/store";
+import { FoundService, LostService, UdpMessage } from "@/services";
 import { fk_app } from "fk-app-protocol/fk-app";
 import Config from "@/config";
 
@@ -15,7 +15,7 @@ export interface DecodedUdpMessage {
     readonly status: fk_app.UdpStatus;
 }
 
-class Station {
+class DiscoveredStation {
     public readonly scheme: string = "http";
     public readonly type: string;
     public readonly name: string;
@@ -125,26 +125,15 @@ class NetworkMonitor {
     }
 }
 
-export class FoundService {
-    constructor(public readonly type: string, public readonly name: string, public readonly host: string, public readonly port: number) {}
-}
-
-export class LostService {
-    constructor(public readonly type: string, public readonly name: string) {}
-}
-
 export default class DiscoverStation {
     protected readonly networkMonitor: NetworkMonitor;
     private readonly store: OurStore;
-    private readonly conservify: any;
-    private readonly pending: { [index: string]: any };
-    private stations: { [index: string]: Station } = {};
+    private readonly conservify: Conservify;
     private monitoring = false;
 
-    constructor(services) {
+    constructor(services: Services) {
         this.store = services.Store();
         this.conservify = services.Conservify();
-        this.pending = {};
         this.networkMonitor = new NetworkMonitor(services);
 
         services.DiscoveryEvents().add(this);
@@ -164,58 +153,54 @@ export default class DiscoverStation {
         if (this.monitoring) {
             return Promise.resolve();
         }
+
         this.monitoring = true;
+
         return this.conservify.start("_fk._tcp", Device.uuid, "_fk._tcp");
     }
 
     public stopServiceDiscovery(): Promise<void> {
         this.monitoring = false;
-        this.stations = {};
         return Promise.resolve(this.conservify.stop());
     }
 
-    public onFoundService(info: FoundService): Promise<void> {
+    public onFoundService(info: FoundService): void {
         const key = this.makeKey(info);
-        const station = new Station(info);
+        const station = new DiscoveredStation(info);
 
         log.info("found service:", info.type, info.name, info.host, info.port, key);
 
-        if (this.pending[key]) {
-            log.info("cancel pending loss");
-            this.pending[key].cancel();
-            delete this.pending[key];
+        if (true) {
+            return;
         }
 
-        this.stations[key] = station;
+        this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
 
-        return this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
+        return;
     }
 
-    public onLostService(info: LostService): Promise<void> {
-        const key = this.makeKey(info);
+    public onLostService(info: LostService): void {
+        log.info("lose service (pending):", info.type, info.name, Config.lossBufferDelay);
 
-        if (!this.stations[key]) {
-            log.info("lose service (pending, unknown):", info.type, info.name, Config.lossBufferDelay);
-        } else {
-            log.info("lose service (pending):", info.type, info.name, Config.lossBufferDelay);
+        if (true) {
+            return;
         }
 
-        if (this.pending[key]) {
-            this.pending[key].cancel();
-            delete this.pending[key];
-        }
-
-        return this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name }).then(() => {
+        this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name }).then(() => {
+            /*
             return (this.pending[key] = promiseAfter(Config.lossBufferDelay).then(() => {
                 log.info("lose service (final):", info.type, info.name);
 
-                delete this.pending[key];
+                // delete this.pending[key];
 
                 return this.store.dispatch(ActionTypes.PROBABLY_LOST, { deviceId: info.name }).then(() => {
-                    delete this.stations[key];
+                    // delete this.stations[key];
                 });
             }));
+*/
         });
+
+        return;
     }
 
     private decodeUdpMessage(message: UdpMessage): DecodedUdpMessage {
@@ -232,7 +217,8 @@ export default class DiscoverStation {
     public onUdpMessage(message: UdpMessage): Promise<void> {
         try {
             const decoded = this.decodeUdpMessage(message);
-            log.info("udp-decoded:", decoded);
+
+            log.info("udp-decoded:", JSON.stringify(decoded));
 
             const found: FoundService = {
                 name: decoded.deviceId,
@@ -241,21 +227,14 @@ export default class DiscoverStation {
                 port: 80,
             };
 
-            const key = this.makeKey(found);
-            const station = new Station(found);
+            const station = new DiscoveredStation(found);
 
             switch (decoded.status) {
                 case fk_app.UdpStatus.UDP_STATUS_ONLINE: {
-                    if (this.stations[key]) {
-                        return Promise.resolve();
-                    }
-                    this.stations[key] = station;
                     return this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
                 }
                 case fk_app.UdpStatus.UDP_STATUS_BYE: {
-                    return this.store.dispatch(ActionTypes.LOST, { url: station.url, deviceId: station.deviceId }).then(() => {
-                        delete this.stations[key];
-                    });
+                    return this.store.dispatch(ActionTypes.LOST, { url: station.url, deviceId: station.deviceId });
                 }
             }
         } catch (e) {

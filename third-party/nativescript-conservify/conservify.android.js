@@ -293,6 +293,15 @@ var Conservify = (function () {
     }
     Conservify.prototype.start = function (serviceTypeSearch, serviceNameSelf, serviceTypeSelf) {
         var _this = this;
+        if (serviceTypeSearch === void 0) {
+            serviceTypeSearch = null;
+        }
+        if (serviceNameSelf === void 0) {
+            serviceNameSelf = null;
+        }
+        if (serviceTypeSelf === void 0) {
+            serviceTypeSelf = null;
+        }
         return new Promise(function (resolve, reject) {
             _this.started = {
                 resolve: resolve,

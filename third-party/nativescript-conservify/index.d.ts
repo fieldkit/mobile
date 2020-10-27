@@ -25,7 +25,12 @@ export declare interface TransferInfo {
 
 export declare class Conservify extends Common {
     constructor(discoveryEvents: DiscoveryEvents, logger: LoggerFunc);
-    start(serviceType: TransferInfo): Promise<any>;
+    start(
+        serviceTypeSearch: string | null = null,
+        serviceNameSelf: string | null = null,
+        serviceTypeSelf: string | null = null
+    ): Promise<any>;
+    stop(): Promise<any>;
     text(info: TransferInfo): Promise<any>;
     json(info: TransferInfo): Promise<any>;
     protobuf(info: TransferInfo): Promise<any>;

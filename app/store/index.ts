@@ -113,6 +113,10 @@ function customizeLogger() {
                 console.log("action:", action.type);
                 return false;
             }
+            if (action.type == ActionTypes.FOUND || action.type == ActionTypes.LOST) {
+                console.log("action:", action.type, JSON.stringify(action.payload));
+                return false;
+            }
             return true;
         },
         transformer(state) {

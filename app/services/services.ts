@@ -17,11 +17,11 @@ import {
     Conservify,
     FileSystem,
     OurStore,
+    DiscoveryEvents,
 } from "./all";
 
 import storeFactory from "@/store";
 import { Services } from "./interface";
-import { DiscoveryEvents } from "./discovery-events";
 
 export class ServiceFactories {
     public createFileSystem(): FileSystem {

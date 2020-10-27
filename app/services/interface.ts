@@ -15,6 +15,7 @@ import {
     Conservify,
     FileSystem,
     OurStore,
+    DiscoveryEvents,
 } from "./all";
 
 export interface Services {
@@ -34,4 +35,5 @@ export interface Services {
     CalibrationService(): CalibrationService;
     CreateDb(): CreateDb;
     PhoneLocation(): PhoneLocation;
+    DiscoveryEvents(): DiscoveryEvents;
 }
