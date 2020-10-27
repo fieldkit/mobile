@@ -168,6 +168,11 @@ export default class DiscoverStation {
         const key = this.makeKey(info);
         const station = new DiscoveredStation(info);
 
+        if (info.port != 80) {
+            log.info("ignoring service:", info.type, info.name, info.host, info.port, key);
+            return;
+        }
+
         log.info("found service:", info.type, info.name, info.host, info.port, key);
 
         this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
