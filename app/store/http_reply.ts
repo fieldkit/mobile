@@ -118,6 +118,20 @@ export interface ReplyStream {
     name: string;
 }
 
+export interface NetworkInfo {
+    ssid: string;
+    password: string;
+    create?: boolean;
+    preferred?: boolean;
+}
+
+export interface NetworkSettings {
+    createAccessPoint: number;
+    connected: NetworkInfo;
+    macAddress: string;
+    networks: NetworkInfo[];
+}
+
 export interface HttpStatusReply {
     type: fk_app.ReplyType;
     status: ReplyStatus;
@@ -125,6 +139,7 @@ export interface HttpStatusReply {
     liveReadings: LiveReadings[];
     schedules: ReplySchedules;
     streams: ReplyStream[];
+    networkSettings: NetworkSettings;
     serialized: string;
     errors: any[];
 }

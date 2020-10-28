@@ -1,6 +1,6 @@
 import * as ActionTypes from "./actions";
 import { ServiceInfo } from "@/store/types";
-import { HttpStatusReply } from "@/store/http_reply";
+import { NetworkInfo, HttpStatusReply } from "@/store/http_reply";
 
 export class AddStationNetworkAction {
     type = ActionTypes.CONFIGURE_STATION_NETWORK;
@@ -38,4 +38,22 @@ export class StationRepliedAction {
     type = ActionTypes.STATION_REPLY;
 
     constructor(public readonly statusReply: HttpStatusReply, public readonly url: string) {}
+}
+
+export class ConfigureStationNetworks {
+    type = ActionTypes.CONFIGURE_STATION_NETWORK;
+
+    constructor(public readonly deviceId: string, public readonly networks: NetworkInfo[]) {}
+}
+
+export class AddStationNetwork {
+    type = ActionTypes.CONFIGURE_STATION_ADD_NETWORK;
+
+    constructor(public readonly deviceId: string, public readonly network: NetworkInfo) {}
+}
+
+export class RemoveStationNetwork {
+    type = ActionTypes.CONFIGURE_STATION_REMOVE_NETWORK;
+
+    constructor(public readonly deviceId: string, public readonly network: NetworkInfo) {}
 }
