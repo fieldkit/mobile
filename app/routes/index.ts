@@ -6,6 +6,7 @@ import Login from "../components/LoginView.vue";
 import StationDetail from "../components/StationDetailView.vue";
 import StationListView from "../components/StationListView.vue";
 import StationSettings from "../components/settings/StationSettingsView.vue";
+import StationSettingsWiFiNetworks from "../components/settings/StationSettingsWiFiNetwork.vue";
 
 import CalibrateStart from "../calibration/Start.vue";
 
@@ -70,6 +71,12 @@ const routes = {
     // Per station
     stationDetail: new Route(StationDetail, { reading: true, station: true }),
     stationSettings: new Route(StationSettings, {}),
+
+    station: {
+        settings: {
+            wifiNetworks: new Route(StationSettingsWiFiNetworks, {}),
+        },
+    },
 
     // Onboarding
     onboarding: {
