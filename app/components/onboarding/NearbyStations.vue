@@ -27,7 +27,7 @@
                                         onTintColor="#2C3E50"
                                         fontSize="18"
                                         boxType="circle"
-                                        @checkedChange="$event.value !== station.selected && onCheckChange($event.value)"
+                                        @checkedChange="$event.value !== station.selected && onCheckChange(station.id)"
                                     />
                                     <Label col="1" class="m-t-5 m-l-5" :text="station.name"></Label>
                                 </GridLayout>
