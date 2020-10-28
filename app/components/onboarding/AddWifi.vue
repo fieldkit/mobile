@@ -99,7 +99,14 @@ export default Vue.extend({
         addNetwork(this: any) {
             this.busy = true;
 
-            const action = new AddStationNetworkAction(this.currentStation.deviceId, this.form.ssid, this.form.password);
+            const action = new AddStationNetworkAction(
+                this.currentStation.deviceId,
+                {
+                    ssid: this.form.ssid,
+                    password: this.form.password,
+                },
+                []
+            );
             return this.$store.dispatch(action).then(
                 () => {
                     return this.$navigateTo(routes.onboarding.rename, {

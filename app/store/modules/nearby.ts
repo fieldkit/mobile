@@ -5,7 +5,14 @@ import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations, Schedules } from "../types";
-import { StationRepliedAction, AddStationNetworkAction, TryStationAction, TryStationOnceAction } from "@/store/typed-actions";
+import {
+    StationRepliedAction,
+    ConfigureStationNetworksAction,
+    RemoveStationNetworkAction,
+    AddStationNetworkAction,
+    TryStationAction,
+    TryStationOnceAction,
+} from "@/store/typed-actions";
 import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
@@ -177,22 +184,33 @@ const actions = (services: ServiceRef) => {
                     }
                 );
         },
-        [ActionTypes.CONFIGURE_STATION_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: AddStationNetworkAction) => {
+        [ActionTypes.CONFIGURE_STATION_ADD_NETWORK]: ({ commit, dispatch, state }: ActionParameters, payload: AddStationNetworkAction) => {
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
+            const setting = _.take([payload.adding, ...payload.networks], 2);
+            return dispatch(new ConfigureStationNetworksAction(payload.deviceId, setting));
+        },
+        [ActionTypes.CONFIGURE_STATION_REMOVE_NETWORK]: (
+            { commit, dispatch, state }: ActionParameters,
+            payload: RemoveStationNetworkAction
+        ) => {
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
+            const setting = payload.networks.filter((n) => n.ssid != payload.removing.ssid);
+            return dispatch(new ConfigureStationNetworksAction(payload.deviceId, setting));
+        },
+        [ActionTypes.CONFIGURE_STATION_SET_NETWORKS]: (
+            { commit, dispatch, state }: ActionParameters,
+            payload: ConfigureStationNetworksAction
+        ) => {
             if (!payload?.deviceId) throw new Error("no nearby info");
             const info = state.stations[payload.deviceId];
             if (!info) throw new Error("no nearby info");
 
-            const networks = [
-                {
-                    ssid: payload.ssid,
-                    password: payload.password,
-                },
-            ];
-
             commit(MutationTypes.STATION_QUERIED, info);
             return services
                 .queryStation()
-                .sendNetworkSettings(info.url, networks)
+                .sendNetworkSettings(info.url, payload.networks)
                 .then(
                     (statusReply) => {
                         commit(MutationTypes.STATION_ACTIVITY, info);

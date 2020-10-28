@@ -1,24 +1,20 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('wifiNetwork')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
-                    <!-- add/remove networks -->
                     <StackLayout class="m-x-10">
-                        <!-- known wifi networks -->
                         <WrapLayout orientation="horizontal" class="networks-container">
-                            <Label :text="_L('savedNetworks')" class="size-20" width="100%"></Label>
-                            <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0"></Label>
-                            <!-- wifi radio buttons -->
+                            <Label :text="_L('savedNetworks')" class="size-20" width="100%" />
+                            <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0" />
                             <GridLayout rows="auto" columns="0,*,30" v-for="n in networks" :key="n.ssid" class="m-10">
-                                <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid"></Label>
+                                <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid" />
                                 <Image row="0" col="2" src="~/images/Icon_Close.png" width="17" @tap="(ev) => removeNetwork(n)" />
                             </GridLayout>
-                            <!-- end radio buttons -->
                         </WrapLayout>
 
-                        <StackLayout v-show="networks.length == maxNetworks" class="m-t-20 m-x-10 gray-bkgd">
+                        <StackLayout v-show="networks.length == maximumNetworks" class="m-t-20 m-x-10 gray-bkgd">
                             <Label :text="_L('maxTwoNetworksWarning')" textWrap="true" />
                         </StackLayout>
 
@@ -27,30 +23,28 @@
                             rows="auto"
                             columns="10*,90*"
                             @tap="showNetworkForm"
-                            :class="'m-t-20 ' + (networks.length == maxNetworks ? 'disabled' : '')"
+                            :class="'m-t-20 ' + (networks.length == maximumNetworks ? 'disabled' : '')"
                         >
-                            <Image col="0" src="~/images/Icon_Add_Button.png" width="20"></Image>
-                            <Label col="1" :text="_L('addNetwork')" class="size-16"></Label>
+                            <Image col="0" src="~/images/Icon_Add_Button.png" width="20" />
+                            <Label col="1" :text="_L('addNetwork')" class="size-16" />
                         </GridLayout>
 
                         <StackLayout v-show="addingNetwork" class="m-t-20">
-                            <!-- ssid -->
                             <TextField
                                 class="size-18 p-x-20 m-t-20 input"
                                 :hint="_L('networkNameHint')"
                                 autocorrect="false"
                                 autocapitalizationType="none"
-                                v-model="newNetwork.ssid"
-                            ></TextField>
+                                v-model="form.ssid"
+                            />
 
-                            <!-- password -->
                             <GridLayout rows="auto" columns="*,42" class="input m-t-20">
                                 <Label
                                     row="0"
                                     colSpan="2"
                                     :text="_L('networkPasswordHint')"
                                     class="size-18 hint"
-                                    :opacity="newNetwork.password.length == 0 ? 1 : 0"
+                                    :opacity="form.password.length == 0 ? 1 : 0"
                                 />
                                 <TextField
                                     row="0"
@@ -58,29 +52,30 @@
                                     class="size-18 no-border-input"
                                     :secure="hidePassword"
                                     ref="password"
-                                    v-model="newNetwork.password"
-                                ></TextField>
+                                    v-model="form.password"
+                                />
                                 <Label
                                     row="0"
                                     col="1"
-                                    :text="passwordVisibility"
+                                    :text="hidePassword ? _L('show') : _L('hide')"
                                     class="size-16"
                                     verticalAlignment="middle"
-                                    :opacity="newNetwork.password.length > 0 ? 1 : 0"
+                                    :opacity="form.password.length > 0 ? 1 : 0"
                                     @tap="togglePassword"
                                 />
                             </GridLayout>
                         </StackLayout>
                         <StackLayout class="p-b-20"></StackLayout>
-                        <!-- make this visible all the time again when radio buttons are reactivated -->
+
                         <Button
                             v-show="addingNetwork"
                             class="btn btn-primary btn-padded"
                             :text="_L('save')"
                             :isEnabled="station.connected"
                             @tap="addNetwork"
-                        ></Button>
+                        />
 
+                        <!--
                         <ConnectionNote :station="station" :stationId="stationId" />
 
                         <StackLayout class="section-border">
@@ -92,6 +87,7 @@
                                 @tap="uploadOverWifi"
                             />
                         </StackLayout>
+						-->
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -102,37 +98,39 @@
 </template>
 
 <script lang="ts">
+import _ from "lodash";
 import Vue from "vue";
+import { Dialogs } from "@nativescript/core";
 import * as animations from "@/components/animations";
 
 import SharedComponents from "@/components/shared";
-import WiFi from "./StationSettingsWiFi.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
+import WiFi from "./StationSettingsWiFi.vue";
 
-import { Dialogs } from "@nativescript/core";
+import { Station, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 
 export default Vue.extend({
-    data() {
+    data(): {
+        addingNetwork: boolean;
+        hidePassword: boolean;
+        form: {
+            ssid: string;
+            password: string;
+        };
+    } {
         return {
-            maxNetworks: 2,
-            networks: [],
-            newNetwork: { ssid: "", password: "" },
+            form: {
+                ssid: "",
+                password: "",
+            },
             addingNetwork: false,
             hidePassword: true,
-            passwordVisibility: _L("show"),
-            wifiUpload: false,
-            wifiUploadText: "",
-            wifiUploadButton: "",
         };
     },
     props: {
         stationId: {
-            required: true,
             type: Number,
-        },
-        station: {
             required: true,
-            type: Object,
         },
     },
     components: {
@@ -140,24 +138,19 @@ export default Vue.extend({
         WiFi,
         ConnectionNote,
     },
+    computed: {
+        maximumNetworks(): number {
+            return 2;
+        },
+        station(): Station {
+            return this.$store.getters.stationsById[this.stationId];
+        },
+        networks(): NetworkInfo[] {
+            return this.station.networks;
+        },
+    },
     methods: {
-        onPageLoaded(this: any, args) {
-            this.page = args.object;
-
-            const deviceStatus = this.station.statusJson;
-            if (deviceStatus && deviceStatus.networkSettings) {
-                this.networks = deviceStatus.networkSettings.networks.map((n) => {
-                    n.selected = false;
-                    return n;
-                });
-            }
-            this.deviceStatus = deviceStatus;
-            this.setWifiUploadStatus(deviceStatus);
-        },
-        selectFromMenu(this: any, ev: any) {
-            return animations.pressed(ev);
-        },
-        goBack(this: any, ev: any) {
+        goBack(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(WiFi, {
@@ -173,140 +166,34 @@ export default Vue.extend({
                 }),
             ]);
         },
-        uploadOverWifi(this: any) {
-            if (this.wifiUpload) {
-                return this.$services
-                    .QueryStation()
-                    .uploadViaApp(this.station.url)
-                    .then((result) => {
-                        return this.setWifiUploadStatus(result).then(() => {
-                            return alert({
-                                title: _L("done"),
-                                message: _L("uploadConfigUpdated"),
-                                okButtonText: _L("ok"),
-                            });
-                        });
-                    });
-            } else {
-                return this.$services
-                    .PortalInterface()
-                    .getTransmissionToken()
-                    .then((upload) => {
-                        return this.$services
-                            .QueryStation()
-                            .uploadOverWifi(this.station.url, upload.url, upload.token)
-                            .then((result) => {
-                                return this.setWifiUploadStatus(result).then(() => {
-                                    return alert({
-                                        title: _L("done"),
-                                        message: _L("uploadConfigUpdated"),
-                                        okButtonText: _L("ok"),
-                                    });
-                                });
-                            });
-                    })
-                    .catch((e) => {
-                        console.log(`error: ${e}`);
-                        return Promise.resolve(true).then((online) => {
-                            if (online) {
-                                return alert({
-                                    title: _L("unableToUpdate"),
-                                    message: _L("pleaseLogin"),
-                                    okButtonText: _L("ok"),
-                                });
-                            } else {
-                                return alert({
-                                    title: _L("unableToUpdate"),
-                                    message: _L("noteNeedInternet"),
-                                    okButtonText: _L("ok"),
-                                });
-                            }
-                        });
-                    });
+        showNetworkForm(): void {
+            if (this.networks.length < this.maximumNetworks) {
+                this.addingNetwork = true;
             }
         },
-        setWifiUploadStatus(this: any, status) {
-            this.deviceStatus.transmission = status.transmission;
-            if (status && status.transmission && status.transmission.wifi.enabled) {
-                this.wifiUpload = true;
-                this.wifiUploadText = _L("configuredToUploadDirectly");
-                this.wifiUploadButton = _L("uploadViaApp");
-            } else {
-                this.wifiUpload = false;
-                this.wifiUploadText = _L("noteUploadDirectlyOption");
-                this.wifiUploadButton = _L("uploadOverWifi");
-            }
-            return Promise.resolve();
-        },
-        showNetworkForm(this: any, event) {
-            if (this.networks.length == this.maxNetworks) {
-                return;
-            }
-            this.addingNetwork = true;
-        },
-        addNetwork(this: any, event) {
+        addNetwork(): Promise<any> {
             this.addingNetwork = false;
-            let network = {
-                ssid: this.newNetwork.ssid,
-                password: this.newNetwork.password,
+            const adding = _.clone(this.form);
+            this.form = {
+                ssid: "",
+                password: "",
             };
-            let index = this.networks.findIndex((n) => {
-                return n.ssid == network.ssid;
-            });
-            if (index > -1) {
-                // replace if it's already present
-                this.networks[index].password = network.password;
-            } else {
-                // otherwise add it
-                this.networks.push(network);
-            }
-
-            return this.$services
-                .QueryStation()
-                .sendNetworkSettings(this.station.url, this.networks)
-                .then((result) => {
-                    this.networks = result.networkSettings.networks;
-                    // in order to match in the interim, must edit station.statusJson
-                    this.deviceStatus.networkSettings = result.networkSettings;
-                    this.station.statusJson = this.deviceStatus;
-                    this.goBack();
-                });
+            return this.$store.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
         },
-        removeNetwork(this: any, network: { ssid: string }) {
+        removeNetwork(network: NetworkInfo): Promise<void> {
             return Dialogs.confirm({
                 title: _L("areYouSureRemoveNetwork"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("cancel"),
-            }).then((result) => {
-                if (result) {
-                    const index = this.networks.findIndex((n) => {
-                        return n.ssid == network.ssid;
-                    });
-                    if (index > -1) {
-                        this.networks.splice(index, 1);
-                    }
-                    return this.$services
-                        .QueryStation()
-                        .sendNetworkSettings(this.station.url, this.networks)
-                        .then((result) => {
-                            this.networks = result.networkSettings.networks;
-                            // in order to match in the interim, must edit station.statusJson
-                            this.deviceStatus.networkSettings = result.networkSettings;
-                            this.station.statusJson = this.deviceStatus;
-                        });
+            }).then((confirmed) => {
+                if (confirmed) {
+                    return this.$store.dispatch(new RemoveStationNetworkAction(this.station.deviceId, network, this.station.networks));
                 }
+                return Promise.resolve();
             });
         },
-        useNetwork(this: any, event) {
-            const network = this.networks.find((n) => {
-                return n.ssid == event.object.text;
-            });
-            this.newNetwork.ssid = network.ssid;
-            this.newNetwork.password = network.password;
-        },
-        togglePassword(this: any) {
+        togglePassword(): void {
             this.hidePassword = !this.hidePassword;
-            this.passwordVisibility = this.hidePassword ? _L("show") : _L("hide");
         },
     },
 });

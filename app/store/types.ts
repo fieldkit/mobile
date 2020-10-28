@@ -1,4 +1,4 @@
-import { decodeAndPrepare, HttpStatusReply, ReplyStream, AtlasStatus } from "./http_reply";
+import { decodeAndPrepare, HttpStatusReply, ReplyStream, AtlasStatus, NetworkInfo } from "./http_reply";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
 
@@ -327,6 +327,10 @@ export class Station implements StationCreationFields {
         }
         if (!this.decodedStatus) throw new Error("no decoded status");
         return this.decodedStatus;
+    }
+
+    public get networks(): NetworkInfo[] {
+        return this.decodedStatus?.networkSettings?.networks || [];
     }
 
     public firmwareInfo(): FirmwareInfo | null {
