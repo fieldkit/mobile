@@ -343,7 +343,11 @@ const actions = (services: ServiceRef) => {
             return services
                 .db()
                 .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
-                .then((station) => dispatch(ActionTypes.LOAD_STATIONS));
+                .then((station) => dispatch(ActionTypes.LOAD_STATIONS))
+                .catch((err) => {
+                    console.log(`error handling STATION_REPLY: ${err}`);
+                    return Promise.reject(err);
+                });
         },
         [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
             return services

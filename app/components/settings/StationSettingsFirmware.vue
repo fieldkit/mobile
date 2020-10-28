@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('firmware')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
         <GridLayout rows="*,70">
@@ -68,7 +68,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-
+import { FirmwareInfo, AvailableFirmware, LegacyStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
@@ -79,7 +79,13 @@ export default Vue.extend({
         ...SharedComponents,
         ConnectionNote,
     },
-    data() {
+    data(): {
+        canUpgrade: boolean;
+        failed: boolean;
+        finished: boolean;
+        success: boolean;
+        sdCard: boolean;
+    } {
         return {
             canUpgrade: true,
             failed: false,
@@ -95,19 +101,19 @@ export default Vue.extend({
         },
     },
     computed: {
-        station(this: any) {
+        station(): LegacyStation {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        stationFirmware(this: any) {
+        stationFirmware(): FirmwareInfo {
             return this.$store.state.firmware.stations[this.stationId];
         },
-        availableFirmware(this: any) {
+        availableFirmware(): AvailableFirmware {
             return this.$store.state.firmware.available;
         },
-        missingFirmware(this: any): boolean {
+        missingFirmware(): boolean {
             return !this.availableFirmware || !this.availableFirmware.simpleNumber;
         },
-        updateAvailable(this: any) {
+        updateAvailable(): boolean {
             const local = this.$store.state.firmware.available;
             const station = this.$store.state.firmware.stations[this.stationId];
             console.log("comparing", "station", this.stationId, station, "locally", local);
@@ -121,10 +127,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
-            //
-        },
-        downloadFirmware(this: any, args) {
+        downloadFirmware(): Promise<any> {
             const options = {
                 props: {
                     station: this.station,
@@ -138,7 +141,7 @@ export default Vue.extend({
                 // this.canUpgrade = true;
             });
         },
-        upgradeFirmware(this: any, args) {
+        upgradeFirmware(): Promise<any> {
             const options = {
                 props: {
                     station: this.station,
@@ -151,7 +154,7 @@ export default Vue.extend({
             this.canUpgrade = false;
             return this.$showModal(UpgradeFirmwareModal, options).then((value) => {});
         },
-        goBack(this: any, ev) {
+        goBack(ev: any): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
