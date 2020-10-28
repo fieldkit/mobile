@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true">
         <GridLayout rows="75,*,140">
             <GridLayout row="0" rows="auto" columns="*" class="m-y-20">
                 <StackLayout col="0" class="round-bkgd m-l-10" verticalAlignment="top" horizontalAlignment="left" @tap="back">
@@ -40,12 +40,11 @@ export default Vue.extend({
             type: String,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     methods: {
-        onPageLoaded(args) {},
-        forward() {
+        forward(): Promise<any> {
             return this.$navigateTo(routes.onboarding.searching, {
                 clearHistory: true,
                 backstackVisible: false,
@@ -54,8 +53,8 @@ export default Vue.extend({
                 },
             });
         },
-        back() {},
-        skip() {
+        back(): void {},
+        skip(): Promise<any> {
             return this.$navigateTo(routes.stations, {});
         },
     },

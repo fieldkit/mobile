@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true">
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
@@ -38,18 +38,15 @@ export default Vue.extend({
             default: false,
         },
     },
-    data() {
-        return {
-            step: {},
-        };
+    data(): {} {
+        return {};
     },
     methods: {
-        onPageLoaded(args) {},
-        forward(this: any) {
-            return this.$navigateTo(routes.onboarding.searching);
+        forward(): Promise<any> {
+            return this.$navigateTo(routes.onboarding.searching, {});
         },
-        skip(this: any) {
-            return this.$navigateTo(routes.stations);
+        skip(): Promise<any> {
+            return this.$navigateTo(routes.stations, {});
         },
     },
 });

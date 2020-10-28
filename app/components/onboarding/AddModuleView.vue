@@ -39,7 +39,14 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {
+        title: string;
+        instruction: string;
+        buttonText: string;
+        frameImage: string;
+        displayFrame: string;
+        animateFrameTimer: number;
+    } {
         return {
             title: "",
             instruction: "",
@@ -59,17 +66,18 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any) {
+        onPageLoaded(): void {
             this.animateFrames();
 
-            if (!this.animateFrameTimer) {
-                this.animateFrameTimer = setInterval(this.animateFrames, 1000);
+            const thisAny = this as any;
+            if (!thisAny.animateFrameTimer) {
+                thisAny.animateFrameTimer = setInterval(this.animateFrames, 1000);
             }
         },
-        onUnloaded() {
+        onUnloaded(): void {
             this.stopAnimation();
         },
-        goNext(ev) {
+        goNext(ev): Promise<any> {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.onboarding.recalibrate, {
@@ -80,11 +88,12 @@ export default Vue.extend({
                 }),
             ]);
         },
-        stopAnimation(this: any) {
+        stopAnimation(): void {
             this.displayFrame = "";
-            clearInterval(this.animateFrameTimer);
+            const thisAny = this as any;
+            clearInterval(thisAny.animateFrameTimer);
         },
-        animateFrames() {
+        animateFrames(): void {
             this.frameImage = this.frameImage == "TI_4-A.jpg" ? "TI_4-B.jpg" : "TI_4-A.jpg";
             this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : "";
         },

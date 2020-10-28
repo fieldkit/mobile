@@ -53,42 +53,45 @@ import { Timer } from "../../common/timer";
 
 export default Vue.extend({
     props: {},
-    data() {
+    data(): { frame: number; step: number } {
         return {
             frame: 0,
             step: 0,
         };
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(args): void {
             console.log("onboarding/start:", "loaded");
 
-            this.timer = new Timer(1000, () => {
+            const thisAny = this as any;
+            thisAny.timer = new Timer(1000, () => {
                 this.frame += 1;
             });
         },
-        onNavigatingTo(this: any) {
+        onNavigatingTo(): void {
             console.log("nav away");
-            this.timer.stop();
+            const thisAny = this as any;
+            thisAny.timer.stop();
         },
-        forward(this: any) {
+        forward(): Promise<any> {
             this.step++;
             if (this.step == 2) {
-                this.$navigateTo(routes.onboarding.searching, {
+                return this.$navigateTo(routes.onboarding.searching, {
                     clearHistory: true,
                     backstackVisible: false,
                 });
             }
+            return Promise.resolve();
         },
-        back(this: any) {
+        back(this: any): Promise<any> {
             console.log("onboarding/start:", "back");
-            this.$navigateTo(routes.stations, {
+            return this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });
         },
-        skip(this: any) {
-            this.$navigateTo(routes.stations, {
+        skip(this: any): Promise<any> {
+            return this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });

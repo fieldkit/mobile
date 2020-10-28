@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" navigatingTo="onNavigatingTo">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
@@ -50,6 +50,12 @@ import Vue from "vue";
 import routes from "@/routes";
 import { LegacyStation } from "@/store/types";
 
+interface NearbyStation {
+    id: number;
+    selected: boolean;
+    name: string;
+}
+
 export default Vue.extend({
     props: {
         reconnecting: {
@@ -57,13 +63,15 @@ export default Vue.extend({
             default: false,
         },
     },
-    data() {
+    data(): {
+        selectedStationId: number | null;
+    } {
         return {
             selectedStationId: null,
         };
     },
     computed: {
-        nearbyStations(this: any) {
+        nearbyStations(): NearbyStation[] {
             const legacyStations: LegacyStation[] = this.$store.getters.legacyStations; // TODO ts
             return Object.values(legacyStations)
                 .filter((station) => station.connected)
@@ -77,7 +85,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(): void {
             const legacyStations: LegacyStation[] = this.$store.getters.legacyStations; // TODO ts
             const connected = Object.values(legacyStations).filter((ls) => ls.connected);
             if (connected.length == 0) {
@@ -86,11 +94,10 @@ export default Vue.extend({
 
             this.selectedStationId = connected[0].id;
         },
-        onNavigatingTo() {},
-        tryAgain(this: any) {
+        tryAgain(): Promise<any> {
             return this.$navigateTo(routes.onboarding.searching, {});
         },
-        forward(this: any) {
+        forward(): Promise<any> {
             if (this.reconnecting) {
                 return this.$navigateTo(routes.onboarding.recalibrate, {
                     props: {
@@ -104,7 +111,7 @@ export default Vue.extend({
                 },
             });
         },
-        onCheckChange(this: any, id) {
+        onCheckChange(id: number): void {
             console.log("choose", id);
             this.selectedStationId = id;
         },

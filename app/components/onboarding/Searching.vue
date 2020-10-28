@@ -14,10 +14,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Promise from "bluebird";
-
 import routes from "@/routes";
 import { LegacyStation } from "@/store/types";
+import { promiseAfter } from "@/utilities";
 
 export default Vue.extend({
     props: {
@@ -26,7 +25,11 @@ export default Vue.extend({
             default: false,
         },
     },
-    data() {
+    data(): {
+        left: boolean;
+        failed: boolean;
+        timer: any;
+    } {
         return {
             left: false,
             failed: false,
@@ -34,21 +37,21 @@ export default Vue.extend({
         };
     },
     computed: {
-        numberOfNearbyStations(this: any): number {
+        numberOfNearbyStations(): number {
             return this.$store.getters.availableStations.filter((s) => s.connected).length;
         },
     },
     watch: {
-        numberOfNearbyStations(this: any, newValue, oldValue) {
-            return this.foundStations(newValue);
+        numberOfNearbyStations(newValue: number, oldValue: number): void {
+            this.foundStations(newValue);
         },
     },
-    mounted(this: any) {
+    mounted(): void {
         console.log("searching:mounted");
-        this.timer = Promise.delay(5000).then(() => {
+        this.timer = promiseAfter(5000).then(() => {
             if (this.timer) {
                 console.log("searching:failed");
-                return this.$navigateTo(routes.onboarding.searchFailed, {
+                this.$navigateTo(routes.onboarding.searchFailed, {
                     props: {
                         reconnecting: this.reconnecting,
                     },
@@ -56,7 +59,7 @@ export default Vue.extend({
             }
         });
     },
-    destroyed(this: any) {
+    destroyed(): void {
         console.log("searching:destroyed");
         if (this.timer) {
             this.timer.cancel();
@@ -64,15 +67,15 @@ export default Vue.extend({
         }
     },
     methods: {
-        onPageLoaded(this: any, args) {
+        onPageLoaded(): void {
             if (this.numberOfNearbyStations) {
-                return this.foundStations(this.numberOfNearbyStations);
+                this.foundStations(this.numberOfNearbyStations);
             }
         },
-        onNavigatingTo(this: any) {
+        onNavigatingTo(): void {
             this.left = true;
         },
-        foundStations(this: any, numberStations) {
+        foundStations(numberStations: number): Promise<void> {
             console.log("number of nearby stations", numberStations);
 
             if (this.timer) {
@@ -116,6 +119,8 @@ export default Vue.extend({
                     },
                 });
             }
+
+            return Promise.resolve();
         },
     },
 });

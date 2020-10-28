@@ -247,9 +247,9 @@ export default class StartupScreen extends Vue {
                     // return this.$navigateTo(routes.deploy.notes, {
                     // return this.$navigateTo(routes.deploy.review, {
                     // return this.$navigateTo(routes.stationSettings, {
-                    return this.$navigateTo(routes.station.settings.wifiNetworks, {
-                        // return this.$navigateTo(routes.stationDetail, {
-                        // return this.$navigateTo(routes.onboarding.recalibrate, {
+                    // return this.$navigateTo(routes.station.settings.wifiNetworks, {
+                    // return this.$navigateTo(routes.stationDetail, {
+                    return this.$navigateTo(routes.onboarding.start, {
                         clearHistory: true,
                         props: {
                             stationId: 1,

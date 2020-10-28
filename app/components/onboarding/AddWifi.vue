@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true">
         <GridLayout rows="*,140">
             <ScrollView :row="0">
                 <GridLayout rows="auto,auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
@@ -46,9 +46,8 @@
 import Vue from "vue";
 import routes from "@/routes";
 import { _T } from "@/utilities";
-import * as ActionTypes from "@/store/actions";
-import { AddStationNetworkAction } from "@/store";
 import { isAndroid, Utils } from "@nativescript/core";
+import { ActionTypes, AddStationNetworkAction, LegacyStation } from "@/store";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScreenHeader from "../ScreenHeader.vue";
@@ -65,7 +64,13 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {
+        busy: boolean;
+        form: {
+            ssid: string;
+            password: string;
+        };
+    } {
         return {
             busy: false,
             form: {
@@ -75,28 +80,21 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(this: any) {
+        currentStation(): LegacyStation {
             return this.$store.getters.legacyStations[this.stationId];
         },
-        canAdd(this: any) {
+        canAdd(): boolean {
             return this.currentStation.connected && this.form.ssid.length > 0 && this.form.password.length > 0;
         },
     },
-    mounted() {
+    mounted(): Promise<any> {
         return this.$store.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
             console.log("networks", networks);
             return {};
         });
     },
     methods: {
-        onPageLoaded(args) {
-            /*
-            if (args.object.android) {
-                args.object.android.setFitsSystemWindows(true);
-            }
-			*/
-        },
-        addNetwork(this: any) {
+        addNetwork(): Promise<any> {
             this.busy = true;
 
             const action = new AddStationNetworkAction(
@@ -120,7 +118,7 @@ export default Vue.extend({
                 }
             );
         },
-        skip(this: any) {
+        skip(): Promise<any> {
             console.log("forward", this.form);
             return this.$navigateTo(routes.stations, {
                 props: {
@@ -128,7 +126,7 @@ export default Vue.extend({
                 },
             });
         },
-        onBack(this: any) {
+        onBack(): Promise<any> {
             console.log("onBack");
             return this.$navigateTo(routes.onboarding.network, {
                 props: {
@@ -136,7 +134,7 @@ export default Vue.extend({
                 },
             });
         },
-        hideKeyboard(this: any, ev) {
+        hideKeyboard(ev): void {
             if (isAndroid) {
                 Utils.ad.dismissSoftInput();
             }
