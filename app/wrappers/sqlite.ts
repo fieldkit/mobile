@@ -2,7 +2,12 @@ import Sqlite from "nativescript-sqlite";
 
 export type Rows = any[];
 
-class DatabaseWrapper {
+export interface Database {
+    query(sql: string, params?: undefined | any[]): Promise<Rows>;
+    execute(sql: string, params?: undefined | any[]): Promise<void>;
+}
+
+class DatabaseWrapper implements Database {
     constructor(private readonly db: Sqlite) {
         this.db.resultType(Sqlite.RESULTSASOBJECT);
     }
@@ -48,7 +53,7 @@ class DatabaseWrapper {
 }
 
 export default class SqliteNativeScript {
-    public open(name: string): Promise<DatabaseWrapper> {
+    public open(name: string): Promise<Database> {
         console.log("sqlite:opening", name, Sqlite.HAS_COMMERCIAL, Sqlite.HAS_ENCRYPTION, Sqlite.HAS_SYNC);
 
         return new Promise((resolve, reject) => {

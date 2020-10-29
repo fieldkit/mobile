@@ -155,11 +155,11 @@ export class Stream {
         return s;
     }
 
-    fileType(): FileType {
+    public fileType(): FileType {
         return FileTypeUtils.fromString(this.type);
     }
 
-    keepingFrom(o: Stream | null): Stream {
+    public keepingFrom(o: StreamTableRow | null): Stream {
         if (!o) {
             return this;
         }

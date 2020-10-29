@@ -2,19 +2,10 @@ import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
 import { Station, FirmwareInfo } from "../types";
+import { FirmwareTableRow } from "../row-types";
 import * as MutationTypes from "../mutations";
 import * as ActionTypes from "../actions";
 import { ServiceRef } from "@/services";
-
-export interface FirmwareTableRow {
-    id: number;
-    time: number;
-    url: string;
-    path: string;
-    meta: object;
-    buildTime: number;
-    buildNumber: string;
-}
 
 export class AvailableFirmware {
     constructor(

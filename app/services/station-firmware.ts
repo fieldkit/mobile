@@ -1,6 +1,7 @@
 import _ from "lodash";
 import Config from "@/config";
 import { onlyAllowEvery } from "@/utilities";
+import { FirmwareTableRow } from "@/store";
 import { Services } from "@/services";
 
 const log = Config.logger("StationFirmware");
@@ -41,7 +42,7 @@ export default class StationFirmware {
         );
     }
 
-    public downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force: boolean = false): Promise<any> {
+    public downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force: boolean = false): Promise<void> {
         log.info("downloading firmware");
         return this.services
             .PortalInterface()
@@ -104,23 +105,23 @@ export default class StationFirmware {
                 return this.services
                     .Database()
                     .deleteAllFirmwareExceptIds(ids)
-                    .then((deleted) => {
+                    .then((deleted: FirmwareTableRow[]) => {
                         console.log("deleted", deleted);
                         return Promise.all(deleted.map((fw) => this.deleteFirmware(fw)));
                     });
-            });
+            })
+            .then(() => Promise.resolve());
     }
 
-    private deleteFirmware(fw) {
+    private deleteFirmware(fw: { path: string }): void {
         const local = this.services.FileSystem().getFile(fw.path);
         if (local && local.exists) {
             log.info("removing", fw.path, local.exists, local.size);
-            return local.remove();
+            local.remove();
         }
-        return false;
     }
 
-    private async deleteOldFirmware(): Promise<any> {
+    private async deleteOldFirmware(): Promise<void> {
         await this.services
             .Database()
             .getAllFirmware()
@@ -132,7 +133,7 @@ export default class StationFirmware {
             });
     }
 
-    public async cleanupFirmware(): Promise<any> {
+    public async cleanupFirmware(): Promise<void> {
         const firmware = await this.services.Database().getAllFirmware();
         const keeping: number[] = [];
 
@@ -155,10 +156,10 @@ export default class StationFirmware {
             });
     }
 
-    public upgradeStation(url: string, progressCallback): Promise<any> {
+    public upgradeStation(url: string, progressCallback): Promise<void> {
         log.info("upgrade", url);
 
-        return this.haveFirmware().then((yes) => {
+        return this.haveFirmware().then((yes: boolean) => {
             if (!yes) {
                 return Promise.reject(new Error("missingFirmware"));
             }
@@ -166,12 +167,15 @@ export default class StationFirmware {
                 .Database()
                 .getLatestFirmware()
                 .then((firmware) => {
-                    log.info("firmware", firmware);
-
-                    const uploadProgress = transformProgress(progressCallback, (p) => p);
-
-                    return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
-                });
+                    if (firmware) {
+                        log.info("firmware", firmware);
+                        const uploadProgress = transformProgress(progressCallback, (p) => p);
+                        return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
+                    } else {
+                        log.info("no firmware");
+                    }
+                })
+                .then(() => Promise.resolve());
         });
     }
 

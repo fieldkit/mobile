@@ -26,6 +26,7 @@ export { ActionTypes, MutationTypes };
 export * from "./types";
 export * from "./typed-actions";
 export * from "./http_reply";
+export * from "./row-types";
 
 export * from "./modules/nearby";
 export * from "./modules/stations";

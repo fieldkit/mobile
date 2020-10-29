@@ -89,7 +89,7 @@ const actions = (services: ServiceRef) => {
             return services
                 .db()
                 .addOrUpdateAccounts(chosen[0])
-                .then((all) => {
+                .then(() => {
                     services.portal().setCurrentUser(chosen[0]);
                     commit(SET_CURRENT_USER, chosen[0]);
                 })

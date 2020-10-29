@@ -346,6 +346,7 @@ const actions = (services: ServiceRef) => {
                 .then((station) => dispatch(ActionTypes.LOAD_STATIONS))
                 .catch((err) => {
                     console.log(`error handling STATION_REPLY: ${err}`);
+                    console.log(`error handling STATION_REPLY:`, JSON.stringify(statusReply));
                     return Promise.reject(err);
                 });
         },

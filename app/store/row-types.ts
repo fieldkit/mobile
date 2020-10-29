@@ -101,15 +101,28 @@ export interface AccountsTableRow {
 }
 
 export interface NotificationsTableRow {
-    id: number,
-    key: string,
-    kind: string,
-    created: number,
-    silenced: string,
-    dismissed_at: number,
-    satisfied_at: number,
-    project: string,
-    user: string,
-    station: string,
-    actions: string
+    id: number;
+    key: string;
+    kind: string;
+    created: number;
+    silenced: string;
+    dismissed_at: number;
+    satisfied_at: number;
+    project: string;
+    user: string;
+    station: string;
+    actions: string;
+}
+
+export interface FirmwareTableRow {
+    id: number;
+    time: number;
+    url: string;
+    path: string;
+    meta: object;
+    module: string;
+    profile: string;
+    etag: string;
+    buildTime: number;
+    buildNumber: string;
 }
