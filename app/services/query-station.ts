@@ -280,7 +280,7 @@ export default class QueryStation {
         });
     }
 
-    private urlToStationKey(url: string) {
+    private urlToStationKey(url: string): string {
         if (!url) throw new Error("no station url");
         // http://192.168.0.100:2380/fk/v1 -> http://192.168.0.100:2380/fk
         return url.replace(/\/v1.*/, "");

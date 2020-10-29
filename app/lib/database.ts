@@ -173,7 +173,7 @@ export class ReadingsDatabase {
         return Promise.resolve(this.sensors[key]);
     }
 
-    public async save(readings: AggregatedReadingLike[]): Promise<any> {
+    public async save(readings: AggregatedReadingLike[]): Promise<void> {
         const sensorKeys = _.uniq(readings.map((r) => r.sensorKey));
         const sensorPairs = await Promise.all(sensorKeys.map((key) => this.findSensor(key).then((sensor) => [key, sensor])));
         const sensors = _.fromPairs(sensorPairs);

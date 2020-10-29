@@ -2,7 +2,16 @@ import _ from "lodash";
 import Promise from "bluebird";
 import { Folder, knownFolders, isAndroid, Utils } from "@nativescript/core";
 
-function recurse(f: any, depth: number, callback) {
+export interface FileLike {
+    path: string;
+    size: number;
+    depth: number;
+    lastModified: Date;
+}
+
+export type RecurseCallback = (depth: number, entry: FileLike) => void;
+
+function recurse(f: any, depth: number, callback: RecurseCallback) {
     return f.getEntities().then((entities) => {
         return Promise.all(
             entities.map((entry) => {
@@ -14,13 +23,6 @@ function recurse(f: any, depth: number, callback) {
             })
         );
     });
-}
-
-export interface FileLike {
-    path: string;
-    size: number;
-    depth: number;
-    lastModified: Date;
 }
 
 export const DownloadsDirectory = "downloads";
@@ -36,7 +38,7 @@ export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
         return knownFolders.documents();
     };
 
-    return recurse(getFolder(), 0, (depth: number, entry) => {
+    return recurse(getFolder(), 0, (depth: number, entry: FileLike) => {
         files.push({
             depth: depth,
             path: entry.path,
@@ -48,8 +50,8 @@ export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
     });
 }
 
-export function dumpAllFiles() {
-    return recurse(knownFolders.documents(), 0, (depth, entry) => {
+export function dumpAllFiles(): Promise<void> {
+    return recurse(knownFolders.documents(), 0, (depth: number, entry: FileLike) => {
         console.log("files", entry.path, entry.size);
     });
 }

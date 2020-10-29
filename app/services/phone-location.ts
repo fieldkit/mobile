@@ -1,43 +1,38 @@
-import { BetterObservable } from "./rx";
 import { Enums } from "@nativescript/core";
 import { GeoLocation } from "@/wrappers/geolocation";
 import { promiseAfter, unixNow } from "@/utilities";
 import * as MutationTypes from "@/store/mutations";
 import { CommonLocations, PhoneLocation } from "@/store/types";
+import { Store } from "@/store/our-store";
 import Config from "@/config";
 
 const log = Config.logger("PhoneLocation");
 
-interface HasPublish {
-    publish(value: any): Promise<any>;
-}
+export default class PhoneLocationWatcher {
+    private store: Store;
+    private geolocation: GeoLocation;
 
-export default class PhoneLocationWatcher extends BetterObservable {
-    _store: any;
-    _geolocation: any;
-
-    constructor(store) {
-        super();
-        this._store = store;
-        this._geolocation = new GeoLocation();
+    constructor(store: Store) {
+        this.store = store;
+        this.geolocation = new GeoLocation();
     }
 
-    enableAndGetLocation() {
+    public enableAndGetLocation(): Promise<void> {
         const started = new Date();
 
         console.log("phone-location:enable");
 
-        return this._geolocation
+        return this.geolocation
             .isEnabled()
             .then((enabled: boolean) => {
                 if (!enabled) {
-                    return this._geolocation.enableLocationRequest();
+                    return this.geolocation.enableLocationRequest();
                 }
                 // TODO Remove this eventually.
                 this.testAccuracies();
-                return true;
+                return;
             })
-            .then(() => this._keepLocationUpdated())
+            .then(() => this.keepLocationUpdated())
             .then(() => {
                 const now = new Date();
                 const elapsed = now.getTime() - started.getTime();
@@ -45,32 +40,32 @@ export default class PhoneLocationWatcher extends BetterObservable {
             });
     }
 
-    _keepLocationUpdated() {
-        return this._geolocation
+    private keepLocationUpdated(): Promise<void> {
+        return this.geolocation
             .isEnabled()
-            .then((enabled) => {
-                if (!enabled) {
-                    return CommonLocations.TwinPeaksEastLosAngelesNationalForest;
+            .then(
+                (enabled: boolean): Promise<PhoneLocation> => {
+                    if (!enabled) {
+                        return Promise.resolve(CommonLocations.TwinPeaksEastLosAngelesNationalForest);
+                    }
+                    return this.getLocation();
                 }
-                return this.getLocation();
-            })
-            .then((location) => {
-                this._store.commit(MutationTypes.PHONE_LOCATION, location);
+            )
+            .then((location: PhoneLocation) => {
+                this.store.commit(MutationTypes.PHONE_LOCATION, location);
                 return location;
             })
-            .then((location) => (<HasPublish>(<unknown>this)).publish(location))
-            .then((location) => {
+            .then((location: PhoneLocation) => {
                 promiseAfter(10000).then(() => {
-                    return this._keepLocationUpdated();
+                    return this.keepLocationUpdated();
                 });
-
-                return location;
+                return;
             });
     }
 
-    test(name, params) {
+    private test(name: string, params: any): Promise<void> {
         const started = new Date();
-        return this._geolocation.getCurrentLocation(params).then(
+        return this.geolocation.getCurrentLocation(params).then(
             (loc) => {
                 const done = new Date();
                 const elapsed = done.getTime() - started.getTime();
@@ -84,7 +79,7 @@ export default class PhoneLocationWatcher extends BetterObservable {
         );
     }
 
-    testAccuracies() {
+    public testAccuracies(): Promise<void> {
         const high20k = {
             desiredAccuracy: Enums.Accuracy.high,
             updateDistance: 10,
@@ -122,8 +117,8 @@ export default class PhoneLocationWatcher extends BetterObservable {
         });
     }
 
-    getLocation() {
-        return this._geolocation
+    public getLocation(): Promise<PhoneLocation> {
+        return this.geolocation
             .getCurrentLocation({
                 desiredAccuracy: Enums.Accuracy.high,
                 updateDistance: 10,
