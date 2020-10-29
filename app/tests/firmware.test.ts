@@ -1,37 +1,38 @@
 import _ from "lodash";
+import FakeTimers from "@sinonjs/fake-timers";
 import { describe, expect, it } from "@jest/globals";
 import { Services, ServicesImpl } from "@/services";
 import { MockStationReplies } from "./utilities";
 import { prepareReply } from "@/store/http_reply";
-import FakeTimers from "@sinonjs/fake-timers";
 
 import { StationRepliedAction } from "@/store/typed-actions";
 
 function addFakeFirmware(services: Services) {
     services.PortalInterface().listFirmware = jest.fn((_) => {
+        const now = new Date();
         return Promise.resolve({
             firmwares: [
                 {
                     id: 1000,
-                    time: new Date(),
+                    time: now.getTime(),
                     module: "module",
                     profile: "profile",
                     etag: "etag",
                     url: "/firmware/1000/download",
                     meta: "",
                     buildTime: 0,
-                    buildNumber: 100,
+                    buildNumber: "100",
                 },
                 {
                     id: 1001,
-                    time: new Date(),
+                    time: now.getTime(),
                     module: "module",
                     profile: "profile",
                     etag: "etag",
                     url: "/firmware/1001/download",
                     meta: "",
                     buildTime: 0,
-                    buildNumber: 100,
+                    buildNumber: "100",
                 },
             ],
         });

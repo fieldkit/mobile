@@ -1,13 +1,9 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
-import { ServicesImpl } from "@/services";
 import FakeTimers from "@sinonjs/fake-timers";
-
-import SynchronizeNotes, { PatchPortalNotes, Ids } from "../services/synchronize-notes";
-
+import { ServicesImpl, SynchronizeNotes, PatchPortalNotes, Ids } from "@/services";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
-
 import { Notes } from "../store/modules/notes";
 
 describe("Notes", () => {

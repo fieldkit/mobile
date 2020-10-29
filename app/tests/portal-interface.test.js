@@ -72,6 +72,6 @@ describe("UserAuth", () => {
         };
         const mockResponse = { status: 200 };
         axios.mockImplementation(() => Promise.resolve(mockResponse));
-        return portalInterface.register(user).then((resp) => expect(resp).toEqual("Account created"));
+        return portalInterface.register(user).then((resp) => expect(resp).toBeUndefined());
     });
 });

@@ -1,10 +1,12 @@
 import * as ActionTypes from "../store/actions";
 import { Station } from "../store/types";
 import { Store } from "../store/our-store";
-import PortalInterface from "./portal-interface";
+import PortalInterface, { Ids } from "./portal-interface";
 import { FileSystem } from "@/services";
-import SynchronizeNotes, { Ids } from "./synchronize-notes";
+import SynchronizeNotes from "./synchronize-notes";
 import { serializePromiseChain } from "../utilities";
+
+export { SynchronizeNotes };
 
 const OneMinute = 60 * 1000;
 
@@ -15,7 +17,7 @@ export default class PortalUpdater {
         this.synchronizeNotes = new SynchronizeNotes(portal, store, fs);
     }
 
-    public start() {
+    public start(): Promise<void> {
         console.log("PortalUpdater", "started");
         setInterval(() => this.addOrUpdateStations(), 5 * OneMinute);
         return Promise.resolve();
@@ -39,7 +41,7 @@ export default class PortalUpdater {
         });
     }
 
-    private update(station: Station): Promise<any> {
+    private update(station: Station): Promise<void> {
         if (!station.id) {
             throw new Error("station id is required");
         }
@@ -51,48 +53,51 @@ export default class PortalUpdater {
             locationName: notes.location,
         };
 
-        return this.portal.addStation(params).then(
-            (saved) => {
-                if (!station.id) {
-                    throw new Error("no station id (should never)");
-                }
-                const ids = new Ids(station.id, saved.id);
-                return this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, { id: station.id, portalId: saved.id }).then(() => {
-                    console.log("updating station", ids, params);
-                    return this.portal
-                        .updateStation(params, ids.portal)
-                        .then((saved) =>
-                            this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, {
-                                id: station.id,
-                                portalId: saved.id,
-                            })
-                        )
-                        .catch((error) => {
-                            if (error.response) {
+        return this.portal
+            .addStation(params)
+            .then(
+                (saved) => {
+                    if (!station.id) {
+                        throw new Error("no station id (should never)");
+                    }
+                    const ids = new Ids(station.id, saved.id);
+                    return this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, { id: station.id, portalId: saved.id }).then(() => {
+                        console.log("updating station", ids, params);
+                        return this.portal
+                            .updateStation(params, ids.portal)
+                            .then((saved) =>
+                                this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, {
+                                    id: station.id,
+                                    portalId: saved.id,
+                                })
+                            )
+                            .catch((error) => {
+                                if (error.response) {
+                                    return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
+                                        id: station.id,
+                                        error: error.response.data || {},
+                                    });
+                                }
                                 return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
                                     id: station.id,
-                                    error: error.response.data || {},
+                                    error: "error",
                                 });
-                            }
-                            return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
-                                id: station.id,
-                                error: "error",
+                            })
+                            .then(() => {
+                                return this.synchronizeNotes.synchronize(ids);
                             });
-                        })
-                        .then(() => {
-                            return this.synchronizeNotes.synchronize(ids);
-                        });
-                });
-            },
-            (error) => {
-                if (error.response) {
-                    return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
-                        id: station.id,
-                        error: error.response.data || {},
                     });
+                },
+                (error) => {
+                    if (error.response) {
+                        return this.store.dispatch(ActionTypes.STATION_PORTAL_ERROR, {
+                            id: station.id,
+                            error: error.response.data || {},
+                        });
+                    }
+                    return Promise.reject(error);
                 }
-                return Promise.reject(error);
-            }
-        );
+            )
+            .then(() => Promise.resolve());
     }
 }

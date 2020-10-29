@@ -1,47 +1,50 @@
 import _ from "lodash";
 import moment from "moment";
+import FileSystem from "@/wrappers/file-system";
 import * as ActionTypes from "../store/actions";
 import * as MutationTypes from "../store/mutations";
 import { Store } from "../store/our-store";
-import PortalInterface from "./portal-interface";
-import { FileSystem } from "@/services";
+import PortalInterface, { Ids, PatchPortalNotes, PortalStationNotesReply, ExistingFieldNote, NewFieldNote } from "./portal-interface";
 import { Notes } from "../store/modules/notes";
 import { getPathTimestamp, serializePromiseChain } from "../utilities";
 
-class MergedNotes {
+export class MergedNotes {
     constructor(public readonly patch: PatchPortalNotes, public readonly modified: boolean) {}
 }
 
 export default class SynchronizeNotes {
     constructor(private readonly portal: PortalInterface, private readonly store: Store, private readonly fs: FileSystem) {}
 
-    public synchronize(ids: Ids): Promise<any> {
-        return this.portal.getStationNotes(ids.portal).then((portalNotes: PortalStationNotesReply) => {
-            const mobileNotes = this.store.state.notes.stations[ids.mobile] || new Notes(ids.mobile, new Date(), new Date());
+    public synchronize(ids: Ids): Promise<void> {
+        return this.portal
+            .getStationNotes(ids.portal)
+            .then((portalNotes: PortalStationNotesReply) => {
+                const mobileNotes = this.store.state.notes.stations[ids.mobile] || new Notes(ids.mobile, new Date(), new Date());
 
-            return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
-                console.log("resolved-media", resolvedMedia);
+                return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
+                    console.log("resolved-media", resolvedMedia);
 
-                const merged = this.merge(ids, portalNotes, mobileNotes, resolvedMedia);
-                const patch = merged.patch;
+                    const merged = this.merge(ids, portalNotes, mobileNotes, resolvedMedia);
+                    const patch = merged.patch;
 
-                return this.patchPortal(ids, patch).then((reply) => {
-                    if (merged.modified) {
-                        console.log("mobile notes modified");
-                        return this.store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
-                    }
-                    return Promise.resolve();
+                    return this.patchPortal(ids, patch).then((reply) => {
+                        if (merged.modified) {
+                            console.log("mobile notes modified");
+                            return this.store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
+                        }
+                        return Promise.resolve();
+                    });
                 });
-            });
-        });
+            })
+            .then(() => Promise.resolve());
     }
 
-    private patchPortal(ids: Ids, patch: PatchPortalNotes) {
+    private patchPortal(ids: Ids, patch: PatchPortalNotes): Promise<void> {
         console.log("patching", ids, patch);
         if (patch.creating.length == 0 && patch.notes.length == 0) {
             return Promise.resolve();
         }
-        return this.portal.updateStationNotes(ids.portal, patch);
+        return this.portal.updateStationNotes(ids.portal, patch).then(() => Promise.resolve());
     }
 
     private parseStampMaybe(key: string): string {
@@ -217,52 +220,4 @@ export default class SynchronizeNotes {
 
         return new MergedNotes(new PatchPortalNotes(creating, updating), modified);
     }
-}
-
-export class ExistingFieldNote {
-    constructor(
-        public readonly id: number,
-        public readonly key: string,
-        public readonly body: string,
-        public readonly mediaIds: number[]
-    ) {}
-}
-
-export class NewFieldNote {
-    constructor(public readonly key: string, public readonly body: string, public readonly mediaIds: number[]) {}
-}
-
-export class Ids {
-    constructor(public readonly mobile: number, public readonly portal: number) {}
-}
-
-export interface PortalStationNotes {
-    id: number;
-    createdAt: number;
-    updatedAt: number;
-    version: number;
-    author: { id: number; name: number };
-    key: string;
-    body: string;
-    media: { id: number; key: string; url: string; contentType: string }[];
-}
-
-export interface PortalNoteMedia {
-    id: number;
-    contentType: string;
-    url: string;
-    key: string;
-}
-
-export interface PortalStationNotesReply {
-    media: PortalNoteMedia[];
-    notes: PortalStationNotes[];
-}
-
-export class PatchPortalNotes {
-    constructor(public readonly creating: NewFieldNote[], public readonly notes: ExistingFieldNote[]) {}
-}
-
-export interface PortalPatchNotesPayload {
-    notes: PatchPortalNotes[];
 }

@@ -119,7 +119,7 @@ export interface FirmwareTableRow {
     time: number;
     url: string;
     path: string;
-    meta: object;
+    meta: object | string;
     module: string;
     profile: string;
     etag: string;

@@ -15,6 +15,62 @@ export class ApiUnexpectedStatus extends Error {
     }
 }
 
+export class Ids {
+    constructor(public readonly mobile: number, public readonly portal: number) {}
+}
+
+export interface QueryFields {
+    method?: string;
+    url: string;
+    headers?: { [index: string]: string };
+    refreshed?: boolean;
+    authenticated?: boolean;
+    data?: any;
+}
+
+export interface PortalStationNotes {
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+    version: number;
+    author: { id: number; name: number };
+    key: string;
+    body: string;
+    media: { id: number; key: string; url: string; contentType: string }[];
+}
+
+export interface PortalNoteMedia {
+    id: number;
+    contentType: string;
+    url: string;
+    key: string;
+}
+
+export interface PortalStationNotesReply {
+    media: PortalNoteMedia[];
+    notes: PortalStationNotes[];
+}
+
+export class ExistingFieldNote {
+    constructor(
+        public readonly id: number,
+        public readonly key: string,
+        public readonly body: string,
+        public readonly mediaIds: number[]
+    ) {}
+}
+
+export class NewFieldNote {
+    constructor(public readonly key: string, public readonly body: string, public readonly mediaIds: number[]) {}
+}
+
+export class PatchPortalNotes {
+    constructor(public readonly creating: NewFieldNote[], public readonly notes: ExistingFieldNote[]) {}
+}
+
+export interface PortalPatchNotesPayload {
+    notes: PatchPortalNotes[];
+}
 export interface CurrentUser {
     name: string;
     portalId: string;
@@ -23,31 +79,51 @@ export interface CurrentUser {
     usedAt: Date | null;
 }
 
+export interface PortalStation {
+    id: number;
+    name: string;
+    deviceId: string;
+}
+
+export interface PortalFirmware {
+    id: number;
+    time: number;
+    url: string;
+    meta: string | object;
+    module: string;
+    profile: string;
+    etag: string;
+    buildTime: number;
+    buildNumber: string;
+}
+
+export interface AddStationFields {
+    name: string;
+    deviceId: string;
+    locationName: string;
+    statusPb: string;
+}
+
 export default class PortalInterface {
-    _services: any;
-    _dbInterface: any;
-    _fs: any;
-    _conservify: any;
-    _currentUser: CurrentUser | null = null;
-    _appSettings: any;
-    _store: any;
+    private services: any;
+    private db: any;
+    private fs: any;
+    private conservify: any;
+    private currentUser: CurrentUser | null = null;
+    private appSettings: any;
+    private store: any;
 
     constructor(services: Services) {
-        this._services = services;
-        this._dbInterface = services.Database();
-        this._fs = services.FileSystem();
-        this._conservify = services.Conservify();
-        this._appSettings = new AppSettings();
-        this._store = services.Store();
+        this.db = services.Database();
+        this.fs = services.FileSystem();
+        this.conservify = services.Conservify();
+        this.appSettings = new AppSettings();
+        this.store = services.Store();
     }
 
     private getUri(): Promise<string> {
-        return this._dbInterface.getConfig().then((config) => {
-            if (config.length == 0) {
-                return Config.baseUri;
-            } else {
-                return config[0].baseUri;
-            }
+        return this.db.getConfig().then((config) => {
+            return config[0].baseUri;
         });
     }
 
@@ -61,12 +137,12 @@ export default class PortalInterface {
 
     public setCurrentUser(currentUser: CurrentUser): void {
         if (!currentUser) throw new Error(`invalid current user`);
-        this._currentUser = currentUser;
-        this._appSettings.setString("accessToken", currentUser.token);
+        this.currentUser = currentUser;
+        this.appSettings.setString("accessToken", currentUser.token);
     }
 
     public getCurrentUser(): CurrentUser | null {
-        return this._currentUser;
+        return this.currentUser;
     }
 
     public whoAmI(): Promise<CurrentUser> {
@@ -74,25 +150,29 @@ export default class PortalInterface {
             authenticated: true,
             url: "/user",
         }).then((user) => {
+            const token = this.getCurrentToken();
+            if (!token) {
+                throw new Error(`no token after authentication`);
+            }
             return {
                 name: user.name,
                 portalId: user.id,
                 email: user.email,
-                token: this.getCurrentToken(),
+                token: token,
                 usedAt: new Date(),
             };
         });
     }
 
     public isLoggedIn(): boolean {
-        return this._appSettings.getString("accessToken") ? true : false;
+        return this.appSettings.getString("accessToken") ? true : false;
     }
 
     public getCurrentToken(): string | null {
-        return this._appSettings.getString("accessToken");
+        return this.appSettings.getString("accessToken");
     }
 
-    public login(user): Promise<any> {
+    public login(user: { email: string; password: string }): Promise<{ token: string }> {
         return this.getUri().then((baseUri) =>
             axios({
                 method: "POST",
@@ -106,23 +186,19 @@ export default class PortalInterface {
     }
 
     public logout(): Promise<boolean> {
-        this._appSettings.remove("accessToken");
-        this._store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
+        this.appSettings.remove("accessToken");
+        this.store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
         return Promise.resolve(true);
     }
 
-    public register(user): Promise<any> {
+    // TODO Return token?
+    public register(user: {}): Promise<void> {
         return this.query({
             method: "POST",
             url: "/users",
             data: user,
-        }).then(() => {
-            // TODO This should return the user object.
-            return "Account created";
         });
     }
-
-    resetPassword(email: string) {}
 
     public getTransmissionToken(): Promise<{ token: string; url: string }> {
         return this.query({
@@ -132,7 +208,7 @@ export default class PortalInterface {
         });
     }
 
-    public addStation(data): Promise<any> {
+    public addStation(data: AddStationFields): Promise<PortalStation> {
         return this.query({
             authenticated: true,
             method: "POST",
@@ -141,7 +217,7 @@ export default class PortalInterface {
         });
     }
 
-    public updateStation(data, portalId): Promise<any> {
+    public updateStation(data: AddStationFields, portalId: number): Promise<PortalStation> {
         return this.query({
             authenticated: true,
             method: "PATCH",
@@ -150,39 +226,23 @@ export default class PortalInterface {
         });
     }
 
-    public getStationSyncState(deviceId): Promise<any> {
-        return this.query({
-            authenticated: true,
-            url: "/data/devices/" + deviceId + "/summary",
-        });
-    }
-
-    public getStations(): Promise<any> {
+    public getStations(): Promise<{ stations: PortalStation[] }> {
         return this.query({
             authenticated: true,
             url: "/stations",
         });
     }
 
-    public getStationById(id): Promise<any> {
+    public getStationById(id: number): Promise<PortalStation> {
         return this.query({
             authenticated: true,
             url: "/stations/@/" + id,
         });
     }
 
-    public addFieldNote(data): Promise<any> {
+    public listFirmware(moduleName: string): Promise<{ firmwares: PortalFirmware[] }> {
         return this.query({
-            authenticated: true,
-            method: "POST",
-            url: "/stations/" + data.stationId + "/field-notes",
-            data: data,
-        });
-    }
-
-    public listFirmware(module): Promise<any> {
-        return this.query({
-            url: "/firmware" + (module ? "?module=" + module : ""),
+            url: "/firmware?module=" + moduleName,
         });
     }
 
@@ -198,13 +258,12 @@ export default class PortalInterface {
         });
     }
 
-    public downloadFirmware(url: string, local: string, progress): Promise<any> {
+    public downloadFirmware(url: string, local: string, progress: ProgressFunc): Promise<{ data?: any; status: number }> {
         const headers = {
-            Authorization: this._appSettings.getString("accessToken"),
+            Authorization: this.appSettings.getString("accessToken"),
         };
         return this.getUri().then((baseUri) =>
-            this._services
-                .Conservify()
+            this.conservify
                 .download({
                     url: baseUri + url,
                     path: local,
@@ -214,7 +273,7 @@ export default class PortalInterface {
                 .then((e) => {
                     // Our library uses statusCode, axios uses status
                     if (e.statusCode != 200) {
-                        return this._services
+                        return this.services
                             .FileSystem()
                             .getFile(local)
                             .remove()
@@ -230,30 +289,6 @@ export default class PortalInterface {
         );
     }
 
-    public addFieldNoteMedia(data): Promise<any> {
-        const headers = {
-            Authorization: this._appSettings.getString("accessToken"),
-        };
-        return this._services
-            .Conservify()
-            .upload({
-                url: "/stations/" + data.stationId + "/field-note-media",
-                method: "POST",
-                path: data.pathDest,
-                headers: { ...headers },
-                progress: (total, copied, info) => {
-                    // Do nothing.
-                },
-            })
-            .then((e) => {
-                // Our library uses statusCode, axios uses status
-                return {
-                    data: e.body,
-                    status: e.statusCode,
-                };
-            });
-    }
-
     private handleTokenResponse(response): Promise<{ token: string }> {
         if (response.status !== 204) {
             throw new Error("authentication failed");
@@ -261,14 +296,14 @@ export default class PortalInterface {
 
         // Headers should always be lower case, bug otherwise.
         const accessToken = response.headers.authorization;
-        this._appSettings.setString("accessToken", accessToken);
+        this.appSettings.setString("accessToken", accessToken);
         return Promise.resolve({
             token: accessToken,
         });
     }
 
-    private getHeaders(req) {
-        const token = this._appSettings.getString("accessToken");
+    private getHeaders(req): Promise<any> {
+        const token = this.appSettings.getString("accessToken");
         if (token && token.length > 0) {
             return Promise.resolve(
                 _.merge(req.headers || {}, {
@@ -286,13 +321,13 @@ export default class PortalInterface {
         return Promise.resolve(req.headers);
     }
 
-    private query(req) {
+    private query(req: QueryFields): Promise<any> {
         return this.getHeaders(req).then((headers) => {
             return this.getUri().then((baseUri) => {
                 console.log("portal query", req.method || "GET", baseUri + req.url);
                 req.headers = headers;
                 req.url = baseUri + req.url;
-                return axios(req)
+                return axios(req as any)
                     .then((response) => response.data)
                     .catch((error) => {
                         if (error.response.status === 401) {
@@ -308,8 +343,8 @@ export default class PortalInterface {
         });
     }
 
-    private tryRefreshToken(original) {
-        const token = this.parseToken(this._appSettings.getString("accessToken"));
+    private tryRefreshToken(original: QueryFields): Promise<any> {
+        const token = this.parseToken(this.appSettings.getString("accessToken"));
         if (token == null) {
             return Promise.reject(new AuthenticationError("no token"));
         }
@@ -347,7 +382,7 @@ export default class PortalInterface {
         );
     }
 
-    private parseToken(token: string): any {
+    private parseToken(token: string): { refresh_token: string } | null {
         try {
             const encoded = token.split(".")[1];
             const decoded = Buffer.from(encoded, "base64").toString();
@@ -358,12 +393,13 @@ export default class PortalInterface {
         }
     }
 
-    private handleError(error: Error) {
+    private handleError(error: Error): never {
+        console.log(`portal-error: ${error}`);
         throw error;
     }
 
     private getIngestionUri(): Promise<string> {
-        return this._dbInterface.getConfig().then((config) => {
+        return this.db.getConfig().then((config) => {
             if (config.length == 0) {
                 return Config.ingestionUri;
             } else {
@@ -372,7 +408,11 @@ export default class PortalInterface {
         });
     }
 
-    public uploadPreviouslyDownloaded(deviceName: string, download: Download, progress: ProgressFunc) {
+    public uploadPreviouslyDownloaded(
+        deviceName: string,
+        download: Download,
+        progress: ProgressFunc
+    ): Promise<{ statusCode: number; headers: { [index: string]: string } }> {
         const token = this.getCurrentToken();
         if (!token) {
             return Promise.reject(new AuthenticationError("no token"));
@@ -392,7 +432,7 @@ export default class PortalInterface {
          * like the no consequences way of just purging that
          * data. What can be more noop than uploading nothing?
          */
-        const local = this._fs.getRelativeFile(download.path);
+        const local = this.fs.getRelativeFile(download.path);
         if (!local.exists) {
             console.log(`missing file: ${local.path} faking success`);
             return Promise.resolve({
@@ -423,7 +463,7 @@ export default class PortalInterface {
         delete headers["content-length"];
 
         return this.getIngestionUri().then((url) =>
-            this._conservify
+            this.conservify
                 .upload({
                     method: "POST",
                     url: url,
@@ -440,14 +480,14 @@ export default class PortalInterface {
         );
     }
 
-    public getStationNotes(id: number): Promise<any> {
+    public getStationNotes(id: number): Promise<PortalStationNotesReply> {
         return this.query({
             authenticated: true,
             url: "/stations/" + id + "/notes",
         });
     }
 
-    public updateStationNotes(id: number, payload: any): Promise<any> {
+    public updateStationNotes(id: number, payload: PatchPortalNotes): Promise<PortalStationNotes> {
         return this.query({
             method: "PATCH",
             authenticated: true,
@@ -456,10 +496,10 @@ export default class PortalInterface {
         });
     }
 
-    public uploadStationMedia(stationId: number, key: string, contentType: string, path: string) {
+    public uploadStationMedia(stationId: number, key: string, contentType: string, path: string): Promise<{ data: any; status: number }> {
         if (!key) throw new Error("key is undefined");
         const headers = {
-            Authorization: this._appSettings.getString("accessToken"),
+            Authorization: this.appSettings.getString("accessToken"),
             "Content-Type": contentType,
         };
         return this.getUri().then((baseUri) => {
@@ -473,8 +513,7 @@ export default class PortalInterface {
                 throw new Error("bad path");
             }
 
-            return this._services
-                .Conservify()
+            return this.conservify
                 .upload({
                     url: url,
                     method: "POST",
@@ -497,14 +536,13 @@ export default class PortalInterface {
         });
     }
 
-    public downloadStationMedia(mediaId: number, path: string) {
+    public downloadStationMedia(mediaId: number, path: string): Promise<{ data: any; status: number }> {
         const headers = {
-            Authorization: this._appSettings.getString("accessToken"),
+            Authorization: this.appSettings.getString("accessToken"),
         };
 
         return this.getUri().then((baseUri) => {
-            return this._services
-                .Conservify()
+            return this.conservify
                 .download({
                     url: baseUri + "/notes/media/" + mediaId,
                     method: "GET",
