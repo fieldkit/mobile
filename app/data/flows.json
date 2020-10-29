@@ -10,6 +10,11 @@
                 "id": "2",
                 "name": "deploy",
                 "show_progress": true
+            },
+            {
+                "id": "3",
+                "name": "calibration",
+                "show_progress": false
             }
         ],
         "screens": [
@@ -21,7 +26,7 @@
                 "skip": "Skip",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -45,7 +50,7 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -72,7 +77,7 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -96,7 +101,7 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -120,7 +125,7 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -144,7 +149,7 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -168,7 +173,7 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -192,7 +197,7 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -226,10 +231,10 @@
                         "body": "Plug it in to charge the battery from a power source. ",
                         "images": [
                             {
-                                "url": "/uploads/TI_8_A_78b8c9b87a.png"
+                                "url": "/uploads/TI_8_A_5c71cc37f2.png"
                             },
                             {
-                                "url": "/uploads/TI_8_B_f3f2eaff13.png"
+                                "url": "/uploads/TI_8_B_1bf06a1115.png"
                             }
                         ]
                     }
@@ -243,17 +248,17 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
                         "body": "Screw the cable plate onto the case.",
                         "images": [
                             {
-                                "url": "/uploads/TI_25_150740cf20.png"
+                                "url": "/uploads/TI_24_6362509d17.png"
                             },
                             {
-                                "url": "/uploads/TI_24_a4a37e4c0f.png"
+                                "url": "/uploads/TI_25_80accf62d1.png"
                             }
                         ]
                     }
@@ -261,13 +266,13 @@
             },
             {
                 "id": "11",
-                "name": "onboarding.11",
+                "name": "onboarding.10",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble"
                 },
                 "simple": [
                     {
@@ -285,7 +290,7 @@
             },
             {
                 "id": "12",
-                "name": "onboarding.12",
+                "name": "onboarding.11",
                 "locale": "en_US",
                 "forward": "Done",
                 "skip": null,
@@ -297,6 +302,474 @@
                     {
                         "body": "Station Assembled",
                         "images": []
+                    }
+                ]
+            },
+            {
+                "id": "14",
+                "name": "calibration.weather.01",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": null,
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Weather"
+                },
+                "simple": [
+                    {
+                        "body": "Assemble and calibrate each sensor module for accurate data readings. Note: some module boards are factory calibrated, so they're ready to go.",
+                        "images": []
+                    }
+                ]
+            },
+            {
+                "id": "15",
+                "name": "calibration.weather.02",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Weather"
+                },
+                "simple": [
+                    {
+                        "body": "Collect the following:\n\nA) Stevenson screen\nB) Weather sensor board\nC) CAT5 cable\nD) Rain meter\nE) Wind speed/direction meter\n\nThe pre-assembled cable plate and weather module board should already be sitting within your station.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_26_93fee4f378.png"
+                            },
+                            {
+                                "url": "/uploads/TI_27_98a84ee93f.png"
+                            },
+                            {
+                                "url": "/uploads/TI_28_d4f99ff09f.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "16",
+                "name": "calibration.weather.03",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Weather"
+                },
+                "simple": [
+                    {
+                        "body": "Insert one end of CAT5 cable. Make sure you insert it the right way round.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_29_ec4cc2f7d4.png"
+                            },
+                            {
+                                "url": "/uploads/TI_30_d600325f02.png"
+                            },
+                            {
+                                "url": "/uploads/TI_31_ce0dc58156.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "17",
+                "name": "calibration.weather.04",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Weather"
+                },
+                "simple": [
+                    {
+                        "body": "Turn over the weather sensor board, and insert the RJ11 jack from the rain meter into the slot on the weather sensor board marked “RAIN.”",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_32_c482305a3e.png"
+                            },
+                            {
+                                "url": "/uploads/TI_33_99602f8226.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "18",
+                "name": "calibration.weather.05",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Weather"
+                },
+                "simple": [
+                    {
+                        "body": "Insert the RJ11 jack from the wind meter into the slot on the weather sensor board marked “WIND.”",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_34_81f2cc106e.png"
+                            },
+                            {
+                                "url": "/uploads/TI_35_64917e994e.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "19",
+                "name": "calibration.weather.06",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Weather"
+                },
+                "simple": [
+                    {
+                        "body": "Insert the weather sensor board into the stevenson screen.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_36_42030d02fb.png"
+                            },
+                            {
+                                "url": "/uploads/TI_37_731afe30a0.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "20",
+                "name": "calibration.weather.07",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Weather"
+                },
+                "simple": [
+                    {
+                        "body": "Make sure that the other end of the CAT5 cable is securely inserted into the weather module board.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_38_5c371cef29.png"
+                            },
+                            {
+                                "url": "/uploads/TI_39_bdd7faffff.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "21",
+                "name": "calibration.ph.01",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (pH)"
+                },
+                "simple": [
+                    {
+                        "body": "Collect the following:\n        •        pH probe and any cables\n\nThe pre-assembled cable plate and pH module board should already be sitting within your station.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_40_e27c4ae3c2.png"
+                            },
+                            {
+                                "url": "/uploads/TI_41_f102994d0f.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "22",
+                "name": "calibration.ph.02",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (pH)"
+                },
+                "simple": [
+                    {
+                        "body": "Screw the probe/adapter cable into the pH module board.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_42_6c21959b38.png"
+                            },
+                            {
+                                "url": "/uploads/TI_43_d3526172a7.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "23",
+                "name": "calibration.ph.03",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": null,
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (pH)"
+                },
+                "simple": [
+                    {
+                        "body": "Choose Calibration Method\nFor accurate data, set your module boards' baseline. More calibration points mean more precise readings.\n\n*Quick (1 Point) calibration\nFor speed over precision\nUses one solution to set the baseline.\n\n*Full (3 Point) calibration\nFor precision over speed\nUses three solutions to set the baseline.",
+                        "images": []
+                    }
+                ]
+            },
+            {
+                "id": "24",
+                "name": "calibration.conductivity.01",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (Conductivity)"
+                },
+                "simple": [
+                    {
+                        "body": "Collect the following:\n        •        Conductivity probe and any cables\n\nThe pre-assembled cable plate and conductivity module board should already be sitting within your station.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_44_f60c1a0a99.png"
+                            },
+                            {
+                                "url": "/uploads/TI_45_059cdabe3a.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "25",
+                "name": "calibration.conductivity.02",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (Conductivity)"
+                },
+                "simple": [
+                    {
+                        "body": "Screw the probe/adapter cable into the conductivity module board.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_46_249a8d8dd5.png"
+                            },
+                            {
+                                "url": "/uploads/TI_47_cb0eafa7a6.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "26",
+                "name": "calibration.DO.01",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (DO)"
+                },
+                "simple": [
+                    {
+                        "body": "Collect the following:\n        •        Dissolved oxygen probe and any cables\n\nThe pre-assembled cable plate and dissolved oxygen module board should already be sitting within your station.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_48_1e59a5cbfc.png"
+                            },
+                            {
+                                "url": "/uploads/TI_49_28347b3f6b.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "27",
+                "name": "calibration.DO.02",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (DO)"
+                },
+                "simple": [
+                    {
+                        "body": "Screw the probe/adapter cable into the dissolved oxygen module board.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_50_d86a6bd612.png"
+                            },
+                            {
+                                "url": "/uploads/TI_51_e4228b1ccf.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "28",
+                "name": "calibration.DO.03",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (DO)"
+                },
+                "simple": [
+                    {
+                        "body": "For accurate data, set your module boards' baseline. More calibration points mean more precise readings.\n\n*Quick (1 Point) calibration\nFor speed over precision\nUses dry calibration to set the baseline.\n\n*Full (2 Point) calibration\nFor precision over speed\nUses a dry reading and one solution to set the baseline.",
+                        "images": []
+                    }
+                ]
+            },
+            {
+                "id": "29",
+                "name": "calibration.watertemp.01",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (Temperature)"
+                },
+                "simple": [
+                    {
+                        "body": "Collect the following:\n        •        Water temperature probe and any cables\n\nThe pre-assembled cable plate and water temperature module board should already be sitting within your station.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_52_e1013f946d.png"
+                            },
+                            {
+                                "url": "/uploads/TI_53_bf0f0b3bd8.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "30",
+                "name": "calibration.watertemp.01",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Water (Temperature)"
+                },
+                "simple": [
+                    {
+                        "body": "Screw the interior cable of that connector into the water temperature module board.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_54_144e3748ce.png"
+                            },
+                            {
+                                "url": "/uploads/TI_55_66606bdf84.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "31",
+                "name": "calibration.distance.01",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Distance"
+                },
+                "simple": [
+                    {
+                        "body": "Collect the following:\n        •        Distance sensor board\n        •        Distance meter\n        •        CAT5 cable\n\nThe pre-assembled cable plate and distance module board should already be sitting within your station",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_56_b7d9e60413.png"
+                            },
+                            {
+                                "url": "/uploads/TI_57_6f8b4c0048.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "32",
+                "name": "calibration.distance.02",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Distance"
+                },
+                "simple": [
+                    {
+                        "body": "Insert one end of CAT5 cable. Make sure you insert it the right way round.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_58_8615906cb3.png"
+                            },
+                            {
+                                "url": "/uploads/TI_59_224561592e.png"
+                            },
+                            {
+                                "url": "/uploads/TI_60_ad8e7789c5.png"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "33",
+                "name": "calibration.distance.03",
+                "locale": "en_US",
+                "forward": "Next",
+                "skip": "Skip this step",
+                "header": {
+                    "title": "Calibration",
+                    "subtitle": "Distance"
+                },
+                "simple": [
+                    {
+                        "body": "Make sure that the other end of the CAT5 cable is securely inserted into the distance module board.",
+                        "images": [
+                            {
+                                "url": "/uploads/TI_61_8fe23b1260.png"
+                            },
+                            {
+                                "url": "/uploads/TI_62_faa0f8efcd.png"
+                            }
+                        ]
                     }
                 ]
             }
