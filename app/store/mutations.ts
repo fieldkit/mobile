@@ -100,3 +100,20 @@ export class UpdateNoteMutation {
 
     constructor(public readonly stationId: number, public readonly key: string, public readonly update: NoteUpdate) {}
 }
+
+export class AttachNoteMediaMutation {
+    type = MutationTypes.ATTACH_NOTE_MEDIA;
+
+    constructor(
+        public readonly stationId: number,
+        public readonly key: string,
+        public readonly media: NoteMedia,
+        public readonly audio: boolean
+    ) {}
+}
+
+export class RemoveNoteMediaMutation {
+    type = MutationTypes.REMOVE_NOTE_MEDIA;
+
+    constructor(public readonly stationId: number, public readonly key: string, public readonly media: NoteMedia) {}
+}

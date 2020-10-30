@@ -1,11 +1,21 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import { ActionTypes } from "../actions";
 import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
-import { MutationTypes, UpdateNoteMutation, NoteMedia, NoteHelp, NoteData, NoteForm, NoteUpdate } from "../mutations";
+import { SaveNotesAction, ActionTypes } from "../actions";
+import {
+    MutationTypes,
+    UpdateNoteMutation,
+    NoteMedia,
+    NoteHelp,
+    NoteData,
+    NoteForm,
+    NoteUpdate,
+    RemoveNoteMediaMutation,
+    AttachNoteMediaMutation,
+} from "../mutations";
 
 export enum Keys {
     StudyObjective = "studyObjective",
@@ -170,7 +180,7 @@ const actions = (services: ServiceRef) => {
 
             return services.db().addOrUpdateNotes(state.stations[payload.stationId]);
         },
-        [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number }) => {
+        [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: SaveNotesAction) => {
             const notes = state.stations[payload.stationId];
             console.log(`notes: ${JSON.stringify(notes)}`);
             return services
@@ -220,22 +230,18 @@ const mutations = {
         console.log(`update-note: ${JSON.stringify(notes)}`);
         console.log(`update-note: ${JSON.stringify(payload)}`);
     },
-    [MutationTypes.ATTACH_NOTE_MEDIA]: (
-        state: NotesState,
-        payload: { stationId: number; key: string | null; audio: NoteMedia | null; photo: NoteMedia | null }
-    ) => {
+    [MutationTypes.ATTACH_NOTE_MEDIA]: (state: NotesState, payload: AttachNoteMediaMutation) => {
         if (!state.stations[payload.stationId]) {
             state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
         }
         if (payload.audio) {
-            state.stations[payload.stationId] = state.stations[payload.stationId].attachAudio(payload.key, payload.audio);
-        }
-        if (payload.photo) {
-            state.stations[payload.stationId] = state.stations[payload.stationId].attachPhoto(payload.key, payload.photo);
+            state.stations[payload.stationId] = state.stations[payload.stationId].attachAudio(payload.key, payload.media);
+        } else {
+            state.stations[payload.stationId] = state.stations[payload.stationId].attachPhoto(payload.key, payload.media);
         }
     },
-    [MutationTypes.REMOVE_NOTE_MEDIA]: (state: NotesState, payload: { stationId: number; key: string | null; audio: NoteMedia }) => {
-        state.stations[payload.stationId] = state.stations[payload.stationId].removeMedia(payload.key, payload.audio);
+    [MutationTypes.REMOVE_NOTE_MEDIA]: (state: NotesState, payload: RemoveNoteMediaMutation) => {
+        state.stations[payload.stationId] = state.stations[payload.stationId].removeMedia(payload.key, payload.media);
     },
     [MutationTypes.NOTES_LOCATION]: (state: NotesState, payload: { stationId: number; location: string }) => {
         if (!state.stations[payload.stationId]) {

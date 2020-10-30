@@ -144,3 +144,9 @@ export class ChangePortalEnvAction {
 
     constructor(public readonly env: PortalEnv) {}
 }
+
+export class SaveNotesAction {
+    type = ActionTypes.SAVE_NOTES;
+
+    constructor(public readonly stationId: number) {}
+}
