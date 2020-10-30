@@ -126,3 +126,8 @@ export interface FirmwareTableRow {
     buildTime: number;
     buildNumber: string;
 }
+
+export interface PortalConfigTableRow {
+    baseUri: string;
+    ingestionUri: string;
+}

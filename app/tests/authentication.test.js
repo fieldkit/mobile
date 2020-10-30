@@ -6,12 +6,7 @@ describe("Authentication", () => {
 
     beforeEach(() => {
         services = new ServicesImpl();
-        return services
-            .CreateDb()
-            .initialize()
-            .then(() => {
-                return services.Database().checkConfig();
-            });
+        return services.CreateDb().initialize();
     });
 
     afterEach(() => {

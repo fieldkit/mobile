@@ -37,3 +37,15 @@ export class RemoveStationNetworkAction {
 
     constructor(public readonly deviceId: string, public readonly removing: NetworkInfo, public readonly networks: NetworkInfo[]) {}
 }
+
+export interface PortalEnv {
+    name: string | null;
+    baseUri: string;
+    ingestionUri: string;
+}
+
+export class ChangePortalEnvAction {
+    type = ActionTypes.CHANGE_PORTAL_ENV;
+
+    constructor(public readonly env: PortalEnv) {}
+}

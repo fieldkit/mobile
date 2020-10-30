@@ -3,34 +3,19 @@
         <PlatformHeader title="Developer" :canNavigateBack="false" :canNavigateSettings="false" />
         <Scrollview>
             <FlexboxLayout flexDirection="column" class="p-t-10">
-                <Label v-if="loggedIn" class="plain m-20 text-center" :text="message" textWrap="true"></Label>
                 <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
-                <StackLayout class="spacer m-t-30"></StackLayout>
+
                 <StackLayout class="m-x-20 m-b-20">
-                    <Label class="m-y-10" textWrap="true" :text="_L('currentEnvironment') + ': ' + environmentLabels[currentEnv]" />
-                    <GridLayout rows="auto" columns="200" horizontalAlignment="center">
-                        <DropDown
-                            row="0"
-                            col="0"
-                            class="p-l-5 p-b-2 size-18 drop-down"
-                            :items="environmentLabels"
-                            :selectedIndex="currentEnv"
-                            id="env-drop-down"
-                            @opened="onOpened"
-                            @selectedIndexChanged="onDropDownSelection"
-                        ></DropDown>
-                        <Image
-                            row="0"
-                            col="0"
-                            width="15"
-                            class="m-r-5"
-                            horizontalAlignment="right"
-                            verticalAlignment="middle"
-                            src="~/images/Icon_Cheveron_Down.png"
-                            @tap="openDropDown"
-                        />
-                    </GridLayout>
+                    <DropDown
+                        class="drop-down"
+                        :items="dropDownValues"
+                        :selectedIndex="selectedPortalEnvIndex"
+                        @selectedIndexChanged="onPortalEnvChange"
+                        v-if="dropDownValues && selectedPortalEnvIndex !== null"
+                    />
+                    <Label text="Using Developer Configuration" v-else />
                 </StackLayout>
+
                 <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
                 <Button class="btn btn-primary btn-padded" :text="'Onboarding Flow'" @tap="goOnboardingFlow" />
@@ -57,80 +42,75 @@
 import Vue from "vue";
 import _ from "lodash";
 import { Dialogs, knownFolders } from "@nativescript/core";
-import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
-import Config from "@/config";
-import routes from "@/routes";
-import Services from "@/services/singleton";
-import Recalibrate from "./onboarding/Recalibrate.vue";
-import AppSettings from "@/wrappers/app-settings";
-import * as ActionTypes from "@/store/actions";
-import * as MutationTypes from "@/store/mutations";
-
-import { getFilePath, getFileName, serializePromiseChain } from "@/utilities";
-
-import SharedComponents from "@/components/shared";
-import DiagnosticsModal from "./DiagnosticsModal.vue";
-
-import { testWithFiles } from "@/lib/testing";
-
+import { ValueList } from "nativescript-drop-down";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 
+import { getFilePath, getFileName, serializePromiseChain } from "@/utilities";
+import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
+import routes from "@/routes";
+import Services from "@/services/singleton";
+import AppSettings from "@/wrappers/app-settings";
+import { testWithFiles } from "@/lib/testing";
+import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";
+
+import Recalibrate from "./onboarding/Recalibrate.vue";
+import DiagnosticsModal from "./DiagnosticsModal.vue";
+import SharedComponents from "@/components/shared";
+
+interface EnvOption {
+    display: string;
+    value: string;
+    env: PortalEnv;
+    selected: boolean;
+    index: number;
+}
+
 export default Vue.extend({
-    data(this: any) {
+    data(): { syncing: boolean } {
         return {
             syncing: false,
-            message: _L("devOptions"),
-            loggedIn: Services.PortalInterface().isLoggedIn(),
-            currentEnv: 0,
-            environments: [
-                {
-                    uri: "https://api.fkdev.org",
-                    label: "Development",
-                },
-                {
-                    uri: "https://api.fieldkit.org",
-                    label: "Production",
-                },
-            ],
-            environmentLabels: [],
-            stations: [],
         };
     },
     components: {
         ...SharedComponents,
         Recalibrate,
     },
-    methods: {
-        onPageLoaded(this: any, args) {
-            this.page = args.object;
-
-            return Services.Database()
-                .getConfig()
-                .then((result) => {
-                    if (result.length == 0) {
-                        console.log("DeveloperMenuView did not get config from db. Using config.js", Config);
-                        this.config = Config;
-                    } else {
-                        this.config = result[0];
-                    }
-                    const baseUri = this.config.baseUri;
-                    this.currentEnv = this.environments.findIndex((env) => {
-                        return env.uri == baseUri;
-                    });
-                    if (this.currentEnv == -1) {
-                        this.environments.push({
-                            uri: baseUri,
-                            label: "Local",
-                        });
-                        this.currentEnv = this.environments.length - 1;
-                    }
-                    this.environmentLabels = this.environments.map((env) => {
-                        return env.label;
-                    });
-                });
+    computed: {
+        dropDownValues(): ValueList<any> {
+            return new ValueList<any>(this.portalEnvs);
         },
-        downloadSampleData(this: any) {
+        portalEnvs(): EnvOption[] {
+            return this.$store.state.portal.availableEnvs.map(
+                (env, index): EnvOption => {
+                    return {
+                        index: index,
+                        selected: env.baseUri == this.$store.state.portal.env.baseUri,
+                        display: env.name,
+                        value: env.name,
+                        env: env,
+                    };
+                }
+            );
+        },
+        selectedPortalEnvIndex(): number | null {
+            const selected = this.portalEnvs.find((e) => e.selected);
+            if (!selected) {
+                return null;
+            }
+            return selected.index;
+        },
+    },
+    methods: {
+        onPageLoaded(): Promise<void> {
+            return Promise.resolve();
+        },
+        onPortalEnvChange(ev: { newIndex: number }): Promise<void> {
+            console.log("portal-env-change", ev.newIndex);
+            const newEnv = this.$store.state.portal.availableEnvs[ev.newIndex];
+            return this.$store.dispatch(new ChangePortalEnvAction(newEnv));
+        },
+        downloadSampleData(): Promise<any> {
             const deviceId = "5e1fd3f938dff63ba5c5f4d29fe84850255191ff";
             const files: string[] = [
                 "5e1fd3f938dff63ba5c5f4d29fe84850255191ff/20200831_000000/meta.fkpb",
@@ -168,7 +148,7 @@ export default Vue.extend({
                 .then((all) => this.listPhoneFiles(DownloadsDirectory).then(() => all))
                 .then((all) => testWithFiles(deviceId));
         },
-        syncPortal(this: any) {
+        syncPortal(): Promise<any> {
             this.syncing = true;
             return Services.PortalUpdater()
                 .addOrUpdateStations()
@@ -183,7 +163,7 @@ export default Vue.extend({
                     this.syncing = false;
                 });
         },
-        forgetUploads(this: any) {
+        forgetUploads(): Promise<any> {
             return Services.Database()
                 .forgetUploads()
                 .then(() => {
@@ -198,7 +178,7 @@ export default Vue.extend({
                         });
                 });
         },
-        forgetDownloads(this: any) {
+        forgetDownloads(): Promise<any> {
             return Services.Database()
                 .forgetDownloads()
                 .then(() => {
@@ -213,70 +193,47 @@ export default Vue.extend({
                         });
                 });
         },
-        viewStations(this: any) {
-            this.$navigateTo(routes.stations);
+        viewStations(): Promise<any> {
+            return this.$navigateTo(routes.stations, {});
         },
-        openDropDown(this: any, event) {
-            const dropDown = this.page.getViewById("env-drop-down");
-            dropDown.open();
-        },
-        onOpened(this: any, event) {
-            // provide feedback by changing background color
-            event.object.backgroundColor = "#F4F5F7";
-            setTimeout(() => {
-                event.object.backgroundColor = "white";
-            }, 500);
-        },
-        onDropDownSelection(this: any, event) {
-            this.currentEnv = event.newIndex;
-            const baseUri = this.environments[this.currentEnv].uri;
-            const params = {
-                baseUri: baseUri,
-                ingestionUri: baseUri + "/ingestion",
-                id: this.config.id,
-            };
-            return Services.Database()
-                .updateConfigUris(params)
-                .then(() => Services.PortalInterface().logout());
-        },
-        goOnboardingFlow(this: any) {
+        goOnboardingFlow(): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {
                 props: {
                     flowName: "onboarding",
                 },
             });
         },
-        goCalibrationFlow() {
+        goCalibrationFlow(): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {
                 props: {
                     flowName: "calibration",
                 },
             });
         },
-        goOnboarding(this: any) {
-            return this.$navigateTo(routes.onboarding.assembleStation);
+        goOnboarding(): Promise<any> {
+            return this.$navigateTo(routes.onboarding.assembleStation, {});
         },
-        resetOnboarding(this: any) {
+        resetOnboarding(): Promise<any> {
             const appSettings = new AppSettings();
             appSettings.remove("completedSetup");
             appSettings.remove("skipCount");
-            Dialogs.confirm({
+            return Dialogs.confirm({
                 title: _L("resetDoneGoToOnboarding"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
             }).then((result) => {
                 if (result) {
                     // navigate to onboarding
-                    this.$navigateTo(routes.onboarding.assembleStation);
+                    this.$navigateTo(routes.onboarding.assembleStation, {});
                 }
             });
         },
-        uploadDiagnostics(this: any) {
-            this.$showModal(DiagnosticsModal, {
+        uploadDiagnostics(): Promise<any> {
+            return this.$showModal(DiagnosticsModal, {
                 props: {},
             });
         },
-        deleteDB(this: any) {
+        deleteDB(): Promise<any> {
             console.log("deleting database");
 
             return Services.CreateDb()
@@ -301,14 +258,14 @@ export default Vue.extend({
                         });
                 });
         },
-        listPhoneFiles(this: any, path: string) {
+        listPhoneFiles(path: string): Promise<any> {
             return listAllFiles(path).then((fs) => {
                 return fs.map((e) => {
                     console.log(e.path, e.size);
                 });
             });
         },
-        deleteFiles(this: any) {
+        deleteFiles(): Promise<any> {
             const rootFolder = knownFolders.documents();
             const diagnosticsFolder = rootFolder.getFolder("diagnostics");
             const firmwareFolder = rootFolder.getFolder("firmware");
@@ -343,11 +300,11 @@ export default Vue.extend({
                     });
                 });
         },
-        crash(this: any) {
+        crash(): void {
             console.log("send crash");
             crashlytics.crash();
         },
-        manualCrash(this: any) {
+        manualCrash(): void {
             console.log("send manual crash");
             const globalAny: any = global;
             crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));

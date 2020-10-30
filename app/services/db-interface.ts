@@ -10,6 +10,7 @@ import {
     NotesTableRow,
     NotificationsTableRow,
     StationTableRow,
+    PortalConfigTableRow,
     StationAddressRow,
     FirmwareTableRow,
     StreamTableRow,
@@ -29,26 +30,8 @@ export interface UserAccount {
     usedAt: Date | null;
 }
 
-interface ConfigRow {
-    id?: number;
-    baseUri: string;
-    ingestionUri: string;
-}
-
 export default class DatabaseInterface {
     constructor(private readonly services: Services) {}
-
-    public checkConfig(): Promise<void> {
-        return this.getConfig().then((rows) => {
-            if (rows.length == 0) {
-                console.log("config: initializing", Config);
-                return this.insertConfig(Config);
-            } else {
-                console.log("config: actual", rows[0]);
-                return;
-            }
-        });
-    }
 
     private getDatabase(): Promise<Database> {
         return this.services.CreateDb().getDatabase();
@@ -89,37 +72,29 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) => db.execute("DELETE FROM modules WHERE device_id IS NULL"));
     }
 
-    public getConfig() {
+    public getAvailablePortalEnvs(): Promise<PortalConfigTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM config"))
-            .then((rows) => sqliteToJs(rows))
-            .then((rows) => {
-                if (Config.env.developer) {
-                    return [
-                        {
-                            baseUri: Config.baseUri,
-                            ingestionUri: Config.ingestionUri,
-                        },
-                    ];
+            .then((rows) => sqliteToJs(rows));
+    }
+
+    public updatePortalEnv(row: PortalConfigTableRow): Promise<void> {
+        return this.getDatabase().then((db) =>
+            this.getAvailablePortalEnvs().then((envs) => {
+                const addRow = (): Promise<void> => {
+                    return db.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [row.baseUri, row.ingestionUri]);
+                };
+
+                if (envs.length > 1) {
+                    return db.execute("DELETE FROM config").then(() => {
+                        return addRow();
+                    });
                 }
-
-                return rows;
-            });
-    }
-
-    public updateConfigUris(config: ConfigRow): Promise<void> {
-        return this.getDatabase().then((db) =>
-            db.execute("UPDATE config SET base_uri = ?, ingestion_uri = ? WHERE id = ?", [config.baseUri, config.ingestionUri, config.id])
-        );
-    }
-
-    public updateBaseUri(config: ConfigRow): Promise<void> {
-        return this.getDatabase().then((db) => db.execute("UPDATE config SET base_uri = ? WHERE id = ?", [config.baseUri, config.id]));
-    }
-
-    public updateIngestionUri(config: ConfigRow): Promise<void> {
-        return this.getDatabase().then((db) =>
-            db.execute("UPDATE config SET ingestion_uri = ? WHERE id = ?", [config.ingestionUri, config.id])
+                if (envs.length == 0) {
+                    return addRow();
+                }
+                return db.execute("UPDATE config SET base_uri = ?, ingestion_uri = ?", [row.baseUri, row.ingestionUri]);
+            })
         );
     }
 
@@ -560,12 +535,6 @@ export default class DatabaseInterface {
                 .then((rows) => {
                     return rows;
                 })
-        );
-    }
-
-    public insertConfig(config: ConfigRow): Promise<void> {
-        return this.getDatabase().then((db) =>
-            db.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [config.baseUri, config.ingestionUri])
         );
     }
 

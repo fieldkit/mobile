@@ -2,7 +2,6 @@ import _ from "lodash";
 import axios from "axios";
 import AppSettings from "@/wrappers/app-settings";
 import { AuthenticationError } from "@/lib/errors";
-import Config from "../config";
 import * as ActionTypes from "@/store/actions";
 import { Download, FileTypeUtils } from "@/store/types";
 import { Services } from "@/services";
@@ -106,7 +105,6 @@ export interface AddStationFields {
 
 export default class PortalInterface {
     private services: any;
-    private db: any;
     private fs: any;
     private conservify: any;
     private currentUser: CurrentUser | null = null;
@@ -114,17 +112,18 @@ export default class PortalInterface {
     private store: any;
 
     constructor(services: Services) {
-        this.db = services.Database();
         this.fs = services.FileSystem();
         this.conservify = services.Conservify();
         this.appSettings = new AppSettings();
         this.store = services.Store();
     }
 
-    private getUri(): Promise<string> {
-        return this.db.getConfig().then((config) => {
-            return config[0].baseUri;
-        });
+    private async getUri(): Promise<string> {
+        return this.store.state.portal.env.baseUri;
+    }
+
+    private async getIngestionUri(): Promise<string> {
+        return this.store.state.portal.env.ingestionUri;
     }
 
     public isAvailable(): Promise<boolean> {
@@ -396,16 +395,6 @@ export default class PortalInterface {
     private handleError(error: Error): never {
         console.log(`portal-error: ${error}`);
         throw error;
-    }
-
-    private getIngestionUri(): Promise<string> {
-        return this.db.getConfig().then((config) => {
-            if (config.length == 0) {
-                return Config.ingestionUri;
-            } else {
-                return config[0].ingestionUri;
-            }
-        });
     }
 
     public uploadPreviouslyDownloaded(

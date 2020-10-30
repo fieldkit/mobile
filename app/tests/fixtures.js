@@ -8,7 +8,7 @@ export default class Fixtures {
     }
 
     addMinimum() {
-        return Promise.resolve(this._handleConfig());
+        return Promise.resolve();
     }
 
     addStationsAndModules() {
@@ -30,21 +30,17 @@ export default class Fixtures {
         station.longitude = -122.65397644042969;
         station.latitude = 45.500099182128906;
         station.deployStartTime = "";
-        return this.dbInterface._insertStation(station).then(id => {
+        return this.dbInterface._insertStation(station).then((id) => {
             station.id = id;
-            station.modules.map(m => {
+            station.modules.map((m) => {
                 m.stationId = station.id;
             });
             return station;
         });
     }
 
-    _handleConfig() {
-        return this.dbInterface.insertConfig(Config);
-    }
-
     _handleModules() {
-        let modules = stations.map(s => {
+        let modules = stations.map((s) => {
             return s.modules;
         });
         modules = [].concat.apply([], modules);
@@ -52,9 +48,9 @@ export default class Fixtures {
     }
 
     _insertModule(module) {
-        return this.dbInterface._insertModule(module).then(id => {
+        return this.dbInterface._insertModule(module).then((id) => {
             // module.id = id;
-            module.sensors.map(s => {
+            module.sensors.map((s) => {
                 s.moduleId = module.deviceId;
             });
             return module;
@@ -62,15 +58,15 @@ export default class Fixtures {
     }
 
     _handleSensors() {
-        let modules = stations.map(s => {
+        let modules = stations.map((s) => {
             return s.modules;
         });
         modules = [].concat.apply([], modules);
-        let sensors = modules.map(m => {
+        let sensors = modules.map((m) => {
             return m.sensors;
         });
         sensors = [].concat.apply([], sensors);
-        return Promise.all(sensors.map(this._insertSensor.bind(this))).then(temp => {
+        return Promise.all(sensors.map(this._insertSensor.bind(this))).then((temp) => {
             return temp;
         });
     }
@@ -79,8 +75,8 @@ export default class Fixtures {
         sensor.currentReading = this._generateReading(sensor.name);
         return this.dbInterface
             .getDatabase()
-            .then(db => db.query("SELECT id FROM modules WHERE device_id = ?", [sensor.moduleId]))
-            .then(id => {
+            .then((db) => db.query("SELECT id FROM modules WHERE device_id = ?", [sensor.moduleId]))
+            .then((id) => {
                 const withModule = _.extend(sensor, {
                     moduleId: id[0].id,
                 });

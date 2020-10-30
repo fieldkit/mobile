@@ -4,26 +4,44 @@ import { ActionContext } from "vuex";
 import * as ActionTypes from "../actions";
 import * as MutationTypes from "../mutations";
 import { ServiceRef } from "@/services";
-import { AccountsTableRow, SettingsTableRow } from "~/store/row-types";
+import { AccountsTableRow, SettingsTableRow } from "@/store/row-types";
+import { PortalEnv, ChangePortalEnvAction } from "@/store/typed-actions";
 import { CurrentUser } from "@/services/portal-interface";
+import Config from "@/config";
+
+const fkprd: PortalEnv = {
+    name: "fkprd",
+    baseUri: "https://api.fieldkit.org",
+    ingestionUri: "https://api.fieldkit.org/ingestion",
+};
+
+const fkdev: PortalEnv = {
+    name: "fkdev",
+    baseUri: "https://api.fkdev.org",
+    ingestionUri: "https://api.fkdev.org/ingestion",
+};
 
 export class PortalState {
     authenticated = false;
     settings: any;
     accounts: any;
     currentUser: CurrentUser | null = null;
+    availableEnvs: PortalEnv[] = [fkprd, fkdev];
+    env: PortalEnv = fkprd;
 }
 
 type ActionParameters = ActionContext<PortalState, never>;
 
 const getters = {};
 
-export const SET_CURRENT_USER = "SET_CURRENT_USER";
-
 const actions = (services: ServiceRef) => {
     return {
         [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
-            return Promise.all([dispatch(ActionTypes.LOAD_SETTINGS), dispatch(ActionTypes.LOAD_ACCOUNTS)]);
+            return Promise.all([
+                dispatch(ActionTypes.LOAD_SETTINGS),
+                dispatch(ActionTypes.LOAD_ACCOUNTS),
+                dispatch(ActionTypes.LOAD_PORTAL_ENVS),
+            ]);
         },
         [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
             return services
@@ -51,7 +69,7 @@ const actions = (services: ServiceRef) => {
                     if (sorted.length > 0) {
                         console.log("currentUser", sorted); // PRIVACY ANONYMIZE
                         services.portal().setCurrentUser(sorted[0]);
-                        commit(SET_CURRENT_USER, sorted[0]);
+                        commit(MutationTypes.SET_CURRENT_USER, sorted[0]);
                     }
                 })
                 .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
@@ -67,7 +85,7 @@ const actions = (services: ServiceRef) => {
                         .addOrUpdateAccounts(self)
                         .then((all) => {
                             services.portal().setCurrentUser(self);
-                            commit(SET_CURRENT_USER, self);
+                            commit(MutationTypes.SET_CURRENT_USER, self);
                             return dispatch(ActionTypes.LOAD_ACCOUNTS);
                         })
                         .catch((e) => console.log(ActionTypes.UPDATE_ACCOUNT, e));
@@ -91,15 +109,45 @@ const actions = (services: ServiceRef) => {
                 .addOrUpdateAccounts(chosen[0])
                 .then(() => {
                     services.portal().setCurrentUser(chosen[0]);
-                    commit(SET_CURRENT_USER, chosen[0]);
+                    commit(MutationTypes.SET_CURRENT_USER, chosen[0]);
                 })
                 .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
+        },
+        [ActionTypes.LOAD_PORTAL_ENVS]: ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
+            return services
+                .db()
+                .getAvailablePortalEnvs()
+                .then((rows) => {
+                    if (Config.env.developer) {
+                        console.log("portal-envs: using developer");
+                        const env = {
+                            name: null,
+                            baseUri: Config.baseUri,
+                            ingestionUri: Config.ingestionUri,
+                        };
+                        commit(MutationTypes.SET_CURRENT_PORTAL_ENV, env);
+                    } else if (rows.length > 1) {
+                        console.log("portal-envs", rows[0]);
+                        commit(MutationTypes.SET_CURRENT_PORTAL_ENV, rows[0]);
+                    } else {
+                        console.log("portal-envs", fkprd);
+                        commit(MutationTypes.SET_CURRENT_PORTAL_ENV, fkprd);
+                    }
+                });
+        },
+        [ActionTypes.CHANGE_PORTAL_ENV]: ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
+            return services
+                .db()
+                .updatePortalEnv(payload.env)
+                .then(() => {
+                    commit(MutationTypes.SET_CURRENT_PORTAL_ENV, payload.env);
+                });
         },
     };
 };
 
 const mutations = {
-    [SET_CURRENT_USER]: (state: PortalState, currentUser: CurrentUser) => {
+    [MutationTypes.SET_CURRENT_USER]: (state: PortalState, currentUser: CurrentUser) => {
         Vue.set(state, "currentUser", currentUser);
     },
     [MutationTypes.RESET]: (state: PortalState, error: string) => {
@@ -119,6 +167,9 @@ const mutations = {
     },
     [MutationTypes.LOAD_ACCOUNTS]: (state: PortalState, accounts: AccountsTableRow) => {
         Vue.set(state, "accounts", accounts);
+    },
+    [MutationTypes.SET_CURRENT_PORTAL_ENV]: (state: PortalState, env: PortalEnv) => {
+        Vue.set(state, "env", env);
     },
 };
 
