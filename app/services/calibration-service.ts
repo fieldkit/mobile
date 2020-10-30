@@ -3,7 +3,7 @@ import Config from "@/config";
 import { promiseAfter } from "@/utilities";
 import { Conservify } from "@/services";
 import { AtlasSensorType } from "@/calibration";
-import { fixupCalibrationStatus } from "@/store/http_reply";
+import { fixupCalibrationStatus } from "@/store/http-types";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 export * from "./atlas-types";
 

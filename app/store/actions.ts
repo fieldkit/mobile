@@ -1,4 +1,4 @@
-import { NetworkInfo, HttpStatusReply } from "@/store/http_reply";
+import { NetworkInfo, HttpStatusReply } from "@/store/http-types";
 import { ServiceInfo, PortalEnv, Schedules, Schedule } from "./types";
 
 export enum ActionTypes {

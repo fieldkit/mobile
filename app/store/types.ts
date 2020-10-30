@@ -1,6 +1,10 @@
-import { decodeAndPrepare, HttpStatusReply, ReplyStream, AtlasStatus, NetworkInfo } from "./http_reply";
+import { decodeAndPrepare, HttpStatusReply, ReplyStream, AtlasStatus, NetworkInfo } from "./http-types";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
+
+export * from "./http-types";
+export * from "./row-types";
+export * from "./map-types";
 
 export class Sensor {
     constructor(
@@ -205,6 +209,11 @@ export interface PortalEnv {
 export interface Schedules {
     readings: Schedule;
     network: Schedule;
+}
+
+export interface LoraSettings {
+    appEui: Uint8Array;
+    appKey: Uint8Array;
 }
 
 export type PortalError = string;

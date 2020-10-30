@@ -19,7 +19,7 @@ import {
 import { ActionTypes, StationRepliedAction } from "@/store/actions";
 import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
-import { HttpStatusReply, AtlasStatus } from "@/store/http_reply";
+import { HttpStatusReply, AtlasStatus } from "@/store/http-types";
 import { StationsState, GlobalState } from "./global";
 import { ServiceRef } from "@/services";
 

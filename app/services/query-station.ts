@@ -3,8 +3,8 @@ import Config from "@/config";
 import { unixNow, promiseAfter } from "@/utilities";
 import { Services, Conservify } from "@/services";
 import { QueryThrottledError, StationQueryError, HttpError } from "@/lib/errors";
-import { PhoneLocation, Schedules } from "@/store/types";
-import { prepareReply, HttpStatusReply } from "@/store/http_reply";
+import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
+import { prepareReply, HttpStatusReply } from "@/store/http-types";
 import { fk_app } from "fk-app-protocol/fk-app";
 
 const HttpQuery = fk_app.HttpQuery;
@@ -119,7 +119,7 @@ export default class QueryStation {
         });
     }
 
-    public sendNetworkSettings(address: string, networks): Promise<HttpStatusReply> {
+    public sendNetworkSettings(address: string, networks: NetworkInfo[]): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             networkSettings: { networks: networks },
@@ -130,7 +130,7 @@ export default class QueryStation {
         });
     }
 
-    public sendLoraSettings(address: string, lora): Promise<HttpStatusReply> {
+    public sendLoraSettings(address: string, lora: LoraSettings): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
@@ -188,7 +188,7 @@ export default class QueryStation {
         });
     }
 
-    public queryLogs(url: string) {
+    public queryLogs(url: string): Promise<string> {
         return this.trackActivityAndThrottle(url, () => {
             return this._conservify
                 .text({
@@ -206,7 +206,7 @@ export default class QueryStation {
         });
     }
 
-    public download(url: string, path: string, progress: ProgressCallback) {
+    public download(url: string, path: string, progress: ProgressCallback): Promise<{ headers: { [index: string]: string } }> {
         return this.trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .download({
@@ -226,7 +226,7 @@ export default class QueryStation {
         });
     }
 
-    public uploadFirmware(url: string, path: string, progress: ProgressCallback) {
+    public uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<void> {
         return this.trackActivity({ url: url, throttle: false }, () => {
             return this._conservify
                 .upload({
@@ -243,7 +243,7 @@ export default class QueryStation {
         });
     }
 
-    public uploadViaApp(address: string) {
+    public uploadViaApp(address: string): Promise<void> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             transmission: {
@@ -255,12 +255,14 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then((reply) => {
-            return this.fixupStatus(reply);
-        });
+        return this.stationQuery(address, message)
+            .then((reply) => {
+                return this.fixupStatus(reply);
+            })
+            .then(() => Promise.resolve());
     }
 
-    public uploadOverWifi(address: string, transmissionUrl: string, transmissionToken: string) {
+    public uploadOverWifi(address: string, transmissionUrl: string, transmissionToken: string): Promise<void> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             transmission: {
@@ -275,9 +277,11 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then((reply) => {
-            return this.fixupStatus(reply);
-        });
+        return this.stationQuery(address, message)
+            .then((reply) => {
+                return this.fixupStatus(reply);
+            })
+            .then(() => Promise.resolve());
     }
 
     private urlToStationKey(url: string): string {
@@ -288,7 +292,7 @@ export default class QueryStation {
 
     private readonly queued: { [index: string]: any } = {};
 
-    private trackActivity(options: TrackActivityOptions, factory) {
+    private trackActivity(options: TrackActivityOptions, factory: () => Promise<any>): Promise<any> {
         const stationKey = this.urlToStationKey(options.url);
         if (this._openQueries[stationKey] === true) {
             if (options.throttle) {
@@ -336,7 +340,7 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url: string, message: any, options: QueryOptions = {}) {
+    private stationQuery(url: string, message: any, options: QueryOptions = {}): Promise<HttpStatusReply> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
         return this.trackActivity(finalOptions, () => {
             if (!Config.developer.stationFilter(url)) {
@@ -366,8 +370,8 @@ export default class QueryStation {
                 );
         }).then((response) => {
             if (response.body.length == 0) {
-                log.info(url, "query success", "<empty>");
-                return {};
+                console.log(`empty station reply`, response);
+                throw new Error(`empty station reply`);
             }
 
             const decoded = this.getResponseBody(response);
@@ -378,7 +382,7 @@ export default class QueryStation {
         });
     }
 
-    private getResponseBody(response): HttpStatusReply {
+    private getResponseBody(response: { body: any }): HttpStatusReply {
         if (Buffer.isBuffer(response.body)) {
             const decoded: any = HttpReply.decodeDelimited(response.body);
             decoded.serialized = response.body.toString("base64");
@@ -387,7 +391,7 @@ export default class QueryStation {
         return response.body;
     }
 
-    private fixupStatus(reply): HttpStatusReply {
+    private fixupStatus(reply: any): HttpStatusReply {
         return prepareReply(reply);
     }
 

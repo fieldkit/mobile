@@ -3,7 +3,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { describe, expect, it } from "@jest/globals";
 import { Services, ServicesImpl } from "@/services";
 import { MockStationReplies } from "./utilities";
-import { prepareReply } from "@/store/http_reply";
+import { prepareReply } from "@/store/http-types";
 import { StationRepliedAction } from "@/store/actions";
 
 function addFakeFirmware(services: Services) {

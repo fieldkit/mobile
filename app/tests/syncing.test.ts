@@ -6,7 +6,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "@/utilities";
 
 import { ActionTypes } from "@/store";
-import { prepareReply } from "@/store/http_reply";
+import { prepareReply } from "@/store/http-types";
 import { TryStationOnceAction, StationRepliedAction, FileTypeUtils, FileType, TransferProgress } from "@/store";
 import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store";
 

@@ -167,13 +167,13 @@ export default class StationFirmware {
                 .Database()
                 .getLatestFirmware()
                 .then((firmware) => {
-                    if (firmware) {
-                        log.info("firmware", firmware);
-                        const uploadProgress = transformProgress(progressCallback, (p) => p);
-                        return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
-                    } else {
+                    if (!firmware) {
                         log.info("no firmware");
+                        return;
                     }
+                    log.info("firmware", firmware);
+                    const uploadProgress = transformProgress(progressCallback, (p) => p);
+                    return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
                 })
                 .then(() => Promise.resolve());
         });
