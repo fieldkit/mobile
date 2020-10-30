@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 import FileSystem from "@/wrappers/file-system";
 import { ActionTypes } from "../store/actions";
-import { MutationTypes } from "../store/mutations";
+import { UpdateNoteMutation, AttachNoteMediaMutation } from "../store/mutations";
 import { Store } from "../store/our-store";
 import PortalInterface, { Ids, PatchPortalNotes, PortalStationNotesReply, ExistingFieldNote, NewFieldNote } from "./portal-interface";
 import { Notes } from "../store/modules/notes";
@@ -112,25 +112,7 @@ export default class SynchronizeNotes {
                     const destination = folder.getFile(this.makeFileNameForPortalDownload(key, contentType)).path;
                     console.log("downloading portal media", destination, contentType, key);
                     return this.portal.downloadStationMedia(portalByKey[key].id, destination).then(() => {
-                        if (photo) {
-                            this.store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
-                                stationId: ids.mobile,
-                                key: null,
-                                photo: {
-                                    key: key,
-                                    path: destination,
-                                },
-                            });
-                        } else {
-                            this.store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
-                                stationId: ids.mobile,
-                                key: null,
-                                audio: {
-                                    key: key,
-                                    path: destination,
-                                },
-                            });
-                        }
+                        this.store.commit(new AttachNoteMediaMutation(ids.mobile, null, { key: key, path: destination }, !photo));
                         return [destination, portalByKey[key].id];
                     });
                 }
@@ -194,7 +176,7 @@ export default class SynchronizeNotes {
 
                     if (localEmpty || remoteTime.isAfter(localTime)) {
                         console.log("portal wins", key);
-                        this.store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: key, update: portalExisting[key] });
+                        this.store.commit(new UpdateNoteMutation(ids.mobile, key, portalExisting[key]));
                         return {
                             creating: null,
                             updating: null,

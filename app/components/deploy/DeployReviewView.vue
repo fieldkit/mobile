@@ -109,10 +109,8 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "../../routes";
-import { ActionTypes } from "@/store/actions";
+import { ActionTypes, Station, Notes, NoteForm } from "@/store";
 import * as animations from "../animations";
-import { Station, Notes, NoteForm } from "@/store";
-
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 

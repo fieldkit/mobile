@@ -1,11 +1,12 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import { ActionTypes, PortalEnv, ChangePortalEnvAction } from "../actions";
-import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
-import { AccountsTableRow, SettingsTableRow } from "@/store/row-types";
 import { CurrentUser } from "@/services/portal-interface";
+import { ActionTypes, ChangePortalEnvAction } from "../actions";
+import { PortalEnv } from "../types";
+import { MutationTypes } from "../mutations";
+import { AccountsTableRow, SettingsTableRow } from "../row-types";
 import Config from "@/config";
 
 const fkprd: PortalEnv = {

@@ -88,9 +88,8 @@ import Vue from "vue";
 import { isIOS } from "@nativescript/core";
 import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
 import routes from "@/routes";
-import { ActionTypes } from "@/store/actions";
+import { ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store/actions";
 import { Schedule, Station, Notes } from "@/store";
-
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import ScheduleEditor from "../ScheduleEditor.vue";
@@ -107,7 +106,7 @@ export default Vue.extend({
         mapboxToken: string;
         form: {
             location: string;
-            schedule: any;
+            schedule: Schedule | null;
             v: {
                 any: boolean;
                 required: boolean;
@@ -149,7 +148,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(args: any): void {
+        onPageLoaded(): void {
             this.form.location = this.currentNotes.location || "";
             this.form.schedule = Schedule.getMinimum(this.currentStation.schedules.readings);
         },
@@ -231,23 +230,19 @@ export default Vue.extend({
             this.form.v.any = this.form.v.required || this.form.v.long || this.form.v.characters;
             return !this.form.v.any;
         },
-        onScheduleChange(schedule: any): void {
+        onScheduleChange(schedule: Schedule): void {
             console.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
         saveForm(): Promise<any> {
-            if (!this.checkLocationName()) {
-                return Promise.reject(new Error("validation error"));
-            }
+            if (!this.checkLocationName()) return Promise.reject(new Error("validation error"));
+            const schedule = this.form.schedule;
+            if (!schedule) return Promise.reject(new Error("no schedule"));
             const station = this.$store.getters.legacyStations[this.stationId];
-            return Promise.all([
-                this.$store.dispatch(ActionTypes.STATION_LOCATION, { stationId: this.stationId, location: this.form.location }),
-            ]).then(() => {
+            const existing = station.schedules;
+            return Promise.all([this.$store.dispatch(new NameStationLocationAction(this.stationId, this.form.location))]).then(() => {
                 return Promise.all([
-                    this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
-                        deviceId: station.deviceId,
-                        schedules: { readings: this.form.schedule },
-                    }),
+                    this.$store.dispatch(new ConfigureStationSchedulesAction(station.deviceId, { readings: schedule }, existing)),
                 ]);
             });
         },

@@ -3,7 +3,7 @@ import Vue from "vue";
 import { ActionContext } from "vuex";
 import { MutationTypes } from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations, Schedules } from "../types";
+import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import {
     ActionTypes,
     StationRepliedAction,
@@ -12,6 +12,7 @@ import {
     AddStationNetworkAction,
     TryStationAction,
     TryStationOnceAction,
+    ConfigureStationSchedulesAction,
 } from "@/store/actions";
 import { ServiceRef } from "@/services";
 
@@ -226,16 +227,18 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.CONFIGURE_STATION_SCHEDULES]: (
             { commit, dispatch, state }: ActionParameters,
-            payload: { deviceId: string; schedules: Schedules }
+            payload: ConfigureStationSchedulesAction
         ) => {
             if (!payload?.deviceId) throw new Error("no nearby info");
             const info = state.stations[payload.deviceId];
             if (!info) throw new Error("no nearby info");
 
+            const schedules = { ...payload.existing, ...payload.modifying };
+
             commit(MutationTypes.STATION_QUERIED, info);
             return services
                 .queryStation()
-                .configureSchedule(info.url, payload.schedules)
+                .configureSchedule(info.url, schedules)
                 .then(
                     (statusReply) => {
                         commit(MutationTypes.STATION_ACTIVITY, info);

@@ -2,7 +2,7 @@ import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import FakeTimers from "@sinonjs/fake-timers";
 import { ServicesImpl, SynchronizeNotes, PatchPortalNotes, Ids } from "@/services";
-import { Notes, MutationTypes, ActionTypes } from "@/store";
+import { Notes, SaveNotesAction, UpdateNoteMutation } from "@/store";
 
 describe("Notes", () => {
     let services;
@@ -101,9 +101,9 @@ describe("Notes", () => {
                 return Promise.resolve();
             });
 
-            store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: "studyObjective", update: { body: "Mobile Note" } });
+            store.commit(new UpdateNoteMutation(ids.mobile, "studyObjective", { body: "Mobile Note" }));
 
-            await store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
+            await store.dispatch(new SaveNotesAction(ids.mobile));
 
             addOrUpdates.mockClear();
 
@@ -155,9 +155,9 @@ describe("Notes", () => {
 
             clock.tick(60000);
 
-            store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: "studyObjective", update: { body: "Mobile Note" } });
+            store.commit(new UpdateNoteMutation(ids.mobile, "studyObjective", { body: "Mobile Note" }));
 
-            await store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
+            await store.dispatch(new SaveNotesAction(ids.mobile));
 
             addOrUpdates.mockClear();
 
@@ -187,9 +187,9 @@ describe("Notes", () => {
                 return Promise.resolve();
             });
 
-            store.commit(MutationTypes.UPDATE_NOTE, { stationId: ids.mobile, key: "studyObjective", update: { body: "Mobile Note" } });
+            store.commit(new UpdateNoteMutation(ids.mobile, "studyObjective", { body: "Mobile Note" }));
 
-            await store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
+            await store.dispatch(new SaveNotesAction(ids.mobile));
 
             addOrUpdates.mockClear();
 

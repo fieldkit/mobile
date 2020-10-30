@@ -3,7 +3,7 @@ import Config from "@/config";
 import { unixNow, promiseAfter } from "@/utilities";
 import { Services, Conservify } from "@/services";
 import { QueryThrottledError, StationQueryError, HttpError } from "@/lib/errors";
-import { PhoneLocation } from "@/store/types";
+import { PhoneLocation, Schedules } from "@/store/types";
 import { prepareReply, HttpStatusReply } from "@/store/http_reply";
 import { fk_app } from "fk-app-protocol/fk-app";
 
@@ -107,10 +107,10 @@ export default class QueryStation {
         });
     }
 
-    public configureSchedule(address: string, schedule): Promise<HttpStatusReply> {
+    public configureSchedule(address: string, schedules: Schedules): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
-            schedules: { modifying: true, ...schedule },
+            schedules: { modifying: true, ...schedules },
             time: unixNow(),
         });
 

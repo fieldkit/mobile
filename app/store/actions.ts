@@ -1,5 +1,5 @@
-import { ServiceInfo } from "@/store/types";
 import { NetworkInfo, HttpStatusReply } from "@/store/http_reply";
+import { ServiceInfo, PortalEnv, Schedules, Schedule } from "./types";
 
 export enum ActionTypes {
     INITIALIZE = "INITIALIZE",
@@ -121,6 +121,16 @@ export class ConfigureStationNetworksAction {
     constructor(public readonly deviceId: string, public readonly networks: NetworkInfo[]) {}
 }
 
+export class ConfigureStationSchedulesAction {
+    type = ActionTypes.CONFIGURE_STATION_SCHEDULES;
+
+    constructor(
+        public readonly deviceId: string,
+        public readonly modifying: { readings?: Schedule; network?: Schedule },
+        public readonly existing: Schedules
+    ) {}
+}
+
 export class AddStationNetworkAction {
     type = ActionTypes.CONFIGURE_STATION_ADD_NETWORK;
 
@@ -133,16 +143,16 @@ export class RemoveStationNetworkAction {
     constructor(public readonly deviceId: string, public readonly removing: NetworkInfo, public readonly networks: NetworkInfo[]) {}
 }
 
-export interface PortalEnv {
-    name: string | null;
-    baseUri: string;
-    ingestionUri: string;
-}
-
 export class ChangePortalEnvAction {
     type = ActionTypes.CHANGE_PORTAL_ENV;
 
     constructor(public readonly env: PortalEnv) {}
+}
+
+export class NameStationLocationAction {
+    type = ActionTypes.STATION_LOCATION;
+
+    constructor(public readonly stationId: number, public readonly location: string) {}
 }
 
 export class SaveNotesAction {

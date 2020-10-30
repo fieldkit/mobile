@@ -4,7 +4,7 @@ import { ActionContext } from "vuex";
 import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
-import { SaveNotesAction, ActionTypes } from "../actions";
+import { SaveNotesAction, NameStationLocationAction, ActionTypes } from "../actions";
 import {
     MutationTypes,
     UpdateNoteMutation,
@@ -163,19 +163,16 @@ const getters = {};
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {
+        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
             return services
                 .db()
                 .getAllNotes()
                 .then((all) => all.map((row) => Notes.fromRow(row)))
                 .then((all) => commit(MutationTypes.LOAD_NOTES_ALL, all));
         },
-        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
-        [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
-        [ActionTypes.STATION_LOCATION]: (
-            { commit, dispatch, state }: ActionParameters,
-            payload: { stationId: number; location: string }
-        ) => {
+        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters) => {},
+        [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters) => {},
+        [ActionTypes.STATION_LOCATION]: ({ commit, dispatch, state }: ActionParameters, payload: NameStationLocationAction) => {
             commit(MutationTypes.NOTES_LOCATION, payload);
 
             return services.db().addOrUpdateNotes(state.stations[payload.stationId]);
@@ -220,8 +217,8 @@ const mutations = {
         });
     },
     [MutationTypes.UPDATE_NOTE]: (state: NotesState, payload: UpdateNoteMutation) => {
-        if (!payload.key) throw new Error("key is required");
-        if (!payload.update) throw new Error("update is required");
+        if (!payload.key) throw new Error(`key is required`);
+        if (!payload.update) throw new Error(`update is required`);
         if (!state.stations[payload.stationId]) {
             state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
         }
@@ -231,6 +228,7 @@ const mutations = {
         console.log(`update-note: ${JSON.stringify(payload)}`);
     },
     [MutationTypes.ATTACH_NOTE_MEDIA]: (state: NotesState, payload: AttachNoteMediaMutation) => {
+        if (!payload.media) throw new Error(`media is required`);
         if (!state.stations[payload.stationId]) {
             state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
         }

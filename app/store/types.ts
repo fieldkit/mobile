@@ -196,6 +196,12 @@ export class Schedule {
     }
 }
 
+export interface PortalEnv {
+    name: string | null;
+    baseUri: string;
+    ingestionUri: string;
+}
+
 export interface Schedules {
     readings: Schedule;
     network: Schedule;

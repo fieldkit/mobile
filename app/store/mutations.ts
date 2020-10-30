@@ -106,7 +106,7 @@ export class AttachNoteMediaMutation {
 
     constructor(
         public readonly stationId: number,
-        public readonly key: string,
+        public readonly key: string | null,
         public readonly media: NoteMedia,
         public readonly audio: boolean
     ) {}
@@ -115,5 +115,5 @@ export class AttachNoteMediaMutation {
 export class RemoveNoteMediaMutation {
     type = MutationTypes.REMOVE_NOTE_MEDIA;
 
-    constructor(public readonly stationId: number, public readonly key: string, public readonly media: NoteMedia) {}
+    constructor(public readonly stationId: number, public readonly key: string | null, public readonly media: NoteMedia) {}
 }

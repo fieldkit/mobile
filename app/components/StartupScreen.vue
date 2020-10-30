@@ -19,9 +19,7 @@ import { ProcessAllStationsTask } from "@/lib/process";
 import { firebase } from "@nativescript/firebase";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
-
-import { OurStore } from "@/store";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes, OurStore } from "@/store";
 
 function initializeFirebase(services: Services): Promise<any> {
     console.log("initialize:firebase");
