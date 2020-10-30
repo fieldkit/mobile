@@ -27,7 +27,7 @@
                                 :text="notes.completed + '% ' + _L('complete')"
                                 class="size-14 bold blue"
                                 verticalAlignment="bottom"
-                            ></Label>
+                            />
                             <Label
                                 row="1"
                                 colSpan="2"
@@ -35,7 +35,7 @@
                                 textWrap="true"
                                 lineHeight="3"
                                 class="lighter size-14 m-t-5"
-                            ></Label>
+                            />
                         </GridLayout>
 
                         <NoteDisplay :note="notes.studyObjective" @open="(ev) => openNote(ev, 'studyObjective')" />
@@ -44,8 +44,8 @@
                         <NoteDisplay :note="notes.siteDescription" @open="(ev) => openNote(ev, 'siteDescription')" />
 
                         <StackLayout class="m-t-20">
-                            <Label :text="_L('photosRequired')" class="size-16 bold m-b-5"></Label>
-                            <Label :text="_L('photosInstruction')" class="lighter size-14"></Label>
+                            <Label :text="_L('photosRequired')" class="size-16 bold m-b-5" />
+                            <Label :text="_L('photosInstruction')" class="lighter size-14" />
                             <WrapLayout orientation="horizontal">
                                 <StackLayout v-for="(photo, index) in photos" :key="photo.path" class="photo-display">
                                     <StackLayout v-if="photoCache[photo.path]">

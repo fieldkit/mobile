@@ -79,7 +79,7 @@ export default Vue.extend({
         },
         onSave() {
             console.log("note save", this.form);
-            this.$emit("save", { form: this.form });
+            this.$emit("save", this.form);
         },
         onAudioTap() {
             this.audioReady = !this.audioReady;

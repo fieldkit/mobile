@@ -6,51 +6,7 @@ import * as MutationTypes from "../mutations";
 import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
-
-export interface NoteUpdate {
-    body: string;
-}
-
-export class NoteMedia {
-    constructor(public readonly path: string, public readonly key: string) {}
-
-    public static except(media: NoteMedia[], removing: NoteMedia): NoteMedia[] {
-        return media.filter((m) => m.path !== removing.path);
-    }
-
-    public static onlyAudio(media: NoteMedia[]): NoteMedia[] {
-        return media.filter(NoteMedia.isAudio.bind(this));
-    }
-
-    public static onlyPhotos(media: NoteMedia[]): NoteMedia[] {
-        return media.filter(NoteMedia.isPhoto.bind(this));
-    }
-
-    public static isPhoto(nm: NoteMedia): boolean {
-        return !NoteMedia.isAudio(nm);
-    }
-
-    public static isAudio(nm: NoteMedia): boolean {
-        return /(m4a|caf)$/.test(nm.path.toLowerCase());
-    }
-}
-
-export class NoteHelp {
-    constructor(public readonly title: string, public readonly instructions: string) {}
-}
-
-export class NoteForm {
-    constructor(
-        public readonly help: NoteHelp,
-        public readonly body: string = "",
-        public photos: NoteMedia[] = [],
-        public audio: NoteMedia[] = []
-    ) {}
-}
-
-export class NoteData {
-    constructor(public readonly body: string = "", public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
-}
+import { UpdateNoteMutation, NoteMedia, NoteHelp, NoteData, NoteForm, NoteUpdate } from "../typed-actions";
 
 export enum Keys {
     StudyObjective = "studyObjective",
@@ -194,10 +150,6 @@ export class Notes {
 
 type ActionParameters = ActionContext<NotesState, never>;
 
-export const LOAD_NOTES_ALL = "LOAD_NOTES_ALL";
-export const NOTES_LOCATION = "NOTES_LOCATION";
-export const NOTES_SAVED = "NOTES_SAVED";
-
 const getters = {};
 
 const actions = (services: ServiceRef) => {
@@ -207,7 +159,7 @@ const actions = (services: ServiceRef) => {
                 .db()
                 .getAllNotes()
                 .then((all) => all.map((row) => Notes.fromRow(row)))
-                .then((all) => commit(LOAD_NOTES_ALL, all));
+                .then((all) => commit(MutationTypes.LOAD_NOTES_ALL, all));
         },
         [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
         [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters, payload: any) => {},
@@ -215,16 +167,18 @@ const actions = (services: ServiceRef) => {
             { commit, dispatch, state }: ActionParameters,
             payload: { stationId: number; location: string }
         ) => {
-            commit(NOTES_LOCATION, payload);
+            commit(MutationTypes.NOTES_LOCATION, payload);
 
             return services.db().addOrUpdateNotes(state.stations[payload.stationId]);
         },
         [ActionTypes.SAVE_NOTES]: ({ commit, dispatch, state }: ActionParameters, payload: { stationId: number }) => {
+            const notes = state.stations[payload.stationId];
+            console.log(`notes: ${JSON.stringify(notes)}`);
             return services
                 .db()
-                .addOrUpdateNotes(state.stations[payload.stationId])
+                .addOrUpdateNotes(notes)
                 .then(() => {
-                    commit(NOTES_SAVED, payload);
+                    commit(MutationTypes.NOTES_SAVED, payload);
                 });
         },
         [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
@@ -256,13 +210,16 @@ const mutations = {
             return state.stations[station.id];
         });
     },
-    [MutationTypes.UPDATE_NOTE]: (state: NotesState, payload: { stationId: number; key: string; update: NoteUpdate }) => {
+    [MutationTypes.UPDATE_NOTE]: (state: NotesState, payload: UpdateNoteMutation) => {
         if (!payload.key) throw new Error("key is required");
         if (!payload.update) throw new Error("update is required");
         if (!state.stations[payload.stationId]) {
             state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
         }
         state.stations[payload.stationId] = state.stations[payload.stationId].updateNote(payload.key, payload.update);
+        const notes = state.stations[payload.stationId];
+        console.log(`update-note: ${JSON.stringify(notes)}`);
+        console.log(`update-note: ${JSON.stringify(payload)}`);
     },
     [MutationTypes.ATTACH_NOTE_MEDIA]: (
         state: NotesState,
@@ -281,16 +238,16 @@ const mutations = {
     [MutationTypes.REMOVE_NOTE_MEDIA]: (state: NotesState, payload: { stationId: number; key: string | null; audio: NoteMedia }) => {
         state.stations[payload.stationId] = state.stations[payload.stationId].removeMedia(payload.key, payload.audio);
     },
-    [NOTES_LOCATION]: (state: NotesState, payload: { stationId: number; location: string }) => {
+    [MutationTypes.NOTES_LOCATION]: (state: NotesState, payload: { stationId: number; location: string }) => {
         if (!state.stations[payload.stationId]) {
             state.stations[payload.stationId] = new Notes(payload.stationId, new Date(), new Date());
         }
         state.stations[payload.stationId] = state.stations[payload.stationId].changeLocation(payload.location);
     },
-    [LOAD_NOTES_ALL]: (state: NotesState, notes: Notes[]) => {
+    [MutationTypes.LOAD_NOTES_ALL]: (state: NotesState, notes: Notes[]) => {
         return notes.map((notes) => Vue.set(state.stations, notes.stationId, notes));
     },
-    [NOTES_SAVED]: (state: NotesState, payload: { stationId: number }) => {
+    [MutationTypes.NOTES_SAVED]: (state: NotesState, payload: { stationId: number }) => {
         state.stations[payload.stationId] = state.stations[payload.stationId].saved();
     },
 };

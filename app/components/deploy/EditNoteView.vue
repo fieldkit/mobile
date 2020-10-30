@@ -1,5 +1,5 @@
 <template>
-    <Page class="page plain" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page plain" actionBarHidden="true">
         <GridLayout rows="*">
             <FieldNoteForm
                 :help="help"
@@ -22,7 +22,7 @@ import FieldNoteForm from "./FieldNoteForm.vue";
 import * as MutationTypes from "@/store/mutations";
 import * as ActionTypes from "@/store/actions";
 
-import { Station, Notes, NoteData, NoteMedia, NoteHelp, NoteForm } from "@/store";
+import { Station, Notes, NoteData, NoteMedia, NoteHelp, NoteForm, UpdateNoteMutation } from "@/store";
 
 export default Vue.extend({
     components: {
@@ -63,11 +63,10 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(): void {},
         onSaveNote(form: NoteForm): Promise<any> {
             console.log("notes-view:saving", this.editingKey, form);
 
-            this.$store.commit(MutationTypes.UPDATE_NOTE, { stationId: this.stationId, key: this.editingKey, update: form });
+            this.$store.commit(new UpdateNoteMutation(this.stationId, this.editingKey, form));
 
             return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId }).then(() => {
                 return this.$navigateBack({});
