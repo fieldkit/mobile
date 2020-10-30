@@ -67,7 +67,7 @@ import _ from "lodash";
 import Vue from "vue";
 import routes from "../../routes";
 import { _T, validateStationName } from "../../utilities";
-import * as ActionTypes from "../../store/actions";
+import { ActionTypes } from "../../store/actions";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import LabeledTextField from "../LabeledTextField";

@@ -1,18 +1,18 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import * as ActionTypes from "../actions";
-import * as MutationTypes from "../mutations";
+import { MutationTypes } from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations, Schedules } from "../types";
 import {
+    ActionTypes,
     StationRepliedAction,
     ConfigureStationNetworksAction,
     RemoveStationNetworkAction,
     AddStationNetworkAction,
     TryStationAction,
     TryStationOnceAction,
-} from "@/store/typed-actions";
+} from "@/store/actions";
 import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";

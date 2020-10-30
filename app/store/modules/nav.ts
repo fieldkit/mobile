@@ -1,4 +1,4 @@
-import * as MutationTypes from "../mutations";
+import { MutationTypes } from "../mutations";
 import { RouteState } from "../../routes/navigate";
 import { ServiceRef } from "@/services";
 

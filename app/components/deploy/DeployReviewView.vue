@@ -109,7 +109,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "../../routes";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import * as animations from "../animations";
 import { Station, Notes, NoteForm } from "@/store";
 

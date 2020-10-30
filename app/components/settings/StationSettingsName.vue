@@ -60,7 +60,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import * as ActionTypes from "../../store/actions";
+import { ActionTypes } from "../../store/actions";
 
 import SharedComponents from "@/components/shared";
 import General from "./StationSettingsGeneral.vue";

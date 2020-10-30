@@ -75,7 +75,7 @@ import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
 import ModuleList from "./ModuleList.vue";
 import NotificationFooter from "./NotificationFooter.vue";
-import * as ActionTypes from "~/store/actions";
+import { ActionTypes } from "~/store/actions";
 
 export default Vue.extend({
     props: {

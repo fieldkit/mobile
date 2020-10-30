@@ -4,8 +4,7 @@ import { describe, expect, it } from "@jest/globals";
 import { Services, ServicesImpl } from "@/services";
 import { MockStationReplies } from "./utilities";
 import { prepareReply } from "@/store/http_reply";
-
-import { StationRepliedAction } from "@/store/typed-actions";
+import { StationRepliedAction } from "@/store/actions";
 
 function addFakeFirmware(services: Services) {
     services.PortalInterface().listFirmware = jest.fn((_) => {

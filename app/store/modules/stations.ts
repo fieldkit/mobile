@@ -1,8 +1,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import * as ActionTypes from "@/store/actions";
-import * as MutationTypes from "@/store/mutations";
+import { MutationTypes } from "../mutations";
 import {
     StationCreationFields,
     Station,
@@ -17,7 +16,7 @@ import {
     Schedules,
     PortalError,
 } from "@/store/types";
-import { StationRepliedAction } from "@/store/typed-actions";
+import { ActionTypes, StationRepliedAction } from "@/store/actions";
 import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
 import { HttpStatusReply, AtlasStatus } from "@/store/http_reply";

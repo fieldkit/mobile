@@ -1,4 +1,4 @@
-import * as ActionTypes from "../store/actions";
+import { ActionTypes } from "../store/actions";
 import { Station } from "../store/types";
 import { Store } from "../store/our-store";
 import PortalInterface, { Ids } from "./portal-interface";

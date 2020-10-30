@@ -23,7 +23,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import * as animations from "@/components/animations";
 
 import SharedComponents from "@/components/shared";

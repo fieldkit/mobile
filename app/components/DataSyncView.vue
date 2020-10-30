@@ -160,7 +160,7 @@ import _ from "lodash";
 import moment from "moment";
 
 import Vue from "vue";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import { StationSyncStatus } from "@/store";
 import routes from "@/routes";
 import Config from "@/config";

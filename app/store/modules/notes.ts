@@ -1,12 +1,11 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import * as ActionTypes from "../actions";
-import * as MutationTypes from "../mutations";
+import { ActionTypes } from "../actions";
 import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
-import { UpdateNoteMutation, NoteMedia, NoteHelp, NoteData, NoteForm, NoteUpdate } from "../typed-actions";
+import { MutationTypes, UpdateNoteMutation, NoteMedia, NoteHelp, NoteData, NoteForm, NoteUpdate } from "../mutations";
 
 export enum Keys {
     StudyObjective = "studyObjective",

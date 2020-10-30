@@ -1,8 +1,8 @@
 import _ from "lodash";
 import moment from "moment";
 import FileSystem from "@/wrappers/file-system";
-import * as ActionTypes from "../store/actions";
-import * as MutationTypes from "../store/mutations";
+import { ActionTypes } from "../store/actions";
+import { MutationTypes } from "../store/mutations";
 import { Store } from "../store/our-store";
 import PortalInterface, { Ids, PatchPortalNotes, PortalStationNotesReply, ExistingFieldNote, NewFieldNote } from "./portal-interface";
 import { Notes } from "../store/modules/notes";

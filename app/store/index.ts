@@ -17,14 +17,13 @@ import { portal } from "./modules/portal";
 import { cal } from "./modules/cal";
 import { notifications } from "./modules/notifications";
 
-import * as ActionTypes from "./actions";
-import * as MutationTypes from "./mutations";
+import { ActionTypes } from "./actions";
+import { MutationTypes } from "./mutations";
 import { Services, ServiceRef } from "@/services";
 
-export { ActionTypes, MutationTypes };
-
 export * from "./types";
-export * from "./typed-actions";
+export * from "./actions";
+export * from "./mutations";
 export * from "./http_reply";
 export * from "./row-types";
 

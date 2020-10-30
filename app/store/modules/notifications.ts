@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import * as ActionTypes from "../actions";
-import * as MutationTypes from "../mutations";
+import { ActionTypes } from "../actions";
+import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
 import { NotificationsTableRow } from "~/store/row-types";
 

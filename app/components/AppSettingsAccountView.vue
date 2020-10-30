@@ -56,7 +56,7 @@ import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemIconText from "~/components/SettingsItemIconText.vue";
 import * as animations from "~/components/animations";
-import * as ActionTypes from "~/store/actions";
+import { ActionTypes } from "~/store/actions";
 import routes from "@/routes";
 import Promise from "bluebird";
 import Services from "@/services/singleton";

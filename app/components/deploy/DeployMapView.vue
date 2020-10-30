@@ -88,7 +88,7 @@ import Vue from "vue";
 import { isIOS } from "@nativescript/core";
 import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
 import routes from "@/routes";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import { Schedule, Station, Notes } from "@/store";
 
 import SharedComponents from "@/components/shared";

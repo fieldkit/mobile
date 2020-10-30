@@ -1,8 +1,7 @@
 import { Enums } from "@nativescript/core";
 import { GeoLocation } from "@/wrappers/geolocation";
 import { promiseAfter, unixNow } from "@/utilities";
-import * as MutationTypes from "@/store/mutations";
-import { CommonLocations, PhoneLocation } from "@/store/types";
+import { MutationTypes, CommonLocations, PhoneLocation } from "@/store";
 import { Store } from "@/store/our-store";
 import Config from "@/config";
 

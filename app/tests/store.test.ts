@@ -4,10 +4,7 @@ import { prepareReply } from "../store/http_reply";
 import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
 
-import * as ActionTypes from "@/store/actions";
-import * as MutationTypes from "@/store/mutations";
-import { PhoneLocation, CommonLocations } from "@/store/types";
-import { StationRepliedAction } from "@/store/typed-actions";
+import { PhoneLocation, CommonLocations, StationRepliedAction, MutationTypes, ActionTypes } from "@/store";
 import { ServicesImpl, ServiceRef } from "@/services";
 
 import { nearby } from "@/store/modules/nearby";

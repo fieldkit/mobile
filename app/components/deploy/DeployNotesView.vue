@@ -135,8 +135,7 @@ import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import NoteDisplay from "./NoteDisplay.vue";
 
-import * as MutationTypes from "@/store/mutations";
-import * as ActionTypes from "@/store/actions";
+import { MutationTypes, ActionTypes } from "@/store";
 import * as animations from "../animations";
 
 export default Vue.extend({

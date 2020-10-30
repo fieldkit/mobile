@@ -2,7 +2,7 @@ import _ from "lodash";
 import axios from "axios";
 import AppSettings from "@/wrappers/app-settings";
 import { AuthenticationError } from "@/lib/errors";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import { Download, FileTypeUtils } from "@/store/types";
 import { Services } from "@/services";
 

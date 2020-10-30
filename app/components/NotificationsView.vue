@@ -53,7 +53,7 @@
 import Vue from "vue";
 import routes from "@/routes";
 import { isAndroid, Label } from "@nativescript/core";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import { Notification } from "@/store/modules/notifications";
 import * as animations from "~/components/animations";
 import NotificationItem from "~/components/NotificationItem.vue";

@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import { Schedule } from "@/store/types";
 
 import SharedComponents from "@/components/shared";

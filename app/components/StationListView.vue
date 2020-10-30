@@ -48,7 +48,7 @@ import routes from "@/routes";
 import * as animations from "./animations";
 
 import { AvailableStation } from "@/store/types";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";

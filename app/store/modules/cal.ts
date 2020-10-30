@@ -1,10 +1,9 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import * as ActionTypes from "../actions";
-import * as MutationTypes from "../mutations";
+import { ActionTypes, StationRepliedAction } from "../actions";
+import { MutationTypes } from "../mutations";
 import { Station, ServiceInfo } from "../types";
-import { StationRepliedAction } from "@/store/typed-actions";
 import { ServiceRef } from "@/services";
 import CalibrationService, { WireAtlasReply } from "@/services/calibration-service";
 

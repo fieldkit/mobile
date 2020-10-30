@@ -181,7 +181,7 @@
 import Vue from "vue";
 import routes from "@/routes";
 import { USERNAME, PASSWORD } from "@/secrets";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import Services from "@/services/singleton";
 import { Dialogs } from "@nativescript/core";
 

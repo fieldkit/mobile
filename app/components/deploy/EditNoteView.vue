@@ -19,10 +19,8 @@ import Vue from "vue";
 
 import SharedComponents from "@/components/shared";
 import FieldNoteForm from "./FieldNoteForm.vue";
-import * as MutationTypes from "@/store/mutations";
-import * as ActionTypes from "@/store/actions";
 
-import { Station, Notes, NoteData, NoteMedia, NoteHelp, NoteForm, UpdateNoteMutation } from "@/store";
+import { ActionTypes, MutationTypes, Station, Notes, NoteData, NoteMedia, NoteHelp, NoteForm, UpdateNoteMutation } from "@/store";
 
 export default Vue.extend({
     components: {

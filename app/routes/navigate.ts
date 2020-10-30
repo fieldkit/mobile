@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "vue";
-import * as MutationTypes from "../store/mutations";
+import { MutationTypes } from "../store/mutations";
 
 export interface NavigateOptions {
     clearHistory: boolean | null;

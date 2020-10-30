@@ -3,8 +3,8 @@ import Vue from "vue";
 import { ActionContext } from "vuex";
 import { Station, FirmwareInfo } from "../types";
 import { FirmwareTableRow } from "../row-types";
-import * as MutationTypes from "../mutations";
-import * as ActionTypes from "../actions";
+import { ActionTypes } from "../actions";
+import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
 
 export class AvailableFirmware {

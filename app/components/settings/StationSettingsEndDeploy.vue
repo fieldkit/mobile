@@ -37,7 +37,7 @@ import routes from "../../routes";
 
 import SharedComponents from "@/components/shared";
 
-import * as ActionTypes from "../../store/actions";
+import { ActionTypes } from "../../store/actions";
 
 export default Vue.extend({
     data() {

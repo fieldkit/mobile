@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import { ActiveRecording } from "@/store";
 import { Timer } from "@/common/timer";
 

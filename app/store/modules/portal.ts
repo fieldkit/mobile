@@ -1,11 +1,10 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
-import * as ActionTypes from "../actions";
-import * as MutationTypes from "../mutations";
+import { ActionTypes, PortalEnv, ChangePortalEnvAction } from "../actions";
+import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
 import { AccountsTableRow, SettingsTableRow } from "@/store/row-types";
-import { PortalEnv, ChangePortalEnvAction } from "@/store/typed-actions";
 import { CurrentUser } from "@/services/portal-interface";
 import Config from "@/config";
 

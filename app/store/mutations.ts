@@ -1,49 +1,102 @@
-export const SUCCESS = `SUCCESS`;
-export const ERROR = `ERROR`;
-export const NAVIGATION = "NAVIGATION";
-export const RESET = "RESET";
+export enum MutationTypes {
+    SUCCESS = `SUCCESS`,
+    ERROR = `ERROR`,
+    NAVIGATION = "NAVIGATION",
+    RESET = "RESET",
 
-// Phone stuff
+    // Phone stuff
 
-export const PHONE_NETWORK = "PHONE_NETWORK";
-export const PHONE_LOCATION = "PHONE_LOCATION";
+    PHONE_NETWORK = "PHONE_NETWORK",
+    PHONE_LOCATION = "PHONE_LOCATION",
 
-// Discovery / Comms
+    // Discovery / Comms
 
-export const FIND = "FIND";
-export const LOSE = "LOSE";
+    FIND = "FIND",
+    LOSE = "LOSE",
 
-export const STATIONS = "STATIONS";
-export const UPDATE = "UPDATE";
+    STATIONS = "STATIONS",
+    UPDATE = "UPDATE",
 
-export const TRANSFER_OPEN = "TRANSFER_OPEN";
-export const TRANSFER_PROGRESS = "TRANSFER_PROGRESS";
-export const TRANSFER_CLOSE = "TRANSFER_CLOSE";
+    TRANSFER_OPEN = "TRANSFER_OPEN",
+    TRANSFER_PROGRESS = "TRANSFER_PROGRESS",
+    TRANSFER_CLOSE = "TRANSFER_CLOSE",
 
-export const LOGIN = "LOGIN";
-export const LOGOUT = "LOGOUT";
+    LOGIN = "LOGIN",
+    LOGOUT = "LOGOUT",
 
-export const STATION_QUERIED = "STATION_QUERIED";
-export const STATION_ACTIVITY = "STATION_ACTIVITY";
+    STATION_QUERIED = "STATION_QUERIED",
+    STATION_ACTIVITY = "STATION_ACTIVITY",
 
-export const UPDATE_NOTE = "UPDATE_NOTE";
-export const ATTACH_NOTE_MEDIA = "ATTACH_NOTE_MEDIA";
-export const REMOVE_NOTE_MEDIA = "REMOVE_NOTE_MEDIA";
+    UPDATE_NOTE = "UPDATE_NOTE",
+    ATTACH_NOTE_MEDIA = "ATTACH_NOTE_MEDIA",
+    REMOVE_NOTE_MEDIA = "REMOVE_NOTE_MEDIA",
 
-export const LOAD_SETTINGS = "LOAD_SETTINGS";
-export const UPDATE_SETTINGS = "UPDATE_SETTINGS";
+    LOAD_SETTINGS = "LOAD_SETTINGS",
+    UPDATE_SETTINGS = "UPDATE_SETTINGS",
 
-export const LOAD_ACCOUNTS = "LOAD_ACCOUNTS";
-export const LOGOUT_ACCOUNTS = "LOGOUT_ACCOUNTS";
+    LOAD_ACCOUNTS = "LOAD_ACCOUNTS",
+    LOGOUT_ACCOUNTS = "LOGOUT_ACCOUNTS",
 
-export const LOAD_NOTIFICATIONS = "LOAD_NOTIFICATIONS";
+    LOAD_NOTIFICATIONS = "LOAD_NOTIFICATIONS",
 
-export const AVAILABLE_FIRMWARE = "AVAILABLE_FIRMWARE";
+    AVAILABLE_FIRMWARE = "AVAILABLE_FIRMWARE",
 
-export const SET_CURRENT_USER = "SET_CURRENT_USER";
+    SET_CURRENT_USER = "SET_CURRENT_USER",
 
-export const SET_CURRENT_PORTAL_ENV = "SET_CURRENT_PORTAL_ENV";
+    SET_CURRENT_PORTAL_ENV = "SET_CURRENT_PORTAL_ENV",
 
-export const LOAD_NOTES_ALL = "LOAD_NOTES_ALL";
-export const NOTES_LOCATION = "NOTES_LOCATION";
-export const NOTES_SAVED = "NOTES_SAVED";
+    LOAD_NOTES_ALL = "LOAD_NOTES_ALL",
+    NOTES_LOCATION = "NOTES_LOCATION",
+    NOTES_SAVED = "NOTES_SAVED",
+}
+
+export class NoteMedia {
+    constructor(public readonly path: string, public readonly key: string) {}
+
+    public static except(media: NoteMedia[], removing: NoteMedia): NoteMedia[] {
+        return media.filter((m) => m.path !== removing.path);
+    }
+
+    public static onlyAudio(media: NoteMedia[]): NoteMedia[] {
+        return media.filter(NoteMedia.isAudio.bind(this));
+    }
+
+    public static onlyPhotos(media: NoteMedia[]): NoteMedia[] {
+        return media.filter(NoteMedia.isPhoto.bind(this));
+    }
+
+    public static isPhoto(nm: NoteMedia): boolean {
+        return !NoteMedia.isAudio(nm);
+    }
+
+    public static isAudio(nm: NoteMedia): boolean {
+        return /(m4a|caf)$/.test(nm.path.toLowerCase());
+    }
+}
+
+export class NoteHelp {
+    constructor(public readonly title: string, public readonly instructions: string) {}
+}
+
+export class NoteData {
+    constructor(public readonly body: string = "", public photos: NoteMedia[] = [], public audio: NoteMedia[] = []) {}
+}
+
+export class NoteForm {
+    constructor(
+        public readonly help: NoteHelp,
+        public readonly body: string = "",
+        public photos: NoteMedia[] = [],
+        public audio: NoteMedia[] = []
+    ) {}
+}
+
+export interface NoteUpdate {
+    body: string;
+}
+
+export class UpdateNoteMutation {
+    type = MutationTypes.UPDATE_NOTE;
+
+    constructor(public readonly stationId: number, public readonly key: string, public readonly update: NoteUpdate) {}
+}

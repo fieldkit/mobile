@@ -36,7 +36,7 @@
 <script lang="ts">
 import Vue from "vue";
 
-import * as ActionTypes from "@/store/actions";
+import { ActionTypes } from "@/store/actions";
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
