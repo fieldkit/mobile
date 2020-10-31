@@ -5,9 +5,6 @@ import { fk_atlas } from "fk-atlas-protocol/fk-atlas";
 const HttpReply = fk_app.HttpReply;
 const AtlasReply = fk_atlas.WireAtlasReply;
 const SensorType = fk_atlas.SensorType;
-const DoCalibrations = fk_atlas.DoCalibrations;
-const PhCalibrations = fk_atlas.PhCalibrations;
-const EcCalibrations = fk_atlas.EcCalibrations;
 
 export interface LiveSensorReading {
     sensor: SensorCapabilities;
@@ -25,8 +22,9 @@ export interface LiveReadings {
 }
 
 export interface AtlasStatus {
-    type: string;
-    calibration: { type: string; ph: any; dissolvedOxygen: any; ec: any; orp: any; raw: number; total: number };
+    calibration: {
+        total: number;
+    };
 }
 
 export interface ModuleCapabilities {
@@ -44,7 +42,11 @@ export interface SensorCapabilities {
 }
 
 export interface ReplySchedule {
-    intervals: { start: number; end: number; interval; number }[];
+    intervals: {
+        start: number;
+        end: number;
+        interval: number;
+    }[];
 }
 
 export interface ReplySchedules {
@@ -68,8 +70,7 @@ export interface ReplyStatus {
         enabled: number;
         fix: number;
         time: number;
-        satellites;
-        number;
+        satellites: number;
         longitude: number;
         latitude: number;
         altitude: number;
@@ -132,10 +133,19 @@ export interface NetworkSettings {
     networks: NetworkInfo[];
 }
 
+export interface ModuleStatusReply {
+    position: number;
+    name: string;
+    deviceId: string;
+    flags: number;
+    sensors: fk_app.SensorCapabilities[];
+    status: AtlasStatus | null;
+}
+
 export interface HttpStatusReply {
     type: fk_app.ReplyType;
     status: ReplyStatus;
-    modules: ModuleCapabilities[];
+    modules: ModuleStatusReply[];
     liveReadings: LiveReadings[];
     schedules: ReplySchedules;
     streams: ReplyStream[];
@@ -144,49 +154,31 @@ export interface HttpStatusReply {
     errors: any[];
 }
 
-export function decodeAndPrepare(reply) {
+export function decodeAndPrepare(reply): HttpStatusReply {
     return prepareReply(HttpReply.decodeDelimited(reply));
 }
 
-function numberOfOnes(n: number): number {
-    n = n - ((n >> 1) & 0x55555555);
-    n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-    return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
-}
+export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasStatus | null {
+    if (!reply.calibration) {
+        throw new Error("reply has no calibration");
+    }
 
-export function fixupCalibrationStatus(reply) {
+    let total: number | null = null;
     switch (reply.calibration.type) {
         case SensorType.SENSOR_PH:
-            reply.calibration.total = numberOfOnes(reply.calibration.ph);
-            reply.calibration.phStatus = {
-                low: reply.calibration.ph & PhCalibrations.PH_LOW,
-                middle: reply.calibration.ph & PhCalibrations.PH_MIDDLE,
-                high: reply.calibration.ph & PhCalibrations.PH_HIGH,
-            };
+            total = numberOfOnes(reply.calibration.ph || 0);
             break;
         case SensorType.SENSOR_TEMP:
-            reply.calibration.total = numberOfOnes(reply.calibration.temp);
-            reply.calibration.tempStatus = {};
+            total = numberOfOnes(reply.calibration.temp || 0);
             break;
         case SensorType.SENSOR_ORP:
-            reply.calibration.total = numberOfOnes(reply.calibration.orp);
-            reply.calibration.orpStatus = {};
+            total = numberOfOnes(reply.calibration.orp || 0);
             break;
         case SensorType.SENSOR_DO:
-            reply.calibration.total = numberOfOnes(reply.calibration.dissolvedOxygen);
-            reply.calibration.doStatus = {
-                atm: reply.calibration.dissolvedOxygen & DoCalibrations.DO_ATMOSPHERE,
-                zero: reply.calibration.dissolvedOxygen & DoCalibrations.DO_ZERO,
-            };
+            total = numberOfOnes(reply.calibration.dissolvedOxygen || 0);
             break;
         case SensorType.SENSOR_EC:
-            reply.calibration.total = numberOfOnes(reply.calibration.ec);
-            reply.calibration.ecStatus = {
-                dry: reply.calibration.ec & EcCalibrations.EC_DRY,
-                single: reply.calibration.ec & EcCalibrations.EC_SINGLE,
-                low: reply.calibration.ec & EcCalibrations.EC_DUAL_LOW,
-                high: reply.calibration.ec & EcCalibrations.EC_DUAL_HIGH,
-            };
+            total = numberOfOnes(reply.calibration.ec || 0);
             break;
         case SensorType.SENSOR_NONE:
             break;
@@ -195,21 +187,36 @@ export function fixupCalibrationStatus(reply) {
             break;
     }
 
-    return reply;
+    if (!total) {
+        return null;
+    }
+
+    return {
+        calibration: {
+            total: total,
+        },
+    };
 }
 
-function prepareModule(m: any): any {
-    m.deviceId = Buffer.from(m.id).toString("hex");
-    m.id = null;
-    if (m.status && /*_.isArray(m.status) &&*/ m.status.length > 0) {
-        if (m.name.indexOf("modules.water.") == 0) {
-            const buffer = Buffer.from(m.status);
-            m.status = fixupCalibrationStatus(AtlasReply.decode(buffer));
-        } else {
-            console.log("unknown module status", m);
+function prepareModule(m: fk_app.ModuleCapabilities): ModuleStatusReply {
+    const maybeDecodeStatus = () => {
+        if (m.status && m.status.length > 0) {
+            if (m.name.indexOf("modules.water.") == 0) {
+                return fixupCalibrationStatus(AtlasReply.decode(Buffer.from(m.status)));
+            } else {
+                console.log("unknown module status", m);
+            }
         }
-    }
-    return m;
+        return null;
+    };
+    return {
+        deviceId: Buffer.from(m.id).toString("hex"),
+        status: maybeDecodeStatus(),
+        sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
+        name: m.name,
+        position: m.position,
+        flags: m.flags,
+    };
 }
 
 const MandatoryStatus = {
@@ -245,9 +252,7 @@ export function prepareReply(reply: any /* fk_app.HttpReply */): HttpStatusReply
         reply.status.identity.generation = null;
     }
     if (reply.modules && Array.isArray(reply.modules)) {
-        reply.modules.map((m) => {
-            return prepareModule(m);
-        });
+        reply.modules = reply.modules.map((m) => prepareModule(m));
     }
     if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
         reply.liveReadings.map((lr) => {
@@ -290,4 +295,10 @@ export function prepareReply(reply: any /* fk_app.HttpReply */): HttpStatusReply
     }
 
     return deepmerge.all([MandatoryStatus, reply]) as HttpStatusReply;
+}
+
+function numberOfOnes(n: number): number {
+    n = n - ((n >> 1) & 0x55555555);
+    n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
+    return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
 }

@@ -5,11 +5,9 @@ import { ActionTypes, StationRepliedAction } from "../actions";
 import { MutationTypes } from "../mutations";
 import { Station, ServiceInfo } from "../types";
 import { ServiceRef } from "@/services";
-import CalibrationService, { WireAtlasReply } from "@/services/calibration-service";
-
 import { GlobalGetters } from "./global";
-
 import { calibrationStrategies, ModuleStatus, AtlasSensorType, StationCalibration, AtlasCalValue } from "@/calibration";
+import CalibrationService, { WireAtlasReply } from "@/services/calibration-service";
 
 export const CALIBRATED = "CALIBRATED";
 export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
@@ -47,7 +45,7 @@ const getters = {
         rootGetters: GlobalGetters
     ): { [index: number]: StationCalibration } => {
         return _(rootGetters.legacyStations)
-            .map((station, key) => {
+            .map((station) => {
                 return new StationCalibration(station, state.status, calibrationStrategies());
             })
             .keyBy((k) => k.id)
@@ -93,7 +91,7 @@ const actions = (services: ServiceRef) => {
                 throw new Error(`no info for nearby station ${payload.deviceId}`);
             }
             const service = new CalibrationService(services.conservify());
-            const url = info.url + "/modules/" + payload.position;
+            const url = `${info.url}/modules/${payload.position}`;
             return service.clearCalibration(url).then((cleared) => {
                 console.log("cal:", "cleared", payload.moduleId, cleared);
                 return commit(CLEARED_CALIBRATION, { [payload.moduleId]: cleared });
@@ -103,7 +101,7 @@ const actions = (services: ServiceRef) => {
             const info = state.connected[payload.deviceId];
             if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);
             const service = new CalibrationService(services.conservify());
-            const url = info.url + "/modules/" + payload.position;
+            const url = `${info.url}/modules/${payload.position}`;
             const params = {
                 sensorType: payload.sensorType,
                 which: payload.value.which,
@@ -123,11 +121,9 @@ const mutations = {
         Object.assign(state, new CalibrationState());
     },
     [MutationTypes.FIND]: (state: CalibrationState, info: ServiceInfo) => {
-        // console.log("cal:find", info);
         Vue.set(state.connected, info.deviceId, info);
     },
     [MutationTypes.LOSE]: (state: CalibrationState, info: ServiceInfo) => {
-        // console.log("cal:lose", info);
         Vue.set(state.connected, info.deviceId, null);
     },
     [CALIBRATED]: (state: CalibrationState, payload: { [index: string]: object | any }) => {

@@ -13,7 +13,7 @@ export class AvailableFirmware {
         public readonly time: Date,
         public readonly url: string,
         public readonly path: string,
-        public readonly meta: object | string,
+        public readonly meta: Record<string, unknown>,
         public readonly simpleNumber: number
     ) {}
 
@@ -33,23 +33,20 @@ const getters = {};
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.INITIALIZE]: ({ commit, dispatch, state }: ActionParameters) => {
-            return dispatch(ActionTypes.RELOAD_FIRMWARE);
+        [ActionTypes.INITIALIZE]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await dispatch(ActionTypes.RELOAD_FIRMWARE);
         },
-        [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-            const firmware = dispatch(ActionTypes.FIRMWARE_REFRESH);
-            return Promise.resolve({
-                firmware: firmware,
-            });
+        [ActionTypes.AUTHENTICATED]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await dispatch(ActionTypes.FIRMWARE_REFRESH);
         },
-        [ActionTypes.FIRMWARE_REFRESH]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
+        [ActionTypes.FIRMWARE_REFRESH]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await services
                 .firmware()
                 .downloadFirmware()
                 .then(() => dispatch(ActionTypes.RELOAD_FIRMWARE));
         },
-        [ActionTypes.RELOAD_FIRMWARE]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
+        [ActionTypes.RELOAD_FIRMWARE]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await services
                 .db()
                 .getAllFirmware()
                 .then((all) => all.map((row) => AvailableFirmware.fromRow(row)))

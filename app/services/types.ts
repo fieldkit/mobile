@@ -1,10 +1,6 @@
-export class ImageAsset {
-    constructor() {}
-}
+export class ImageAsset {}
 
-export class ImageSource {
-    constructor() {}
-}
+export class ImageSource {}
 
 export class IncomingImage {
     constructor(public readonly asset: ImageAsset) {}

@@ -13,7 +13,7 @@ export class NavigationState {
 
 const getters = {};
 
-const actions = (services: ServiceRef) => {
+const actions = (_services: ServiceRef) => {
     return {};
 };
 

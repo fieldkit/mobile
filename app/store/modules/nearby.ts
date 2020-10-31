@@ -75,7 +75,7 @@ const actions = (services: ServiceRef) => {
             );
             const offline = candidates;
             const tries = offline.map((candidate) => dispatch(new TryStationOnceAction(candidate)));
-            return await Promise.all(tries);
+            await Promise.all(tries);
         },
         [ActionTypes.REFRESH]: ({ dispatch, state }: ActionParameters) => {
             const now = new Date();
@@ -107,7 +107,7 @@ const actions = (services: ServiceRef) => {
             const info = state.stations[payload.deviceId]?.info || null;
             commit(MutationTypes.LOSE, payload);
             if (info) {
-                dispatch(new TryStationAction(info));
+                void dispatch(new TryStationAction(info));
             }
             return;
         },
@@ -127,7 +127,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
             if (!payload) throw new Error("payload required");
             if (!payload.info) throw new Error("payload.info required");
-            return await backOff(() => dispatch(new TryStationOnceAction(payload.info)), {
+            await backOff(() => dispatch(new TryStationOnceAction(payload.info)), {
                 maxDelay: 60000,
                 numOfAttempts: 10,
                 startingDelay: 250,
@@ -143,7 +143,7 @@ const actions = (services: ServiceRef) => {
                         commit(MutationTypes.STATION_ACTIVITY, info);
                         return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                     },
-                    (error) => {
+                    (error: Error) => {
                         if (QueryThrottledError.isInstance(error)) {
                             console.log("query-station:warning", error.message);
                             return Promise.resolve();

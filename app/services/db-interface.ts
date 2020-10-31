@@ -670,7 +670,7 @@ export default class DatabaseInterface {
                     firmware.profile,
                     firmware.etag,
                     firmware.path,
-                    firmware.meta,
+                    _.isObject(firmware.meta) ? JSON.stringify(firmware.meta) : firmware.meta,
                     firmware.buildTime,
                     firmware.buildNumber,
                 ];

@@ -24,8 +24,6 @@ import { Services, ServiceRef } from "@/services";
 export * from "./types";
 export * from "./actions";
 export * from "./mutations";
-export * from "./http-types";
-export * from "./row-types";
 
 export * from "./modules/nearby";
 export * from "./modules/stations";

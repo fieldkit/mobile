@@ -23,8 +23,8 @@ class DatabaseWrapper implements Database {
         );
     }
 
-    public execute(sql: string, params: undefined | any[] = undefined): Promise<void> {
-        return this.db.execSQL(sql, params).then(() => {});
+    public async execute(sql: string, params: undefined | any[] = undefined): Promise<void> {
+        await this.db.execSQL(sql, params);
     }
 
     public batch(sql: string | string[]): Promise<Rows[]> {

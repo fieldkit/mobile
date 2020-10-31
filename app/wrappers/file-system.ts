@@ -1,4 +1,4 @@
-import { Folder, File, knownFolders, path as FilePaths, FileSystemEntity } from "tns-core-modules/file-system";
+import { Folder, File, knownFolders, path as FilePaths, FileSystemEntity } from "@nativescript/core";
 import { FileLike, listAllFiles } from "@/lib/fs";
 
 export class FileWrapper {
@@ -19,11 +19,10 @@ export class FileWrapper {
         }
     }
 
-    public remove(): Promise<void> {
+    public async remove(): Promise<void> {
         if (this.f) {
-            return Promise.resolve(this.f.remove());
+            this.f.remove();
         }
-        return Promise.resolve();
     }
 }
 

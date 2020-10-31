@@ -1,4 +1,3 @@
-import _ from "lodash";
 import Vue from "vue";
 import { ActionContext } from "vuex";
 import * as Camera from "@nativescript/camera";
@@ -43,7 +42,7 @@ export class ActiveRecording {
 
 export class MediaState {
     public recording: ActiveRecording | null = null;
-    public photoCache: { [index: string]: any } = {};
+    public photoCache: { [index: string]: unknown } = {};
 }
 
 type ActionParameters = ActionContext<MediaState, never>;
@@ -52,18 +51,18 @@ const getters = {};
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.AUDIO_RECORD]: ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.AUDIO_RECORD]: async ({ commit, dispatch, state }: ActionParameters) => {
             if (state.recording) throw new Error("already recording");
-            return services
+            await services
                 .audio()
                 .startAudioRecording()
-                .then((path) => {
+                .then((path: string) => {
                     commit(AUDIO_RECORDING_PROGRESS, new ActiveRecording(path));
                 });
         },
-        [ActionTypes.AUDIO_PAUSE]: ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.AUDIO_PAUSE]: async ({ commit, dispatch, state }: ActionParameters) => {
             if (!state.recording) throw new Error("no recording");
-            return services
+            await services
                 .audio()
                 .pauseAudioRecording(state.recording)
                 .then(() => {
@@ -71,9 +70,9 @@ const actions = (services: ServiceRef) => {
                     return commit(AUDIO_RECORDING_PROGRESS, state.recording.pause());
                 });
         },
-        [ActionTypes.AUDIO_RESUME]: ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.AUDIO_RESUME]: async ({ commit, dispatch, state }: ActionParameters) => {
             if (!state.recording) throw new Error("no recording");
-            return services
+            await services
                 .audio()
                 .resumeAudioRecording(state.recording)
                 .then(() => {
@@ -81,9 +80,9 @@ const actions = (services: ServiceRef) => {
                     commit(AUDIO_RECORDING_PROGRESS, state.recording.resume());
                 });
         },
-        [ActionTypes.AUDIO_STOP]: ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.AUDIO_STOP]: async ({ commit, dispatch, state }: ActionParameters) => {
             if (!state.recording) throw new Error("no recording");
-            return services
+            await services
                 .audio()
                 .stopAudioRecording(state.recording)
                 .then(() => {

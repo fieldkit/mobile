@@ -70,6 +70,7 @@ export class PatchPortalNotes {
 export interface PortalPatchNotesPayload {
     notes: PatchPortalNotes[];
 }
+
 export interface CurrentUser {
     name: string;
     portalId: string;
@@ -88,7 +89,7 @@ export interface PortalFirmware {
     id: number;
     time: number;
     url: string;
-    meta: string | object;
+    meta: Record<string, unknown>;
     module: string;
     profile: string;
     etag: string;

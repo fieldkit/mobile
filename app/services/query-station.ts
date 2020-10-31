@@ -31,13 +31,13 @@ export interface QueryOptions {
 const log = Config.logger("QueryStation");
 
 export default class QueryStation {
-    private readonly _conservify: Conservify;
-    private readonly _openQueries: any = {};
-    private readonly _lastQueries: any = {};
-    private readonly _lastQueryTried: any = {};
+    private readonly conservify: Conservify;
+    private readonly openQueries: { [index: string]: boolean } = {};
+    private readonly lastQueries: { [index: string]: Date } = {};
+    private readonly lastQueryTried: { [index: string]: Date } = {};
 
     constructor(services: Services) {
-        this._conservify = services.Conservify();
+        this.conservify = services.Conservify();
     }
 
     private buildLocateMessage(queryType: number, locate: PhoneLocation | null): fk_app.HttpQuery {
@@ -157,7 +157,7 @@ export default class QueryStation {
         }
 
         return this.trackActivity({ url: url, throttle: false }, () => {
-            return this._conservify
+            return this.conservify
                 .json({
                     method: "HEAD",
                     url: url,
@@ -190,7 +190,7 @@ export default class QueryStation {
 
     public queryLogs(url: string): Promise<string> {
         return this.trackActivityAndThrottle(url, () => {
-            return this._conservify
+            return this.conservify
                 .text({
                     url: url + "/download/logs",
                 })
@@ -208,7 +208,7 @@ export default class QueryStation {
 
     public download(url: string, path: string, progress: ProgressCallback): Promise<{ headers: { [index: string]: string } }> {
         return this.trackActivity({ url: url, throttle: false }, () => {
-            return this._conservify
+            return this.conservify
                 .download({
                     method: "GET",
                     url: url,
@@ -228,7 +228,7 @@ export default class QueryStation {
 
     public uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<void> {
         return this.trackActivity({ url: url, throttle: false }, () => {
-            return this._conservify
+            return this.conservify
                 .upload({
                     method: "POST",
                     url: url + "/upload/firmware?swap=1",
@@ -294,7 +294,7 @@ export default class QueryStation {
 
     private trackActivity(options: TrackActivityOptions, factory: () => Promise<any>): Promise<any> {
         const stationKey = this.urlToStationKey(options.url);
-        if (this._openQueries[stationKey] === true) {
+        if (this.openQueries[stationKey] === true) {
             if (options.throttle) {
                 console.log(options.url, "throttle");
                 return Promise.reject(new QueryThrottledError("throttled"));
@@ -306,18 +306,18 @@ export default class QueryStation {
                 return this.trackActivity(options, factory);
             });
         }
-        this._openQueries[stationKey] = true;
-        this._lastQueryTried[stationKey] = new Date();
+        this.openQueries[stationKey] = true;
+        this.lastQueryTried[stationKey] = new Date();
 
         return factory()
             .then(
                 (value) => {
-                    this._openQueries[stationKey] = false;
-                    this._lastQueries[stationKey] = new Date();
+                    this.openQueries[stationKey] = false;
+                    this.lastQueries[stationKey] = new Date();
                     return value;
                 },
                 (error) => {
-                    this._openQueries[stationKey] = false;
+                    this.openQueries[stationKey] = false;
                     return Promise.reject(error);
                 }
             )
@@ -350,7 +350,7 @@ export default class QueryStation {
             const binaryQuery = HttpQuery.encodeDelimited(message).finish();
             log.info(url, "querying", JSON.stringify(message));
 
-            return this._conservify
+            return this.conservify
                 .protobuf({
                     method: "POST",
                     url: url,
@@ -360,15 +360,11 @@ export default class QueryStation {
                 .then(
                     (response) => response,
                     (err) => {
-                        if (false) {
-                            console.log(url, "query error", err, err ? err.stack : null);
-                        } else {
-                            console.log(url, "query error", err.message);
-                        }
+                        console.log(url, "query error", err.message);
                         return Promise.reject(err);
                     }
                 );
-        }).then((response) => {
+        }).then((response: { body: string }) => {
             if (response.body.length == 0) {
                 console.log(`empty station reply`, response);
                 throw new Error(`empty station reply`);

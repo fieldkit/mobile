@@ -23,8 +23,8 @@ const fkdev: PortalEnv = {
 
 export class PortalState {
     authenticated = false;
-    settings: any;
-    accounts: any;
+    settings: Record<string, unknown> = {};
+    accounts: AccountsTableRow[] = [];
     currentUser: CurrentUser | null = null;
     availableEnvs: PortalEnv[] = [fkprd, fkdev];
     env: PortalEnv = fkprd;
@@ -83,7 +83,7 @@ const actions = (services: ServiceRef) => {
                     return services
                         .db()
                         .addOrUpdateAccounts(self)
-                        .then((all) => {
+                        .then(() => {
                             services.portal().setCurrentUser(self);
                             commit(MutationTypes.SET_CURRENT_USER, self);
                             return dispatch(ActionTypes.LOAD_ACCOUNTS);
@@ -95,7 +95,7 @@ const actions = (services: ServiceRef) => {
             return services
                 .db()
                 .deleteAllAccounts()
-                .then((all) => {
+                .then(() => {
                     commit(MutationTypes.LOGOUT_ACCOUNTS);
                     return dispatch(ActionTypes.LOAD_ACCOUNTS);
                 })
@@ -165,7 +165,7 @@ const mutations = {
     [MutationTypes.LOGOUT_ACCOUNTS]: (state: PortalState) => {
         Vue.set(state, "accounts", []);
     },
-    [MutationTypes.LOAD_ACCOUNTS]: (state: PortalState, accounts: AccountsTableRow) => {
+    [MutationTypes.LOAD_ACCOUNTS]: (state: PortalState, accounts: AccountsTableRow[]) => {
         Vue.set(state, "accounts", accounts);
     },
     [MutationTypes.SET_CURRENT_PORTAL_ENV]: (state: PortalState, env: PortalEnv) => {
