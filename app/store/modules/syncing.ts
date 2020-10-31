@@ -316,10 +316,10 @@ type ActionParameters = ActionContext<SyncingState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.DOWNLOAD_ALL]: ({ dispatch }: ActionParameters, syncs: StationSyncStatus[]): Promise<any> => {
-            return Promise.all(syncs.map((dl) => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
+        [ActionTypes.DOWNLOAD_ALL]: async ({ dispatch }: ActionParameters, syncs: StationSyncStatus[]): Promise<void> => {
+            await Promise.all(syncs.map((dl) => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
         },
-        [ActionTypes.DOWNLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<any> => {
+        [ActionTypes.DOWNLOAD_STATION]: async ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<void> => {
             if (!sync.connected) {
                 throw new Error("refusing to download from disconnected station");
             }
@@ -332,11 +332,11 @@ const actions = (services: ServiceRef) => {
 
             console.log("syncing:download", sync.downloads);
 
-            return querySizes(services, sync.downloads)
-                .then((sizes) => {
+            await querySizes(services, sync.downloads)
+                .then((sizes: CalculatedSize[]) => {
                     console.log("syncing:sizes", sizes);
 
-                    const totalBytes = _.sum((sizes) => sizes.size);
+                    const totalBytes = _.sum(sizes.map((s) => s.size));
 
                     commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, totalBytes));
                     return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
@@ -345,11 +345,11 @@ const actions = (services: ServiceRef) => {
                         console.log("syncing:download", file.url, fsFile);
                         return services
                             .queryStation()
-                            .download(file.url, fsFile.path, (total: number, copied: number, info) => {
+                            .download(file.url, fsFile.path, (total: number, copied: number, info: never) => {
                                 commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                             })
                             .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
-                            .catch((error) => {
+                            .catch((error: Error) => {
                                 if (AuthenticationError.isInstance(error)) {
                                     Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
                                 } else {
@@ -366,10 +366,10 @@ const actions = (services: ServiceRef) => {
                     state.busy[sync.deviceId] = false;
                 });
         },
-        [ActionTypes.UPLOAD_ALL]: ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]): Promise<any> => {
-            return Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
+        [ActionTypes.UPLOAD_ALL]: async ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]): Promise<void> => {
+            await Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
         },
-        [ActionTypes.UPLOAD_STATION]: ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<any> => {
+        [ActionTypes.UPLOAD_STATION]: async ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<void> => {
             const paths = sync.getPathsToUpload();
             const downloads = paths.map((path) => state.pending[path]).filter((d) => d != null);
             if (downloads.length != paths.length) {
@@ -390,7 +390,7 @@ const actions = (services: ServiceRef) => {
 
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
 
-            return serializePromiseChain(downloads, (download: Download) => {
+            await serializePromiseChain(downloads, (download: Download) => {
                 console.log("syncing:upload", sync.name, download);
                 return services
                     .portal()
@@ -496,7 +496,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
 }
 
 const mutations = {
-    [MutationTypes.RESET]: (state: SyncingState, error: string) => {
+    [MutationTypes.RESET]: (state: SyncingState) => {
         Object.assign(state, new SyncingState());
     },
     [MutationTypes.STATIONS]: (state: SyncingState, stations: Station[]) => {
@@ -582,7 +582,7 @@ function parseBlocks(blocks: [string] | string) {
     }
 
     if (!_.isString(blocks)) {
-        throw new Error(`invalid fk-blocks header: ${blocks}`);
+        throw new Error(`invalid fk-blocks header: ${JSON.stringify(blocks)}`);
     }
 
     const parts = blocks

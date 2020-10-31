@@ -170,8 +170,12 @@ const actions = (services: ServiceRef) => {
                 .then((all) => all.map((row) => Notes.fromRow(row)))
                 .then((all) => commit(MutationTypes.LOAD_NOTES_ALL, all));
         },
-        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters) => {},
-        [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters) => {},
+        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters) => {
+            //
+        },
+        [ActionTypes.CONFIGURE_STATION_SCHEDULES]: ({ commit, dispatch, state }: ActionParameters) => {
+            //
+        },
         [ActionTypes.STATION_LOCATION]: ({ commit, dispatch, state }: ActionParameters, payload: NameStationLocationAction) => {
             commit(MutationTypes.NOTES_LOCATION, payload);
 

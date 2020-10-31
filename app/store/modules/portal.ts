@@ -159,8 +159,8 @@ const mutations = {
     [MutationTypes.LOGOUT]: (state: PortalState) => {
         Vue.set(state, "authenticated", false);
     },
-    [MutationTypes.LOAD_SETTINGS]: (state: PortalState, settings: SettingsTableRow) => {
-        Vue.set(state, "settings", settings[0].settingsObject);
+    [MutationTypes.LOAD_SETTINGS]: (state: PortalState, rows: SettingsTableRow[]) => {
+        Vue.set(state, "settings", rows[0].settingsObject);
     },
     [MutationTypes.LOGOUT_ACCOUNTS]: (state: PortalState) => {
         Vue.set(state, "accounts", []);

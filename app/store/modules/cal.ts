@@ -116,6 +116,8 @@ const actions = (services: ServiceRef) => {
     };
 };
 
+type PossibleCalibrations = WireAtlasReply;
+
 const mutations = {
     [MutationTypes.RESET]: (state: CalibrationState, error: string) => {
         Object.assign(state, new CalibrationState());
@@ -126,13 +128,13 @@ const mutations = {
     [MutationTypes.LOSE]: (state: CalibrationState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, null);
     },
-    [CALIBRATED]: (state: CalibrationState, payload: { [index: string]: object | any }) => {
+    [CALIBRATED]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
         Vue.set(state, "status", { ...state.status, ...payload });
     },
-    [CLEARED_CALIBRATION]: (state: CalibrationState, payload: { [index: string]: object | any }) => {
+    [CLEARED_CALIBRATION]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
         Vue.set(state, "status", { ...state.status, ...payload });
     },
-    [CALIBRATION_REFRESH]: (state: CalibrationState, payload: { [index: string]: object | any }) => {
+    [CALIBRATION_REFRESH]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
         Vue.set(state, "status", { ...state.status, ...payload });
     },
 };

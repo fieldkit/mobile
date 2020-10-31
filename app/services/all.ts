@@ -1,4 +1,3 @@
-import { OurStore } from "@/store";
 import PortalInterface from "./portal-interface";
 import PortalUpdater from "./portal-updater";
 import DiscoverStation from "./discover-station";
@@ -11,10 +10,12 @@ import StationFirmware from "./station-firmware";
 import CreateDb from "./create-db";
 import ImagesSaver from "./images-saver";
 import AudioInterface from "./audio-interface";
-import { TaskQueue } from "@/lib/tasks";
+
 import FileSystem from "@/wrappers/file-system";
 import Conservify from "@/wrappers/networking";
 import { DiscoveryEvents } from "./discovery-events";
+import { TaskQueue } from "@/lib/tasks";
+import { OurStore } from "@/store";
 
 export {
     PortalInterface,

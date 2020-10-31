@@ -5,7 +5,7 @@ import * as ImagePicker from "@nativescript/imagepicker";
 import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
-import { IncomingImage } from "@/services/types";
+import { ImageAsset, SavedImage, IncomingImage } from "@/services/types";
 import { serializePromiseChain } from "@/utilities";
 
 export const AUDIO_RECORDING_PROGRESS = "AUDIO_RECORDING_PROGRESS";
@@ -42,7 +42,7 @@ export class ActiveRecording {
 
 export class MediaState {
     public recording: ActiveRecording | null = null;
-    public photoCache: { [index: string]: unknown } = {};
+    public photoCache: { [index: string]: ImageAsset } = {};
 }
 
 type ActionParameters = ActionContext<MediaState, never>;
@@ -64,7 +64,7 @@ const actions = (services: ServiceRef) => {
             if (!state.recording) throw new Error("no recording");
             await services
                 .audio()
-                .pauseAudioRecording(state.recording)
+                .pauseAudioRecording()
                 .then(() => {
                     if (!state.recording) throw new Error("no recording");
                     return commit(AUDIO_RECORDING_PROGRESS, state.recording.pause());
@@ -74,7 +74,7 @@ const actions = (services: ServiceRef) => {
             if (!state.recording) throw new Error("no recording");
             await services
                 .audio()
-                .resumeAudioRecording(state.recording)
+                .resumeAudioRecording()
                 .then(() => {
                     if (!state.recording) throw new Error("no recording");
                     commit(AUDIO_RECORDING_PROGRESS, state.recording.resume());
@@ -84,7 +84,7 @@ const actions = (services: ServiceRef) => {
             if (!state.recording) throw new Error("no recording");
             await services
                 .audio()
-                .stopAudioRecording(state.recording)
+                .stopAudioRecording()
                 .then(() => {
                     if (!state.recording) throw new Error("no recording");
                     const recording = state.recording;
@@ -92,7 +92,7 @@ const actions = (services: ServiceRef) => {
                     return recording;
                 });
         },
-        [ActionTypes.TAKE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, options: any) => {
+        [ActionTypes.TAKE_PICTURE]: ({ commit, dispatch, state }: ActionParameters) => {
             return Camera.takePicture({
                 keepAspectRatio: true,
                 saveToGallery: true,
@@ -114,23 +114,21 @@ const actions = (services: ServiceRef) => {
                     return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
                 });
         },
-        [ActionTypes.SAVE_PICTURE]: ({ commit, dispatch, state }: ActionParameters, payload: { asset: any }) => {
-            return services
+        [ActionTypes.SAVE_PICTURE]: async ({ commit, dispatch, state }: ActionParameters, payload: { asset: ImageAsset }) => {
+            await services
                 .images()
                 .saveImage(new IncomingImage(payload.asset))
-                .then((saved) => {
+                .then((saved: SavedImage) => {
                     commit(CACHE_PHOTO, saved);
-                    return saved;
                 });
         },
-        [ActionTypes.LOAD_PICTURES]: ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
-            return serializePromiseChain(payload.paths, (path) =>
+        [ActionTypes.LOAD_PICTURES]: async ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
+            await serializePromiseChain(payload.paths, (path) =>
                 services
                     .images()
                     .fromFile(path)
-                    .then((saved) => {
+                    .then((saved: SavedImage) => {
                         commit(CACHE_PHOTO, saved);
-                        return {};
                     })
             );
         },
@@ -144,7 +142,7 @@ const mutations = {
     [AUDIO_RECORDING_PROGRESS]: (state: MediaState, payload: ActiveRecording) => {
         Vue.set(state, "recording", payload);
     },
-    [CACHE_PHOTO]: (state: MediaState, payload: { path: string; source: any }) => {
+    [CACHE_PHOTO]: (state: MediaState, payload: { path: string; source: unknown }) => {
         Vue.set(state.photoCache, payload.path, payload.source);
     },
 };

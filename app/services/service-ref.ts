@@ -1,4 +1,15 @@
-import { PortalUpdater, Conservify, PortalInterface, FileSystem, QueryStation, DatabaseInterface, DiscoverStation } from "./all";
+import {
+    PortalUpdater,
+    Conservify,
+    PortalInterface,
+    AudioInterface,
+    ImagesSaver,
+    FileSystem,
+    QueryStation,
+    DatabaseInterface,
+    DiscoverStation,
+    StationFirmware,
+} from "./all";
 
 import { Services } from "./interface";
 
@@ -35,15 +46,15 @@ export class ServiceRef {
         return this.verify().DiscoverStation();
     }
 
-    public audio(): any {
+    public audio(): AudioInterface {
         return this.verify().Audio();
     }
 
-    public firmware(): any {
+    public firmware(): StationFirmware {
         return this.verify().StationFirmware();
     }
 
-    public images(): any {
+    public images(): ImagesSaver {
         return this.verify().Images();
     }
 

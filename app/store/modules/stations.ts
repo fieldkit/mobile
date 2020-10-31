@@ -21,7 +21,7 @@ import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
 import { HttpStatusReply, AtlasStatus } from "@/store/http-types";
 import { StationsState, GlobalState } from "./global";
-import { ServiceRef } from "@/services";
+import { ServiceRef, DatabaseInterface } from "@/services";
 
 export const STATION_PORTAL_STATUS = "STATION_PORTAL_STATUS";
 
@@ -270,7 +270,7 @@ class StationDatabaseFactory {
     private parseHttpError(column: string | null): PortalError | null {
         if (column && column.length > 0) {
             try {
-                return JSON.parse(column);
+                return JSON.parse(column) as PortalError;
             } catch (e) {
                 console.log("malformed http error", column);
             }
@@ -304,9 +304,11 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
     return factory.create();
 }
 
-function loadStationsFromDatabase(db): Promise<Station[]> {
+type LoadStationsValue = [StationTableRow[], ModuleTableRow[], SensorTableRow[], StreamTableRow[], DownloadTableRow[]];
+
+function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[]> {
     return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
-        (values: any[]) => {
+        (values: LoadStationsValue) => {
             const stations: StationTableRow[] = values[0];
             const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], (m) => m.stationId);
             const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], (s) => s.moduleId);
@@ -342,9 +344,9 @@ const actions = (services: ServiceRef) => {
             return services
                 .db()
                 .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
-                .then((station) => dispatch(ActionTypes.LOAD_STATIONS))
-                .catch((err) => {
-                    console.log(`error handling STATION_REPLY: ${err}`);
+                .then(() => dispatch(ActionTypes.LOAD_STATIONS))
+                .catch((err: Error) => {
+                    console.log(`error handling STATION_REPLY: ${err.message}`, err.stack);
                     console.log(`error handling STATION_REPLY:`, JSON.stringify(statusReply));
                     return Promise.reject(err);
                 });
@@ -353,7 +355,7 @@ const actions = (services: ServiceRef) => {
             return services
                 .db()
                 .setStationPortalError({ id: status.id }, status.error)
-                .then((station) => commit(STATION_PORTAL_STATUS, status));
+                .then(() => commit(STATION_PORTAL_STATUS, status));
         },
         [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
             return services
@@ -366,7 +368,9 @@ const actions = (services: ServiceRef) => {
                         .then((station) => commit(STATION_PORTAL_STATUS, status))
                 );
         },
-        [ActionTypes.UPDATE_PORTAL]: ({ commit }: ActionParameters) => {},
+        [ActionTypes.UPDATE_PORTAL]: async ({ commit }: ActionParameters) => {
+            //
+        },
     };
 };
 
