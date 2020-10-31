@@ -80,13 +80,13 @@ export interface NotesTableRow {
     createdAt: string;
     updatedAt: string;
     notes: string;
-    notesObject: any | null;
+    notesObject: Record<string, unknown> | undefined;
 }
 
 export interface SettingsTableRow {
     id: number;
     settings: string;
-    settingsObject: any | null;
+    settingsObject: Record<string, unknown> | undefined;
     createdAt: string;
     updatedAt: string;
 }

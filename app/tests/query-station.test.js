@@ -21,17 +21,8 @@ describe("QueryStation", () => {
     it("should retrieve a station status", () => {
         expect.assertions(2);
 
-        mockStation.queueBody({
-            errors: [],
-            type: 15,
-            status: {},
-            modules: [
-                {
-                    sensors: [[{}], [{}], [{}], [{}]],
-                    name: "Water Quality Module",
-                },
-            ],
-        });
+        const fake = mockStation.newFakeStation();
+        mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, null));
 
         return queryStation.getStatus(url).then((body) => {
             expect(body.liveReadings).toBeDefined();
@@ -45,13 +36,8 @@ describe("QueryStation", () => {
         // expect calls are never reached.
         expect.assertions(2);
 
-        mockStation.queueBody({
-            errors: [],
-            type: 18,
-            modules: [],
-            streams: [],
-            liveReadings: [{ modules: [{ module: {} }], time: 1565734980 }],
-        });
+        const fake = mockStation.newFakeStation();
+        mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, null));
 
         return queryStation.takeReadings(url).then((body) => {
             expect(body.liveReadings).toBeDefined();
@@ -65,15 +51,8 @@ describe("QueryStation", () => {
         // expect calls are never reached.
         expect.assertions(2);
 
-        mockStation.queueResponse({
-            body: {
-                errors: [],
-                type: 18,
-                modules: [],
-                streams: [],
-                liveReadings: [{ modules: [{ module: {} }], time: 1565734980 }],
-            },
-        });
+        const fake = mockStation.newFakeStation();
+        mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, null));
 
         return queryStation.takeReadings(url).then((body) => {
             expect(body.liveReadings).toBeDefined();

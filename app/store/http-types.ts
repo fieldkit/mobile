@@ -1,4 +1,4 @@
-import deepmerge from "deepmerge";
+// import deepmerge from "deepmerge";
 import { fk_app } from "fk-app-protocol/fk-app";
 import { fk_atlas } from "fk-atlas-protocol/fk-atlas";
 
@@ -54,15 +54,19 @@ export interface ReplySchedules {
     network: ReplySchedule;
 }
 
+export interface LocationLike {
+    longitude: number;
+    latitude: number;
+    time: number;
+}
+
 export interface ReplyStatus {
     identity: {
-        device: string;
         stream: string;
         deviceId: string;
         firmware: string;
         build: string;
         number: string;
-        generation: string;
         generationId: string;
         name: string;
     };
@@ -76,13 +80,9 @@ export interface ReplyStatus {
         altitude: number;
     };
     recording: {
-        enabled: number;
+        enabled: boolean;
         startedTime: number;
-        location: {
-            longitude: number;
-            latitude: number;
-            time: number;
-        };
+        location: LocationLike | null;
     };
     memory: {
         sramAvailable: number;
@@ -128,7 +128,7 @@ export interface NetworkInfo {
 
 export interface NetworkSettings {
     createAccessPoint: number;
-    connected: NetworkInfo;
+    connected: NetworkInfo | null;
     macAddress: string;
     networks: NetworkInfo[];
 }
@@ -150,12 +150,14 @@ export interface HttpStatusReply {
     schedules: ReplySchedules;
     streams: ReplyStream[];
     networkSettings: NetworkSettings;
+    errors: fk_app.IError[];
     serialized: string;
-    errors: any[];
 }
 
-export function decodeAndPrepare(reply): HttpStatusReply {
-    return prepareReply(HttpReply.decodeDelimited(reply));
+export type SerializedStatus = string;
+
+export function decodeAndPrepare(reply: any, serialized: SerializedStatus): HttpStatusReply {
+    return prepareReply(HttpReply.decodeDelimited(reply), serialized);
 }
 
 export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasStatus | null {
@@ -198,8 +200,16 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
     };
 }
 
-function prepareModule(m: fk_app.ModuleCapabilities): ModuleStatusReply {
-    const maybeDecodeStatus = () => {
+function toHexString(value: any): string {
+    return value.toString("hex");
+}
+
+function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatusReply {
+    if (!m) throw new Error(`malformed reply: null module`);
+    if (!m.name) throw new Error(`malformed reply: no module name`);
+    if (!m.sensors) throw new Error(`malformed reply: no module name`);
+
+    const maybeDecodeStatus = (m) => {
         if (m.status && m.status.length > 0) {
             if (m.name.indexOf("modules.water.") == 0) {
                 return fixupCalibrationStatus(AtlasReply.decode(Buffer.from(m.status)));
@@ -210,91 +220,197 @@ function prepareModule(m: fk_app.ModuleCapabilities): ModuleStatusReply {
         return null;
     };
     return {
-        deviceId: Buffer.from(m.id).toString("hex"),
-        status: maybeDecodeStatus(),
+        deviceId: toHexString(m.id!),
+        status: maybeDecodeStatus(m),
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
-        name: m.name,
-        position: m.position,
-        flags: m.flags,
+        name: m.name!,
+        position: m.position!,
+        flags: m.flags!,
     };
 }
 
-const MandatoryStatus = {
-    status: {
-        identity: {},
-        power: {
-            battery: {
-                percentage: 0.0,
+function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings): LiveModuleReadings {
+    return {
+        module: translateModule(lmr.module!),
+        readings: lmr.readings!.map((lsr) => {
+            return {
+                sensor: new fk_app.SensorCapabilities(lsr.sensor!),
+                value: lsr.value!,
+            };
+        }),
+    };
+}
+
+function translateLiveReadings(lr: fk_app.ILiveReadings): LiveReadings {
+    return {
+        time: lr.time,
+        modules: lr.modules!.map((lmr) => translateLiveModuleReadings(lmr)),
+    };
+}
+
+function translateSchedule(schedule: fk_app.ISchedule | undefined): ReplySchedule {
+    if (!schedule || !schedule.intervals) {
+        return {
+            intervals: [],
+        };
+    }
+    return {
+        intervals: schedule.intervals.map((i) => {
+            return {
+                start: i.start || 0,
+                end: i.end || 0,
+                interval: i.interval || 0,
+            };
+        }),
+    };
+}
+
+function translateRecordingLocation(location: fk_app.ILocation | undefined): { latitude: number; longitude: number; time: number } | null {
+    if (!location) {
+        return null;
+    }
+    return {
+        latitude: location.latitude!,
+        longitude: location.longitude!,
+        time: location.time!,
+    };
+}
+
+function translateConnectedNetwork(network: fk_app.INetworkInfo | undefined): NetworkInfo | null {
+    if (!network) {
+        return null;
+    }
+    return {
+        ssid: network.ssid!,
+        password: "", // PRIVACY
+    };
+}
+
+export interface HttpStatusErrorReply {
+    errors: unknown;
+}
+
+export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStatus | null): HttpStatusReply /* | HttpStatusErrorReply */ {
+    if (!serialized) {
+        console.log(`no serialized`);
+        throw new Error(`no serialized`);
+    }
+
+    if (reply.errors && reply.errors.length > 0) {
+        console.log(`reply error: ${JSON.stringify(reply.errors)}`);
+        throw new Error(`reply error: ${JSON.stringify(reply.errors)}`);
+    }
+
+    console.log(`reply-check`);
+
+    if (!reply.status) throw new Error(`reply.status`);
+    if (!reply.status.identity) throw new Error(`reply.status.identity`);
+    if (!reply.status.gps) throw new Error(`reply.statusgps`);
+    if (!reply.status.recording) throw new Error(`reply.status.recording`);
+    if (!reply.status.memory) throw new Error(`reply.status.memory`);
+    if (!reply.status.power) throw new Error(`reply.status.power`);
+    if (!reply.status.power.battery) throw new Error(`reply.status.power.battery`);
+    if (!reply.status.power.solar) throw new Error(`reply.status.power.solar`);
+    if (!reply.status.firmware) throw new Error(`reply.status.firmware`);
+    if (!reply.networkSettings) {
+        reply.networkSettings = {
+            networks: [],
+        };
+    }
+    if (!reply.schedules) {
+        reply.schedules = {
+            readings: { intervals: [] },
+            network: { intervals: [] },
+        };
+    }
+
+    console.log(`reply-build`);
+
+    return {
+        type: reply.type,
+        status: {
+            identity: {
+                name: reply.status.identity.device!,
+                stream: reply.status.identity.stream!,
+                firmware: reply.status.identity.firmware!,
+                build: reply.status.identity.build!,
+                number: reply.status.identity.number!,
+                deviceId: Buffer.from(reply.status.identity.deviceId!).toString("hex"),
+                generationId: Buffer.from(reply.status.identity.generation!).toString("hex"),
+            },
+            gps: {
+                enabled: reply.status.gps.enabled!,
+                fix: reply.status.gps.fix!,
+                time: reply.status.gps.time!,
+                satellites: reply.status.gps.satellites!,
+                longitude: reply.status.gps.longitude!,
+                latitude: reply.status.gps.latitude!,
+                altitude: reply.status.gps.altitude!,
+            },
+            recording: {
+                enabled: reply.status.recording.enabled!,
+                startedTime: reply.status.recording.startedTime!,
+                location: translateRecordingLocation(reply.status.recording.location),
+            },
+            memory: {
+                sramAvailable: reply.status.memory.sramAvailable!,
+                programFlashAvailable: reply.status.memory.programFlashAvailable!,
+                extendedMemoryAvailable: reply.status.memory.extendedMemoryAvailable!,
+                dataMemoryInstalled: reply.status.memory.dataMemoryInstalled!,
+                dataMemoryUsed: reply.status.memory.dataMemoryUsed!,
+                dataMemoryConsumption: reply.status.memory.dataMemoryConsumption!,
+            },
+            power: {
+                battery: {
+                    voltage: reply.status.power.battery.voltage!,
+                    percentage: reply.status.power.battery.percentage!,
+                },
+                solar: {
+                    voltage: reply.status.power.solar.voltage!,
+                },
+            },
+            schedules: {
+                // DEPRECATE
+                readings: translateSchedule(reply.schedules.readings),
+                network: translateSchedule(reply.schedules.network),
+            },
+            firmware: {
+                version: reply.status.firmware.version!,
+                build: reply.status.firmware.build!,
+                number: reply.status.firmware.number!,
+                timestamp: reply.status.firmware.timestamp!,
+                hash: reply.status.firmware.hash!,
             },
         },
-        memory: {
-            dataMemoryConsumption: 0,
+        schedules: {
+            readings: translateSchedule(reply.schedules.readings),
+            network: translateSchedule(reply.schedules.network),
         },
-        recording: {
-            enabled: false,
+        modules: reply.modules.map((m) => translateModule(m)),
+        liveReadings: reply.liveReadings.map((lr) => translateLiveReadings(lr)),
+        streams: reply.streams.map((s) => {
+            return {
+                time: s.time!,
+                block: s.block! || 0,
+                size: s.size! || 0,
+                path: s.path!,
+                name: s.name!,
+            };
+        }),
+        networkSettings: {
+            createAccessPoint: reply.networkSettings.createAccessPoint!,
+            macAddress: reply.networkSettings.macAddress!,
+            connected: translateConnectedNetwork(reply.networkSettings.connected),
+            networks: reply.networkSettings.networks!.map((n) => {
+                return {
+                    ssid: n.ssid!,
+                    password: "", // PRIVACY
+                };
+            }),
         },
-        gps: {
-            latitude: 0,
-            longitude: 0,
-        },
-    },
-};
-
-export function prepareReply(reply: any /* fk_app.HttpReply */): HttpStatusReply {
-    if (reply.errors && reply.errors.length > 0) {
-        return reply;
-    }
-
-    // NOTE deepmerge ruins deviceId.
-    if (reply.status && reply.status.identity) {
-        reply.status.identity.deviceId = Buffer.from(reply.status.identity.deviceId).toString("hex");
-        reply.status.identity.generationId = Buffer.from(reply.status.identity.generation).toString("hex");
-        reply.status.identity.generation = null;
-    }
-    if (reply.modules && Array.isArray(reply.modules)) {
-        reply.modules = reply.modules.map((m) => prepareModule(m));
-    }
-    if (reply.liveReadings && Array.isArray(reply.liveReadings)) {
-        reply.liveReadings.map((lr) => {
-            lr.modules
-                .filter((m) => m.module && m.module.id)
-                .map((m) => {
-                    return prepareModule(m.module);
-                });
-        });
-    }
-    if (reply.streams && reply.streams.length > 0) {
-        reply.streams.forEach((s) => {
-            s.block = s.block ? s.block : 0;
-            s.size = s.size ? s.size : 0;
-        });
-    }
-
-    const fixupSchedule = (schedule) => {
-        if (schedule && schedule.intervals) {
-            schedule.intervals.forEach((i) => {
-                i.start = i.start || 0;
-                i.end = i.end || 0;
-                i.interval = i.interval || 0;
-            });
-        }
+        errors: reply.errors,
+        serialized: serialized,
     };
-
-    if (reply.status?.schedules) {
-        fixupSchedule(reply.status.schedules.readings);
-        fixupSchedule(reply.status.schedules.network);
-        fixupSchedule(reply.status.schedules.gps);
-        fixupSchedule(reply.status.schedules.lora);
-    }
-
-    if (reply.schedules) {
-        fixupSchedule(reply.schedules.readings);
-        fixupSchedule(reply.schedules.network);
-        fixupSchedule(reply.schedules.gps);
-        fixupSchedule(reply.schedules.lora);
-    }
-
-    return deepmerge.all([MandatoryStatus, reply]) as HttpStatusReply;
 }
 
 function numberOfOnes(n: number): number {

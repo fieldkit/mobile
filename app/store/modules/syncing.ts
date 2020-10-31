@@ -430,7 +430,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
     const now = new Date();
     const syncs = state.stations.map((station) => {
         if (!station.id || !station.generationId || !station.name || !station.lastSeen) {
-            throw new Error("id, generationId, and name are required");
+            throw new Error("id, generationId, lastSeen, and name are required");
         }
 
         const connected = state.connected[station.deviceId] || null;

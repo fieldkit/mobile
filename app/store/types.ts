@@ -333,10 +333,10 @@ export class Station implements StationCreationFields {
         if (this.decodedStatus == null) {
             if (this.serializedStatus !== null && this.serializedStatus.length > 0) {
                 try {
-                    this.decodedStatus = decodeAndPrepare(Buffer.from(this.serializedStatus, "base64"));
-                } catch (error) {
-                    console.log("error decoding status json:", error, error ? error.stack : null);
-                    console.log("error", this.serializedStatus);
+                    this.decodedStatus = decodeAndPrepare(Buffer.from(this.serializedStatus, "base64"), this.serializedStatus);
+                } catch (error: unknown) {
+                    console.log("error decoding status json:", error);
+                    console.log("error serialized:", this.serializedStatus);
                 }
             }
         }
@@ -357,8 +357,8 @@ export class Station implements StationCreationFields {
                 return null;
             }
             return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
-        } catch (error) {
-            console.log(`no firmwareInfo: ${error}`);
+        } catch (error: unknown) {
+            console.log(`no firmwareInfo`, error);
             return null;
         }
     }

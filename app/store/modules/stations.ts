@@ -150,7 +150,7 @@ class StationStatusFactory {
             id: null,
             deviceId: this.statusReply.status.identity.deviceId,
             generationId: this.statusReply.status.identity.generationId,
-            name: this.statusReply.status.identity.device,
+            name: this.statusReply.status.identity.name,
             batteryLevel: this.statusReply.status.power.battery.percentage,
             consumedMemory: this.statusReply.status.memory.dataMemoryUsed,
             totalMemory: this.statusReply.status.memory.dataMemoryInstalled,

@@ -4,12 +4,16 @@ import { prepareReply } from "../store/http-types";
 import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
 
-import { PhoneLocation, CommonLocations, StationRepliedAction, MutationTypes, ActionTypes } from "@/store";
+import { PhoneLocation, CommonLocations, StationRepliedAction, HttpStatusReply, MutationTypes, ActionTypes } from "@/store";
 import { ServicesImpl, ServiceRef } from "@/services";
 
 import { nearby } from "@/store/modules/nearby";
 
 import { fk_app } from "fk-app-protocol/fk-app";
+
+function fakeReply(reply: any): HttpStatusReply {
+    return prepareReply(reply, "TESTS");
+}
 
 describe("Store", () => {
     let services;
@@ -280,8 +284,8 @@ describe("Store", () => {
             const station1 = mockStation.newFakeStation();
             const station2 = mockStation.newFakeStation();
 
-            const reply1 = prepareReply(mockStation.newFakeStatusReply(station1, locationToGpsStatus(CommonLocations.ConservifyLab)));
-            const reply2 = prepareReply(mockStation.newFakeStatusReply(station2, locationToGpsStatus(CommonLocations.DowntownLA)));
+            const reply1 = fakeReply(mockStation.newFakeStatusReply(station1, locationToGpsStatus(CommonLocations.ConservifyLab)));
+            const reply2 = fakeReply(mockStation.newFakeStatusReply(station2, locationToGpsStatus(CommonLocations.DowntownLA)));
 
             await store.dispatch(new StationRepliedAction(reply1, "http://10.0.01/fk/v1"));
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));

@@ -168,6 +168,7 @@ export class MockStationReplies {
     public newFakeStatusReply(station: FakeStation, gps: any = null, streams: FakeStreams[] | null = null): any {
         const defaultStreams = this.newStreams(1, 34);
         const statusStreams = streams || defaultStreams;
+        /*
         const serialized = Buffer.from(
             HttpReply.encodeDelimited({
                 status: {
@@ -181,13 +182,14 @@ export class MockStationReplies {
                 },
             }).finish()
         ).toString("base64");
+*/
 
         return {
-            serialized: serialized,
             errors: [],
             type: 15,
             status: {
                 identity: {
+                    name: station.name,
                     device: station.name,
                     deviceId: Buffer.from(station.deviceId, "hex"),
                     generation: Buffer.from(station.generationId, "hex"),
@@ -201,6 +203,11 @@ export class MockStationReplies {
                 },
                 recording: {
                     startedTime: 0,
+                    location: {
+                        longitude: 0,
+                        latitude: 0,
+                        time: 0,
+                    },
                 },
                 gps: gps || {},
                 firmware: {
@@ -210,10 +217,21 @@ export class MockStationReplies {
                     number: "120",
                     has: "hash",
                 },
+                schedules: {
+                    readings: {},
+                    network: {},
+                },
             },
             streams: statusStreams,
             schedules: {
                 readings: {},
+                network: {},
+            },
+            networkSettings: {
+                connected: {
+                    ssid: "SSID",
+                },
+                networks: [],
             },
             modules: [
                 {
@@ -233,6 +251,7 @@ export class MockStationReplies {
                     ],
                 },
             ],
+            liveReadings: [],
         };
     }
 

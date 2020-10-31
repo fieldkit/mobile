@@ -8,7 +8,11 @@ import { getPathTimestamp } from "@/utilities";
 import { ActionTypes } from "@/store";
 import { prepareReply } from "@/store/http-types";
 import { TryStationOnceAction, StationRepliedAction, FileTypeUtils, FileType, TransferProgress } from "@/store";
-import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store";
+import { StationSyncStatus, HttpStatusReply, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store";
+
+function fakeReply(reply: any): HttpStatusReply {
+    return prepareReply(reply, "TESTS");
+}
 
 describe("Progress", () => {
     let sp: StationProgress;
@@ -413,7 +417,7 @@ describe("Syncing", () => {
             clock.tick(60000);
 
             const streams2 = mockStation.newStreams(1, 200);
-            const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
+            const reply2 = fakeReply(mockStation.newFakeStatusReply(fake, null, streams2));
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             expect(store.getters.syncs).toStrictEqual([
@@ -526,7 +530,7 @@ describe("Syncing", () => {
             clock.tick(60000);
 
             const streams2 = mockStation.newStreams(5, 200);
-            const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
+            const reply2 = fakeReply(mockStation.newFakeStatusReply(fake, null, streams2));
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             expect(store.getters.syncs).toStrictEqual([
@@ -675,7 +679,7 @@ describe("Syncing", () => {
             await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
 
             const streams2 = mockStation.newStreams(5, 200);
-            const reply2 = prepareReply(mockStation.newFakeStatusReply(fake, null, streams2));
+            const reply2 = fakeReply(mockStation.newFakeStatusReply(fake, null, streams2));
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             mockStation.queueCalculateDownloadSize(204, 100);

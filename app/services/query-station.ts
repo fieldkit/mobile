@@ -4,7 +4,7 @@ import { unixNow, promiseAfter } from "@/utilities";
 import { Services, Conservify } from "@/services";
 import { QueryThrottledError, StationQueryError, HttpError } from "@/lib/errors";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
-import { prepareReply, HttpStatusReply } from "@/store/http-types";
+import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
 import { fk_app } from "fk-app-protocol/fk-app";
 
 const HttpQuery = fk_app.HttpQuery;
@@ -29,6 +29,8 @@ export interface QueryOptions {
 }
 
 const log = Config.logger("QueryStation");
+
+type StationQuery = { reply: fk_app.HttpReply; serialized: SerializedStatus };
 
 export default class QueryStation {
     private readonly conservify: Conservify;
@@ -340,7 +342,7 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url: string, message: any, options: QueryOptions = {}): Promise<HttpStatusReply> {
+    private stationQuery(url: string, message: any, options: QueryOptions = {}): Promise<StationQuery> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
         return this.trackActivity(finalOptions, () => {
             if (!Config.developer.stationFilter(url)) {
@@ -378,22 +380,29 @@ export default class QueryStation {
         });
     }
 
-    private getResponseBody(response: { body: any }): HttpStatusReply {
+    private getResponseBody(response: { body: any }): StationQuery {
         if (Buffer.isBuffer(response.body)) {
-            const decoded: any = HttpReply.decodeDelimited(response.body);
-            decoded.serialized = response.body.toString("base64");
-            return decoded as HttpStatusReply;
+            return {
+                reply: HttpReply.decodeDelimited(response.body),
+                serialized: response.body.toString("base64"),
+            };
         }
         return response.body;
     }
 
-    private fixupStatus(reply: any): HttpStatusReply {
-        return prepareReply(reply);
+    private fixupStatus(stationQuery: StationQuery): HttpStatusReply {
+        try {
+            return prepareReply(stationQuery.reply, stationQuery.serialized);
+        } catch (error) {
+            console.log(`fixup-status: ${error.message}`, error);
+            throw error;
+        }
     }
 
-    private handlePotentialBusyReply(reply: HttpStatusReply, url: string, message: string): Promise<HttpStatusReply> {
+    private handlePotentialBusyReply(stationQuery: StationQuery, url: string, message: string): Promise<StationQuery> {
+        const reply = stationQuery.reply;
         if (reply.type != ReplyType.REPLY_BUSY) {
-            return Promise.resolve(reply);
+            return Promise.resolve(stationQuery);
         }
         const delays = _.sumBy(reply.errors, "delay");
         if (delays == 0) {
@@ -402,7 +411,7 @@ export default class QueryStation {
         return this.retryAfter(delays, url, message);
     }
 
-    private retryAfter(delays: number, url: string, message: string): Promise<HttpStatusReply> {
+    private retryAfter(delays: number, url: string, message: string): Promise<StationQuery> {
         log.info(url, "retrying after", delays);
         return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);

@@ -71,6 +71,7 @@ function customizeLogger() {
                     _(mutation.payload)
                         .map((s) => [s.name, s.connected])
                         .fromPairs()
+                        .value()
                 );
                 return false;
             }

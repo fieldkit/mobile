@@ -106,7 +106,7 @@ class NetworkMonitor {
                     .getStatus("http://" + ip + "/fk/v1")
                     .then(
                         (status) => {
-                            console.log("found device in ap mode", status.status.identity.deviceId, status.status.identity.device);
+                            console.log("found device in ap mode", status.status.identity.deviceId);
                             return this.services.DiscoverStation().onFoundService({
                                 type: "_fk._tcp",
                                 name: status.status.identity.deviceId,
