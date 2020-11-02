@@ -1,5 +1,5 @@
-import { Conservify, TransferInfo, OpenedFile } from "nativescript-conservify";
+import { Conservify } from "nativescript-conservify";
 
-export { TransferInfo, OpenedFile };
+export * from "nativescript-conservify";
 
 export default Conservify;

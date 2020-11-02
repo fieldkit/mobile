@@ -8,13 +8,18 @@ import Config, { Build } from "@/config";
 
 function uuidv4(): string {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-        var r = (Math.random() * 16) | 0,
+        let r = (Math.random() * 16) | 0,
             v = c == "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
     });
 }
 
 export type ProgressFunc = (progress: { id: string; message: string }) => void;
+
+export interface SavedDiagnostics {
+    id: string;
+    reference: { phrase: string };
+}
 
 export default class Diagnostics {
     private readonly baseUrl: string;
@@ -23,7 +28,7 @@ export default class Diagnostics {
         this.baseUrl = "https://code.conservify.org/diagnostics";
     }
 
-    public upload(progress: ProgressFunc): Promise<{ reference: { phrase: string }; id: string }> {
+    public upload(progress: ProgressFunc): Promise<SavedDiagnostics> {
         const id = uuidv4();
 
         console.log("upload diagnostics", id);
@@ -40,15 +45,17 @@ export default class Diagnostics {
             .then(() => this.uploadDatabase(id))
             .then(() => progress({ id: id, message: "Uploading bundle." }))
             .then(() => this.uploadBundle(id))
-            .then((reference) =>
-                this.uploadArchived().then(() => {
-                    progress({ id: id, message: "Done!" });
-                    console.log("diagnostics", JSON.parse(reference));
-                    return {
-                        reference: JSON.parse(reference),
-                        id: id,
-                    };
-                })
+            .then((reference: string) =>
+                this.uploadArchived().then(
+                    (): SavedDiagnostics => {
+                        progress({ id: id, message: "Done!" });
+                        console.log("diagnostics", JSON.parse(reference));
+                        return {
+                            reference: JSON.parse(reference) as { phrase: string },
+                            id: id,
+                        };
+                    }
+                )
             )
             .catch((err) => {
                 console.log(`diagnostics error: ${err}`);
@@ -115,7 +122,7 @@ export default class Diagnostics {
         });
     }
 
-    private uploadBundle(id: string): Promise<any> {
+    private uploadBundle(id: string): Promise<string> {
         const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
         console.log("diagnostics", path);
         return this.services
@@ -128,7 +135,7 @@ export default class Diagnostics {
             .then((response) => response.body);
     }
 
-    private uploadDatabase(id: string): Promise<any> {
+    private uploadDatabase(id: string): Promise<string> {
         console.log("getting database path");
         const path = getDatabasePath("fieldkit.sqlite3");
         console.log("diagnostics", path);

@@ -12,6 +12,12 @@ export declare interface OpenedFile {
     delimited(callback: DelimitedCallback): Promise<any>;
 }
 
+export declare interface HttpResponse {
+    statusCode: number;
+    headers: { [index: string]: string };
+    body: string;
+}
+
 export declare interface TransferInfo {
     url: string;
     method?: string;
@@ -29,13 +35,13 @@ export declare class Conservify extends Common {
         serviceTypeSearch: string | null = null,
         serviceNameSelf: string | null = null,
         serviceTypeSelf: string | null = null
-    ): Promise<any>;
-    stop(): Promise<any>;
-    text(info: TransferInfo): Promise<any>;
-    json(info: TransferInfo): Promise<any>;
-    protobuf(info: TransferInfo): Promise<any>;
-    download(info: TransferInfo): Promise<any>;
-    upload(info: TransferInfo): Promise<any>;
+    ): Promise<void>;
+    stop(): Promise<void>;
+    text(info: TransferInfo): Promise<HttpResponse>;
+    json(info: TransferInfo): Promise<HttpResponse>;
+    protobuf(info: TransferInfo): Promise<HttpResponse>;
+    download(info: TransferInfo): Promise<HttpResponse>;
+    upload(info: TransferInfo): Promise<HttpResponse>;
     scanNetworks(): Promise<any>;
     findConnectedNetwork(): Promise<any>;
     open(path: string): Promise<OpenedFile>;

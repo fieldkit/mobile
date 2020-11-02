@@ -137,7 +137,7 @@ export default Vue.extend({
                         })
                         .catch((error) => {
                             console.log("error", file, error);
-                            return {};
+                            throw error;
                         })
                         .then((response) => {
                             console.log("status", file, response.statusCode);

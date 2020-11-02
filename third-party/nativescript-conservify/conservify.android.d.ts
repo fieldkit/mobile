@@ -1,4 +1,4 @@
-import { TransferInfo } from "./conservify.common";
+import { TransferInfo, HttpResponse } from "./conservify.common";
 declare class OpenedFile {
     cfy: Conservify;
     fs: any;
@@ -25,15 +25,15 @@ export declare class Conservify {
     networking: org.conservify.networking.Networking;
     fileSystem: org.conservify.data.FileSystem;
     constructor(discoveryEvents: any, logger: any);
-    start(serviceTypeSearch?: string | null, serviceNameSelf?: string | null, serviceTypeSelf?: string | null): Promise<any>;
-    stop(): Promise<any>;
-    writeSampleData(): Promise<any>;
+    start(serviceTypeSearch?: string | null, serviceNameSelf?: string | null, serviceTypeSelf?: string | null): Promise<void>;
+    stop(): Promise<void>;
+    writeSampleData(): Promise<void>;
     open(path: string): Promise<OpenedFile>;
-    text(info: TransferInfo): Promise<any>;
-    json(info: TransferInfo): Promise<any>;
-    protobuf(info: TransferInfo): Promise<any>;
-    download(info: TransferInfo): Promise<any>;
-    upload(info: TransferInfo): Promise<any>;
+    text(info: TransferInfo): Promise<HttpResponse>;
+    json(info: TransferInfo): Promise<HttpResponse>;
+    protobuf(info: TransferInfo): Promise<HttpResponse>;
+    download(info: TransferInfo): Promise<HttpResponse>;
+    upload(info: TransferInfo): Promise<HttpResponse>;
     findConnectedNetwork(): Promise<any>;
     scanNetworks(): Promise<any>;
 }

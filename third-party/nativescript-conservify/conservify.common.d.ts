@@ -21,3 +21,10 @@ export interface TransferInfo {
         [index: string]: string;
     };
 }
+export interface HttpResponse {
+    statusCode: number;
+    headers: {
+        [index: string]: string;
+    };
+    body: string;
+}

@@ -27,12 +27,14 @@ export interface AtlasStatus {
     };
 }
 
+export type CalibrationStatus = AtlasStatus | null;
+
 export interface ModuleCapabilities {
     name: string;
     deviceId: string;
     position: number;
     flags: number;
-    status: AtlasStatus | null;
+    status: CalibrationStatus;
     sensors: SensorCapabilities[];
 }
 
@@ -41,12 +43,14 @@ export interface SensorCapabilities {
     unitOfMeasure: string;
 }
 
+export interface ReplyScheduleInterval {
+    start: number;
+    end: number;
+    interval: number;
+}
+
 export interface ReplySchedule {
-    intervals: {
-        start: number;
-        end: number;
-        interval: number;
-    }[];
+    intervals: ReplyScheduleInterval[];
 }
 
 export interface ReplySchedules {
@@ -200,8 +204,8 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
     };
 }
 
-function toHexString(value: any): string {
-    return value.toString("hex");
+function toHexString(value: Uint8Array): string {
+    return (value as any).toString("hex") as string;
 }
 
 function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatusReply {
@@ -209,8 +213,8 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
     if (!m.name) throw new Error(`malformed reply: no module name`);
     if (!m.sensors) throw new Error(`malformed reply: no module name`);
 
-    const maybeDecodeStatus = (m) => {
-        if (m.status && m.status.length > 0) {
+    const maybeDecodeStatus = (m: fk_app.IModuleCapabilities): CalibrationStatus => {
+        if (m.name && m.status && m.status.length > 0) {
             if (m.name.indexOf("modules.water.") == 0) {
                 return fixupCalibrationStatus(AtlasReply.decode(Buffer.from(m.status)));
             } else {
@@ -223,7 +227,7 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
         deviceId: toHexString(m.id!),
         status: maybeDecodeStatus(m),
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
-        name: m.name!,
+        name: m.name,
         position: m.position!,
         flags: m.flags!,
     };
@@ -231,10 +235,10 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
 
 function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings): LiveModuleReadings {
     return {
-        module: translateModule(lmr.module!),
+        module: translateModule(lmr.module),
         readings: lmr.readings!.map((lsr) => {
             return {
-                sensor: new fk_app.SensorCapabilities(lsr.sensor!),
+                sensor: new fk_app.SensorCapabilities(lsr.sensor),
                 value: lsr.value!,
             };
         }),
@@ -255,24 +259,26 @@ function translateSchedule(schedule: fk_app.ISchedule | undefined): ReplySchedul
         };
     }
     return {
-        intervals: schedule.intervals.map((i) => {
-            return {
-                start: i.start || 0,
-                end: i.end || 0,
-                interval: i.interval || 0,
-            };
-        }),
+        intervals: schedule.intervals.map(
+            (i: fk_app.IInterval): ReplyScheduleInterval => {
+                return {
+                    start: i.start || 0,
+                    end: i.end || 0,
+                    interval: i.interval || 0,
+                };
+            }
+        ),
     };
 }
 
 function translateRecordingLocation(location: fk_app.ILocation | undefined): { latitude: number; longitude: number; time: number } | null {
-    if (!location) {
+    if (!location || !location.latitude || !location.longitude || !location.time) {
         return null;
     }
     return {
-        latitude: location.latitude!,
-        longitude: location.longitude!,
-        time: location.time!,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        time: location.time,
     };
 }
 
@@ -341,7 +347,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             gps: {
                 enabled: reply.status.gps.enabled!,
                 fix: reply.status.gps.fix!,
-                time: reply.status.gps.time!,
+                time: reply.status.gps.time,
                 satellites: reply.status.gps.satellites!,
                 longitude: reply.status.gps.longitude!,
                 latitude: reply.status.gps.latitude!,
@@ -349,7 +355,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             },
             recording: {
                 enabled: reply.status.recording.enabled!,
-                startedTime: reply.status.recording.startedTime!,
+                startedTime: reply.status.recording.startedTime,
                 location: translateRecordingLocation(reply.status.recording.location),
             },
             memory: {
@@ -378,7 +384,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
                 version: reply.status.firmware.version!,
                 build: reply.status.firmware.build!,
                 number: reply.status.firmware.number!,
-                timestamp: reply.status.firmware.timestamp!,
+                timestamp: reply.status.firmware.timestamp,
                 hash: reply.status.firmware.hash!,
             },
         },
@@ -386,17 +392,19 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             readings: translateSchedule(reply.schedules.readings),
             network: translateSchedule(reply.schedules.network),
         },
-        modules: reply.modules.map((m) => translateModule(m)),
-        liveReadings: reply.liveReadings.map((lr) => translateLiveReadings(lr)),
-        streams: reply.streams.map((s) => {
-            return {
-                time: s.time!,
-                block: s.block! || 0,
-                size: s.size! || 0,
-                path: s.path!,
-                name: s.name!,
-            };
-        }),
+        modules: reply.modules.map((m: fk_app.IModuleCapabilities) => translateModule(m)),
+        liveReadings: reply.liveReadings.map((lr: fk_app.ILiveReadings) => translateLiveReadings(lr)),
+        streams: reply.streams.map(
+            (s: fk_app.IDataStream): ReplyStream => {
+                return {
+                    time: s.time,
+                    block: s.block || 0,
+                    size: s.size || 0,
+                    path: s.path!,
+                    name: s.name!,
+                };
+            }
+        ),
         networkSettings: {
             createAccessPoint: reply.networkSettings.createAccessPoint!,
             macAddress: reply.networkSettings.macAddress!,

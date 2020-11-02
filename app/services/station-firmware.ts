@@ -8,7 +8,9 @@ const log = Config.logger("StationFirmware");
 
 type ProgressCallback = ({ progress: number }) => void;
 
-const NoopProgress: ProgressCallback = ({ progress: number }) => {};
+const NoopProgress: ProgressCallback = ({ progress: number }): void => {
+    // NOOP
+};
 
 function transformProgress(callback: ProgressCallback, fn: (v: number) => number) {
     if (_.isFunction(callback)) {
@@ -18,12 +20,14 @@ function transformProgress(callback: ProgressCallback, fn: (v: number) => number
             });
         };
     }
-    return () => {};
+    return () => {
+        // NOOP
+    };
 }
 
 export default class StationFirmware {
     private services: Services;
-    public check: () => Promise<any>;
+    public check: () => Promise<void>;
 
     constructor(services: Services) {
         this.services = services;
@@ -31,7 +35,9 @@ export default class StationFirmware {
             60,
             () => {
                 console.log("firmware check: allowed");
-                return this.downloadFirmware(() => {}, false).catch((error) => {
+                return this.downloadFirmware(() => {
+                    // NOOP
+                }, false).catch((error) => {
                     console.log("firmware error", error);
                 });
             },
@@ -42,7 +48,7 @@ export default class StationFirmware {
         );
     }
 
-    public downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force: boolean = false): Promise<void> {
+    public downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force = false): Promise<void> {
         log.info("downloading firmware");
         return this.services
             .PortalInterface()
@@ -53,10 +59,7 @@ export default class StationFirmware {
                     _.map(firmware.firmwares, (fw) => fw.id)
                 );
                 return firmware.firmwares.map((f) => {
-                    const local = this.services
-                        .FileSystem()
-                        .getFolder("firmware")
-                        .getFile("fk-bundled-fkb-" + f.id + ".bin");
+                    const local = this.services.FileSystem().getFolder("firmware").getFile(`fk-bundled-fkb-${f.id}.bin`);
                     log.verbose("local", local);
                     return _.extend(f, {
                         path: local.path,
@@ -113,16 +116,16 @@ export default class StationFirmware {
             .then(() => Promise.resolve());
     }
 
-    private deleteFirmware(fw: { path: string }): void {
+    private async deleteFirmware(fw: { path: string }): Promise<void> {
         const local = this.services.FileSystem().getFile(fw.path);
         if (local && local.exists) {
             log.info("removing", fw.path, local.exists, local.size);
-            local.remove();
+            await local.remove();
         }
     }
 
     private async deleteOldFirmware(): Promise<void> {
-        await this.services
+        return await this.services
             .Database()
             .getAllFirmware()
             .then((firmware) => {
@@ -130,7 +133,8 @@ export default class StationFirmware {
                     .tail()
                     .map((fw) => this.deleteFirmware(fw))
                     .value();
-            });
+            })
+            .then(() => Promise.resolve());
     }
 
     public async cleanupFirmware(): Promise<void> {
@@ -156,7 +160,7 @@ export default class StationFirmware {
             });
     }
 
-    public upgradeStation(url: string, progressCallback): Promise<void> {
+    public upgradeStation(url: string, progressCallback: ProgressCallback): Promise<void> {
         log.info("upgrade", url);
 
         return this.haveFirmware().then((yes: boolean) => {

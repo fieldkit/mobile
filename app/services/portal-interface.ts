@@ -486,7 +486,12 @@ export default class PortalInterface {
         });
     }
 
-    public uploadStationMedia(stationId: number, key: string, contentType: string, path: string): Promise<{ data: any; status: number }> {
+    public uploadStationMedia(
+        stationId: number,
+        key: string,
+        contentType: string,
+        path: string
+    ): Promise<{ data: { id: number }; status: number }> {
         if (!key) throw new Error("key is undefined");
         const headers = {
             Authorization: this.appSettings.getString("accessToken"),

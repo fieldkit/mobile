@@ -1,7 +1,8 @@
 import _ from "lodash";
 import Config from "@/config";
 import { unixNow, promiseAfter } from "@/utilities";
-import { Services, Conservify } from "@/services";
+import { Services } from "@/services/interface";
+import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { QueryThrottledError, StationQueryError, HttpError } from "@/lib/errors";
 import { PhoneLocation, Schedules, NetworkInfo, LoraSettings } from "@/store/types";
 import { prepareReply, SerializedStatus, HttpStatusReply } from "@/store/http-types";
@@ -165,13 +166,13 @@ export default class QueryStation {
                     url: url,
                 })
                 .then(
-                    (response) => {
+                    (response: HttpResponse) => {
                         if (response.statusCode != 204) {
                             console.log("http-status", response.statusCode, response.headers);
                             return Promise.reject(new HttpError("status", response));
                         }
 
-                        let size: number = 0;
+                        let size = 0;
                         if (response.headers["fk-bytes"]) {
                             size = Number(response.headers["fk-bytes"]);
                         }
@@ -182,8 +183,8 @@ export default class QueryStation {
                         console.log("size", size, response.headers);
                         return new CalculatedSize(size);
                     },
-                    (err) => {
-                        console.log(url, "query error", err.message);
+                    (err: Error | undefined) => {
+                        console.log(url, "query error", err!.message);
                         return Promise.reject(err);
                     }
                 );
@@ -197,7 +198,7 @@ export default class QueryStation {
                     url: url + "/download/logs",
                 })
                 .then(
-                    (response) => {
+                    (response: HttpResponse): string => {
                         return response.body;
                     },
                     (err) => {
@@ -208,7 +209,7 @@ export default class QueryStation {
         });
     }
 
-    public download(url: string, path: string, progress: ProgressCallback): Promise<{ headers: { [index: string]: string } }> {
+    public download(url: string, path: string, progress: ProgressCallback): Promise<HttpResponse> {
         return this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .download({
@@ -217,7 +218,7 @@ export default class QueryStation {
                     path: path,
                     progress: progress,
                 })
-                .then((response) => {
+                .then((response: HttpResponse) => {
                     // log.info("headers", response.headers);
                     // log.info("status", response.statusCode);
                     if (response.statusCode != 200) {
@@ -294,7 +295,7 @@ export default class QueryStation {
 
     private readonly queued: { [index: string]: any } = {};
 
-    private trackActivity(options: TrackActivityOptions, factory: () => Promise<any>): Promise<any> {
+    private trackActivity<T>(options: TrackActivityOptions, factory: () => Promise<T>): Promise<T> {
         const stationKey = this.urlToStationKey(options.url);
         if (this.openQueries[stationKey] === true) {
             if (options.throttle) {
@@ -313,7 +314,7 @@ export default class QueryStation {
 
         return factory()
             .then(
-                (value) => {
+                (value: T) => {
                     this.openQueries[stationKey] = false;
                     this.lastQueries[stationKey] = new Date();
                     return value;
@@ -333,8 +334,8 @@ export default class QueryStation {
             });
     }
 
-    private trackActivityAndThrottle(url: string, factory) {
-        return this.trackActivity({ url: url, throttle: true }, factory);
+    private trackActivityAndThrottle<T>(url: string, factory): Promise<T> {
+        return this.trackActivity<T>({ url: url, throttle: true }, factory);
     }
 
     /**
@@ -394,7 +395,7 @@ export default class QueryStation {
         try {
             return prepareReply(stationQuery.reply, stationQuery.serialized);
         } catch (error) {
-            console.log(`fixup-status: ${error.message}`, error);
+            console.log(`fixup-status`, error);
             throw error;
         }
     }

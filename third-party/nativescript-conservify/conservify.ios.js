@@ -335,7 +335,7 @@ var Conservify = (function () {
     };
     Conservify.prototype.stop = function () {
         console.log("stopped (ignored, ios)");
-        return Promise.resolve(true);
+        return Promise.resolve();
     };
     Conservify.prototype.start = function (serviceTypeSearch, serviceNameSelf, serviceTypeSelf) {
         var _this = this;

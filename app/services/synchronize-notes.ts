@@ -56,7 +56,8 @@ export default class SynchronizeNotes {
             }
             return getPathTimestamp(stamp);
         } catch (e) {
-            throw new Error(`error parsing '${key}' as time: ${e}`);
+            console.log(`error parsing '${key}' as time`, e);
+            throw new Error(`error parsing '${key}' as time`);
         }
     }
 
@@ -120,9 +121,9 @@ export default class SynchronizeNotes {
             }
             const path = localByKey[key].path;
             const contentType = this.getContentType(path);
-            return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((response) => {
+            return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((response): [string, number] => {
                 if (response.status != 200) {
-                    return Promise.reject(new Error("error uploading media"));
+                    new Error("error uploading media");
                 }
                 console.log("upload done", response);
                 return [path, response.data.id];

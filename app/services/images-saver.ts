@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { ImageSource, path, knownFolders } from "@nativescript/core";
 import { getPathTimestamp } from "@/utilities";
 import { IncomingImage, SavedImage } from "./types";
