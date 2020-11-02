@@ -110,7 +110,7 @@ function customizeLogger() {
             if (action.type == ActionTypes.STATION_REPLY) {
                 const device = action.payload?.statusReply?.status?.identity?.device;
                 if (!device) {
-                    console.log("action:", action.type, action);
+                    console.log("action:", action.type, device);
                 } else {
                     console.log("action:", action.type);
                 }

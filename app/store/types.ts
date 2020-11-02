@@ -16,6 +16,8 @@ export class Sensor {
     ) {}
 }
 
+export type ModuleId = string;
+
 export class Module {
     public readonly internal: boolean;
     public readonly image: string;
@@ -25,7 +27,7 @@ export class Module {
         public readonly stationId: number | null,
         public readonly name: string,
         public readonly position: number,
-        public readonly moduleId: string,
+        public readonly moduleId: ModuleId,
         public readonly flags: number,
         public readonly status: AtlasStatus | null,
         public readonly sensors: Sensor[]

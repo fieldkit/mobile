@@ -189,7 +189,7 @@ class StationStatusFactory {
                                 null,
                                 moduleReply.module.name,
                                 moduleReply.module.position || 0,
-                                moduleReply.module.deviceId,
+                                moduleReply.module.moduleId,
                                 moduleReply.module.flags,
                                 moduleReply.module.status,
                                 sensors
@@ -210,7 +210,7 @@ class StationStatusFactory {
                     null,
                     moduleReply.name,
                     moduleReply.position || 0,
-                    moduleReply.deviceId,
+                    moduleReply.moduleId,
                     moduleReply.flags,
                     moduleReply.status,
                     sensors

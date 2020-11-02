@@ -12,7 +12,7 @@ export interface LiveSensorReading {
 }
 
 export interface LiveModuleReadings {
-    module: ModuleCapabilities;
+    module: ModuleStatusReply;
     readings: LiveSensorReading[];
 }
 
@@ -138,9 +138,9 @@ export interface NetworkSettings {
 }
 
 export interface ModuleStatusReply {
+    moduleId: string;
     position: number;
     name: string;
-    deviceId: string;
     flags: number;
     sensors: fk_app.SensorCapabilities[];
     status: AtlasStatus | null;
@@ -205,13 +205,14 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
 }
 
 function toHexString(value: Uint8Array): string {
-    return (value as any).toString("hex") as string;
+    return Buffer.from(value).toString("hex") as string;
 }
 
 function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatusReply {
     if (!m) throw new Error(`malformed reply: null module`);
     if (!m.name) throw new Error(`malformed reply: no module name`);
     if (!m.sensors) throw new Error(`malformed reply: no module name`);
+    if (!m.id) throw new Error(`malformed reply: no module id`);
 
     const maybeDecodeStatus = (m: fk_app.IModuleCapabilities): CalibrationStatus => {
         if (m.name && m.status && m.status.length > 0) {
@@ -224,7 +225,7 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
         return null;
     };
     return {
-        deviceId: toHexString(m.id!),
+        moduleId: toHexString(m.id!),
         status: maybeDecodeStatus(m),
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
         name: m.name,

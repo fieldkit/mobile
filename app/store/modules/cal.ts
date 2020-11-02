@@ -77,7 +77,7 @@ const actions = (services: ServiceRef) => {
             const updating = _.fromPairs(
                 payload.statusReply.modules.map((m) => {
                     if (m.status) {
-                        return [m.deviceId, m.status];
+                        return [m.moduleId, m.status];
                     }
                     return [];
                 })
