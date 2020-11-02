@@ -39,8 +39,8 @@ export function keysToCamel(o: any): any {
 }
 
 // eslint-disable-next-line
-export function sqliteToJs(o: any): any {
-    return keysToCamel(o); // eslint-disable-line
+export function sqliteToJs<T>(o: any[]): T[] {
+    return keysToCamel(o) as T[]; // eslint-disable-line
 }
 
 export function getPathTimestamp(ts: Moment | Date | string | number): string {

@@ -21,7 +21,7 @@ export declare interface HttpResponse {
 export declare interface TransferInfo {
     url: string;
     method?: string;
-    body?: string;
+    body?: Uint8Array | string;
     path?: string;
     connectionTimeout?: number;
     defaultTimeout?: number;

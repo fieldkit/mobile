@@ -8,7 +8,7 @@ var FileSystemError = (function (_super) {
         return _this;
     }
     return FileSystemError;
-}(Error));
+})(Error);
 exports.FileSystemError = FileSystemError;
 var ConnectionError = (function (_super) {
     __extends(ConnectionError, _super);
@@ -18,6 +18,13 @@ var ConnectionError = (function (_super) {
         return _this;
     }
     return ConnectionError;
-}(Error));
+})(Error);
 exports.ConnectionError = ConnectionError;
+function encodeBody(body) {
+    if (Buffer.isBuffer(body)) {
+        return body.toString("base64");
+    }
+    return Buffer.from(body).toString("base64");
+}
+exports.encodeBody = encodeBody;
 //# sourceMappingURL=conservify.common.js.map

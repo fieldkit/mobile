@@ -3,7 +3,7 @@ import Vue from "vue";
 import { ActionContext } from "vuex";
 import { ActionTypes, StationRepliedAction } from "../actions";
 import { MutationTypes } from "../mutations";
-import { Station, ServiceInfo } from "../types";
+import { Station, ServiceInfo, AtlasStatus } from "../types";
 import { ServiceRef } from "@/services";
 import { GlobalGetters } from "./global";
 import { calibrationStrategies, ModuleStatus, AtlasSensorType, StationCalibration, AtlasCalValue } from "@/calibration";
@@ -108,7 +108,7 @@ const actions = (services: ServiceRef) => {
                 reference: payload.value.reference,
                 compensations: payload.compensations,
             };
-            return service.calibrateSensor(url, params).then((calibrated: WireAtlasReply) => {
+            return service.calibrateSensor(url, params).then((calibrated: AtlasStatus) => {
                 console.log("cal:", "calibrated", payload.moduleId, calibrated);
                 return commit(CALIBRATED, { [payload.moduleId]: calibrated });
             });

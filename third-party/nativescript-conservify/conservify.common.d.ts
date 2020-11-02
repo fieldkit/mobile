@@ -13,7 +13,7 @@ export interface PromiseCallbacks {
 export interface TransferInfo {
     url: string;
     method?: string;
-    body?: string;
+    body?: string | Uint8Array;
     path?: string;
     connectionTimeout?: number;
     defaultTimeout?: number;
@@ -28,3 +28,4 @@ export interface HttpResponse {
     };
     body: string;
 }
+export declare function encodeBody(body: Uint8Array | string): string;

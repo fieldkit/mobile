@@ -186,6 +186,7 @@ class StationStatusFactory {
                                 .value();
                             return new Module(
                                 null,
+                                null,
                                 moduleReply.module.name,
                                 moduleReply.module.position || 0,
                                 moduleReply.module.deviceId,
@@ -205,6 +206,7 @@ class StationStatusFactory {
                     .map((sensorReply) => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null, null))
                     .value();
                 return new Module(
+                    null,
                     null,
                     moduleReply.name,
                     moduleReply.position || 0,
@@ -238,6 +240,7 @@ class StationDatabaseFactory {
                 const status = this.parseModuleStatus(moduleRow.status);
                 return new Module(
                     moduleRow.id,
+                    moduleRow.stationId,
                     moduleRow.name,
                     moduleRow.position || 0,
                     moduleRow.moduleId,

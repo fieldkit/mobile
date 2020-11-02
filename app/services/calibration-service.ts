@@ -1,23 +1,20 @@
 import _ from "lodash";
 import Config from "@/config";
 import { promiseAfter } from "@/utilities";
-import { Conservify } from "@/services";
+import { Conservify, HttpResponse } from "@/wrappers/networking";
 import { AtlasSensorType } from "@/calibration";
-import { fixupCalibrationStatus } from "@/store/http-types";
+import { fixupCalibrationStatus, AtlasStatus } from "@/store/http-types";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 export * from "./atlas-types";
 
 const AtlasQuery = AtlasProto.WireAtlasQuery;
 const AtlasReply = AtlasProto.WireAtlasReply;
 const ReplyType = AtlasProto.ReplyType;
-const SensorType = AtlasProto.SensorType;
+// const SensorType = AtlasProto.SensorType;
 const AtlasQueryType = AtlasProto.QueryType;
 const AtlasCalibrationOperation = AtlasProto.CalibrationOperation;
 const PhCalibrationsCommand = AtlasProto.PhCalibrateCommand;
 const EcCalibrationsCommand = AtlasProto.EcCalibrateCommand;
-
-const replyTypeLookup = _.invert(ReplyType);
-const sensorTypeLookup = _.invert(SensorType);
 
 const log = Config.logger("CalibrationService");
 
@@ -33,7 +30,7 @@ export interface CalibrationAttempt {
 export default class CalibrationService {
     constructor(private readonly conservify: Conservify) {}
 
-    public clearCalibration(address: string): Promise<AtlasProto.WireAtlasReply> {
+    public clearCalibration(address: string): Promise<AtlasStatus> {
         const message = AtlasQuery.create({
             type: AtlasQueryType.QUERY_NONE,
             calibration: {
@@ -104,7 +101,7 @@ export default class CalibrationService {
         return data.reference;
     }
 
-    public calibrateSensor(address: string, data: CalibrationAttempt): Promise<AtlasProto.WireAtlasReply> {
+    public calibrateSensor(address: string, data: CalibrationAttempt): Promise<AtlasStatus> {
         const adjusted = this.applyCompensation(data);
         const message = AtlasQuery.create({
             type: AtlasQueryType.QUERY_NONE,
@@ -117,16 +114,9 @@ export default class CalibrationService {
                 temperature: data.compensations.temperature,
             },
         });
-        return this.stationQuery(address, message)
-            .then((reply) => {
-                return this.fixupReply(reply);
-            })
-            .then((reply) => {
-                if (reply.errors?.length > 0) {
-                    throw new Error(`calibration failed: ${reply}`);
-                }
-                return reply;
-            });
+        return this.stationQuery(address, message).then((reply) => {
+            return this.fixupReply(reply);
+        });
     }
 
     protected getDryEcRef(temp: number): number {
@@ -295,7 +285,7 @@ export default class CalibrationService {
             .protobuf({
                 method: "POST",
                 url: url,
-                body: binaryQuery as any,
+                body: binaryQuery,
             })
             .then(
                 (response) => {
@@ -320,33 +310,41 @@ export default class CalibrationService {
             );
     }
 
-    private getResponseBody(response: any): AtlasProto.WireAtlasReply | any | null {
+    private getResponseBody(response: HttpResponse): AtlasProto.WireAtlasReply | null {
         if (Buffer.isBuffer(response.body)) {
-            return AtlasReply.toObject(AtlasReply.decodeDelimited(response.body), {
-                enums: Number,
-            });
+            return AtlasReply.decodeDelimited(response.body);
         }
-        return response.body;
+        return null;
     }
 
-    private fixupReply(reply: any): AtlasProto.WireAtlasReply {
+    private fixupReply(reply: AtlasProto.WireAtlasReply): AtlasStatus {
         if (reply.errors && reply.errors.length > 0) {
-            return reply;
+            console.log(`calibration error`, JSON.stringify(reply));
+            throw new Error(`calibration error ${JSON.stringify(reply)}`);
         }
 
-        reply.typeName = replyTypeLookup[reply.type];
-        if (reply.calibration) {
-            reply.calibration.typeName = sensorTypeLookup[reply.calibration.type];
-            reply = fixupCalibrationStatus(reply);
+        if (!reply.calibration) {
+            console.log(`calibration error, no cal`, JSON.stringify(reply));
+            throw new Error(`calibration error, no cal ${JSON.stringify(reply)}`);
         }
-        return reply;
+
+        const status = fixupCalibrationStatus(reply);
+        if (!status) {
+            console.log(`calibration error, unexpected reply`, JSON.stringify(reply));
+            throw new Error(`calibration error, unexpected reply ${JSON.stringify(reply)}`);
+        }
+
+        return status;
     }
 
     private handlePotentialRetryReply(
-        reply: AtlasProto.WireAtlasReply,
+        reply: AtlasProto.WireAtlasReply | null,
         url: string,
         message: AtlasProto.WireAtlasQuery
     ): Promise<AtlasProto.WireAtlasReply> {
+        if (!reply) {
+            throw new Error(`expected calibration status reply`);
+        }
         if (reply.type != ReplyType.REPLY_RETRY) {
             return Promise.resolve(reply);
         }

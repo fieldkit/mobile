@@ -365,8 +365,19 @@ var Conservify = (function () {
         });
     };
     Conservify.prototype.writeSampleData = function () {
-        var sampleData = SampleData.alloc().init();
-        return Promise.resolve(sampleData.write());
+        return __awaiter(this, void 0, void 0, function () {
+            var sampleData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        sampleData = SampleData.alloc().init();
+                        return [4, sampleData.write()];
+                    case 1:
+                        _a.sent();
+                        return [2, Promise.resolve()];
+                }
+            });
+        });
     };
     Conservify.prototype.open = function (path) {
         if (!this.fileSystem) throw new Error("use before initialize");
@@ -432,8 +443,7 @@ var Conservify = (function () {
             transfer.headerWithKeyValue(key, value);
         }
         if (info.body) {
-            var requestBody = Buffer.from(info.body).toString("base64");
-            transfer.body = requestBody;
+            transfer.body = conservify_common_1.encodeBody(info.body);
             transfer.base64DecodeRequestBody = true;
         }
         return new Promise(function (resolve, reject) {

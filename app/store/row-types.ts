@@ -86,16 +86,16 @@ export interface NotesTableRow {
 export interface SettingsTableRow {
     id: number;
     settings: string;
-    settingsObject: Record<string, unknown> | undefined;
     createdAt: string;
     updatedAt: string;
+    settingsObject: Record<string, unknown> | undefined;
 }
 
 export interface AccountsTableRow {
+    portalId: number;
     id: number;
     name: string;
     email: string;
-    portalId: string;
     token: string;
     usedAt: Date;
 }
@@ -105,7 +105,7 @@ export interface NotificationsTableRow {
     key: string;
     kind: string;
     created: number;
-    silenced: string;
+    silenced: boolean;
     dismissed_at: number;
     satisfied_at: number;
     project: string;
@@ -130,4 +130,10 @@ export interface FirmwareTableRow {
 export interface PortalConfigTableRow {
     baseUri: string;
     ingestionUri: string;
+}
+
+export interface StationAddressRow {
+    deviceId: string;
+    url: string;
+    time: string;
 }

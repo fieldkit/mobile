@@ -22,6 +22,7 @@ export class Module {
 
     constructor(
         public readonly id: number | null,
+        public readonly stationId: number | null,
         public readonly name: string,
         public readonly position: number,
         public readonly moduleId: string,
@@ -216,7 +217,7 @@ export interface LoraSettings {
     appKey: Uint8Array;
 }
 
-export type PortalError = string;
+export type PortalError = Record<string, unknown>;
 
 export interface StationCreationFields {
     id: number | null;

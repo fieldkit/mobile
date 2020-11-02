@@ -19,12 +19,18 @@ export class DataQueryParams {
     ) {}
 }
 
+export interface SensorSummary {
+    id: number;
+    key: string;
+    records: number;
+}
+
 export class AggregateSummary {
     constructor(
         public readonly aggregate: Aggregate,
         public readonly start: number,
         public readonly end: number,
-        public readonly sensors: { id: number; key: string; records: number }[]
+        public readonly sensors: SensorSummary[]
     ) {}
 
     public get name(): string {
@@ -210,8 +216,10 @@ export class ReadingsDatabase {
 
     public async describe(aggregate: Aggregate): Promise<AggregateSummary> {
         const table = aggregate.table;
-        const times = sqliteToJs(await this.db.query(`SELECT MIN(time) AS start, MAX(time) AS end FROM ${table}`));
-        const sensors = sqliteToJs(
+        const times = sqliteToJs<{ start: number; end: number }>(
+            await this.db.query(`SELECT MIN(time) AS start, MAX(time) AS end FROM ${table}`)
+        );
+        const sensors = sqliteToJs<SensorSummary>(
             await this.db.query(
                 `SELECT sensor_id AS id, sensors.key, COUNT(*) AS records FROM ${table} JOIN sensors ON (sensor_id = sensors.id) GROUP BY sensor_id`
             )

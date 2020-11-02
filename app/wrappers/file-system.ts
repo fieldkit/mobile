@@ -21,7 +21,7 @@ export class FileWrapper {
 
     public async remove(): Promise<void> {
         if (this.f) {
-            this.f.remove();
+            await this.f.remove();
         }
     }
 }

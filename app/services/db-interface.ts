@@ -3,7 +3,7 @@ import Config from "@/config";
 import Settings from "@/settings";
 import { sqliteToJs } from "@/utilities";
 import { Database } from "@/wrappers/sqlite";
-import { Download, FileTypeUtils, Station, Module, Stream } from "@/store/types";
+import { Download, FileTypeUtils, Station, Sensor, Module, Stream } from "@/store/types";
 import {
     AccountsTableRow,
     DownloadTableRow,
@@ -11,11 +11,12 @@ import {
     NotificationsTableRow,
     StationTableRow,
     PortalConfigTableRow,
-    StationAddressRow,
     FirmwareTableRow,
     StreamTableRow,
+    SettingsTableRow,
     SensorTableRow,
     ModuleTableRow,
+    StationAddressRow,
 } from "@/store/row-types";
 import { Services } from "@/services";
 import { Notification } from "~/store/modules/notifications";
@@ -25,7 +26,7 @@ const log = Config.logger("DbInterface");
 export interface UserAccount {
     name: string;
     email: string;
-    portalId: string;
+    portalId: number;
     token: string;
     usedAt: Date | null;
 }
@@ -40,42 +41,41 @@ export default class DatabaseInterface {
     public getAll(): Promise<StationTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM stations"))
-            .then((rows) => sqliteToJs(rows))
-            .catch((err) => Promise.reject(new Error(`error fetching stations: ${err}`)));
+            .then((rows) => sqliteToJs<StationTableRow>(rows));
     }
 
     public getModuleAll(): Promise<ModuleTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM modules ORDER BY station_id"))
-            .then((rows) => sqliteToJs(rows));
+            .then((rows) => sqliteToJs<ModuleTableRow>(rows));
     }
 
     public getSensorAll(): Promise<SensorTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM sensors ORDER BY module_id"))
-            .then((rows) => sqliteToJs(rows));
+            .then((rows) => sqliteToJs<SensorTableRow>(rows));
     }
 
     public getStreamAll(): Promise<StreamTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM streams ORDER BY station_id"))
-            .then((rows) => sqliteToJs(rows));
+            .then((rows) => sqliteToJs<StreamTableRow>(rows));
     }
 
     public getDownloadAll(): Promise<DownloadTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM downloads ORDER BY station_id"))
-            .then((rows) => sqliteToJs(rows));
-    }
-
-    public removeNullIdModules(): Promise<void> {
-        return this.getDatabase().then((db) => db.execute("DELETE FROM modules WHERE device_id IS NULL"));
+            .then((rows) => sqliteToJs<DownloadTableRow>(rows));
     }
 
     public getAvailablePortalEnvs(): Promise<PortalConfigTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM config"))
-            .then((rows) => sqliteToJs(rows));
+            .then((rows) => sqliteToJs<PortalConfigTableRow>(rows));
+    }
+
+    public removeNullIdModules(): Promise<void> {
+        return this.getDatabase().then((db) => db.execute("DELETE FROM modules WHERE device_id IS NULL"));
     }
 
     public updatePortalEnv(row: PortalConfigTableRow): Promise<void> {
@@ -108,24 +108,24 @@ export default class DatabaseInterface {
                 db.execute("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id])
             )
             .catch((error) => {
-                console.log(`error setting portal id ${error}`);
-                throw new Error(`error setting portal id ${error}`);
+                console.log(`error setting portal id`, error);
+                throw new Error(`error setting portal id: ${error.message}`);
             });
     }
 
-    public setStationPortalError(station: { id: number }, error: any): Promise<void> {
+    public setStationPortalError(station: { id: number }, error: Record<string, unknown> | null): Promise<void> {
         return this.getDatabase()
             .then((db) =>
                 db.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", [
-                    JSON.stringify(error),
+                    error ? null : JSON.stringify(error),
                     new Date(),
                     new Date(),
                     station.id,
                 ])
             )
             .catch((error) => {
-                console.log(`error setting portal error ${error}`);
-                throw new Error(`error setting portal error ${error}`);
+                console.log(`error setting portal error:`, error);
+                throw new Error(`error setting portal error ${error.message}`);
             });
     }
 
@@ -179,59 +179,62 @@ export default class DatabaseInterface {
     private getModulePrimaryKey(deviceId: string): Promise<number> {
         if (_.isString(deviceId)) {
             return this.getDatabase().then((db) =>
-                db.query("SELECT id FROM modules WHERE device_id = ? ORDER BY id DESC", [deviceId]).then((rows) => {
-                    if (rows.length == 0) {
-                        return Promise.reject(new Error(`no such module: ${deviceId} ${rows.length}`));
-                    }
-                    if (rows.length > 1) {
+                db
+                    .query("SELECT id FROM modules WHERE device_id = ? OR module_id = ? ORDER BY id DESC", [deviceId])
+                    .then((rows: { id: number }[]) => {
+                        if (rows.length == 0) {
+                            return Promise.reject(new Error(`no such module: ${deviceId} ${rows.length}`));
+                        }
                         const keeping = rows[0];
-                        console.log(`deleting duplicate modules ${deviceId} ${rows.length}`);
-                        return db
-                            .query("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE device_id = ? AND id != ?)", [
-                                deviceId,
-                                keeping,
-                            ])
-                            .then(() => {
-                                return db.query("DELETE FROM modules WHERE device_id = ? AND id != ?", [deviceId, keeping]).then(() => {
-                                    return keeping;
+                        if (rows.length > 1) {
+                            console.log(`deleting duplicate modules ${deviceId} ${rows.length}`);
+                            return db
+                                .query("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE device_id = ? AND id != ?)", [
+                                    deviceId,
+                                    keeping,
+                                ])
+                                .then(() => {
+                                    return db.query("DELETE FROM modules WHERE device_id = ? AND id != ?", [deviceId, keeping]).then(() => {
+                                        return keeping.id;
+                                    });
                                 });
-                            });
-                    }
-                    return rows[0].id;
-                })
+                        }
+                        return keeping.id;
+                    })
             );
         }
         return Promise.resolve(deviceId);
     }
 
-    private insertSensor(sensor): Promise<void> {
+    private insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
         return this.getDatabase().then((db) =>
-            this.getModulePrimaryKey(sensor.moduleId).then((modulePrimaryKey) =>
+            this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) =>
                 db
                     .execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
                         modulePrimaryKey,
                         sensor.name,
                         sensor.unitOfMeasure,
-                        sensor.frequency,
-                        sensor.currentReading | sensor.reading,
+                        0,
+                        sensor.reading,
                     ])
                     .catch((err) => Promise.reject(new Error(`error inserting sensor: ${err}`)))
             )
         );
     }
 
-    private insertModule(module): Promise<void> {
+    private insertModule(stationId: number, module: Module): Promise<void> {
         // Note: device_id is the module's unique hardware id (not the station's)
         const values = [
-            module.moduleId || module.deviceId,
-            module.deviceId || module.moduleId,
+            module.moduleId,
+            module.moduleId,
             module.name,
-            module.interval || 0,
+            0,
             module.position,
-            module.stationId,
+            stationId,
             module.flags || 0,
             module.status ? JSON.stringify(module.status) : "",
         ];
+        console.log("INSERTING", values);
         return this.getDatabase().then((db) =>
             db
                 .execute(
@@ -240,7 +243,7 @@ export default class DatabaseInterface {
                 )
                 .catch((err) => {
                     console.log(`error inserting module: ${err}`);
-                    console.log(values);
+                    console.log(`error inserting values: ${JSON.stringify(values)}`);
                     return Promise.reject(new Error(`error inserting module: ${err}`));
                 })
         );
@@ -260,25 +263,13 @@ export default class DatabaseInterface {
             if (!existing[name] || !incoming[name] || !existing[name].currentReading || !incoming[name].reading) {
                 return 0;
             }
-            const previous = Math.round(existing[name].currentReading! * 10) / 10;
-            const current = Math.round(incoming[name].reading! * 10) / 10;
+            const previous = Math.round((existing[name]!.currentReading || 0) * 10) / 10;
+            const current = Math.round((incoming[name]!.reading || 0) * 10) / 10;
             return current == previous ? 0 : current > previous ? 1 : -1;
         }
 
         return Promise.all([
-            Promise.all(
-                adding.map((name) =>
-                    this.insertSensor(
-                        _.merge(
-                            {
-                                moduleId: module.moduleId,
-                                deviceId: module.moduleId,
-                            },
-                            incoming[name]
-                        )
-                    )
-                )
-            ),
+            Promise.all(adding.map((name) => this.insertSensor(module.moduleId, incoming[name]))),
             Promise.all(removed.map((name) => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
             Promise.all(
                 keeping
@@ -309,17 +300,17 @@ export default class DatabaseInterface {
         sensorRows: SensorTableRow[]
     ): Promise<void> {
         const incoming = _.keyBy(station.modules, (m) => m.moduleId);
-        const existing = _.keyBy(moduleRows, (m) => m.moduleId); // || deviceId
+        const existing = _.keyBy(moduleRows, (m) => m.moduleId);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
         const removed = _.difference(_.keys(existing), _.keys(incoming));
         const keeping = _.intersection(_.keys(existing), _.keys(incoming));
 
-        log.verbose("synchronize modules", stationId, adding, removed, keeping);
+        log.info("synchronize modules", stationId, adding, removed, keeping);
 
         return Promise.all([
             Promise.all(
                 adding.map((moduleId) =>
-                    this.insertModule(_.extend({ stationId: stationId }, incoming[moduleId])).then(() =>
+                    this.insertModule(stationId, incoming[moduleId]).then(() =>
                         this.synchronizeSensors(db, moduleId, incoming[moduleId], [])
                     )
                 )
@@ -369,8 +360,6 @@ export default class DatabaseInterface {
             .then((db) => db.query("UPDATE streams SET portal_size = NULL, portal_first_block = NULL, portal_last_block = NULL"))
             .then(() => this.getDatabase())
             .then((db) => db.query("SELECT * FROM streams"))
-            .then((rows) => sqliteToJs(rows))
-            .then((rows) => console.log(rows))
             .then(() => Promise.resolve());
     }
 
@@ -486,11 +475,11 @@ export default class DatabaseInterface {
                 })
                 .then((stationId) => {
                     return Promise.all([
-                        db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]).then((r) => sqliteToJs(r)),
+                        db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]).then((r) => sqliteToJs<ModuleTableRow>(r)),
                         db
                             .query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId])
-                            .then((r) => sqliteToJs(r)),
-                        db.query("SELECT * FROM streams WHERE station_id = ?", [stationId]).then((r) => sqliteToJs(r)),
+                            .then((r) => sqliteToJs<SensorTableRow>(r)),
+                        db.query("SELECT * FROM streams WHERE station_id = ?", [stationId]).then((r) => sqliteToJs<StreamTableRow>(r)),
                     ]).then((all) => {
                         const moduleRows: ModuleTableRow[] = all[0];
                         const sensorRows: SensorTableRow[] = all[1];
@@ -525,16 +514,13 @@ export default class DatabaseInterface {
             .then(() => Promise.resolve());
     }
 
-    public queryRecentlyActiveAddresses(): Promise<{ deviceId: string; url: string; time: string }[]> {
+    public queryRecentlyActiveAddresses(): Promise<StationAddressRow[]> {
         return this.getDatabase().then((db) =>
             db
                 .query(
                     "SELECT sa.url, s.device_id, time FROM station_addresses AS sa JOIN stations AS s ON (sa.station_id = s.id) ORDER BY sa.time DESC"
                 )
-                .then((rows) => sqliteToJs(rows))
-                .then((rows) => {
-                    return rows;
-                })
+                .then((rows) => sqliteToJs<StationAddressRow>(rows))
         );
     }
 
@@ -612,6 +598,7 @@ export default class DatabaseInterface {
         }
         return this.getDatabase()
             .then((db) => db.query("SELECT id FROM stations WHERE device_id = ?", [deviceId]))
+            .then((rows) => sqliteToJs<{ id: number }>(rows))
             .then((rows) => {
                 if (rows.length != 1) {
                     return null;
@@ -625,13 +612,13 @@ export default class DatabaseInterface {
     public getAllFirmware(): Promise<FirmwareTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM firmware ORDER BY time DESC"))
-            .then((rows) => sqliteToJs(rows));
+            .then((rows) => sqliteToJs<FirmwareTableRow>(rows));
     }
 
     public getLatestFirmware(): Promise<FirmwareTableRow | null> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM firmware ORDER BY time DESC LIMIT 1"))
-            .then((rows) => sqliteToJs(rows))
+            .then((rows) => sqliteToJs<FirmwareTableRow>(rows))
             .then((all) => {
                 if (all.length == 0) {
                     return null;
@@ -646,6 +633,7 @@ export default class DatabaseInterface {
             .join(",");
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids))
+            .then((rows) => sqliteToJs<FirmwareTableRow>(rows))
             .then((data) => {
                 return this.getDatabase()
                     .then((db) => db.execute("DELETE FROM firmware WHERE id NOT IN (" + values + ")", ids))
@@ -660,7 +648,7 @@ export default class DatabaseInterface {
             .then((db) => db.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]))
             .then((id) => {
                 if (id.length === 1) {
-                    return Promise.resolve(id[0]);
+                    return Promise.resolve();
                 }
                 const values = [
                     firmware.id,
@@ -712,7 +700,7 @@ export default class DatabaseInterface {
     public getAllNotes(): Promise<NotesTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM notes"))
-            .then((rows) => sqliteToJs(rows))
+            .then((rows) => sqliteToJs<NotesTableRow>(rows))
             .then((rows) =>
                 rows.map((row) => {
                     try {
@@ -740,10 +728,10 @@ export default class DatabaseInterface {
         });
     }
 
-    public getSettings(): Promise<{ settingsObject: any }[]> {
+    public getSettings(): Promise<SettingsTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM settings LIMIT 1"))
-            .then((rows) => sqliteToJs(rows))
+            .then((rows) => sqliteToJs<SettingsTableRow>(rows))
             .then((rows) =>
                 rows.map((row) => {
                     try {
@@ -759,7 +747,7 @@ export default class DatabaseInterface {
             .catch((err) => Promise.reject(new Error(`error fetching settings: ${err}`)));
     }
 
-    public insertSettings(settings: any): Promise<void> {
+    public insertSettings(settings: Record<string, unknown>): Promise<void> {
         return this.getDatabase()
             .then((db) =>
                 db.execute("INSERT INTO settings (created_at, updated_at,settings) VALUES (?, ?, ?)", [
@@ -774,7 +762,7 @@ export default class DatabaseInterface {
             });
     }
 
-    public updateSettings(settings: any): Promise<void> {
+    public updateSettings(settings: Record<string, unknown>): Promise<void> {
         return this.getDatabase()
             .then((db) => db.execute("UPDATE settings SET settings = ?", [JSON.stringify(settings)]))
             .catch((error) => {
@@ -786,15 +774,14 @@ export default class DatabaseInterface {
     public getAllAccounts(): Promise<AccountsTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM accounts"))
-            .then((rows) => sqliteToJs(rows))
+            .then((rows) => sqliteToJs<AccountsTableRow>(rows))
             .catch((err) => Promise.reject(new Error(`error fetching accounts: ${err}`)));
     }
 
     public addOrUpdateAccounts(account: UserAccount): Promise<void> {
-        console.log("addOrUpdateAccounts", account);
         return this.getDatabase()
             .then((db) =>
-                db.query(`SELECT id FROM accounts WHERE email = ?`, [account.email]).then((maybeId) => {
+                db.query(`SELECT id FROM accounts WHERE email = ?`, [account.email]).then((maybeId: { id: number }[]) => {
                     if (maybeId.length == 0) {
                         const values = [account.name, account.email, account.portalId, account.token, new Date()];
                         return db.execute(`INSERT INTO accounts (name, email, portal_id, token, used_at) VALUES (?, ?, ?, ?, ?)`, values);
@@ -811,26 +798,28 @@ export default class DatabaseInterface {
     }
 
     public deleteAllAccounts(): Promise<AccountsTableRow[]> {
-        return this.getDatabase().then((db) => db.query(`DELETE FROM accounts`));
+        return this.getDatabase()
+            .then((db) => db.query(`DELETE FROM accounts`))
+            .then((rows) => sqliteToJs<AccountsTableRow>(rows));
     }
 
     public getAllNotifications(): Promise<NotificationsTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM notifications"))
-            .then((rows) => sqliteToJs(rows))
+            .then((rows) => sqliteToJs<NotificationsTableRow>(rows))
             .then((rows) =>
                 rows.map((row) => {
                     try {
                         return {
                             ...row,
-                            silenced: row.silenced === "true" ? true : false,
+                            silenced: row.silenced, // === "true" ? true : false,
                             project: JSON.parse(row.project),
                             user: JSON.parse(row.user),
                             station: JSON.parse(row.station),
                         };
                     } catch (err) {
                         log.error(`error deserializing notifications JSON: ${err}`);
-                        log.error(`JSON: ${row}`);
+                        log.error(`JSON: ${JSON.stringify(row)}`);
                     }
                     return row;
                 })
@@ -870,30 +859,33 @@ export default class DatabaseInterface {
         console.log("updateNotification", notification);
         return this.getDatabase()
             .then((db) =>
-                db.query(`SELECT * FROM notifications WHERE key = ?`, [notification.key]).then((maybe) => {
-                    if (maybe.length > 0) {
-                        const dbValues = maybe[0];
-                        const values = [
-                            notification.key ?? dbValues.key,
-                            notification.kind ?? dbValues.kind,
-                            notification.silenced === true ? "true" : "false",
-                            notification.dismissed_at ?? dbValues.dismissed_at,
-                            notification.satisfied_at ?? dbValues.satisfied_at,
-                            notification.project ? JSON.stringify(notification.project) : dbValues.project,
-                            notification.user ? JSON.stringify(notification.user) : dbValues.user,
-                            notification.station ? JSON.stringify(notification.station) : dbValues.station,
-                            notification.actions ?? dbValues.actions,
-                            notification.id,
-                        ];
+                db
+                    .query(`SELECT * FROM notifications WHERE key = ?`, [notification.key])
+                    .then((rows) => sqliteToJs<NotificationsTableRow>(rows))
+                    .then((maybe) => {
+                        if (maybe.length > 0) {
+                            const dbValues = maybe[0];
+                            const values = [
+                                notification.key ?? dbValues.key,
+                                notification.kind ?? dbValues.kind,
+                                notification.silenced === true ? "true" : "false",
+                                notification.dismissed_at ?? dbValues.dismissed_at,
+                                notification.satisfied_at ?? dbValues.satisfied_at,
+                                notification.project ? JSON.stringify(notification.project) : dbValues.project,
+                                notification.user ? JSON.stringify(notification.user) : dbValues.user,
+                                notification.station ? JSON.stringify(notification.station) : dbValues.station,
+                                notification.actions ?? dbValues.actions,
+                                notification.id,
+                            ];
 
-                        return db.execute(
-                            `UPDATE notifications SET key = ?, kind = ?, silenced = ?, dismissed_at = ?, satisfied_at = ?, project = ?, user = ?, station = ?, actions = ? WHERE id = ?`,
-                            values
-                        );
-                    }
+                            return db.execute(
+                                `UPDATE notifications SET key = ?, kind = ?, silenced = ?, dismissed_at = ?, satisfied_at = ?, project = ?, user = ?, station = ?, actions = ? WHERE id = ?`,
+                                values
+                            );
+                        }
 
-                    return;
-                })
+                        return;
+                    })
             )
             .then(() => Promise.resolve())
             .catch((err) => Promise.reject(new Error(`error updating notifications: ${err}`)));

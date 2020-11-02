@@ -1,12 +1,13 @@
 import _ from "lodash";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import AppSettings from "@/wrappers/app-settings";
+import { HttpResponse } from "@/wrappers/networking";
 import { AuthenticationError } from "@/lib/errors";
 import { ActionTypes } from "@/store/actions";
 import { Download, FileTypeUtils } from "@/store/types";
-import { Services } from "@/services";
+import { Services, Conservify, FileSystem, OurStore } from "@/services";
 
-type ProgressFunc = (total: number, copied: number, info: object) => void;
+type ProgressFunc = (total: number, copied: number, info: never) => void;
 
 export class ApiUnexpectedStatus extends Error {
     constructor(message: string) {
@@ -73,7 +74,7 @@ export interface PortalPatchNotesPayload {
 
 export interface CurrentUser {
     name: string;
-    portalId: string;
+    portalId: number;
     email: string;
     token: string;
     usedAt: Date | null;
@@ -104,34 +105,39 @@ export interface AddStationFields {
     statusPb: string;
 }
 
-export default class PortalInterface {
-    private services: any;
-    private fs: any;
-    private conservify: any;
-    private currentUser: CurrentUser | null = null;
-    private appSettings: any;
-    private store: any;
+export interface AddUserFields {
+    name: string;
+    email: string;
+    password: string;
+}
 
-    constructor(services: Services) {
+export default class PortalInterface {
+    private fs: FileSystem;
+    private conservify: Conservify;
+    private appSettings: AppSettings;
+    private store: OurStore;
+    private currentUser: CurrentUser | null = null;
+
+    constructor(public readonly services: Services) {
         this.fs = services.FileSystem();
         this.conservify = services.Conservify();
         this.appSettings = new AppSettings();
         this.store = services.Store();
     }
 
-    private async getUri(): Promise<string> {
-        return this.store.state.portal.env.baseUri;
+    private getUri(): Promise<string> {
+        return Promise.resolve(this.store.state.portal.env.baseUri);
     }
 
-    private async getIngestionUri(): Promise<string> {
-        return this.store.state.portal.env.ingestionUri;
+    private getIngestionUri(): Promise<string> {
+        return Promise.resolve(this.store.state.portal.env.ingestionUri);
     }
 
     public isAvailable(): Promise<boolean> {
         return this.getUri().then((baseUri) =>
             axios({ url: baseUri + "/status" })
-                .then((r) => true)
-                .catch((e) => false)
+                .then(() => true)
+                .catch(() => false)
         );
     }
 
@@ -149,7 +155,7 @@ export default class PortalInterface {
         return this.query({
             authenticated: true,
             url: "/user",
-        }).then((user) => {
+        }).then((user: { name: string; id: number; email: string }) => {
             const token = this.getCurrentToken();
             if (!token) {
                 throw new Error(`no token after authentication`);
@@ -185,19 +191,18 @@ export default class PortalInterface {
         );
     }
 
-    public logout(): Promise<boolean> {
+    public async logout(): Promise<void> {
         this.appSettings.remove("accessToken");
-        this.store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
-        return Promise.resolve(true);
+        await this.store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
+        return Promise.resolve();
     }
 
-    // TODO Return token?
-    public register(user: {}): Promise<void> {
+    public register(user: AddUserFields): Promise<void> {
         return this.query({
             method: "POST",
             url: "/users",
             data: user,
-        });
+        }).then(() => Promise.resolve());
     }
 
     public getTransmissionToken(): Promise<{ token: string; url: string }> {
@@ -205,6 +210,8 @@ export default class PortalInterface {
             method: "GET",
             authenticated: true,
             url: "/user/transmission-token",
+        }).then((data) => {
+            return data as { token: string; url: string };
         });
     }
 
@@ -214,6 +221,8 @@ export default class PortalInterface {
             method: "POST",
             url: "/stations",
             data: data,
+        }).then((data) => {
+            return data as PortalStation;
         });
     }
 
@@ -221,8 +230,10 @@ export default class PortalInterface {
         return this.query({
             authenticated: true,
             method: "PATCH",
-            url: "/stations/" + portalId,
+            url: `/stations/${portalId}`,
             data: data,
+        }).then((data) => {
+            return data as PortalStation;
         });
     }
 
@@ -230,19 +241,25 @@ export default class PortalInterface {
         return this.query({
             authenticated: true,
             url: "/stations",
+        }).then((data) => {
+            return data as { stations: PortalStation[] };
         });
     }
 
     public getStationById(id: number): Promise<PortalStation> {
         return this.query({
             authenticated: true,
-            url: "/stations/@/" + id,
+            url: `/stations/@/${id}`,
+        }).then((data) => {
+            return data as PortalStation;
         });
     }
 
     public listFirmware(moduleName: string): Promise<{ firmwares: PortalFirmware[] }> {
         return this.query({
-            url: "/firmware?module=" + moduleName,
+            url: `/firmware?module=${moduleName}`,
+        }).then((data) => {
+            return data as { firmwares: PortalFirmware[] };
         });
     }
 
@@ -289,20 +306,20 @@ export default class PortalInterface {
         );
     }
 
-    private handleTokenResponse(response): Promise<{ token: string }> {
+    private handleTokenResponse(response: AxiosResponse<any>): Promise<{ token: string }> {
         if (response.status !== 204) {
             throw new Error("authentication failed");
         }
 
         // Headers should always be lower case, bug otherwise.
-        const accessToken = response.headers.authorization;
+        const accessToken = response.headers["authorization"];
         this.appSettings.setString("accessToken", accessToken);
         return Promise.resolve({
             token: accessToken,
         });
     }
 
-    private getHeaders(req): Promise<any> {
+    private getHeaders(req: QueryFields): Promise<Record<string, string>> {
         const token = this.appSettings.getString("accessToken");
         if (token && token.length > 0) {
             return Promise.resolve(
@@ -316,6 +333,10 @@ export default class PortalInterface {
         if (req.authenticated) {
             console.log("skipping portal query, no auth");
             return Promise.reject(new AuthenticationError("no token, skipping query"));
+        }
+
+        if (!req.headers) {
+            return Promise.resolve({});
         }
 
         return Promise.resolve(req.headers);
@@ -351,7 +372,7 @@ export default class PortalInterface {
 
         if (original.refreshed === true) {
             console.log("refresh failed, clear token");
-            return this.logout().then((_) => {
+            return this.logout().then(() => {
                 return Promise.reject(new AuthenticationError("refresh token failed"));
             });
         }
@@ -375,7 +396,7 @@ export default class PortalInterface {
                 })
                 .catch((error: Error) => {
                     console.log("refresh failed", error);
-                    return this.logout().then((_) => {
+                    return this.logout().then(() => {
                         return Promise.reject(error);
                     });
                 })
@@ -386,7 +407,7 @@ export default class PortalInterface {
         try {
             const encoded = token.split(".")[1];
             const decoded = Buffer.from(encoded, "base64").toString();
-            return JSON.parse(decoded);
+            return JSON.parse(decoded) as { refresh_token: string };
         } catch (e) {
             console.log("error parsing token", e, "token", token);
             return null;
@@ -394,7 +415,7 @@ export default class PortalInterface {
     }
 
     private handleError(error: Error): never {
-        console.log(`portal-error: ${error}`);
+        console.log(`portal-error:`, error);
         throw error;
     }
 
@@ -473,7 +494,9 @@ export default class PortalInterface {
     public getStationNotes(id: number): Promise<PortalStationNotesReply> {
         return this.query({
             authenticated: true,
-            url: "/stations/" + id + "/notes",
+            url: `/stations/${id}/notes`,
+        }).then((data) => {
+            return data as PortalStationNotesReply;
         });
     }
 
@@ -481,8 +504,10 @@ export default class PortalInterface {
         return this.query({
             method: "PATCH",
             authenticated: true,
-            url: "/stations/" + id + "/notes",
+            url: `/stations/${id}/notes`,
             data: { notes: payload },
+        }).then((data) => {
+            return data as PortalStationNotes;
         });
     }
 
@@ -498,7 +523,7 @@ export default class PortalInterface {
             "Content-Type": contentType,
         };
         return this.getUri().then((baseUri) => {
-            const url = baseUri + "/stations/" + stationId + "/media?key=" + key;
+            const url = `${baseUri}/stations/${stationId}/media?key=${key}`;
             console.log("uploading:", url, baseUri, stationId, key);
 
             if (!url) {
@@ -514,15 +539,15 @@ export default class PortalInterface {
                     method: "POST",
                     path: path,
                     headers: { ...headers },
-                    progress: (total, copied, info) => {
+                    progress: (/*total: number, copied: number, info: never*/) => {
                         // Do nothing.
                     },
                 })
                 .then(
-                    (response) => {
-                        // Our library uses statusCode, axios uses status
+                    (response: HttpResponse) => {
+                        console.log("station-media-upload:", response.body);
                         return {
-                            data: response.body,
+                            data: JSON.parse(response.body) as { id: number },
                             status: response.statusCode,
                         };
                     },
@@ -539,16 +564,16 @@ export default class PortalInterface {
         return this.getUri().then((baseUri) => {
             return this.conservify
                 .download({
-                    url: baseUri + "/notes/media/" + mediaId,
+                    url: `${baseUri}/notes/media/${mediaId}`,
                     method: "GET",
                     path: path,
                     headers: { ...headers },
-                    progress: (total, copied, info) => {
+                    progress: (/*total: number, copied: number, info: never*/) => {
                         // Do nothing.
                     },
                 })
                 .then(
-                    (response) => {
+                    (response: HttpResponse) => {
                         // Our library uses statusCode, axios uses status
                         return {
                             data: response.body,
