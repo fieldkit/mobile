@@ -53,14 +53,16 @@ export default class CalibrationService {
                     return data.reference;
                 }
                 switch (data.which) {
-                    case PhCalibrationsCommand.CALIBRATE_PH_MIDDLE: {
-                        return this.getQuickPhRef(data.compensations.temperature);
-                    }
                     case PhCalibrationsCommand.CALIBRATE_PH_LOW: {
                         return this.getLowPhRef(data.compensations.temperature);
                     }
                     case PhCalibrationsCommand.CALIBRATE_PH_MIDDLE: {
-                        return this.getMidPhRef(data.compensations.temperature);
+                        if (data.reference == 7) {
+                            // NOTE HACK
+                            return this.getMidPhRef(data.compensations.temperature);
+                        } else {
+                            return this.getQuickPhRef(data.compensations.temperature);
+                        }
                     }
                     case PhCalibrationsCommand.CALIBRATE_PH_HIGH: {
                         return this.getHighPhRef(data.compensations.temperature);
