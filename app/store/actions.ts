@@ -58,6 +58,7 @@ export enum ActionTypes {
     CONFIGURE_STATION_SCHEDULES = "CONFIGURE_STATION_SCHEDULES",
     STATION_LOCATION = "STATION_LOCATION",
     SCAN_STATION_NETWORKS = "SCAN_STATION_NETWORKS",
+    SCAN_STATION_MODULES = "SCAN_STATION_MODULES",
 
     UPDATE_NOTES_FORM = "UPDATE_NOTES_FORM",
     DEPLOY_STATION = "DEPLOY_STATION",
@@ -157,6 +158,12 @@ export class NameStationLocationAction {
 
 export class SaveNotesAction {
     type = ActionTypes.SAVE_NOTES;
+
+    constructor(public readonly stationId: number) {}
+}
+
+export class ScanStationModulesAction {
+    type = ActionTypes.SCAN_STATION_MODULES;
 
     constructor(public readonly stationId: number) {}
 }

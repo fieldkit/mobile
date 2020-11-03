@@ -294,6 +294,19 @@ const actions = (services: ServiceRef) => {
                     }
                 );
         },
+        [ActionTypes.SCAN_STATION_MODULES]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
+            if (!payload?.deviceId) throw new Error("no nearby info");
+            const info = state.stations[payload.deviceId];
+            if (!info) throw new Error("no nearby info");
+            commit(MutationTypes.STATION_QUERIED, info);
+            return services
+                .queryStation()
+                .scanModules(info.url)
+                .then((statusReply) => {
+                    commit(MutationTypes.STATION_ACTIVITY, info);
+                    return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
+                });
+        },
         [ActionTypes.SCAN_STATION_NETWORKS]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
             if (!payload?.deviceId) throw new Error("no nearby info");
             const info = state.stations[payload.deviceId];
@@ -304,7 +317,6 @@ const actions = (services: ServiceRef) => {
                 .scanNearbyNetworks(info.url)
                 .then((networksReply) => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
-                    return networksReply;
                 });
         },
     };

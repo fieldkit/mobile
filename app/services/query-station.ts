@@ -110,6 +110,16 @@ export default class QueryStation {
         });
     }
 
+    public scanModules(address: string): Promise<HttpStatusReply> {
+        const message = HttpQuery.create({
+            type: QueryType.QUERY_SCAN_MODULES,
+        });
+
+        return this.stationQuery(address, message).then((reply) => {
+            return this.fixupStatus(reply);
+        });
+    }
+
     public configureSchedule(address: string, schedules: Schedules): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
