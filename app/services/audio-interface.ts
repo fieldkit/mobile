@@ -5,8 +5,8 @@ import { getPathTimestamp } from "@/utilities";
 export class VolumeMutedError extends Error {
     public readonly volumeMutedError = true;
 
-    public static isInstance(err: any): boolean {
-        return err.volumeMutedError === true;
+    public static isInstance(error: VolumeMutedError | undefined): boolean {
+        return (error && error.volumeMutedError) || false;
     }
 }
 
@@ -17,8 +17,8 @@ export class NoRecordingAllowedError extends Error {
         super("recording disabled");
     }
 
-    public static isInstance(err: any): boolean {
-        return err.noRecordingAllowedError === true;
+    public static isInstance(error: NoRecordingAllowedError | undefined): boolean {
+        return (error && error.noRecordingAllowedError) || false;
     }
 }
 
@@ -27,7 +27,10 @@ export default class AudioInterface {
     private readonly recorder: TNSRecorder;
     private readonly folder: Folder;
     private readonly extension: string;
-    private readonly options: any;
+    private readonly options: {
+        format?: number;
+        encoder?: number;
+    };
 
     constructor() {
         this.player = new TNSPlayer();
@@ -68,23 +71,23 @@ export default class AudioInterface {
         });
     }
 
-    public pauseAudioRecording(): Promise<any> {
-        return this.recorder.pause();
+    public async pauseAudioRecording(): Promise<void> {
+        await this.recorder.pause();
     }
 
-    public resumeAudioRecording(): Promise<any> {
-        return this.recorder.resume();
+    public async resumeAudioRecording(): Promise<void> {
+        await this.recorder.resume();
     }
 
-    public stopAudioRecording(): Promise<any> {
-        return this.recorder.stop();
+    public async stopAudioRecording(): Promise<void> {
+        await this.recorder.stop();
     }
 
     public isPlaying(): boolean {
         return this.player.isAudioPlaying();
     }
 
-    public playRecordedFile(path: string, doneCallback: ({ error: boolean }) => void): Promise<any> {
+    public playRecordedFile(path: string, doneCallback: ({ error: boolean }) => void): Promise<void> {
         console.log("audio:play", path, this.player.volume);
         if (!path) return Promise.reject(new Error("no audio file"));
         if (!doneCallback) return Promise.reject(new Error("no callback"));
@@ -115,29 +118,27 @@ export default class AudioInterface {
             },
         };
 
-        return this.player.playFromFile(playerOptions).then((value) => {
+        return this.player.playFromFile(playerOptions).then(() => {
             console.log("audio:play:done");
-            return value;
         });
     }
 
-    public stopPlayer(): Promise<any> {
-        return this.player.pause().then(() => {
-            return this.player.dispose();
-        });
+    public async stopPlayer(): Promise<void> {
+        await this.player.pause();
+        await this.player.dispose();
     }
 
-    public pausePlayer(): Promise<any> {
-        return this.player.pause();
+    public async pausePlayer(): Promise<void> {
+        await this.player.pause();
     }
 
     public getDuration(): Promise<string> {
         return this.player.getAudioTrackDuration();
     }
 
-    public deleteRecordedFile(name: string): Promise<string> {
+    public async deleteRecordedFile(name: string): Promise<string> {
         console.log("audio:remove", name);
-        this.folder.getFile(name + this.extension).remove();
-        return Promise.resolve(name);
+        await this.folder.getFile(name + this.extension).remove();
+        return name;
     }
 }

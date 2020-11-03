@@ -1,47 +1,47 @@
 import _ from "lodash";
-import Promise from "bluebird";
 import Config from "../config";
-import Sqlite from "../wrappers/sqlite";
+import Sqlite, { Database } from "../wrappers/sqlite";
 import Migrating from "./migrating";
 
 export default class CreateDB {
-    sqlite: any;
-    promisedDatabase: Promise<any>;
-    resolveDatabase: any | null = null;
-    database: any | null = null;
+    private sqlite: Sqlite;
+    private database: Database | null = null;
 
     constructor() {
         this.sqlite = new Sqlite();
-        this.promisedDatabase = new Promise((resolve) => {
-            this.resolveDatabase = resolve;
-        });
     }
 
-    getDatabase() {
-        return this.promisedDatabase;
+    public getDatabase(): Promise<Database> {
+        const db = this.database;
+        if (!db) throw new Error("uninitialized database");
+        return Promise.resolve(db);
     }
 
-    initialize(userInvokedDelete: boolean = false, path: string | null = null) {
+    public initialize(userInvokedDelete = false, path: string | null = null): Promise<Database> {
         console.log("opening", userInvokedDelete);
-        return this._open(path)
+        return this.open(path)
             .then(() => {
                 if (!path && (Config.dropTables || userInvokedDelete)) {
-                    return this.dropTables();
+                    return this.dropTables().then(() => {
+                        return this.database;
+                    });
                 }
-                return Promise.resolve(this.database);
-            })
-            .then(() => {
-                const migrations = new Migrating();
-                return migrations.up(this.database);
-            })
-            .then(() => {
-                this.resolveDatabase(this.database);
                 return this.database;
+            })
+            .then((db: Database) => {
+                const migrations = new Migrating();
+                return migrations.up(db).then(() => {
+                    return db;
+                });
+            })
+            .then((db: Database) => {
+                return db;
             });
     }
 
-    getDatabaseName(path: string | null) {
-        const globalAny: any = global;
+    private getDatabaseName(path: string | null) {
+        const globalAny: any = global; // eslint-disable-line
+        // eslint-disable-next-line
         if (globalAny.TNS_ENV === "test") {
             if (path) {
                 return path;
@@ -51,9 +51,11 @@ export default class CreateDB {
         return "fieldkit.sqlite3";
     }
 
-    dropTables() {
+    private dropTables() {
+        const db = this.database;
+        if (!db) throw new Error("uninitialized database");
         console.log("dropping tables");
-        return this.database.query("SELECT name FROM sqlite_master WHERE type = 'table'").then((tables) => {
+        return db.query("SELECT name FROM sqlite_master WHERE type = 'table'").then((tables: { name: string }[]) => {
             const dropping = _(tables)
                 .map((table) => table.name)
                 .filter((name) => name.indexOf("sqlite_") < 0)
@@ -61,28 +63,26 @@ export default class CreateDB {
             if (dropping.length > 0) {
                 console.log("dropping", dropping);
             }
-            return this.database
-                .query(`PRAGMA foreign_keys = OFF`)
+            return db
+                .execute(`PRAGMA foreign_keys = OFF`)
                 .then(() => {
-                    return this.database.batch(
+                    return db.batch(
                         _(dropping)
                             .map((name) => "DROP TABLE " + name)
                             .value()
                     );
                 })
-                .then(() => {
-                    return this.database.query(`PRAGMA foreign_keys = ON`);
-                });
+                .then(() => db.execute(`PRAGMA foreign_keys = ON`));
         });
     }
 
-    _open(path: string | null) {
-        return this.sqlite.open(this.getDatabaseName(path)).then((db) => {
+    private open(path: string | null) {
+        return this.sqlite.open(this.getDatabaseName(path)).then((db: Database) => {
             // foreign keys are disabled by default in sqlite
             // enable them here
             return db.query(`PRAGMA foreign_keys = ON;`).then(() => {
                 this.database = db;
-                return this.database;
+                return db;
             });
         });
     }

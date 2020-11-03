@@ -176,7 +176,7 @@ export default class DiscoverStation {
 
         log.info("found service:", info.type, info.name, info.host, info.port, key);
 
-        this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
+        void this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
 
         return;
     }
@@ -184,7 +184,7 @@ export default class DiscoverStation {
     public onLostService(info: LostService): void {
         log.info("lose service (pending):", info.type, info.name, Config.lossBufferDelay);
 
-        this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name });
+        void this.store.dispatch(ActionTypes.MAYBE_LOST, { deviceId: info.name });
 
         return;
     }
@@ -217,14 +217,16 @@ export default class DiscoverStation {
 
             switch (decoded.status) {
                 case fk_app.UdpStatus.UDP_STATUS_ONLINE: {
-                    return this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
+                    void this.store.dispatch(ActionTypes.FOUND, { url: station.url, deviceId: station.deviceId });
+                    break;
                 }
                 case fk_app.UdpStatus.UDP_STATUS_BYE: {
-                    return this.store.dispatch(ActionTypes.LOST, { url: station.url, deviceId: station.deviceId });
+                    void this.store.dispatch(ActionTypes.LOST, { url: station.url, deviceId: station.deviceId });
+                    break;
                 }
             }
         } catch (e) {
-            log.error(`error handling udp: ${message} ${e}`);
+            log.error(`error handling udp: ${JSON.stringify(message)}`, e);
         }
         return Promise.resolve();
     }

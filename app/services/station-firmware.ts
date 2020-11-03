@@ -8,13 +8,13 @@ const log = Config.logger("StationFirmware");
 
 type ProgressCallback = ({ progress: number }) => void;
 
-const NoopProgress: ProgressCallback = ({ progress: number }): void => {
+const NoopProgress: ProgressCallback = (/* { progress: number } */): void => {
     // NOOP
 };
 
 function transformProgress(callback: ProgressCallback, fn: (v: number) => number) {
     if (_.isFunction(callback)) {
-        return (total: number, copied: number, info: never) => {
+        return (total: number, copied: number /*, info: never*/) => {
             callback({
                 progress: fn((copied / total) * 100.0),
             });

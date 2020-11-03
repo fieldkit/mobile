@@ -106,11 +106,25 @@ export interface NotificationsTableRow {
     kind: string;
     created: number;
     silenced: boolean;
-    dismissed_at: number;
-    satisfied_at: number;
+    dismissed_at: number; // TODO Fix naming
+    satisfied_at: number; // TODO Fix naming
     project: string;
     user: string;
     station: string;
+    actions: string;
+}
+
+export interface QueriedNotificationsTableRow {
+    id: number;
+    key: string;
+    kind: string;
+    created: number;
+    silenced: boolean;
+    dismissed_at: number; // TODO Fix naming
+    satisfied_at: number; // TODO Fix naming
+    project: Record<string, unknown>;
+    user: Record<string, unknown>;
+    station: Record<string, unknown>;
     actions: string;
 }
 

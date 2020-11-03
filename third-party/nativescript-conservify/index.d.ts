@@ -15,7 +15,7 @@ export declare interface OpenedFile {
 export declare interface HttpResponse {
     statusCode: number;
     headers: { [index: string]: string };
-    body: string;
+    body: Buffer;
 }
 
 export declare interface TransferInfo {
@@ -27,6 +27,16 @@ export declare interface TransferInfo {
     defaultTimeout?: number;
     headers?: { [index: string]: string };
     progress?: ProgressFunc;
+}
+
+export declare interface ConnectedNetwork {
+    connectedWifi: {
+        ssid: string;
+    };
+}
+
+export declare interface ScannedNetworks {
+    //
 }
 
 export declare class Conservify extends Common {
@@ -42,7 +52,7 @@ export declare class Conservify extends Common {
     protobuf(info: TransferInfo): Promise<HttpResponse>;
     download(info: TransferInfo): Promise<HttpResponse>;
     upload(info: TransferInfo): Promise<HttpResponse>;
-    scanNetworks(): Promise<any>;
-    findConnectedNetwork(): Promise<any>;
+    scanNetworks(): Promise<ScannedNetworks>;
+    findConnectedNetwork(): Promise<ConnectedNetwork>;
     open(path: string): Promise<OpenedFile>;
 }

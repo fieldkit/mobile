@@ -5,6 +5,7 @@ export type Rows = any[];
 export interface Database {
     query(sql: string, params?: undefined | any[]): Promise<Rows>;
     execute(sql: string, params?: undefined | any[]): Promise<void>;
+    batch(sql: string | string[]): Promise<Rows[]>;
 }
 
 class DatabaseWrapper implements Database {

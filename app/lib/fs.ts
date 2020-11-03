@@ -1,5 +1,4 @@
 import _ from "lodash";
-import Promise from "bluebird";
 import { Folder, knownFolders, isAndroid, Utils } from "@nativescript/core";
 
 export interface FileLike {

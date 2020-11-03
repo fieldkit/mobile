@@ -8,7 +8,7 @@ import Config, { Build } from "@/config";
 
 function uuidv4(): string {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-        let r = (Math.random() * 16) | 0,
+        const r = (Math.random() * 16) | 0,
             v = c == "x" ? r : (r & 0x3) | 0x8;
         return v.toString(16);
     });
@@ -35,7 +35,7 @@ export default class Diagnostics {
 
         progress({ id: id, message: "Starting..." });
 
-        return Promise.resolve(true)
+        return Promise.resolve()
             .then(() => dumpAllFiles())
             .then(() => progress({ id: id, message: "Uploading device information." }))
             .then(() => this.uploadDeviceInformation(id))
@@ -45,25 +45,25 @@ export default class Diagnostics {
             .then(() => this.uploadDatabase(id))
             .then(() => progress({ id: id, message: "Uploading bundle." }))
             .then(() => this.uploadBundle(id))
-            .then((reference: string) =>
+            .then((reference: Buffer) =>
                 this.uploadArchived().then(
                     (): SavedDiagnostics => {
                         progress({ id: id, message: "Done!" });
-                        console.log("diagnostics", JSON.parse(reference));
+                        console.log("diagnostics", JSON.parse(reference.toString()));
                         return {
-                            reference: JSON.parse(reference) as { phrase: string },
+                            reference: JSON.parse(reference.toString()) as { phrase: string },
                             id: id,
                         };
                     }
                 )
             )
             .catch((err) => {
-                console.log(`diagnostics error: ${err}`);
-                return err;
+                console.log(`diagnostics error: ${JSON.stringify(err)}`);
+                return Promise.reject(err);
             });
     }
 
-    private uploadDeviceInformation(id: string): Promise<any> {
+    private uploadDeviceInformation(id: string): Promise<void> {
         const device = Device;
 
         const info = {
@@ -82,31 +82,40 @@ export default class Diagnostics {
 
         console.log("device info", info);
 
-        return this.services.Conservify().text({
-            method: "POST",
-            url: this.baseUrl + "/" + id + "/device.json",
-            body: JSON.stringify(info),
-        });
-    }
-
-    private uploadArchived(): Promise<any> {
-        return this.getAllFiles(DiagnosticsDirectory).then((files) => {
-            return serializePromiseChain(files, (path: string, index: number) => {
-                const relative = path.replace(DiagnosticsDirectory, "");
-                console.log("uploading", path, relative);
-                return this.services
-                    .Conservify()
-                    .upload({
-                        method: "POST",
-                        url: this.baseUrl + relative,
-                        path: path,
-                    })
-                    .then(() => File.fromPath(path).remove());
+        return this.services
+            .Conservify()
+            .text({
+                method: "POST",
+                url: this.baseUrl + "/" + id + "/device.json",
+                body: JSON.stringify(info),
+            })
+            .then(() => {
+                return;
             });
-        });
     }
 
-    private uploadAppLogs(id: string): Promise<any> {
+    private uploadArchived(): Promise<void> {
+        return this.getAllFiles(DiagnosticsDirectory)
+            .then((files) => {
+                return serializePromiseChain(files, (path: string) => {
+                    const relative = path.replace(DiagnosticsDirectory, "");
+                    console.log("uploading", path, relative);
+                    return this.services
+                        .Conservify()
+                        .upload({
+                            method: "POST",
+                            url: this.baseUrl + relative,
+                            path: path,
+                        })
+                        .then(() => File.fromPath(path).remove());
+                });
+            })
+            .then(() => {
+                return;
+            });
+    }
+
+    private uploadAppLogs(id: string): Promise<void> {
         const copy = this.getDiagnosticsFolder().getFile("uploading.txt");
         return copyLogs(copy).then(() => {
             return this.services
@@ -116,13 +125,14 @@ export default class Diagnostics {
                     url: this.baseUrl + "/" + id + "/app.txt",
                     path: copy.path,
                 })
+                .then(() => File.fromPath(copy.path).remove())
                 .then(() => {
-                    return File.fromPath(copy.path).remove();
+                    return;
                 });
         });
     }
 
-    private uploadBundle(id: string): Promise<string> {
+    private uploadBundle(id: string): Promise<Buffer> {
         const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
         console.log("diagnostics", path);
         return this.services
@@ -135,7 +145,7 @@ export default class Diagnostics {
             .then((response) => response.body);
     }
 
-    private uploadDatabase(id: string): Promise<string> {
+    private uploadDatabase(id: string): Promise<Buffer> {
         console.log("getting database path");
         const path = getDatabasePath("fieldkit.sqlite3");
         console.log("diagnostics", path);
@@ -149,7 +159,7 @@ export default class Diagnostics {
             .then((response) => response.body);
     }
 
-    private getAllFiles(f: string): Promise<any> {
+    private getAllFiles(f: string): Promise<string[]> {
         return listAllFiles(f).then((files) => {
             return _(files)
                 .filter((f) => f.depth > 0)

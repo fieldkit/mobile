@@ -27,7 +27,7 @@ export default class SynchronizeNotes {
                     const merged = this.merge(ids, portalNotes, mobileNotes, resolvedMedia);
                     const patch = merged.patch;
 
-                    return this.patchPortal(ids, patch).then((reply) => {
+                    return this.patchPortal(ids, patch).then(() => {
                         if (merged.modified) {
                             console.log("mobile notes modified");
                             return this.store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
@@ -101,7 +101,7 @@ export default class SynchronizeNotes {
         console.log("local", localByKey);
         console.log("keys", allKeys);
 
-        return serializePromiseChain(allKeys, (key: string, index: number) => {
+        return serializePromiseChain(allKeys, (key: string) => {
             if (portalByKey[key]) {
                 if (!localByKey[key]) {
                     // Portal has the media and we gotta download.

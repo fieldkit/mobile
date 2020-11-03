@@ -13,7 +13,7 @@ const HttpReply = fk_app.HttpReply;
 const QueryType = fk_app.QueryType;
 const ReplyType = fk_app.ReplyType;
 
-export type ProgressCallback = (total: number, bytes: number, info: any) => void;
+export type ProgressCallback = (total: number, bytes: number, info: never) => void;
 
 export class CalculatedSize {
     constructor(public readonly size: number) {}
@@ -32,6 +32,8 @@ export interface QueryOptions {
 const log = Config.logger("QueryStation");
 
 type StationQuery = { reply: fk_app.HttpReply; serialized: SerializedStatus };
+
+type ResolveFunc = () => void;
 
 export default class QueryStation {
     private readonly conservify: Conservify;
@@ -78,7 +80,7 @@ export default class QueryStation {
     }
 
     public startDataRecording(address: string): Promise<HttpStatusReply> {
-        const message = HttpQuery.create({
+        const message = fk_app.HttpQuery.create({
             type: QueryType.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: true },
             time: unixNow(),
@@ -193,8 +195,8 @@ export default class QueryStation {
                         console.log("size", size, response.headers);
                         return new CalculatedSize(size);
                     },
-                    (err: Error | undefined) => {
-                        console.log(url, "query error", err!.message);
+                    (err) => {
+                        console.log(url, "query error", err.message); // eslint-disable-line
                         return Promise.reject(err);
                     }
                 );
@@ -209,10 +211,10 @@ export default class QueryStation {
                 })
                 .then(
                     (response: HttpResponse): string => {
-                        return response.body;
+                        return response.body.toString();
                     },
                     (err) => {
-                        console.log(url, "query error", err.message);
+                        console.log(url, "query error", err.message); // eslint-disable-line
                         return Promise.reject(err);
                     }
                 );
@@ -249,11 +251,9 @@ export default class QueryStation {
                     progress: progress,
                 })
                 .then((response) => {
-                    const body = JSON.parse(response.body);
-                    console.log("upload-firmware:", body);
-                    return body;
+                    console.log("upload-firmware:", response.body);
                 });
-        });
+        }).then(() => Promise.resolve());
     }
 
     public uploadViaApp(address: string): Promise<void> {
@@ -303,7 +303,7 @@ export default class QueryStation {
         return url.replace(/\/v1.*/, "");
     }
 
-    private readonly queued: { [index: string]: any } = {};
+    private readonly queued: { [index: string]: ResolveFunc } = {};
 
     private trackActivity<T>(options: TrackActivityOptions, factory: () => Promise<T>): Promise<T> {
         const stationKey = this.urlToStationKey(options.url);
@@ -353,31 +353,31 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url: string, message: any, options: QueryOptions = {}): Promise<StationQuery> {
+    private stationQuery(url: string, message: fk_app.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
         return this.trackActivity(finalOptions, () => {
             if (!Config.developer.stationFilter(url)) {
                 return Promise.reject(new StationQueryError("ignored"));
             }
 
-            const binaryQuery = HttpQuery.encodeDelimited(message).finish();
+            const binaryQuery = HttpQuery.encodeDelimited(message as fk_app.IHttpQuery).finish();
             log.info(url, "querying", JSON.stringify(message));
 
             return this.conservify
                 .protobuf({
                     method: "POST",
                     url: url,
-                    body: binaryQuery as any,
+                    body: binaryQuery,
                     connectionTimeout: 3,
                 })
                 .then(
                     (response) => response,
                     (err) => {
-                        console.log(url, "query error", err.message);
+                        console.log(url, "query error", err.message); // eslint-disable-line
                         return Promise.reject(err);
                     }
                 );
-        }).then((response: { body: string }) => {
+        }).then((response: { body: Buffer }) => {
             if (response.body.length == 0) {
                 console.log(`empty station reply`, response);
                 throw new Error(`empty station reply`);
@@ -391,7 +391,7 @@ export default class QueryStation {
         });
     }
 
-    private getResponseBody(response: { body: any }): StationQuery {
+    private getResponseBody(response: { body: Buffer }): StationQuery {
         if (Buffer.isBuffer(response.body)) {
             return {
                 reply: HttpReply.decodeDelimited(response.body),
@@ -410,7 +410,7 @@ export default class QueryStation {
         }
     }
 
-    private handlePotentialBusyReply(stationQuery: StationQuery, url: string, message: string): Promise<StationQuery> {
+    private handlePotentialBusyReply(stationQuery: StationQuery, url: string, message: fk_app.HttpQuery): Promise<StationQuery> {
         const reply = stationQuery.reply;
         if (reply.type != ReplyType.REPLY_BUSY) {
             return Promise.resolve(stationQuery);
@@ -422,7 +422,7 @@ export default class QueryStation {
         return this.retryAfter(delays, url, message);
     }
 
-    private retryAfter(delays: number, url: string, message: string): Promise<StationQuery> {
+    private retryAfter(delays: number, url: string, message: fk_app.HttpQuery): Promise<StationQuery> {
         log.info(url, "retrying after", delays);
         return promiseAfter(delays).then(() => {
             return this.stationQuery(url, message);

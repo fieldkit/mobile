@@ -9,6 +9,7 @@ import {
     DownloadTableRow,
     NotesTableRow,
     NotificationsTableRow,
+    QueriedNotificationsTableRow,
     StationTableRow,
     PortalConfigTableRow,
     FirmwareTableRow,
@@ -109,7 +110,7 @@ export default class DatabaseInterface {
             )
             .catch((error) => {
                 console.log(`error setting portal id`, error);
-                throw new Error(`error setting portal id: ${error.message}`);
+                throw new Error(`error setting portal id: ${JSON.stringify(error)}`);
             });
     }
 
@@ -125,7 +126,7 @@ export default class DatabaseInterface {
             )
             .catch((error) => {
                 console.log(`error setting portal error:`, error);
-                throw new Error(`error setting portal error ${error.message}`);
+                throw new Error(`error setting portal error ${JSON.stringify(error)}`);
             });
     }
 
@@ -217,7 +218,7 @@ export default class DatabaseInterface {
                         0,
                         sensor.reading,
                     ])
-                    .catch((err) => Promise.reject(new Error(`error inserting sensor: ${err}`)))
+                    .catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)))
             )
         );
     }
@@ -241,10 +242,10 @@ export default class DatabaseInterface {
                     "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     values
                 )
-                .catch((err) => {
-                    console.log(`error inserting module: ${err}`);
+                .catch((error) => {
+                    console.log(`error inserting module: ${JSON.stringify(error)}`);
                     console.log(`error inserting values: ${JSON.stringify(values)}`);
-                    return Promise.reject(new Error(`error inserting module: ${err}`));
+                    return Promise.reject(new Error(`error inserting module: ${JSON.stringify(error)}`));
                 })
         );
     }
@@ -263,7 +264,9 @@ export default class DatabaseInterface {
             if (!existing[name] || !incoming[name] || !existing[name].currentReading || !incoming[name].reading) {
                 return 0;
             }
+            // eslint-disable-next-line
             const previous = Math.round((existing[name]!.currentReading || 0) * 10) / 10;
+            // eslint-disable-next-line
             const current = Math.round((incoming[name]!.reading || 0) * 10) / 10;
             return current == previous ? 0 : current > previous ? 1 : -1;
         }
@@ -453,7 +456,7 @@ export default class DatabaseInterface {
                         newStation.lastSeen,
                     ]
                 )
-                .catch((err) => Promise.reject(new Error(`error inserting station: ${err}`)))
+                .catch((error) => Promise.reject(new Error(`error inserting station: ${JSON.stringify(error)}`)))
         );
     }
 
@@ -565,7 +568,7 @@ export default class DatabaseInterface {
                         updating
                     );
                 })
-                .catch((err) => Promise.reject(new Error(`error inserting download: ${err}`)));
+                .catch((error) => Promise.reject(new Error(`error inserting download: ${JSON.stringify(error)}`)));
         });
     }
 
@@ -678,15 +681,15 @@ export default class DatabaseInterface {
         function serializeNotesJson(notes): string {
             try {
                 return JSON.stringify(notes);
-            } catch (err) {
-                log.error(`error serializing notes JSON: ${err}`);
-                throw new Error(`error serializing notes JSON: ${err}`);
+            } catch (error) {
+                log.error(`error serializing notes json: ${JSON.stringify(error)}`);
+                throw new Error(`error serializing notes json: ${JSON.stringify(error)}`);
             }
         }
 
         return this.getDatabase()
             .then((db) =>
-                db.query(`SELECT id FROM notes WHERE station_id = ?`, [notes.stationId]).then((maybeId) => {
+                db.query(`SELECT id FROM notes WHERE station_id = ?`, [notes.stationId]).then((maybeId: { id: number }[]) => {
                     const json = serializeNotesJson(notes);
                     if (maybeId.length == 0) {
                         const values = [notes.stationId, new Date(), new Date(), json];
@@ -697,7 +700,7 @@ export default class DatabaseInterface {
                 })
             )
             .then(() => Promise.resolve())
-            .catch((err) => Promise.reject(new Error(`error fetching notes: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error fetching notes: ${JSON.stringify(error)}`)));
     }
 
     public getAllNotes(): Promise<NotesTableRow[]> {
@@ -707,25 +710,25 @@ export default class DatabaseInterface {
             .then((rows) =>
                 rows.map((row) => {
                     try {
-                        row.notesObject = JSON.parse(row.notes);
+                        row.notesObject = JSON.parse(row.notes) as Record<string, unknown>;
                         return row;
-                    } catch (err) {
-                        log.error(`error deserializing notes JSON: ${err}`);
-                        log.error(`JSON: ${row.notes}`);
+                    } catch (error) {
+                        log.error(`error deserializing notes JSON: ${JSON.stringify(error)}`);
+                        log.error(`JSON: ${JSON.stringify(row.notes)}`);
                     }
                     return row;
                 })
             )
-            .catch((err) => Promise.reject(new Error(`error fetching notes: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error fetching notes: ${JSON.stringify(error)}`)));
     }
 
     public checkSettings(): Promise<void> {
-        return this.getSettings().then((result) => {
-            if (result.length == 0) {
-                console.log("settings: initializing", Settings);
+        return this.getSettings().then((rows) => {
+            if (rows.length == 0) {
+                console.log("settings: initializing");
                 return this.insertSettings(Settings);
             } else {
-                console.log("existing settings: ", result[0]);
+                console.log("existing settings: ", rows[0]);
                 return;
             }
         });
@@ -738,16 +741,16 @@ export default class DatabaseInterface {
             .then((rows) =>
                 rows.map((row) => {
                     try {
-                        row.settingsObject = JSON.parse(row.settings);
+                        row.settingsObject = JSON.parse(row.settings) as Record<string, unknown>;
                         return row;
-                    } catch (err) {
-                        log.error(`error deserializing notes JSON: ${err}`);
-                        log.error(`JSON: ${row.settings}`);
+                    } catch (error) {
+                        log.error(`error deserializing notes JSON: ${JSON.stringify(error)}`);
+                        log.error(`JSON: ${JSON.stringify(row.settings)}`);
                     }
                     return row;
                 })
             )
-            .catch((err) => Promise.reject(new Error(`error fetching settings: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error fetching settings: ${JSON.stringify(error)}`)));
     }
 
     public insertSettings(settings: Record<string, unknown>): Promise<void> {
@@ -760,8 +763,8 @@ export default class DatabaseInterface {
                 ])
             )
             .catch((error) => {
-                console.log(`error inserting settings: ${error}`);
-                throw new Error(`error inserting settings: ${error}`);
+                console.log(`error inserting settings: ${JSON.stringify(error)}`);
+                throw new Error(`error inserting settings: ${JSON.stringify(error)}`);
             });
     }
 
@@ -769,8 +772,8 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then((db) => db.execute("UPDATE settings SET settings = ?", [JSON.stringify(settings)]))
             .catch((error) => {
-                console.log(`error updating settings: ${error}`);
-                throw new Error(`error updating settings: ${error}`);
+                console.log(`error updating settings: ${JSON.stringify(error)}`);
+                throw new Error(`error updating settings: ${JSON.stringify(error)}`);
             });
     }
 
@@ -778,7 +781,7 @@ export default class DatabaseInterface {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM accounts"))
             .then((rows) => sqliteToJs<AccountsTableRow>(rows))
-            .catch((err) => Promise.reject(new Error(`error fetching accounts: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error fetching accounts: ${JSON.stringify(error)}`)));
     }
 
     public addOrUpdateAccounts(account: UserAccount): Promise<void> {
@@ -797,7 +800,7 @@ export default class DatabaseInterface {
                 })
             )
             .then(() => Promise.resolve())
-            .catch((err) => Promise.reject(new Error(`error fetching accounts: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error fetching accounts: ${JSON.stringify(error)}`)));
     }
 
     public deleteAllAccounts(): Promise<AccountsTableRow[]> {
@@ -806,7 +809,7 @@ export default class DatabaseInterface {
             .then((rows) => sqliteToJs<AccountsTableRow>(rows));
     }
 
-    public getAllNotifications(): Promise<NotificationsTableRow[]> {
+    public getAllNotifications(): Promise<QueriedNotificationsTableRow[]> {
         return this.getDatabase()
             .then((db) => db.query("SELECT * FROM notifications"))
             .then((rows) => sqliteToJs<NotificationsTableRow>(rows))
@@ -814,20 +817,26 @@ export default class DatabaseInterface {
                 rows.map((row) => {
                     try {
                         return {
-                            ...row,
-                            silenced: row.silenced, // === "true" ? true : false,
-                            project: JSON.parse(row.project),
-                            user: JSON.parse(row.user),
-                            station: JSON.parse(row.station),
+                            id: row.id,
+                            key: row.key,
+                            kind: row.kind,
+                            created: row.created,
+                            silenced: row.silenced,
+                            dismissed_at: row.dismissed_at,
+                            satisfied_at: row.satisfied_at,
+                            actions: row.actions,
+                            project: JSON.parse(row.project) as Record<string, unknown>,
+                            user: JSON.parse(row.user) as Record<string, unknown>,
+                            station: JSON.parse(row.station) as Record<string, unknown>,
                         };
-                    } catch (err) {
-                        log.error(`error deserializing notifications JSON: ${err}`);
+                    } catch (error) {
+                        log.error(`error deserializing notifications JSON: ${JSON.stringify(error)}`);
                         log.error(`JSON: ${JSON.stringify(row)}`);
+                        throw error;
                     }
-                    return row;
                 })
             )
-            .catch((err) => Promise.reject(new Error(`error fetching notifications: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error fetching notifications: ${JSON.stringify(error)}`)));
     }
 
     public addNotification(notification: Notification): Promise<void> {
@@ -855,7 +864,7 @@ export default class DatabaseInterface {
                 })
             )
             .then(() => Promise.resolve())
-            .catch((err) => Promise.reject(new Error(`error adding notifications: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error adding notifications: ${JSON.stringify(error)}`)));
     }
 
     public updateNotification(notification: Notification): Promise<void> {
@@ -891,6 +900,6 @@ export default class DatabaseInterface {
                     })
             )
             .then(() => Promise.resolve())
-            .catch((err) => Promise.reject(new Error(`error updating notifications: ${err}`)));
+            .catch((error) => Promise.reject(new Error(`error updating notifications: ${JSON.stringify(error)}`)));
     }
 }

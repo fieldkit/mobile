@@ -7,6 +7,7 @@ export default class ImagesSaver {
         const folder = knownFolders.documents().getFolder("media/images");
         const destination = path.join(folder.path, getPathTimestamp(new Date()) + ".jpg");
         console.log("saving", incoming, destination);
+        // eslint-disable-next-line
         return ImageSource.fromAsset(incoming.asset as any).then((imageSource) => {
             console.log("saving, have source", imageSource, destination);
             if (!imageSource.saveToFile(destination, "jpg")) {

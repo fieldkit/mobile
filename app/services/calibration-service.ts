@@ -85,7 +85,7 @@ export default class CalibrationService {
                 }
                 switch (data.which) {
                     case EcCalibrationsCommand.CALIBRATE_EC_DRY: {
-                        return this.getDryEcRef(data.compensations.temperature);
+                        return this.getDryEcRef(/*data.compensations.temperature*/);
                     }
                     case EcCalibrationsCommand.CALIBRATE_EC_SINGLE: {
                         return this.getLowEcRef(data.compensations.temperature);
@@ -121,7 +121,7 @@ export default class CalibrationService {
         });
     }
 
-    protected getDryEcRef(temp: number): number {
+    protected getDryEcRef(/*temp: number*/): number {
         return 0;
     }
 

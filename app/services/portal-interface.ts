@@ -1,5 +1,5 @@
 import _ from "lodash";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse, AxiosError } from "axios";
 import AppSettings from "@/wrappers/app-settings";
 import { HttpResponse } from "@/wrappers/networking";
 import { AuthenticationError } from "@/lib/errors";
@@ -8,6 +8,8 @@ import { Download, FileTypeUtils } from "@/store/types";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
 
 type ProgressFunc = (total: number, copied: number, info: never) => void;
+
+export { AxiosResponse, AxiosError };
 
 export class ApiUnexpectedStatus extends Error {
     constructor(message: string) {
@@ -19,13 +21,13 @@ export class Ids {
     constructor(public readonly mobile: number, public readonly portal: number) {}
 }
 
-export interface QueryFields {
+export interface QueryFields<T> {
     method?: string;
     url: string;
     headers?: { [index: string]: string };
     refreshed?: boolean;
     authenticated?: boolean;
-    data?: any;
+    data?: T;
 }
 
 export interface PortalStationNotes {
@@ -275,7 +277,7 @@ export default class PortalInterface {
         });
     }
 
-    public downloadFirmware(url: string, local: string, progress: ProgressFunc): Promise<{ data?: any; status: number }> {
+    public downloadFirmware(url: string, local: string, progress: ProgressFunc): Promise<{ status: number }> {
         const headers = {
             Authorization: this.appSettings.getString("accessToken"),
         };
@@ -295,31 +297,31 @@ export default class PortalInterface {
                             .getFile(local)
                             .remove()
                             .then(() => {
-                                return Promise.reject(new Error("download failed: " + e.body));
+                                return Promise.reject(new Error(`download failed: ${JSON.stringify(e.body)}`));
                             });
                     }
                     return {
-                        data: e.body,
+                        // data: e.body,
                         status: e.statusCode,
                     };
                 })
         );
     }
 
-    private handleTokenResponse(response: AxiosResponse<any>): Promise<{ token: string }> {
+    private handleTokenResponse<V>(response: AxiosResponse<V>): Promise<{ token: string }> {
         if (response.status !== 204) {
             throw new Error("authentication failed");
         }
 
         // Headers should always be lower case, bug otherwise.
-        const accessToken = response.headers["authorization"];
+        const accessToken = response.headers["authorization"] as string; // eslint-disable-line
         this.appSettings.setString("accessToken", accessToken);
         return Promise.resolve({
             token: accessToken,
         });
     }
 
-    private getHeaders(req: QueryFields): Promise<Record<string, string>> {
+    private getHeaders<T>(req: QueryFields<T>): Promise<Record<string, string>> {
         const token = this.appSettings.getString("accessToken");
         if (token && token.length > 0) {
             return Promise.resolve(
@@ -342,29 +344,28 @@ export default class PortalInterface {
         return Promise.resolve(req.headers);
     }
 
-    private query(req: QueryFields): Promise<any> {
-        return this.getHeaders(req).then((headers) => {
+    private query<Q, V>(req: QueryFields<Q>): Promise<V> {
+        return this.getHeaders<Q>(req).then((headers) => {
             return this.getUri().then((baseUri) => {
                 console.log("portal query", req.method || "GET", baseUri + req.url);
                 req.headers = headers;
                 req.url = baseUri + req.url;
-                return axios(req as any)
-                    .then((response) => response.data)
-                    .catch((error) => {
-                        if (error.response.status === 401) {
-                            return this.tryRefreshToken(req);
+                return axios(req as any) // eslint-disable-line
+                    .then((response) => response.data as V)
+                    .catch((error: AxiosError) => {
+                        if (error && error.response) {
+                            if (error.response.status === 401) {
+                                return this.tryRefreshToken<Q, V>(req);
+                            }
+                            console.log(req.url, "portal error", error.response.status, error.response.data);
                         }
-
-                        console.log(req.url, "portal error", error.response.status, error.response.data);
-                        console.log(req.url, "portal error", req);
-
                         throw error;
                     });
             });
         });
     }
 
-    private tryRefreshToken(original: QueryFields): Promise<any> {
+    private tryRefreshToken<Q, V>(original: QueryFields<Q>): Promise<V> {
         const token = this.parseToken(this.appSettings.getString("accessToken"));
         if (token == null) {
             return Promise.reject(new AuthenticationError("no token"));
@@ -372,9 +373,7 @@ export default class PortalInterface {
 
         if (original.refreshed === true) {
             console.log("refresh failed, clear token");
-            return this.logout().then(() => {
-                return Promise.reject(new AuthenticationError("refresh token failed"));
-            });
+            return this.logout().then(() => Promise.reject(new AuthenticationError("refresh token failed")));
         }
 
         const requestBody = {
@@ -389,12 +388,12 @@ export default class PortalInterface {
                 url: baseUri + "/refresh",
                 data: requestBody,
             })
-                .then((response) => {
-                    return this.handleTokenResponse(response).then(() => {
-                        return this.query(_.extend({ refreshed: true }, original));
+                .then((response: AxiosResponse) => {
+                    return this.handleTokenResponse<V>(response).then(() => {
+                        return this.query<Q, V>(_.extend({ refreshed: true }, original));
                     });
                 })
-                .catch((error: Error) => {
+                .catch((error: AxiosError) => {
                     console.log("refresh failed", error);
                     return this.logout().then(() => {
                         return Promise.reject(error);
@@ -547,7 +546,7 @@ export default class PortalInterface {
                     (response: HttpResponse) => {
                         console.log("station-media-upload:", response.body);
                         return {
-                            data: JSON.parse(response.body) as { id: number },
+                            data: JSON.parse(response.body.toString()) as { id: number },
                             status: response.statusCode,
                         };
                     },
@@ -556,7 +555,7 @@ export default class PortalInterface {
         });
     }
 
-    public downloadStationMedia(mediaId: number, path: string): Promise<{ data: any; status: number }> {
+    public downloadStationMedia(mediaId: number, path: string): Promise<{ data: Buffer; status: number }> {
         const headers = {
             Authorization: this.appSettings.getString("accessToken"),
         };

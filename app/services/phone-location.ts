@@ -28,7 +28,7 @@ export default class PhoneLocationWatcher {
                     return this.geolocation.enableLocationRequest();
                 }
                 // TODO Remove this eventually.
-                this.testAccuracies();
+                void this.testAccuracies();
                 return;
             })
             .then(() => this.keepLocationUpdated())
@@ -54,15 +54,18 @@ export default class PhoneLocationWatcher {
                 this.store.commit(MutationTypes.PHONE_LOCATION, location);
                 return location;
             })
-            .then((location: PhoneLocation) => {
-                promiseAfter(10000).then(() => {
+            .then(() => {
+                void promiseAfter(10000).then(() => {
                     return this.keepLocationUpdated();
                 });
                 return;
             });
     }
 
-    private test(name: string, params: any): Promise<void> {
+    private test(
+        name: string,
+        params: { desiredAccuracy: number; updateDistance: number; maximumAge: number; timeout: number }
+    ): Promise<void> {
         const started = new Date();
         return this.geolocation.getCurrentLocation(params).then(
             (loc) => {
@@ -110,7 +113,7 @@ export default class PhoneLocationWatcher {
         return this.test("high20k", high20k).then(() => {
             return this.test("any20k", any20k).then(() => {
                 return this.test("high2k", high2k).then(() => {
-                    return this.test("any2k", any2k).then(() => {});
+                    return this.test("any2k", any2k).then(() => Promise.resolve());
                 });
             });
         });
@@ -126,7 +129,10 @@ export default class PhoneLocationWatcher {
             })
             .then(
                 (l) => new PhoneLocation(l.latitude, l.longitude, unixNow()),
-                (e) => CommonLocations.TwinPeaksEastLosAngelesNationalForest
+                (error) => {
+                    console.log(`error getting location`, error);
+                    return CommonLocations.TwinPeaksEastLosAngelesNationalForest;
+                }
             );
     }
 }
