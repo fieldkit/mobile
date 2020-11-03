@@ -1,6 +1,7 @@
-// import deepmerge from "deepmerge";
+/* eslint @typescript-eslint/no-non-null-assertion: "off" */
 import { fk_app } from "fk-app-protocol/fk-app";
 import { fk_atlas } from "fk-atlas-protocol/fk-atlas";
+import Long from "long";
 
 const HttpReply = fk_app.HttpReply;
 const AtlasReply = fk_atlas.WireAtlasReply;
@@ -160,7 +161,7 @@ export interface HttpStatusReply {
 
 export type SerializedStatus = string;
 
-export function decodeAndPrepare(reply: any, serialized: SerializedStatus): HttpStatusReply {
+export function decodeAndPrepare(reply: Buffer, serialized: SerializedStatus): HttpStatusReply {
     return prepareReply(HttpReply.decodeDelimited(reply), serialized);
 }
 
@@ -205,7 +206,7 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
 }
 
 function toHexString(value: Uint8Array): string {
-    return Buffer.from(value).toString("hex") as string;
+    return Buffer.from(value).toString("hex");
 }
 
 function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatusReply {
@@ -225,7 +226,7 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
         return null;
     };
     return {
-        moduleId: toHexString(m.id!),
+        moduleId: toHexString(m.id),
         status: maybeDecodeStatus(m),
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
         name: m.name,
@@ -248,7 +249,7 @@ function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings): LiveModul
 
 function translateLiveReadings(lr: fk_app.ILiveReadings): LiveReadings {
     return {
-        time: lr.time,
+        time: translateLong(lr.time),
         modules: lr.modules!.map((lmr) => translateLiveModuleReadings(lmr)),
     };
 }
@@ -263,9 +264,9 @@ function translateSchedule(schedule: fk_app.ISchedule | undefined): ReplySchedul
         intervals: schedule.intervals.map(
             (i: fk_app.IInterval): ReplyScheduleInterval => {
                 return {
-                    start: i.start || 0,
-                    end: i.end || 0,
-                    interval: i.interval || 0,
+                    start: translateLong(i.start),
+                    end: translateLong(i.end),
+                    interval: translateLong(i.interval),
                 };
             }
         ),
@@ -279,7 +280,7 @@ function translateRecordingLocation(location: fk_app.ILocation | undefined): { l
     return {
         latitude: location.latitude,
         longitude: location.longitude,
-        time: location.time,
+        time: translateLong(location.time),
     };
 }
 
@@ -295,6 +296,10 @@ function translateConnectedNetwork(network: fk_app.INetworkInfo | undefined): Ne
 
 export interface HttpStatusErrorReply {
     errors: unknown;
+}
+
+function translateLong(value: number | Long | undefined): number {
+    return value as number;
 }
 
 export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStatus | null): HttpStatusReply /* | HttpStatusErrorReply */ {
@@ -348,7 +353,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             gps: {
                 enabled: reply.status.gps.enabled!,
                 fix: reply.status.gps.fix!,
-                time: reply.status.gps.time,
+                time: translateLong(reply.status.gps.time),
                 satellites: reply.status.gps.satellites!,
                 longitude: reply.status.gps.longitude!,
                 latitude: reply.status.gps.latitude!,
@@ -356,7 +361,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             },
             recording: {
                 enabled: reply.status.recording.enabled!,
-                startedTime: reply.status.recording.startedTime,
+                startedTime: translateLong(reply.status.recording.startedTime),
                 location: translateRecordingLocation(reply.status.recording.location),
             },
             memory: {
@@ -385,7 +390,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
                 version: reply.status.firmware.version!,
                 build: reply.status.firmware.build!,
                 number: reply.status.firmware.number!,
-                timestamp: reply.status.firmware.timestamp,
+                timestamp: translateLong(reply.status.firmware.timestamp),
                 hash: reply.status.firmware.hash!,
             },
         },
@@ -398,9 +403,9 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
         streams: reply.streams.map(
             (s: fk_app.IDataStream): ReplyStream => {
                 return {
-                    time: s.time,
-                    block: s.block || 0,
-                    size: s.size || 0,
+                    time: translateLong(s.time),
+                    block: translateLong(s.block),
+                    size: translateLong(s.size),
                     path: s.path!,
                     name: s.name!,
                 };

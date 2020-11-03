@@ -56,7 +56,7 @@ const actions = (services: ServiceRef) => {
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: FirmwareState, error: string) => {
+    [MutationTypes.RESET]: (state: FirmwareState) => {
         Object.assign(state, new FirmwareState());
     },
     [MutationTypes.STATIONS]: (state: FirmwareState, stations: Station[]) => {

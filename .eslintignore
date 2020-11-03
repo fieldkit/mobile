@@ -1,0 +1,3 @@
+*.test.ts
+app/tests/setup.ts
+app/tests/utilities.ts

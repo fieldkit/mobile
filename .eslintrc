@@ -6,7 +6,15 @@
     },
     "plugins": ["nativescript"],
     "rules": {
-        "nativescript/no-short-imports": "error"
+        "nativescript/no-short-imports": "error",
+        "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+                "args": "all",
+                "argsIgnorePattern": "^(_|state$|commit$|dispatch$)",
+                "varsIgnorePattern": "^(_|state$|commit$|dispatch$)"
+            }
+        ]
     },
     "extends": [
         "eslint:recommended",

@@ -10,12 +10,12 @@ export class PhoneState {
 
 const getters = {};
 
-const actions = (services: ServiceRef) => {
+const actions = (_services: ServiceRef) => {
     return {};
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: PhoneState, error: string) => {
+    [MutationTypes.RESET]: (state: PhoneState) => {
         Object.assign(state, new PhoneState());
     },
     [MutationTypes.PHONE_LOCATION]: (state: PhoneState, location: PhoneLocation) => {

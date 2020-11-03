@@ -1,8 +1,8 @@
 import { GlobalState, GlobalGetters } from "./modules/global";
 
 export interface Store {
-    commit(typeOrMutation: string | { type: string }, mutation?: any): void;
-    dispatch(type: string, action: any): Promise<void>;
+    commit<T>(typeOrMutation: string | { type: string }, mutation?: T): void;
+    dispatch<T>(type: string, action: T): Promise<void>;
     readonly state: GlobalState;
     readonly getters: GlobalGetters;
 }

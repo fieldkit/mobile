@@ -113,7 +113,7 @@ const actions = (services: ServiceRef) => {
                 })
                 .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
         },
-        [ActionTypes.LOAD_PORTAL_ENVS]: ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
+        [ActionTypes.LOAD_PORTAL_ENVS]: ({ commit, dispatch, state }: ActionParameters, _payload: ChangePortalEnvAction) => {
             return services
                 .db()
                 .getAvailablePortalEnvs()
@@ -150,10 +150,10 @@ const mutations = {
     [MutationTypes.SET_CURRENT_USER]: (state: PortalState, currentUser: CurrentUser) => {
         Vue.set(state, "currentUser", currentUser);
     },
-    [MutationTypes.RESET]: (state: PortalState, error: string) => {
+    [MutationTypes.RESET]: (state: PortalState) => {
         Object.assign(state, new PortalState());
     },
-    [MutationTypes.LOGIN]: (state: PortalState, token: string) => {
+    [MutationTypes.LOGIN]: (state: PortalState) => {
         Vue.set(state, "authenticated", true);
     },
     [MutationTypes.LOGOUT]: (state: PortalState) => {

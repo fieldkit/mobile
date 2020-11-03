@@ -15,7 +15,7 @@ type ActionParameters = ActionContext<NetworkState, never>;
 
 const getters = {};
 
-const actions = (services: ServiceRef) => {
+const actions = (_services: ServiceRef) => {
     return {
         [ActionTypes.INITIALIZE]: ({ commit }: ActionParameters) => {
             const appSettings = new AppSettings();
@@ -31,7 +31,7 @@ const actions = (services: ServiceRef) => {
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: NetworkState, error: string) => {
+    [MutationTypes.RESET]: (state: NetworkState) => {
         Object.assign(state, new NetworkState());
     },
     [MutationTypes.LOGIN]: (state: NetworkState) => {

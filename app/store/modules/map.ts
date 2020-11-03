@@ -19,12 +19,12 @@ const getters = {
     },
 };
 
-const actions = (services: ServiceRef) => {
+const actions = (_services: ServiceRef) => {
     return {};
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: MapState, error: string) => {
+    [MutationTypes.RESET]: (state: MapState) => {
         Object.assign(state, new MapState());
     },
     [MutationTypes.STATIONS]: (state: MapState, stations: Station[]) => {

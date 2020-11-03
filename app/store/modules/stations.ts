@@ -39,7 +39,7 @@ const getters = {
             return s.id;
         });
     },
-    availableStations: (state: StationsState, getters, rootState: GlobalState): AvailableStation[] => {
+    availableStations: (state: StationsState, _getters: never, rootState: GlobalState): AvailableStation[] => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
             .keyBy((a) => a.deviceId)
@@ -65,7 +65,7 @@ const getters = {
 		*/
         return AvailableStationsSorter(available);
     },
-    legacyStations: (state: StationsState, getters, rootState: GlobalState): { [index: number]: LegacyStation } => {
+    legacyStations: (state: StationsState, _getters: never, rootState: GlobalState): { [index: number]: LegacyStation } => {
         const nearby = rootState.nearby.stations;
         const stations = _(state.all)
             .keyBy((a) => a.deviceId)
@@ -330,16 +330,16 @@ type ActionParameters = ActionContext<StationsState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.LOAD]: ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
             return dispatch(ActionTypes.LOAD_STATIONS);
         },
-        [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.LOAD_STATIONS]: ({ dispatch }: ActionParameters) => {
             return loadStationsFromDatabase(services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
         },
-        [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
+        [ActionTypes.STATIONS_LOADED]: ({ commit }: ActionParameters, stations: Station[]) => {
             commit(MutationTypes.STATIONS, stations);
         },
-        [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
+        [ActionTypes.STATION_REPLY]: ({ dispatch }: ActionParameters, payload: StationRepliedAction) => {
             const statusReply = payload.statusReply;
             if ((statusReply?.errors?.length || 0) > 0) {
                 return Promise.reject(new Error(`station error reply`));
@@ -354,13 +354,13 @@ const actions = (services: ServiceRef) => {
                     return Promise.reject(err);
                 });
         },
-        [ActionTypes.STATION_PORTAL_ERROR]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
+        [ActionTypes.STATION_PORTAL_ERROR]: ({ commit }: ActionParameters, status: StationPortalStatus) => {
             return services
                 .db()
                 .setStationPortalError({ id: status.id }, status.error)
                 .then(() => commit(STATION_PORTAL_STATUS, status));
         },
-        [ActionTypes.STATION_PORTAL_REPLY]: ({ commit, dispatch, state }: ActionParameters, status: StationPortalStatus) => {
+        [ActionTypes.STATION_PORTAL_REPLY]: ({ commit }: ActionParameters, status: StationPortalStatus) => {
             return services
                 .db()
                 .setStationPortalError({ id: status.id }, {})
@@ -368,17 +368,17 @@ const actions = (services: ServiceRef) => {
                     services
                         .db()
                         .setStationPortalId(status)
-                        .then((station) => commit(STATION_PORTAL_STATUS, status))
+                        .then(() => commit(STATION_PORTAL_STATUS, status))
                 );
         },
-        [ActionTypes.UPDATE_PORTAL]: async ({ commit }: ActionParameters) => {
+        [ActionTypes.UPDATE_PORTAL]: async (_ap: ActionParameters) => {
             //
         },
     };
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: StationsState, error: string) => {
+    [MutationTypes.RESET]: (state: StationsState) => {
         Object.assign(state, new StationsState());
     },
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {

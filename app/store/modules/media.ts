@@ -136,7 +136,7 @@ const actions = (services: ServiceRef) => {
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: MediaState, error: string) => {
+    [MutationTypes.RESET]: (state: MediaState) => {
         Object.assign(state, new MediaState());
     },
     [AUDIO_RECORDING_PROGRESS]: (state: MediaState, payload: ActiveRecording) => {

@@ -40,8 +40,8 @@ export class CalibrationState {
 const getters = {
     stationCalibrations: (
         state: CalibrationState,
-        getters: never,
-        rootState: never,
+        _getters: never,
+        _rootState: never,
         rootGetters: GlobalGetters
     ): { [index: number]: StationCalibration } => {
         return _(rootGetters.legacyStations)
@@ -119,7 +119,7 @@ const actions = (services: ServiceRef) => {
 type PossibleCalibrations = WireAtlasReply;
 
 const mutations = {
-    [MutationTypes.RESET]: (state: CalibrationState, error: string) => {
+    [MutationTypes.RESET]: (state: CalibrationState) => {
         Object.assign(state, new CalibrationState());
     },
     [MutationTypes.FIND]: (state: CalibrationState, info: ServiceInfo) => {

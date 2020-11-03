@@ -100,7 +100,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.MAYBE_LOST]: async ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
             const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
             if (info && !info.transferring) {
-                await dispatch(ActionTypes.QUERY_STATION, info).catch((error) => dispatch(ActionTypes.LOST, payload));
+                await dispatch(ActionTypes.QUERY_STATION, info).catch(() => dispatch(ActionTypes.LOST, payload));
             }
         },
         [ActionTypes.LOST]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
@@ -157,8 +157,8 @@ const actions = (services: ServiceRef) => {
             return Promise.all(
                 wrapper.needsQuerying().map((nearby: NearbyStation) =>
                     dispatch(ActionTypes.QUERY_STATION, nearby.info).then(
-                        (reply) => nearby.success(),
-                        (error) => nearby.failure()
+                        () => nearby.success(),
+                        () => nearby.failure()
                     )
                 )
             );
@@ -315,7 +315,7 @@ const actions = (services: ServiceRef) => {
             return services
                 .queryStation()
                 .scanNearbyNetworks(info.url)
-                .then((networksReply) => {
+                .then(() => {
                     commit(MutationTypes.STATION_ACTIVITY, info);
                 });
         },
@@ -329,7 +329,7 @@ const getters = {
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: NearbyState, error: string) => {
+    [MutationTypes.RESET]: (state: NearbyState) => {
         Object.assign(state, new NearbyState());
     },
     [MutationTypes.FIND]: (state: NearbyState, info: ServiceInfo) => {

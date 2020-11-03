@@ -195,7 +195,7 @@ const actions = (services: ServiceRef) => {
             const syncing = services
                 .updater()
                 .addOrUpdateStations()
-                .catch((error) => {
+                .catch(() => {
                     // Don't let this error prevent authentication.
                     return {};
                 });
@@ -208,7 +208,7 @@ const actions = (services: ServiceRef) => {
 };
 
 const mutations = {
-    [MutationTypes.RESET]: (state: NotesState, error: string) => {
+    [MutationTypes.RESET]: (state: NotesState) => {
         Object.assign(state, new NotesState());
     },
     [MutationTypes.STATIONS]: (state: NotesState, stations: Station[]) => {

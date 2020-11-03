@@ -347,7 +347,7 @@ const actions = (services: ServiceRef) => {
                         console.log("syncing:download", file.url, fsFile);
                         return services
                             .queryStation()
-                            .download(file.url, fsFile.path, (total: number, copied: number, info: never) => {
+                            .download(file.url, fsFile.path, (total: number, copied: number) => {
                                 commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                             })
                             .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
@@ -368,7 +368,7 @@ const actions = (services: ServiceRef) => {
                     state.busy[sync.deviceId] = false;
                 });
         },
-        [ActionTypes.UPLOAD_ALL]: async ({ commit, dispatch, state }: ActionParameters, syncs: StationSyncStatus[]): Promise<void> => {
+        [ActionTypes.UPLOAD_ALL]: async ({ dispatch }: ActionParameters, syncs: StationSyncStatus[]): Promise<void> => {
             await Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
         },
         [ActionTypes.UPLOAD_STATION]: async ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<void> => {
@@ -396,7 +396,7 @@ const actions = (services: ServiceRef) => {
                 console.log("syncing:upload", sync.name, download);
                 return services
                     .portal()
-                    .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number, info) => {
+                    .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                     })
                     .then(() => services.db().markDownloadAsUploaded(download))

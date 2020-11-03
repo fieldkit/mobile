@@ -39,7 +39,7 @@ export type OurStore = Store<GlobalState>;
 
 function customizeLogger() {
     return createLogger({
-        filter(mutation, _stateBefore, _stateAfter) {
+        filter(mutation: { type: string; payload: Record<string, unknown> }, _stateBefore: never, _stateAfter: never) {
             if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
                 console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
                 return false;
@@ -69,7 +69,7 @@ function customizeLogger() {
                     "mutation:",
                     mutation.type,
                     _(mutation.payload)
-                        .map((s) => [s.name, s.connected])
+                        .map((s: { name: string; connected: boolean }): [string, boolean] => [s.name, s.connected])
                         .fromPairs()
                         .value()
                 );
@@ -92,7 +92,7 @@ function customizeLogger() {
 
             return false;
         },
-        actionFilter(action, state) {
+        actionFilter(action: { type: string; payload: Record<string, unknown> }, _state: never) {
             if (action.type == ActionTypes.REFRESH) {
                 return false;
             }
@@ -108,7 +108,10 @@ function customizeLogger() {
                 return false;
             }
             if (action.type == ActionTypes.STATION_REPLY) {
-                const device = action.payload?.statusReply?.status?.identity?.device;
+                // eslint-disable-next-line
+                const payload: any = action.payload as any;
+                // eslint-disable-next-line
+                const device = payload.statusReply?.status?.identity?.device;
                 if (!device) {
                     console.log("action:", action.type, device);
                 } else {
@@ -126,24 +129,12 @@ function customizeLogger() {
             }
             return true;
         },
-        transformer(state) {
-            const { nearby, stations, phone, map, network, nav, syncing, firmware, media, notes, portal, cal, notifications } = state;
+        /*
+        transformer(state: Record<string, unknown>) {
+            const { stations } = state;
+
             return {
-                nav,
-                phone,
-                nearby,
-                map,
-                network,
-                syncing: syncing,
-                firmware,
-                media,
-                notes: {
-                    activeStationId: notes.activeStationId,
-                    stations: _.size(stations),
-                },
-                portal,
-                cal,
-                notifications,
+                ...state,
                 stations: {
                     deviceIds: _(stations.all)
                         .keyBy((s) => s.deviceId)
@@ -156,12 +147,7 @@ function customizeLogger() {
                 },
             };
         },
-        mutationTransformer(mutation) {
-            return mutation;
-        },
-        actionTransformer(action) {
-            return action;
-        },
+		*/
         logActions: true,
         logMutations: true,
     });
