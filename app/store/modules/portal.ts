@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { ServiceRef } from "@/services";
 import { CurrentUser } from "@/services/portal-interface";
 import { ActionTypes, ChangePortalEnvAction } from "../actions";
@@ -173,7 +173,9 @@ const mutations = {
     },
 };
 
-export const portal = (services: ServiceRef) => {
+type ModuleType = Module<PortalState, never>;
+
+export const portal = (services: ServiceRef): ModuleType => {
     const state = () => new PortalState();
 
     return {

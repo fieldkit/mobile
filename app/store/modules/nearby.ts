@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { MutationTypes } from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
 import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
@@ -143,9 +143,9 @@ const actions = (services: ServiceRef) => {
                         commit(MutationTypes.STATION_ACTIVITY, info);
                         return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                     },
-                    (error: Error) => {
+                    (error) => {
                         if (QueryThrottledError.isInstance(error)) {
-                            console.log("query-station:warning", error.message);
+                            console.log(`query-station:warning ${JSON.stringify(error)}`);
                             return Promise.resolve();
                         }
                         return Promise.reject(error);
@@ -392,7 +392,9 @@ const mutations = {
     },
 };
 
-export const nearby = (services: ServiceRef) => {
+type ModuleType = Module<NearbyState, never>;
+
+export const nearby = (services: ServiceRef): ModuleType => {
     const state = () => new NearbyState();
 
     return {

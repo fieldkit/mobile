@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { ServiceRef } from "@/services";
 import { Station } from "../types";
 import { NotesTableRow } from "../row-types";
@@ -259,7 +259,9 @@ const mutations = {
     },
 };
 
-export const notes = (services: ServiceRef) => {
+type ModuleType = Module<NotesState, never>;
+
+export const notes = (services: ServiceRef): ModuleType => {
     const state = () => new NotesState();
 
     return {

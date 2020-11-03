@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
@@ -98,7 +98,9 @@ const mutations = {
     },
 };
 
-export const notifications = (services: ServiceRef) => {
+type ModuleType = Module<NotificationsState, never>;
+
+export const notifications = (services: ServiceRef): ModuleType => {
     const state = () => new NotificationsState();
 
     return {

@@ -1,4 +1,5 @@
 import Vue from "vue";
+import { Module } from "vuex";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
@@ -26,7 +27,9 @@ const mutations = {
     },
 };
 
-export const phone = (services: ServiceRef) => {
+type ModuleType = Module<PhoneState, never>;
+
+export const phone = (services: ServiceRef): ModuleType => {
     const state = () => new PhoneState();
 
     return {

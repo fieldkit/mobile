@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import AppSettings from "../../wrappers/app-settings";
 import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
@@ -42,7 +42,9 @@ const mutations = {
     },
 };
 
-export const network = (services: ServiceRef) => {
+type ModuleType = Module<NetworkState, never>;
+
+export const network = (services: ServiceRef): ModuleType => {
     const state = () => new NetworkState();
 
     return {

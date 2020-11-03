@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module as VuexModule } from "vuex";
 import { MutationTypes } from "../mutations";
 import {
     StationCreationFields,
@@ -391,7 +391,9 @@ const mutations = {
     },
 };
 
-export const stations = (services: ServiceRef) => {
+type ModuleType = VuexModule<StationsState, never>;
+
+export const stations = (services: ServiceRef): ModuleType => {
     const state = () => new StationsState();
 
     return {

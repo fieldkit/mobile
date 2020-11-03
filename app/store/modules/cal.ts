@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { ActionTypes, StationRepliedAction } from "../actions";
 import { MutationTypes } from "../mutations";
 import { Station, ServiceInfo, AtlasStatus } from "../types";
@@ -139,7 +139,9 @@ const mutations = {
     },
 };
 
-export const cal = (services: ServiceRef) => {
+type ModuleType = Module<CalibrationState, never>;
+
+export const cal = (services: ServiceRef): ModuleType => {
     const state = () => new CalibrationState();
 
     return {

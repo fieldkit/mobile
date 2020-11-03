@@ -1,3 +1,4 @@
+import { Module } from "vuex";
 import { MutationTypes } from "../mutations";
 import { RouteState } from "../../routes/navigate";
 import { ServiceRef } from "@/services";
@@ -25,7 +26,9 @@ const mutations = {
 
 const state = () => new NavigationState();
 
-export const nav = (services: ServiceRef) => {
+type ModuleType = Module<NavigationState, never>;
+
+export const nav = (services: ServiceRef): ModuleType => {
     return {
         namespaced: false,
         state,

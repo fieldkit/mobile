@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import * as Camera from "@nativescript/camera";
 import * as ImagePicker from "@nativescript/imagepicker";
 import { ActionTypes } from "../actions";
@@ -147,7 +147,9 @@ const mutations = {
     },
 };
 
-export const media = (services: ServiceRef) => {
+type ModuleType = Module<MediaState, never>;
+
+export const media = (services: ServiceRef): ModuleType => {
     const state = () => new MediaState();
 
     return {

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
 import {
@@ -351,13 +351,13 @@ const actions = (services: ServiceRef) => {
                                 commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
                             })
                             .then(({ headers }) => services.db().insertDownload(sync.makeRow(file, headers)))
-                            .catch((error: Error) => {
+                            .catch((error) => {
                                 if (AuthenticationError.isInstance(error)) {
                                     Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
                                 } else {
                                     Vue.set(state.errors, sync.deviceId, TransferError.Other);
                                 }
-                                console.log("error downloading", error, error ? error.stack : null);
+                                console.log(`error downloading: ${JSON.stringify(error)}`);
                                 return Promise.reject(error);
                             });
                     });
@@ -400,12 +400,12 @@ const actions = (services: ServiceRef) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                     })
                     .then(() => services.db().markDownloadAsUploaded(download))
-                    .catch((error: Error) => {
+                    .catch((error) => {
                         if (AuthenticationError.isInstance(error)) {
-                            console.log("error uploading (auth)", error, error ? error.stack : null);
+                            console.log(`error uploading (auth): ${JSON.stringify(error)}`);
                             Vue.set(state.errors, sync.deviceId, TransferError.Authentication);
                         } else {
-                            console.log("error uploading (other)", error, error ? error.stack : null);
+                            console.log(`error uploading (other) ${JSON.stringify(error)}`);
                             Vue.set(state.errors, sync.deviceId, TransferError.Other);
                         }
                         return Promise.reject(error);
@@ -570,7 +570,9 @@ const mutations = {
     },
 };
 
-export const syncing = (services: ServiceRef) => {
+type ModuleType = Module<SyncingState, never>;
+
+export const syncing = (services: ServiceRef): ModuleType => {
     const state = () => new SyncingState();
 
     return {

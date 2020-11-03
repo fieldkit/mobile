@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Vue from "vue";
-import { ActionContext } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { Station, FirmwareInfo } from "../types";
 import { FirmwareTableRow } from "../row-types";
 import { ActionTypes } from "../actions";
@@ -80,7 +80,9 @@ const mutations = {
     },
 };
 
-export const firmware = (services: ServiceRef) => {
+type ModuleType = Module<FirmwareState, never>;
+
+export const firmware = (services: ServiceRef): ModuleType => {
     const state = () => new FirmwareState();
 
     return {

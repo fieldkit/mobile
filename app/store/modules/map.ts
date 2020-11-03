@@ -1,3 +1,4 @@
+import { Module } from "vuex";
 import { Station, PhoneLocation } from "../types";
 import { BoundingRectangle, MapCenter, Location, MappedStations, MappedStation } from "../map-types";
 import { MutationTypes } from "../mutations";
@@ -48,7 +49,9 @@ const mutations = {
     },
 };
 
-export const map = (services: ServiceRef) => {
+type ModuleType = Module<MapState, never>;
+
+export const map = (services: ServiceRef): ModuleType => {
     const state = () => new MapState();
 
     return {
