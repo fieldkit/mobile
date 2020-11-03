@@ -25,12 +25,11 @@ import { Services } from "./interface";
 
 export class ServiceFactories {
     public createFileSystem(): FileSystem {
-        const FileSystem = require("../wrappers/file-system").default;
         return new FileSystem();
     }
 
     public createConservify(discoveryEvents: DiscoveryEvents = new DiscoveryEvents()): Conservify {
-        const logger = Config.logger("NativeScriptConservify").info;
+        const logger = Config.logger("NativeScriptConservify").info; // eslint-disable-line
         return new Conservify(discoveryEvents, logger);
     }
 }
@@ -68,7 +67,7 @@ export class ServicesImpl implements Services {
 
     public Tasks(): TaskQueue {
         if (!this.tasks) {
-            const StandardWorker = require("nativescript-worker-loader!@/lib/worker");
+            const StandardWorker = require("nativescript-worker-loader!@/lib/worker"); // eslint-disable-line
             console.log("worker", StandardWorker);
             this.tasks = new TaskQueue();
             this.tasks.start(1, StandardWorker);
@@ -78,7 +77,6 @@ export class ServicesImpl implements Services {
 
     public DiscoverStation(): DiscoverStation {
         if (!this.discoverStation) {
-            const DiscoverStation = require("./discover-station").default;
             this.discoverStation = new DiscoverStation(this);
         }
         return this.unwrap(this.discoverStation);
@@ -86,7 +84,6 @@ export class ServicesImpl implements Services {
 
     public Diagnostics(): Diagnostics {
         if (!this.diagnostics) {
-            const Diagnostics = require("./diagnostics-service").default;
             this.diagnostics = new Diagnostics(this);
         }
         return this.unwrap(this.diagnostics);
@@ -94,7 +91,6 @@ export class ServicesImpl implements Services {
 
     public Database(): DatabaseInterface {
         if (!this.database) {
-            const DatabaseInterface = require("./db-interface").default;
             this.database = new DatabaseInterface(this);
         }
         return this.unwrap(this.database);
@@ -102,7 +98,6 @@ export class ServicesImpl implements Services {
 
     public QueryStation(): QueryStation {
         if (!this.queryStation) {
-            const QueryStation = require("./query-station").default;
             this.queryStation = new QueryStation(this);
         }
         return this.unwrap(this.queryStation);
@@ -110,15 +105,13 @@ export class ServicesImpl implements Services {
 
     public CreateDb(): CreateDb {
         if (!this.createDb) {
-            const CreateDb = require("./create-db").default;
-            this.createDb = new CreateDb(this.Database());
+            this.createDb = new CreateDb();
         }
         return this.unwrap(this.createDb);
     }
 
     public PortalInterface(): PortalInterface {
         if (!this.portalInterface) {
-            const PortalInterface = require("./portal-interface").default;
             this.portalInterface = new PortalInterface(this);
         }
         return this.unwrap(this.portalInterface);
@@ -126,7 +119,6 @@ export class ServicesImpl implements Services {
 
     public PortalUpdater(): PortalUpdater {
         if (!this.portalUpdater) {
-            const PortalUpdater = require("./portal-updater").default;
             this.portalUpdater = new PortalUpdater(this.PortalInterface(), this.Store(), this.FileSystem());
         }
         return this.unwrap(this.portalUpdater);
@@ -134,7 +126,7 @@ export class ServicesImpl implements Services {
 
     public Conservify(): Conservify {
         if (!this.conservify) {
-            const logger = Config.logger("NativeScriptConservify").info;
+            const logger = Config.logger("NativeScriptConservify").info; // eslint-disable-line
             this.conservify = new Conservify(this.DiscoveryEvents(), logger);
         }
         return this.unwrap(this.conservify);
@@ -149,7 +141,6 @@ export class ServicesImpl implements Services {
 
     public PhoneLocation(): PhoneLocation {
         if (!this.phoneLocation) {
-            const PhoneLocation = require("./phone-location").default;
             this.phoneLocation = new PhoneLocation(this.Store());
         }
         return this.unwrap(this.phoneLocation);
@@ -157,7 +148,6 @@ export class ServicesImpl implements Services {
 
     public StationFirmware(): StationFirmware {
         if (!this.stationFirmware) {
-            const StationFirmware = require("./station-firmware").default;
             this.stationFirmware = new StationFirmware(this);
         }
         return this.unwrap(this.stationFirmware);
@@ -172,7 +162,6 @@ export class ServicesImpl implements Services {
 
     public CalibrationService(): CalibrationService {
         if (!this.calibrationService) {
-            const CalibrationService = require("./calibration-service").default;
             this.calibrationService = new CalibrationService(this.Conservify());
         }
         return this.unwrap(this.calibrationService);
@@ -180,16 +169,14 @@ export class ServicesImpl implements Services {
 
     public Audio(): AudioInterface {
         if (!this.audioInterface) {
-            const AudioInterface = require("./audio-interface").default;
-            this.audioInterface = new AudioInterface(this);
+            this.audioInterface = new AudioInterface();
         }
         return this.unwrap(this.audioInterface);
     }
 
     public Images(): ImagesSaver {
         if (!this.images) {
-            const ImagesSaver = require("./images-saver").default;
-            this.images = new ImagesSaver(this);
+            this.images = new ImagesSaver();
         }
         return this.unwrap(this.images);
     }
