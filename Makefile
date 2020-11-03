@@ -127,6 +127,7 @@ images:
 
 test: setup
 	node_modules/.bin/jest --silent
+	$(MAKE) checks
 
 watch: setup
 	node_modules/.bin/jest --silent --watch
@@ -147,7 +148,7 @@ cycle-checks:
 webpack: setup webpack-android webpack-ios
 
 checks: setup
-	npx eslint --ext=ts app || true
+	npx eslint --ext=ts app
 	$(MAKE) cycle-checks
 
 android-webpack:
