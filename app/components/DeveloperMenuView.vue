@@ -261,7 +261,7 @@ export default Vue.extend({
         listPhoneFiles(path: string): Promise<any> {
             return listAllFiles(path).then((fs) => {
                 return fs.map((e) => {
-                    console.log(e.path, e.size);
+                    console.log(e.path);
                 });
             });
         },

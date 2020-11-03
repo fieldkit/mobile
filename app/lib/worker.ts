@@ -11,11 +11,13 @@ require("globals"); // eslint-disable-line nativescript/no-short-imports
 try {
     console.log(`worker:starting`);
 
+    // eslint-disable-next-line
+    const context: Worker = self as any;
+
     const services = () => {
         throw new Error();
     };
 
-    const context: Worker = self as any;
     // const services = createAdaptedDataServices(Services);
     const taskWorker = new TaskWorker(context, services, {
         // ProcessAllStationsTask,
@@ -33,5 +35,5 @@ try {
 
     console.log(`worker:started`);
 } catch (error) {
-    console.log(`worker:error: ${error}`);
+    console.log(`worker:error: ${JSON.stringify(error)}`);
 }

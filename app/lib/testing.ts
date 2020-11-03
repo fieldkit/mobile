@@ -1,7 +1,7 @@
 import { ProcessAllStationsTask } from "./process";
 import Services from "@/services/singleton";
 
-export async function testWithFiles(deviceId: string) {
+export function testWithFiles(_deviceId: string): Promise<void> {
     Services.Tasks().enqueue(new ProcessAllStationsTask());
 
     /*
@@ -10,4 +10,6 @@ export async function testWithFiles(deviceId: string) {
     const rows = await db.query(summaries.makeDefaultParams());
     console.log("rows", rows);
 	*/
+
+    return Promise.resolve();
 }

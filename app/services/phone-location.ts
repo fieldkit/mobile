@@ -1,5 +1,5 @@
 import { Enums } from "@nativescript/core";
-import { GeoLocation } from "@/wrappers/geolocation";
+import { GeoLocation, QueryLocationParams } from "@/wrappers/geolocation";
 import { promiseAfter, unixNow } from "@/utilities";
 import { MutationTypes, CommonLocations, PhoneLocation } from "@/store";
 import { Store } from "@/store/our-store";
@@ -62,10 +62,7 @@ export default class PhoneLocationWatcher {
             });
     }
 
-    private test(
-        name: string,
-        params: { desiredAccuracy: number; updateDistance: number; maximumAge: number; timeout: number }
-    ): Promise<void> {
+    private test(name: string, params: QueryLocationParams): Promise<void> {
         const started = new Date();
         return this.geolocation.getCurrentLocation(params).then(
             (loc) => {

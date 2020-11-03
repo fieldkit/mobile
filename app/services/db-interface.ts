@@ -250,7 +250,7 @@ export default class DatabaseInterface {
         );
     }
 
-    private synchronizeSensors(db: Database, moduleId: string, module: Module, sensorRows: SensorTableRow[]): Promise<void> {
+    private synchronizeSensors(db: Database, _moduleId: string, module: Module, sensorRows: SensorTableRow[]): Promise<void> {
         // TODO: include position?
         const incoming = _.keyBy(module.sensors, (s) => s.name);
         const existing = _.keyBy(sensorRows, (s) => s.name);

@@ -37,18 +37,19 @@ export class ProcessStationFilesTask extends Task {
         super();
     }
 
-    public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
-        if (ReadingsDatabase.existsForDevice(this.deviceId)) {
+    public async run(services: DataServices, tasks: TaskQueuer): Promise<void> {
+        const exists = await ReadingsDatabase.existsForDevice(this.deviceId);
+        if (exists) {
             if (!this.purge) {
                 console.log("skipping, have data", this.deviceId);
-                return {};
+                return;
             }
         }
 
         const visitor = new MergeMetaAndDataVisitor(new SaveReadingsVisitor(this.deviceId, tasks));
         const reader = new StationReader(services, this.deviceId);
         await reader.walkData(visitor);
-        return visitor;
+        return;
     }
 }
 
@@ -61,11 +62,10 @@ export class ProcessAllStationsTask extends Task {
         });
     }
 
-    public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
+    public async run(_services: DataServices, tasks: TaskQueuer): Promise<void> {
         for (const deviceId of await this.getAllDeviceIds()) {
             console.log("deviceId", deviceId);
             tasks.enqueue(new ProcessStationFilesTask(deviceId));
         }
-        return {};
     }
 }

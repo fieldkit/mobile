@@ -1,3 +1,4 @@
 *.test.ts
 app/tests/setup.ts
 app/tests/utilities.ts
+app/lib/tns-i18n-deep.ts

@@ -1,22 +1,27 @@
 import Sqlite from "nativescript-sqlite";
 
-export type Rows = any[];
-
 export interface Database {
-    query(sql: string, params?: undefined | any[]): Promise<Rows>;
+    // eslint-disable-next-line
+    query<T>(sql: string, params?: undefined | any[]): Promise<T[]>;
+    // eslint-disable-next-line
     execute(sql: string, params?: undefined | any[]): Promise<void>;
-    batch(sql: string | string[]): Promise<Rows[]>;
+    batch(sql: string | string[]): Promise<void>;
 }
+
+export type QueriedRow = Record<string, unknown>;
+
+export type Rows = QueriedRow[];
 
 class DatabaseWrapper implements Database {
     constructor(private readonly db: Sqlite) {
         this.db.resultType(Sqlite.RESULTSASOBJECT);
     }
 
-    public query(sql: string, params: undefined | any[] = undefined): Promise<Rows> {
+    // eslint-disable-next-line
+    public query<T>(sql: string, params: undefined | any[] = undefined): Promise<T[]> {
         // console.log("QUERY", sql, params);
         return this.db.all(sql, params).then(
-            (rows: Rows) => rows,
+            (rows: T[]) => rows,
             (err: Error) => {
                 console.log("SQL error", sql, params, err, err ? err.stack : null);
                 return Promise.reject(err);
@@ -24,12 +29,12 @@ class DatabaseWrapper implements Database {
         );
     }
 
+    // eslint-disable-next-line
     public async execute(sql: string, params: undefined | any[] = undefined): Promise<void> {
         await this.db.execSQL(sql, params);
     }
 
-    public batch(sql: string | string[]): Promise<Rows[]> {
-        // console.log("BATCH", sql);
+    public batch(sql: string | string[]): Promise<void> {
         const sqlArray: string[] = (() => {
             if (!Array.isArray(sql)) {
                 return [sql];
@@ -37,19 +42,23 @@ class DatabaseWrapper implements Database {
             return sql;
         })();
 
-        return sqlArray.reduce((promise: Promise<Rows>, item: string) => {
-            return promise
-                .then((values: Rows[]) =>
-                    this.query(item).then((value: Rows) => {
-                        values.push(value);
-                        return values;
-                    })
-                )
-                .catch((err: Error) => {
-                    console.log("SQL error", sql, err, err ? err.stack : null);
-                    return Promise.reject(err);
-                });
-        }, Promise.resolve([]));
+        return sqlArray
+            .reduce((promise: Promise<Rows[]>, item: string) => {
+                return promise
+                    .then((values: Rows[]) =>
+                        this.query(item).then((value: Rows) => {
+                            values.push(value);
+                            return values;
+                        })
+                    )
+                    .catch((err: Error) => {
+                        console.log("SQL error", sql, err, err ? err.stack : null);
+                        return Promise.reject(err);
+                    });
+            }, Promise.resolve([]))
+            .then(() => {
+                return;
+            });
     }
 }
 

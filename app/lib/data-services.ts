@@ -44,11 +44,11 @@ class WorkerDataServices implements TinyServices {
 */
 
 export class StubDataServices implements TinyServices {
-    public open(path: string): Promise<OpenedFile> {
+    public open(_path: string): Promise<OpenedFile> {
         throw new Error("unimplemented");
     }
 
-    public listFolder(path: string): Promise<FileLike[]> {
+    public listFolder(_path: string): Promise<FileLike[]> {
         throw new Error("unimplemented");
     }
 }

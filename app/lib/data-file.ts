@@ -1,4 +1,5 @@
 import _ from "lodash";
+import Long from "long";
 import { FileType } from "@/store/types";
 import { DataServices } from "./data-services";
 import { fk_data } from "fk-data-protocol/fk-data";
@@ -6,35 +7,16 @@ import { fk_data } from "fk-data-protocol/fk-data";
 const PbDataRecord = fk_data.DataRecord;
 const PbSignedRecord = fk_data.SignedRecord;
 
-export interface DataRecord {
-    metadata: { deviceId: Buffer; generation: Buffer };
-    readings: {
-        meta: number;
-        reading: number;
-        time: number;
-        uptime: number;
-        location: {
-            latitude: number;
-            longitude: number;
-            time: number;
-        };
-        sensorGroups: { module: number; readings: { sensor: number; value: number }[] }[];
-    };
-    modules: {
-        id: string;
-        position: number;
-        name: string;
-        flags: number;
-        header: never;
-        sensors: { name: string; unitOfMeasure: string }[];
-    }[];
+export function coerceNumber(value: Long | number): number {
+    if (value instanceof Long) return value.toNumber();
+    return value;
 }
 
 export interface ParsedDataRecord {
     type: FileType;
     record: number;
     time: number;
-    parsed: DataRecord;
+    parsed: fk_data.DataRecord;
 }
 
 interface SignedRecord {
@@ -71,21 +53,22 @@ class ReturnAllParsedRecords implements RawRecordVisitor {
 }
 
 function parseDataRecord(buffer: Buffer): ParsedDataRecord {
-    const parsed = PbDataRecord.decode(buffer) as any;
-    if (parsed.readings?.reading === undefined) {
-        throw new Error(`no reading number: JSON.stringify(parsed)`);
-    }
+    const parsed = PbDataRecord.decode(buffer);
+    const time = parsed.readings?.time;
+    const reading = parsed.readings?.reading;
+    if (!time) throw new Error(`no reading time: JSON.stringify(parsed)`);
+    if (!reading) throw new Error(`no reading number: JSON.stringify(parsed)`);
     return {
         type: FileType.Data,
-        time: parsed.readings.time,
-        record: parsed.readings.reading,
+        time: coerceNumber(time),
+        record: coerceNumber(reading),
         parsed: parsed,
     };
 }
 
 function parseMetaRecord(buffer: Buffer): ParsedDataRecord {
     const signed = (PbSignedRecord.decode(buffer) as unknown) as SignedRecord;
-    const parsed = PbDataRecord.decodeDelimited(Buffer.from(signed.data, "base64")) as any;
+    const parsed = PbDataRecord.decodeDelimited(Buffer.from(signed.data, "base64"));
     return {
         type: FileType.Meta,
         time: signed.time,
@@ -108,7 +91,7 @@ class RecordsInfoVisitor implements RawRecordVisitor {
     private first: ParsedDataRecord | null = null;
     private last: ParsedDataRecord | null = null;
     private times: { start: number | null; end: number | null } = { start: null, end: null };
-    private total: number = 0;
+    private total = 0;
 
     public onRecord(data: Buffer, parse: ParseFunc): boolean {
         const parsed = parse(data);
@@ -135,6 +118,11 @@ class RecordsInfoVisitor implements RawRecordVisitor {
     }
 }
 
+interface Records {
+    size(): number;
+    get(i: number): string;
+}
+
 export class DataFile {
     public readonly type: FileType;
 
@@ -147,7 +135,7 @@ export class DataFile {
     }
 
     public walkRecords<T extends ParsedRecordVisitor>(visitor: T): Promise<T> {
-        return this.walkRaw(new ParseRecordsVisitor(visitor)).then((rawVisitor) => visitor);
+        return this.walkRaw(new ParseRecordsVisitor(visitor)).then(() => visitor);
     }
 
     private walkRaw<T extends RawRecordVisitor>(visitor: T): Promise<T> {
@@ -158,15 +146,15 @@ export class DataFile {
             .open(this.path)
             .then((file) => {
                 return file
-                    .delimited((position, size, records) => {
+                    .delimited((_position: number, _size: number, records: Records) => {
                         for (let i = 0; i < records.size(); ++i) {
                             const buffer = Buffer.from(records.get(i), "base64");
                             try {
                                 if (!visitor.onRecord(buffer, parseFunction)) {
                                     // TODO Stop!
                                 }
-                            } catch (e) {
-                                console.log(`error handling raw record: ${e.message}`);
+                            } catch (error) {
+                                console.log(`error handling raw record: ${JSON.stringify(error)}`);
                             }
                         }
                     })

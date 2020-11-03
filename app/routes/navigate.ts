@@ -1,10 +1,11 @@
 import _ from "lodash";
 import { Component } from "vue";
-import { MutationTypes } from "../store/mutations";
+import { MutationTypes } from "@/store/mutations";
+import { Store } from "@/store/our-store";
 
 export interface NavigateOptions {
     clearHistory: boolean | null;
-    props: object | null;
+    props: Record<string, unknown> | null;
 }
 
 export interface RouteState {
@@ -15,7 +16,7 @@ export interface RouteState {
     login?: boolean;
     developer?: boolean;
     dataSync?: boolean;
-    props?: any | null;
+    props?: Record<string, unknown> | null;
     reading?: boolean;
     clear?: boolean;
 }
@@ -30,13 +31,13 @@ export function inferNames(routes: RouteTable, prefix = ""): void {
         if (value instanceof Route) {
             value.name = prefix + key;
         } else {
-            inferNames(value as RouteTable, key + "/");
+            inferNames(value, key + "/");
         }
     }
 }
 
 export class Route {
-    public name: string = "unknown";
+    public name = "unknown";
 
     constructor(public readonly page: Component, public readonly state: RouteState) {}
 
@@ -50,10 +51,12 @@ export class Route {
     }
 }
 
-type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<any>;
+// eslint-disable-next-line
+type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<void>;
 
-export default function navigatorFactory(store: any, navigateTo: NavigateToFunc) {
-    return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<any> => {
+export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
+    // eslint-disable-next-line
+    return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<void> => {
         if (pageOrRoute instanceof Route) {
             const routeState = pageOrRoute.combine(options);
             store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name });

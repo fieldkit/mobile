@@ -2,14 +2,17 @@ import _ from "lodash";
 import { DataServices } from "./data-services";
 
 export interface WorkerMessage {
-    data: { id: number; task: { taskName: string } };
+    data: {
+        id: number;
+        done: boolean;
+        error: Error | unknown;
+        task: {
+            taskName: string;
+        };
+    };
 }
 
-export interface WorkerError {
-    message: any;
-    filename: any;
-    lineno: any;
-}
+export type WorkerError = ErrorEvent;
 
 export interface TaskQueuer {
     enqueue<T extends Task>(task: T): void;
@@ -17,10 +20,12 @@ export interface TaskQueuer {
 
 export abstract class Task {
     public abstract get taskName(): string;
-    public abstract run(services: DataServices, tasks: TaskQueuer): Promise<any>;
+    public abstract run(services: DataServices, tasks: TaskQueuer): Promise<void>;
 }
 
-export type TaskWorkerMap = { [index: string]: Function };
+export type TaskFunction = () => Promise<void>;
+
+export type TaskWorkerMap = { [index: string]: TaskFunction };
 
 export class TaskWorker {
     private readonly queuer: TaskQueuer;
@@ -58,8 +63,8 @@ export class TaskWorker {
 
             try {
                 Promise.resolve(task.run(this.services, this.queuer))
-                    .catch((error) => {
-                        console.log(`worker:error: ${taskName} ${error}`);
+                    .catch((error: Error | undefined) => {
+                        console.log(`worker:error: ${taskName} ${JSON.stringify(error)}`);
                         if (taskId) {
                             this.ctx.postMessage({ id: taskId, error: error });
                         }
@@ -75,33 +80,34 @@ export class TaskWorker {
                         console.log(`worker:done: ${taskName} ${elapsed}`);
                     });
             } catch (error) {
-                console.log(`worker:error: ${taskName} ${error}`);
+                console.log(`worker:error: ${taskName} ${JSON.stringify(error)}`);
                 if (taskId) {
                     this.ctx.postMessage({ id: taskId, done: true });
                 }
             }
         } else {
             console.log(`worker:error: unknown type! taskName=${taskName} message=${JSON.stringify(message)}`);
-            console.log(`worker:error ${this.map[taskName]}`);
         }
     }
 
     public error(error: WorkerError): boolean {
-        console.log(`worker:error: ${error}`);
+        console.log(`worker:error: ${JSON.stringify(error)}`);
         return true;
     }
 }
 
+export type PendingPromises = [(value?: boolean) => void, (error: Error | unknown) => void];
+
 export class TaskQueue implements TaskQueuer {
     private readonly workers: Worker[] = [];
-    private readonly promises: { [index: number]: any } = {};
-    private index: number = 0;
-    private counter: number = 0;
+    private readonly promises: { [index: number]: PendingPromises } = {};
+    private index = 0;
+    private counter = 0;
 
-    public start(size: number, workerFunc: any): void {
+    public start(size: number, workerFunc: () => Worker): void {
         for (let i = 0; i < size; ++i) {
             const worker = workerFunc();
-            worker.onmessage = (message) => {
+            worker.onmessage = (message: WorkerMessage) => {
                 if (message.data.done) {
                     console.log(`queue:done`, message.data.id);
                     if (this.promises[message.data.id]) {
@@ -114,13 +120,13 @@ export class TaskQueue implements TaskQueuer {
                     }
                     return;
                 }
-                const taskName = message.data.taskName;
+                const taskName = message.data.task.taskName;
                 if (!taskName) {
                     console.log(`queue:ignored`);
                     return;
                 }
                 console.log(`queue:message: ${taskName}`);
-                this.enqueue(message.data);
+                this.enqueue(message.data.task as Task);
             };
             this.workers.push(worker);
         }
@@ -139,13 +145,13 @@ export class TaskQueue implements TaskQueuer {
         this.deqeueuWorker().postMessage({ id: 0, task: task });
     }
 
-    public sync<T extends Task>(task: T): Promise<any> {
-        return new Promise((resolve, reject) => {
+    public sync<T extends Task>(task: T): Promise<void> {
+        return new Promise((resolve: (boolean) => void, reject) => {
             this.counter += 1;
             this.promises[this.counter] = [resolve, reject];
             console.log("sync", this.counter, this.workers.length, task.taskName);
             this.deqeueuWorker().postMessage({ id: this.counter, task: task });
-        });
+        }).then(() => Promise.resolve());
     }
 }
 

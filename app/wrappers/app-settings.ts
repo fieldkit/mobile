@@ -6,6 +6,7 @@ interface Settings {
     remove(key: string): void;
 }
 
+// eslint-disable-next-line
 const appSettings = require("tns-core-modules/application-settings") as Settings;
 
 export default class AppSettings {

@@ -1,13 +1,13 @@
 import { Connectivity as ConnectivityImpl } from "@nativescript/core";
 
-type Callback = (newType: any) => void;
+type Callback = (newType: number) => void;
 
 export const Connectivity = {
-    startMonitoring: (callback: Callback) => {
+    startMonitoring: (callback: Callback): void => {
         return ConnectivityImpl.startMonitoring(callback);
     },
     connectionType: ConnectivityImpl.connectionType,
-    typeToString: (type) => {
+    typeToString: (type: number): string => {
         switch (type) {
             case ConnectivityImpl.connectionType.wifi:
                 return "wifi";

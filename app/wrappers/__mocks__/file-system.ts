@@ -21,7 +21,7 @@ export class FolderWrapper {
         return new FileWrapper(this.fs, this.path + "/" + path);
     }
 
-    public entries(): any[] {
+    public entries(): FileLike[] {
         return [];
     }
 }
@@ -39,7 +39,7 @@ export default class FileSystem {
         return new FileWrapper(this, path);
     }
 
-    public listFolder(path: string): Promise<FileLike[]> {
+    public listFolder(_path: string): Promise<FileLike[]> {
         return Promise.resolve([]);
     }
 }

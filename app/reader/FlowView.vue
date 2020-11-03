@@ -39,12 +39,14 @@ import { Timer } from "@/common/timer";
 
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 
+/*
 interface Self extends Vue {
     flowName: string;
     nav: FlowNavigator;
     screen: VisibleScreen;
     timer: Timer;
 }
+*/
 
 export default Vue.extend({
     name: "FlowView",
@@ -59,32 +61,38 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(this: Self) {
+    data(): {
+        nav: FlowNavigator;
+        timer: Timer | null;
+    } {
         return {
             nav: new FlowNavigator(flows, this.flowName),
             timer: null,
         };
     },
-    mounted(this: Self) {
+    mounted(): void {
         this.timer = new Timer(1000, () => {});
         console.log("flows", flows);
     },
-    destroyed(this: Self) {
-        this.timer.stop();
+    destroyed(): void {
+        if (this.timer) {
+            this.timer.stop();
+            this.timer = null;
+        }
     },
     computed: {
-        frame(this: Self): number {
+        frame(): number {
             return this.timer?.counter || 0;
         },
-        screen(this: Self): VisibleScreen {
+        screen(): VisibleScreen {
             return this.nav.screen;
         },
-        progress(this: Self): number {
+        progress(): number {
             return this.nav.progress;
         },
     },
     methods: {
-        forward(this: Self) {
+        forward(): Promise<void> {
             console.log("forward", this.screen.name, this.screen.navOptions.forward);
             return this.nav.move(this.screen.navOptions.forward).then((done) => {
                 if (done) {
@@ -96,11 +104,11 @@ export default Vue.extend({
                 return false;
             });
         },
-        backward(this: Self) {
+        backward(): Promise<boolean> {
             console.log("backward", this.screen.name, this.screen.navOptions.backward);
             return this.nav.move(this.screen.navOptions.backward);
         },
-        skip(this: Self) {
+        skip(): Promise<void> {
             console.log("skip", this.screen.name);
             return this.nav.move(NavigationOption.Skip).then(() => {
                 // TODO: pass via prop?
@@ -109,7 +117,7 @@ export default Vue.extend({
                 });
             });
         },
-        cancel(this: Self) {
+        cancel(): Promise<void> {
             console.log("cancel", this.screen.name);
             // TODO: pass via prop?
             return this.$navigateTo(routes.stations, {

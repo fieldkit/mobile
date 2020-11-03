@@ -1,13 +1,15 @@
+import { TransferInfo, HttpResponse } from "nativescript-conservify";
+
 export default class Conservify {
-    public protobuf(info): Promise<any> {
-        return new Promise((resolve, reject) => {
-            resolve({});
+    public protobuf(_info: TransferInfo): Promise<HttpResponse> {
+        return new Promise((resolve, _reject) => {
+            resolve({} as HttpResponse);
         });
     }
 
-    public json(info): Promise<any> {
-        return new Promise((resolve, reject) => {
-            resolve({});
+    public json(_info: TransferInfo): Promise<HttpResponse> {
+        return new Promise((resolve, _reject) => {
+            resolve({} as HttpResponse);
         });
     }
 }

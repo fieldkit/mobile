@@ -1,3 +1,5 @@
+import { HttpResponse } from "@/wrappers/networking";
+
 export class AuthenticationError extends Error {
     public readonly authenticated = false;
 
@@ -6,7 +8,8 @@ export class AuthenticationError extends Error {
         this.name = "AuthenticationError";
     }
 
-    public static isInstance(error: any): boolean {
+    public static isInstance(error: AuthenticationError): boolean {
+        if (!error) return false;
         return error.authenticated === false;
     }
 }
@@ -19,8 +22,9 @@ export class StationQueryError extends Error {
         this.name = "StationQueryError";
     }
 
-    public static isInstance(error: any): boolean {
-        return error.stationQuery === true;
+    public static isInstance(error: StationQueryError): boolean {
+        if (!error) return false;
+        return error.stationQuery !== undefined;
     }
 }
 
@@ -32,8 +36,9 @@ export class BusyError extends Error {
         this.name = "BusyError";
     }
 
-    public static isInstance(error: any): boolean {
-        return error.busy === true;
+    public static isInstance(error: BusyError): boolean {
+        if (!error) return false;
+        return error.busy !== undefined;
     }
 }
 
@@ -45,7 +50,8 @@ export class QueryThrottledError extends Error {
         this.name = "QueryThrottledError";
     }
 
-    public static isInstance(error: any): boolean {
+    public static isInstance(error: QueryThrottledError): boolean {
+        if (!error) return false;
         return error.throttled === true;
     }
 }
@@ -53,12 +59,13 @@ export class QueryThrottledError extends Error {
 export class HttpError extends Error {
     public readonly http = true;
 
-    constructor(message: string, public readonly response: any) {
+    constructor(message: string, public readonly response: HttpResponse) {
         super(message);
         this.name = "HttpError";
     }
 
-    public static isInstance(error: any): boolean {
-        return error.http === true;
+    public static isInstance(error: HttpError): boolean {
+        if (!error) return false;
+        return error?.http === true;
     }
 }

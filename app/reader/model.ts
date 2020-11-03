@@ -45,7 +45,7 @@ export class NavigationOption {
     public static Backward = new NavigationOption("backward");
     public static Skip = new NavigationOption("skip");
 
-    public static allowed(label: string) {
+    public static allowed(label: string): NavigationOption {
         return new NavigationOption(label);
     }
 }
@@ -79,7 +79,7 @@ export class VisibleScreen {
 }
 
 function screenOrder(screen: Screen): number {
-    return Number(screen.name.replace(/[a-z\.]+/, ""));
+    return Number(screen.name.replace(/[a-z.]+/, ""));
 }
 
 export class FlowNavigator {
@@ -109,7 +109,7 @@ export class FlowNavigator {
         return new VisibleScreen(screen, navOptions);
     }
 
-    private recreate(): Promise<any> {
+    private recreate(): Promise<boolean> {
         this.visible = this.createVisibleScreen();
         return Promise.resolve(false);
     }
@@ -118,7 +118,7 @@ export class FlowNavigator {
         return (this.index / (this.screens.length - 1)) * 100.0;
     }
 
-    public move(option: NavigationOption): Promise<any> {
+    public move(option: NavigationOption): Promise<boolean> {
         switch (option) {
             case NavigationOption.Nope:
                 throw new Error(`invalid navigation: Nope`);
@@ -153,9 +153,9 @@ export class Body {
 }
 
 export function parseBody(body: string): Body {
-    const isHeading = (line) => line[0] == "#";
-    const isItem = (line) => line[0] == "-";
-    const isSpecial = (line) => isHeading(line) || isItem(line);
+    const isHeading = (line: string) => line[0] == "#";
+    const isItem = (line: string) => line[0] == "-";
+    const isSpecial = (line: string) => isHeading(line) || isItem(line);
 
     const raw = body.split("\n").map((line) => line.trim());
     const lines = raw.filter((line) => !isSpecial(line));

@@ -1,11 +1,12 @@
 import _ from "lodash";
-import moment from "moment";
-import Bluebird from "bluebird";
-import { Trace, knownFolders } from "@nativescript/core";
 import Vue from "vue";
-import { AuthenticationError } from "./errors";
+import Bluebird from "bluebird";
+import moment from "moment";
+import { Trace, knownFolders } from "@nativescript/core";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
+import { AuthenticationError } from "./errors";
+import { File } from "./fs";
 
 const SaveInterval = 10000;
 const logs: string[][] = [];
@@ -22,7 +23,7 @@ function getLogsFile() {
     return knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
 }
 
-function getExistingLogs(file): string {
+function getExistingLogs(file: File): string {
     if (file.size < MaximumLogSize) {
         return file.readTextSync() || "";
     }
@@ -53,7 +54,7 @@ function flush(): Promise<void> {
     });
 }
 
-export function copyLogs(where) {
+export function copyLogs(where: File): Promise<void> {
     return flush().then(() => {
         return new Promise((resolve, reject) => {
             const file = getLogsFile();
@@ -72,11 +73,11 @@ export function copyLogs(where) {
     });
 }
 
-function configureGlobalErrorHandling() {
+function configureGlobalErrorHandling(): void {
     try {
         Trace.setErrorHandler({
             handlerError(err) {
-                analytics.logEvent({
+                void analytics.logEvent({
                     key: "app_error",
                 });
                 console.log("error", err, err ? err.stack : null);
@@ -85,7 +86,7 @@ function configureGlobalErrorHandling() {
 
         Trace.enable();
 
-        Bluebird.onPossiblyUnhandledRejection((reason: Error, promise: Promise<any>) => {
+        Bluebird.onPossiblyUnhandledRejection((reason: Error, _promise: Promise<unknown>) => {
             if (reason instanceof AuthenticationError) {
                 console.log("onPossiblyUnhandledRejection", reason);
             } else {
@@ -112,26 +113,31 @@ function configureGlobalErrorHandling() {
         };
 		*/
 
-        Vue.config.warnHandler = (msg, vm, info) => {
+        Vue.config.warnHandler = (msg: string, _vm, _info) => {
             console.log("vuejs warning:", msg);
         };
-    } catch (e) {
-        console.log("startup error", e, e ? e.stack : null);
+    } catch (error) {
+        if (error instanceof Error) {
+            console.log("startup error", error, error ? error.stack : null);
+        } else {
+            console.log("startup error", error);
+        }
     }
-
-    return Promise.resolve();
 }
 
 function scrubMessage(message: string): string {
     return message.replace(/Bearer [^\s"']+/, "");
 }
 
-function wrapLoggingMethod(method) {
-    const original = console[method];
+type LogFunc = (...args: unknown[]) => void;
+
+function wrapLoggingMethod(method: string): void {
+    const original = console[method] as LogFunc;
     console[method] = function () {
         try {
             const errors: Error[] = [];
-            const args = Array.prototype.slice.apply(arguments);
+            // eslint-disable-next-line
+            const args: unknown[] = Array.prototype.slice.apply(arguments);
             const time = getPrettyTime();
 
             // Prepend time to the unaltered arguments we were
@@ -178,20 +184,23 @@ function wrapLoggingMethod(method) {
                 originalConsole.log("crashlytics", e);
             }
 
+            /*
             errors.forEach((error) => {
-                // crashlytics.error(error);
+                crashlytics.error(error);
             });
+			*/
         } catch (e) {
             originalConsole.log(e);
         }
     };
 }
 
-export default function initializeLogging(info) {
+export default function initializeLogging(): Promise<void> {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
-    const globalAny: any = global;
+    const globalAny: any = global; // eslint-disable-line
+    // eslint-disable-next-line
     if (globalAny.TNS_ENV === "test") {
-        return;
+        return Promise.resolve();
     }
 
     console.log("saving logs");
@@ -201,7 +210,9 @@ export default function initializeLogging(info) {
         wrapLoggingMethod(methods[i]);
     }
 
-    setInterval(flush, SaveInterval);
+    setInterval((): void => {
+        void flush();
+    }, SaveInterval);
 
     configureGlobalErrorHandling();
 

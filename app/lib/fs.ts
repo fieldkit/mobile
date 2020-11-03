@@ -1,31 +1,36 @@
 import _ from "lodash";
-import { Folder, knownFolders, isAndroid, Utils } from "@nativescript/core";
+import { Folder, knownFolders, isAndroid, Utils, File, FileSystemEntity } from "@nativescript/core";
+export { File, Folder };
+
+export const DownloadsDirectory = "downloads";
+
+export const DiagnosticsDirectory = "diagnostics";
 
 export interface FileLike {
     path: string;
-    size: number;
     depth: number;
     lastModified: Date;
 }
 
-export type RecurseCallback = (depth: number, entry: FileLike) => void;
+export type RecurseCallback = (depth: number, entry: FileSystemEntity) => void;
 
-function recurse(f: any, depth: number, callback: RecurseCallback) {
-    return f.getEntities().then((entities) => {
-        return Promise.all(
-            entities.map((entry) => {
-                if (Folder.exists(entry.path)) {
-                    return recurse(Folder.fromPath(entry.path), depth + 1, callback);
-                } else {
-                    callback(depth, entry);
-                }
-            })
-        );
-    });
+function recurse(f: Folder, depth: number, callback: RecurseCallback): Promise<void> {
+    return f
+        .getEntities()
+        .then((entities: FileSystemEntity[]) => {
+            return Promise.all(
+                entities.map((entry: FileSystemEntity) => {
+                    if (Folder.exists(entry.path)) {
+                        return recurse(Folder.fromPath(entry.path), depth + 1, callback);
+                    }
+                    return Promise.resolve(callback(depth, entry));
+                })
+            );
+        })
+        .then(() => {
+            return;
+        });
 }
-
-export const DownloadsDirectory = "downloads";
-export const DiagnosticsDirectory = "diagnostics";
 
 export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
     const files: FileLike[] = [];
@@ -37,12 +42,11 @@ export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
         return knownFolders.documents();
     };
 
-    return recurse(getFolder(), 0, (depth: number, entry: FileLike) => {
+    return recurse(getFolder(), 0, (depth: number, entry: FileSystemEntity) => {
         files.push({
             depth: depth,
             path: entry.path,
             lastModified: entry.lastModified,
-            size: entry.size,
         });
     }).then(() => {
         return files;
@@ -50,19 +54,21 @@ export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
 }
 
 export function dumpAllFiles(): Promise<void> {
-    return recurse(knownFolders.documents(), 0, (depth: number, entry: FileLike) => {
-        console.log("files", entry.path, entry.size);
+    return recurse(knownFolders.documents(), 0, (_depth: number, entry: FileSystemEntity) => {
+        console.log("files", entry.path);
     });
 }
 
 export function getDatabasePath(name: string): string {
     if (isAndroid) {
+        // eslint-disable-next-line
         const context = Utils.ad.getApplicationContext();
-        return context.getDatabasePath(name).getAbsolutePath();
+        // eslint-disable-next-line
+        return context.getDatabasePath(name).getAbsolutePath() as string;
     }
 
     const folder = knownFolders.documents().path;
-    return folder + "/" + name;
+    return `${folder}/${name}`;
 }
 
 export function getDeviceIdFromPath(path: string): string {

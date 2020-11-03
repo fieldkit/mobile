@@ -1,10 +1,13 @@
 import sqlite3 from "sqlite3";
 
-type Rows = any[];
+export type QueriedRow = Record<string, unknown>;
+
+export type Rows = QueriedRow[];
 
 class DatabaseWrapper {
     constructor(private readonly db: sqlite3.Database) {}
 
+    // eslint-disable-next-line
     public query(sql: string, params: undefined | any[] = undefined): Promise<Rows> {
         return new Promise((resolve, reject) => {
             this.db.all(sql, params, (err: Error, rows: Rows) => {
@@ -18,6 +21,7 @@ class DatabaseWrapper {
         });
     }
 
+    // eslint-disable-next-line
     public execute(sql: string, params: undefined | any[] = undefined): Promise<void> {
         return new Promise((resolve, reject) => {
             this.db.run(sql, params, function (err: Error) {

@@ -2,7 +2,7 @@ import _ from "lodash";
 import { FileType } from "@/store/types";
 import { serializePromiseChain } from "@/utilities";
 import { DataServices } from "./data-services";
-import { ParsedDataRecord, ParsedRecordVisitor, DataFile, FileInfo } from "./data-file";
+import { ParsedDataRecord, ParsedRecordVisitor, DataFile, FileInfo, coerceNumber } from "./data-file";
 
 export interface DataVisitor {
     onData(data: ParsedDataRecord, meta: ParsedDataRecord): void;
@@ -16,8 +16,10 @@ interface MetaLoader {
 class LoadMetaVisitor implements ParsedRecordVisitor {
     constructor(public readonly loader: MetaLoader, public readonly visitor: DataVisitor) {}
 
-    public onRecord(data: Buffer, record: ParsedDataRecord): boolean {
-        void this.loader.loadMeta(record.parsed.readings.meta).then((meta) => this.visitor.onData(record, meta));
+    public onRecord(_data: Buffer, record: ParsedDataRecord): boolean {
+        const metaNumber = record.parsed?.readings?.meta || null;
+        if (!metaNumber) throw new Error(`data record missing meta record number`);
+        void this.loader.loadMeta(coerceNumber(metaNumber)).then((meta) => this.visitor.onData(record, meta));
         return true;
     }
 }
@@ -69,7 +71,7 @@ export class DataReader implements MetaLoader {
 
     public loadMeta(record: number): Promise<ParsedDataRecord> {
         const key = this.makeRecordKey(record);
-        if (this.cached[key]) {
+        if (this.cached[key] !== undefined) {
             return this.cached[key];
         }
 

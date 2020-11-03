@@ -1,5 +1,5 @@
 import _ from "lodash";
-import Sqlite from "@/wrappers/sqlite";
+import Sqlite, { Database } from "@/wrappers/sqlite";
 import { sqliteToJs, serializePromiseChain } from "@/utilities";
 import { Readings } from "./readings";
 import { DataServices } from "./data-services";
@@ -82,12 +82,11 @@ interface AggregatedReadingLike {
 export class ReadingsDatabase {
     private sensors: { [index: string]: Sensor } = {};
 
-    constructor(private readonly db: any) {}
+    constructor(private readonly db: Database) {}
 
-    public static async delete(name: string): Promise<any> {
+    public static async delete(name: string): Promise<void> {
         const sqlite = new Sqlite();
         await sqlite.delete(name);
-        return {};
     }
 
     public static nameForDevice(deviceId: string): string {
@@ -98,9 +97,10 @@ export class ReadingsDatabase {
         return ReadingsDatabase.open(ReadingsDatabase.nameForDevice(deviceId));
     }
 
-    public static async existsForDevice(device: string): Promise<boolean> {
+    public static async existsForDevice(_device: string): Promise<boolean> {
         const sqlite = new Sqlite();
-        return await sqlite.exists(name);
+        const e = sqlite.exists(name);
+        return Promise.resolve(e);
     }
 
     public static async open(name: string): Promise<ReadingsDatabase> {
@@ -114,7 +114,7 @@ export class ReadingsDatabase {
         return readingsDb;
     }
 
-    public async create() {
+    public async create(): Promise<void> {
         await this.db.batch([
             `CREATE TABLE IF NOT EXISTS sensors (
 				id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -123,22 +123,22 @@ export class ReadingsDatabase {
             `CREATE UNIQUE INDEX IF NOT EXISTS sensors_idx ON sensors (key)`,
         ]);
 
-        Aggregate.getAll().forEach(async (aggregate) => {
-            const table = aggregate.table;
-            await this.db.batch([
-                `CREATE TABLE IF NOT EXISTS ${table} (
+        await Promise.all(
+            Aggregate.getAll().map(async (aggregate) => {
+                const table = aggregate.table;
+                await this.db.batch([
+                    `CREATE TABLE IF NOT EXISTS ${table} (
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
 					time DATETIME NOT NULL,
 					sensor_id INTEGER NOT NULL,
 					value NUMERIC NOT NULL
 				)`,
-                // `CREATE UNIQUE INDEX IF NOT EXISTS ${table}_idx ON ${table} (time, sensor_id)`,
-            ]);
-        });
+                    // `CREATE UNIQUE INDEX IF NOT EXISTS ${table}_idx ON ${table} (time, sensor_id)`,
+                ]);
+            })
+        );
 
         await this.refreshSensors();
-
-        return this;
     }
 
     private get sensorKeys(): string[] {
@@ -150,14 +150,14 @@ export class ReadingsDatabase {
     }
 
     private async refreshSensors(): Promise<{ [index: string]: Sensor }> {
-        const rows = await this.db.query(`SELECT * FROM sensors ORDER BY key`);
+        const rows = await this.db.query<{ id: number; key: string }>(`SELECT * FROM sensors ORDER BY key`);
         const previousSize = this.numberOfSensors;
         this.sensors = _.keyBy(
             rows.map((r) => new Sensor(r.id, r.key)),
             (s) => s.key
         );
         if (previousSize !== this.numberOfSensors) {
-            console.log(`sensors: ${this.numberOfSensors - previousSize} ${this.sensorKeys}`);
+            console.log(`sensors: ${this.numberOfSensors - previousSize} ${JSON.stringify(this.sensorKeys)}`);
         }
         return this.sensors;
     }
@@ -167,7 +167,7 @@ export class ReadingsDatabase {
             return Promise.resolve(this.sensors[key]);
         }
 
-        await this.db.query(`INSERT INTO sensors (key) VALUES (?)`, [key]);
+        await this.db.execute(`INSERT INTO sensors (key) VALUES (?)`, [key]);
 
         await this.refreshSensors();
 
@@ -182,9 +182,9 @@ export class ReadingsDatabase {
     public async save(readings: AggregatedReadingLike[]): Promise<void> {
         const sensorKeys = _.uniq(readings.map((r) => r.sensorKey));
         const sensorPairs = await Promise.all(sensorKeys.map((key) => this.findSensor(key).then((sensor) => [key, sensor])));
-        const sensors = _.fromPairs(sensorPairs);
+        const sensors: { [index: string]: Sensor } = _.fromPairs(sensorPairs);
 
-        await this.db.query(`BEGIN TRANSACTION`);
+        await this.db.execute(`BEGIN TRANSACTION`);
 
         return serializePromiseChain(readings, (reading: AggregatedReadingLike) => {
             const sensor = sensors[reading.sensorKey];
@@ -194,7 +194,7 @@ export class ReadingsDatabase {
             const table = reading.aggregate.table;
             const values = [reading.time, sensor.id, reading.value];
             return this.db
-                .query(
+                .execute(
                     `
 					INSERT INTO ${table} (time, sensor_id, value)
 					VALUES (?, ?, ?)
@@ -202,15 +202,15 @@ export class ReadingsDatabase {
                     values
                 )
                 .catch((error) => {
-                    console.log(`sql:error: ${error.message} ${values}`);
+                    console.log(`sql:error: ${JSON.stringify(error)} ${JSON.stringify(values)}`);
                     return Promise.reject(error);
                 });
         })
             .then(() => {
-                return this.db.query(`COMMIT TRANSACTION`);
+                return this.db.execute(`COMMIT TRANSACTION`);
             })
             .catch(() => {
-                return this.db.query(`ROLLBACK TRANSACTION`);
+                return this.db.execute(`ROLLBACK TRANSACTION`);
             });
     }
 
@@ -240,7 +240,7 @@ export class ReadingsDatabase {
         }
         const aggregate = Aggregate.byName(params.aggregate);
         const table = aggregate.table;
-        const questions = _.times(params.sensorIds.length, _.constant("?"));
+        const questions = _.times(params.sensorIds.length, _.constant("?")).join(", ");
         const values = [params.start, params.end, ...params.sensorIds, params.pageSize, params.page * params.pageSize];
         const rawRows = await this.db.query(
             `SELECT * FROM ${table} WHERE (time > ? AND time < ?) AND (sensor_id IN (${questions})) ORDER BY time, sensor_id LIMIT ? OFFSET ?`,
@@ -252,7 +252,7 @@ export class ReadingsDatabase {
 
 export class Aggregate {
     public samples: { [index: string]: number[] } = {};
-    public openTime: number = 0;
+    public openTime = 0;
 
     constructor(public readonly name: string, public readonly interval: number) {}
 
@@ -306,13 +306,15 @@ export class Aggregate {
         this.samples[sensor].push(value);
     }
 
-    public flush(db: ReadingsDatabase): AggregatedReadingLike[] {
+    public flush(_db: ReadingsDatabase): AggregatedReadingLike[] {
+        // eslint-disable-next-line
         if (false && Object.keys(this.samples).length > 0) {
+            // eslint-disable-next-line
             console.log(`flush: ${this.name} ${this.openTime} ${Object.keys(this.samples).length}`);
         }
 
         const rows: AggregatedReadingLike[] = Object.entries(this.samples)
-            .filter(([key, value]: [string, number[]]) => {
+            .filter(([_key, value]: [string, number[]]) => {
                 return value.length > 0;
             })
             .map((entry) => {
@@ -349,7 +351,7 @@ export class Aggregator {
         this.aggregates = Aggregate.getAll();
     }
 
-    public async process(db: ReadingsDatabase, batch: Readings[]): Promise<any> {
+    public async process(db: ReadingsDatabase, batch: Readings[]): Promise<void> {
         for (const readings of batch) {
             for (const aggregate of this.aggregates) {
                 for (const row of aggregate.maybeFlush(db, readings.time)) {
@@ -382,7 +384,7 @@ export class SaveReadingsTask extends Task {
         return ReadingsDatabase.nameForDevice(this.deviceId);
     }
 
-    public async run(services: DataServices, tasks: TaskQueuer): Promise<any> {
+    public async run(_services: DataServices, _tasks: TaskQueuer): Promise<void> {
         if (!this.aggregators[this.deviceId]) {
             console.log("creating aggregator", this.deviceId);
             this.aggregators[this.deviceId] = new Aggregator(this.deviceId);
