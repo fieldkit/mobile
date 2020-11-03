@@ -1,4 +1,4 @@
-export type VueComponent = any;
+export type VueComponent = unknown;
 
 export class CalibrationVisual {
     constructor(public readonly component: VueComponent) {}

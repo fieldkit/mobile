@@ -147,17 +147,8 @@ export default Vue.extend({
             console.log("review loaded", this.stationId);
             console.log("review loaded", this.currentStation);
         },
-        goBack(ev: any): Promise<any> {
-            return Promise.all([
-                animations.pressed(ev),
-                this.$navigateBack({
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
-                    },
-                }),
-            ]);
+        async goBack(ev: any): Promise<void> {
+            await Promise.all([animations.pressed(ev), this.$navigateBack()]);
         },
         editLocation(ev: any): Promise<any> {
             return Promise.all([

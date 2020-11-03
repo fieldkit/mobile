@@ -92,35 +92,35 @@ export default Vue.extend({
         },
     },
     methods: {
-        forward(): Promise<void> {
+        async forward(): Promise<void> {
             console.log("forward", this.screen.name, this.screen.navOptions.forward);
-            return this.nav.move(this.screen.navOptions.forward).then((done) => {
+            await this.nav.move(this.screen.navOptions.forward).then((done) => {
                 if (done) {
                     // TODO: pass via prop?
                     return this.$navigateTo(routes.stations, {
                         props: {},
                     });
                 }
-                return false;
+                return;
             });
         },
         backward(): Promise<boolean> {
             console.log("backward", this.screen.name, this.screen.navOptions.backward);
             return this.nav.move(this.screen.navOptions.backward);
         },
-        skip(): Promise<void> {
+        async skip(): Promise<void> {
             console.log("skip", this.screen.name);
-            return this.nav.move(NavigationOption.Skip).then(() => {
+            await this.nav.move(NavigationOption.Skip).then(() => {
                 // TODO: pass via prop?
                 return this.$navigateTo(routes.stations, {
                     props: {},
                 });
             });
         },
-        cancel(): Promise<void> {
+        async cancel(): Promise<void> {
             console.log("cancel", this.screen.name);
             // TODO: pass via prop?
-            return this.$navigateTo(routes.stations, {
+            await this.$navigateTo(routes.stations, {
                 props: {},
             });
         },

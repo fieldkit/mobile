@@ -13,6 +13,7 @@
 </template>
 
 <script lang="ts">
+import { Page } from "@nativescript/core";
 import Vue from "vue";
 import routes from "@/routes";
 import { LegacyStation } from "@/store/types";
@@ -75,7 +76,7 @@ export default Vue.extend({
         onNavigatingTo(): void {
             this.left = true;
         },
-        foundStations(numberStations: number): Promise<void> {
+        foundStations(numberStations: number): Promise<Page | void> {
             console.log("number of nearby stations", numberStations);
 
             if (this.timer) {

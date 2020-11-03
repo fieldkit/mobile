@@ -4,7 +4,7 @@ function getBlankDeveloperConfig() {
     return {
         developer: {
             machine: null,
-            stationFilter: (url) => {
+            stationFilter: (_url: string): boolean => {
                 return true;
             },
         },
@@ -57,25 +57,30 @@ const configs: { [index: string]: SimpleConfig } = {
 };
 
 interface SimpleLogger {
-    noop(...args: any[]): void;
-    info(...args: any[]): void;
-    verbose(...args: any[]): void;
-    error(...args: any[]): void;
+    noop(...args: unknown[]): void;
+    info(...args: unknown[]): void;
+    verbose(...args: unknown[]): void;
+    error(...args: unknown[]): void;
 }
 
 function loggerFactory(name: string): SimpleLogger {
     return {
-        noop: function (...args: any[]) {},
-        info: function (...args: any[]) {
+        noop: function (..._args: unknown[]) {
+            //
+        },
+        info: function (...args: unknown[]) {
             args.unshift(name);
+            // eslint-disable-next-line
             console.log.apply(console, args);
         },
-        verbose: function (...args: any[]) {
+        verbose: function (...args: unknown[]) {
             args.unshift(name);
+            // eslint-disable-next-line
             // console.log.apply(console, args);
         },
-        error: function (...args: any[]) {
+        error: function (...args: unknown[]) {
             args.unshift(name);
+            // eslint-disable-next-line
             console.error.apply(console, args);
         },
     };
@@ -93,9 +98,9 @@ function getConfig(): FinalConfig {
         logger: loggerFactory,
     };
     if (envs.env.test) {
-        return Object.assign({}, envs, configs["test"], loggerConfig, getBlankDeveloperConfig());
+        return Object.assign({}, envs, configs["test"], loggerConfig, getBlankDeveloperConfig()) as FinalConfig;
     }
-    return Object.assign({}, envs, configs["default"], loggerConfig, getDeveloperConfig());
+    return Object.assign({}, envs, configs["default"], loggerConfig, getDeveloperConfig()) as FinalConfig;
 }
 
 export const Build = {

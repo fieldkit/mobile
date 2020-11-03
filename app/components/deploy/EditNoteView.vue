@@ -91,8 +91,8 @@ export default Vue.extend({
             this.$store.commit(new RemoveNoteMediaMutation(this.stationId, this.editingKey, media));
             return this.$store.dispatch(new SaveNotesAction(this.stationId));
         },
-        onCancelEditing(): Promise<any> {
-            return this.$navigateBack({});
+        async onCancelEditing(): Promise<void> {
+            await this.$navigateBack();
         },
     },
 });

@@ -1,5 +1,5 @@
 declare module "nativescript-sqlite" {
-    type Rows = any[];
+    type Rows = unknown[];
 
     type Callback = (err: Error, db: SqliteMain) => void;
 
@@ -12,8 +12,8 @@ declare module "nativescript-sqlite" {
         constructor(name: string, callback: Callback);
 
         resultType(type: number): void;
-        all(query: string, params: undefined | any[]): Promise<Rows>;
-        execSQL(query: string, params: undefined | any[]): Promise<Rows>;
+        all(query: string, params: undefined | unknown[]): Promise<Rows>;
+        execSQL(query: string, params: undefined | unknown[]): Promise<Rows>;
 
         static exists(name: string): boolean;
         static copyDatabase(name: string): void;

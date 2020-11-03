@@ -31,7 +31,6 @@ import AppSettingsNotifications from "../components/AppSettingsNotificationsView
 
 import FlowView from "@/reader/FlowView.vue";
 
-import { inferNames, Route } from "./navigate";
 import AppSettingsPermissions from "~/components/AppSettingsPermissionsView.vue";
 import AppSettingsHelp from "~/components/AppSettingsHelpView.vue";
 import AppSettingsHelpAppVersion from "~/components/AppSettingsHelpAppVersionView.vue";
@@ -44,6 +43,8 @@ import AppSettingsAppearanceLanguage from "~/components/AppSettingsAppearanceLan
 import AppSettingsAppearanceFontSize from "~/components/AppSettingsAppearanceFontSizeView.vue";
 import AddModuleView from "~/components/onboarding/AddModuleView.vue";
 import NotificationsView from "~/components/NotificationsView.vue";
+
+import { inferNames, Route } from "./navigate";
 
 const routes = {
     login: new Route(Login, { login: true }),

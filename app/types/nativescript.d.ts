@@ -1,10 +1,18 @@
+import { Page } from "@nativescript/core";
+import { navigateBack, ModalOptions, NavigationEntryVue } from "nativescript-vue";
+import { Vue, VueConstructor } from "vue/types/vue";
 import { Services } from "@/services";
+import { Route } from "@/routes/navigate";
+
+type showModal = (component: typeof Vue, options?: ModalOptions) => Promise<void>;
+
+export type navigateTo = (component: VueConstructor | Route, options?: NavigationEntryVue, cb?: () => Page) => Promise<Page>;
 
 declare module "vue/types/vue" {
     interface Vue {
-        $navigateTo(where: any, options: any): Promise<any>;
-        $navigateBack(options: any): Promise<any>;
-        $showModal(comp: any, options: any): Promise<any>;
+        $navigateTo: navigateTo; // (where: any, options: any): Promise<void>;
+        $navigateBack: navigateBack;
+        $showModal: showModal;
         $services: Services;
         $modal: {
             close: () => void;
@@ -13,7 +21,7 @@ declare module "vue/types/vue" {
 }
 
 declare global {
-    function _L(key: string, ...args: any[]): string;
+    function _L(key: string, ...args: unknown[]): string;
 
     const TNS_ENV: string;
 
