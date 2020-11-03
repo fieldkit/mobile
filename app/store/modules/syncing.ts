@@ -267,6 +267,8 @@ export class StationSyncStatus {
         delete headers["connection"];
         const { range, firstBlock, lastBlock } = parseBlocks(headers["fk-blocks"]);
 
+        console.log(`make-row: ${JSON.stringify(headers)} ${firstBlock} ${lastBlock}`);
+
         return {
             id: 0,
             stationId: this.id,
@@ -301,7 +303,7 @@ export class SyncingState {
 
 function querySizes(services: ServiceRef, downloads: PendingDownload[]): Promise<CalculatedSize[]> {
     return serializePromiseChain(downloads, (download: PendingDownload) => {
-        console.log("size:", download.url);
+        console.log("calculating size:", download.url);
         return services
             .queryStation()
             .calculateDownloadSize(download.url)
@@ -474,7 +476,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         const downloaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
         const uploaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
 
-        return new StationSyncStatus(
+        const syncStatus = new StationSyncStatus(
             station.id,
             station.deviceId,
             station.generationId,
@@ -490,6 +492,10 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
             state.errors[station.deviceId] || TransferError.None,
             null
         );
+
+        console.log(`sync-status: ${JSON.stringify(syncStatus)}`);
+
+        return syncStatus;
     });
 
     return StationSyncsSorter(syncs);

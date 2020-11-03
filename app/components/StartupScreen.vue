@@ -222,10 +222,6 @@ export default class StartupScreen extends Vue {
                         flowName: "onboarding",
                     },
                 });
-                return this.$navigateTo(routes.dataSync, {
-                    clearHistory: true,
-                    props: {},
-                });
                 return this.$navigateTo(routes.appSettings.account, {
                     clearHistory: true,
                     props: {},
@@ -246,12 +242,16 @@ export default class StartupScreen extends Vue {
                 } else {
                     console.log("no test station");
                 }
-				*/
-                // return this.$navigateTo(routes.stations, {
-                //     clearHistory: true,
-                //     props: {},
-                // });
                 return this.$navigateTo(routes.developerMenu, {
+                    clearHistory: true,
+                    props: {},
+                });
+                return this.$navigateTo(routes.stations, {
+                    clearHistory: true,
+                    props: {},
+                });
+				*/
+                return this.$navigateTo(routes.dataSync, {
                     clearHistory: true,
                     props: {},
                 });

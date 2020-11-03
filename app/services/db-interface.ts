@@ -371,35 +371,35 @@ export default class DatabaseInterface {
         const updates: Promise<void>[] = [];
 
         if (stream.deviceSize !== null && stream.deviceFirstBlock !== null && stream.deviceLastBlock !== null) {
+            const values = [stream.deviceSize, stream.deviceFirstBlock, stream.deviceLastBlock, stream.updated, streamId];
+            console.log(`updating stream: device`, values);
             updates.push(
-                db.execute(`UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ? WHERE id = ?`, [
-                    stream.deviceSize,
-                    stream.deviceFirstBlock,
-                    stream.deviceLastBlock,
-                    stream.updated,
-                    streamId,
-                ])
+                db.execute(
+                    `UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ? WHERE id = ?`,
+                    values
+                )
             );
         }
 
         if (stream.downloadSize !== null && stream.downloadFirstBlock !== null && stream.downloadLastBlock !== null) {
+            const values = [stream.downloadSize, stream.downloadFirstBlock, stream.downloadLastBlock, stream.updated, streamId];
+            console.log(`updating stream: download`, values);
             updates.push(
                 db.execute(
                     `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ? WHERE id = ?`,
-                    [stream.downloadSize, stream.downloadFirstBlock, stream.downloadLastBlock, stream.updated, streamId]
+                    values
                 )
             );
         }
 
         if (stream.portalSize !== null && stream.portalFirstBlock !== null && stream.portalLastBlock !== null) {
+            const values = [stream.portalSize, stream.portalFirstBlock, stream.portalLastBlock, stream.updated, streamId];
+            console.log(`updating stream: portal`, values);
             updates.push(
-                db.execute(`UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ? WHERE id = ?`, [
-                    stream.portalSize,
-                    stream.portalFirstBlock,
-                    stream.portalLastBlock,
-                    stream.updated,
-                    streamId,
-                ])
+                db.execute(
+                    `UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ? WHERE id = ?`,
+                    values
+                )
             );
         }
 
@@ -526,26 +526,28 @@ export default class DatabaseInterface {
 
     public insertDownload(download: DownloadTableRow): Promise<void> {
         return this.getDatabase().then((db) => {
+            const values = [
+                download.stationId,
+                download.deviceId,
+                download.generation,
+                download.path,
+                download.type,
+                download.timestamp,
+                download.url,
+                download.size,
+                download.blocks,
+                download.firstBlock,
+                download.lastBlock,
+            ];
+            console.log(`inserting download`, values);
             return db
                 .execute(
                     `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
 					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [
-                        download.stationId,
-                        download.deviceId,
-                        download.generation,
-                        download.path,
-                        download.type,
-                        download.timestamp,
-                        download.url,
-                        download.size,
-                        download.blocks,
-                        download.firstBlock,
-                        download.lastBlock,
-                    ]
+                    values
                 )
                 .then(() => {
-                    const values = [
+                    const updating = [
                         download.size,
                         download.firstBlock,
                         download.lastBlock,
@@ -553,14 +555,14 @@ export default class DatabaseInterface {
                         download.stationId,
                         download.type,
                     ];
-                    console.log("downloaded", download.firstBlock, download.lastBlock);
+                    console.log(`updating streams:`, updating);
                     return db.execute(
                         `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
 							                download_first_block = MIN(COALESCE(download_first_block, 0xffffffff), ?),
 							                download_last_block = MAX(COALESCE(download_last_block, 0), ?),
 							                device_last_block = MAX(COALESCE(device_last_block, 0), ?)
 						 WHERE station_id = ? AND type = ?`,
-                        values
+                        updating
                     );
                 })
                 .catch((err) => Promise.reject(new Error(`error inserting download: ${err}`)));
@@ -581,6 +583,7 @@ export default class DatabaseInterface {
                     download.stationId,
                     FileTypeUtils.toString(download.fileType),
                 ];
+                console.log(`mark as download updating streams:`, values);
                 return db.execute(
                     `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
 							            portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
