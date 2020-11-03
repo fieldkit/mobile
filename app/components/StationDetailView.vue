@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
         <GridLayout :rows="notifications.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
             <ScrollView row="0">
@@ -104,10 +104,12 @@ export default Vue.extend({
             return this.$store.state.notes.stations[this.stationId];
         },
         currentStation(): Station {
-            if (!this.$store.getters.legacyStations) {
-                throw new Error(`missing legacyStations`);
+            const station = this.$store.getters.legacyStations[this.stationId];
+            if (!station) {
+                console.log(`missing legacyStation`, this.stationId);
+                throw new Error(`missing legacyStation`);
             }
-            return this.$store.getters.legacyStations[this.stationId];
+            return station;
         },
     },
     components: {
@@ -116,14 +118,12 @@ export default Vue.extend({
         ModuleList,
         NotificationFooter,
     },
+    mounted() {
+        console.log("loading station detail", this.stationId);
+        this.completeSetup();
+        console.log("loaded station detail", this.stationId);
+    },
     methods: {
-        onPageLoaded(args): void {
-            console.log("loading station detail");
-
-            this.completeSetup();
-
-            console.log("loaded station detail", this.stationId);
-        },
         goBack(ev) {
             return Promise.all([
                 animations.pressed(ev),
@@ -175,23 +175,28 @@ export default Vue.extend({
                 }),
             ]);
         },
-        completeSetup() {
+        addDeployedNotification(): Promise<void> {
+            if (!this.$store.state.portal.currentUser) {
+                return Promise.resolve();
+            }
+            return this.$store.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                key: `${this.$store.state.portal.currentUser.id}/${this.currentStation.id}/station-deployed`,
+                kind: "station-deployed",
+                created: new Date(),
+                silenced: "false",
+                project: {},
+                user: this.$store.state.portal.currentUser,
+                station: this.currentStation,
+                actions: {},
+            });
+        },
+        completeSetup(): Promise<void> {
+            if (!this.currentStation) throw new Error(`no station`);
+
             if (this.redirectedFromDeploy) {
                 this.newlyDeployed = true;
 
-                return Promise.all([
-                    this.$store.dispatch(ActionTypes.ADD_NOTIFICATION, {
-                        key: `${this.$store.state.portal.currentUser.id}/${this.currentStation.id}/station-deployed`,
-                        kind: "station-deployed",
-                        created: new Date(),
-                        silenced: "false",
-                        project: {},
-                        user: this.$store.state.portal.currentUser,
-                        station: this.currentStation,
-                        actions: {},
-                    }),
-                    promiseAfter(3000)
-                ]).then(() => {
+                return Promise.all([this.addDeployedNotification(), promiseAfter(3000)]).then(() => {
                     this.newlyDeployed = false;
                 });
             }
