@@ -26,6 +26,7 @@ interface SimpleConfig {
 interface FinalConfig extends SimpleConfig {
     logger: (name: string) => SimpleLogger;
     developer: {
+        machine: null;
         stationFilter: (url: string) => boolean;
     };
     env: {

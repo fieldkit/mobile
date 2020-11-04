@@ -1,4 +1,13 @@
+app/lib/tns-i18n-deep.ts
+app/store/logger.js
+app/application.android.js
+
+# TODO
+app/i18n/*
+app/migrations/*.js
+
 *.test.ts
+*.test.js
+fixtures.js
 app/tests/setup.ts
 app/tests/utilities.ts
-app/lib/tns-i18n-deep.ts

@@ -66,7 +66,7 @@
         "chai": "^4.2.0",
         "cli-table": "^0.3.1",
         "electron-devtools-installer": "^3.0.0",
-        "eslint": "^7.11.0",
+        "eslint": "^7.12.1",
         "eslint-plugin-nativescript": "0.0.0",
         "eslint-plugin-vue": "^7.1.0",
         "jest": "^26.6.1",
