@@ -153,7 +153,7 @@ export class StationCalibration {
             });
         console.log(
             "station-calibration",
-            this.modules.map((m) => [m.isCalibrated])
+            this.modules.map((m) => [m.name, m.isCalibrated])
         );
     }
 
