@@ -346,6 +346,7 @@ export default class DatabaseInterface {
         const values = [
             stationId,
             stream.deviceId,
+            stream.generationId,
             stream.type,
             stream.deviceSize,
             stream.deviceFirstBlock,
@@ -353,16 +354,14 @@ export default class DatabaseInterface {
             new Date(),
         ];
         return db.execute(
-            `INSERT INTO streams (station_id, device_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO streams (station_id, device_id, generation_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             values
         );
     }
 
     public forgetUploads(): Promise<void> {
         return this.getDatabase()
-            .then((db) => db.query("UPDATE streams SET portal_size = NULL, portal_first_block = NULL, portal_last_block = NULL"))
-            .then(() => this.getDatabase())
-            .then((db) => db.query("SELECT * FROM streams"))
+            .then((db) => db.execute("UPDATE streams SET portal_size = NULL, portal_first_block = NULL, portal_last_block = NULL"))
             .then(() => Promise.resolve());
     }
 
@@ -370,37 +369,44 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) => db.execute("DELETE FROM streams"));
     }
 
-    private updateStream(db: Database, streamId: number, stream: Stream): Promise<void> {
+    private updateStream(db: Database, streamId: number, generationId: string, stream: Stream): Promise<void> {
         const updates: Promise<void>[] = [];
 
         if (stream.deviceSize !== null && stream.deviceFirstBlock !== null && stream.deviceLastBlock !== null) {
-            const values = [stream.deviceSize, stream.deviceFirstBlock, stream.deviceLastBlock, stream.updated, streamId];
+            const values = [stream.deviceSize, stream.deviceFirstBlock, stream.deviceLastBlock, stream.updated, generationId, streamId];
             console.log(`updating stream: device`, values);
             updates.push(
                 db.execute(
-                    `UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ? WHERE id = ?`,
+                    `UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
                     values
                 )
             );
         }
 
         if (stream.downloadSize !== null && stream.downloadFirstBlock !== null && stream.downloadLastBlock !== null) {
-            const values = [stream.downloadSize, stream.downloadFirstBlock, stream.downloadLastBlock, stream.updated, streamId];
+            const values = [
+                stream.downloadSize,
+                stream.downloadFirstBlock,
+                stream.downloadLastBlock,
+                stream.updated,
+                generationId,
+                streamId,
+            ];
             console.log(`updating stream: download`, values);
             updates.push(
                 db.execute(
-                    `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ? WHERE id = ?`,
+                    `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
                     values
                 )
             );
         }
 
         if (stream.portalSize !== null && stream.portalFirstBlock !== null && stream.portalLastBlock !== null) {
-            const values = [stream.portalSize, stream.portalFirstBlock, stream.portalLastBlock, stream.updated, streamId];
+            const values = [stream.portalSize, stream.portalFirstBlock, stream.portalLastBlock, stream.updated, generationId, streamId];
             console.log(`updating stream: portal`, values);
             updates.push(
                 db.execute(
-                    `UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ? WHERE id = ?`,
+                    `UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
                     values
                 )
             );
@@ -421,7 +427,11 @@ export default class DatabaseInterface {
         return Promise.all([
             Promise.all(adding.map((name) => this.insertStream(db, stationId, incoming[name]))),
             Promise.all(removed.map((name) => db.query("DELETE FROM streams WHERE id = ?", [existing[name].id]))),
-            Promise.all(keeping.map((name) => this.updateStream(db, existing[name].id, incoming[name].keepingFrom(existing[name])))),
+            Promise.all(
+                keeping.map((name) =>
+                    this.updateStream(db, existing[name].id, station.generationId, incoming[name].keepingFrom(existing[name]))
+                )
+            ),
         ]).then(() => Promise.resolve());
     }
 

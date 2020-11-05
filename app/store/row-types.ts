@@ -36,6 +36,7 @@ export interface StreamTableRow {
     id: number;
     stationId: number;
     deviceId: string;
+    generationId: string | null;
     type: string;
     deviceSize: number;
     deviceFirstBlock: number;

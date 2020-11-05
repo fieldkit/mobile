@@ -128,6 +128,7 @@ export class Stream {
 
     constructor(
         public deviceId: string,
+        public generationId: string | null,
         public type: string,
         public deviceSize: number,
         public deviceFirstBlock: number,
@@ -135,7 +136,7 @@ export class Stream {
     ) {}
 
     static fromRow(o: StreamTableRow): Stream {
-        const s = new Stream(o.deviceId, o.type, o.deviceSize, o.deviceFirstBlock, o.deviceLastBlock);
+        const s = new Stream(o.deviceId, o.generationId, o.type, o.deviceSize, o.deviceFirstBlock, o.deviceLastBlock);
         s.id = o.id;
         s.stationId = o.stationId;
         s.downloadSize = o.downloadSize;
@@ -149,7 +150,8 @@ export class Stream {
     }
 
     static fromReply(reply: HttpStatusReply, o: ReplyStream): Stream {
-        const s = new Stream(reply.status.identity.deviceId, o.name.replace(".fkpb", ""), o.size, 0, o.block);
+        const identity = reply.status.identity;
+        const s = new Stream(identity.deviceId, identity.generationId, o.name.replace(".fkpb", ""), o.size, 0, o.block);
         s.id = null;
         s.stationId = null;
         s.downloadSize = null;
