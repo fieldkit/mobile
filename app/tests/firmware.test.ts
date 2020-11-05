@@ -3,14 +3,9 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { describe, expect, it } from "@jest/globals";
 import { Services, ServicesImpl } from "@/services";
 import { MockStationReplies } from "./utilities";
-import { prepareReply, HttpStatusReply } from "@/store/http-types";
+//import { prepareReply, HttpStatusReply } from "@/store/http-types";
 import { StationRepliedAction } from "@/store/actions";
-import { fk_app } from "fk-app-protocol/fk-app";
-
-function fakeReply(reply: any): HttpStatusReply {
-    const serializedDummy = fk_app.HttpReply.encodeDelimited(reply).finish();
-    return prepareReply(reply, Buffer.from(serializedDummy).toString("base64"));
-}
+//import { fk_app } from "fk-app-protocol/fk-app";
 
 function addFakeFirmware(services: Services) {
     services.PortalInterface().listFirmware = jest.fn((_) => {
@@ -76,8 +71,8 @@ describe("Firmware", () => {
             expect.assertions(1);
 
             const fake = [mockStation.newFakeStation(), mockStation.newFakeStation()];
-            await store.dispatch(new StationRepliedAction(fakeReply(mockStation.newFakeStatusReply(fake[0])), "http://10.0.0.1/fk/v1"));
-            await store.dispatch(new StationRepliedAction(fakeReply(mockStation.newFakeStatusReply(fake[1])), "http://10.0.0.2/fk/v1"));
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake[0]), "http://10.0.0.1/fk/v1"));
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake[1]), "http://10.0.0.2/fk/v1"));
 
             await addFakeFirmware(services);
 

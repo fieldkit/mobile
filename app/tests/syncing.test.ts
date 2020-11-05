@@ -6,13 +6,8 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "@/utilities";
 
 import { ActionTypes } from "@/store";
-import { prepareReply } from "@/store/http-types";
 import { TryStationOnceAction, StationRepliedAction, FileTypeUtils, FileType, TransferProgress } from "@/store";
-import { StationSyncStatus, HttpStatusReply, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store";
-
-function fakeReply(reply: any): HttpStatusReply {
-    return prepareReply(reply, "TESTS");
-}
+import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store";
 
 describe("Progress", () => {
     let sp: StationProgress;
@@ -36,7 +31,7 @@ describe("Progress", () => {
 
         const spy = jest.spyOn(services.QueryStation(), "takeReadings");
 
-        mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+        mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
         await store.dispatch(new TryStationOnceAction(fake.serviceInfo));
 
         expect(spy.mock.calls.length).toBe(1);
@@ -110,7 +105,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
@@ -183,7 +178,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
@@ -272,7 +267,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
@@ -345,7 +340,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
@@ -417,7 +412,7 @@ describe("Syncing", () => {
             clock.tick(60000);
 
             const streams2 = mockStation.newStreams(1, 200);
-            const reply2 = fakeReply(mockStation.newFakeStatusReply(fake, null, streams2));
+            const reply2 = mockStation.newFakeStatusReply(fake, null, streams2);
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             expect(store.getters.syncs).toStrictEqual([
@@ -458,7 +453,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
@@ -530,7 +525,7 @@ describe("Syncing", () => {
             clock.tick(60000);
 
             const streams2 = mockStation.newStreams(5, 200);
-            const reply2 = fakeReply(mockStation.newFakeStatusReply(fake, null, streams2));
+            const reply2 = mockStation.newFakeStatusReply(fake, null, streams2);
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             expect(store.getters.syncs).toStrictEqual([
@@ -610,7 +605,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
@@ -655,7 +650,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];
@@ -679,7 +674,7 @@ describe("Syncing", () => {
             await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
 
             const streams2 = mockStation.newStreams(5, 200);
-            const reply2 = fakeReply(mockStation.newFakeStatusReply(fake, null, streams2));
+            const reply2 = mockStation.newFakeStatusReply(fake, null, streams2);
             await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
 
             mockStation.queueCalculateDownloadSize(204, 100);
@@ -714,7 +709,7 @@ describe("Syncing", () => {
 
             const fake = mockStation.newFakeStation();
             const streams1 = mockStation.newStreams(1, 100);
-            mockStation.queueBody(mockStation.newFakeStatusReply(fake, null, streams1));
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
             await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
 
             const saved = store.state.stations.all[0];

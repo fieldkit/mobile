@@ -117,16 +117,25 @@ function getLocationFrom(o: HasLocation): HasLocation {
     };
 }
 
+function coerceIdType(value: string | Buffer | undefined): string | null {
+    if (!value) return null;
+    if (Buffer.isBuffer(value)) return value.toString("hex");
+    return value;
+}
+
 class StationStatusFactory {
     constructor(private readonly statusReply: HttpStatusReply) {}
 
     create(): Station {
-        if (!this.statusReply.status?.identity?.deviceId || !_.isString(this.statusReply.status?.identity?.deviceId)) {
-            console.log("malformed status", this.statusReply);
+        const deviceId = coerceIdType(this.statusReply.status?.identity?.deviceId);
+        if (!deviceId) {
+            console.log("malformed status (device-id)", this.statusReply);
             throw new Error(`station missing deviceId`);
         }
-        if (!this.statusReply.status?.identity?.generationId || !_.isString(this.statusReply.status?.identity?.generationId)) {
-            console.log("malformed status", this.statusReply);
+
+        const generationId = coerceIdType(this.statusReply.status?.identity?.generationId);
+        if (!generationId) {
+            console.log("malformed status (generation)", this.statusReply);
             throw new Error(`station missing generation`);
         }
 
@@ -148,8 +157,8 @@ class StationStatusFactory {
         };
         const fields: StationCreationFields = {
             id: null,
-            deviceId: this.statusReply.status.identity.deviceId,
-            generationId: this.statusReply.status.identity.generationId,
+            deviceId: deviceId,
+            generationId: generationId,
             name: this.statusReply.status.identity.name,
             batteryLevel: this.statusReply.status.power.battery.percentage,
             consumedMemory: this.statusReply.status.memory.dataMemoryUsed,

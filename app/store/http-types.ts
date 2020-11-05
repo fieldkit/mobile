@@ -313,7 +313,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
         throw new Error(`reply error: ${JSON.stringify(reply.errors)}`);
     }
 
-    console.log(`reply-check`);
+    console.log(`reply-check`, reply.modules);
 
     if (!reply.status) throw new Error(`reply.status`);
     if (!reply.status.identity) throw new Error(`reply.status.identity`);
@@ -336,8 +336,6 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
         };
     }
 
-    console.log(`reply-build`);
-
     return {
         type: reply.type,
         status: {
@@ -348,7 +346,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
                 build: reply.status.identity.build!,
                 number: reply.status.identity.number!,
                 deviceId: Buffer.from(reply.status.identity.deviceId!).toString("hex"),
-                generationId: Buffer.from(reply.status.identity.generation!).toString("hex"),
+                generationId: Buffer.from(reply.status.identity.generationId!).toString("hex"),
             },
             gps: {
                 enabled: reply.status.gps.enabled!,

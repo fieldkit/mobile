@@ -1,3 +1,5 @@
+import { Services } from "@/services/interface";
+import { prepareReply, HttpStatusReply } from "@/store";
 import protobuf from "protobufjs";
 import crypto from "crypto";
 
@@ -8,6 +10,11 @@ const AtlasReply = atlasRoot.lookupType("fk_atlas.WireAtlasReply"); // eslint-di
 
 export function randomHexString(): string {
     return crypto.randomBytes(16).toString("hex");
+}
+
+function includeSerialized(reply: any) {
+    const serialized = Buffer.from(HttpReply.encodeDelimited(reply).finish()).toString("base64");
+    return prepareReply(reply, serialized);
 }
 
 type HttpHeaders = { [index: string]: string };
@@ -32,21 +39,17 @@ interface FakeStreams {
 }
 
 export class MockStationReplies {
-    services: any;
-    now: number;
-    call: any;
-    mock: any;
-    download: any;
-    downloadMock: any;
-    upload: any;
-    uploadMock: any;
-    json: any;
-    jsonMock: any;
+    private now = 0;
+    private call: any;
+    public mock: any;
+    private download: any;
+    public downloadMock: any;
+    private upload: any;
+    public uploadMock: any;
+    private json: any;
+    public jsonMock: any;
 
-    constructor(services) {
-        this.services = services;
-        this.now = 0;
-
+    constructor(public readonly services: Services) {
         console.log("MockStationReplies::ctor");
 
         this.call = jest.fn(() => {
@@ -114,7 +117,7 @@ export class MockStationReplies {
         return this;
     }
 
-    public queueBody(body: any): MockStationReplies {
+    public queueBody(body: HttpStatusReply): MockStationReplies {
         const encoded = HttpReply.encodeDelimited(body).finish();
         const response = {
             body: Buffer.from(encoded),
@@ -165,24 +168,13 @@ export class MockStationReplies {
         ];
     }
 
-    public newFakeStatusReply(station: FakeStation, gps: any = null, streams: FakeStreams[] | null = null): any {
+    public newFakeStatusReply(station: FakeStation, gps: any = null, streams: FakeStreams[] | null = null): HttpStatusReply {
+        return includeSerialized(this.newRawStatusReply(station, gps, streams));
+    }
+
+    public newRawStatusReply(station: FakeStation, gps: any = null, streams: FakeStreams[] | null = null): any {
         const defaultStreams = this.newStreams(1, 34);
         const statusStreams = streams || defaultStreams;
-        /*
-        const serialized = Buffer.from(
-            HttpReply.encodeDelimited({
-                status: {
-                    firmware: {
-                        timestamp: new Date().getTime(),
-                        version: "version",
-                        build: "build",
-                        number: "120",
-                        has: "hash",
-                    },
-                },
-            }).finish()
-        ).toString("base64");
-*/
 
         return {
             errors: [],
@@ -192,7 +184,7 @@ export class MockStationReplies {
                     name: station.name,
                     device: station.name,
                     deviceId: Buffer.from(station.deviceId, "hex"),
-                    generation: Buffer.from(station.generationId, "hex"),
+                    generationId: Buffer.from(station.generationId, "hex"),
                 },
                 power: {
                     battery: {},
@@ -255,7 +247,7 @@ export class MockStationReplies {
         };
     }
 
-    public newFakeReadingsReply(station: FakeStation): any {
+    public newRawReadingsReply(station: FakeStation): any {
         this.now += 1;
         return {
             errors: [],
@@ -264,7 +256,7 @@ export class MockStationReplies {
                 identity: {
                     device: station.name,
                     deviceId: Buffer.from(station.deviceId, "hex"),
-                    generation: Buffer.from(station.generationId, "hex"),
+                    generationId: Buffer.from(station.generationId, "hex"),
                 },
                 power: {
                     battery: {},
@@ -356,16 +348,15 @@ export class MockStationReplies {
                     ],
                 },
             ],
-            serialized: "AABBCCDDEEFFGGHH",
         };
     }
 
     public queueStatusReply(station: FakeStation): MockStationReplies {
-        return this.queueBody(this.newFakeStatusReply(station, null, null));
+        return this.queueBody(this.newRawStatusReply(station, null, null));
     }
 
     public queueReadingsReply(station: FakeStation): MockStationReplies {
-        return this.queueBody(this.newFakeReadingsReply(station));
+        return this.queueBody(this.newRawReadingsReply(station));
     }
 
     public queueNoReply(): MockStationReplies {

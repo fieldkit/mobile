@@ -225,6 +225,7 @@ export default class DatabaseInterface {
 
     private insertModule(stationId: number, module: Module): Promise<void> {
         // Note: device_id is the module's unique hardware id (not the station's)
+        if (!module.moduleId) throw new Error(`module id is required`);
         const values = [
             module.moduleId,
             module.moduleId,
@@ -235,7 +236,6 @@ export default class DatabaseInterface {
             module.flags || 0,
             module.status ? JSON.stringify(module.status) : "",
         ];
-        console.log("INSERTING", values);
         return this.getDatabase().then((db) =>
             db
                 .execute(
