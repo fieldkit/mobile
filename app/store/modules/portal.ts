@@ -160,7 +160,11 @@ const mutations = {
         Vue.set(state, "authenticated", false);
     },
     [MutationTypes.LOAD_SETTINGS]: (state: PortalState, rows: SettingsTableRow[]) => {
-        Vue.set(state, "settings", rows[0].settingsObject);
+        if (rows.length == 0) {
+            Vue.set(state, "settings", {});
+        } else {
+            Vue.set(state, "settings", rows[0].settingsObject);
+        }
     },
     [MutationTypes.LOGOUT_ACCOUNTS]: (state: PortalState) => {
         Vue.set(state, "accounts", []);
