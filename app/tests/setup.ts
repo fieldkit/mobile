@@ -58,7 +58,6 @@ function simpleFormatter(type: LogType, message: LogMessage): string {
         .join("\n");
 }
 
-if (true) {
-    // console.log("default console", global.console);
+if (false) {
     global.console = new CustomConsole(process.stdout, process.stderr, simpleFormatter);
 }
