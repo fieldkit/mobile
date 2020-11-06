@@ -84,6 +84,7 @@ ios-release: setup
 	xcode-select -p
 	xcodebuild -version
 	xcrun simctl list
+	pod repo update
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
 	cd $(APP) && ns build ios --provision "Conservify Ad Hoc (2020/01)" --for-device --env.sourceMap --log trace
