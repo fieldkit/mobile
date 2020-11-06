@@ -776,5 +776,107 @@ describe("Syncing", () => {
                 ),
             ]);
         });
+
+        it("two synchronization cycles, with a factory reset in between", async () => {
+            expect.assertions(9);
+
+            const fake = mockStation.newFakeStation();
+            const streams1 = mockStation.newStreams(1, 100);
+            mockStation.queueBody(mockStation.newRawStatusReply(fake, null, streams1));
+            await store.dispatch(ActionTypes.FOUND, { url: "http://127.0.0.1", deviceId: fake.deviceId });
+
+            const saved = store.state.stations.all[0];
+
+            expect(store.getters.syncs.length).toStrictEqual(1);
+            expect(store.getters.syncs[0].downloads.length).toStrictEqual(2);
+            expect(store.getters.syncs[0].uploads.length).toStrictEqual(0);
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    saved.generationId,
+                    saved.name,
+                    true,
+                    new Date(),
+                    new Date(),
+                    0,
+                    0,
+                    [
+                        new PendingDownload(
+                            FileType.Meta,
+                            "http://127.0.0.1/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
+                            FileType.Data,
+                            "http://127.0.0.1/download/data",
+                            makePath(saved.deviceId, new Date(), FileType.Data),
+                            0,
+                            100,
+                            68900
+                        ),
+                    ],
+                    []
+                ),
+            ]);
+
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueCalculateDownloadSize(204, 100);
+            mockStation.queueDownload(200, { "fk-blocks": "0,1" });
+            mockStation.queueDownload(200, { "fk-blocks": "0,100" });
+            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+
+            expect(store.getters.syncs.length).toStrictEqual(1);
+            expect(store.getters.syncs[0].downloads.length).toStrictEqual(0);
+            expect(store.getters.syncs[0].uploads.length).toStrictEqual(2);
+
+            const uploads = store.getters.syncs[0].uploads;
+
+            clock.tick(60000);
+
+            const afterReset = fake.factoryReset();
+            const streamsAfterReset1 = mockStation.newStreams(1, 100);
+            const reply2 = mockStation.newFakeStatusReply(afterReset, null, streamsAfterReset1);
+            await store.dispatch(new StationRepliedAction(reply2, "http://10.0.01/fk/v1"));
+
+            expect(store.getters.syncs[0].generationId).toStrictEqual(afterReset.generationId);
+
+            expect(store.getters.syncs).toStrictEqual([
+                new StationSyncStatus(
+                    saved.id,
+                    saved.deviceId,
+                    afterReset.generationId,
+                    saved.name,
+                    true,
+                    new Date(),
+                    new Date(),
+                    0,
+                    0,
+                    [
+                        new PendingDownload(
+                            FileType.Meta,
+                            "http://127.0.0.1/download/meta",
+                            makePath(saved.deviceId, new Date(), FileType.Meta),
+                            0,
+                            1,
+                            126
+                        ),
+                        new PendingDownload(
+                            FileType.Data,
+                            "http://127.0.0.1/download/data",
+                            makePath(saved.deviceId, new Date(), FileType.Data),
+                            0,
+                            100,
+                            68900
+                        ),
+                    ],
+                    uploads
+                ),
+            ]);
+        });
     });
 });

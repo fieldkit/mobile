@@ -439,7 +439,8 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         const lastSeen = station.lastSeen;
         const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
 
-        const downloads = station.streams
+        const relevantStreams = station.streams.filter((d) => d.generationId == station.generationId);
+        const downloads = relevantStreams
             .map((stream) => {
                 const firstBlock = stream.downloadLastBlock || 0;
                 const lastBlock = stream.deviceLastBlock;
@@ -473,8 +474,8 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
                 return a.fileType < b.fileType ? -1 : 1;
             });
 
-        const downloaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
-        const uploaded = _.last(station.streams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
+        const downloaded = _.last(relevantStreams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
+        const uploaded = _.last(relevantStreams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
 
         const syncStatus = new StationSyncStatus(
             station.id,

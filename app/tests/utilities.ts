@@ -38,6 +38,29 @@ interface FakeStreams {
     path: string;
 }
 
+class MyFakeStation implements FakeStation {
+    public name: string = "Fake Station";
+    public generationId: string;
+    public moduleIds: string[];
+    public serviceInfo: {
+        url: string;
+        deviceId: string;
+    };
+
+    constructor(public readonly deviceId: string, moduleIds: string[] | undefined = undefined) {
+        this.generationId = randomHexString();
+        this.moduleIds = moduleIds ? moduleIds : [randomHexString(), randomHexString(), randomHexString(), randomHexString()];
+        this.serviceInfo = {
+            url: "http://127.0.0.1:2380",
+            deviceId: deviceId,
+        };
+    }
+
+    public factoryReset(): FakeStation {
+        return new MyFakeStation(this.deviceId, this.moduleIds);
+    }
+}
+
 export class MockStationReplies {
     private now = 0;
     private call: any;
@@ -136,17 +159,7 @@ export class MockStationReplies {
     }
 
     public newFakeStation(): FakeStation {
-        const deviceId = randomHexString();
-        return {
-            name: "Fake Station",
-            deviceId: deviceId,
-            generationId: randomHexString(),
-            moduleIds: [randomHexString(), randomHexString(), randomHexString(), randomHexString()],
-            serviceInfo: {
-                url: "http://127.0.0.1:2380",
-                deviceId: deviceId,
-            },
-        };
+        return new MyFakeStation(randomHexString());
     }
 
     public newStreams(meta: number, data: number): FakeStreams[] {

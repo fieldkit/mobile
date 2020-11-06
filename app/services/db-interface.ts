@@ -492,7 +492,9 @@ export default class DatabaseInterface {
                         db
                             .query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId])
                             .then((r) => sqliteToJs<SensorTableRow>(r)),
-                        db.query("SELECT * FROM streams WHERE station_id = ?", [stationId]).then((r) => sqliteToJs<StreamTableRow>(r)),
+                        db
+                            .query("SELECT * FROM streams WHERE station_id = ? AND generation_id = ?", [stationId, station.generationId])
+                            .then((r) => sqliteToJs<StreamTableRow>(r)),
                     ]).then((all) => {
                         const moduleRows: ModuleTableRow[] = all[0];
                         const sensorRows: SensorTableRow[] = all[1];
