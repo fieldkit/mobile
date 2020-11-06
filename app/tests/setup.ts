@@ -1,3 +1,5 @@
+import { CustomConsole, LogType, LogMessage } from "@jest/console";
+
 require("long");
 
 import _ from "lodash";
@@ -45,3 +47,18 @@ jest.mock("../calibration/Prepare.vue");
 jest.mock("../calibration/Wait.vue");
 
 jest.mock("axios");
+
+function simpleFormatter(type: LogType, message: LogMessage): string {
+    const TITLE_INDENT = "    ";
+    const CONSOLE_INDENT = TITLE_INDENT + "  ";
+
+    return message
+        .split(/\n/)
+        .map((line) => CONSOLE_INDENT + line)
+        .join("\n");
+}
+
+if (true) {
+    // console.log("default console", global.console);
+    global.console = new CustomConsole(process.stdout, process.stderr, simpleFormatter);
+}

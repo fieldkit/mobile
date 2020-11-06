@@ -440,7 +440,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
 
         const relevantStreams = station.streams.filter((d) => d.generationId == station.generationId);
-        const downloads = relevantStreams
+        const downloads = station.streams
             .map((stream) => {
                 const firstBlock = stream.downloadLastBlock || 0;
                 const lastBlock = stream.deviceLastBlock;
