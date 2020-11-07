@@ -15,7 +15,7 @@ import { promiseAfter } from "@/utilities";
 import routes from "@/routes";
 import { Route } from "@/routes/navigate";
 import Config from "@/config";
-import { ProcessAllStationsTask } from "@/lib/process";
+// import { ProcessAllStationsTask } from "@/lib/process";
 import { firebase } from "@nativescript/firebase";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
@@ -152,7 +152,7 @@ function initializeApplication(services: Services): Promise<any> {
                                             .then(() => updateStore(services.Store()))
                                             .then(() => resumeSession(services))
                                             .then(() => restartDiscovery(services.DiscoverStation()))
-                                            .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
+                                            // .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
                                     );
                             })
                     )
