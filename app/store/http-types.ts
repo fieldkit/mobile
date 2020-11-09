@@ -167,7 +167,7 @@ export function decodeAndPrepare(reply: Buffer, serialized: SerializedStatus): H
 
 export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasStatus | null {
     if (!reply.calibration) {
-        throw new Error("reply has no calibration");
+        throw new Error(`reply has no calibration`);
     }
 
     let total: number | null = null;
@@ -190,7 +190,7 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
         case SensorType.SENSOR_NONE:
             break;
         default:
-            console.warn("unexpected calibration type");
+            console.warn(`unexpected calibration type`);
             break;
     }
 
@@ -217,10 +217,10 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
 
     const maybeDecodeStatus = (m: fk_app.IModuleCapabilities): CalibrationStatus => {
         if (m.name && m.status && m.status.length > 0) {
-            if (m.name.indexOf("modules.water.") == 0) {
+            if (m.name.indexOf(`modules.water.`) == 0) {
                 return fixupCalibrationStatus(AtlasReply.decode(Buffer.from(m.status)));
             } else {
-                console.log("unknown module status", m);
+                console.log(`unknown module status`, m);
             }
         }
         return null;

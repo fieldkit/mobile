@@ -340,12 +340,12 @@ export class Station implements StationCreationFields {
                 try {
                     this.decodedStatus = decodeAndPrepare(Buffer.from(this.serializedStatus, "base64"), this.serializedStatus);
                 } catch (error: unknown) {
-                    console.log("error decoding status json:", error);
-                    console.log("error serialized:", this.serializedStatus);
+                    console.log(`${this.id || "<null>"} ${this.name} error decoding status json:`, error);
+                    console.log(`${this.id || "<null>"} ${this.name} error serialized:`, this.serializedStatus);
                 }
             }
         }
-        if (!this.decodedStatus) throw new Error("no decoded status");
+        if (!this.decodedStatus) throw new Error(`no decoded status for ${this.id || "<null>"} ${this.name}`);
         return this.decodedStatus;
     }
 
@@ -358,7 +358,7 @@ export class Station implements StationCreationFields {
             const statusReply: HttpStatusReply = this.decodeStatusReply();
             const fw = statusReply?.status?.firmware || null;
             if (!fw) {
-                console.log("malformed status reply", statusReply);
+                console.log(`${this.id || "<null>"} ${this.name} malformed status reply, no firmware`, statusReply);
                 return null;
             }
             return new FirmwareInfo(fw.version, fw.build, Number(fw.number), fw.timestamp, fw.hash);
