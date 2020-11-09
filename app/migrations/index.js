@@ -16,3 +16,4 @@ export * from "./20200914_114116_add_account_time_stamp.js";
 export * from "./20200929_125831_add_connection_history.js";
 export * from "./20201005_125533_add_notifications_table.js";
 export * from "./20201105_151735_add_generation_to_stream";
+export * from "./20201109_103509_add_station_archived";

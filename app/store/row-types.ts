@@ -3,6 +3,7 @@ export interface StationTableRow {
     deviceId: string;
     generationId: string;
     name: string;
+    archived: boolean;
     batteryLevel: number | null;
     consumedMemory: number | null;
     totalMemory: number | null;

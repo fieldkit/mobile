@@ -3,9 +3,7 @@ import FakeTimers from "@sinonjs/fake-timers";
 import { describe, expect, it } from "@jest/globals";
 import { Services, ServicesImpl } from "@/services";
 import { MockStationReplies } from "./utilities";
-//import { prepareReply, HttpStatusReply } from "@/store/http-types";
 import { StationRepliedAction } from "@/store/actions";
-//import { fk_app } from "fk-app-protocol/fk-app";
 
 function addFakeFirmware(services: Services) {
     services.PortalInterface().listFirmware = jest.fn((_) => {

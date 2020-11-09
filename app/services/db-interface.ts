@@ -41,7 +41,7 @@ export default class DatabaseInterface {
 
     public getAll(): Promise<StationTableRow[]> {
         return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM stations"))
+            .then((db) => db.query("SELECT * FROM stations WHERE archived IS NULL OR archived = 0"))
             .then((rows) => sqliteToJs<StationTableRow>(rows));
     }
 
@@ -131,9 +131,7 @@ export default class DatabaseInterface {
     }
 
     private updateStation(station: Station): Promise<void> {
-        if (!station.id) {
-            return Promise.reject(new Error(`no station id in update station`));
-        }
+        if (!station.id) new Error(`no station id in update station`);
 
         // For the time being, need to not update the fields that are being set individually,
         // as they get overwritten with null if we do. Those include:
@@ -148,6 +146,7 @@ export default class DatabaseInterface {
             false, // TODO remove station.connected,
             station.generationId,
             station.name,
+            station.archived,
             "", // TODO remove URL
             station.portalId,
             "", // TODO remove status
@@ -168,7 +167,7 @@ export default class DatabaseInterface {
         return this.getDatabase().then((db) =>
             db.execute(
                 `
-					UPDATE stations SET connected = ?, generation_id = ?, name = ?, url = ?, portal_id = ?, status = ?,
+					UPDATE stations SET connected = ?, generation_id = ?, name = ?, archived = ?, url = ?, portal_id = ?, status = ?,
 						   deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?,
 						   schedules = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
 					WHERE id = ?`,
@@ -205,6 +204,12 @@ export default class DatabaseInterface {
             );
         }
         return Promise.resolve(deviceId);
+    }
+
+    public async archiveStation(id: number): Promise<void> {
+        const db = await this.getDatabase();
+        await db.execute("UPDATE stations SET archived = 1 WHERE id IN (?)", [id]);
+        return;
     }
 
     private insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
@@ -441,15 +446,16 @@ export default class DatabaseInterface {
                 .execute(
                     `
 					INSERT INTO stations (device_id,
-						generation_id, name, url, status,
+						generation_id, name, archived, url, status,
 						deploy_start_time, battery_level, consumed_memory, total_memory,
 						consumed_memory_percent, schedules, status_json,
 						longitude, latitude, serialized_status, updated, last_seen)
-					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                         newStation.deviceId,
                         newStation.generationId,
                         newStation.name,
+                        newStation.archived,
                         "", // TODO remove newStatus.url,
                         "", // TODO remove newStation.status,
                         newStation.deployStartTime,

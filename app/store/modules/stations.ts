@@ -157,6 +157,7 @@ class StationStatusFactory {
         };
         const fields: StationCreationFields = {
             id: null,
+            archived: false,
             deviceId: deviceId,
             generationId: generationId,
             name: this.statusReply.status.identity.name,
@@ -296,6 +297,7 @@ class StationDatabaseFactory {
             deviceId: stationRow.deviceId,
             generationId: stationRow.generationId,
             name: stationRow.name,
+            archived: stationRow.archived,
             batteryLevel: stationRow.batteryLevel,
             consumedMemory: stationRow.consumedMemory,
             totalMemory: stationRow.totalMemory,
@@ -327,9 +329,20 @@ function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[]> {
             const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], (s) => s.stationId);
             const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(values[4], (s) => s.stationId);
             // TODO Handle generation changes.
-            return stations.map((stationRow) => {
-                const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
-                return factory.create();
+            return Promise.all(
+                stations.map((stationRow) => {
+                    const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
+                    const station = factory.create();
+                    if (!station.id) throw new Error(`no station id on db station`);
+                    if (!station.shouldArchive()) {
+                        return Promise.resolve([station]);
+                    }
+                    return db.archiveStation(station.id).then(() => {
+                        return [];
+                    });
+                })
+            ).then((all) => {
+                return _.flatten(all);
             });
         }
     );

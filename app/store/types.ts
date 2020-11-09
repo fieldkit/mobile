@@ -228,6 +228,7 @@ export interface StationCreationFields {
     deviceId: string;
     generationId: string;
     name: string;
+    archived: boolean;
     batteryLevel: number | null;
     consumedMemory: number | null;
     totalMemory: number | null;
@@ -262,6 +263,7 @@ export class Station implements StationCreationFields {
     public readonly deviceId: string;
     public readonly generationId: string;
     public readonly name: string;
+    public readonly archived: boolean;
     public readonly batteryLevel: number | null;
     public readonly consumedMemory: number | null;
     public readonly totalMemory: number | null;
@@ -294,13 +296,12 @@ export class Station implements StationCreationFields {
     }
 
     constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = [], downloads: Download[] = []) {
-        if (!o.id) {
-            // throw new Error("station id is required");
-        }
+        // if (!o.id) throw new Error(`station id is required`);
         this.id = o.id;
         this.deviceId = o.deviceId;
         this.generationId = o.generationId;
         this.name = o.name;
+        this.archived = o.archived;
         this.batteryLevel = o.batteryLevel;
         this.consumedMemory = o.consumedMemory;
         this.totalMemory = o.totalMemory;
@@ -347,6 +348,16 @@ export class Station implements StationCreationFields {
         }
         if (!this.decodedStatus) throw new Error(`no decoded status for ${this.id || "<null>"} ${this.name}`);
         return this.decodedStatus;
+    }
+
+    public shouldArchive(): boolean {
+        try {
+            this.decodeStatusReply();
+            return false;
+        } catch (error: unknown) {
+            console.log(`archiving station:`, error);
+            return true;
+        }
     }
 
     public get networks(): NetworkInfo[] {
