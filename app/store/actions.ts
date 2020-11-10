@@ -1,5 +1,5 @@
 import { NetworkInfo, HttpStatusReply } from "@/store/http-types";
-import { ServiceInfo, PortalEnv, Schedules, Schedule } from "./types";
+import { ServiceInfo, PortalEnv, Schedules, Schedule, StationSyncStatus } from "./types";
 
 export enum ActionTypes {
     INITIALIZE = "INITIALIZE",
@@ -174,4 +174,16 @@ export class UpgradeStationFirmwareAction {
     type = ActionTypes.UPGRADE_STATION_FIRMWARE;
 
     constructor(public readonly stationId: number, public readonly url: string) {}
+}
+
+export class DownloadStationData {
+    type = ActionTypes.DOWNLOAD_STATION;
+
+    constructor(public readonly sync: StationSyncStatus) {}
+}
+
+export class UpoadStationData {
+    type = ActionTypes.UPLOAD_STATION;
+
+    constructor(public readonly sync: StationSyncStatus) {}
 }

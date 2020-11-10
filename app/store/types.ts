@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { decodeAndPrepare, HttpStatusReply, ReplyStream, AtlasStatus, NetworkInfo } from "./http-types";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
@@ -533,4 +534,297 @@ export class TransferProgress {
         public readonly total: number,
         public readonly copied: number
     ) {}
+}
+
+export class LocalFile {
+    constructor(public readonly path: string, public readonly size: number) {}
+}
+
+export class PendingUpload {
+    constructor(
+        public readonly fileType: FileType,
+        public readonly firstBlock: number,
+        public readonly lastBlock: number,
+        public readonly bytes: number,
+        public readonly files: LocalFile[] = []
+    ) {}
+
+    get blocks(): number {
+        return this.lastBlock - this.firstBlock;
+    }
+}
+
+export class PendingDownload {
+    constructor(
+        public readonly fileType: FileType,
+        public readonly url: string,
+        public readonly path: string,
+        public readonly firstBlock: number,
+        public readonly lastBlock: number,
+        public readonly bytes: number
+    ) {}
+
+    get blocks(): number {
+        return this.lastBlock - this.firstBlock;
+    }
+}
+
+export enum SyncState {
+    DownloadReady,
+    UploadReady,
+    UploadReadyOffline,
+    Downloaded,
+    Copying,
+    Complete,
+}
+
+export enum TransferError {
+    None,
+    Authentication,
+    Other,
+}
+
+export class StationSyncStatus {
+    public connecting = false;
+    public disconnected = false;
+
+    /**
+     * A little convulated and can be replaced later, just wanna be
+     * sure we're catching all the situations and seeing this broken down is
+     * nice.
+     */
+    public get connected(): boolean {
+        return (this.wasConnected || this.connecting) && !this.disconnected;
+    }
+
+    constructor(
+        public readonly id: number,
+        public readonly deviceId: string,
+        private readonly generationId: string,
+        public readonly name: string,
+        public readonly wasConnected: boolean,
+        public readonly lastSeen: Date,
+        public readonly time: Date,
+        private readonly downloaded: number,
+        private readonly uploaded: number,
+        public readonly downloads: PendingDownload[] = [],
+        public readonly uploads: PendingUpload[] = [],
+        public readonly location: string | null = null,
+        public readonly error: TransferError = TransferError.None,
+        public readonly progress: StationProgress | null = null
+    ) {}
+
+    public withProgress(progress: StationProgress | null): StationSyncStatus {
+        return new StationSyncStatus(
+            this.id,
+            this.deviceId,
+            this.generationId,
+            this.name,
+            this.connected,
+            this.lastSeen,
+            this.time,
+            this.downloaded,
+            this.uploaded,
+            this.downloads,
+            this.uploads,
+            this.location,
+            this.error,
+            progress
+        );
+    }
+
+    public get isDownloading(): boolean {
+        return this.progress ? this.progress.downloading : false;
+    }
+
+    public get isUploading(): boolean {
+        return this.progress ? !this.progress.downloading : false;
+    }
+
+    // State
+
+    public get state(): SyncState {
+        if (this.isDownloading || this.isUploading) {
+            return SyncState.Copying;
+        }
+        if (this.readingsIncoming > 0) {
+            if (this.connected) {
+                return SyncState.DownloadReady;
+            }
+        }
+        if (this.readingsOutgoing > 0) {
+            if (this.onAP) {
+                return SyncState.Downloaded;
+            }
+            return SyncState.UploadReady;
+        }
+        return SyncState.Complete;
+    }
+
+    public get hasError(): boolean {
+        return this.error !== TransferError.None;
+    }
+
+    public get isAuthenticationError(): boolean {
+        return this.error === TransferError.Authentication;
+    }
+
+    public get isOtherError(): boolean {
+        return this.error === TransferError.Other;
+    }
+
+    public get onAP(): boolean {
+        return this.connected;
+    }
+
+    public get isCopying(): boolean {
+        return this.state == SyncState.Copying;
+    }
+
+    public get isDownloadReady(): boolean {
+        return this.state == SyncState.DownloadReady;
+    }
+
+    public get isDownloaded(): boolean {
+        return this.state == SyncState.Downloaded;
+    }
+
+    public get isUploadReady(): boolean {
+        return this.state == SyncState.UploadReady;
+    }
+
+    public get isComplete(): boolean {
+        return this.state == SyncState.Complete;
+    }
+
+    // Number of readings
+
+    public get readingsDownloaded(): number {
+        return this.downloaded;
+    }
+
+    public get readingsUploaded(): number {
+        return this.uploaded;
+    }
+
+    public get readingsIncoming(): number {
+        return _.sum(this.downloads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
+    }
+
+    public get readingsOutgoing(): number {
+        return _.sum(this.uploads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
+    }
+
+    public get readingsCopying(): number {
+        if (this.isDownloading) {
+            return this.readingsReadyDownload;
+        }
+        if (this.isUploading) {
+            return this.readingsReadyUpload;
+        }
+        return 0;
+    }
+
+    public get readingsReadyUpload(): number {
+        return _.sum(this.uploads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
+    }
+
+    public get readingsReadyDownload(): number {
+        return _.sum(this.downloads.filter((file) => file.fileType == FileType.Data).map((f) => f.blocks)) || 0;
+    }
+
+    public getPathsToUpload(): string[] {
+        return _(this.uploads)
+            .map((u) => u.files)
+            .flatten()
+            .map((f) => f.path)
+            .value();
+    }
+
+    public makeRow(file: PendingDownload, headers: HttpHeaders): DownloadTableRow {
+        delete headers["connection"];
+        const { range, firstBlock, lastBlock } = parseBlocks(headers["fk-blocks"]);
+
+        console.log(`make-row: ${JSON.stringify(headers)} ${firstBlock} ${lastBlock}`);
+
+        return {
+            id: 0,
+            stationId: this.id,
+            deviceId: this.deviceId,
+            generation: this.generationId,
+            path: file.path,
+            type: FileTypeUtils.toString(file.fileType),
+            timestamp: this.time.getTime(),
+            url: file.url,
+            size: file.bytes,
+            blocks: range,
+            firstBlock: firstBlock,
+            lastBlock: lastBlock,
+            uploaded: null,
+        };
+    }
+}
+
+export type HttpHeaders = { [index: string]: string };
+
+export class StationProgress {
+    constructor(
+        public readonly deviceId: string,
+        public readonly downloading: boolean,
+        public readonly totalBytes: number,
+        private readonly transfers: { [index: string]: TransferProgress } = {}
+    ) {}
+
+    public include(progress: TransferProgress): StationProgress {
+        return new StationProgress(this.deviceId, this.downloading, this.totalBytes, {
+            ...this.transfers,
+            ...{ [progress.path]: progress },
+        });
+    }
+
+    private get copiedBytes(): number {
+        return _.sum(Object.values(this.transfers).map((t) => t.copied));
+    }
+
+    public get decimal(): number {
+        if (this.totalBytes > 0) {
+            return this.copiedBytes / this.totalBytes;
+        }
+
+        const transfers = Object.values(this.transfers);
+        const total = _.sum(transfers.map((i) => i.total));
+        const copied = _.sum(transfers.map((i) => i.copied));
+        if (total == 0) {
+            return 0;
+        }
+        return copied / total;
+    }
+
+    public get percentage(): string {
+        return (this.decimal * 100.0).toFixed(0) + "%";
+    }
+}
+
+function parseBlocks(blocks: [string] | string) {
+    if (Array.isArray(blocks)) {
+        blocks = blocks[0];
+    }
+
+    if (!_.isString(blocks)) {
+        throw new Error(`invalid fk-blocks header: ${JSON.stringify(blocks)}`);
+    }
+
+    const parts = blocks
+        .split(",")
+        .map((s) => s.trim())
+        .map((s) => Number(s));
+    if (parts.length != 2) {
+        throw new Error(`invalid fk-blocks header: ${blocks}`);
+    }
+
+    return {
+        range: parts.join(","),
+        firstBlock: parts[0],
+        lastBlock: parts[1],
+    };
 }
