@@ -241,13 +241,14 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
 
         const downloaded = _.last(relevantStreams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
         const uploaded = _.last(relevantStreams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
+		const wasConnected = connected !== null;
 
         const syncStatus = new StationSyncStatus(
             station.id,
             station.deviceId,
             station.generationId,
             station.name,
-            connected !== null,
+            wasConnected,
             lastSeen,
             now,
             downloaded || 0,

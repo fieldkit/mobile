@@ -136,6 +136,7 @@ function initializeApplication(services: Services): Promise<any> {
                             .CreateDb()
                             .initialize(null, false, false)
                             .then(() => services.Database().checkSettings())
+                            .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
                             .then(() => {
                                 console.log("services:ready");
 
@@ -146,7 +147,6 @@ function initializeApplication(services: Services): Promise<any> {
                                         () =>
                                             Promise.resolve()
                                                 .then(() => services.DiscoverStation().startServiceDiscovery())
-                                                .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
                                                 .then(() => enableLocationServices(services))
                                                 .then(() => services.PortalUpdater().start())
                                                 .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
