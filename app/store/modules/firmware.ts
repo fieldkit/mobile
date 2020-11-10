@@ -3,9 +3,9 @@ import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { Station, FirmwareInfo } from "../types";
 import { FirmwareTableRow } from "../row-types";
-import { ActionTypes } from "../actions";
+import { ActionTypes, UpgradeStationFirmwareAction } from "../actions";
 import { MutationTypes } from "../mutations";
-import { ServiceRef } from "@/services";
+import { ServiceRef, TransferProgress } from "@/services";
 
 export class AvailableFirmware {
     constructor(
@@ -22,14 +22,41 @@ export class AvailableFirmware {
     }
 }
 
+export interface UpgradeStatus {
+    busy?: boolean;
+    error?: boolean;
+    firmware?: boolean;
+    success?: boolean;
+    done?: boolean;
+}
+
+export interface UpgradeInfo {
+    status: UpgradeStatus | null;
+    progress: TransferProgress | null;
+}
+
 export class FirmwareState {
     available: AvailableFirmware[] = [];
     stations: { [index: number]: FirmwareInfo } = {};
+    status: { [index: number]: UpgradeInfo } = {};
 }
+
 type ModuleState = FirmwareState;
 type ActionParameters = ActionContext<ModuleState, never>;
 
 const getters = {};
+
+class UpgradeStatusMutation {
+    type = MutationTypes.UPGRADE_STATUS;
+
+    constructor(public readonly stationId: number, public readonly status: UpgradeStatus) {}
+}
+
+class UpgradeProgressMutation {
+    type = MutationTypes.UPGRADE_PROGRESS;
+
+    constructor(public readonly stationId: number, public readonly progress: TransferProgress) {}
+}
 
 const actions = (services: ServiceRef) => {
     return {
@@ -52,12 +79,58 @@ const actions = (services: ServiceRef) => {
                 .then((all) => all.map((row) => AvailableFirmware.fromRow(row)))
                 .then((all) => commit(MutationTypes.AVAILABLE_FIRMWARE, all));
         },
+        [ActionTypes.UPGRADE_STATION_FIRMWARE]: ({ commit, dispatch, state }: ActionParameters, payload: UpgradeStationFirmwareAction) => {
+            console.log("checking for firmware");
+            return services
+                .firmware()
+                .haveFirmware()
+                .then((yes) => {
+                    console.log("firmware check", yes);
+
+                    if (!yes) {
+                        console.log("no firmware");
+                        commit(new UpgradeStatusMutation(payload.stationId, { done: true, error: true, firmware: true }));
+                        return;
+                    }
+
+                    commit(new UpgradeStatusMutation(payload.stationId, { done: false, busy: true }));
+
+                    console.log("upgrading firmware");
+                    return services
+                        .firmware()
+                        .upgradeStation(payload.url, (progress) => {
+                            commit(new UpgradeProgressMutation(payload.stationId, progress));
+                        })
+                        .then((status) => {
+                            console.log("status", status);
+                            commit(new UpgradeStatusMutation(payload.stationId, { ...status, ...{ done: true } }));
+                        })
+                        .catch((err) => {
+                            console.log("error", err, err.stack);
+                            commit(new UpgradeStatusMutation(payload.stationId, { done: true, error: true }));
+                        });
+                });
+        },
     };
 };
 
 const mutations = {
     [MutationTypes.RESET]: (state: FirmwareState) => {
         Object.assign(state, new FirmwareState());
+    },
+    [MutationTypes.UPGRADE_STATUS]: (state: FirmwareState, payload: UpgradeStatusMutation) => {
+        const existing = state.status[payload.stationId] || {};
+        Vue.set(state.status, payload.stationId, {
+            status: payload.status,
+            progress: existing.progress,
+        });
+    },
+    [MutationTypes.UPGRADE_PROGRESS]: (state: FirmwareState, payload: UpgradeProgressMutation) => {
+        const existing = state.status[payload.stationId] || {};
+        Vue.set(state.status, payload.stationId, {
+            status: existing.status,
+            progress: payload.progress,
+        });
     },
     [MutationTypes.STATIONS]: (state: FirmwareState, stations: Station[]) => {
         state.stations = _(stations)

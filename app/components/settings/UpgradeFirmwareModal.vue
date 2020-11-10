@@ -1,61 +1,69 @@
 <template>
     <StackLayout class="modal-bkgd" @loaded="onLoaded" @unloaded="onUnloaded">
         <GridLayout rows="*" columns="*" width="100%" height="100%" class="p-20 modal-container text-center">
-            <StackLayout verticalAlignment="middle" class="bar-container" v-if="!done">
-                <Label class="info" lineHeight="4" :text="_L('upgradeInProcess')" textWrap="true" v-if="!downloadOnly && !error" />
+            <StackLayout verticalAlignment="middle" class="bar-container" v-if="!status.done">
+                <Label class="info" lineHeight="4" :text="_L('upgradeInProcess')" textWrap="true" v-if="!downloadOnly && !status.error" />
                 <Label class="info" lineHeight="4" :text="_L('downloadingFirmware')" textWrap="true" v-if="downloadOnly" />
-                <Progress :value="progress" scaleY="4" v-if="!error" />
+                <Progress :value="progress" scaleY="4" v-if="!status.error" />
             </StackLayout>
 
             <StackLayout verticalAlignment="middle" class="bar-container" v-if="done">
                 <Label class="info" lineHeight="4" :text="_L('downloaded')" textWrap="true" v-if="downloadOnly" />
-                <Label class="info" lineHeight="4" :text="_L('upgradeDone')" textWrap="true" v-if="success && !downloadOnly" />
+                <Label class="info" lineHeight="4" :text="_L('upgradeDone')" textWrap="true" v-if="status.success && !downloadOnly" />
                 <Label
                     class="info"
                     lineHeight="4"
                     text="Please check your station to ensure that it has an SD Card."
                     textWrap="true"
-                    v-if="sdCard"
+                    v-if="status.sdCard"
                 />
-                <Label class="info" lineHeight="4" text="An unknown error occured." textWrap="true" v-if="error" />
+                <Label class="info" lineHeight="4" text="An unknown error occured." textWrap="true" v-if="status.error" />
                 <Label class="ok-btn" :text="_L('ok')" verticalAlignment="middle" @tap="$modal.close()" />
             </StackLayout>
         </GridLayout>
     </StackLayout>
 </template>
 <script lang="ts">
+import _ from "lodash";
 import Vue from "vue";
+import { AvailableStation, Station, UpgradeStatus, UpgradeInfo, UpgradeStationFirmwareAction } from "@/store";
 
 export default Vue.extend({
-    data() {
-        return {
-            progress: 0,
-            success: false,
-            sdCard: false,
-            error: false,
-            done: false,
-        };
+    data(): {} {
+        return {};
     },
     props: {
         stationId: {
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
         downloadOnly: {
             required: true,
             type: Boolean,
         },
     },
+    computed: {
+        done(): boolean {
+            return this.status.done || false;
+        },
+        station(): Station {
+            return this.$store.getters.stationsById[this.stationId];
+        },
+        upgrade(): UpgradeInfo {
+            return this.$store.state.firmware.status[this.stationId] || {};
+        },
+        status(): UpgradeStatus {
+            console.log("upgrade-status", this.upgrade);
+            return this.upgrade?.status || {};
+        },
+        progress(): number {
+            console.log("upgrade-progress", this.upgrade);
+            return this.upgrade?.progress?.progress || 0;
+        },
+    },
     methods: {
-        onLoaded(this: any) {
-            const updateProgress = (progress) => {
-                this.progress = progress.progress;
-            };
-
+        onLoaded(): Promise<void> {
+            /*
             if (this.downloadOnly) {
                 console.log("downloading only");
                 return this.$services
@@ -71,43 +79,17 @@ export default Vue.extend({
                         console.log("error", err, err.stack);
                     });
             }
+			*/
 
-            console.log("checking for firmware");
-            return this.$services
-                .StationFirmware()
-                .haveFirmware()
-                .then((yes) => {
-                    console.log("firmware check", yes);
+            const available: { [index: number]: AvailableStation } = _.keyBy(this.$store.getters.availableStations, (s) => s.id);
+            const station = available[this.stationId];
+            if (!station) throw new Error(`firmware-modal: no such station`);
+            if (!station.id) throw new Error(`firmware-modal: no station id`);
+            if (!station.url) throw new Error(`firmware-modal: no station url`);
 
-                    if (!yes) {
-                        console.log("no firmware");
-                        this.error = true;
-                        return;
-                    }
-
-                    console.log("upgrading firmware");
-                    return this.$services
-                        .StationFirmware()
-                        .upgradeStation(this.station.url, updateProgress)
-                        .then((status) => {
-                            console.log("status", status);
-                            if (status.success === true) {
-                                this.success = true;
-                            } else if (status.sdCard === true) {
-                                this.sdCard = true;
-                            } else {
-                                this.error = true;
-                            }
-                            this.done = true;
-                        })
-                        .catch((err) => {
-                            this.done = true;
-                            this.error = true;
-                            console.log("error", err, err.stack);
-                        });
-                });
+            return this.$store.dispatch(new UpgradeStationFirmwareAction(station.id, station.url));
         },
-        onUnloaded(this: any) {
+        onUnloaded(): void {
             console.log("onUnloaded");
         },
     },

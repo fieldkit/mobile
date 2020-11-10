@@ -65,6 +65,8 @@ export enum ActionTypes {
     END_STATION_DEPLOYMENT = "END_STATION_DEPLOYMENT",
     SAVE_NOTES = "SAVE_NOTES",
 
+    UPGRADE_STATION_FIRMWARE = "UPGRADE_STATION_FIRMWARE",
+
     // Portal
 
     UPDATE_PORTAL = "UPDATE_PORTAL",
@@ -166,4 +168,10 @@ export class ScanStationModulesAction {
     type = ActionTypes.SCAN_STATION_MODULES;
 
     constructor(public readonly stationId: number) {}
+}
+
+export class UpgradeStationFirmwareAction {
+    type = ActionTypes.UPGRADE_STATION_FIRMWARE;
+
+    constructor(public readonly stationId: number, public readonly url: string) {}
 }

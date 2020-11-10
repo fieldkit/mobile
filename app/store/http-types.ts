@@ -313,8 +313,6 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
         throw new Error(`reply error: ${JSON.stringify(reply.errors)}`);
     }
 
-    console.log(`reply-check`, reply.modules);
-
     if (!reply.status) throw new Error(`reply.status`);
     if (!reply.status.identity) throw new Error(`reply.status.identity`);
     if (!reply.status.gps) throw new Error(`reply.statusgps`);

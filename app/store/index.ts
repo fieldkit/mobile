@@ -87,6 +87,10 @@ function customizeLogger() {
                 console.log("mutation:", JSON.stringify(mutation));
                 return false;
             }
+            if (/UPGRADE/.test(mutation.type)) {
+                console.log("mutation:", JSON.stringify(mutation));
+                return false;
+            }
 
             console.log("mutation:", mutation.type);
 

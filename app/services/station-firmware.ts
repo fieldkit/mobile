@@ -2,11 +2,13 @@ import _ from "lodash";
 import Config from "@/config";
 import { onlyAllowEvery } from "@/utilities";
 import { FirmwareTableRow } from "@/store";
-import { Services } from "@/services";
+import { FirmwareResponse, Services } from "@/services";
 
 const log = Config.logger("StationFirmware");
 
-type ProgressCallback = ({ progress: number }) => void;
+export type TransferProgress = { progress: number };
+
+type ProgressCallback = (tp: TransferProgress) => void;
 
 const NoopProgress: ProgressCallback = (/* { progress: number } */): void => {
     // NOOP
@@ -160,7 +162,7 @@ export default class StationFirmware {
             });
     }
 
-    public upgradeStation(url: string, progressCallback: ProgressCallback): Promise<void> {
+    public upgradeStation(url: string, progressCallback: ProgressCallback): Promise<FirmwareResponse> {
         log.info("upgrade", url);
 
         return this.haveFirmware().then((yes: boolean) => {
@@ -173,13 +175,12 @@ export default class StationFirmware {
                 .then((firmware) => {
                     if (!firmware) {
                         log.info("no firmware");
-                        return;
+                        return { error: true };
                     }
                     log.info("firmware", firmware);
                     const uploadProgress = transformProgress(progressCallback, (p) => p);
                     return this.services.QueryStation().uploadFirmware(url, firmware.path, uploadProgress);
-                })
-                .then(() => Promise.resolve());
+                });
         });
     }
 

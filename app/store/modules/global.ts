@@ -6,6 +6,7 @@ import { NetworkState } from "./network";
 import { SyncingState } from "./syncing";
 import { NotesState } from "./notes";
 import { PortalState } from "./portal";
+import { FirmwareState } from "./firmware";
 import { NotificationsState } from "./notifications";
 
 import { Station, AvailableStation, LegacyStation } from "../types";
@@ -25,6 +26,7 @@ export interface GlobalState {
     readonly notes: NotesState;
     readonly portal: PortalState;
     readonly notifications: NotificationsState;
+    readonly firmware: FirmwareState;
 }
 
 export interface GlobalGetters {

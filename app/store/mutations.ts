@@ -48,6 +48,9 @@ export enum MutationTypes {
     LOAD_NOTES_ALL = "LOAD_NOTES_ALL",
     NOTES_LOCATION = "NOTES_LOCATION",
     NOTES_SAVED = "NOTES_SAVED",
+
+    UPGRADE_STATUS = "UPGRADE_STATUS",
+    UPGRADE_PROGRESS = "UPGRADE_PROGRESS",
 }
 
 export class NoteMedia {

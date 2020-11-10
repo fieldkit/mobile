@@ -29,6 +29,15 @@ export interface QueryOptions {
     throttle?: boolean;
 }
 
+export interface FirmwareResponse {
+    error?: boolean;
+    incomplete?: boolean;
+    success?: boolean;
+    unlink?: boolean;
+    sdCard?: boolean;
+    create?: boolean;
+}
+
 const log = Config.logger("QueryStation");
 
 type StationQuery = { reply: fk_app.HttpReply; serialized: SerializedStatus };
@@ -241,7 +250,7 @@ export default class QueryStation {
         });
     }
 
-    public uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<void> {
+    public uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<FirmwareResponse> {
         return this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .upload({
@@ -252,8 +261,9 @@ export default class QueryStation {
                 })
                 .then((response) => {
                     console.log("upload-firmware:", response.body);
+                    return JSON.parse(response.body.toString()) as FirmwareResponse;
                 });
-        }).then(() => Promise.resolve());
+        });
     }
 
     public uploadViaApp(address: string): Promise<void> {
