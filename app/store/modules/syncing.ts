@@ -123,7 +123,6 @@ const actions = (services: ServiceRef) => {
             payload: UploadStationDataAction
         ): Promise<void> => {
             const sync = payload.sync;
-
             const paths = sync.getPathsToUpload();
             const downloads = paths.map((path) => state.pending[path]).filter((d) => d != null);
             if (downloads.length != paths.length) {

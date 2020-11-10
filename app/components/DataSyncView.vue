@@ -199,7 +199,9 @@ export default Vue.extend({
         onDownload(sync: StationSyncStatus): Promise<any> {
             try {
                 log.info("download", sync);
-                return this.$s.dispatch(new DownloadStationDataAction(sync));
+                return this.$s.dispatch(new DownloadStationDataAction(sync)).catch((error) => {
+                    console.log(`download-error`, error);
+                });
             } catch (error) {
                 log.info("error", error);
                 return Promise.resolve();
@@ -208,7 +210,9 @@ export default Vue.extend({
         onUpload(sync: StationSyncStatus): Promise<any> {
             try {
                 log.info("upload", sync);
-                return this.$s.dispatch(new UploadStationDataAction(sync));
+                return this.$s.dispatch(new UploadStationDataAction(sync)).catch((error) => {
+                    console.log(`upload-error`, error);
+                });
             } catch (error) {
                 log.info("error", error);
                 return Promise.resolve();
