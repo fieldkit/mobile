@@ -153,3 +153,12 @@ export interface StationAddressRow {
     url: string;
     time: string;
 }
+
+export interface StoreLogRow {
+    id?: number;
+    time: number;
+    mutation: string;
+    payload: string;
+    before: string;
+    after: string;
+}

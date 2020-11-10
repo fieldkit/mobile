@@ -21,6 +21,7 @@ import { ActionTypes } from "./actions";
 import { MutationTypes } from "./mutations";
 import { Services, ServiceRef } from "@/services";
 import { NearbyStation } from "./types";
+import { StoreLogRow } from "./row-types";
 
 export * from "./types";
 export * from "./actions";
@@ -41,9 +42,19 @@ export type PayloadType = Record<string, unknown> | Record<string, unknown>[];
 
 export type OurStore = Store<GlobalState>;
 
-function customizeLogger() {
+type AppendStoreLog = (row: StoreLogRow) => Promise<void>;
+
+function customizeLogger(appendLog: AppendStoreLog) {
     return createLogger({
-        filter(mutation: { type: string; payload: PayloadType }, _stateBefore: GlobalState, stateAfter: GlobalState) {
+        filter(mutation: { type: string; payload: PayloadType }, stateBefore: GlobalState, stateAfter: GlobalState) {
+            void appendLog({
+                time: new Date().getTime(),
+                mutation: mutation.type,
+                payload: JSON.stringify(mutation.payload),
+                before: JSON.stringify(stateBefore),
+                after: JSON.stringify(stateAfter),
+            });
+
             if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
                 console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
                 return false;
@@ -157,11 +168,18 @@ function customizeLogger() {
     });
 }
 
+export function storeLogAppender(rawServices: Services): AppendStoreLog {
+    return async (row: StoreLogRow): Promise<void> => {
+        await rawServices.Database().addStoreLog(row);
+    };
+}
+
 export default function (rawServices: Services): OurStore {
     const services = new ServiceRef(() => rawServices);
+    const appender = storeLogAppender(rawServices);
 
     return new Vuex.Store({
-        plugins: Config.env.dev ? [customizeLogger()] : [customizeLogger()],
+        plugins: Config.env.dev ? [customizeLogger(appender)] : [customizeLogger(appender)],
         modules: {
             nearby: nearby(services),
             stations: stations(services),

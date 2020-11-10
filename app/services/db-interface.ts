@@ -18,6 +18,7 @@ import {
     SensorTableRow,
     ModuleTableRow,
     StationAddressRow,
+    StoreLogRow,
 } from "@/store/row-types";
 import { Services } from "@/services";
 import { Notification } from "~/store/modules/notifications";
@@ -919,5 +920,23 @@ export default class DatabaseInterface {
             )
             .then(() => Promise.resolve())
             .catch((error) => Promise.reject(new Error(`error updating notifications: ${JSON.stringify(error)}`)));
+    }
+
+    public async addStoreLog(row: StoreLogRow): Promise<void> {
+        try {
+            const db = await this.getDatabase();
+            const values = [row.time, row.mutation, row.payload, row.before, row.after];
+            await db.execute("INSERT INTO store_log (time, mutation, payload, before, after) VALUES (?, ?, ?, ?, ?)", values);
+        } catch (error) {
+            console.log(`add-store-log error`, error);
+        }
+    }
+
+    public async purgeOldLogs(): Promise<void> {
+        const db = await this.getDatabase();
+        const epoch = new Date();
+        epoch.setDate(epoch.getDate() - 1);
+        const values = [epoch.getTime()];
+        await db.execute("DELETE FROM store_log WHERE time < ?", values);
     }
 }

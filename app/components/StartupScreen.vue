@@ -136,6 +136,7 @@ function initializeApplication(services: Services): Promise<any> {
                             .CreateDb()
                             .initialize(null, false, false)
                             .then(() => services.Database().checkSettings())
+                            .then(() => services.Database().purgeOldLogs())
                             .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
                             .then(() => {
                                 console.log("services:ready");
@@ -157,13 +158,13 @@ function initializeApplication(services: Services): Promise<any> {
                                     );
                             })
                     )
-                    .catch((err) => {
-                        console.log("startup:error:", err, err ? err.stack : null);
-                    })
                     .then(() => {
                         const now = new Date();
                         const elapsed = now.getTime() - started.getTime();
                         console.log("startup:started", elapsed);
+                    })
+                    .catch((err) => {
+                        console.log("startup:error:", err, err ? err.stack : null);
                     })
             );
     });
