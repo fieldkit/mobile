@@ -1,5 +1,5 @@
 <template>
-    <StackLayout class="modal-bkgd" @loaded="onLoaded" @unloaded="onUnloaded">
+    <StackLayout class="modal-bkgd" @loaded="onLoaded">
         <GridLayout rows="*" columns="*" width="100%" height="100%" class="p-20 modal-container text-center">
             <StackLayout verticalAlignment="middle" class="bar-container" v-if="!status.done">
                 <Label class="info" lineHeight="4" :text="_L('upgradeInProcess')" textWrap="true" v-if="!downloadOnly && !status.error" />
@@ -18,7 +18,7 @@
                     v-if="status.sdCard"
                 />
                 <Label class="info" lineHeight="4" text="An unknown error occured." textWrap="true" v-if="status.error" />
-                <Label class="ok-btn" :text="_L('ok')" verticalAlignment="middle" @tap="$modal.close()" />
+                <Label class="ok-btn" :text="_L('ok')" verticalAlignment="middle" @tap="onClose()" />
             </StackLayout>
         </GridLayout>
     </StackLayout>
@@ -46,6 +46,9 @@ export default Vue.extend({
         done(): boolean {
             return this.status.done || false;
         },
+        error(): boolean {
+            return this.status.error || false;
+        },
         station(): Station {
             return this.$store.getters.stationsById[this.stationId];
         },
@@ -53,11 +56,9 @@ export default Vue.extend({
             return this.$store.state.firmware.status[this.stationId] || {};
         },
         status(): UpgradeStatus {
-            console.log("upgrade-status", this.upgrade);
             return this.upgrade?.status || {};
         },
         progress(): number {
-            console.log("upgrade-progress", this.upgrade);
             return this.upgrade?.progress?.progress || 0;
         },
     },
@@ -81,16 +82,18 @@ export default Vue.extend({
             }
 			*/
 
-            const available: { [index: number]: AvailableStation } = _.keyBy(this.$store.getters.availableStations, (s) => s.id);
-            const station = available[this.stationId];
+            const availableStations: { [index: number]: AvailableStation } = _.keyBy(this.$store.getters.availableStations, (s) => s.id);
+            const station = availableStations[this.stationId];
+
             if (!station) throw new Error(`firmware-modal: no such station`);
             if (!station.id) throw new Error(`firmware-modal: no station id`);
             if (!station.url) throw new Error(`firmware-modal: no station url`);
 
             return this.$store.dispatch(new UpgradeStationFirmwareAction(station.id, station.url));
         },
-        onUnloaded(): void {
-            console.log("onUnloaded");
+        onClose(): void {
+            console.log("closing", this.$modal);
+            this.$modal.close({ error: this.error });
         },
     },
 });

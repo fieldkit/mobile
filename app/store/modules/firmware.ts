@@ -102,11 +102,11 @@ const actions = (services: ServiceRef) => {
                             commit(new UpgradeProgressMutation(payload.stationId, progress));
                         })
                         .then((status) => {
-                            console.log("status", status);
+                            console.log("upgrade status", status);
                             commit(new UpgradeStatusMutation(payload.stationId, { ...status, ...{ done: true } }));
                         })
                         .catch((err) => {
-                            console.log("error", err, err.stack);
+                            console.log("upgrade error", err);
                             commit(new UpgradeStatusMutation(payload.stationId, { done: true, error: true }));
                         });
                 });

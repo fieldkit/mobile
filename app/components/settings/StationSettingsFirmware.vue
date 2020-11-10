@@ -68,11 +68,11 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
+import { promiseAfter } from "@/utilities";
 import { FirmwareInfo, AvailableFirmware, LegacyStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import * as animations from "../animations";
 
 export default Vue.extend({
     components: {
@@ -82,14 +82,12 @@ export default Vue.extend({
     data(): {
         canUpgrade: boolean;
         failed: boolean;
-        finished: boolean;
         success: boolean;
         sdCard: boolean;
     } {
         return {
             canUpgrade: true,
             failed: false,
-            finished: false,
             success: false,
             sdCard: false,
         };
@@ -127,7 +125,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        downloadFirmware(): Promise<any> {
+        downloadFirmware(): Promise<void> {
             const options = {
                 props: {
                     station: this.station,
@@ -138,10 +136,13 @@ export default Vue.extend({
             };
             this.canUpgrade = false;
             return this.$showModal(UpgradeFirmwareModal, options).then(() => {
-                // this.canUpgrade = true;
+                // We do this to prevent them from tapping again right after.
+                return promiseAfter(2000).then(() => {
+                    this.canUpgrade = true;
+                });
             });
         },
-        upgradeFirmware(): Promise<any> {
+        upgradeFirmware(): Promise<unknown> {
             const options = {
                 props: {
                     station: this.station,
@@ -150,13 +151,16 @@ export default Vue.extend({
                 },
                 fullscreen: true,
             };
-            this.finished = false;
             this.canUpgrade = false;
-            return this.$showModal(UpgradeFirmwareModal, options).then((value) => {});
+            return this.$showModal(UpgradeFirmwareModal, options).then(() => {
+                // We do this to prevent them from tapping again right after.
+                return promiseAfter(2000).then(() => {
+                    this.canUpgrade = true;
+                });
+            });
         },
-        goBack(ev: any): Promise<any> {
-            return Promise.all([
-                animations.pressed(ev),
+        async goBack(): Promise<void> {
+            await Promise.all([
                 this.$navigateTo(routes.stationSettings, {
                     props: {
                         station: this.station,

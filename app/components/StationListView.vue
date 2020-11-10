@@ -114,8 +114,8 @@ export default Vue.extend({
                 this.scanning = false;
             });
         },
-        openModalMap(ev: any): Promise<void> {
-            return this.$showModal(MapModal, {
+        async openModalMap(ev: any): Promise<void> {
+            await this.$showModal(MapModal, {
                 fullscreen: true,
             });
         },

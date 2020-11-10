@@ -4,7 +4,7 @@ import { Vue, VueConstructor } from "vue/types/vue";
 import { Services } from "@/services";
 import { Route } from "@/routes/navigate";
 
-type showModal = (component: typeof Vue, options?: ModalOptions) => Promise<void>;
+type showModal = (component: typeof Vue, options?: ModalOptions) => Promise<unknown>;
 
 export type navigateTo = (component: VueConstructor | Route, options?: NavigationEntryVue, cb?: () => Page) => Promise<Page>;
 
@@ -15,7 +15,7 @@ declare module "vue/types/vue" {
         $showModal: showModal;
         $services: Services;
         $modal: {
-            close: () => void;
+            close: (value?: unknown) => void;
         };
     }
 }
