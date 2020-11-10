@@ -440,7 +440,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
 
         const relevantStreams = station.streams.filter((d) => d.generationId == station.generationId);
-        const downloads = station.streams
+        const downloads = relevantStreams
             .map((stream) => {
                 const firstBlock = stream.downloadLastBlock || 0;
                 const lastBlock = stream.deviceLastBlock;
@@ -457,6 +457,9 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
                 return a.fileType < b.fileType ? -1 : 1;
             });
 
+        // This isn't using relevantStreams because these just get
+        // uploaded and that's not a problem. This way they can sync,
+        // factory reset and then download more data.
         const uploads = station.streams
             .map((stream) => {
                 const firstBlock = stream.portalLastBlock || 0;
