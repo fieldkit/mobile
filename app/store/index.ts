@@ -20,6 +20,7 @@ import { notifications } from "./modules/notifications";
 import { ActionTypes } from "./actions";
 import { MutationTypes } from "./mutations";
 import { Services, ServiceRef } from "@/services";
+import { NearbyStation } from "./types";
 
 export * from "./types";
 export * from "./actions";
@@ -36,11 +37,13 @@ export * from "./modules/notifications";
 
 import { GlobalState } from "./modules/global";
 
+export type PayloadType = Record<string, unknown> | Record<string, unknown>[];
+
 export type OurStore = Store<GlobalState>;
 
 function customizeLogger() {
     return createLogger({
-        filter(mutation: { type: string; payload: Record<string, unknown> }, _stateBefore: never, _stateAfter: never) {
+        filter(mutation: { type: string; payload: PayloadType }, _stateBefore: GlobalState, stateAfter: GlobalState) {
             if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
                 console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
                 return false;
@@ -66,14 +69,10 @@ function customizeLogger() {
                 return false;
             }
             if (mutation.type == MutationTypes.STATIONS) {
-                console.log(
-                    "mutation:",
-                    mutation.type,
-                    _(mutation.payload)
-                        .map((s: { name: string; connected: boolean }): [string, boolean] => [s.name, s.connected])
-                        .fromPairs()
-                        .value()
-                );
+                const nearby = stateAfter.nearby.stations;
+                const payload = mutation.payload as { id: number; deviceId: string; name: string }[];
+                const summary = payload.map((s): [number, string, string, NearbyStation] => [s.id, s.deviceId, s.name, nearby[s.deviceId]]);
+                console.log("mutation:", mutation.type, JSON.stringify(summary));
                 return false;
             }
             if (/CALIBRAT/.test(mutation.type)) {

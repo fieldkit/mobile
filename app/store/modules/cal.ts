@@ -14,11 +14,17 @@ export const CALIBRATED = "CALIBRATED";
 export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
 export const CALIBRATION_REFRESH = "CALIBRATION_REFRESH";
 
+type PossibleCalibrations = WireAtlasReply;
+
 export class ClearAtlasCalibration {
     public readonly type: string = ActionTypes.CLEAR_SENSOR_CALIBRATION;
 
     constructor(public readonly deviceId: string, public readonly moduleId: string, public readonly position: number) {}
 }
+
+type ActionParameters = ActionContext<CalibrationState, never>;
+
+type ModuleType = Module<CalibrationState, never>;
 
 export class CalibrateAtlas {
     public readonly type: string = ActionTypes.CALIBRATE_SENSOR;
@@ -48,8 +54,6 @@ const getters = {
             .value();
     },
 };
-
-type ActionParameters = ActionContext<CalibrationState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
@@ -112,8 +116,6 @@ const actions = (services: ServiceRef) => {
     };
 };
 
-type PossibleCalibrations = WireAtlasReply;
-
 const mutations = {
     [MutationTypes.RESET]: (state: CalibrationState) => {
         Object.assign(state, new CalibrationState());
@@ -134,8 +136,6 @@ const mutations = {
         Vue.set(state, "status", { ...state.status, ...payload });
     },
 };
-
-type ModuleType = Module<CalibrationState, never>;
 
 export const cal = (services: ServiceRef): ModuleType => {
     const state = () => new CalibrationState();

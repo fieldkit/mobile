@@ -278,7 +278,6 @@ export class Station implements StationCreationFields {
     public readonly modules: Module[] = [];
     public readonly streams: Stream[] = [];
     public readonly downloads: Download[] = [];
-    public readonly connected?: boolean;
 
     public get portalId(): number | null {
         return this._portalId;

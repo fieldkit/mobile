@@ -24,6 +24,10 @@ export class NearbyState {
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
 }
 
+type ActionParameters = ActionContext<NearbyState, never>;
+
+type ModuleType = Module<NearbyState, never>;
+
 class NearbyWrapper {
     constructor(private readonly state: NearbyState) {}
 
@@ -51,8 +55,6 @@ class NearbyWrapper {
         });
     }
 }
-
-type ActionParameters = ActionContext<NearbyState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
@@ -391,8 +393,6 @@ const mutations = {
         Vue.set(state, "location", location);
     },
 };
-
-type ModuleType = Module<NearbyState, never>;
 
 export const nearby = (services: ServiceRef): ModuleType => {
     const state = () => new NearbyState();

@@ -58,10 +58,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { Station } from "@/store/types";
-
-import { ModuleCalibration } from "@/calibration/model";
-
+import { StationCalibration, ModuleCalibration } from "@/calibration";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import CalibratingModules from "./CalibratingModules.vue";
 
@@ -83,7 +80,7 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(): Station {
+        currentStation(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
     },
