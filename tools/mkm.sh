@@ -7,10 +7,10 @@ if [ -z "$BASE_NAME" ]; then
 fi
 
 TIME=`date "+%Y%m%d_%H%M%S"`
-FN=${TIME}_${BASE_NAME}.js
+FN=${TIME}_${BASE_NAME}.ts
 CLASS_NAME=${BASE_NAME}_${TIME}
 
-cp app/migrations/{new_migration.js.template,${FN}}
+cp app/migrations/{new_migration.ts.template,${FN}}
 
 
 kernelName="$(uname -s)"
@@ -23,7 +23,7 @@ esac
 
 rm app/migrations/index.js
 
-for f in app/migrations/2020*.js; do
+for f in app/migrations/2020*; do
 	FN=`basename $f`
 	echo "export * from './${FN}';" >> app/migrations/index.js
 done

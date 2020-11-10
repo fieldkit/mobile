@@ -1,7 +1,8 @@
 import Migration from "./Migration";
+import { Database } from "@/wrappers/sqlite";
 
 export class {MIGRATION_NAME} extends Migration {
-    up(db) {
+    public async up(db: Database): Promise<void> {
         return db.batch([
 			"SELECT 1+1"
         ]);
