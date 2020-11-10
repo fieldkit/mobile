@@ -77,6 +77,11 @@ const actions = (services: ServiceRef) => {
                 throw new Error("refusing to download while already busy");
             }
 
+            const anyOffline = sync.downloads.filter((d) => isOfflineUrl(d.url));
+            if (anyOffline.length > 0) {
+                throw new Error("refusing to download from offline urls");
+            }
+
             state.busy[sync.deviceId] = true;
 
             console.log("syncing:download", sync.downloads);
@@ -179,6 +184,12 @@ const getters = {
     },
 };
 
+const OfflineUrl = "https://www.fieldkit.org/off-line-bug";
+
+function isOfflineUrl(url: string): boolean {
+    return url.indexOf("off-line-bug") >= 0;
+}
+
 function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
     const now = new Date();
     const syncs = state.stations.map((station) => {
@@ -188,7 +199,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
 
         const connected = state.connected[station.deviceId] || null;
         const lastSeen = station.lastSeen;
-        const baseUrl = connected ? connected.url : "https://www.fieldkit.org/off-line-bug";
+        const baseUrl = connected ? connected.url : OfflineUrl;
 
         const relevantStreams = station.streams.filter((d) => d.generationId == station.generationId);
         const downloads = relevantStreams
