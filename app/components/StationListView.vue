@@ -47,7 +47,7 @@ import { Dialogs } from "@nativescript/core";
 import routes from "@/routes";
 import * as animations from "./animations";
 
-import { AvailableStation } from "@/store/types";
+import { AvailableStation } from "@/store";
 import { ActionTypes } from "@/store/actions";
 
 import SharedComponents from "@/components/shared";
@@ -76,9 +76,9 @@ export default Vue.extend({
         getDeployStatus(station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
-        goToDetail(ev, station): Promise<any> {
-            return Promise.all([
-                animations.pressed(ev.object),
+        async goToDetail(ev, station: AvailableStation): Promise<void> {
+            await Promise.all([
+                animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
                     props: {
                         stationId: station.id,
@@ -86,19 +86,19 @@ export default Vue.extend({
                 }),
             ]);
         },
-        showDev(): Promise<any> {
+        async showDev(): Promise<void> {
             if (this.busy) {
                 return Promise.resolve();
             }
 
             this.busy = true;
 
-            return Dialogs.confirm({
+            await Dialogs.confirm({
                 title: _L("confirmViewDevMenu"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("cancel"),
             })
-                .then((yes) => {
+                .then((yes: boolean) => {
                     if (yes) {
                         return this.$navigateTo(routes.developerMenu, {});
                     }
@@ -108,13 +108,13 @@ export default Vue.extend({
                     this.busy = false;
                 });
         },
-        onDoubleTap(): Promise<any> {
+        onDoubleTap(): Promise<void> {
             this.scanning = true;
             return this.$store.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
                 this.scanning = false;
             });
         },
-        openModalMap(ev: any): Promise<any> {
+        openModalMap(ev: any): Promise<void> {
             return this.$showModal(MapModal, {
                 fullscreen: true,
             });

@@ -146,7 +146,7 @@ export default class DatabaseInterface {
             false, // TODO remove station.connected,
             station.generationId,
             station.name,
-            station.archived,
+            station.archived ? 1 : 0,
             "", // TODO remove URL
             station.portalId,
             "", // TODO remove status
