@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { MockStationReplies } from "./utilities";
-import { PhoneLocation, CommonLocations, StationRepliedAction, MutationTypes, ActionTypes } from "@/store";
+import { PhoneLocation, CommonLocations, StationRepliedAction, MutationTypes, ActionTypes, TryStationOnceAction } from "@/store";
 import { ServicesImpl, ServiceRef } from "@/services";
 import { nearby } from "@/store/modules/nearby";
 import { fk_app } from "fk-app-protocol/fk-app";
@@ -45,6 +45,23 @@ describe("Store", () => {
     });
 
     describe("nearby stations", () => {
+        describe("try once", () => {
+            it("should ignore replies from stations with unexpected device ids", async () => {
+                expect.assertions(3);
+
+                const wrong = mockStation.newFakeStation();
+                const station = mockStation.newFakeStation();
+                mockStation.queueStatusReply(station);
+
+                expect(_.size(store.state.nearby.stations)).toEqual(0);
+                const info = { url: "http://127.0.0.1", deviceId: wrong.deviceId };
+
+                await store.dispatch(new TryStationOnceAction(info));
+                expect(_.size(store.state.nearby.stations)).toEqual(1);
+                expect(Object.keys(store.state.nearby.stations)).toEqual([station.deviceId]);
+            });
+        });
+
         it("should be blank to begin with and add stations when found", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);

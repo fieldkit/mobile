@@ -120,9 +120,19 @@ const actions = (services: ServiceRef) => {
                 .queryStation()
                 .takeReadings(payload.info.url, state.location, { throttle: false })
                 .then((statusReply) => {
-                    commit(MutationTypes.FIND, payload.info);
-                    commit(MutationTypes.STATION_QUERIED, payload.info);
-                    commit(MutationTypes.STATION_ACTIVITY, payload.info);
+                    // Correct the device id, just incase we're trying an unknown one.
+                    const expected = payload.info.deviceId;
+                    const actual = statusReply.status.identity.deviceId;
+                    const infoCorected: ServiceInfo = {
+                        deviceId: actual,
+                        url: payload.info.url,
+                    };
+                    if (expected != actual) {
+                        console.log(`correcting device-id: ${payload.info.url} ${expected} ${actual}`);
+                    }
+                    commit(MutationTypes.FIND, infoCorected);
+                    commit(MutationTypes.STATION_QUERIED, infoCorected);
+                    commit(MutationTypes.STATION_ACTIVITY, infoCorected);
                     return dispatch(new StationRepliedAction(statusReply, payload.info.url), { root: true });
                 });
         },
