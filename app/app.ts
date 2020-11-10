@@ -34,6 +34,12 @@ function configureVueJs(services: typeof Services): Store {
         },
     });
 
+    Object.defineProperty(Vue.prototype, "$s", {
+        get: function (this: Vue) {
+            return this.$store;
+        },
+    });
+
     Vue.filter("prettyReading", (value: number | undefined): string => {
         if (!value) {
             return "--";
