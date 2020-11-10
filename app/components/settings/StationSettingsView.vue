@@ -58,7 +58,7 @@ export default Vue.extend({
     },
     computed: {
         station(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {

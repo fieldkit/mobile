@@ -67,10 +67,10 @@ export default Vue.extend({
     },
     computed: {
         currentUser() {
-            return this.$store.state.portal.currentUser;
+            return this.$s.state.portal.currentUser;
         },
         accounts() {
-            return this.$store.state.portal.accounts;
+            return this.$s.state.portal.accounts;
         },
     },
     components: {

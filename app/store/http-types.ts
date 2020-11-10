@@ -23,10 +23,13 @@ export interface LiveReadings {
 }
 
 export interface AtlasStatus {
+    type: fk_atlas.SensorType;
     calibration: {
         total: number;
     };
 }
+
+export type ModuleStatus = AtlasStatus;
 
 export type CalibrationStatus = AtlasStatus | null;
 
@@ -166,6 +169,7 @@ export function decodeAndPrepare(reply: Buffer, serialized: SerializedStatus): H
 }
 
 export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasStatus | null {
+    /* Maybe ModuleStatus? */
     if (!reply.calibration) {
         throw new Error(`reply has no calibration`);
     }
@@ -190,8 +194,7 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
         case SensorType.SENSOR_NONE:
             break;
         default:
-            console.warn(`unexpected calibration type`);
-            break;
+            throw new Error(`unexpected calibration type`);
     }
 
     if (!total) {
@@ -199,6 +202,7 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
     }
 
     return {
+        type: reply.calibration.type,
         calibration: {
             total: total,
         },

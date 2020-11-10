@@ -39,9 +39,9 @@ export default Vue.extend({
         };
     },
     computed: {
-        recording(): ActiveRecording {
-            console.log("recording", this.$store.state.media.recording, this.now);
-            return this.$store.state.media.recording;
+        recording(): ActiveRecording | null {
+            console.log("recording", this.$s.state.media.recording, this.now);
+            return this.$s.state.media.recording;
         },
     },
     mounted(): void {
@@ -57,21 +57,21 @@ export default Vue.extend({
         onUnloaded(): void {},
         startOrResume(): Promise<any> {
             if (this.recording) {
-                return this.$store.dispatch(ActionTypes.AUDIO_RESUME);
+                return this.$s.dispatch(ActionTypes.AUDIO_RESUME);
             }
-            return this.$store.dispatch(ActionTypes.AUDIO_RECORD);
+            return this.$s.dispatch(ActionTypes.AUDIO_RECORD);
         },
         pause(): Promise<any> {
-            return this.$store.dispatch(ActionTypes.AUDIO_PAUSE);
+            return this.$s.dispatch(ActionTypes.AUDIO_PAUSE);
         },
         stop(): Promise<any> {
-            return this.$store.dispatch(ActionTypes.AUDIO_STOP).then((recording) => {
+            return this.$s.dispatch(ActionTypes.AUDIO_STOP).then((recording) => {
                 return this.$emit("stop", recording);
             });
         },
         cancel(): Promise<any> {
-            if (this.$store.state.media.recording) {
-                return this.$store.dispatch(ActionTypes.AUDIO_STOP).then(() => {
+            if (this.$s.state.media.recording) {
+                return this.$s.dispatch(ActionTypes.AUDIO_STOP).then(() => {
                     return this.$emit("cancel");
                 });
             }

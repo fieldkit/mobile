@@ -100,7 +100,7 @@ export default Vue.extend({
     },
     computed: {
         currentStation(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {
@@ -116,7 +116,7 @@ export default Vue.extend({
 
             if (this.form.name != this.currentStation.name) {
                 console.log("rename", this.form.name, this.currentStation.name);
-                return this.$store
+                return this.$s
                     .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.currentStation.deviceId, name: this.form.name })
                     .then(() => {
                         return this.$navigateTo(routes.onboarding.reconnecting, {

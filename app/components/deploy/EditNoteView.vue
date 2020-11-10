@@ -53,10 +53,10 @@ export default Vue.extend({
     },
     computed: {
         notes(): Notes {
-            return this.$store.state.notes.stations[this.stationId];
+            return this.$s.state.notes.stations[this.stationId];
         },
         currentStation(): Station {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         note(): NoteData | null {
             if (this.editingKey) {
@@ -74,22 +74,22 @@ export default Vue.extend({
     methods: {
         onSaveNote(form: NoteForm): Promise<any> {
             console.log("notes-view:saving", this.editingKey, form);
-            this.$store.commit(new UpdateNoteMutation(this.stationId, this.editingKey, form));
-            return this.$store.dispatch(new SaveNotesAction(this.stationId)).then(() => {
+            this.$s.commit(new UpdateNoteMutation(this.stationId, this.editingKey, form));
+            return this.$s.dispatch(new SaveNotesAction(this.stationId)).then(() => {
                 return this.$navigateBack({});
             });
         },
         onAttachNoteMedia(media: NoteMedia): Promise<any> {
             if (NoteMedia.isAudio(media)) {
-                this.$store.commit(new AttachNoteMediaMutation(this.stationId, this.editingKey, media, true));
+                this.$s.commit(new AttachNoteMediaMutation(this.stationId, this.editingKey, media, true));
             } else {
-                this.$store.commit(new AttachNoteMediaMutation(this.stationId, this.editingKey, media, false));
+                this.$s.commit(new AttachNoteMediaMutation(this.stationId, this.editingKey, media, false));
             }
-            return this.$store.dispatch(new SaveNotesAction(this.stationId));
+            return this.$s.dispatch(new SaveNotesAction(this.stationId));
         },
         onRemoveAudio(media: NoteMedia): Promise<any> {
-            this.$store.commit(new RemoveNoteMediaMutation(this.stationId, this.editingKey, media));
-            return this.$store.dispatch(new SaveNotesAction(this.stationId));
+            this.$s.commit(new RemoveNoteMediaMutation(this.stationId, this.editingKey, media));
+            return this.$s.dispatch(new SaveNotesAction(this.stationId));
         },
         async onCancelEditing(): Promise<void> {
             await this.$navigateBack();

@@ -1,8 +1,9 @@
 import { Page } from "@nativescript/core";
 import { navigateBack, ModalOptions, NavigationEntryVue } from "nativescript-vue";
 import { Vue, VueConstructor } from "vue/types/vue";
-import { Services } from "@/services";
 import { Route } from "@/routes/navigate";
+import { Services } from "@/services";
+import { OurStore } from "@/store";
 
 type showModal = (component: typeof Vue, options?: ModalOptions) => Promise<unknown>;
 
@@ -17,6 +18,7 @@ declare module "vue/types/vue" {
         $modal: {
             close: (value?: unknown) => void;
         };
+        $s: OurStore;
     }
 }
 

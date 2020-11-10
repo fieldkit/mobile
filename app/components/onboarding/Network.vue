@@ -98,7 +98,7 @@ export default Vue.extend({
     },
     computed: {
         currentStation(this: any) {
-            const station = this.$store.getters.legacyStations[this.stationId];
+            const station = this.$s.getters.legacyStations[this.stationId];
             if (!station) {
                 throw new Error("no station");
             }

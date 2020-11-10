@@ -32,6 +32,7 @@ export * from "./modules/media";
 export * from "./modules/notes";
 export * from "./modules/firmware";
 export * from "./modules/global";
+export * from "./modules/notifications";
 
 import { GlobalState } from "./modules/global";
 

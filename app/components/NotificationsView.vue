@@ -73,13 +73,13 @@ export default Vue.extend({
             return isAndroid;
         },
         currentNotifications() {
-            return this.$store.state.notifications.notifications;
+            return this.$s.state.notifications.notifications;
         },
         activeNotifications() {
-            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === false);
+            return this.$s.state.notifications.notifications.filter((item: Notification) => item.silenced === false);
         },
         dismissedNotifications() {
-            return this.$store.state.notifications.notifications.filter((item: Notification) => item.silenced === true);
+            return this.$s.state.notifications.notifications.filter((item: Notification) => item.silenced === true);
         },
     },
     methods: {
@@ -103,10 +103,10 @@ export default Vue.extend({
             this.showMenu = this.showMenu.includes(notification.id) ? [] : [notification.id];
         },
         dismiss(notification) {
-            this.$store.dispatch(ActionTypes.DISMISS_NOTIFICATION, { key: notification.key, silenced: true });
+            this.$s.dispatch(ActionTypes.DISMISS_NOTIFICATION, { key: notification.key, silenced: true });
         },
         satisfy(notification) {
-            this.$store.dispatch(ActionTypes.SATISFY_NOTIFICATION, { key: notification.key });
+            this.$s.dispatch(ActionTypes.SATISFY_NOTIFICATION, { key: notification.key });
         },
     },
 });

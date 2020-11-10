@@ -1,7 +1,9 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
-import { LegacyStation, Module } from "../store/types";
+import { LegacyStation, Module, ModuleStatus } from "../store/types";
 import { _T, convertOldFirmwareResponse } from "../utilities";
+
+export { ModuleStatus };
 
 export class Ids {
     private static c = 0;
@@ -13,11 +15,6 @@ export class Ids {
 
 export abstract class CalibrationValue {}
 
-export interface ModuleCalibration {
-    type: number;
-    total: number;
-}
-
 export class CalibratingSensor {
     constructor(
         public readonly stationId: number,
@@ -27,7 +24,7 @@ export class CalibratingSensor {
         public readonly unitOfMeasure: string,
         public readonly reading: number | null,
         public readonly calibrationValue: CalibrationValue,
-        public readonly moduleCalibration: ModuleCalibration | null,
+        public readonly moduleCalibration: ModuleStatus | null,
         public readonly sensors: { [index: string]: number }
     ) {}
 }
@@ -97,20 +94,6 @@ export class CalibrationStrategies {
         const byKey = _.groupBy(this.strategies, (s) => s.moduleKey);
         return byKey[moduleKey] || [];
     }
-}
-
-export enum AtlasSensorType {
-    None = 0,
-    Ph = 1,
-    Temp = 2,
-    Orp = 3,
-    Do = 4,
-    Ec = 5,
-}
-
-export interface ModuleStatus {
-    type: AtlasSensorType;
-    calibration?: { total: number };
 }
 
 export type ModuleStatusByModuleId = { [index: string]: ModuleStatus };

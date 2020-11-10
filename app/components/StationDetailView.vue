@@ -69,7 +69,7 @@ import { promiseAfter } from "@/utilities";
 
 import * as animations from "./animations";
 
-import { Station, Notes } from "@/store";
+import { Station, Notes, Notification } from "@/store";
 
 import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
@@ -94,17 +94,17 @@ export default Vue.extend({
         };
     },
     computed: {
-        notifications(): string[] {
-            return this.$store.state.notifications.notifications;
+        notifications(): Notification[] {
+            return this.$s.state.notifications.notifications;
         },
         isDeployed(): boolean {
             return this.currentStation.deployStartTime != null;
         },
         notes(): Notes {
-            return this.$store.state.notes.stations[this.stationId];
+            return this.$s.state.notes.stations[this.stationId];
         },
         currentStation(): Station {
-            const station = this.$store.getters.legacyStations[this.stationId];
+            const station = this.$s.getters.legacyStations[this.stationId];
             if (!station) {
                 console.log(`missing legacyStation`, this.stationId);
                 throw new Error(`missing legacyStation`);
@@ -176,16 +176,16 @@ export default Vue.extend({
             ]);
         },
         addDeployedNotification(): Promise<void> {
-            if (!this.$store.state.portal.currentUser) {
+            if (!this.$s.state.portal.currentUser) {
                 return Promise.resolve();
             }
-            return this.$store.dispatch(ActionTypes.ADD_NOTIFICATION, {
-                key: `${this.$store.state.portal.currentUser.id}/${this.currentStation.id}/station-deployed`,
+            return this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                key: `${this.$s.state.portal.currentUser.portalId}/${this.currentStation.id}/station-deployed`,
                 kind: "station-deployed",
                 created: new Date(),
                 silenced: "false",
                 project: {},
-                user: this.$store.state.portal.currentUser,
+                user: this.$s.state.portal.currentUser,
                 station: this.currentStation,
                 actions: {},
             });

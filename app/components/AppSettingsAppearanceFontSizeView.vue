@@ -52,7 +52,7 @@ import { isAndroid, isIOS } from "@nativescript/core";
 export default Vue.extend({
     computed: {
         currentSettings(this: any) {
-            return this.$store.state.portal.settings;
+            return this.$s.state.portal.settings;
         },
         isAndroid() {
             return isAndroid;
@@ -67,7 +67,7 @@ export default Vue.extend({
     },
     methods: {
         saveSettings() {
-            this.$store.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+            this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         goBack(this: any, ev) {
             return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.appearance, {})]);

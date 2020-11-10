@@ -51,12 +51,12 @@ export default Vue.extend({
     },
     computed: {
         station(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {
         getStation(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         onPageLoaded(this: any, args) {
             this.form.schedule = Schedule.getMinimum(this.station.schedules.readings);
@@ -67,7 +67,7 @@ export default Vue.extend({
         },
         onSaveSchedule(this: any) {
             return Promise.all([
-                this.$store.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
+                this.$s.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
                     deviceId: this.station.deviceId,
                     schedules: { readings: this.form.schedule },
                 }),

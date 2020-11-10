@@ -110,7 +110,7 @@ export default Vue.extend({
         },
         onDoubleTap(): Promise<void> {
             this.scanning = true;
-            return this.$store.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
+            return this.$s.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
                 this.scanning = false;
             });
         },

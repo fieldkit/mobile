@@ -8,31 +8,31 @@
                 class="existing-calibration"
                 text="This sensor doesn't appear to have been calibrated."
                 textWrap="true"
-                v-if="existing.total == 0"
+                v-if="existing.calibration.total == 0"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 1-point strategy."
                 textWrap="true"
-                v-if="existing.total == 1"
+                v-if="existing.calibration.total == 1"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 2-point strategy."
                 textWrap="true"
-                v-if="existing.total == 2"
+                v-if="existing.calibration.total == 2"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 3-point strategy."
                 textWrap="true"
-                v-if="existing.total == 3"
+                v-if="existing.calibration.total == 3"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 4-point strategy."
                 textWrap="true"
-                v-if="existing.total == 4"
+                v-if="existing.calibration.total == 4"
             />
 
             <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { VisualCalibrationStep, CalibratingSensor, ModuleCalibration } from "./model";
+import { VisualCalibrationStep, CalibratingSensor, ModuleStatus } from "./model";
 import { CheckVisual } from "./visuals";
 
 import { _T } from "../utilities";
@@ -86,7 +86,7 @@ export default Vue.extend({
         visual(): CheckVisual {
             return this.step.visual as CheckVisual;
         },
-        existing(): ModuleCalibration | null {
+        existing(): ModuleStatus | null {
             return this.sensor.moduleCalibration;
         },
     },

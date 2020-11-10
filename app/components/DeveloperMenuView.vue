@@ -81,17 +81,20 @@ export default Vue.extend({
             return new ValueList<any>(this.portalEnvs);
         },
         portalEnvs(): EnvOption[] {
-            return this.$store.state.portal.availableEnvs.map(
-                (env, index): EnvOption => {
-                    return {
-                        index: index,
-                        selected: env.baseUri == this.$store.state.portal.env.baseUri,
-                        display: env.name,
-                        value: env.name,
-                        env: env,
-                    };
-                }
-            );
+            return this.$s.state.portal.availableEnvs
+                .filter((e) => e.name != null)
+                .map(
+                    (env: PortalEnv, index): EnvOption => {
+                        if (!env.name) throw new Error(`name is missing`);
+                        return {
+                            index: index,
+                            selected: env.baseUri == this.$s.state.portal.env.baseUri,
+                            display: env.name,
+                            value: env.name,
+                            env: env,
+                        };
+                    }
+                );
         },
         selectedPortalEnvIndex(): number | null {
             const selected = this.portalEnvs.find((e) => e.selected);
@@ -107,8 +110,8 @@ export default Vue.extend({
         },
         onPortalEnvChange(ev: { newIndex: number }): Promise<void> {
             console.log("portal-env-change", ev.newIndex);
-            const newEnv = this.$store.state.portal.availableEnvs[ev.newIndex];
-            return this.$store.dispatch(new ChangePortalEnvAction(newEnv));
+            const newEnv = this.$s.state.portal.availableEnvs[ev.newIndex];
+            return this.$s.dispatch(new ChangePortalEnvAction(newEnv));
         },
         downloadSampleData(): Promise<any> {
             const deviceId = "5e1fd3f938dff63ba5c5f4d29fe84850255191ff";

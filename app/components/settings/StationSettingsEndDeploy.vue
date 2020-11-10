@@ -54,10 +54,10 @@ export default Vue.extend({
     },
     computed: {
         station(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         deployed(this: any) {
-            return this.$store.getters.legacyStations[this.stationId].deployStartTime !== null;
+            return this.$s.getters.legacyStations[this.stationId].deployStartTime !== null;
         },
     },
     methods: {
@@ -85,14 +85,14 @@ export default Vue.extend({
             });
         },
         stopRecording(this: any, event) {
-            const station = this.$store.getters.legacyStations[this.stationId];
+            const station = this.$s.getters.legacyStations[this.stationId];
             return Dialogs.confirm({
                 title: _L("areYouSureStopRecording"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("cancel"),
             }).then((yes) => {
                 if (yes) {
-                    return this.$store.dispatch(ActionTypes.END_STATION_DEPLOYMENT, { deviceId: station.deviceId });
+                    return this.$s.dispatch(ActionTypes.END_STATION_DEPLOYMENT, { deviceId: station.deviceId });
                 }
             });
         },

@@ -182,7 +182,7 @@ export default Vue.extend({
     },
     computed: {
         syncs(): StationSyncStatus[] {
-            return this.$store.getters.syncs;
+            return this.$s.getters.syncs;
         },
     },
     methods: {
@@ -199,7 +199,7 @@ export default Vue.extend({
         onDownload(sync: StationSyncStatus): Promise<any> {
             try {
                 log.info("download", sync);
-                return this.$store.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
+                return this.$s.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
             } catch (error) {
                 log.info("error", error);
                 return Promise.resolve();
@@ -208,7 +208,7 @@ export default Vue.extend({
         onUpload(sync: StationSyncStatus): Promise<any> {
             try {
                 log.info("upload", sync);
-                return this.$store.dispatch(ActionTypes.UPLOAD_STATION, sync);
+                return this.$s.dispatch(ActionTypes.UPLOAD_STATION, sync);
             } catch (error) {
                 log.info("error", error);
                 return Promise.resolve();

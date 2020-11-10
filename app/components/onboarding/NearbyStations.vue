@@ -72,7 +72,7 @@ export default Vue.extend({
     },
     computed: {
         nearbyStations(): NearbyStation[] {
-            const legacyStations: LegacyStation[] = this.$store.getters.legacyStations; // TODO ts
+            const legacyStations: LegacyStation[] = this.$s.getters.legacyStations; // TODO ts
             return Object.values(legacyStations)
                 .filter((station) => station.connected)
                 .map((station) => {
@@ -86,7 +86,7 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
-            const legacyStations: LegacyStation[] = this.$store.getters.legacyStations; // TODO ts
+            const legacyStations: LegacyStation[] = this.$s.getters.legacyStations; // TODO ts
             const connected = Object.values(legacyStations).filter((ls) => ls.connected);
             if (connected.length == 0) {
                 throw new Error("invalid transition, no nearby stations");

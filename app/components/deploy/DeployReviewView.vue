@@ -130,13 +130,13 @@ export default Vue.extend({
     },
     computed: {
         notes(this: any): Notes {
-            return this.$store.state.notes.stations[this.stationId];
+            return this.$s.state.notes.stations[this.stationId];
         },
         currentStation(this: any): Station {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         photoCache(this: any): any {
-            return this.$store.state.media.photoCache;
+            return this.$s.state.media.photoCache;
         },
         visibleNotes(this: any): NoteForm[] {
             return [this.notes.studyObjective, this.notes.sitePurpose, this.notes.siteCriteria, this.notes.siteDescription];
@@ -171,7 +171,7 @@ export default Vue.extend({
         deployStation(ev: any, station: Station): Promise<any> {
             ev.object.text = _L("processing");
 
-            return this.$store.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
+            return this.$s.dispatch(ActionTypes.DEPLOY_STATION, { deviceId: station.deviceId }).then(() => {
                 return this.$navigateTo(routes.stationDetail, {
                     props: {
                         stationId: this.stationId,

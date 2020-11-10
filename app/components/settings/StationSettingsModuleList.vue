@@ -41,10 +41,10 @@ export default Vue.extend({
     },
     computed: {
         station(this: any) {
-            return this.$store.getters.stationCalibrations[this.stationId];
+            return this.$s.getters.stationCalibrations[this.stationId];
         },
         deployed(this: any) {
-            return this.$store.getters.legacyStations[this.stationId].deployStartTime !== null;
+            return this.$s.getters.legacyStations[this.stationId].deployStartTime !== null;
         },
     },
     methods: {

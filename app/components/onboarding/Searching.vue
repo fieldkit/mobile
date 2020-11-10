@@ -39,7 +39,7 @@ export default Vue.extend({
     },
     computed: {
         numberOfNearbyStations(): number {
-            return this.$store.getters.availableStations.filter((s) => s.connected).length;
+            return this.$s.getters.availableStations.filter((s) => s.connected).length;
         },
     },
     watch: {
@@ -93,7 +93,7 @@ export default Vue.extend({
                     });
                 }
 
-                const legacyStations: LegacyStation[] = this.$store.getters.legacyStations;
+                const legacyStations: LegacyStation[] = this.$s.getters.legacyStations;
                 const connected = Object.values(legacyStations).filter((ls) => ls.connected);
                 if (connected.length < 1) {
                     throw new Error("expected a connected station");

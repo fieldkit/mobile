@@ -2,7 +2,6 @@ import _ from "lodash";
 import Config from "@/config";
 import { promiseAfter } from "@/utilities";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
-import { AtlasSensorType } from "@/calibration";
 import { fixupCalibrationStatus, AtlasStatus } from "@/store/http-types";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 export * from "./atlas-types";
@@ -10,16 +9,16 @@ export * from "./atlas-types";
 const AtlasQuery = AtlasProto.WireAtlasQuery;
 const AtlasReply = AtlasProto.WireAtlasReply;
 const ReplyType = AtlasProto.ReplyType;
-// const SensorType = AtlasProto.SensorType;
 const AtlasQueryType = AtlasProto.QueryType;
 const AtlasCalibrationOperation = AtlasProto.CalibrationOperation;
 const PhCalibrationsCommand = AtlasProto.PhCalibrateCommand;
 const EcCalibrationsCommand = AtlasProto.EcCalibrateCommand;
+const AtlasSensorType = AtlasProto.SensorType;
 
 const log = Config.logger("CalibrationService");
 
 export interface CalibrationAttempt {
-    sensorType: AtlasSensorType;
+    sensorType: AtlasProto.SensorType;
     which: number;
     reference: number;
     compensations: {
@@ -45,10 +44,10 @@ export default class CalibrationService {
 
     private applyCompensation(data: CalibrationAttempt): number {
         switch (data.sensorType) {
-            case AtlasSensorType.None: {
+            case AtlasSensorType.SENSOR_NONE: {
                 break;
             }
-            case AtlasSensorType.Ph: {
+            case AtlasSensorType.SENSOR_PH: {
                 if (!data.compensations.temperature) {
                     return data.reference;
                 }
@@ -70,16 +69,16 @@ export default class CalibrationService {
                 }
                 break;
             }
-            case AtlasSensorType.Temp: {
+            case AtlasSensorType.SENSOR_TEMP: {
                 break;
             }
-            case AtlasSensorType.Orp: {
+            case AtlasSensorType.SENSOR_ORP: {
                 break;
             }
-            case AtlasSensorType.Do: {
+            case AtlasSensorType.SENSOR_DO: {
                 break;
             }
-            case AtlasSensorType.Ec: {
+            case AtlasSensorType.SENSOR_EC: {
                 if (!data.compensations.temperature) {
                     return data.reference;
                 }

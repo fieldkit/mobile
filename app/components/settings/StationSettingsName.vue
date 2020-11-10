@@ -89,12 +89,12 @@ export default Vue.extend({
     },
     computed: {
         station(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {
         getStation(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         onPageLoaded(this: any, args) {
             this.page = args.object;
@@ -135,7 +135,7 @@ export default Vue.extend({
         saveStationName(this: any) {
             const valid = this.checkName();
             if (valid && this.origName != this.stationName) {
-                return this.$store
+                return this.$s
                     .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.getStation().deviceId, name: this.stationName })
                     .then(() => {
                         return this.goBack();

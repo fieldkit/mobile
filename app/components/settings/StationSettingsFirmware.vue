@@ -100,20 +100,20 @@ export default Vue.extend({
     },
     computed: {
         station(): LegacyStation {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         stationFirmware(): FirmwareInfo {
-            return this.$store.state.firmware.stations[this.stationId];
+            return this.$s.state.firmware.stations[this.stationId];
         },
-        availableFirmware(): AvailableFirmware {
-            return this.$store.state.firmware.available;
+        availableFirmware(): AvailableFirmware | null {
+            return this.$s.state.firmware.available;
         },
         missingFirmware(): boolean {
             return !this.availableFirmware || !this.availableFirmware.simpleNumber;
         },
         updateAvailable(): boolean {
-            const local = this.$store.state.firmware.available;
-            const station = this.$store.state.firmware.stations[this.stationId];
+            const local = this.$s.state.firmware.available;
+            const station = this.$s.state.firmware.stations[this.stationId];
             console.log("comparing", "station", this.stationId, station, "locally", local);
             if (local && station) {
                 const localVersion = local?.simpleNumber || 0;

@@ -50,10 +50,10 @@ export default Vue.extend({
             return this.status.error || false;
         },
         station(): Station {
-            return this.$store.getters.stationsById[this.stationId];
+            return this.$s.getters.stationsById[this.stationId];
         },
         upgrade(): UpgradeInfo {
-            return this.$store.state.firmware.status[this.stationId] || {};
+            return this.$s.state.firmware.status[this.stationId] || {};
         },
         status(): UpgradeStatus {
             return this.upgrade?.status || {};
@@ -82,14 +82,14 @@ export default Vue.extend({
             }
 			*/
 
-            const availableStations: { [index: number]: AvailableStation } = _.keyBy(this.$store.getters.availableStations, (s) => s.id);
+            const availableStations: { [index: number]: AvailableStation } = _.keyBy(this.$s.getters.availableStations, (s) => s.id);
             const station = availableStations[this.stationId];
 
             if (!station) throw new Error(`firmware-modal: no such station`);
             if (!station.id) throw new Error(`firmware-modal: no station id`);
             if (!station.url) throw new Error(`firmware-modal: no station url`);
 
-            return this.$store.dispatch(new UpgradeStationFirmwareAction(station.id, station.url));
+            return this.$s.dispatch(new UpgradeStationFirmwareAction(station.id, station.url));
         },
         onClose(): void {
             console.log("closing", this.$modal);

@@ -61,7 +61,7 @@ export default Vue.extend({
     },
     computed: {
         station(this: any) {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {
@@ -93,7 +93,7 @@ export default Vue.extend({
 
             this.busy = true;
 
-            return this.$store
+            return this.$s
                 .dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
                     deviceId: this.station.deviceId,
                     schedules: { network: this.form.schedule },

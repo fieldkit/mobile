@@ -8,8 +8,9 @@ import { NotesState } from "./notes";
 import { PortalState } from "./portal";
 import { FirmwareState } from "./firmware";
 import { NotificationsState } from "./notifications";
+import { MediaState } from "./media";
 
-import { Station, AvailableStation, LegacyStation } from "../types";
+import { ServiceInfo, ModuleStatus, Station, AvailableStation, LegacyStation } from "../types";
 
 export class StationsState {
     all: Station[] = [];
@@ -27,6 +28,13 @@ export interface GlobalState {
     readonly portal: PortalState;
     readonly notifications: NotificationsState;
     readonly firmware: FirmwareState;
+    readonly cal: CalibrationState;
+    readonly media: MediaState;
+}
+
+export class CalibrationState {
+    status: { [index: string]: ModuleStatus } = {};
+    connected: { [index: string]: ServiceInfo } = {};
 }
 
 export interface GlobalGetters {

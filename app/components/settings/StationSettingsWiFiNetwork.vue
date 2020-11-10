@@ -143,7 +143,7 @@ export default Vue.extend({
             return 2;
         },
         station(): Station {
-            return this.$store.getters.stationsById[this.stationId];
+            return this.$s.getters.stationsById[this.stationId];
         },
         networks(): NetworkInfo[] {
             return this.station.networks;
@@ -178,7 +178,7 @@ export default Vue.extend({
                 ssid: "",
                 password: "",
             };
-            return this.$store.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
+            return this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
         },
         removeNetwork(network: NetworkInfo): Promise<void> {
             return Dialogs.confirm({
@@ -187,7 +187,7 @@ export default Vue.extend({
                 cancelButtonText: _L("cancel"),
             }).then((confirmed) => {
                 if (confirmed) {
-                    return this.$store.dispatch(new RemoveStationNetworkAction(this.station.deviceId, network, this.station.networks));
+                    return this.$s.dispatch(new RemoveStationNetworkAction(this.station.deviceId, network, this.station.networks));
                 }
                 return Promise.resolve();
             });

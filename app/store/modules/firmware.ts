@@ -36,7 +36,7 @@ export interface UpgradeInfo {
 }
 
 export class FirmwareState {
-    available: AvailableFirmware[] = [];
+    available: AvailableFirmware | null = null;
     stations: { [index: number]: FirmwareInfo } = {};
     status: { [index: number]: UpgradeInfo } = {};
 }

@@ -81,14 +81,14 @@ export default Vue.extend({
     },
     computed: {
         currentStation(): LegacyStation {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         canAdd(): boolean {
             return this.currentStation.connected && this.form.ssid.length > 0 && this.form.password.length > 0;
         },
     },
     mounted(): Promise<any> {
-        return this.$store.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
+        return this.$s.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
             console.log("networks", networks);
             return {};
         });
@@ -105,7 +105,7 @@ export default Vue.extend({
                 },
                 []
             );
-            return this.$store.dispatch(action).then(
+            return this.$s.dispatch(action).then(
                 () => {
                     return this.$navigateTo(routes.onboarding.rename, {
                         props: {

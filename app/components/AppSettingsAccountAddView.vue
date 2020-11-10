@@ -290,7 +290,7 @@ export default Vue.extend({
             return Services.PortalInterface()
                 .login(this.user)
                 .then((token) => {
-                    return this.$store.dispatch(ActionTypes.AUTHENTICATED).then(() => {
+                    return this.$s.dispatch(ActionTypes.AUTHENTICATED).then(() => {
                         return this.$navigateBack();
                     });
                 })

@@ -83,7 +83,7 @@ export default Vue.extend({
     },
     computed: {
         station(): LegacyStation | null {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         sensor(): CalibratingSensor | null {
             try {
@@ -97,9 +97,9 @@ export default Vue.extend({
                 const moduleId = module.moduleId;
 
                 console.log("module-id", moduleId);
-                console.log("module-cal-status", this.$store.state.cal.status);
+                console.log("module-cal-status", this.$s.state.cal.status);
 
-                const moduleCalibration = this.$store.state.cal.status[moduleId]?.calibration || null;
+                const moduleCalibration = this.$s.state.cal.status[moduleId] || null;
                 console.log("module-cal", moduleCalibration);
 
                 if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
@@ -138,7 +138,7 @@ export default Vue.extend({
             }
         },
         deviceId(): string {
-            return this.$store.getters.legacyStations[this.stationId].deviceId;
+            return this.$s.getters.legacyStations[this.stationId].deviceId;
         },
         activeStep(): VisualCalibrationStep {
             const step = _.first(this.getRemainingSteps());
@@ -222,7 +222,7 @@ export default Vue.extend({
                 const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
                 console.log("cal:", "clearing", action);
                 this.busy = true;
-                return this.$store
+                return this.$s
                     .dispatch(action)
                     .then(
                         (cleared) => {
@@ -264,7 +264,7 @@ export default Vue.extend({
                 );
                 console.log("cal:", "calibrate", action);
                 this.busy = true;
-                return this.$store
+                return this.$s
                     .dispatch(action)
                     .then(
                         (calibrated) => {

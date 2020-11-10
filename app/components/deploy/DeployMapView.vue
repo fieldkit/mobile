@@ -141,10 +141,10 @@ export default Vue.extend({
     },
     computed: {
         currentNotes(): Notes {
-            return this.$store.state.notes.stations[this.stationId];
+            return this.$s.state.notes.stations[this.stationId];
         },
         currentStation(): Station {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {
@@ -193,7 +193,7 @@ export default Vue.extend({
         },
         displayStation(): void {
             const thisAny = this as any;
-            const station = this.$store.getters.legacyStations[this.stationId];
+            const station = this.$s.getters.legacyStations[this.stationId];
             const location = station.location();
             if (!location) {
                 return;
@@ -238,11 +238,11 @@ export default Vue.extend({
             if (!this.checkLocationName()) return Promise.reject(new Error("validation error"));
             const schedule = this.form.schedule;
             if (!schedule) return Promise.reject(new Error("no schedule"));
-            const station = this.$store.getters.legacyStations[this.stationId];
+            const station = this.$s.getters.legacyStations[this.stationId];
             const existing = station.schedules;
-            return Promise.all([this.$store.dispatch(new NameStationLocationAction(this.stationId, this.form.location))]).then(() => {
+            return Promise.all([this.$s.dispatch(new NameStationLocationAction(this.stationId, this.form.location))]).then(() => {
                 return Promise.all([
-                    this.$store.dispatch(new ConfigureStationSchedulesAction(station.deviceId, { readings: schedule }, existing)),
+                    this.$s.dispatch(new ConfigureStationSchedulesAction(station.deviceId, { readings: schedule }, existing)),
                 ]);
             });
         },

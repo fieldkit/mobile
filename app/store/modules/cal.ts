@@ -3,10 +3,11 @@ import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { ActionTypes, StationRepliedAction } from "../actions";
 import { MutationTypes } from "../mutations";
-import { Station, ServiceInfo, AtlasStatus } from "../types";
+import { Station, ServiceInfo, ModuleStatus } from "../types";
 import { ServiceRef } from "@/services";
-import { GlobalGetters } from "./global";
-import { calibrationStrategies, ModuleStatus, AtlasSensorType, StationCalibration, AtlasCalValue } from "@/calibration";
+import { CalibrationState, GlobalGetters } from "./global";
+import { calibrationStrategies, StationCalibration, AtlasCalValue } from "@/calibration";
+import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 import CalibrationService, { WireAtlasReply } from "@/services/calibration-service";
 
 export const CALIBRATED = "CALIBRATED";
@@ -26,15 +27,10 @@ export class CalibrateAtlas {
         public readonly deviceId: string,
         public readonly moduleId: string,
         public readonly position: number,
-        public readonly sensorType: AtlasSensorType,
+        public readonly sensorType: AtlasProto.SensorType,
         public readonly value: AtlasCalValue,
         public readonly compensations: { temperature: number | null }
     ) {}
-}
-
-export class CalibrationState {
-    status: { [index: string]: ModuleStatus } = {};
-    connected: { [index: string]: ServiceInfo } = {};
 }
 
 const getters = {
@@ -108,7 +104,7 @@ const actions = (services: ServiceRef) => {
                 reference: payload.value.reference,
                 compensations: payload.compensations,
             };
-            return service.calibrateSensor(url, params).then((calibrated: AtlasStatus) => {
+            return service.calibrateSensor(url, params).then((calibrated: ModuleStatus) => {
                 console.log("cal:", "calibrated", payload.moduleId, calibrated);
                 return commit(CALIBRATED, { [payload.moduleId]: calibrated });
             });

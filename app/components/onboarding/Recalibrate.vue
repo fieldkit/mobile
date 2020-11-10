@@ -84,7 +84,7 @@ export default Vue.extend({
     },
     computed: {
         currentStation(): Station {
-            return this.$store.getters.stationCalibrations[this.stationId];
+            return this.$s.getters.stationCalibrations[this.stationId];
         },
     },
     methods: {

@@ -149,16 +149,16 @@ export default Vue.extend({
     },
     computed: {
         notes(): Notes {
-            return this.$store.state.notes.stations[this.stationId];
+            return this.$s.state.notes.stations[this.stationId];
         },
         photos(): NoteMedia[] {
             return _.uniqBy(this.notes.photos, (m) => m.path);
         },
         currentStation(): Station {
-            return this.$store.getters.legacyStations[this.stationId];
+            return this.$s.getters.legacyStations[this.stationId];
         },
         photoCache(): { [index: string]: any } {
-            return this.$store.state.media.photoCache;
+            return this.$s.state.media.photoCache;
         },
     },
     props: {
@@ -174,9 +174,9 @@ export default Vue.extend({
     methods: {
         onPageLoaded(args): Promise<void> {
             if (false) {
-                console.log("notes", this.$store.state.notes.stations[this.stationId]);
-                const paths = this.$store.state.notes.stations[this.stationId].photos.map((p) => p.path);
-                return this.$store.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
+                console.log("notes", this.$s.state.notes.stations[this.stationId]);
+                const paths = this.$s.state.notes.stations[this.stationId].photos.map((p) => p.path);
+                return this.$s.dispatch(ActionTypes.LOAD_PICTURES, { paths: paths });
             }
             return Promise.resolve();
         },
@@ -190,28 +190,28 @@ export default Vue.extend({
             });
         },
         takePicture(): Promise<any> {
-            return this.$store.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
+            return this.$s.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return promiseAfter(100).then(() => {
-                    this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
+                    this.$s.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
                         stationId: this.stationId,
                         key: null,
                         photo: new NoteMedia(savedImage.path, getFileName(savedImage.path)),
                     });
-                    return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
+                    return this.$s.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
             });
         },
         selectPicture(): Promise<any> {
-            return this.$store.dispatch(ActionTypes.FIND_PICTURE).then((savedImage) => {
+            return this.$s.dispatch(ActionTypes.FIND_PICTURE).then((savedImage) => {
                 console.log("saved image", savedImage);
                 return promiseAfter(100).then(() => {
-                    this.$store.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
+                    this.$s.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
                         stationId: this.stationId,
                         key: null,
                         photo: new NoteMedia(savedImage.path, getFileName(savedImage.path)),
                     });
-                    return this.$store.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
+                    return this.$s.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
             });
         },

@@ -50,7 +50,7 @@ import Promise from "bluebird";
 export default Vue.extend({
     computed: {
         currentSettings(this: any) {
-            return this.$store.state.portal.settings;
+            return this.$s.state.portal.settings;
         },
     },
     components: {
@@ -60,7 +60,7 @@ export default Vue.extend({
     },
     methods: {
         saveSettings() {
-            this.$store.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+            this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         goBack(this: any, ev) {
             return Promise.all([
