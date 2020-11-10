@@ -1,7 +1,13 @@
 import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
-import { ActionTypes } from "../actions";
+import {
+    ActionTypes,
+    DownloadStationDataAction,
+    UploadStationDataAction,
+    DownloadAllStationsDataAction,
+    UploadAllStationsDataAction,
+} from "../actions";
 import { MutationTypes } from "../mutations";
 import {
     Station,
@@ -12,10 +18,15 @@ import {
     TransferProgress,
     ServiceInfo,
     SortableStationSorter,
+    StationSyncStatus,
+    TransferError,
+    PendingDownload,
+    PendingUpload,
+    LocalFile,
+    StationProgress,
 } from "../types";
 import { ServiceRef, CalculatedSize } from "@/services";
 import { serializePromiseChain, getPathTimestamp, getFilePath, getFileName } from "../../utilities";
-import { StationSyncStatus, TransferError, PendingDownload, PendingUpload, LocalFile, StationProgress } from "../types";
 import { AuthenticationError } from "../../lib/errors";
 
 export const StationSyncsSorter = (syncs: StationSyncStatus[]): StationSyncStatus[] => {
@@ -49,10 +60,15 @@ type ActionParameters = ActionContext<SyncingState, never>;
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.DOWNLOAD_ALL]: async ({ dispatch }: ActionParameters, syncs: StationSyncStatus[]): Promise<void> => {
-            await Promise.all(syncs.map((dl) => dispatch(ActionTypes.DOWNLOAD_STATION, dl)));
+        [ActionTypes.DOWNLOAD_ALL]: async ({ dispatch }: ActionParameters, payload: DownloadAllStationsDataAction): Promise<void> => {
+            await Promise.all(payload.syncs.map((dl) => dispatch(new DownloadStationDataAction(dl))));
         },
-        [ActionTypes.DOWNLOAD_STATION]: async ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<void> => {
+        [ActionTypes.DOWNLOAD_STATION]: async (
+            { commit, dispatch, state }: ActionParameters,
+            payload: DownloadStationDataAction
+        ): Promise<void> => {
+            const sync = payload.sync;
+
             if (!sync.connected) {
                 throw new Error("refusing to download from disconnected station");
             }
@@ -99,10 +115,15 @@ const actions = (services: ServiceRef) => {
                     state.busy[sync.deviceId] = false;
                 });
         },
-        [ActionTypes.UPLOAD_ALL]: async ({ dispatch }: ActionParameters, syncs: StationSyncStatus[]): Promise<void> => {
-            await Promise.all(syncs.map((dl) => dispatch(ActionTypes.UPLOAD_STATION, dl)));
+        [ActionTypes.UPLOAD_ALL]: async ({ dispatch }: ActionParameters, payload: UploadAllStationsDataAction): Promise<void> => {
+            await Promise.all(payload.syncs.map((dl) => dispatch(new UploadStationDataAction(dl))));
         },
-        [ActionTypes.UPLOAD_STATION]: async ({ commit, dispatch, state }: ActionParameters, sync: StationSyncStatus): Promise<void> => {
+        [ActionTypes.UPLOAD_STATION]: async (
+            { commit, dispatch, state }: ActionParameters,
+            payload: UploadStationDataAction
+        ): Promise<void> => {
+            const sync = payload.sync;
+
             const paths = sync.getPathsToUpload();
             const downloads = paths.map((path) => state.pending[path]).filter((d) => d != null);
             if (downloads.length != paths.length) {

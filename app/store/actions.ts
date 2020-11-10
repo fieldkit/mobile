@@ -176,14 +176,26 @@ export class UpgradeStationFirmwareAction {
     constructor(public readonly stationId: number, public readonly url: string) {}
 }
 
-export class DownloadStationData {
+export class DownloadStationDataAction {
     type = ActionTypes.DOWNLOAD_STATION;
 
     constructor(public readonly sync: StationSyncStatus) {}
 }
 
-export class UpoadStationData {
+export class UploadStationDataAction {
     type = ActionTypes.UPLOAD_STATION;
 
     constructor(public readonly sync: StationSyncStatus) {}
+}
+
+export class DownloadAllStationsDataAction {
+    type = ActionTypes.DOWNLOAD_ALL;
+
+    constructor(public readonly syncs: StationSyncStatus[]) {}
+}
+
+export class UploadAllStationsDataAction {
+    type = ActionTypes.UPLOAD_ALL;
+
+    constructor(public readonly syncs: StationSyncStatus[]) {}
 }

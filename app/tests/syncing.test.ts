@@ -5,7 +5,7 @@ import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
 import { getPathTimestamp } from "@/utilities";
 
-import { ActionTypes } from "@/store";
+import { ActionTypes, DownloadAllStationsDataAction, UploadAllStationsDataAction } from "@/store";
 import { TryStationOnceAction, StationRepliedAction, FileTypeUtils, FileType, TransferProgress } from "@/store";
 import { StationSyncStatus, PendingDownload, PendingUpload, LocalFile, TransferError, StationProgress } from "@/store";
 
@@ -147,7 +147,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -221,7 +221,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(500, {});
             try {
-                await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+                await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
             } catch (error) {
                 expect(error).toBeDefined();
             }
@@ -309,7 +309,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -382,7 +382,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -495,7 +495,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -572,7 +572,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "1,5" });
             mockStation.queueDownload(200, { "fk-blocks": "100,200" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -618,7 +618,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs.length).toStrictEqual(1);
             expect(store.getters.syncs[0].downloads.length).toStrictEqual(0);
@@ -626,7 +626,7 @@ describe("Syncing", () => {
 
             mockStation.queueUpload(200, {});
             mockStation.queueUpload(200, {});
-            await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new UploadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -663,7 +663,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs.length).toStrictEqual(1);
             expect(store.getters.syncs[0].downloads.length).toStrictEqual(0);
@@ -671,7 +671,7 @@ describe("Syncing", () => {
 
             mockStation.queueUpload(200, {});
             mockStation.queueUpload(200, {});
-            await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new UploadAllStationsDataAction(store.getters.syncs));
 
             const streams2 = mockStation.newStreams(5, 200);
             const reply2 = mockStation.newFakeStatusReply(fake, null, streams2);
@@ -681,11 +681,11 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "1,5" });
             mockStation.queueDownload(200, { "fk-blocks": "100,200" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             mockStation.queueUpload(200, {});
             mockStation.queueUpload(200, {});
-            await store.dispatch(ActionTypes.UPLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new UploadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -751,7 +751,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,110" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs).toStrictEqual([
                 new StationSyncStatus(
@@ -828,7 +828,7 @@ describe("Syncing", () => {
             mockStation.queueCalculateDownloadSize(204, 100);
             mockStation.queueDownload(200, { "fk-blocks": "0,1" });
             mockStation.queueDownload(200, { "fk-blocks": "0,100" });
-            await store.dispatch(ActionTypes.DOWNLOAD_ALL, store.getters.syncs);
+            await store.dispatch(new DownloadAllStationsDataAction(store.getters.syncs));
 
             expect(store.getters.syncs.length).toStrictEqual(1);
             expect(store.getters.syncs[0].downloads.length).toStrictEqual(0);

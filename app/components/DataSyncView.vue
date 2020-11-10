@@ -160,7 +160,7 @@ import _ from "lodash";
 import moment from "moment";
 
 import Vue from "vue";
-import { ActionTypes } from "@/store/actions";
+import { DownloadStationDataAction, UploadStationDataAction } from "@/store/actions";
 import { StationSyncStatus } from "@/store";
 import routes from "@/routes";
 import Config from "@/config";
@@ -199,7 +199,7 @@ export default Vue.extend({
         onDownload(sync: StationSyncStatus): Promise<any> {
             try {
                 log.info("download", sync);
-                return this.$s.dispatch(ActionTypes.DOWNLOAD_STATION, sync);
+                return this.$s.dispatch(new DownloadStationDataAction(sync));
             } catch (error) {
                 log.info("error", error);
                 return Promise.resolve();
@@ -208,7 +208,7 @@ export default Vue.extend({
         onUpload(sync: StationSyncStatus): Promise<any> {
             try {
                 log.info("upload", sync);
-                return this.$s.dispatch(ActionTypes.UPLOAD_STATION, sync);
+                return this.$s.dispatch(new UploadStationDataAction(sync));
             } catch (error) {
                 log.info("error", error);
                 return Promise.resolve();
