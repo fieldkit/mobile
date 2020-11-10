@@ -17,9 +17,8 @@ export default class CreateDB {
         return Promise.resolve(db);
     }
 
-    public initialize(userInvokedDelete = false, path: string | null = null): Promise<Database> {
-        console.log("opening", userInvokedDelete);
-        return this.open(path)
+    public initialize(path: string | null, userInvokedDelete: boolean, readOnly: boolean): Promise<Database> {
+        return this.open(path, readOnly)
             .then(() => {
                 if (!path && (Config.dropTables || userInvokedDelete)) {
                     return this.dropTables().then(() => {
@@ -39,7 +38,7 @@ export default class CreateDB {
             });
     }
 
-    private getDatabaseName(path: string | null) {
+    private getDatabaseName(path: string | null): string {
         const globalAny: any = global; // eslint-disable-line
         // eslint-disable-next-line
         if (globalAny.TNS_ENV === "test") {
@@ -51,7 +50,7 @@ export default class CreateDB {
         return "fieldkit.sqlite3";
     }
 
-    private dropTables() {
+    private dropTables(): Promise<void> {
         const db = this.database;
         if (!db) throw new Error("uninitialized database");
         console.log("dropping tables");
@@ -76,8 +75,10 @@ export default class CreateDB {
         });
     }
 
-    private open(path: string | null) {
-        return this.sqlite.open(this.getDatabaseName(path)).then((db: Database) => {
+    private open(path: string | null, readOnly: boolean): Promise<Database> {
+        const opening = this.getDatabaseName(path);
+        console.log(`opening: ${opening}`);
+        return this.sqlite.open(opening, readOnly).then((db: Database) => {
             // foreign keys are disabled by default in sqlite
             // enable them here
             return db.query(`PRAGMA foreign_keys = ON;`).then(() => {

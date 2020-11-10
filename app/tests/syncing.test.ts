@@ -27,7 +27,7 @@ describe("Progress", () => {
         const mockStation = new MockStationReplies(services);
         const streams1 = mockStation.newStreams(1, 100);
         const fake = mockStation.newFakeStation();
-        await services.CreateDb().initialize();
+        await services.CreateDb().initialize(null, false, false);
 
         const spy = jest.spyOn(services.QueryStation(), "takeReadings");
 

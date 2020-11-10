@@ -335,7 +335,7 @@ export class Station implements StationCreationFields {
 
     private decodedStatus: HttpStatusReply | null = null;
 
-    protected decodeStatusReply(): HttpStatusReply {
+    public decodeStatusReply(): HttpStatusReply {
         if (this.decodedStatus == null) {
             if (this.serializedStatus !== null && this.serializedStatus.length > 0) {
                 try {

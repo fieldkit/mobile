@@ -134,7 +134,7 @@ function initializeApplication(services: Services): Promise<any> {
                     .then(() =>
                         services
                             .CreateDb()
-                            .initialize()
+                            .initialize(null, false, false)
                             .then(() => services.Database().checkSettings())
                             .then(() => {
                                 console.log("services:ready");
@@ -142,17 +142,18 @@ function initializeApplication(services: Services): Promise<any> {
                                 return services
                                     .Store()
                                     .dispatch(ActionTypes.LOAD)
-                                    .then(() =>
-                                        Promise.resolve()
-                                            .then(() => services.DiscoverStation().startServiceDiscovery())
-                                            .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
-                                            .then(() => enableLocationServices(services))
-                                            .then(() => services.PortalUpdater().start())
-                                            .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
-                                            .then(() => updateStore(services.Store()))
-                                            .then(() => resumeSession(services))
-                                            .then(() => restartDiscovery(services.DiscoverStation()))
-                                            // .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
+                                    .then(
+                                        () =>
+                                            Promise.resolve()
+                                                .then(() => services.DiscoverStation().startServiceDiscovery())
+                                                .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
+                                                .then(() => enableLocationServices(services))
+                                                .then(() => services.PortalUpdater().start())
+                                                .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
+                                                .then(() => updateStore(services.Store()))
+                                                .then(() => resumeSession(services))
+                                                .then(() => restartDiscovery(services.DiscoverStation()))
+                                        // .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
                                     );
                             })
                     )

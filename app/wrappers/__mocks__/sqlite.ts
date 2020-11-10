@@ -59,9 +59,10 @@ class DatabaseWrapper {
 }
 
 export default class SqliteNodeJs {
-    public open(name: string): Promise<DatabaseWrapper> {
+    public open(name: string, readOnly: boolean): Promise<DatabaseWrapper> {
         return new Promise((resolve, reject) => {
-            const db = new sqlite3.Database(name, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+            const flags = readOnly ? sqlite3.OPEN_READONLY : sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE;
+            const db = new sqlite3.Database(name, flags, (err) => {
                 if (err) {
                     reject(err);
                     return;

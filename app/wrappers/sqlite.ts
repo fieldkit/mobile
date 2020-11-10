@@ -63,7 +63,7 @@ class DatabaseWrapper implements Database {
 }
 
 export default class SqliteNativeScript {
-    public open(name: string): Promise<Database> {
+    public open(name: string, _readOnly: boolean): Promise<Database> {
         console.log("sqlite:opening", name, Sqlite.HAS_COMMERCIAL, Sqlite.HAS_ENCRYPTION, Sqlite.HAS_SYNC);
 
         return new Promise((resolve, reject) => {

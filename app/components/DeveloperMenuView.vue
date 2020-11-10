@@ -237,7 +237,7 @@ export default Vue.extend({
             console.log("deleting database");
 
             return Services.CreateDb()
-                .initialize(true)
+                .initialize(null, true, false)
                 .then(() => {
                     const store = Services.Store();
 

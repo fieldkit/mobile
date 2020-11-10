@@ -105,7 +105,7 @@ export class ReadingsDatabase {
 
     public static async open(name: string): Promise<ReadingsDatabase> {
         const sqlite = new Sqlite();
-        const db = await sqlite.open(name);
+        const db = await sqlite.open(name, false);
         await db.query(`PRAGMA foreign_keys = ON;`);
         await db.query(`PRAGMA synchronous = OFF;`);
         await db.query(`PRAGMA journal_mode = MEMORY;`);
