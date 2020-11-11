@@ -23,6 +23,7 @@ export declare interface TransferInfo {
     method?: string;
     body?: Uint8Array | string;
     path?: string;
+    copy?: boolean;
     connectionTimeout?: number;
     defaultTimeout?: number;
     headers?: { [index: string]: string };
