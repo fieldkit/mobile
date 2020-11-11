@@ -59,7 +59,7 @@ function simpleMutation(appendLog: AppendStoreLog, mutation: PassedMutation): bo
         before: JSON.stringify({}),
         after: JSON.stringify({}),
     });
-    return true;
+    return false;
 }
 
 function customizeLogger(appendLog: AppendStoreLog) {
