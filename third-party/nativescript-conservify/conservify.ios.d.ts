@@ -38,6 +38,7 @@ declare class WebTransfer extends NSObject {
     url: string;
     path: string;
     body: any;
+    uploadCopy: boolean;
     base64EncodeResponseBody: boolean;
     base64DecodeRequestBody: boolean;
     headerWithKeyValue(key: string, value: string): WebTransfer;

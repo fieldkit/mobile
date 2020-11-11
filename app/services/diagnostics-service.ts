@@ -155,7 +155,7 @@ export default class Diagnostics {
                 method: "POST",
                 url: this.baseUrl + "/" + id + "/fk.db",
                 path: path,
-                copy: true,
+                uploadCopy: true,
             })
             .then((response) => response.body);
     }
