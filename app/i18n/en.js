@@ -215,7 +215,7 @@ module.exports = {
     saveStartTime: "Save Start Time",
     saveEndTime: "Save End Time",
     // DataSyncView.vue
-    dataSync: "Data Sync",
+    dataSync: "Data",
     totalDownAndUploaded: "total readings down & uploaded",
     totalDownloaded: "total readings downloaded",
     totalUploaded: "total readings uploaded",
