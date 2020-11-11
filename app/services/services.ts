@@ -176,7 +176,7 @@ export class ServicesImpl implements Services {
 
     public Images(): ImagesSaver {
         if (!this.images) {
-            this.images = new ImagesSaver();
+            this.images = new ImagesSaver(this.Store());
         }
         return this.unwrap(this.images);
     }

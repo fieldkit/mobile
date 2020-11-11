@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="auto,*,auto" @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <GridLayout rows="auto,*,auto">
         <GridLayout row="0" rows="auto" columns="15*,70*,15*" class="container-header">
             <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="onCancel">
                 <Image width="21" src="~/images/Icon_Close.png"></Image>
@@ -71,8 +71,6 @@ export default Vue.extend({
         };
     },
     methods: {
-        onPageLoaded(): void {},
-        onUnloaded(): void {},
         onCancel(): void {
             console.log("note cancel", this.form);
             this.$emit("cancel");

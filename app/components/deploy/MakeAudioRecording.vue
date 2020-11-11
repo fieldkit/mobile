@@ -40,7 +40,7 @@ export default Vue.extend({
     },
     computed: {
         recording(): ActiveRecording | null {
-            console.log("recording", this.$s.state.media.recording, this.now);
+            console.log(`recording`, this.$s.state.media.recording, this.now);
             return this.$s.state.media.recording;
         },
     },
@@ -53,30 +53,32 @@ export default Vue.extend({
         this.timer.stop();
     },
     methods: {
-        onPageLoaded(): void {},
-        onUnloaded(): void {},
-        startOrResume(): Promise<any> {
+        startOrResume(): Promise<void> {
+            console.log(`startOrResume`);
             if (this.recording) {
                 return this.$s.dispatch(ActionTypes.AUDIO_RESUME);
             }
             return this.$s.dispatch(ActionTypes.AUDIO_RECORD);
         },
-        pause(): Promise<any> {
+        pause(): Promise<void> {
             return this.$s.dispatch(ActionTypes.AUDIO_PAUSE);
         },
-        stop(): Promise<any> {
-            return this.$s.dispatch(ActionTypes.AUDIO_STOP).then((recording) => {
-                return this.$emit("stop", recording);
-            });
-        },
-        cancel(): Promise<any> {
+        async stop(): Promise<void> {
             if (this.$s.state.media.recording) {
-                return this.$s.dispatch(ActionTypes.AUDIO_STOP).then(() => {
+                const recording: ActiveRecording = this.$s.state.media.recording;
+                await this.$s.dispatch(ActionTypes.AUDIO_STOP).then(() => {
+                    console.log(`stop-recording`, recording);
+                    return this.$emit("stop", recording);
+                });
+            }
+        },
+        async cancel(): Promise<void> {
+            if (this.$s.state.media.recording) {
+                await this.$s.dispatch(ActionTypes.AUDIO_STOP).then(() => {
                     return this.$emit("cancel");
                 });
             }
             this.$emit("cancel");
-            return Promise.resolve();
         },
     },
 });

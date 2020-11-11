@@ -1,8 +1,15 @@
+import { OurStore, MutationTypes } from "@/store";
+
 import { ImageSource, path, knownFolders } from "@nativescript/core";
+import * as ImagePicker from "@nativescript/imagepicker";
+import * as Camera from "@nativescript/camera";
+
 import { getPathTimestamp } from "@/utilities";
-import { IncomingImage, SavedImage } from "./types";
+import { ImageAsset, IncomingImage, SavedImage } from "./types";
 
 export default class ImagesSaver {
+    constructor(private readonly store: OurStore) {}
+
     public saveImage(incoming: IncomingImage): Promise<SavedImage> {
         const folder = knownFolders.documents().getFolder("media/images");
         const destination = path.join(folder.path, getPathTimestamp(new Date()) + ".jpg");
@@ -21,6 +28,32 @@ export default class ImagesSaver {
     public fromFile(path: string): Promise<SavedImage> {
         return ImageSource.fromFile(path).then((source) => {
             return new SavedImage(path, source, null);
+        });
+    }
+
+    public findPicture(): Promise<SavedImage> {
+        const context = ImagePicker.create({
+            mode: "single",
+        });
+
+        return context
+            .authorize()
+            .then(() => context.present())
+            .then((assets: ImageAsset[]) => this.savePicture(assets[0]));
+    }
+
+    public takePicture(): Promise<SavedImage> {
+        return Camera.takePicture({
+            keepAspectRatio: true,
+            saveToGallery: true,
+            allowsEditing: false,
+        }).then((asset) => this.savePicture(asset));
+    }
+
+    private savePicture(asset: ImageAsset): Promise<SavedImage> {
+        return this.saveImage(new IncomingImage(asset)).then((saved: SavedImage) => {
+            this.store.commit(MutationTypes.CACHE_PHOTO, saved);
+            return saved;
         });
     }
 }

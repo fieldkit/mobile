@@ -135,7 +135,7 @@ import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import NoteDisplay from "./NoteDisplay.vue";
 
-import { MutationTypes, ActionTypes } from "@/store";
+import { ActionTypes, SaveNotesAction, AttachNoteMediaMutation } from "@/store";
 import * as animations from "../animations";
 
 export default Vue.extend({
@@ -190,30 +190,30 @@ export default Vue.extend({
             });
         },
         takePicture(): Promise<any> {
-            return this.$s.dispatch(ActionTypes.TAKE_PICTURE).then((savedImage) => {
-                console.log("saved image", savedImage);
-                return promiseAfter(100).then(() => {
-                    this.$s.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
-                        stationId: this.stationId,
-                        key: null,
-                        photo: new NoteMedia(savedImage.path, getFileName(savedImage.path)),
+            return this.$services
+                .Images()
+                .takePicture()
+                .then((savedImage) => {
+                    console.log("saved image", savedImage);
+                    return promiseAfter(100).then(() => {
+                        const media = new NoteMedia(savedImage.path, getFileName(savedImage.path));
+                        this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
+                        return this.$s.dispatch(new SaveNotesAction(this.stationId));
                     });
-                    return this.$s.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
-            });
         },
         selectPicture(): Promise<any> {
-            return this.$s.dispatch(ActionTypes.FIND_PICTURE).then((savedImage) => {
-                console.log("saved image", savedImage);
-                return promiseAfter(100).then(() => {
-                    this.$s.commit(MutationTypes.ATTACH_NOTE_MEDIA, {
-                        stationId: this.stationId,
-                        key: null,
-                        photo: new NoteMedia(savedImage.path, getFileName(savedImage.path)),
+            return this.$services
+                .Images()
+                .findPicture()
+                .then((savedImage) => {
+                    console.log("saved image", savedImage);
+                    return promiseAfter(100).then(() => {
+                        const media = new NoteMedia(savedImage.path, getFileName(savedImage.path));
+                        this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
+                        return this.$s.dispatch(new SaveNotesAction(this.stationId));
                     });
-                    return this.$s.dispatch(ActionTypes.SAVE_NOTES, { stationId: this.stationId });
                 });
-            });
         },
         goBack(ev: any): Promise<any> {
             return Promise.all([animations.pressed(ev), this.$navigateBack({})]);

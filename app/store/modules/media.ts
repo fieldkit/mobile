@@ -1,15 +1,10 @@
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
-import * as Camera from "@nativescript/camera";
-import * as ImagePicker from "@nativescript/imagepicker";
 import { ActionTypes } from "../actions";
 import { MutationTypes } from "../mutations";
 import { ServiceRef } from "@/services";
-import { ImageAsset, SavedImage, IncomingImage } from "@/services/types";
+import { ImageAsset, SavedImage } from "@/services/types";
 import { serializePromiseChain } from "@/utilities";
-
-export const AUDIO_RECORDING_PROGRESS = "AUDIO_RECORDING_PROGRESS";
-export const CACHE_PHOTO = "CACHE_PHOTO";
 
 export class ActiveRecording {
     private readonly started: Date = new Date();
@@ -57,7 +52,7 @@ const actions = (services: ServiceRef) => {
                 .audio()
                 .startAudioRecording()
                 .then((path: string) => {
-                    commit(AUDIO_RECORDING_PROGRESS, new ActiveRecording(path));
+                    commit(MutationTypes.AUDIO_RECORDING_PROGRESS, new ActiveRecording(path));
                 });
         },
         [ActionTypes.AUDIO_PAUSE]: async ({ commit, dispatch, state }: ActionParameters) => {
@@ -67,7 +62,7 @@ const actions = (services: ServiceRef) => {
                 .pauseAudioRecording()
                 .then(() => {
                     if (!state.recording) throw new Error("no recording");
-                    return commit(AUDIO_RECORDING_PROGRESS, state.recording.pause());
+                    return commit(MutationTypes.AUDIO_RECORDING_PROGRESS, state.recording.pause());
                 });
         },
         [ActionTypes.AUDIO_RESUME]: async ({ commit, dispatch, state }: ActionParameters) => {
@@ -77,7 +72,7 @@ const actions = (services: ServiceRef) => {
                 .resumeAudioRecording()
                 .then(() => {
                     if (!state.recording) throw new Error("no recording");
-                    commit(AUDIO_RECORDING_PROGRESS, state.recording.resume());
+                    commit(MutationTypes.AUDIO_RECORDING_PROGRESS, state.recording.resume());
                 });
         },
         [ActionTypes.AUDIO_STOP]: async ({ commit, dispatch, state }: ActionParameters) => {
@@ -87,39 +82,7 @@ const actions = (services: ServiceRef) => {
                 .stopAudioRecording()
                 .then(() => {
                     if (!state.recording) throw new Error("no recording");
-                    const recording = state.recording;
-                    commit(AUDIO_RECORDING_PROGRESS, null);
-                    return recording;
-                });
-        },
-        [ActionTypes.TAKE_PICTURE]: ({ commit, dispatch, state }: ActionParameters) => {
-            return Camera.takePicture({
-                keepAspectRatio: true,
-                saveToGallery: true,
-                allowsEditing: false,
-            }).then((asset) => {
-                return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
-            });
-        },
-        [ActionTypes.FIND_PICTURE]: ({ commit, dispatch, state }: ActionParameters) => {
-            const context = ImagePicker.create({
-                mode: "single",
-            });
-
-            return context
-                .authorize()
-                .then(() => context.present())
-                .then((selection) => selection[0])
-                .then((asset) => {
-                    return dispatch(ActionTypes.SAVE_PICTURE, { asset: asset });
-                });
-        },
-        [ActionTypes.SAVE_PICTURE]: async ({ commit, dispatch, state }: ActionParameters, payload: { asset: ImageAsset }) => {
-            await services
-                .images()
-                .saveImage(new IncomingImage(payload.asset))
-                .then((saved: SavedImage) => {
-                    commit(CACHE_PHOTO, saved);
+                    commit(MutationTypes.AUDIO_RECORDING_PROGRESS, null);
                 });
         },
         [ActionTypes.LOAD_PICTURES]: async ({ commit, dispatch, state }: ActionParameters, payload: { paths: string[] }) => {
@@ -128,7 +91,7 @@ const actions = (services: ServiceRef) => {
                     .images()
                     .fromFile(path)
                     .then((saved: SavedImage) => {
-                        commit(CACHE_PHOTO, saved);
+                        commit(MutationTypes.CACHE_PHOTO, saved);
                     })
             );
         },
@@ -139,10 +102,10 @@ const mutations = {
     [MutationTypes.RESET]: (state: MediaState) => {
         Object.assign(state, new MediaState());
     },
-    [AUDIO_RECORDING_PROGRESS]: (state: MediaState, payload: ActiveRecording) => {
+    [MutationTypes.AUDIO_RECORDING_PROGRESS]: (state: MediaState, payload: ActiveRecording) => {
         Vue.set(state, "recording", payload);
     },
-    [CACHE_PHOTO]: (state: MediaState, payload: { path: string; source: unknown }) => {
+    [MutationTypes.CACHE_PHOTO]: (state: MediaState, payload: { path: string; source: unknown }) => {
         Vue.set(state.photoCache, payload.path, payload.source);
     },
 };

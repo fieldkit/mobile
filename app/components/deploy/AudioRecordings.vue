@@ -16,7 +16,7 @@
                     class="small-round"
                     src="~/images/Icon_Stop.png"
                     v-if="playing == r"
-                    @tap="(ev) => stopPlaying(ev, r)"
+                    @tap="(ev) => stopPlaying(ev)"
                 />
                 <Label col="1" :text="getFileName(r)" :data="getFileName(r)" textWrap="true" @tap="(ev) => toggleAudio(ev, r)" />
                 <Image col="2" width="20" class="small-round" src="~/images/Icon_Delete.png" @tap="(ev) => removeRecording(ev, r)" />
@@ -41,17 +41,17 @@ export default Vue.extend({
         };
     },
     methods: {
-        getFileName(this: any, media: NoteMedia) {
+        getFileName(media: NoteMedia): string {
             const parts = media.path.split("/");
             return parts[parts.length - 1];
         },
-        toggleAudio(this: any, ev, media: NoteMedia) {
+        toggleAudio(ev, media: NoteMedia): Promise<void> {
             if (this.playing) {
-                return this.stopPlaying(media);
+                return this.stopPlaying();
             }
             return this.startPlaying(media);
         },
-        startPlaying(this: any, media: NoteMedia) {
+        startPlaying(media: NoteMedia): Promise<void> {
             console.log("recording:playing");
             return this.$services
                 .Audio()
@@ -66,7 +66,7 @@ export default Vue.extend({
                     console.log("audio:play:error", err);
                 });
         },
-        stopPlaying(this: any, media: NoteMedia) {
+        stopPlaying(): Promise<void> {
             if (this.playing === null) {
                 return Promise.resolve();
             }
@@ -80,9 +80,9 @@ export default Vue.extend({
                     console.log("audio:stop:error", err);
                 });
         },
-        removeRecording(this: any, ev, media: NoteMedia) {
+        async removeRecording(ev, media: NoteMedia): Promise<void> {
             console.log("recording:remove", media);
-            return this.stopPlaying().then(() => {
+            await this.stopPlaying().then(() => {
                 return this.$emit("remove-audio", media);
             });
         },
