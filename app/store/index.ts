@@ -46,7 +46,7 @@ type AppendStoreLog = (row: StoreLogRow) => Promise<void>;
 
 type PassedMutation = { type: string; payload: PayloadType };
 
-function stateFor(mutation: PassedMutation, state: GlobalState): string {
+function stateFor(_mutation: PassedMutation, state: GlobalState): string {
     return JSON.stringify(state);
 }
 
