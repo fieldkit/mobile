@@ -44,21 +44,48 @@ export type OurStore = Store<GlobalState>;
 
 type AppendStoreLog = (row: StoreLogRow) => Promise<void>;
 
+type PassedMutation = { type: string; payload: PayloadType };
+
+function stateFor(mutation: PassedMutation, state: GlobalState): string {
+    return JSON.stringify(state);
+}
+
+function simpleMutation(appendLog: AppendStoreLog, mutation: PassedMutation): boolean {
+    console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
+    void appendLog({
+        time: new Date().getTime(),
+        mutation: mutation.type,
+        payload: JSON.stringify(mutation.payload),
+        before: JSON.stringify({}),
+        after: JSON.stringify({}),
+    });
+    return true;
+}
+
 function customizeLogger(appendLog: AppendStoreLog) {
     return createLogger({
-        filter(mutation: { type: string; payload: PayloadType }, stateBefore: GlobalState, stateAfter: GlobalState) {
+        filter(mutation: PassedMutation, stateBefore: GlobalState, stateAfter: GlobalState) {
+            if (mutation.type == MutationTypes.NAVIGATION) {
+                return simpleMutation(appendLog, mutation);
+            }
+            if (mutation.type == MutationTypes.PHONE_LOCATION) {
+                return simpleMutation(appendLog, mutation);
+            }
+            if (mutation.type == MutationTypes.PHONE_NETWORK) {
+                return simpleMutation(appendLog, mutation);
+            }
+            if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
+                return simpleMutation(appendLog, mutation);
+            }
+
             void appendLog({
                 time: new Date().getTime(),
                 mutation: mutation.type,
                 payload: JSON.stringify(mutation.payload),
-                before: JSON.stringify(stateBefore),
-                after: JSON.stringify(stateAfter),
+                before: stateFor(mutation, stateBefore),
+                after: stateFor(mutation, stateAfter),
             });
 
-            if (mutation.type == MutationTypes.TRANSFER_PROGRESS) {
-                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
-                return false;
-            }
             if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {
                 console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
                 return false;
@@ -69,14 +96,6 @@ function customizeLogger(appendLog: AppendStoreLog) {
             }
             if (mutation.type == MutationTypes.NAVIGATION) {
                 console.log("mutation:", mutation.type, mutation.payload);
-                return false;
-            }
-            if (mutation.type == MutationTypes.PHONE_LOCATION) {
-                console.log("mutation:", mutation.type);
-                return false;
-            }
-            if (mutation.type == MutationTypes.PHONE_NETWORK) {
-                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload)); // PRIVACY ANONYMIZE
                 return false;
             }
             if (mutation.type == MutationTypes.STATIONS) {
