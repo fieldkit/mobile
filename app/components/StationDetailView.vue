@@ -29,7 +29,7 @@
                                 rows="auto,30,60,auto"
                                 columns="*"
                                 class="m-10 text-center bordered-container p-b-20"
-                                v-if="currentStation.modules.length === 0"
+                                v-if="currentStation.modules.filter((item) => !item.internal).length === 0"
                             >
                                 <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
                                 <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>

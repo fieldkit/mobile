@@ -92,6 +92,7 @@ import Vue from "vue";
 import routes from "@/routes";
 import AppSettings from "@/wrappers/app-settings";
 import * as animations from "../animations";
+import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     props: {
@@ -106,7 +107,8 @@ export default Vue.extend({
             instruction: "",
             buttonText: "",
             frameImage: "",
-            displayFrame: null,
+            displayFrame: "",
+            animateFrameTimer: 0,
             noImageText: null,
             percentDone: (1 / (steps.length - 1)) * 100,
             steps: steps,
@@ -114,21 +116,43 @@ export default Vue.extend({
         };
     },
     components: {},
+    created: function () {
+        if (application.android) {
+            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                if (this.step > 0) {
+                    args.cancel = true; //this cancels the normal backbutton behaviour
+
+                    this.step -= 1;
+                    this.animateFrames();
+                    this.title = this.steps[this.step].title;
+                    this.instruction = this.steps[this.step].instruction;
+                    this.buttonText = this.steps[this.step].button;
+                    this.percentDone = (this.step / (this.steps.length - 1)) * 100;
+                }
+            });
+        }
+    },
     methods: {
-        onPageLoaded(this: any) {
-            this._appSettings = new AppSettings();
-            if (this.stepParam) {
-                this.step = this.stepParam == "last" ? this.lastStep - 2 : this.stepParam == "first" ? 0 : this.stepParam;
+        onPageLoaded(args) {
+            if (this.step == this.steps.length - 1) {
+                setTimeout(() => {
+                    this.$navigateTo(routes.onboarding.start);
+                }, 3000);
+            }
+            const thisAny = this as any;
+            thisAny._appSettings = new AppSettings();
+            if (thisAny.stepParam) {
+                thisAny.step = thisAny.stepParam == "last" ? this.lastStep - 2 : thisAny.stepParam == "first" ? 0 : parseInt(thisAny.stepParam);
                 this.goNext();
             }
-            if (!this.animateFrameTimer) {
-                this.animateFrameTimer = setInterval(this.animateFrames, 1000);
+            if (!thisAny.animateFrameTimer) {
+                thisAny.animateFrameTimer = setInterval(thisAny.animateFrames, 1000);
             }
         },
-        onUnloaded(this: any) {
+        onUnloaded() {
             this.stopAnimation();
         },
-        goBack(this: any, ev) {
+        goBack(ev) {
             console.log("goBack");
 
             if (this.step > 0) {
@@ -144,7 +168,7 @@ export default Vue.extend({
                 return Promise.all([animations.pressed(ev), this.$navigateTo(routes.stations)]);
             }
         },
-        goNext(this: any) {
+        goNext() {
             if (this.step < this.steps.length - 1) {
                 this.step += 1;
                 this.animateFrames();
@@ -159,19 +183,19 @@ export default Vue.extend({
                 }
             }
         },
-        skip(this: any) {
-            this._appSettings.setNumber("skipCount", (this._appSettings.getNumber("skipCount") || 0) + 1);
+        skip() {
+            const thisAny = this as any;
+            thisAny._appSettings.setNumber("skipCount", (thisAny._appSettings.getNumber("skipCount") || 0) + 1);
             this.$navigateTo(routes.onboarding.start);
         },
-        stopAnimation(this: any) {
-            this.displayFrame = null;
+        stopAnimation() {
+            this.displayFrame = "";
             clearInterval(this.animateFrameTimer);
-            this.animateFrameTimer = null;
         },
-        animateFrames(this: any) {
+        animateFrames() {
             this.frameImage =
                 this.frameImage == this.steps[this.step].images[0] ? this.steps[this.step].images[1] : this.steps[this.step].images[0];
-            this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : null;
+            this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : "";
         },
     },
 });

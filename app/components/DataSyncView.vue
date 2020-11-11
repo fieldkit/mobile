@@ -7,7 +7,7 @@
             <ScrollView row="0" v-if="syncs.length > 0">
                 <StackLayout class="sync-panel-container">
                     <StackLayout v-for="sync in syncs" :key="sync.deviceId" class="station-container">
-                        <GridLayout rows="auto" columns="*,30">
+                        <GridLayout rows="auto" columns="*,30" @tap="onToggle(sync)">
                             <StackLayout row="0" col="0">
                                 <Label :text="sync.name" textWrap="true" class="station-name"></Label>
                                 <Label
@@ -36,7 +36,6 @@
                                 row="0"
                                 col="1"
                                 class="container-icon"
-                                @tap="onToggle(sync)"
                                 flexDirection="column"
                                 justifyContent="space-around"
                                 alignItems="center"
@@ -156,7 +155,6 @@
 </template>
 
 <script lang="ts">
-import _ from "lodash";
 import moment from "moment";
 
 import Vue from "vue";
