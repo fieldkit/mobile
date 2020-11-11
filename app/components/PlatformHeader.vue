@@ -58,7 +58,9 @@ export default Vue.extend({
         },
         onBack: {
             type: Function as PropType<(ev: any) => void>,
-            default: (ev: any) => {},
+            default: (ev: any) => {
+                Frame.topmost().goBack();
+            },
         },
         onCancel: {
             type: Function as PropType<(ev: any) => void>,
