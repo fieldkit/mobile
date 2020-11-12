@@ -1,6 +1,6 @@
 <template>
     <FlexboxLayout justifyContent="space-between" class="size-12 footer">
-        <StackLayout @tap="goToStation" class="footer-btn" automationText="linkToStations">
+        <StackLayout class="footer-btn" automationText="linkToStations" @tap="goToStation">
             <template v-if="active == 'stations'">
                 <Image width="22" height="22" src="~/images/Icon_Station_active2.png"></Image>
                 <Label class="active m-t-5" :text="_L('stations')"></Label>
@@ -10,7 +10,7 @@
                 <Label class="inactive m-t-5" :text="_L('stations')"></Label>
             </template>
         </StackLayout>
-        <StackLayout @tap="goToData" class="footer-btn" automationText="linkToDataSync">
+        <StackLayout class="footer-btn" automationText="linkToDataSync" @tap="goToData">
             <template v-if="active == 'data'">
                 <Image width="22" height="22" src="~/images/Icon_DataSync_active2.png"></Image>
                 <Label class="active m-t-5" :text="_L('data')"></Label>
@@ -20,7 +20,7 @@
                 <Label class="inactive m-t-5" :text="_L('data')"></Label>
             </template>
         </StackLayout>
-        <StackLayout @tap="goToSettings" class="footer-btn">
+        <StackLayout class="footer-btn" @tap="goToSettings">
             <template v-if="active == 'settings'">
                 <Image width="22" height="22" src="~/images/Icon_Settings_active2.png"></Image>
                 <Label class="active m-t-5" :text="_L('settings')"></Label>
@@ -39,34 +39,34 @@ import routes from "@/routes";
 import * as animations from "./animations";
 
 export default Vue.extend({
-    data() {
-        return {};
-    },
     props: {
         active: {
             type: String,
             required: true,
         },
     },
+    data() {
+        return {};
+    },
     methods: {
-        goToStation(ev) {
-            return Promise.all([
+        async goToStation(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
                     // clearHistory: true,
                 }),
             ]);
         },
-        goToData(ev) {
-            return Promise.all([
+        async goToData(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.dataSync, {
                     // clearHistory: true,
                 }),
             ]);
         },
-        goToSettings(ev) {
-            return Promise.all([
+        async goToSettings(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.appSettings.list, {
                     // clearHistory: true,

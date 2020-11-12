@@ -1,6 +1,6 @@
 <template>
     <StackLayout>
-        <Label :text="label" class="size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" ref="label" width="100%" />
+        <Label ref="label" :text="label" class="size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" width="100%" />
         <TextField
             row="1"
             :class="fieldClass"
@@ -21,12 +21,6 @@ import Vue from "vue";
 import { Enums } from "@nativescript/core";
 
 export default Vue.extend({
-    data(): { typing: boolean; focus: boolean } {
-        return {
-            typing: false,
-            focus: false,
-        };
-    },
     props: {
         value: {
             type: String,
@@ -41,33 +35,45 @@ export default Vue.extend({
             default: "name",
         },
     },
+    data(): { typing: boolean; focus: boolean } {
+        return {
+            typing: false,
+            focus: false,
+        };
+    },
     computed: {
         fieldClass(): string {
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
     },
     methods: {
-        onFocus(ev: any): void {
+        onFocus(): void {
             this.focus = true;
-            this.$emit("focus", ev);
+            this.$emit("focus");
         },
-        onChange(ev: any): void {
+        onChange(ev: { value: string }): void {
             const value = ev.value;
             if (!this.typing && value) {
+                // eslint-disable-next-line
                 this.animateLabel((this.$refs.label as any).nativeView);
             } else if (!value) {
                 this.typing = false;
             }
             this.$emit("input", ev.value);
         },
-        onBlur(ev: any): void {
+        onBlur(ev: unknown): void {
             this.focus = false;
             this.$emit("blur", ev);
         },
+        // eslint-disable-next-line
         animateLabel(nativeView: any): void {
+            // eslint-disable-next-line
             nativeView.opacity = 0;
+            // eslint-disable-next-line
             nativeView.translateX = 5;
+            // eslint-disable-next-line
             nativeView.translateY = 20;
+            // eslint-disable-next-line
             nativeView.animate({
                 opacity: 0.75,
                 translate: { x: 0, y: 0 },

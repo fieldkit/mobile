@@ -1,6 +1,6 @@
 <template>
-    <StackLayout class="m-t-5 m-b-10 m-l-10 m-r-10" @loaded="onPageLoaded" @unloaded="onUnloaded">
-        <GridLayout rows="auto" columns="*" v-for="(m, moduleIndex) in station.modules" :key="m.id">
+    <StackLayout class="m-t-5 m-b-10 m-l-10 m-r-10">
+        <GridLayout v-for="m in station.modules" :key="m.id" rows="auto" columns="*">
             <template v-if="!m.internal">
                 <StackLayout class="bordered-container p-10 m-b-10">
                     <GridLayout rows="auto" columns="15*,70*,15*">
@@ -10,10 +10,10 @@
                         <FlexboxLayout
                             col="2"
                             class="expand-button-container"
-                            @tap="toggleContainer(m)"
                             flexDirection="column"
                             justifyContent="space-around"
                             alignItems="center"
+                            @tap="toggleContainer(m)"
                         >
                             <Image
                                 class="expand-button"
@@ -23,12 +23,12 @@
                         </FlexboxLayout>
                     </GridLayout>
 
-                    <WrapLayout orientation="horizontal" class="m-t-5" v-if="closed[m.position] !== true">
-                        <Label :text="lastSeen()" width="100%" v-if="!station.connected" class="m-t-5 size-14 hint-color" />
+                    <WrapLayout v-if="closed[m.position] !== true" orientation="horizontal" class="m-t-5">
+                        <Label v-if="!station.connected" :text="lastSeen()" width="100%" class="m-t-5 size-14 hint-color" />
                         <WrapLayout
-                            orientation="horizontal"
-                            v-for="(s, sensorIndex) in m.sensors"
+                            v-for="s in m.sensors"
                             :key="s.id"
+                            orientation="horizontal"
                             class="sensor-block"
                             :opacity="station.connected ? 1 : 0.5"
                         >
@@ -54,35 +54,35 @@ import { Station, Module, Sensor } from "@/store";
 
 export default Vue.extend({
     name: "ModuleListView",
-    data(): { closed: any } {
-        return {
-            closed: {},
-        };
-    },
     props: {
         station: {
             type: Object as () => Station,
             required: true,
         },
     },
+    data(): { closed: { [index: number]: boolean } } {
+        return {
+            closed: {},
+        };
+    },
     methods: {
-        getDisplayReading(s): string {
+        getDisplayReading(s: Sensor): string {
             if (s.reading === null) {
                 return "--";
             }
             return s.reading.toFixed(1);
         },
-        getDisplayIcon(s): string {
-            if (s.trend > 0) {
-                return "~/images/Icon_Increase.png";
-            }
-            if (s.trend < 0) {
-                return "~/images/Icon_Decrease.png";
+        getDisplayIcon(s: Sensor): string {
+            if (s.trend) {
+                if (s.trend > 0) {
+                    return "~/images/Icon_Increase.png";
+                }
+                if (s.trend < 0) {
+                    return "~/images/Icon_Decrease.png";
+                }
             }
             return "~/images/Icon_Neutral.png";
         },
-        onPageLoaded(): void {},
-        onUnloaded(): void {},
         lastSeen(): string {
             if (!this.station || !this.station.lastSeen) {
                 return "";

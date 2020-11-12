@@ -1,12 +1,12 @@
 <template>
     <Page>
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
-        <GridLayout :rows="notifications.length > 0 ? '*,35,55' : '*,55'" v-if="currentStation">
+        <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35,55' : '*,55'">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
                         <StackLayout orientation="vertical">
-                            <StationStatusBox order="1" @deployTapped="goToDeploy" :station="currentStation" />
+                            <StationStatusBox order="1" :station="currentStation" @deployTapped="goToDeploy" />
                             <GridLayout
                                 order="2"
                                 rows="auto"
@@ -17,19 +17,19 @@
                                 <Image col="0" width="25" src="~/images/Icon_FieldNotes.png"></Image>
                                 <Label col="1" :text="_L('fieldNotes')" class="size-16 m-l-10" verticalAlignment="middle" />
                                 <Label
+                                    v-if="notes.completed && notes.completed > 0"
                                     col="2"
                                     :text="notes.completed + '% ' + _L('complete')"
                                     class="size-16 blue"
                                     verticalAlignment="middle"
-                                    v-if="notes.completed && notes.completed > 0"
                                 />
                             </GridLayout>
                             <ModuleList order="3" :station="currentStation" />
                             <GridLayout
+                                v-if="currentStation.modules.filter((item) => !item.internal).length === 0"
                                 rows="auto,30,60,auto"
                                 columns="*"
                                 class="m-10 text-center bordered-container p-b-20"
-                                v-if="currentStation.modules.filter((item) => !item.internal).length === 0"
                             >
                                 <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
                                 <Label row="1" :text="_L('noModulesAttachedTitle')" class="size-18 bold"></Label>
@@ -45,7 +45,7 @@
                         </StackLayout>
                     </GridLayout>
 
-                    <AbsoluteLayout row="0" col="0" class="text-center" v-if="newlyDeployed">
+                    <AbsoluteLayout v-if="newlyDeployed" row="0" col="0" class="text-center">
                         <GridLayout top="75" width="100%">
                             <StackLayout class="deployed-dialog-container">
                                 <Image width="60" src="~/images/Icon_Success.png"></Image>
@@ -56,7 +56,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <NotificationFooter row="1" :onClose="goToDetail" :notifications="notifications" v-if="notifications.length > 0" />
+            <NotificationFooter v-if="notifications.length > 0" row="1" :onClose="goToDetail" :notifications="notifications" />
             <ScreenFooter :row="notifications.length > 0 ? '2' : '1'" active="stations" />
         </GridLayout>
     </Page>
@@ -78,6 +78,12 @@ import NotificationFooter from "./NotificationFooter.vue";
 import { ActionTypes } from "~/store/actions";
 
 export default Vue.extend({
+    components: {
+        ...SharedComponents,
+        StationStatusBox,
+        ModuleList,
+        NotificationFooter,
+    },
     props: {
         stationId: {
             type: Number,
@@ -112,16 +118,9 @@ export default Vue.extend({
             return station;
         },
     },
-    components: {
-        ...SharedComponents,
-        StationStatusBox,
-        ModuleList,
-        NotificationFooter,
-    },
     mounted() {
-        console.log("loading station detail", this.stationId);
-        this.completeSetup();
-        console.log("loaded station detail", this.stationId);
+        console.log("station-detail", this.stationId);
+        void this.completeSetup();
     },
     methods: {
         goBack(ev) {
@@ -175,12 +174,14 @@ export default Vue.extend({
                 }),
             ]);
         },
-        addDeployedNotification(): Promise<void> {
-            if (!this.$s.state.portal.currentUser) {
-                return Promise.resolve();
-            }
-            return this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
-                key: `${this.$s.state.portal.currentUser.portalId}/${this.currentStation.id}/station-deployed`,
+        async addDeployedNotification(): Promise<void> {
+            // TODO Eventually these shouldn't depend on the portal id for the user.
+            if (!this.$s.state.portal.currentUser) return;
+            const userId = this.$s.state.portal.currentUser.portalId;
+            const stationId = this.currentStation.id;
+            if (!stationId || !userId) return;
+            await this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                key: `${userId}/${stationId}/station-deployed`,
                 kind: "station-deployed",
                 created: new Date(),
                 silenced: "false",

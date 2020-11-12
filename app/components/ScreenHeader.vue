@@ -1,31 +1,26 @@
 <template>
     <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
-        <StackLayout col="0" class="round-bkgd" @tap="raiseBack" v-if="canNavigateBack">
+        <StackLayout v-if="canNavigateBack" col="0" class="round-bkgd" @tap="raiseBack">
             <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
         </StackLayout>
         <GridLayout col="1" rows="auto,auto" columns="*">
             <Label row="0" class="title m-t-10 m-b-5 text-center" :text="title" textWrap="true"></Label>
             <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
         </GridLayout>
-        <StackLayout col="2" class="round-bkgd" @tap="raiseCancel" v-if="canCancel">
+        <StackLayout v-if="canCancel" col="2" class="round-bkgd" @tap="raiseCancel">
             <Image width="21" src="~/images/Icon_Close.png"></Image>
         </StackLayout>
-        <StackLayout col="2" class="round-bkgd" @tap="onSettings" v-if="canNavigateSettings">
+        <StackLayout v-if="canNavigateSettings" col="2" class="round-bkgd" @tap="onSettings">
             <Image width="25" src="~/images/Icon_Congfigure.png"></Image>
         </StackLayout>
     </GridLayout>
 </template>
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import { isIOS } from "@nativescript/core";
 
 export default Vue.extend({
     name: "ScreenHeader",
-    data: () => {
-        return {
-            ios: isIOS,
-        };
-    },
     props: {
         actionBar: {
             type: Boolean,
@@ -40,16 +35,22 @@ export default Vue.extend({
             default: null,
         },
         onBack: {
-            type: Function,
-            default: () => {},
+            type: Function as PropType<() => void>,
+            default: () => {
+                // noop
+            },
         },
         onCancel: {
-            type: Function,
-            default: () => {},
+            type: Function as PropType<() => void>,
+            default: () => {
+                // noop
+            },
         },
         onSettings: {
-            type: Function,
-            default: () => {},
+            type: Function as PropType<() => void>,
+            default: () => {
+                // noop
+            },
         },
         canCancel: {
             type: Boolean,
@@ -68,27 +69,36 @@ export default Vue.extend({
             default: true,
         },
     },
+    data(): { ios: boolean } {
+        return {
+            ios: isIOS,
+        };
+    },
     computed: {
-        classes(this: any): string {
+        classes(): string {
             const c: string[] = [];
             if (this.bottomMargin || this.ios) c.push("m-b-20");
             if (this.actionBar) c.push("header-container");
             return c.join(" ");
         },
     },
-    mounted() {
+    mounted(): void {
         console.log("screen-header:mounted", this.subtitle);
     },
     methods: {
-        raiseBack(this: any, ev) {
+        raiseBack(_ev: Event): void {
             console.log("ScreenHeader:back");
             this.$emit("back");
-            this.onBack(ev);
+            if (this.onBack) {
+                this.onBack();
+            }
         },
-        raiseCancel(this: any, ev) {
+        raiseCancel(_ev: Event): void {
             console.log("ScreenHeader:cancel");
             this.$emit("cancel");
-            this.onCancel(ev);
+            if (this.onCancel) {
+                this.onCancel();
+            }
         },
     },
 });

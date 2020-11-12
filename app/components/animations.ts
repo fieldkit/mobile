@@ -1,7 +1,8 @@
-import { promiseAfter } from "../utilities";
+// import { promiseAfter } from "../utilities";
 
-export function pressed(view: { className: string }): Promise<void> {
+export function pressed(view: Event): Promise<void> {
     if (view) {
+        /*
         const cn = view.className;
         view.className = cn + " pressed";
         return promiseAfter(500)
@@ -9,6 +10,7 @@ export function pressed(view: { className: string }): Promise<void> {
             .then(() => {
                 return;
             });
+		*/
     }
     return Promise.resolve();
 }

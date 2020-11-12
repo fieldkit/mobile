@@ -9,19 +9,20 @@ app/tests/utilities.ts
 app/i18n/*
 app/migrations/*.js
 app/reader/FlowView.vue
+# app/components/PlatformHeader.vue
+# app/components/ScreenHeader.vue
+# app/components/ScreenFooter.vue
+# app/components/StationStatusBox.vue
+# app/components/NotificationFooter.vue
 app/components/AppSettingsUnitsView.vue
 app/components/DiagnosticsModal.vue
 app/components/SettingsItemSlider.vue
-app/components/PlatformHeader.vue
 app/components/MapModal.vue
-app/components/ScreenFooter.vue
 app/components/NotificationsView.vue
-app/components/LabeledTextField.vue
-app/components/StationStatusBox.vue
+# app/components/LabeledTextField.vue
 app/components/AppSettingsHelpView.vue
 app/components/CircularProgressBar.vue
 app/components/PortalWarning.vue
-app/components/NotificationFooter.vue
 app/components/AppSettingsHelpAppVersionView.vue
 app/components/SettingsItemText.vue
 app/components/NotificationItem.vue
@@ -53,7 +54,7 @@ app/components/AppSettingsAppearanceLanguageView.vue
 app/components/AppSettingsPermissionsView.vue
 app/components/LoginView.vue
 app/components/AppSettingsAppearanceView.vue
-app/components/ModuleList.vue
+# app/components/ModuleList.vue
 app/components/settings/StationSettingsEndDeploy.vue
 app/components/settings/StationSettingsWiFiSchedule.vue
 app/components/settings/StationSettingsView.vue
@@ -69,13 +70,12 @@ app/components/settings/StationSettingsName.vue
 app/components/settings/StationSettingsWiFi.vue
 app/components/settings/UpgradeFirmwareModal.vue
 app/components/AppSettingsNotificationsView.vue
-app/components/ScreenHeader.vue
 app/components/NoStationsWannaAdd.vue
 app/components/StationsMap.vue
 app/components/AppSettingsAppearanceFontSizeView.vue
 app/components/DataSyncView.vue
 app/components/LabeledTextView.vue
-app/components/StationDetailView.vue
+# app/components/StationDetailView.vue
 app/components/DeveloperMenuView.vue
 app/components/ScheduleEditor.vue
 app/components/AppSettingsView.vue
@@ -87,7 +87,7 @@ app/components/ConnectionStatusHeader.vue
 app/components/AppSettingsDataView.vue
 app/components/NotificationModal.vue
 app/components/TimePickerModal.vue
-app/components/StationListView.vue
+# app/components/StationListView.vue
 app/components/AppSettingsAccountView.vue
 app/calibration/__mocks__/Prepare.vue
 app/calibration/__mocks__/Check.vue

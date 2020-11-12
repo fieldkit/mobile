@@ -1,6 +1,6 @@
 <template>
     <StackLayout id="station-status-box-container" :class="'m-10 ' + (loading ? '' : 'bordered-container')">
-        <GridLayout rows="auto,auto,auto" columns="*,*" v-show="!loading">
+        <GridLayout v-show="!loading" rows="auto,auto,auto" columns="*,*">
             <!-- recording status -->
             <StackLayout row="0" col="0" class="m-t-10">
                 <Label class="text-center size-16" :text="station.deployed ? _L('recordingData') : _L('notRecording')" />
@@ -16,8 +16,8 @@
 
             <!-- recording time -->
             <GridLayout row="1" col="0" rows="auto" columns="*" class="m-t-10">
-                <StackLayout row="0" id="outer-circle" />
-                <StackLayout row="0" id="inner-circle">
+                <StackLayout id="outer-circle" row="0" />
+                <StackLayout id="inner-circle" row="0">
                     <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="recording.time" />
                     <Label class="size-12 rec-time" :text="recording.label" />
                 </StackLayout>
@@ -26,18 +26,18 @@
             <!-- connected status and available memory -->
             <StackLayout row="1" col="1">
                 <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
-                    <Image rowSpan="2" col="0" width="20" v-if="station.connected && !syncing" src="~/images/Icon_Connected.png" />
-                    <Image rowSpan="2" col="0" width="20" v-if="!station.connected && !syncing" src="~/images/Icon_not_Connected.png" />
-                    <Image rowSpan="2" col="0" height="20" width="20" :src="dataSyncingIcon" v-if="syncing" />
+                    <Image v-if="station.connected && !syncing" rowSpan="2" col="0" width="20" src="~/images/Icon_Connected.png" />
+                    <Image v-if="!station.connected && !syncing" rowSpan="2" col="0" width="20" src="~/images/Icon_not_Connected.png" />
+                    <Image v-if="syncing" rowSpan="2" col="0" height="20" width="20" :src="dataSyncingIcon" />
                     <Label
+                        v-if="!syncing"
                         row="0"
                         col="1"
                         class="m-t-10 m-l-10 size-14"
-                        :text="this.station.connected ? _L('connected') : _L('notConnected')"
-                        v-if="!syncing"
+                        :text="station.connected ? _L('connected') : _L('notConnected')"
                     />
-                    <Label row="1" col="1" class="m-l-10 m-t-2 m-b-5 size-12" :text="lastSeen" v-if="!syncing && !station.connected" />
-                    <Label row="0" col="1" class="m-10 size-14" :text="dataSyncMessage" v-if="syncing" />
+                    <Label v-if="!syncing && !station.connected" row="1" col="1" class="m-l-10 m-t-2 m-b-5 size-12" :text="lastSeen" />
+                    <Label v-if="syncing" row="0" col="1" class="m-10 size-14" :text="dataSyncMessage" />
                 </GridLayout>
                 <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
                     <Image col="0" rowSpan="3" width="20" src="~/images/Icon_memory.png" />
@@ -51,7 +51,7 @@
                     />
                     <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
                         <StackLayout row="0" class="memory-bar" />
-                        <StackLayout row="0" class="memory-bar" horizontalAlignment="left" id="station-memory-bar" />
+                        <StackLayout id="station-memory-bar" row="0" class="memory-bar" horizontalAlignment="left" />
                     </GridLayout>
                 </GridLayout>
             </StackLayout>
@@ -68,7 +68,7 @@
                 />
 
                 <!-- placeholder if no deploy button -->
-                <StackLayout height="20" v-if="station.deployed" />
+                <StackLayout v-if="station.deployed" height="20" />
             </StackLayout>
         </GridLayout>
     </StackLayout>
@@ -83,11 +83,18 @@ import { Station } from "@/store";
 
 interface OtherData {
     timer: Timer;
+    // eslint-disable-next-line
     page: any;
 }
 
 export default Vue.extend({
     name: "StationStatusBox",
+    props: {
+        station: {
+            type: Object as () => Station,
+            required: true,
+        },
+    },
     data(): { loading: boolean; syncing: boolean; dataSyncingIcon: string; dataSyncMessage: string; now: Date } {
         return {
             loading: false,
@@ -96,14 +103,6 @@ export default Vue.extend({
             dataSyncMessage: "",
             now: new Date(),
         };
-    },
-    mounted(): void {
-        this.otherData.timer = new Timer(1000, (counter) => {
-            this.now = new Date();
-        });
-    },
-    destroyed(): void {
-        this.otherData.timer.stop();
     },
     computed: {
         otherData(): OtherData {
@@ -144,23 +143,25 @@ export default Vue.extend({
         },
         batteryLevel(): string {
             if (this.station.batteryLevel != 0 && !this.station.batteryLevel) return _L("unknown");
-            return this.station.batteryLevel + "%";
+            return `${this.station.batteryLevel}%`;
         },
         lastSeen(): string {
             console.log("lastSeen", this.station.lastSeen);
             if (!this.station.lastSeen) return _L("unknown");
-            return _L("since") + " " + getLastSeen(this.station.lastSeen);
+            return `${_L("since")} ${getLastSeen(this.station.lastSeen)}`;
         },
     },
-    props: {
-        station: {
-            type: Object as () => Station,
-            required: true,
-        },
+    mounted(): void {
+        this.otherData.timer = new Timer(1000, () => {
+            this.now = new Date();
+        });
+    },
+    destroyed(): void {
+        this.otherData.timer.stop();
     },
     methods: {
         emitDeployTap(): void {
-            this.$emit("deployTapped");
+            this.$emit("deploy-tapped");
         },
     },
 });

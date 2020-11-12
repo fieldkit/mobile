@@ -2,15 +2,15 @@
     <ActionBar backgroundColor="white" flat="true">
         <template v-if="ios">
             <template v-if="canNavigateSettings">
-                <NavigationButton text="Back" @tap="raiseBack" :visibility="haveBackStack ? 'visible' : 'collapse'" />
+                <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
                 <GridLayout rows="auto,auto" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
-                <ActionItem @tap="onSettings" ios.systemIcon="2" ios.position="right" android.systemIcon="ic_menu_edit" />
+                <ActionItem ios.systemIcon="2" ios.position="right" android.systemIcon="ic_menu_edit" @tap="onSettings" />
             </template>
             <template v-else>
-                <NavigationButton text="Back" @tap="raiseBack" :visibility="haveBackStack ? 'visible' : 'collapse'" />
+                <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
                 <GridLayout rows="auto,auto" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
@@ -19,17 +19,17 @@
         </template>
         <template v-else>
             <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
-                <StackLayout col="0" class="round-bkgd" @tap="raiseBack" v-if="haveBackStack">
+                <StackLayout v-if="haveBackStack" col="0" class="round-bkgd" @tap="raiseBack">
                     <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
                 <GridLayout col="1" rows="auto,auto" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center" :text="title" textWrap="true"></Label>
                     <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
-                <StackLayout col="2" class="round-bkgd" @tap="raiseCancel" v-if="canCancel">
+                <StackLayout v-if="canCancel" col="2" class="round-bkgd" @tap="raiseCancel">
                     <Image width="21" src="~/images/Icon_Close.png"></Image>
                 </StackLayout>
-                <StackLayout col="2" class="round-bkgd" @tap="onSettings" v-if="canNavigateSettings">
+                <StackLayout v-if="canNavigateSettings" col="2" class="round-bkgd" @tap="onSettings">
                     <Image width="25" src="~/images/Icon_Congfigure.png"></Image>
                 </StackLayout>
             </GridLayout>
@@ -42,11 +42,6 @@ import { Frame, isIOS } from "@nativescript/core";
 
 export default Vue.extend({
     name: "PlatformHeader",
-    data(): { ios: boolean } {
-        return {
-            ios: isIOS,
-        };
-    },
     props: {
         title: {
             type: String,
@@ -57,18 +52,22 @@ export default Vue.extend({
             default: null,
         },
         onBack: {
-            type: Function as PropType<(ev: any) => void>,
-            default: (ev: any) => {
+            type: Function as PropType<(ev: unknown) => void>,
+            default: (_ev: unknown) => {
                 Frame.topmost().goBack();
             },
         },
         onCancel: {
-            type: Function as PropType<(ev: any) => void>,
-            default: (ev: any) => {},
+            type: Function as PropType<(ev: unknown) => void>,
+            default: (_ev: unknown) => {
+                // noop
+            },
         },
         onSettings: {
-            type: Function as PropType<(ev: any) => void>,
-            default: (ev: any) => {},
+            type: Function as PropType<(ev: unknown) => void>,
+            default: (_ev: unknown) => {
+                // noop
+            },
         },
         canCancel: {
             type: Boolean,
@@ -87,6 +86,11 @@ export default Vue.extend({
             type: Boolean,
             default: true,
         },
+    },
+    data(): { ios: boolean } {
+        return {
+            ios: isIOS,
+        };
     },
     computed: {
         classes(): string {

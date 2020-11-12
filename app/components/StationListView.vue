@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
 
         <GridLayout rows="*,55">
@@ -10,7 +10,7 @@
                     <NoStationsWannaAdd v-if="stations.length == 0" />
 
                     <GridLayout
-                        v-for="(station, index) in stations"
+                        v-for="station in stations"
                         :key="station.deviceId"
                         rows="*,*"
                         columns="85*,15*"
@@ -25,11 +25,11 @@
                             :text="getDeployStatus(station)"
                             :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')"
                         />
-                        <Image col="1" rowSpan="2" width="20" v-if="station.connected" src="~/images/Icon_Connected.png" />
-                        <Image col="1" rowSpan="2" width="20" v-if="!station.connected" src="~/images/Icon_not_Connected.png" />
+                        <Image v-if="station.connected" col="1" rowSpan="2" width="20" src="~/images/Icon_Connected.png" />
+                        <Image v-if="!station.connected" col="1" rowSpan="2" width="20" src="~/images/Icon_not_Connected.png" />
                     </GridLayout>
-                    <Label text="Double tap to scan for stations." textWrap="true" class="scan-notice" v-if="!scanning" />
-                    <Label text="Scanning" textWrap="true" class="scan-notice" v-if="scanning" />
+                    <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
+                    <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
                 </StackLayout>
             </ScrollView>
             <StackLayout horizontalAlignment="right" verticalAlignment="bottom">
@@ -61,18 +61,16 @@ export default Vue.extend({
         NoStationsWannaAdd,
         StationsMap,
     },
-    computed: {
-        ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
-    },
     data(): { busy: boolean; scanning: boolean } {
         return {
             busy: false,
             scanning: false,
         };
     },
-    watch: {},
+    computed: {
+        ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
+    },
     methods: {
-        onPageLoaded(): void {},
         getDeployStatus(station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
@@ -108,13 +106,13 @@ export default Vue.extend({
                     this.busy = false;
                 });
         },
-        onDoubleTap(): Promise<void> {
+        async onDoubleTap(): Promise<void> {
             this.scanning = true;
-            return this.$s.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
+            await this.$s.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
                 this.scanning = false;
             });
         },
-        async openModalMap(ev: any): Promise<void> {
+        async openModalMap(): Promise<void> {
             await this.$showModal(MapModal, {
                 fullscreen: true,
             });

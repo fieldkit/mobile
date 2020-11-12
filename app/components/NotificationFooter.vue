@@ -1,5 +1,5 @@
 <template>
-    <FlexboxLayout justifyContent="center" alignItems="center" class="notify-footer" @tap="showNotifications" @loaded="onLoaded">
+    <FlexboxLayout justifyContent="center" alignItems="center" class="notify-footer" @tap="showNotifications">
         <Label class="size-14 m-t-5 m-b-5" :text="_L('notifications')" horizontalAlignment="right" />
         <GridLayout rows="auto" columns="*" horizontalAlignment="left">
             <Label row="0" col="0" :text="notifications.length" class="notify-num text-center" />
@@ -19,9 +19,8 @@ export default Vue.extend({
         },
     },
     methods: {
-        onLoaded() {},
-        showNotifications() {
-            return this.$navigateTo(routes.notifications, {});
+        async showNotifications(): Promise<void> {
+            await this.$navigateTo(routes.notifications, {});
         },
     },
 });
