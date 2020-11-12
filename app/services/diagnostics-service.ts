@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { Device, Folder, File, knownFolders } from "@nativescript/core";
 import { copyLogs } from "@/lib/logging";
-import { serializePromiseChain } from "@/utilities";
 import { DiagnosticsDirectory, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
 import { Services } from "@/services";
 import Config, { Build } from "@/config";
@@ -16,6 +15,8 @@ function uuidv4(): string {
 
 export type ProgressFunc = (progress: { id: string; message: string }) => void;
 
+export type DeviceInformation = Record<string, unknown>;
+
 export interface SavedDiagnostics {
     id: string;
     reference: { phrase: string };
@@ -28,42 +29,80 @@ export default class Diagnostics {
         this.baseUrl = "https://code.conservify.org/diagnostics";
     }
 
-    public upload(progress: ProgressFunc): Promise<SavedDiagnostics> {
+    private async prepare(progress: ProgressFunc): Promise<string> {
         const id = uuidv4();
 
-        console.log("upload diagnostics", id);
+        console.log(`diagnostics-prepare: ${id}`);
 
-        progress({ id: id, message: "Starting..." });
+        progress({ id: id, message: `Creating bundle...` });
 
-        return Promise.resolve()
-            .then(() => dumpAllFiles())
-            .then(() => progress({ id: id, message: "Uploading device information." }))
-            .then(() => this.uploadDeviceInformation(id))
-            .then(() => progress({ id: id, message: "Uploading app logs." }))
-            .then(() => this.uploadAppLogs(id))
-            .then(() => progress({ id: id, message: "Uploading database." }))
-            .then(() => this.uploadDatabase(id))
-            .then(() => progress({ id: id, message: "Uploading bundle." }))
-            .then(() => this.uploadBundle(id))
-            .then((reference: Buffer) =>
-                this.uploadArchived().then(
-                    (): SavedDiagnostics => {
-                        progress({ id: id, message: "Done!" });
-                        console.log("diagnostics", JSON.parse(reference.toString()));
-                        return {
-                            reference: JSON.parse(reference.toString()) as { phrase: string },
-                            id: id,
-                        };
-                    }
-                )
-            )
-            .catch((err) => {
-                console.log(`diagnostics error: ${JSON.stringify(err)}`);
-                return Promise.reject(err);
-            });
+        const folder = this.getDiagnosticsFolder().getFolder(id);
+
+        const info = this.gatherDeviceInformation();
+        const deviceJson = folder.getFile("device.json");
+        console.log(`diagnostics-prepare: writing ${deviceJson.path}`);
+        deviceJson.writeTextSync(JSON.stringify(info), (err) => {
+            if (err) {
+                console.log(`write-error:`, err);
+            }
+        });
+
+        await copyLogs(folder.getFile("logs.txt"));
+
+        const databasePath = getDatabasePath("fieldkit.sqlite3");
+        const databaseFile = File.fromPath(databasePath);
+        console.log(`diagnostics-prepare: database: ${databaseFile.path} ${databaseFile.size}`);
+        await this.services.Conservify().copyFile(databasePath, folder.getFile("fk.db").path);
+
+        console.log(`diagnostics-bundle:`);
+
+        await dumpAllFiles(folder.path, true);
+
+        console.log(`diagnostics-prepare: ready`);
+
+        return id;
     }
 
-    private uploadDeviceInformation(id: string): Promise<void> {
+    public async upload(progress: ProgressFunc): Promise<SavedDiagnostics | void> {
+        try {
+            await dumpAllFiles(null, false);
+
+            const id = await this.prepare(progress);
+
+            console.log(`diagnostics-upload: ${id}`);
+
+            progress({ id: id, message: `Uploading bundle...` });
+
+            /*
+            if (true) {
+                return {
+                    reference: { phrase: "DONE" },
+                    id: id,
+                };
+            }
+			*/
+
+            await this.uploadDirectory(id);
+
+            progress({ id: id, message: `Uploading JS...` });
+
+            const reference = await this.uploadBundle(id);
+
+            progress({ id: id, message: "Done!" });
+
+            console.log(`diagnostics-done: ${reference.toString()}`);
+
+            return {
+                reference: JSON.parse(reference.toString()) as { phrase: string },
+                id: id,
+            };
+        } catch (err) {
+            console.log(`diagnostics error: ${JSON.stringify(err)}`);
+            return Promise.resolve();
+        }
+    }
+
+    private gatherDeviceInformation(): DeviceInformation {
         const device = Device;
 
         const info = {
@@ -80,71 +119,27 @@ export default class Diagnostics {
             build: Build,
         };
 
-        console.log("device info", info);
-
-        return this.services
-            .Conservify()
-            .text({
-                method: "POST",
-                url: this.baseUrl + "/" + id + "/device.json",
-                body: JSON.stringify(info),
-            })
-            .then(() => {
-                return;
-            });
+        return info;
     }
 
-    private uploadArchived(): Promise<void> {
-        return this.getAllFiles(DiagnosticsDirectory)
-            .then((files) => {
-                return serializePromiseChain(files, (path: string) => {
-                    const relative = path.replace(DiagnosticsDirectory, "");
-                    console.log("uploading", path, relative);
-                    return this.services
-                        .Conservify()
-                        .upload({
-                            method: "POST",
-                            url: this.baseUrl + relative,
-                            path: path,
-                        })
-                        .then(() => File.fromPath(path).remove());
-                });
-            })
-            .then(() => {
-                return;
-            });
-    }
-
-    private uploadAppLogs(id: string): Promise<void> {
-        const copy = this.getDiagnosticsFolder().getFile("uploading.txt");
-        return copyLogs(copy).then(() => {
-            return this.services
+    private async uploadDirectory(id: string): Promise<void> {
+        const files = await this.getAllFiles(DiagnosticsDirectory + "/" + id, 0);
+        console.log(`uploading-directory: ${JSON.stringify(files)}`);
+        for (const path of files) {
+            const relative = path.replace(DiagnosticsDirectory, "");
+            console.log(`uploading: ${path} ${relative}`);
+            await this.services
                 .Conservify()
                 .upload({
                     method: "POST",
-                    url: this.baseUrl + "/" + id + "/app.txt",
-                    path: copy.path,
+                    url: this.baseUrl + relative,
+                    path: path,
                 })
-                .then(() => File.fromPath(copy.path).remove())
-                .then(() => {
-                    return;
-                });
-        });
+                .then(() => File.fromPath(path).remove());
+        }
     }
 
-    private uploadBundle(id: string): Promise<Buffer> {
-        const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
-        console.log("diagnostics", path);
-        return this.services
-            .Conservify()
-            .upload({
-                method: "POST",
-                url: this.baseUrl + "/" + id + "/bundle.js",
-                path: path,
-            })
-            .then((response) => response.body);
-    }
-
+    /*
     private uploadDatabase(id: string): Promise<Buffer> {
         console.log("getting database path");
         const path = getDatabasePath("fieldkit.sqlite3");
@@ -159,11 +154,24 @@ export default class Diagnostics {
             })
             .then((response) => response.body);
     }
+	*/
 
-    private getAllFiles(f: string): Promise<string[]> {
-        return listAllFiles(f).then((files) => {
+    private uploadBundle(id: string): Promise<Buffer> {
+        const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
+        return this.services
+            .Conservify()
+            .upload({
+                method: "POST",
+                url: this.baseUrl + "/" + id + "/bundle.js",
+                path: path,
+            })
+            .then((response) => response.body);
+    }
+
+    private getAllFiles(path: string, minimumDepth: number): Promise<string[]> {
+        return listAllFiles(path).then((files) => {
             return _(files)
-                .filter((f) => f.depth > 0)
+                .filter((f) => f.depth >= minimumDepth)
                 .map((f) => f.path)
                 .value();
         });

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { Folder, knownFolders, isAndroid, Utils, File, FileSystemEntity } from "@nativescript/core";
+
 export { File, Folder };
 
 export const DownloadsDirectory = "downloads";
@@ -32,17 +33,21 @@ function recurse(f: Folder, depth: number, callback: RecurseCallback): Promise<v
         });
 }
 
-export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
-    const files: FileLike[] = [];
-
-    const getFolder = () => {
-        if (f && f.length > 0) {
-            return knownFolders.documents().getFolder(f);
+function getRelativeMaybe(path: string | null): Folder {
+    if (path && path.length > 0) {
+        if (path[0] == "/") {
+            return Folder.fromPath(path);
+        } else {
+            return knownFolders.documents().getFolder(path);
         }
-        return knownFolders.documents();
-    };
+    }
+    return knownFolders.documents();
+}
 
-    return recurse(getFolder(), 0, (depth: number, entry: FileSystemEntity) => {
+export function listAllFiles(path: string | null = null): Promise<FileLike[]> {
+    const files: FileLike[] = [];
+    const folder = getRelativeMaybe(path);
+    return recurse(folder, 0, (depth: number, entry: FileSystemEntity) => {
         files.push({
             depth: depth,
             path: entry.path,
@@ -53,9 +58,15 @@ export function listAllFiles(f: string | null = null): Promise<FileLike[]> {
     });
 }
 
-export function dumpAllFiles(): Promise<void> {
-    return recurse(knownFolders.documents(), 0, (_depth: number, entry: FileSystemEntity) => {
-        console.log("files", entry.path);
+export function dumpAllFiles(path: string | null, sizes: boolean): Promise<void> {
+    const folder = getRelativeMaybe(path);
+    return recurse(folder, 0, (_depth: number, entry: FileSystemEntity) => {
+        if (sizes) {
+            const file = File.fromPath(entry.path);
+            console.log("files", entry.path, file.size);
+        } else {
+            console.log("files", entry.path);
+        }
     });
 }
 

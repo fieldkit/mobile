@@ -29,6 +29,7 @@ export declare class Conservify {
     stop(): Promise<void>;
     writeSampleData(): Promise<void>;
     open(path: string): Promise<OpenedFile>;
+    copyFile(source: string, destiny: string): Promise<boolean>;
     text(info: TransferInfo): Promise<HttpResponse>;
     json(info: TransferInfo): Promise<HttpResponse>;
     protobuf(info: TransferInfo): Promise<HttpResponse>;

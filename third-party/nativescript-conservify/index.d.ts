@@ -56,4 +56,5 @@ export declare class Conservify extends Common {
     scanNetworks(): Promise<ScannedNetworks>;
     findConnectedNetwork(): Promise<ConnectedNetwork>;
     open(path: string): Promise<OpenedFile>;
+    copyFile(source: string, destiny: string): Promise<boolean>;
 }

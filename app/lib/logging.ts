@@ -19,7 +19,7 @@ function getPrettyTime() {
     return moment().format();
 }
 
-function getLogsFile() {
+function getLogsFile(): File {
     return knownFolders.documents().getFolder("diagnostics").getFile("logs.txt");
 }
 

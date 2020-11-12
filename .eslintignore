@@ -75,7 +75,7 @@ app/components/StationsMap.vue
 app/components/AppSettingsAppearanceFontSizeView.vue
 app/components/DataSyncView.vue
 app/components/LabeledTextView.vue
-# app/components/StationDetailView.vue
+app/components/StationDetailView.vue
 app/components/DeveloperMenuView.vue
 app/components/ScheduleEditor.vue
 app/components/AppSettingsView.vue
