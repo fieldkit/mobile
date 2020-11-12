@@ -36,11 +36,13 @@ export * from "./modules/firmware";
 export * from "./modules/global";
 export * from "./modules/notifications";
 
-import { GlobalState } from "./modules/global";
+import { GlobalState, GlobalGetters } from "./modules/global";
 
 export type PayloadType = Record<string, unknown> | Record<string, unknown>[];
 
-export type OurStore = Store<GlobalState>;
+export interface OurStore extends Store<GlobalState> {
+    getters: GlobalGetters;
+}
 
 type AppendStoreLog = (row: StoreLogRow) => Promise<void>;
 

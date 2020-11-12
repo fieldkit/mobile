@@ -10,10 +10,17 @@ import { FirmwareState } from "./firmware";
 import { NotificationsState } from "./notifications";
 import { MediaState } from "./media";
 
-import { ServiceInfo, ModuleStatus, Station, AvailableStation, LegacyStation } from "../types";
+import { ServiceInfo, ModuleStatus, Station, AvailableStation, LegacyStation, StationSyncStatus } from "../types";
+
+import { StationCalibration } from "../../calibration";
 
 export class StationsState {
     all: Station[] = [];
+}
+
+export class CalibrationState {
+    status: { [index: string]: ModuleStatus } = {};
+    connected: { [index: string]: ServiceInfo } = {};
 }
 
 export interface GlobalState {
@@ -32,12 +39,10 @@ export interface GlobalState {
     readonly media: MediaState;
 }
 
-export class CalibrationState {
-    status: { [index: string]: ModuleStatus } = {};
-    connected: { [index: string]: ServiceInfo } = {};
-}
-
 export interface GlobalGetters {
     readonly availableStations: AvailableStation[];
     readonly legacyStations: { [index: string]: LegacyStation };
+    readonly syncs: StationSyncStatus[];
+    readonly stationCalibrations: { [index: number]: StationCalibration };
+    readonly stationsById: { [index: number]: Station };
 }

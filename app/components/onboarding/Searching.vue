@@ -16,7 +16,6 @@
 import { Page } from "@nativescript/core";
 import Vue from "vue";
 import routes from "@/routes";
-import { LegacyStation } from "@/store/types";
 import { promiseAfter } from "@/utilities";
 
 export default Vue.extend({
@@ -93,7 +92,7 @@ export default Vue.extend({
                     });
                 }
 
-                const legacyStations: LegacyStation[] = this.$s.getters.legacyStations;
+                const legacyStations = this.$s.getters.legacyStations;
                 const connected = Object.values(legacyStations).filter((ls) => ls.connected);
                 if (connected.length < 1) {
                     throw new Error("expected a connected station");

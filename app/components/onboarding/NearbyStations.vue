@@ -48,7 +48,6 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { LegacyStation } from "@/store/types";
 
 interface NearbyStation {
     id: number;
@@ -72,7 +71,7 @@ export default Vue.extend({
     },
     computed: {
         nearbyStations(): NearbyStation[] {
-            const legacyStations: LegacyStation[] = this.$s.getters.legacyStations; // TODO ts
+            const legacyStations = this.$s.getters.legacyStations;
             return Object.values(legacyStations)
                 .filter((station) => station.connected)
                 .map((station) => {
@@ -86,7 +85,7 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(): void {
-            const legacyStations: LegacyStation[] = this.$s.getters.legacyStations; // TODO ts
+            const legacyStations = this.$s.getters.legacyStations;
             const connected = Object.values(legacyStations).filter((ls) => ls.connected);
             if (connected.length == 0) {
                 throw new Error("invalid transition, no nearby stations");

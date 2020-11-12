@@ -25,7 +25,7 @@ import StationSettingsModuleList from "../components/settings/StationSettingsMod
 import ConnectionStatusHeader from "../components/ConnectionStatusHeader.vue";
 
 import { calibrationStrategies } from "./strategies";
-import { CalibrationStrategy } from "./model";
+import { StationCalibration, CalibrationStrategy } from "./model";
 
 import { CommonProperties, Common } from "./water";
 
@@ -57,7 +57,7 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(): Station {
+        currentStation(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
         module(): Module {

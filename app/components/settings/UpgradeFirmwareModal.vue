@@ -26,7 +26,7 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { AvailableStation, Station, UpgradeStatus, UpgradeInfo, UpgradeStationFirmwareAction } from "@/store";
+import { Station, UpgradeStatus, UpgradeInfo, UpgradeStationFirmwareAction } from "@/store";
 
 export default Vue.extend({
     data(): {} {
@@ -82,7 +82,7 @@ export default Vue.extend({
             }
 			*/
 
-            const availableStations: { [index: number]: AvailableStation } = _.keyBy(this.$s.getters.availableStations, (s) => s.id);
+            const availableStations = _.keyBy(this.$s.getters.availableStations, (s) => s.id!);
             const station = availableStations[this.stationId];
 
             if (!station) throw new Error(`firmware-modal: no such station`);
