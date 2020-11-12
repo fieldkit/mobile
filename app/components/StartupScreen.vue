@@ -16,28 +16,8 @@ import routes from "@/routes";
 import { Route } from "@/routes/navigate";
 import Config from "@/config";
 // import { ProcessAllStationsTask } from "@/lib/process";
-import { firebase } from "@nativescript/firebase";
-import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import { ActionTypes, OurStore } from "@/store";
-
-function initializeFirebase(_services: Services): Promise<any> {
-    console.log("initialize:firebase");
-    return firebase
-        .init({
-            crashlyticsCollectionEnabled: true,
-        })
-        .then((response) => {
-            const globalAny: any = global;
-            crashlytics.setString("env", globalAny.TNS_ENV);
-            console.log("firebase:initialized", response);
-            return Promise.resolve(true);
-        })
-        .catch((error) => {
-            console.log("firebase:error", error);
-            return Promise.resolve();
-        });
-}
 
 function restartDiscovery(discoverStation): null {
     if (false) {
@@ -115,59 +95,54 @@ function downloadDatabase(services: Services, url: string): Promise<void> {
 function initializeApplication(services: Services): Promise<any> {
     const started = new Date();
 
-    return initializeFirebase(services).then(() => {
-        console.log("firebase:app_open");
-        return analytics
-            .logEvent({
-                key: "app_open",
-            })
-            .then((response) => {
-                console.log("firebase:recorded", response);
-                return Promise.resolve(true);
-            })
-            .catch((message) => {
-                console.log("firebase:error", message);
-                return Promise.resolve(false);
-            })
-            .then(() =>
-                downloadDatabase(services, "http://192.168.0.100:8000/fk.db")
-                    .then(() =>
-                        services
-                            .CreateDb()
-                            .initialize(null, false, false)
-                            .then(() => services.Database().checkSettings())
-                            .then(() => services.Database().purgeOldLogs())
-                            .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
-                            .then(() => {
-                                console.log("services:ready");
+    return analytics
+        .logEvent({
+            key: "app_open",
+        })
+        .then(() => {
+            console.log("firebase:recorded");
+        })
+        .catch((message) => {
+            console.log("firebase:error", message);
+        })
+        .then(() =>
+            downloadDatabase(services, "http://192.168.0.100:8000/fk.db")
+                .then(() =>
+                    services
+                        .CreateDb()
+                        .initialize(null, false, false)
+                        .then(() => services.Database().checkSettings())
+                        .then(() => services.Database().purgeOldLogs())
+                        .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
+                        .then(() => {
+                            console.log("services:ready");
 
-                                return services
-                                    .Store()
-                                    .dispatch(ActionTypes.LOAD)
-                                    .then(
-                                        () =>
-                                            Promise.resolve()
-                                                .then(() => services.DiscoverStation().startServiceDiscovery())
-                                                .then(() => enableLocationServices(services))
-                                                .then(() => services.PortalUpdater().start())
-                                                .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
-                                                .then(() => updateStore(services.Store()))
-                                                .then(() => resumeSession(services))
-                                                .then(() => restartDiscovery(services.DiscoverStation()))
-                                        // .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
-                                    );
-                            })
-                    )
-                    .then(() => {
-                        const now = new Date();
-                        const elapsed = now.getTime() - started.getTime();
-                        console.log("startup:started", elapsed);
-                    })
-                    .catch((err) => {
-                        console.log("startup:error:", err, err ? err.stack : null);
-                    })
-            );
-    });
+                            return services
+                                .Store()
+                                .dispatch(ActionTypes.LOAD)
+                                .then(
+                                    () =>
+                                        Promise.resolve()
+                                            .then(() => services.DiscoverStation().startServiceDiscovery())
+                                            .then(() => enableLocationServices(services))
+                                            .then(() => services.PortalUpdater().start())
+                                            .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
+                                            .then(() => updateStore(services.Store()))
+                                            .then(() => resumeSession(services))
+                                            .then(() => restartDiscovery(services.DiscoverStation()))
+                                    // .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
+                                );
+                        })
+                )
+                .then(() => {
+                    const now = new Date();
+                    const elapsed = now.getTime() - started.getTime();
+                    console.log("startup:started", elapsed);
+                })
+                .catch((err) => {
+                    console.log("startup:error:", err, err ? err.stack : null);
+                })
+        );
 }
 
 function getFirstRoute(services: Services): Route {

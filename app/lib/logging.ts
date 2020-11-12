@@ -3,6 +3,7 @@ import Vue from "vue";
 import Bluebird from "bluebird";
 import moment from "moment";
 import { Trace, knownFolders } from "@nativescript/core";
+import { firebase } from "@nativescript/firebase";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import { AuthenticationError } from "./errors";
@@ -193,15 +194,35 @@ function wrapLoggingMethod(method: string): void {
     };
 }
 
-export default function initializeLogging(): Promise<void> {
+async function initializeFirebase(): Promise<void> {
+    console.log("initialize:firebase");
+    await firebase
+        .init({
+            crashlyticsCollectionEnabled: true,
+        })
+        .then((response) => {
+            // eslint-disable-next-line
+            const globalAny: any = global;
+            // eslint-disable-next-line
+            crashlytics.setString("env", globalAny.TNS_ENV);
+            console.log("firebase:initialized", response);
+            return Promise.resolve(true);
+        })
+        .catch((error) => {
+            console.log("firebase:error", error);
+            return Promise.resolve();
+        });
+}
+
+async function initialize(): Promise<void> {
     // NOTE: http://tobyho.com/2012/07/27/taking-over-console-log/
     const globalAny: any = global; // eslint-disable-line
     // eslint-disable-next-line
     if (globalAny.TNS_ENV === "test") {
-        return Promise.resolve();
+        return;
     }
 
-    console.log("saving logs");
+    await initializeFirebase();
 
     const methods = ["log", "warn", "error"];
     for (let i = 0; i < methods.length; i++) {
@@ -214,5 +235,9 @@ export default function initializeLogging(): Promise<void> {
 
     configureGlobalErrorHandling();
 
-    return Promise.resolve();
+    return;
+}
+
+export function initializeLogging(): Promise<void> {
+    return initialize();
 }
