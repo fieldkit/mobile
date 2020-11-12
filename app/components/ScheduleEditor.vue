@@ -13,7 +13,12 @@
         </GridLayout>
 
         <StackLayout class="simple-schedule-container" v-if="isSimple">
-            <IntervalEditor :interval="schedule.intervals[0]" :fullDay="true" @change="(interval) => onChangeInterval(0, interval)" />
+            <IntervalEditor
+                :interval="schedule.intervals[0]"
+                :fullDay="true"
+                @change="(interval) => onChangeInterval(0, interval)"
+                @invalid="(value) => onInvalid(0, value)"
+            />
         </StackLayout>
 
         <StackLayout class="complex-schedule-container" v-if="isComplex">
@@ -32,7 +37,11 @@
                     </StackLayout>
                 </GridLayout>
 
-                <IntervalEditor :interval="interval" @change="(interval) => onChangeInterval(index, interval)" />
+                <IntervalEditor
+                    :interval="interval"
+                    @change="(interval) => onChangeInterval(index, interval)"
+                    @invalid="(value) => onInvalid(index, value)"
+                />
             </StackLayout>
             <StackLayout @tap="addInterval" class="add-interval">
                 <Label text="Add Time" />
@@ -58,9 +67,16 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(): { scheduleType: number } {
+    data(): {
+        scheduleType: number;
+        invalid: { [scheduleType: number]: { [index: number]: boolean } };
+    } {
+        const invalid = {};
+        invalid[0] = {};
+        invalid[1] = {};
         return {
             scheduleType: 0,
+            invalid: invalid,
         };
     },
     computed: {
@@ -107,6 +123,12 @@ export default Vue.extend({
             newSchedule.intervals[index] = interval;
             console.log("change-interval", JSON.stringify(newSchedule));
             this.$emit("change", newSchedule);
+        },
+        onInvalid(index: number, invalid: boolean): void {
+            this.invalid[this.scheduleType][index] = invalid;
+            console.log("schedule-invalid", index, invalid, this.scheduleType, this.invalid);
+            const flags = Object.values(this.invalid[this.scheduleType]);
+            this.$emit("invalid", _.some(flags));
         },
     },
 });

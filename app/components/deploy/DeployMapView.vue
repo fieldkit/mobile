@@ -65,7 +65,12 @@
                         </StackLayout>
 
                         <StackLayout row="1" class="form-row">
-                            <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" v-if="form.schedule" />
+                            <ScheduleEditor
+                                :schedule="form.schedule"
+                                @change="onScheduleChange"
+                                @invalid="onScheduleInvalid"
+                                v-if="form.schedule"
+                            />
                         </StackLayout>
                     </GridLayout>
                 </FlexboxLayout>
@@ -75,7 +80,7 @@
                 <Button
                     class="btn btn-primary btn-padded m-b-10"
                     :text="_L('continue')"
-                    :isEnabled="currentStation.connected"
+                    :isEnabled="currentStation.connected && valid()"
                     automationText="nextButton"
                     @tap="goToNext"
                 ></Button>
@@ -112,6 +117,7 @@ export default Vue.extend({
                 required: boolean;
                 characters: boolean;
                 long: boolean;
+                schedule: boolean;
             };
         };
     } {
@@ -126,6 +132,7 @@ export default Vue.extend({
                     required: false,
                     characters: false,
                     long: false,
+                    schedule: false,
                 },
             },
         };
@@ -221,6 +228,7 @@ export default Vue.extend({
                 required: false,
                 characters: false,
                 long: false,
+                schedule: false,
             };
 
             this.form.v.required = this.form.location.length == 0;
@@ -234,8 +242,16 @@ export default Vue.extend({
             console.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
+        onScheduleInvalid(invalid: boolean): void {
+            console.log("schedule:invalid", invalid);
+            this.form.v.schedule = invalid;
+        },
+        valid(): boolean {
+            return !this.form.v.any && !this.form.v.schedule;
+        },
         saveForm(): Promise<any> {
             if (!this.checkLocationName()) return Promise.reject(new Error("validation error"));
+            if (!this.valid()) return Promise.reject(new Error("validation error"));
             const schedule = this.form.schedule;
             if (!schedule) return Promise.reject(new Error("no schedule"));
             const station = this.$s.getters.legacyStations[this.stationId];

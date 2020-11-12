@@ -133,6 +133,10 @@ export default Vue.extend({
             this.form.quantity = String(Math.ceil(interval.interval / this.form.duration));
             console.log("interval-editor:updated", JSON.stringify(this.form));
         },
+        updateInvalid(): void {
+            const invalid = this.errors.quantity.numeric || this.errors.quantity.required || this.errors.quantity.minimum;
+            this.$emit("invalid", invalid);
+        },
         onChange(ev: any): void {
             this.errors.quantity.numeric = false;
             this.errors.quantity.required = false;
@@ -140,18 +144,21 @@ export default Vue.extend({
 
             if (!this.form.quantity || this.form.quantity.length == 0) {
                 this.errors.quantity.required = true;
+                this.updateInvalid();
                 return;
             }
 
             const numeric = Number(this.form.quantity);
             if (isNaN(numeric)) {
                 this.errors.quantity.numeric = true;
+                this.updateInvalid();
                 return;
             }
 
             const seconds = numeric * this.form.duration;
             if (seconds < 60) {
                 this.errors.quantity.minimum = true;
+                this.updateInvalid();
                 return;
             }
 
@@ -163,6 +170,7 @@ export default Vue.extend({
 
             console.log("interval-editor:seconds", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
+            this.updateInvalid();
         },
         onChangeStart(time: number): void {
             const newInterval = {
@@ -173,6 +181,7 @@ export default Vue.extend({
 
             console.log("interval-editor:start", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
+            this.updateInvalid();
         },
         onChangeEnd(time: number): void {
             const newInterval = {
@@ -183,6 +192,7 @@ export default Vue.extend({
 
             console.log("interval-editor:end", JSON.stringify(newInterval));
             this.$emit("change", newInterval);
+            this.updateInvalid();
         },
         onFocus(): void {
             this.focus = true;
