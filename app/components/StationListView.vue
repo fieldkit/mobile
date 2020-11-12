@@ -75,6 +75,7 @@ export default Vue.extend({
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
         },
         async goToDetail(ev, station: AvailableStation): Promise<void> {
+            if (!station.id) throw new Error(`missing station id: ${station.name}`);
             await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
