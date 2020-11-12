@@ -75,6 +75,7 @@ declare class FileSystem extends NSObject {
     static new(): FileSystem;
     initWithListener(listener: FileSystemListener): FileSystem;
     openWithPath(path: string): PbFile;
+    copyFileWithSourceDestiny(source: string, destiny: string): boolean;
     newToken(): string;
 }
 declare class ServiceDiscovery extends NSObject {
@@ -164,6 +165,7 @@ export declare class Conservify implements ActiveTasks, OtherPromises {
     start(serviceTypeSearch?: string | null, serviceNameSelf?: string | null, serviceTypeSelf?: string | null): Promise<any>;
     writeSampleData(): Promise<void>;
     open(path: string): Promise<OpenedFile>;
+    copyFile(source: string, destiny: string): Promise<boolean>;
     json(info: TransferInfo): Promise<HttpResponse>;
     text(info: TransferInfo): Promise<HttpResponse>;
     protobuf(info: TransferInfo): Promise<HttpResponse>;
