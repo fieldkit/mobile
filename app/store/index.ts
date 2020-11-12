@@ -57,7 +57,7 @@ function simpleMutation(appendLog: AppendStoreLog, mutation: PassedMutation): bo
     void appendLog({
         time: new Date().getTime(),
         mutation: mutation.type,
-        payload: JSON.stringify(mutation.payload),
+        payload: JSON.stringify(mutation.payload) || "{}",
         before: JSON.stringify({}),
         after: JSON.stringify({}),
     });
