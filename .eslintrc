@@ -1,12 +1,19 @@
 {
-    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:vue/base",
+        "plugin:vue/recommended"
+    ],
+    "parser": "vue-eslint-parser",
     "parserOptions": {
-        "sourceType": "module",
-        "project": "./tsconfig.json"
+        "parser": "@typescript-eslint/parser",
+        "project": "./tsconfig.json",
+        "extraFileExtensions": [".vue"]
     },
-    "plugins": ["nativescript"],
+    "plugins": ["vue", "@typescript-eslint", "nativescript"],
     "rules": {
-        "nativescript/no-short-imports": "error",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             {
@@ -14,12 +21,11 @@
                 "argsIgnorePattern": "^(_|state$|commit$|dispatch$)",
                 "varsIgnorePattern": "^(_|state$|commit$|dispatch$)"
             }
-        ]
-    },
-    "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "plugin:vue/vue3-recommended"
-    ]
+        ],
+        "vue/html-indent": "off",
+        "vue/html-self-closing": "off",
+        "vue/max-attributes-per-line": "off",
+        "vue/attribute-hyphenation": "off",
+        "nativescript/no-short-imports": "error"
+    }
 }

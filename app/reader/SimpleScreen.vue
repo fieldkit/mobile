@@ -1,33 +1,33 @@
 <template>
     <StackLayout class="simple-screen">
         <StackLayout class="headings-container">
-            <Label class="heading" v-for="(heading, index) in body.headings" :key="index" :text="heading" lineHeight="4" textWrap="true" />
+            <Label v-for="(heading, index) in body.headings" :key="index" class="heading" :text="heading" lineHeight="4" textWrap="true" />
         </StackLayout>
 
         <StackLayout class="body-container">
-            <Label class="body" v-for="(line, index) in body.lines" :key="index" :text="line" lineHeight="4" textWrap="true" />
+            <Label v-for="(line, index) in body.lines" :key="index" class="body" :text="line" lineHeight="4" textWrap="true" />
         </StackLayout>
 
         <StackLayout class="items-container">
-            <Label class="item" v-for="(item, index) in body.items" :key="index" :text="item" lineHeight="4" textWrap="true" />
+            <Label v-for="(item, index) in body.items" :key="index" class="item" :text="item" lineHeight="4" textWrap="true" />
         </StackLayout>
 
-        <StackLayout class="image-container" v-if="image">
+        <StackLayout v-if="image" class="image-container">
             <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" />
         </StackLayout>
     </StackLayout>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { Body, parseBody } from "./model";
+import Vue, { PropType } from "vue";
+import { Body, SimpleScreen, parseBody } from "./model";
 
 export default Vue.extend({
     name: "SimpleScreen",
     components: {},
     props: {
         screen: {
-            type: Object,
+            type: Object as PropType<SimpleScreen>,
             required: true,
         },
         frame: {
@@ -39,7 +39,7 @@ export default Vue.extend({
         return {};
     },
     computed: {
-        image(): string | null {
+        image(): { url: string } | null {
             if (this.screen.images.length == 0) {
                 return null;
             }

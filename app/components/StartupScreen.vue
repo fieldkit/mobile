@@ -21,7 +21,7 @@ import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import { ActionTypes, OurStore } from "@/store";
 
-function initializeFirebase(services: Services): Promise<any> {
+function initializeFirebase(_services: Services): Promise<any> {
     console.log("initialize:firebase");
     return firebase
         .init({
@@ -241,13 +241,14 @@ export default class StartupScreen extends Vue {
                     props: {},
                 });
 				*/
+
                 if (services.Store().getters.stationCalibrations[1]) {
                     // return this.$navigateTo(routes.deploy.start, {
                     // return this.$navigateTo(routes.deploy.notes, {
                     // return this.$navigateTo(routes.deploy.review, {
                     // return this.$navigateTo(routes.stationSettings, {
-                    return this.$navigateTo(routes.station.settings.firmware, {
-                        // return this.$navigateTo(routes.stationDetail, {
+                    // return this.$navigateTo(routes.station.settings.firmware, {
+                    return this.$navigateTo(routes.stationDetail, {
                         // return this.$navigateTo(routes.onboarding.start, {
                         clearHistory: true,
                         props: {

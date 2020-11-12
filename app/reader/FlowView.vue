@@ -4,24 +4,24 @@
             <StackLayout row="0">
                 <Header
                     :header="screen.header"
-                    @back="backward"
                     :canBack="screen.navOptions.backward.allowed"
-                    @cancel="cancel"
                     :canCancel="true"
+                    @back="backward"
+                    @cancel="cancel"
                 />
                 <FlowProgress :progress="progress" />
             </StackLayout>
             <StackLayout row="1">
-                <SimpleScreen :screen="screen.simple[0]" v-if="screen.simple.length >= 1" :frame="frame" />
+                <SimpleScreen v-if="screen.simple.length >= 1" :screen="screen.simple[0]" :frame="frame" />
             </StackLayout>
             <StackLayout row="2" class="m-x-10">
                 <Button
                     class="btn btn-primary btn-padded"
-                    @tap="forward"
                     :text="screen.forward"
                     :isEnabled="screen.navOptions.forward.allowed"
+                    @tap="forward"
                 />
-                <Label :text="screen.skip" class="skip" @tap="skip" textWrap="true" v-if="screen.skip" />
+                <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="skip" />
             </StackLayout>
         </GridLayout>
     </Page>
@@ -34,19 +34,8 @@ import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import routes from "@/routes";
 import flows from "@/data/flows.json";
-
 import { Timer } from "@/common/timer";
-
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
-
-/*
-interface Self extends Vue {
-    flowName: string;
-    nav: FlowNavigator;
-    screen: VisibleScreen;
-    timer: Timer;
-}
-*/
 
 export default Vue.extend({
     name: "FlowView",
@@ -70,16 +59,6 @@ export default Vue.extend({
             timer: null,
         };
     },
-    mounted(): void {
-        this.timer = new Timer(1000, () => {});
-        console.log("flows", flows);
-    },
-    destroyed(): void {
-        if (this.timer) {
-            this.timer.stop();
-            this.timer = null;
-        }
-    },
     computed: {
         frame(): number {
             return this.timer?.counter || 0;
@@ -90,6 +69,16 @@ export default Vue.extend({
         progress(): number {
             return this.nav.progress;
         },
+    },
+    mounted(): void {
+        this.timer = new Timer(1000, null);
+        console.log("flows", flows);
+    },
+    destroyed(): void {
+        if (this.timer) {
+            this.timer.stop();
+            this.timer = null;
+        }
     },
     methods: {
         async forward(): Promise<void> {
