@@ -96,8 +96,8 @@ export default class Diagnostics {
                 reference: JSON.parse(reference.toString()) as { phrase: string },
                 id: id,
             };
-        } catch (err) {
-            console.log(`diagnostics error: ${err.message}`, err);
+        } catch (err: unknown) {
+            console.log(`diagnostics error:`, err);
             return Promise.resolve();
         }
     }
@@ -122,11 +122,17 @@ export default class Diagnostics {
         return info;
     }
 
+    private getFileName(path: string): string {
+        const parts = path.split("/");
+        return parts[parts.length - 1];
+    }
+
     private async uploadDirectory(id: string): Promise<void> {
         const files = await this.getAllFiles(DiagnosticsDirectory + "/" + id, 0);
         console.log(`uploading-directory: ${JSON.stringify(files)}`);
         for (const path of files) {
-            const relative = path.replace(DiagnosticsDirectory, "");
+            const name = this.getFileName(path);
+            const relative = `/${id}/${name}`;
             console.log(`uploading: ${path} ${relative}`);
             await this.services
                 .Conservify()
@@ -138,23 +144,6 @@ export default class Diagnostics {
                 .then(() => File.fromPath(path).remove());
         }
     }
-
-    /*
-    private uploadDatabase(id: string): Promise<Buffer> {
-        console.log("getting database path");
-        const path = getDatabasePath("fieldkit.sqlite3");
-        console.log("diagnostics", path);
-        return this.services
-            .Conservify()
-            .upload({
-                method: "POST",
-                url: this.baseUrl + "/" + id + "/fk.db",
-                path: path,
-                uploadCopy: true,
-            })
-            .then((response) => response.body);
-    }
-	*/
 
     private uploadBundle(id: string): Promise<Buffer> {
         const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
