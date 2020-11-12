@@ -66,8 +66,6 @@ export function copyLogs(where: File): Promise<void> {
                 }
             });
 
-            originalConsole.log("copied", existing.length, where.path);
-
             resolve();
         });
     });

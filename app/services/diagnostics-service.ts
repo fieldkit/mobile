@@ -97,7 +97,7 @@ export default class Diagnostics {
                 id: id,
             };
         } catch (err) {
-            console.log(`diagnostics error: ${JSON.stringify(err)}`);
+            console.log(`diagnostics error: ${err.message}`, err);
             return Promise.resolve();
         }
     }
