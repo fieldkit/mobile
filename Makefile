@@ -144,13 +144,13 @@ ios-logs:
 	idevicesyslog --udid `idevice_id --list` -p "mobile(NativeScript)"
 
 cycle-checks:
-	npx madge --circular --extensions ts ./app
+	madge --circular --extensions ts ./app
 
 webpack: setup webpack-android webpack-ios
 
 checks: setup
-	npx eslint --ext=ts app
-	npx eslint --ext=vue app
+	eslint --ext=ts app
+	eslint --ext=vue app
 	$(MAKE) cycle-checks
 
 android-webpack:
