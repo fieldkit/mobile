@@ -13,7 +13,13 @@ function uuidv4(): string {
     });
 }
 
-export type ProgressFunc = (progress: { id: string; message: string; progress?: number }) => void;
+export interface DiagnosticsProgress {
+    id: string;
+    message: string;
+    progress?: number;
+}
+
+export type ProgressFunc = (progress: DiagnosticsProgress) => void;
 
 export type DeviceInformation = Record<string, unknown>;
 

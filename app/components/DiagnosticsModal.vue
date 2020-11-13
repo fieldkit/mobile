@@ -15,9 +15,15 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import { DiagnosticsProgress } from "@/services/diagnostics-service";
 
 export default Vue.extend({
-    data() {
+    data(): {
+        progress: DiagnosticsProgress | null;
+        phrase: string | null;
+        error: boolean;
+        done: boolean;
+    } {
         return {
             progress: null,
             phrase: null,
@@ -25,16 +31,15 @@ export default Vue.extend({
             done: false,
         };
     },
-    props: {},
     methods: {
-        update(this: any, progress) {
+        update(progress: DiagnosticsProgress): void {
             this.progress = progress;
             console.log("diagnostics", progress.id, progress.message);
         },
-        onLoaded(this: any) {
+        onLoaded(): void {
             console.log("diagnostics loaded");
 
-            return this.$services
+            void this.$services
                 .Diagnostics()
                 .upload((progress) => {
                     this.update(progress);
@@ -43,7 +48,9 @@ export default Vue.extend({
                     (res) => {
                         console.log("diagnostics done", res);
                         this.done = true;
-                        this.phrase = res.reference.phrase;
+                        if (res) {
+                            this.phrase = res.reference.phrase;
+                        }
                     },
                     (e) => {
                         console.log("diagnostics done", e);
@@ -52,10 +59,10 @@ export default Vue.extend({
                     }
                 );
         },
-        onUnloaded(this: any) {
+        onUnloaded(): void {
             console.log("diagnostics unloaded");
         },
-        close(this: any) {
+        close(): void {
             console.log("Close");
             this.$modal.close(true);
         },
