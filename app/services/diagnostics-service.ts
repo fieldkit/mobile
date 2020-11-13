@@ -47,12 +47,14 @@ export default class Diagnostics {
             }
         });
 
-        await copyLogs(folder.getFile("logs.txt"));
-
         const databasePath = getDatabasePath("fieldkit.sqlite3");
         const databaseFile = File.fromPath(databasePath);
         console.log(`diagnostics-prepare: database: ${databaseFile.path} ${databaseFile.size}`);
         await this.services.Conservify().copyFile(databasePath, folder.getFile("fk.db").path);
+
+        console.log(`diagnostics-bundle: end of bundle`);
+
+        await copyLogs(folder.getFile("logs.txt"));
 
         console.log(`diagnostics-bundle:`);
 
