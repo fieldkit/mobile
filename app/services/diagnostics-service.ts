@@ -13,13 +13,17 @@ function uuidv4(): string {
     });
 }
 
-export type ProgressFunc = (progress: { id: string; message: string }) => void;
+export type ProgressFunc = (progress: { id: string; message: string; progress?: number }) => void;
 
 export type DeviceInformation = Record<string, unknown>;
 
+export interface Reference {
+    phrase: string;
+}
+
 export interface SavedDiagnostics {
     id: string;
-    reference: { phrase: string };
+    reference: Reference;
 }
 
 export default class Diagnostics {
@@ -34,9 +38,16 @@ export default class Diagnostics {
 
         console.log(`diagnostics-prepare: ${id}`);
 
-        progress({ id: id, message: `Creating bundle...` });
+        progress({ id: id, message: `Creating Bundle` });
 
         const folder = this.getDiagnosticsFolder().getFolder(id);
+
+        const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
+
+        console.log(`diagnostics-prepare: copying bundle.js (${path})`);
+        await this.services.Conservify().copyFile(path, folder.getFile("bundle.js").path);
+
+        progress({ id: id, message: `Writing Device Info` });
 
         const info = this.gatherDeviceInformation();
         const deviceJson = folder.getFile("device.json");
@@ -49,12 +60,16 @@ export default class Diagnostics {
 
         console.log(`diagnostics:prepare purging old logs`);
 
+        progress({ id: id, message: `Copying Database` });
+
         await this.services.Database().purgeOldLogs();
 
         const databasePath = getDatabasePath("fieldkit.sqlite3");
         const databaseFile = File.fromPath(databasePath);
         console.log(`diagnostics-prepare: database: ${databaseFile.path} ${databaseFile.size}`);
         await this.services.Conservify().copyFile(databasePath, folder.getFile("fk.db").path);
+
+        progress({ id: id, message: `Copying Logs` });
 
         console.log(`diagnostics-bundle: end of bundle`);
 
@@ -88,18 +103,14 @@ export default class Diagnostics {
             }
 			*/
 
-            await this.uploadDirectory(id);
-
-            progress({ id: id, message: `Uploading JS...` });
-
-            const reference = await this.uploadBundle(id);
+            const reference = await this.uploadDirectory(id, progress);
 
             progress({ id: id, message: "Done!" });
 
-            console.log(`diagnostics-done: ${reference.toString()}`);
+            console.log(`diagnostics-done: ${JSON.stringify(reference)}`);
 
             return {
-                reference: JSON.parse(reference.toString()) as { phrase: string },
+                reference: reference,
                 id: id,
             };
         } catch (err: unknown) {
@@ -133,34 +144,45 @@ export default class Diagnostics {
         return parts[parts.length - 1];
     }
 
-    private async uploadDirectory(id: string): Promise<void> {
+    private async uploadDirectory(id: string, progress: ProgressFunc): Promise<Reference> {
         const files = await this.getAllFiles(DiagnosticsDirectory + "/" + id, 0);
-        console.log(`uploading-directory: ${JSON.stringify(files)}`);
+        const responses: Buffer[] = [];
+        const totalOfAll = _(files)
+            .map((path) => File.fromPath(path))
+            .map((f) => f.size)
+            .sum();
+
+        let copiedOfAll = 0;
+
+        console.log(`uploading-directory: total=${totalOfAll} files=${JSON.stringify(files)}`);
+
         for (const path of files) {
             const name = this.getFileName(path);
+            const file = File.fromPath(path);
             const relative = `/${id}/${name}`;
             console.log(`uploading: ${path} ${relative}`);
-            await this.services
-                .Conservify()
-                .upload({
-                    method: "POST",
-                    url: this.baseUrl + relative,
-                    path: path,
-                })
-                .then(() => File.fromPath(path).remove());
-        }
-    }
 
-    private uploadBundle(id: string): Promise<Buffer> {
-        const path = knownFolders.documents().getFolder("app").getFile("bundle.js").path;
-        return this.services
-            .Conservify()
-            .upload({
+            const r = await this.services.Conservify().upload({
                 method: "POST",
-                url: this.baseUrl + "/" + id + "/bundle.js",
+                url: this.baseUrl + relative,
                 path: path,
-            })
-            .then((response) => response.body);
+                progress: (_total: number, copied: number) => {
+                    progress({ id: id, message: `Uploading`, progress: (copiedOfAll + copied) / totalOfAll });
+                },
+            });
+
+            copiedOfAll += file.size;
+
+            responses.push(r.body);
+
+            await File.fromPath(path).remove();
+        }
+
+        if (responses.length == 0) {
+            throw new Error(`empty bundle`);
+        }
+
+        return JSON.parse(responses[0].toString()) as Reference;
     }
 
     private getAllFiles(path: string, minimumDepth: number): Promise<string[]> {
