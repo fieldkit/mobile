@@ -48,20 +48,30 @@ type AppendStoreLog = (row: StoreLogRow) => Promise<void>;
 
 type PassedMutation = { type: string; payload: PayloadType };
 
-function stateFor(_mutation: PassedMutation, state: GlobalState): string {
-    return JSON.stringify(state);
+function sanitizeState(key: string, value: unknown): undefined | unknown {
+    if (key == "token") return "<excluded>";
+    if (key == "decodedStatus") return "<excluded>";
+    if (key == "email") return "<excluded>";
+    if (key == "password") return "<excluded>";
+    return value;
 }
 
 function simpleMutation(appendLog: AppendStoreLog, mutation: PassedMutation): boolean {
     console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
+
     void appendLog({
         time: new Date().getTime(),
         mutation: mutation.type,
-        payload: JSON.stringify(mutation.payload) || "{}",
+        payload: JSON.stringify(mutation.payload || {}),
         before: JSON.stringify({}),
         after: JSON.stringify({}),
     });
+
     return false;
+}
+
+export function stateFor(_mutation: PassedMutation, state: GlobalState): string {
+    return JSON.stringify(state, sanitizeState);
 }
 
 function customizeLogger(appendLog: AppendStoreLog) {
@@ -83,7 +93,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
             void appendLog({
                 time: new Date().getTime(),
                 mutation: mutation.type,
-                payload: JSON.stringify(mutation.payload),
+                payload: JSON.stringify(mutation.payload, sanitizeState),
                 before: stateFor(mutation, stateBefore),
                 after: stateFor(mutation, stateAfter),
             });
