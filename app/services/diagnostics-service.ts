@@ -47,6 +47,10 @@ export default class Diagnostics {
             }
         });
 
+        console.log(`diagnostics:prepare purging old logs`);
+
+        await this.services.Database().purgeOldLogs();
+
         const databasePath = getDatabasePath("fieldkit.sqlite3");
         const databaseFile = File.fromPath(databasePath);
         console.log(`diagnostics-prepare: database: ${databaseFile.path} ${databaseFile.size}`);
