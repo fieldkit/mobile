@@ -259,6 +259,16 @@ export interface StationPortalStatus {
     error: PortalError | null;
 }
 
+export interface StationPortalAcceptedStatus extends StationPortalStatus {
+    id: number;
+    portalId: number;
+}
+
+export interface StationPortalErrorStatus extends StationPortalStatus {
+    id: number;
+    error: PortalError | null;
+}
+
 export class Station implements StationCreationFields {
     public readonly id: number | null;
     public readonly deviceId: string;

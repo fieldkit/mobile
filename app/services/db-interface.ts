@@ -100,19 +100,33 @@ export default class DatabaseInterface {
         );
     }
 
-    public setStationPortalId(station: { id: number; portalId: null | number }): Promise<void> {
+    public setStationPortalId(station: { id: number; portalId: number }): Promise<boolean> {
         if (!station.portalId) {
             console.log(`no portal id`);
-            return Promise.reject(new Error(`no portal id`));
+            throw new Error(`no portal id`);
         }
         return this.getDatabase()
-            .then((db) =>
-                db.execute("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", [station.portalId, new Date(), station.id])
-            )
+            .then(async (db) => {
+                const rows = await db.query<{ portalId: number | null }>("SELECT portal_id FROM stations WHERE id = ?", [station.id]);
+                if (rows.length == 0) throw new Error(`setting portal-id for unknown station`);
+                const existing = rows[0].portalId;
+                if (existing == station.portalId) {
+                    return false;
+                }
+
+                await this.updateStationPortalId(station.id, station.portalId);
+                return true;
+            })
             .catch((error) => {
                 console.log(`error setting portal id`, error);
                 throw new Error(`error setting portal id: ${JSON.stringify(error)}`);
             });
+    }
+
+    private async updateStationPortalId(stationId: number, portalId: number): Promise<void> {
+        const db = await this.getDatabase();
+        const values = [portalId, new Date(), stationId];
+        await db.execute("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", values);
     }
 
     public setStationPortalError(station: { id: number }, error: Record<string, unknown> | null): Promise<void> {
