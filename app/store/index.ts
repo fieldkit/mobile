@@ -53,6 +53,7 @@ function sanitizeState(key: string, value: unknown): undefined | unknown {
     if (key == "decodedStatus") return "<excluded>";
     if (key == "email") return "<excluded>";
     if (key == "password") return "<excluded>";
+    if (key == "passwordConfirmation") return "<excluded>";
     return value;
 }
 
@@ -70,7 +71,7 @@ function simpleMutation(appendLog: AppendStoreLog, mutation: PassedMutation): bo
     return false;
 }
 
-export function stateFor(_mutation: PassedMutation, state: GlobalState): string {
+export function stateFor(_mutation: PassedMutation, state: GlobalState | Record<string, unknown>): string {
     return JSON.stringify(state, sanitizeState);
 }
 

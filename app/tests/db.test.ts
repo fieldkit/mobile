@@ -7,6 +7,7 @@ import { StationRepliedAction, AccountsTableRow, MutationTypes } from "@/store";
 
 describe("database", () => {
     describe("saving store log entries", () => {
+        const mutation = { type: "IGNORE", payload: {} };
         let store;
 
         beforeEach(async () => {
@@ -36,7 +37,7 @@ describe("database", () => {
 
             expect(store.state.stations.all[0]["decodedStatus"]).toBeDefined();
 
-            const afterRaw = stateFor({ type: "IGNORE", payload: {} }, store.state);
+            const afterRaw = stateFor(mutation, store.state);
             const after = JSON.parse(afterRaw);
 
             expect(after.stations.all[0]["decodedStatus"]).toBe("<excluded>");
@@ -47,7 +48,7 @@ describe("database", () => {
 
             expect(store.state.portal.accounts[0].token).toBeDefined();
 
-            const afterRaw = stateFor({ type: "IGNORE", payload: {} }, store.state);
+            const afterRaw = stateFor(mutation, store.state);
             const after = JSON.parse(afterRaw);
 
             expect(after.portal.accounts[0].token).toBe("<excluded>");
@@ -58,10 +59,20 @@ describe("database", () => {
 
             expect(store.state.portal.accounts[0].email).toBeDefined();
 
-            const afterRaw = stateFor({ type: "IGNORE", payload: {} }, store.state);
+            const afterRaw = stateFor(mutation, store.state);
             const after = JSON.parse(afterRaw);
 
             expect(after.portal.accounts[0].email).toBe("<excluded>");
+        });
+
+        it("should exclude password and passwordConfirmation", async () => {
+            expect.assertions(2);
+
+            const afterRaw = stateFor(mutation, { type: "IGNORE", password: "hunter42", passwordConfirmation: "hunter42" });
+            const after = JSON.parse(afterRaw);
+
+            expect(after.password).toBe("<excluded>");
+            expect(after.passwordConfirmation).toBe("<excluded>");
         });
     });
 });
