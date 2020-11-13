@@ -54,6 +54,7 @@ function sanitizeState(key: string, value: unknown): undefined | unknown {
     if (key == "email") return "<excluded>";
     if (key == "password") return "<excluded>";
     if (key == "passwordConfirmation") return "<excluded>";
+    if (key == "photoCache") return "<excluded>";
     return value;
 }
 
