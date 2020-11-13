@@ -46,7 +46,7 @@ describe("Store", () => {
     afterEach(() => {});
 
     describe("importing typed messages", () => {
-        it.only("should work", () => {
+        it("should work", () => {
             const HttpReply = fk_app.HttpReply;
             console.log(HttpReply);
         });
@@ -90,7 +90,7 @@ describe("Store", () => {
             ).toEqual(1);
         });
 
-        it.only("should lose stations after inactivity unless they're transferring", async () => {
+        it("should lose stations after inactivity unless they're transferring", async () => {
             const station = mockStation.newFakeStation();
 
             expect.assertions(5);
