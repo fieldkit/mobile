@@ -1,7 +1,15 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { MockStationReplies } from "./utilities";
-import { PhoneLocation, CommonLocations, StationRepliedAction, MutationTypes, ActionTypes, TryStationOnceAction } from "@/store";
+import {
+    PhoneLocation,
+    OpenProgressMutation,
+    CommonLocations,
+    StationRepliedAction,
+    MutationTypes,
+    ActionTypes,
+    TryStationOnceAction,
+} from "@/store";
 import { ServicesImpl, ServiceRef } from "@/services";
 import { nearby } from "@/store/modules/nearby";
 import { fk_app } from "fk-app-protocol/fk-app";
@@ -80,6 +88,51 @@ describe("Store", () => {
                     .filter((s) => s.connected)
                     .size()
             ).toEqual(1);
+        });
+
+        it.only("should lose stations after inactivity unless they're transferring", async () => {
+            const station = mockStation.newFakeStation();
+
+            expect.assertions(5);
+
+            const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
+
+            expect(_.size(store.state.nearby.stations)).toEqual(0);
+
+            mockStation.queueStatusReply(station);
+            await store.dispatch(ActionTypes.FOUND, info);
+
+            const s0 = _(store.getters.availableStations)
+                .filter((s) => s.connected)
+                .size();
+            expect(s0).toEqual(1);
+
+            expect(_.size(store.state.nearby.stations)).toEqual(1);
+
+            clock.tick(10005);
+
+            mockStation.queueNoReply();
+            try {
+                await store.dispatch(ActionTypes.REFRESH);
+            } catch (e) {
+                console.log("ignored, expected", e);
+            }
+
+            const s1 = _(store.getters.availableStations)
+                .filter((s) => s.connected)
+                .size();
+            expect(s1).toEqual(1);
+
+            clock.tick(50000);
+
+            await store.commit(new OpenProgressMutation(info.deviceId, true, 0));
+
+            await store.dispatch(ActionTypes.REFRESH);
+
+            const s2 = _(store.getters.availableStations)
+                .filter((s) => s.connected)
+                .size();
+            expect(s2).toEqual(1);
         });
 
         it("should lose stations after inactivity", async () => {

@@ -523,10 +523,6 @@ export class PhoneNetwork {
     constructor(public readonly ssid: string | null, public readonly wifi: boolean = false) {}
 }
 
-export class OpenProgressPayload {
-    constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number) {}
-}
-
 // TODO We have two types with this name.
 export class TransferProgress {
     constructor(

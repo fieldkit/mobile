@@ -281,6 +281,7 @@ export class MockStationReplies {
                 recording: {
                     startedTime: 0,
                 },
+                gps: {},
                 firmware: {
                     version: "version",
                     build: "build",

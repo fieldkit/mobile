@@ -8,13 +8,12 @@ import {
     DownloadAllStationsDataAction,
     UploadAllStationsDataAction,
 } from "../actions";
-import { MutationTypes } from "../mutations";
+import { MutationTypes, OpenProgressMutation } from "../mutations";
 import {
     Station,
     Download,
     FileType,
     FileTypeUtils,
-    OpenProgressPayload,
     TransferProgress,
     ServiceInfo,
     SortableStationSorter,
@@ -92,7 +91,7 @@ const actions = (services: ServiceRef) => {
 
                     const totalBytes = _.sum(sizes.map((s) => s.size));
 
-                    commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, true, totalBytes));
+                    commit(MutationTypes.TRANSFER_OPEN, new OpenProgressMutation(sync.deviceId, true, totalBytes));
                     return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
                         const fsFolder = services.fs().getFolder(getFilePath(file.path));
                         const fsFile = fsFolder.getFile(getFileName(file.path));
@@ -146,7 +145,7 @@ const actions = (services: ServiceRef) => {
 
             console.log("syncing:upload", downloads);
 
-            commit(MutationTypes.TRANSFER_OPEN, new OpenProgressPayload(sync.deviceId, false, totalBytes));
+            commit(MutationTypes.TRANSFER_OPEN, new OpenProgressMutation(sync.deviceId, false, totalBytes));
 
             await serializePromiseChain(downloads, (download: Download) => {
                 console.log("syncing:upload", sync.name, download);
@@ -241,7 +240,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
 
         const downloaded = _.last(relevantStreams.filter((s) => s.fileType() == FileType.Data).map((s) => s.downloadLastBlock));
         const uploaded = _.last(relevantStreams.filter((s) => s.fileType() == FileType.Data).map((s) => s.portalLastBlock));
-		const wasConnected = connected !== null;
+        const wasConnected = connected !== null;
 
         const syncStatus = new StationSyncStatus(
             station.id,
@@ -317,7 +316,7 @@ const mutations = {
             )
         );
     },
-    [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressPayload) => {
+    [MutationTypes.TRANSFER_OPEN]: (state: SyncingState, payload: OpenProgressMutation) => {
         Vue.set(state.errors, payload.deviceId, TransferError.None);
         Vue.set(state.progress, payload.deviceId, new StationProgress(payload.deviceId, payload.downloading, payload.totalBytes));
         Vue.set(state, "syncs", makeStationSyncs(state));

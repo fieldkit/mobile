@@ -319,7 +319,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
 
     if (!reply.status) throw new Error(`reply.status`);
     if (!reply.status.identity) throw new Error(`reply.status.identity`);
-    if (!reply.status.gps) throw new Error(`reply.statusgps`);
+    if (!reply.status.gps) throw new Error(`reply.status.gps`);
     if (!reply.status.recording) throw new Error(`reply.status.recording`);
     if (!reply.status.memory) throw new Error(`reply.status.memory`);
     if (!reply.status.power) throw new Error(`reply.status.power`);

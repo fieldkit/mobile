@@ -3,7 +3,7 @@ import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { MutationTypes } from "../mutations";
 import { QueryThrottledError } from "../../lib/errors";
-import { ServiceInfo, NearbyStation, OpenProgressPayload, TransferProgress, PhoneLocation, CommonLocations } from "../types";
+import { ServiceInfo, NearbyStation, TransferProgress, PhoneLocation, CommonLocations } from "../types";
 import {
     ActionTypes,
     StationRepliedAction,
@@ -14,6 +14,7 @@ import {
     TryStationOnceAction,
     ConfigureStationSchedulesAction,
 } from "@/store/actions";
+import { OpenProgressMutation } from "@/store/mutations";
 import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
@@ -83,7 +84,7 @@ const actions = (services: ServiceRef) => {
             const now = new Date();
             return Promise.all(
                 Object.values(state.stations).map((nearby) => {
-                    if (nearby.old(now) || nearby.tooManyFailures()) {
+                    if (!nearby.transferring && (nearby.old(now) || nearby.tooManyFailures())) {
                         console.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
                         return dispatch(ActionTypes.LOST, nearby.info);
                     }
@@ -368,7 +369,7 @@ const mutations = {
             state.stations[info.deviceId].activity = new Date();
         }
     },
-    [MutationTypes.TRANSFER_OPEN]: (state: NearbyState, payload: OpenProgressPayload) => {
+    [MutationTypes.TRANSFER_OPEN]: (state: NearbyState, payload: OpenProgressMutation) => {
         if (payload.downloading) {
             if (!state.stations[payload.deviceId]) {
                 console.log("warning: no nearby station in transfer open");
