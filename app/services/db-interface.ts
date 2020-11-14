@@ -959,5 +959,9 @@ export default class DatabaseInterface {
 
         const after = await db.query("SELECT COUNT(*) FROM store_log");
         console.log(`database-logs after ${JSON.stringify(after)}`);
+
+        await db.execute("VACUUM");
+
+        console.log(`database-logs ready`);
     }
 }
