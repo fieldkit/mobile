@@ -66,9 +66,11 @@ export default class Diagnostics {
 
         console.log(`diagnostics:prepare purging old logs`);
 
-        progress({ id: id, message: `Copying Database` });
+        progress({ id: id, message: `Compressing` });
 
         await this.services.Database().purgeOldLogs();
+
+        progress({ id: id, message: `Copying Database` });
 
         const databasePath = getDatabasePath("fieldkit.sqlite3");
         const databaseFile = File.fromPath(databasePath);

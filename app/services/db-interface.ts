@@ -952,12 +952,12 @@ export default class DatabaseInterface {
         const epoch = now.getTime() - 1 * 60 * 1000;
         const values = [epoch];
 
-        const before = await db.query("SELECT COUNT(*) FROM store_log");
+        const before = await db.query("SELECT COUNT(*) AS nlogs FROM store_log");
         console.log(`database-logs before ${JSON.stringify(before)}`);
 
         await db.execute("DELETE FROM store_log WHERE time < ?", values);
 
-        const after = await db.query("SELECT COUNT(*) FROM store_log");
+        const after = await db.query("SELECT COUNT(*) AS nlogs FROM store_log");
         console.log(`database-logs after ${JSON.stringify(after)}`);
 
         await db.execute("VACUUM");
