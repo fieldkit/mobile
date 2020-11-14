@@ -951,6 +951,13 @@ export default class DatabaseInterface {
         const now = new Date();
         const epoch = now.getTime() - 1 * 60 * 1000;
         const values = [epoch];
+
+        const before = await db.query("SELECT COUNT(*) FROM store_log");
+        console.log(`database-logs before ${JSON.stringify(before)}`);
+
         await db.execute("DELETE FROM store_log WHERE time < ?", values);
+
+        const after = await db.query("SELECT COUNT(*) FROM store_log");
+        console.log(`database-logs after ${JSON.stringify(after)}`);
     }
 }
