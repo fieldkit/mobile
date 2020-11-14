@@ -154,36 +154,46 @@ export default class Diagnostics {
 
     private async uploadDirectory(id: string, progress: ProgressFunc): Promise<Reference> {
         const files = await this.getAllFiles(DiagnosticsDirectory + "/" + id, 0);
-        const responses: Buffer[] = [];
-        const totalOfAll = _(files)
+        const filesAndSizes = _(files)
             .map((path) => File.fromPath(path))
-            .map((f) => f.size)
+            .map((f) => {
+                return {
+                    path: f.path,
+                    size: f.size,
+                };
+            })
+            .sortBy((r) => r.size)
+            .value();
+        const totalOfAll = _(filesAndSizes)
+            .map((r) => r.size)
             .sum();
+        const responses: Buffer[] = [];
 
         let copiedOfAll = 0;
 
         console.log(`uploading-directory: total=${totalOfAll} files=${JSON.stringify(files)}`);
 
-        for (const path of files) {
-            const name = this.getFileName(path);
-            const file = File.fromPath(path);
+        for (const row of filesAndSizes) {
+            const name = this.getFileName(row.path);
             const relative = `/${id}/${name}`;
-            console.log(`uploading: ${path} ${relative}`);
+            console.log(`uploading: ${row.path} ${relative}`);
 
-            const r = await this.services.Conservify().upload({
-                method: "POST",
-                url: this.baseUrl + relative,
-                path: path,
-                progress: (_total: number, copied: number) => {
-                    progress({ id: id, message: `Uploading`, progress: (copiedOfAll + copied) / totalOfAll });
-                },
-            });
-
-            copiedOfAll += file.size;
-
-            responses.push(r.body);
-
-            await File.fromPath(path).remove();
+            try {
+                const r = await this.services.Conservify().upload({
+                    method: "POST",
+                    url: this.baseUrl + relative,
+                    path: row.path,
+                    progress: (_total: number, copied: number) => {
+                        progress({ id: id, message: `Uploading`, progress: (copiedOfAll + copied) / totalOfAll });
+                    },
+                });
+                responses.push(r.body);
+                copiedOfAll += row.size;
+            } catch (err) {
+                console.log(`error uploading file:`, err);
+            } finally {
+                await File.fromPath(row.path).remove();
+            }
         }
 
         if (responses.length == 0) {
