@@ -949,7 +949,7 @@ export default class DatabaseInterface {
     public async purgeOldLogs(): Promise<void> {
         const db = await this.getDatabase();
         const now = new Date();
-        const epoch = now.getTime() - 20 * 60 * 1000;
+        const epoch = now.getTime() - 1 * 60 * 1000;
         const values = [epoch];
         await db.execute("DELETE FROM store_log WHERE time < ?", values);
     }
