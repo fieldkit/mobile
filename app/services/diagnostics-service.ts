@@ -111,7 +111,7 @@ export default class Diagnostics {
             }
 			*/
 
-            const reference = await this.uploadDirectory(id, progress);
+            const reference = await this.uploadAll(id, progress);
 
             progress({ id: id, message: "Done!" });
 
@@ -147,13 +147,20 @@ export default class Diagnostics {
         return info;
     }
 
-    private getFileName(path: string): string {
-        const parts = path.split("/");
-        return parts[parts.length - 1];
+    private getRelativeTo(dir: string, path: string): string {
+        return path
+            .split("/")
+            .reduce((keep: string[], p: string) => {
+                if (keep.length > 0 || p == dir) {
+                    return [...keep, p];
+                }
+                return keep;
+            }, [])
+            .join("/");
     }
 
-    private async uploadDirectory(id: string, progress: ProgressFunc): Promise<Reference> {
-        const files = await this.getAllFiles(DiagnosticsDirectory + "/" + id, 0);
+    private async uploadAll(id: string, progress: ProgressFunc): Promise<Reference> {
+        const files = await this.getAllFiles(DiagnosticsDirectory, 1);
         const filesAndSizes = _(files)
             .map((path) => File.fromPath(path))
             .map((f) => {
@@ -171,22 +178,29 @@ export default class Diagnostics {
 
         let copiedOfAll = 0;
 
-        console.log(`uploading-directory: total=${totalOfAll} files=${JSON.stringify(files)}`);
+        console.log(`uploading: total=${totalOfAll} files=${JSON.stringify(files)}`);
 
         for (const row of filesAndSizes) {
-            const name = this.getFileName(row.path);
-            const relative = `/${id}/${name}`;
-            console.log(`uploading: ${row.path} ${relative}`);
+            const relative = this.getRelativeTo(DiagnosticsDirectory, row.path);
+            const relativeToDiagnostics = relative.replace(DiagnosticsDirectory, "");
+            if (relativeToDiagnostics[0] != "/") throw new Error(`malformed path`);
+
+            console.log(`uploading: path=${row.path} rel=${relative}`);
 
             try {
                 const r = await this.services.Conservify().upload({
                     method: "POST",
-                    url: this.baseUrl + relative,
+                    url: this.baseUrl + relativeToDiagnostics,
                     path: row.path,
                     progress: (_total: number, copied: number) => {
                         progress({ id: id, message: `Uploading`, progress: (copiedOfAll + copied) / totalOfAll });
                     },
                 });
+
+                if (r.statusCode != 200) {
+                    throw new Error(`unexpected upload status`);
+                }
+
                 responses.push(r.body);
                 copiedOfAll += row.size;
             } catch (err) {
