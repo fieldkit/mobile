@@ -34,7 +34,7 @@ function getExistingLogs(file: File): string {
 function flush(): Promise<void> {
     const appending = _(logs)
         .map((log) => {
-            return scrubMessage(_(log).join(" ")) + "\n";
+            return scrubMessage(_(log).join(" ")).trim() + "\n";
         })
         .join("");
 
@@ -43,7 +43,7 @@ function flush(): Promise<void> {
     return new Promise((resolve, reject) => {
         const file = getLogsFile();
         const existing = getExistingLogs(file);
-        const replacing = (existing + "\n" + appending + "\n").replace("\n\n", "\n");
+        const replacing = (existing + "\n" + appending + "\n").replace(/\n+/, "\n");
 
         file.writeTextSync(replacing, (err) => {
             if (err) {
@@ -125,7 +125,7 @@ function configureGlobalErrorHandling(): void {
 }
 
 function scrubMessage(message: string): string {
-    return message.replace(/Bearer [^\s"']+/, "");
+    return message.replace(/Bearer [^\s"']+/, "<TOKEN>");
 }
 
 type LogFunc = (...args: unknown[]) => void;
