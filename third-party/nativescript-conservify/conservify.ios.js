@@ -20,6 +20,7 @@ var MyNetworkingListener = (function (_super) {
     };
     MyNetworkingListener.prototype.onStopped = function () {
         this.logger("onStopped");
+        this.promises.getStoppedPromise().resolve(null);
     };
     MyNetworkingListener.prototype.onDiscoveryFailed = function () {
         this.promises.getStartedPromise().reject(new Error("discovery failed"));
@@ -309,6 +310,7 @@ var Conservify = (function () {
         this.active = {};
         this.scan = null;
         this.started = null;
+        this.stopped = null;
         this.discoveryEvents = discoveryEvents;
         this.networkingListener = MyNetworkingListener.alloc().initWithPromises(this, this.logger);
         this.uploadListener = UploadListener.alloc().initWithTasks(this, this.logger);
@@ -324,8 +326,19 @@ var Conservify = (function () {
         delete this.active[id];
     };
     Conservify.prototype.stop = function () {
-        console.log("stopped (ignored, ios)");
-        return Promise.resolve();
+        var _this = this;
+        if (this.stopped) {
+            return Promise.resolve();
+        }
+        this.started = null;
+        return new Promise(function (resolve, reject) {
+            _this.stopped = {
+                resolve: resolve,
+                reject: reject,
+            };
+            _this.logger("stopping:");
+            _this.networking.serviceDiscovery.stop();
+        });
     };
     Conservify.prototype.start = function (serviceTypeSearch, serviceNameSelf, serviceTypeSelf) {
         var _this = this;
@@ -335,6 +348,7 @@ var Conservify = (function () {
         if (this.started) {
             return Promise.resolve(true);
         }
+        this.stopped = null;
         return new Promise(function (resolve, reject) {
             _this.started = {
                 resolve: resolve,
@@ -489,6 +503,9 @@ var Conservify = (function () {
     };
     Conservify.prototype.getStartedPromise = function () {
         return this.started;
+    };
+    Conservify.prototype.getStoppedPromise = function () {
+        return this.stopped;
     };
     Conservify.prototype.getNetworkStatusPromise = function () {
         return this.networkStatus;
