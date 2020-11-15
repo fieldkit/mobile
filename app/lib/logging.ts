@@ -153,7 +153,7 @@ function wrapLoggingMethod(method: string): void {
             // This takes args and gets good string representations
             // for them, filling up the parts arary, beginning with
             // the time.
-            const parts = [time];
+            const parts: string[] = [];
             for (let i = 0; i < args.length; i++) {
                 const arg = args[i];
                 if (arg instanceof Error) {
