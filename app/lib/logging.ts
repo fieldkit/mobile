@@ -43,7 +43,7 @@ function flush(): Promise<void> {
     return new Promise((resolve, reject) => {
         const file = getLogsFile();
         const existing = getExistingLogs(file);
-        const replacing = (existing + appending + "\n").replace("\n\n", "\n");
+        const replacing = (existing + "\n" + appending + "\n").replace("\n\n", "\n");
 
         file.writeTextSync(replacing, (err) => {
             if (err) {
