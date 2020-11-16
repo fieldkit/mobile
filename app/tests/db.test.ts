@@ -34,6 +34,17 @@ describe("database", () => {
             store.commit(MutationTypes.LOAD_ACCOUNTS, rows);
         });
 
+        it("should exclude serializedStatus", async () => {
+            expect.assertions(2);
+
+            expect(store.state.stations.all[0]["serializedStatus"]).toBeDefined();
+
+            const afterRaw = stateFor(mutation, store.state);
+            const after = JSON.parse(afterRaw);
+
+            expect(after.stations.all[0]["serializedStatus"]).toBe("<excluded>");
+        });
+
         it("should exclude decodedStatus", async () => {
             expect.assertions(2);
 

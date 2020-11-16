@@ -51,6 +51,7 @@ type PassedMutation = { type: string; payload: PayloadType };
 function sanitizeState(key: string, value: unknown): undefined | unknown {
     if (key == "token") return "<excluded>";
     if (key == "decodedStatus") return "<excluded>";
+    if (key == "serializedStatus") return "<excluded>";
     if (key == "email") return "<excluded>";
     if (key == "password") return "<excluded>";
     if (key == "passwordConfirmation") return "<excluded>";
