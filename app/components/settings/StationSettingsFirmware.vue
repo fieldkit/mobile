@@ -135,9 +135,10 @@ export default Vue.extend({
                 fullscreen: true,
             };
             this.canUpgrade = false;
-            return this.$showModal(UpgradeFirmwareModal, options).then(() => {
+            return this.$showModal(UpgradeFirmwareModal, options).then((value: unknown) => {
+                console.log(`upgrade-done: ${value}`);
                 // We do this to prevent them from tapping again right after.
-                return promiseAfter(2000).then(() => {
+                return promiseAfter(10000).then(() => {
                     this.canUpgrade = true;
                 });
             });
@@ -152,9 +153,10 @@ export default Vue.extend({
                 fullscreen: true,
             };
             this.canUpgrade = false;
-            return this.$showModal(UpgradeFirmwareModal, options).then(() => {
+            return this.$showModal(UpgradeFirmwareModal, options).then((value: unknown) => {
+                console.log(`upgrade-done: ${value}`);
                 // We do this to prevent them from tapping again right after.
-                return promiseAfter(2000).then(() => {
+                return promiseAfter(10000).then(() => {
                     this.canUpgrade = true;
                 });
             });
