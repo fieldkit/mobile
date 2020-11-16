@@ -376,14 +376,18 @@ const actions = (services: ServiceRef) => {
                     return Promise.reject(err);
                 });
         },
-        [ActionTypes.STATION_PORTAL_ERROR]: ({ commit }: ActionParameters, status: StationPortalErrorStatus) => {
-            return services
+        [ActionTypes.STATION_PORTAL_ERROR]: async ({ commit }: ActionParameters, status: StationPortalErrorStatus) => {
+            await services
                 .db()
                 .setStationPortalError({ id: status.id }, status.error)
-                .then(() => commit(MutationTypes.STATION_PORTAL_STATUS, status));
+                .then((changed) => {
+                    if (changed) {
+                        commit(MutationTypes.STATION_PORTAL_STATUS, status);
+                    }
+                });
         },
-        [ActionTypes.STATION_PORTAL_REPLY]: ({ commit }: ActionParameters, status: StationPortalAcceptedStatus) => {
-            return services
+        [ActionTypes.STATION_PORTAL_REPLY]: async ({ commit }: ActionParameters, status: StationPortalAcceptedStatus) => {
+            await services
                 .db()
                 .setStationPortalError({ id: status.id }, {})
                 .then(() =>

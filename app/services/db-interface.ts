@@ -129,20 +129,44 @@ export default class DatabaseInterface {
         await db.execute("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", values);
     }
 
-    public setStationPortalError(station: { id: number }, error: Record<string, unknown> | null): Promise<void> {
-        return this.getDatabase()
-            .then((db) =>
-                db.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", [
-                    error ? null : JSON.stringify(error),
-                    new Date(),
-                    new Date(),
-                    station.id,
-                ])
-            )
-            .catch((error) => {
-                console.log(`error setting portal error:`, error);
-                throw new Error(`error setting portal error ${JSON.stringify(error)}`);
-            });
+    // {"id":3,"error":{"name":"station-owner-conflict","id":"7KE71s8T","message":"station already registered","temporary":false,"timeout":false,"fault":false}}
+    private samePortalError(db: string | null, saving: Record<string, unknown> | null): boolean {
+        if (db == null && saving == null) return true;
+        if (db == null || saving == null) return false;
+        try {
+            const parsed = JSON.parse(db) as Record<string, unknown>;
+            if (parsed["name"] == saving["name"]) {
+                return true;
+            }
+        } catch (error) {
+            console.log(`error parsing portal error '${db}':`, error);
+        }
+        return false;
+    }
+
+    public async setStationPortalError(station: { id: number }, error: Record<string, unknown> | null): Promise<boolean> {
+        try {
+            const db = await this.getDatabase();
+            const rows = await db.query<{ portalHttpError: string | null }>("SELECT portal_http_error FROM stations WHERE id = ?", [
+                station.id,
+            ]);
+            if (rows.length == 0) throw new Error(`setting portal-error for unknown station`);
+            if (this.samePortalError(rows[0].portalHttpError, error)) {
+                return false;
+            }
+
+            await this.updateStationPortalError(station.id, error);
+            return true;
+        } catch (error) {
+            console.log(`error setting portal error:`, error);
+            throw new Error(`error setting portal error ${JSON.stringify(error)}`);
+        }
+    }
+
+    private async updateStationPortalError(stationId: number, error: Record<string, unknown> | null): Promise<void> {
+        const db = await this.getDatabase();
+        const values = [error ? "{}" : JSON.stringify(error), new Date(), new Date(), stationId];
+        await db.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", values);
     }
 
     private updateStation(station: Station): Promise<void> {
