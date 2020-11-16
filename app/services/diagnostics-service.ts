@@ -178,7 +178,7 @@ export default class Diagnostics {
 
         let copiedOfAll = 0;
 
-        console.log(`uploading: total=${totalOfAll} files=${JSON.stringify(files)}`);
+        console.log(`uploading: total=${totalOfAll} files=${JSON.stringify({ files: files })}`);
 
         for (const row of filesAndSizes) {
             const relative = this.getRelativeTo(DiagnosticsDirectory, row.path);

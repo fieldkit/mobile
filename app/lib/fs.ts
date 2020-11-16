@@ -58,16 +58,24 @@ export function listAllFiles(path: string | null = null): Promise<FileLike[]> {
     });
 }
 
-export function dumpAllFiles(path: string | null, sizes: boolean): Promise<void> {
-    const folder = getRelativeMaybe(path);
-    return recurse(folder, 0, (_depth: number, entry: FileSystemEntity) => {
+export async function dumpAllFiles(path: string | null, sizes: boolean): Promise<void> {
+    const files = await listAllFiles(path);
+    const listing = files.map((entry) => {
         if (sizes) {
             const file = File.fromPath(entry.path);
-            console.log("files", entry.path, file.size);
+            return {
+                path: entry.path,
+                size: file.size,
+            };
         } else {
-            console.log("files", entry.path);
+            return {
+                path: entry.path,
+            };
         }
     });
+
+    const logged = { files: listing };
+    console.log(`files: ${JSON.stringify(logged)}`);
 }
 
 export function getDatabasePath(name: string): string {

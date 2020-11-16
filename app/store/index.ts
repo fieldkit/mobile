@@ -116,7 +116,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 const nearby = stateAfter.nearby.stations;
                 const payload = mutation.payload as { id: number; deviceId: string; name: string }[];
                 const summary = payload.map((s): [number, string, string, NearbyStation] => [s.id, s.deviceId, s.name, nearby[s.deviceId]]);
-                console.log("mutation:", mutation.type, JSON.stringify(summary));
+                console.log("mutation:", mutation.type, JSON.stringify({ summary: summary }));
                 return false;
             }
             if (/CALIBRAT/.test(mutation.type)) {
