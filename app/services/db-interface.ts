@@ -40,93 +40,89 @@ export default class DatabaseInterface {
         return this.services.CreateDb().getDatabase();
     }
 
+    private async query<T>(sql: string, args: unknown[] | undefined = undefined): Promise<T[]> {
+        const db = await this.getDatabase();
+        const raw = await db.query(sql, args);
+        return sqliteToJs<T>(raw);
+    }
+
+    private async execute(sql: string, args: unknown[] | undefined = undefined): Promise<void> {
+        const db = await this.getDatabase();
+        await db.execute(sql, args);
+    }
+
     public getAll(): Promise<StationTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM stations WHERE archived IS NULL OR archived = 0"))
-            .then((rows) => sqliteToJs<StationTableRow>(rows));
+        return this.query<StationTableRow>("SELECT * FROM stations WHERE archived IS NULL OR archived = 0");
     }
 
     public getModuleAll(): Promise<ModuleTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM modules ORDER BY station_id"))
-            .then((rows) => sqliteToJs<ModuleTableRow>(rows));
+        return this.query<ModuleTableRow>("SELECT * FROM modules ORDER BY station_id");
     }
 
     public getSensorAll(): Promise<SensorTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM sensors ORDER BY module_id"))
-            .then((rows) => sqliteToJs<SensorTableRow>(rows));
+        return this.query<SensorTableRow>("SELECT * FROM sensors ORDER BY module_id");
     }
 
     public getStreamAll(): Promise<StreamTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM streams ORDER BY station_id"))
-            .then((rows) => sqliteToJs<StreamTableRow>(rows));
+        return this.query<StreamTableRow>("SELECT * FROM streams ORDER BY station_id");
     }
 
     public getDownloadAll(): Promise<DownloadTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM downloads ORDER BY station_id"))
-            .then((rows) => sqliteToJs<DownloadTableRow>(rows));
+        return this.query<DownloadTableRow>("SELECT * FROM downloads ORDER BY station_id");
     }
 
     public getAvailablePortalEnvs(): Promise<PortalConfigTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM config"))
-            .then((rows) => sqliteToJs<PortalConfigTableRow>(rows));
+        return this.query<PortalConfigTableRow>("SELECT * FROM config");
     }
 
     public removeNullIdModules(): Promise<void> {
-        return this.getDatabase().then((db) => db.execute("DELETE FROM modules WHERE device_id IS NULL"));
+        return this.execute("DELETE FROM modules WHERE device_id IS NULL");
     }
 
-    public updatePortalEnv(row: PortalConfigTableRow): Promise<void> {
-        return this.getDatabase().then((db) =>
-            this.getAvailablePortalEnvs().then((envs) => {
-                const addRow = (): Promise<void> => {
-                    return db.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [row.baseUri, row.ingestionUri]);
-                };
+    public async updatePortalEnv(row: PortalConfigTableRow): Promise<void> {
+        await this.getAvailablePortalEnvs().then((envs) => {
+            const addRow = (): Promise<void> => {
+                return this.execute("INSERT INTO config (base_uri, ingestion_uri) VALUES (?, ?)", [row.baseUri, row.ingestionUri]);
+            };
 
-                if (envs.length > 1) {
-                    return db.execute("DELETE FROM config").then(() => {
-                        return addRow();
-                    });
-                }
-                if (envs.length == 0) {
+            if (envs.length > 1) {
+                return this.execute("DELETE FROM config").then(() => {
                     return addRow();
-                }
-                return db.execute("UPDATE config SET base_uri = ?, ingestion_uri = ?", [row.baseUri, row.ingestionUri]);
-            })
-        );
+                });
+            }
+            if (envs.length == 0) {
+                return addRow();
+            }
+            return this.execute("UPDATE config SET base_uri = ?, ingestion_uri = ?", [row.baseUri, row.ingestionUri]);
+        });
     }
 
-    public setStationPortalId(station: { id: number; portalId: number }): Promise<boolean> {
+    public async setStationPortalId(station: { id: number; portalId: number }): Promise<boolean> {
         if (!station.portalId) {
             console.log(`no portal id`);
             throw new Error(`no portal id`);
         }
-        return this.getDatabase()
-            .then(async (db) => {
-                const rows = await db.query<{ portalId: number | null }>("SELECT portal_id FROM stations WHERE id = ?", [station.id]);
-                if (rows.length == 0) throw new Error(`setting portal-id for unknown station`);
-                const existing = rows[0].portalId;
-                if (existing == station.portalId) {
-                    return false;
-                }
 
-                await this.updateStationPortalId(station.id, station.portalId);
-                return true;
-            })
-            .catch((error) => {
-                console.log(`error setting portal id`, error);
-                throw new Error(`error setting portal id: ${JSON.stringify(error)}`);
-            });
+        try {
+            const rows = await this.query<{ portalId: number | null }>("SELECT portal_id FROM stations WHERE id = ?", [station.id]);
+            if (rows.length == 0) throw new Error(`setting portal-id for unknown station`);
+            const existing = rows[0].portalId;
+            if (existing == station.portalId) {
+                return false;
+            }
+
+            console.log("changed!", existing, station.portalId);
+            await this.updateStationPortalId(station.id, station.portalId);
+            return true;
+        } catch (error) {
+            console.log(`error setting portal id`, error);
+            throw new Error(`error setting portal id: ${JSON.stringify(error)}`);
+        }
     }
 
     private async updateStationPortalId(stationId: number, portalId: number): Promise<void> {
-        const db = await this.getDatabase();
         const values = [portalId, new Date(), stationId];
-        await db.execute("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", values);
+        await this.execute("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", values);
     }
 
     // {"id":3,"error":{"name":"station-owner-conflict","id":"7KE71s8T","message":"station already registered","temporary":false,"timeout":false,"fault":false}}
@@ -146,8 +142,7 @@ export default class DatabaseInterface {
 
     public async setStationPortalError(station: { id: number }, error: Record<string, unknown> | null): Promise<boolean> {
         try {
-            const db = await this.getDatabase();
-            const rows = await db.query<{ portalHttpError: string | null }>("SELECT portal_http_error FROM stations WHERE id = ?", [
+            const rows = await this.query<{ portalHttpError: string | null }>("SELECT portal_http_error FROM stations WHERE id = ?", [
                 station.id,
             ]);
             if (rows.length == 0) throw new Error(`setting portal-error for unknown station`);
@@ -164,12 +159,11 @@ export default class DatabaseInterface {
     }
 
     private async updateStationPortalError(stationId: number, error: Record<string, unknown> | null): Promise<void> {
-        const db = await this.getDatabase();
         const values = [error ? "{}" : JSON.stringify(error), new Date(), new Date(), stationId];
-        await db.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", values);
+        await this.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", values);
     }
 
-    private updateStation(station: Station): Promise<void> {
+    private async updateStation(station: Station): Promise<void> {
         if (!station.id) new Error(`no station id in update station`);
 
         // For the time being, need to not update the fields that are being set individually,
@@ -203,71 +197,58 @@ export default class DatabaseInterface {
             station.lastSeen,
             station.id,
         ];
-        return this.getDatabase().then((db) =>
-            db.execute(
-                `
-					UPDATE stations SET connected = ?, generation_id = ?, name = ?, archived = ?, url = ?, portal_id = ?, status = ?,
-						   deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?,
-						   schedules = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
-					WHERE id = ?`,
-                values
-            )
+        await this.execute(
+            `UPDATE stations SET connected = ?, generation_id = ?, name = ?, archived = ?, url = ?, portal_id = ?, status = ?,
+			deploy_start_time = ?, battery_level = ?, consumed_memory = ?, total_memory = ?, consumed_memory_percent = ?,
+			schedules = ?, status_json = ?, longitude = ?, latitude = ?, serialized_status = ?, updated = ?, last_seen = ?
+			WHERE id = ?`,
+            values
         );
     }
 
     private getModulePrimaryKey(deviceId: string): Promise<number> {
         if (_.isString(deviceId)) {
-            return this.getDatabase().then((db) =>
-                db
-                    .query("SELECT id FROM modules WHERE device_id = ? OR module_id = ? ORDER BY id DESC", [deviceId])
-                    .then((rows: { id: number }[]) => {
-                        if (rows.length == 0) {
-                            return Promise.reject(new Error(`no such module: ${deviceId} ${rows.length}`));
-                        }
-                        const keeping = rows[0];
-                        if (rows.length > 1) {
-                            console.log(`deleting duplicate modules ${deviceId} ${rows.length}`);
-                            return db
-                                .query("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE device_id = ? AND id != ?)", [
-                                    deviceId,
-                                    keeping,
-                                ])
-                                .then(() => {
-                                    return db.query("DELETE FROM modules WHERE device_id = ? AND id != ?", [deviceId, keeping]).then(() => {
-                                        return keeping.id;
-                                    });
-                                });
-                        }
-                        return keeping.id;
-                    })
-            );
+            return this.query<{ id: number }>("SELECT id FROM modules WHERE device_id = ? OR module_id = ? ORDER BY id DESC", [
+                deviceId,
+            ]).then((rows: { id: number }[]) => {
+                if (rows.length == 0) {
+                    return Promise.reject(new Error(`no such module: ${deviceId} ${rows.length}`));
+                }
+                const keeping = rows[0];
+                if (rows.length > 1) {
+                    console.log(`deleting duplicate modules ${deviceId} ${rows.length}`);
+                    return this.execute("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE device_id = ? AND id != ?)", [
+                        deviceId,
+                        keeping,
+                    ]).then(() => {
+                        return this.execute("DELETE FROM modules WHERE device_id = ? AND id != ?", [deviceId, keeping]).then(() => {
+                            return keeping.id;
+                        });
+                    });
+                }
+                return keeping.id;
+            });
         }
         return Promise.resolve(deviceId);
     }
 
     public async archiveStation(id: number): Promise<void> {
-        const db = await this.getDatabase();
-        await db.execute("UPDATE stations SET archived = 1 WHERE id IN (?)", [id]);
-        return;
+        await this.execute("UPDATE stations SET archived = 1 WHERE id IN (?)", [id]);
     }
 
-    private insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
-        return this.getDatabase().then((db) =>
-            this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) =>
-                db
-                    .execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
-                        modulePrimaryKey,
-                        sensor.name,
-                        sensor.unitOfMeasure,
-                        0,
-                        sensor.reading,
-                    ])
-                    .catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)))
-            )
+    private async insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
+        await this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) =>
+            this.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
+                modulePrimaryKey,
+                sensor.name,
+                sensor.unitOfMeasure,
+                0,
+                sensor.reading,
+            ]).catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)))
         );
     }
 
-    private insertModule(stationId: number, module: Module): Promise<void> {
+    private async insertModule(stationId: number, module: Module): Promise<void> {
         // Note: device_id is the module's unique hardware id (not the station's)
         if (!module.moduleId) throw new Error(`module id is required`);
         const values = [
@@ -280,21 +261,17 @@ export default class DatabaseInterface {
             module.flags || 0,
             module.status ? JSON.stringify(module.status) : "",
         ];
-        return this.getDatabase().then((db) =>
-            db
-                .execute(
-                    "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    values
-                )
-                .catch((error) => {
-                    console.log(`error inserting module: ${JSON.stringify(error)}`);
-                    console.log(`error inserting values: ${JSON.stringify(values)}`);
-                    return Promise.reject(new Error(`error inserting module: ${JSON.stringify(error)}`));
-                })
-        );
+        await this.execute(
+            "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            values
+        ).catch((error) => {
+            console.log(`error inserting module: ${JSON.stringify(error)}`);
+            console.log(`error inserting values: ${JSON.stringify(values)}`);
+            return Promise.reject(new Error(`error inserting module: ${JSON.stringify(error)}`));
+        });
     }
 
-    private synchronizeSensors(db: Database, _moduleId: string, module: Module, sensorRows: SensorTableRow[]): Promise<void> {
+    private synchronizeSensors(_moduleId: string, module: Module, sensorRows: SensorTableRow[]): Promise<void> {
         // TODO: include position?
         const incoming = _.keyBy(module.sensors, (s) => s.name);
         const existing = _.keyBy(sensorRows, (s) => s.name);
@@ -317,7 +294,7 @@ export default class DatabaseInterface {
 
         return Promise.all([
             Promise.all(adding.map((name) => this.insertSensor(module.moduleId, incoming[name]))),
-            Promise.all(removed.map((name) => db.query("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
+            Promise.all(removed.map((name) => this.execute("DELETE FROM sensors WHERE id = ?", [existing[name].id]))),
             Promise.all(
                 keeping
                     .map((name) => {
@@ -329,7 +306,7 @@ export default class DatabaseInterface {
                     })
                     .filter((update) => update.reading != null)
                     .map((update) =>
-                        db.query("UPDATE sensors SET current_reading = ?, trend = ? WHERE id = ?", [
+                        this.execute("UPDATE sensors SET current_reading = ?, trend = ? WHERE id = ?", [
                             update.reading,
                             update.trend,
                             update.id,
@@ -340,7 +317,6 @@ export default class DatabaseInterface {
     }
 
     private synchronizeModules(
-        db: Database,
         stationId: number,
         station: Station,
         moduleRows: ModuleTableRow[],
@@ -357,32 +333,30 @@ export default class DatabaseInterface {
         return Promise.all([
             Promise.all(
                 adding.map((moduleId) =>
-                    this.insertModule(stationId, incoming[moduleId]).then(() =>
-                        this.synchronizeSensors(db, moduleId, incoming[moduleId], [])
-                    )
+                    this.insertModule(stationId, incoming[moduleId]).then(() => this.synchronizeSensors(moduleId, incoming[moduleId], []))
                 )
             ),
             Promise.all(
                 removed.map((moduleId) =>
-                    db
-                        .execute("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id])
-                        .then(() => db.execute("DELETE FROM modules WHERE id = ?", [existing[moduleId].id]))
+                    this.execute("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id]).then(() =>
+                        this.execute("DELETE FROM modules WHERE id = ?", [existing[moduleId].id])
+                    )
                 )
             ),
             Promise.all(
                 keeping.map((moduleId) => {
                     const status = incoming[moduleId].status ? JSON.stringify(incoming[moduleId].status) : "";
                     const values = [incoming[moduleId].flags || 0, status, existing[moduleId].id];
-                    return db.execute("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
+                    return this.execute("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
                         const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
-                        return this.synchronizeSensors(db, moduleId, incoming[moduleId], moduleSensorRows);
+                        return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
                     });
                 })
             ),
         ]).then(() => Promise.resolve());
     }
 
-    private insertStream(db: Database, stationId: number, stream: Stream): Promise<void> {
+    private async insertStream(stationId: number, stream: Stream): Promise<void> {
         // NOTE We're always created for the first time from a status
         // reply and these are the values we're guaranteed to get from
         // those, to avoid inserting NULLs, which the Android SQLITE
@@ -397,30 +371,28 @@ export default class DatabaseInterface {
             stream.deviceLastBlock,
             new Date(),
         ];
-        return db.execute(
+        await this.execute(
             `INSERT INTO streams (station_id, device_id, generation_id, type, device_size, device_first_block, device_last_block, updated) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             values
         );
     }
 
-    public forgetUploads(): Promise<void> {
-        return this.getDatabase()
-            .then((db) => db.execute("UPDATE streams SET portal_size = NULL, portal_first_block = NULL, portal_last_block = NULL"))
-            .then(() => Promise.resolve());
+    public async forgetUploads(): Promise<void> {
+        await this.execute("UPDATE streams SET portal_size = NULL, portal_first_block = NULL, portal_last_block = NULL");
     }
 
-    public forgetDownloads(): Promise<void> {
-        return this.getDatabase().then((db) => db.execute("DELETE FROM streams"));
+    public async forgetDownloads(): Promise<void> {
+        await this.execute("DELETE FROM streams");
     }
 
-    private updateStream(db: Database, streamId: number, generationId: string, stream: Stream): Promise<void> {
+    private updateStream(streamId: number, generationId: string, stream: Stream): Promise<void> {
         const updates: Promise<void>[] = [];
 
         if (stream.deviceSize !== null && stream.deviceFirstBlock !== null && stream.deviceLastBlock !== null) {
             const values = [stream.deviceSize, stream.deviceFirstBlock, stream.deviceLastBlock, stream.updated, generationId, streamId];
             console.log(`updating stream: device`, values);
             updates.push(
-                db.execute(
+                this.execute(
                     `UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
                     values
                 )
@@ -438,7 +410,7 @@ export default class DatabaseInterface {
             ];
             console.log(`updating stream: download`, values);
             updates.push(
-                db.execute(
+                this.execute(
                     `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
                     values
                 )
@@ -449,7 +421,7 @@ export default class DatabaseInterface {
             const values = [stream.portalSize, stream.portalFirstBlock, stream.portalLastBlock, stream.updated, generationId, streamId];
             console.log(`updating stream: portal`, values);
             updates.push(
-                db.execute(
+                this.execute(
                     `UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
                     values
                 )
@@ -459,7 +431,7 @@ export default class DatabaseInterface {
         return Promise.all(updates).then(() => Promise.resolve());
     }
 
-    private synchronizeStreams(db: Database, stationId: number, station: Station, streamRows: StreamTableRow[]): Promise<void> {
+    private synchronizeStreams(stationId: number, station: Station, streamRows: StreamTableRow[]): Promise<void> {
         const incoming = _.keyBy(station.streams, (m) => m.type);
         const existing = _.keyBy(streamRows, (m) => m.type);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
@@ -469,164 +441,148 @@ export default class DatabaseInterface {
         log.verbose("synchronize streams", stationId, adding, removed, keeping);
 
         return Promise.all([
-            Promise.all(adding.map((name) => this.insertStream(db, stationId, incoming[name]))),
-            Promise.all(removed.map((name) => db.query("DELETE FROM streams WHERE id = ?", [existing[name].id]))),
+            Promise.all(adding.map((name) => this.insertStream(stationId, incoming[name]))),
+            Promise.all(removed.map((name) => this.query("DELETE FROM streams WHERE id = ?", [existing[name].id]))),
             Promise.all(
                 keeping.map((name) =>
-                    this.updateStream(db, existing[name].id, station.generationId, incoming[name].keepingFrom(existing[name]))
+                    this.updateStream(existing[name].id, station.generationId, incoming[name].keepingFrom(existing[name]))
                 )
             ),
         ]).then(() => Promise.resolve());
     }
 
-    private insertStation(newStation: Station): Promise<void> {
-        return this.getDatabase().then((db) =>
-            db
-                .execute(
-                    `
+    private async insertStation(newStation: Station): Promise<void> {
+        await this.execute(
+            `
 					INSERT INTO stations (device_id,
 						generation_id, name, archived, url, status,
 						deploy_start_time, battery_level, consumed_memory, total_memory,
 						consumed_memory_percent, schedules, status_json,
 						longitude, latitude, serialized_status, updated, last_seen)
 					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [
-                        newStation.deviceId,
-                        newStation.generationId,
-                        newStation.name,
-                        newStation.archived,
-                        "", // TODO remove newStatus.url,
-                        "", // TODO remove newStation.status,
-                        newStation.deployStartTime,
-                        newStation.batteryLevel,
-                        newStation.consumedMemory,
-                        newStation.totalMemory,
-                        0, // TODO remove newStation.consumedMemoryPercent,
-                        JSON.stringify(newStation.schedules),
-                        "", // TODO remove JSON.stringify(statusJson),
-                        newStation.longitude,
-                        newStation.latitude,
-                        newStation.serializedStatus,
+            [
+                newStation.deviceId,
+                newStation.generationId,
+                newStation.name,
+                newStation.archived,
+                "", // TODO remove newStatus.url,
+                "", // TODO remove newStation.status,
+                newStation.deployStartTime,
+                newStation.batteryLevel,
+                newStation.consumedMemory,
+                newStation.totalMemory,
+                0, // TODO remove newStation.consumedMemoryPercent,
+                JSON.stringify(newStation.schedules),
+                "", // TODO remove JSON.stringify(statusJson),
+                newStation.longitude,
+                newStation.latitude,
+                newStation.serializedStatus,
+                new Date(),
+                newStation.lastSeen,
+            ]
+        ).catch((error) => Promise.reject(new Error(`error inserting station: ${JSON.stringify(error)}`)));
+    }
+
+    public async addOrUpdateStation(station: Station, url: string): Promise<void> {
+        return this.getStationIdByDeviceId(station.deviceId)
+            .then((id: number | null) => {
+                if (id === null) {
+                    return this.insertStation(station);
+                }
+                return this.updateStation(_.merge({}, station, { id: id }));
+            })
+            .then(() => this.getStationIdByDeviceId(station.deviceId))
+            .then((stationId) => {
+                if (!stationId) throw new Error(`serious error adding station`);
+                return this.updateStationAddress(stationId, url).then(() => {
+                    return stationId;
+                });
+            })
+            .then((stationId) => {
+                return Promise.all([
+                    this.query<ModuleTableRow>("SELECT * FROM modules WHERE station_id = ?", [stationId]),
+                    this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [
+                        stationId,
+                    ]),
+                    this.query<StreamTableRow>("SELECT * FROM streams WHERE station_id = ? AND generation_id = ?", [
+                        stationId,
+                        station.generationId,
+                    ]),
+                ]).then((all) => {
+                    const moduleRows: ModuleTableRow[] = all[0];
+                    const sensorRows: SensorTableRow[] = all[1];
+                    const streamRows: StreamTableRow[] = all[2];
+                    return this.synchronizeModules(stationId, station, moduleRows, sensorRows).then(() => {
+                        return this.synchronizeStreams(stationId, station, streamRows);
+                    });
+                });
+            });
+    }
+
+    private async updateStationAddress(stationId: number, url: string): Promise<void> {
+        await this.query<StationAddressRow>("SELECT * FROM station_addresses WHERE station_id = ?", [stationId]).then(
+            (existing: StationAddressRow[]) => {
+                const byUrl = _.keyBy(existing, (e) => e.url);
+                if (byUrl[url]) {
+                    const id = byUrl[url].id;
+                    return this.execute("UPDATE station_addresses SET url = ?, time = ? WHERE id = ?", [url, new Date(), id]);
+                } else {
+                    return this.execute("INSERT INTO station_addresses (station_id, time, url) VALUES (?, ?, ?)", [
+                        stationId,
                         new Date(),
-                        newStation.lastSeen,
-                    ]
-                )
-                .catch((error) => Promise.reject(new Error(`error inserting station: ${JSON.stringify(error)}`)))
+                        url,
+                    ]);
+                }
+            }
         );
     }
 
-    public addOrUpdateStation(station: Station, url: string): Promise<void> {
-        return this.getDatabase().then((db) => {
-            return this.getStationIdByDeviceId(station.deviceId)
-                .then((id: number | null) => {
-                    if (id === null) {
-                        return this.insertStation(station);
-                    }
-                    return this.updateStation(_.merge({}, station, { id: id }));
-                })
-                .then(() => this.getStationIdByDeviceId(station.deviceId))
-                .then((stationId) => {
-                    if (!stationId) throw new Error(`serious error adding station`);
-                    return this.updateStationAddress(stationId, url).then(() => {
-                        return stationId;
-                    });
-                })
-                .then((stationId) => {
-                    return Promise.all([
-                        db.query("SELECT * FROM modules WHERE station_id = ?", [stationId]).then((r) => sqliteToJs<ModuleTableRow>(r)),
-                        db
-                            .query("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [stationId])
-                            .then((r) => sqliteToJs<SensorTableRow>(r)),
-                        db
-                            .query("SELECT * FROM streams WHERE station_id = ? AND generation_id = ?", [stationId, station.generationId])
-                            .then((r) => sqliteToJs<StreamTableRow>(r)),
-                    ]).then((all) => {
-                        const moduleRows: ModuleTableRow[] = all[0];
-                        const sensorRows: SensorTableRow[] = all[1];
-                        const streamRows: StreamTableRow[] = all[2];
-                        return this.synchronizeModules(db, stationId, station, moduleRows, sensorRows).then(() => {
-                            return this.synchronizeStreams(db, stationId, station, streamRows);
-                        });
-                    });
-                });
-        });
-    }
-
-    private updateStationAddress(stationId: number, url: string): Promise<void> {
-        return this.getDatabase()
-            .then((db) => {
-                return db
-                    .query("SELECT * FROM station_addresses WHERE station_id = ?", [stationId])
-                    .then((existing: StationAddressRow[]) => {
-                        const byUrl = _.keyBy(existing, (e) => e.url);
-                        if (byUrl[url]) {
-                            const id = byUrl[url].id;
-                            return db.query("UPDATE station_addresses SET url = ?, time = ? WHERE id = ?", [url, new Date(), id]);
-                        } else {
-                            return db.query("INSERT INTO station_addresses (station_id, time, url) VALUES (?, ?, ?)", [
-                                stationId,
-                                new Date(),
-                                url,
-                            ]);
-                        }
-                    });
-            })
-            .then(() => Promise.resolve());
-    }
-
     public queryRecentlyActiveAddresses(): Promise<StationAddressRow[]> {
-        return this.getDatabase().then((db) =>
-            db
-                .query(
-                    "SELECT sa.url, s.device_id, time FROM station_addresses AS sa JOIN stations AS s ON (sa.station_id = s.id) ORDER BY sa.time DESC"
-                )
-                .then((rows) => sqliteToJs<StationAddressRow>(rows))
+        return this.query<StationAddressRow>(
+            "SELECT sa.url, s.device_id, time FROM station_addresses AS sa JOIN stations AS s ON (sa.station_id = s.id) ORDER BY sa.time DESC"
         );
     }
 
     public insertDownload(download: DownloadTableRow): Promise<void> {
-        return this.getDatabase().then((db) => {
-            const values = [
-                download.stationId,
-                download.deviceId,
-                download.generation,
-                download.path,
-                download.type,
-                download.timestamp,
-                download.url,
-                download.size,
-                download.blocks,
-                download.firstBlock,
-                download.lastBlock,
-            ];
-            console.log(`inserting download`, values);
-            return db
-                .execute(
-                    `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
+        const values = [
+            download.stationId,
+            download.deviceId,
+            download.generation,
+            download.path,
+            download.type,
+            download.timestamp,
+            download.url,
+            download.size,
+            download.blocks,
+            download.firstBlock,
+            download.lastBlock,
+        ];
+        console.log(`inserting download`, values);
+        return this.execute(
+            `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
 					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    values
-                )
-                .then(() => {
-                    const updating = [
-                        download.size,
-                        download.firstBlock,
-                        download.lastBlock,
-                        download.lastBlock,
-                        download.stationId,
-                        download.type,
-                    ];
-                    console.log(`updating streams:`, updating);
-                    return db.execute(
-                        `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
+            values
+        )
+            .then(() => {
+                const updating = [
+                    download.size,
+                    download.firstBlock,
+                    download.lastBlock,
+                    download.lastBlock,
+                    download.stationId,
+                    download.type,
+                ];
+                console.log(`updating streams:`, updating);
+                return this.execute(
+                    `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
 							                download_first_block = MIN(COALESCE(download_first_block, 0xffffffff), ?),
 							                download_last_block = MAX(COALESCE(download_last_block, 0), ?),
 							                device_last_block = MAX(COALESCE(device_last_block, 0), ?)
 						 WHERE station_id = ? AND type = ?`,
-                        updating
-                    );
-                })
-                .catch((error) => Promise.reject(new Error(`error inserting download: ${JSON.stringify(error)}`)));
-        });
+                    updating
+                );
+            })
+            .catch((error) => Promise.reject(new Error(`error inserting download: ${JSON.stringify(error)}`)));
     }
 
     public markDownloadAsUploaded(download: Download): Promise<void> {
@@ -634,24 +590,22 @@ export default class DatabaseInterface {
             console.log("malformed download row", download.stationId, download.fileType, download);
             throw new Error("malformed download row");
         }
-        return this.getDatabase().then((db) => {
-            return db.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]).then(() => {
-                const values = [
-                    download.size,
-                    download.firstBlock,
-                    download.lastBlock,
-                    download.stationId,
-                    FileTypeUtils.toString(download.fileType),
-                ];
-                console.log(`mark as download updating streams:`, values);
-                return db.execute(
-                    `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
-							            portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
-							            portal_last_block = MAX(COALESCE(portal_last_block, 0), ?)
-					 WHERE station_id = ? AND type = ?`,
-                    values
-                );
-            });
+        return this.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]).then(() => {
+            const values = [
+                download.size,
+                download.firstBlock,
+                download.lastBlock,
+                download.stationId,
+                FileTypeUtils.toString(download.fileType),
+            ];
+            console.log(`mark as download updating streams:`, values);
+            return this.execute(
+                `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
+						            portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
+						            portal_last_block = MAX(COALESCE(portal_last_block, 0), ?)
+				 WHERE station_id = ? AND type = ?`,
+                values
+            );
         });
     }
 
@@ -659,82 +613,66 @@ export default class DatabaseInterface {
         if (!deviceId) {
             return Promise.reject(new Error(`invalid device id`));
         }
-        return this.getDatabase()
-            .then((db) => db.query("SELECT id FROM stations WHERE device_id = ?", [deviceId]))
-            .then((rows) => sqliteToJs<{ id: number }>(rows))
-            .then((rows) => {
-                if (rows.length != 1) {
-                    return null;
-                }
-                return rows[0].id;
-            });
+        return this.query<{ id: number }>("SELECT id FROM stations WHERE device_id = ?", [deviceId]).then((rows) => {
+            if (rows.length != 1) {
+                return null;
+            }
+            return rows[0].id;
+        });
     }
 
     // Firwmare
 
     public getAllFirmware(): Promise<FirmwareTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM firmware ORDER BY time DESC"))
-            .then((rows) => sqliteToJs<FirmwareTableRow>(rows));
+        return this.query<FirmwareTableRow>("SELECT * FROM firmware ORDER BY time DESC");
     }
 
     public getLatestFirmware(): Promise<FirmwareTableRow | null> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM firmware ORDER BY time DESC LIMIT 1"))
-            .then((rows) => sqliteToJs<FirmwareTableRow>(rows))
-            .then((all) => {
-                if (all.length == 0) {
-                    return null;
-                }
-                return all[0];
-            });
+        return this.query<FirmwareTableRow>("SELECT * FROM firmware ORDER BY time DESC LIMIT 1").then((all) => {
+            if (all.length == 0) {
+                return null;
+            }
+            return all[0];
+        });
     }
 
     public deleteAllFirmwareExceptIds(ids: number[]): Promise<FirmwareTableRow[]> {
         const values = _.range(ids.length)
             .map(() => "?")
             .join(",");
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids))
-            .then((rows) => sqliteToJs<FirmwareTableRow>(rows))
-            .then((data) => {
-                return this.getDatabase()
-                    .then((db) => db.execute("DELETE FROM firmware WHERE id NOT IN (" + values + ")", ids))
-                    .then(() => {
-                        return data;
-                    });
+
+        return this.query<FirmwareTableRow>("SELECT * FROM firmware WHERE id NOT IN (" + values + ")", ids).then((data) => {
+            return this.execute("DELETE FROM firmware WHERE id NOT IN (" + values + ")", ids).then(() => {
+                return data;
             });
+        });
     }
 
     public addOrUpdateFirmware(firmware: FirmwareTableRow): Promise<void> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]))
-            .then((id) => {
-                if (id.length === 1) {
-                    return Promise.resolve();
-                }
-                const values = [
-                    firmware.id,
-                    firmware.time,
-                    firmware.url,
-                    firmware.module,
-                    firmware.profile,
-                    firmware.etag,
-                    firmware.path,
-                    _.isObject(firmware.meta) ? JSON.stringify(firmware.meta) : firmware.meta,
-                    firmware.buildTime,
-                    firmware.buildNumber,
-                ];
-                return this.getDatabase().then((db) =>
-                    db.execute(
-                        `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                        values
-                    )
-                );
-            });
+        return this.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]).then((id) => {
+            if (id.length === 1) {
+                return Promise.resolve();
+            }
+            const values = [
+                firmware.id,
+                firmware.time,
+                firmware.url,
+                firmware.module,
+                firmware.profile,
+                firmware.etag,
+                firmware.path,
+                _.isObject(firmware.meta) ? JSON.stringify(firmware.meta) : firmware.meta,
+                firmware.buildTime,
+                firmware.buildNumber,
+            ];
+            return this.execute(
+                `INSERT INTO firmware (id, time, url, module, profile, etag, path, meta, build_time, build_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                values
+            );
+        });
     }
 
-    public addOrUpdateNotes(notes: { stationId: number }): Promise<void> {
+    public async addOrUpdateNotes(notes: { stationId: number }): Promise<void> {
         function serializeNotesJson(notes): string {
             try {
                 return JSON.stringify(notes);
@@ -744,26 +682,21 @@ export default class DatabaseInterface {
             }
         }
 
-        return this.getDatabase()
-            .then((db) =>
-                db.query(`SELECT id FROM notes WHERE station_id = ?`, [notes.stationId]).then((maybeId: { id: number }[]) => {
-                    const json = serializeNotesJson(notes);
-                    if (maybeId.length == 0) {
-                        const values = [notes.stationId, new Date(), new Date(), json];
-                        return db.execute(`INSERT INTO notes (station_id, created_at, updated_at, notes) VALUES (?, ?, ?, ?)`, values);
-                    }
-                    const values = [new Date(), json, maybeId[0].id];
-                    return db.execute(`UPDATE notes SET updated_at = ?, notes = ? WHERE id = ?`, values);
-                })
-            )
-            .then(() => Promise.resolve())
+        await this.query(`SELECT id FROM notes WHERE station_id = ?`, [notes.stationId])
+            .then((maybeId: { id: number }[]) => {
+                const json = serializeNotesJson(notes);
+                if (maybeId.length == 0) {
+                    const values = [notes.stationId, new Date(), new Date(), json];
+                    return this.execute(`INSERT INTO notes (station_id, created_at, updated_at, notes) VALUES (?, ?, ?, ?)`, values);
+                }
+                const values = [new Date(), json, maybeId[0].id];
+                return this.execute(`UPDATE notes SET updated_at = ?, notes = ? WHERE id = ?`, values);
+            })
             .catch((error) => Promise.reject(new Error(`error fetching notes: ${JSON.stringify(error)}`)));
     }
 
     public getAllNotes(): Promise<NotesTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM notes"))
-            .then((rows) => sqliteToJs<NotesTableRow>(rows))
+        return this.query<NotesTableRow>("SELECT * FROM notes")
             .then((rows) =>
                 rows.map((row) => {
                     try {
@@ -792,9 +725,7 @@ export default class DatabaseInterface {
     }
 
     public getSettings(): Promise<SettingsTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM settings LIMIT 1"))
-            .then((rows) => sqliteToJs<SettingsTableRow>(rows))
+        return this.query<SettingsTableRow>("SELECT * FROM settings LIMIT 1")
             .then((rows) =>
                 rows.map((row) => {
                     try {
@@ -810,66 +741,50 @@ export default class DatabaseInterface {
             .catch((error) => Promise.reject(new Error(`error fetching settings: ${JSON.stringify(error)}`)));
     }
 
-    public insertSettings(settings: Record<string, unknown>): Promise<void> {
-        return this.getDatabase()
-            .then((db) =>
-                db.execute("INSERT INTO settings (created_at, updated_at,settings) VALUES (?, ?, ?)", [
-                    new Date(),
-                    new Date(),
-                    JSON.stringify(settings),
-                ])
-            )
-            .catch((error) => {
-                console.log(`error inserting settings: ${JSON.stringify(error)}`);
-                throw new Error(`error inserting settings: ${JSON.stringify(error)}`);
-            });
+    public async insertSettings(settings: Record<string, unknown>): Promise<void> {
+        return await this.execute("INSERT INTO settings (created_at, updated_at,settings) VALUES (?, ?, ?)", [
+            new Date(),
+            new Date(),
+            JSON.stringify(settings),
+        ]).catch((error) => {
+            console.log(`error inserting settings: ${JSON.stringify(error)}`);
+            throw new Error(`error inserting settings: ${JSON.stringify(error)}`);
+        });
     }
 
-    public updateSettings(settings: Record<string, unknown>): Promise<void> {
-        return this.getDatabase()
-            .then((db) => db.execute("UPDATE settings SET settings = ?", [JSON.stringify(settings)]))
-            .catch((error) => {
-                console.log(`error updating settings: ${JSON.stringify(error)}`);
-                throw new Error(`error updating settings: ${JSON.stringify(error)}`);
-            });
+    public async updateSettings(settings: Record<string, unknown>): Promise<void> {
+        return await this.execute("UPDATE settings SET settings = ?", [JSON.stringify(settings)]).catch((error) => {
+            console.log(`error updating settings: ${JSON.stringify(error)}`);
+            throw new Error(`error updating settings: ${JSON.stringify(error)}`);
+        });
     }
 
-    public getAllAccounts(): Promise<AccountsTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM accounts"))
-            .then((rows) => sqliteToJs<AccountsTableRow>(rows))
-            .catch((error) => Promise.reject(new Error(`error fetching accounts: ${JSON.stringify(error)}`)));
+    public async getAllAccounts(): Promise<AccountsTableRow[]> {
+        return await this.query<AccountsTableRow>("SELECT * FROM accounts").catch((error) =>
+            Promise.reject(new Error(`error fetching accounts: ${JSON.stringify(error)}`))
+        );
     }
 
-    public addOrUpdateAccounts(account: UserAccount): Promise<void> {
-        return this.getDatabase()
-            .then((db) =>
-                db.query(`SELECT id FROM accounts WHERE email = ?`, [account.email]).then((maybeId: { id: number }[]) => {
-                    if (maybeId.length == 0) {
-                        const values = [account.name, account.email, account.portalId, account.token, new Date()];
-                        return db.execute(`INSERT INTO accounts (name, email, portal_id, token, used_at) VALUES (?, ?, ?, ?, ?)`, values);
-                    }
-                    const values = [account.name, account.email, account.portalId, account.token, new Date(), maybeId[0].id];
-                    return db.execute(
-                        `UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, used_at = ? WHERE id = ?`,
-                        values
-                    );
-                })
-            )
+    public async addOrUpdateAccounts(account: UserAccount): Promise<void> {
+        return await this.query(`SELECT id FROM accounts WHERE email = ?`, [account.email])
+            .then((maybeId: { id: number }[]) => {
+                if (maybeId.length == 0) {
+                    const values = [account.name, account.email, account.portalId, account.token, new Date()];
+                    return this.execute(`INSERT INTO accounts (name, email, portal_id, token, used_at) VALUES (?, ?, ?, ?, ?)`, values);
+                }
+                const values = [account.name, account.email, account.portalId, account.token, new Date(), maybeId[0].id];
+                return this.execute(`UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, used_at = ? WHERE id = ?`, values);
+            })
             .then(() => Promise.resolve())
             .catch((error) => Promise.reject(new Error(`error fetching accounts: ${JSON.stringify(error)}`)));
     }
 
-    public deleteAllAccounts(): Promise<AccountsTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query(`DELETE FROM accounts`))
-            .then((rows) => sqliteToJs<AccountsTableRow>(rows));
+    public async deleteAllAccounts(): Promise<void> {
+        await this.execute(`DELETE FROM accounts`);
     }
 
-    public getAllNotifications(): Promise<QueriedNotificationsTableRow[]> {
-        return this.getDatabase()
-            .then((db) => db.query("SELECT * FROM notifications"))
-            .then((rows) => sqliteToJs<NotificationsTableRow>(rows))
+    public async getAllNotifications(): Promise<QueriedNotificationsTableRow[]> {
+        return await this.query<NotificationsTableRow>("SELECT * FROM notifications")
             .then((rows) =>
                 rows.map((row) => {
                     try {
@@ -896,95 +811,84 @@ export default class DatabaseInterface {
             .catch((error) => Promise.reject(new Error(`error fetching notifications: ${JSON.stringify(error)}`)));
     }
 
-    public addNotification(notification: Notification): Promise<void> {
+    public async addNotification(notification: Notification): Promise<void> {
         console.log("addNotifications", notification);
-        return this.getDatabase()
-            .then((db) =>
-                db.query(`SELECT id FROM notifications WHERE key = ?`, [notification.key]).then((maybeId) => {
-                    if (maybeId.length == 0) {
-                        const values = [
-                            notification.key,
-                            notification.kind,
-                            Number(new Date()),
-                            notification.silenced,
-                            JSON.stringify(notification.project),
-                            JSON.stringify(notification.user),
-                            JSON.stringify(notification.station),
-                            notification.actions,
-                        ];
-                        return db.execute(
-                            `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                            values
-                        );
-                    }
-                    return;
-                })
-            )
-            .then(() => Promise.resolve())
+        await this.query<{ id: number }>(`SELECT id FROM notifications WHERE key = ?`, [notification.key])
+            .then((maybeId) => {
+                if (maybeId.length == 0) {
+                    const values = [
+                        notification.key,
+                        notification.kind,
+                        Number(new Date()),
+                        notification.silenced,
+                        JSON.stringify(notification.project),
+                        JSON.stringify(notification.user),
+                        JSON.stringify(notification.station),
+                        notification.actions,
+                    ];
+                    return this.execute(
+                        `INSERT INTO notifications (key, kind, created, silenced, project, user, station, actions) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                        values
+                    );
+                }
+                return;
+            })
             .catch((error) => Promise.reject(new Error(`error adding notifications: ${JSON.stringify(error)}`)));
     }
 
-    public updateNotification(notification: Notification): Promise<void> {
+    public async updateNotification(notification: Notification): Promise<void> {
         console.log("updateNotification", notification);
-        return this.getDatabase()
-            .then((db) =>
-                db
-                    .query(`SELECT * FROM notifications WHERE key = ?`, [notification.key])
-                    .then((rows) => sqliteToJs<NotificationsTableRow>(rows))
-                    .then((maybe) => {
-                        if (maybe.length > 0) {
-                            const dbValues = maybe[0];
-                            const values = [
-                                notification.key ?? dbValues.key,
-                                notification.kind ?? dbValues.kind,
-                                notification.silenced === true ? "true" : "false",
-                                notification.dismissed_at ?? dbValues.dismissed_at,
-                                notification.satisfied_at ?? dbValues.satisfied_at,
-                                notification.project ? JSON.stringify(notification.project) : dbValues.project,
-                                notification.user ? JSON.stringify(notification.user) : dbValues.user,
-                                notification.station ? JSON.stringify(notification.station) : dbValues.station,
-                                notification.actions ?? dbValues.actions,
-                                notification.id,
-                            ];
+        await this.query<NotificationsTableRow>(`SELECT * FROM notifications WHERE key = ?`, [notification.key])
+            .then((maybe) => {
+                if (maybe.length > 0) {
+                    const dbValues = maybe[0];
+                    const values = [
+                        notification.key ?? dbValues.key,
+                        notification.kind ?? dbValues.kind,
+                        notification.silenced === true ? "true" : "false",
+                        notification.dismissed_at ?? dbValues.dismissed_at,
+                        notification.satisfied_at ?? dbValues.satisfied_at,
+                        notification.project ? JSON.stringify(notification.project) : dbValues.project,
+                        notification.user ? JSON.stringify(notification.user) : dbValues.user,
+                        notification.station ? JSON.stringify(notification.station) : dbValues.station,
+                        notification.actions ?? dbValues.actions,
+                        notification.id,
+                    ];
 
-                            return db.execute(
-                                `UPDATE notifications SET key = ?, kind = ?, silenced = ?, dismissed_at = ?, satisfied_at = ?, project = ?, user = ?, station = ?, actions = ? WHERE id = ?`,
-                                values
-                            );
-                        }
+                    return this.execute(
+                        `UPDATE notifications SET key = ?, kind = ?, silenced = ?, dismissed_at = ?, satisfied_at = ?, project = ?, user = ?, station = ?, actions = ? WHERE id = ?`,
+                        values
+                    );
+                }
 
-                        return;
-                    })
-            )
-            .then(() => Promise.resolve())
+                return;
+            })
             .catch((error) => Promise.reject(new Error(`error updating notifications: ${JSON.stringify(error)}`)));
     }
 
     public async addStoreLog(row: StoreLogRow): Promise<void> {
         try {
-            const db = await this.getDatabase();
             const values = [row.time, row.mutation, row.payload, row.before, row.after];
-            await db.execute("INSERT INTO store_log (time, mutation, payload, before, after) VALUES (?, ?, ?, ?, ?)", values);
+            await this.execute("INSERT INTO store_log (time, mutation, payload, before, after) VALUES (?, ?, ?, ?, ?)", values);
         } catch (error) {
             console.log(`add-store-log error`, error);
         }
     }
 
     public async purgeOldLogs(): Promise<void> {
-        const db = await this.getDatabase();
         const now = new Date();
         const epoch = now.getTime() - 1 * 60 * 1000;
         const values = [epoch];
 
-        const before = await db.query("SELECT COUNT(*) AS nlogs FROM store_log");
+        const before = await this.query<{ nlogs: number }>("SELECT COUNT(*) AS nlogs FROM store_log");
         console.log(`database-logs before ${JSON.stringify(before)}`);
 
-        await db.execute("DELETE FROM store_log WHERE time < ?", values);
+        await this.execute("DELETE FROM store_log WHERE time < ?", values);
 
-        const after = await db.query("SELECT COUNT(*) AS nlogs FROM store_log");
+        const after = await this.query<{ nlogs: number }>("SELECT COUNT(*) AS nlogs FROM store_log");
         console.log(`database-logs after ${JSON.stringify(after)}`);
 
-        await db.execute("VACUUM");
+        await this.execute("VACUUM");
 
         console.log(`database-logs ready`);
     }
