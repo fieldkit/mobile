@@ -63,10 +63,6 @@ export enum ActionTypes {
 
     UPGRADE_STATION_FIRMWARE = "UPGRADE_STATION_FIRMWARE",
 
-    // Portal
-
-    UPDATE_PORTAL = "UPDATE_PORTAL",
-
     // Calibration
 
     CALIBRATE_SENSOR = "CALIBRATE_SENSOR",

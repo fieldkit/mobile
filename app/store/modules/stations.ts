@@ -401,9 +401,6 @@ const actions = (services: ServiceRef) => {
                         })
                 );
         },
-        [ActionTypes.UPDATE_PORTAL]: async (_ap: ActionParameters) => {
-            //
-        },
     };
 };
 
