@@ -101,18 +101,6 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 after: stateFor(mutation, stateAfter),
             });
 
-            if (mutation.type == MutationTypes.FIND || mutation.type == MutationTypes.LOSE) {
-                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
-                return false;
-            }
-            if (mutation.type == MutationTypes.STATION_ACTIVITY || mutation.type == MutationTypes.STATION_QUERIED) {
-                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
-                return false;
-            }
-            if (mutation.type == MutationTypes.NAVIGATION) {
-                console.log("mutation:", mutation.type, mutation.payload);
-                return false;
-            }
             if (mutation.type == MutationTypes.STATIONS) {
                 const nearby = stateAfter.nearby.stations;
                 const payload = mutation.payload as { id: number; deviceId: string; name: string }[];
@@ -120,24 +108,12 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 console.log("mutation:", mutation.type, JSON.stringify({ summary: summary }));
                 return false;
             }
-            if (/CALIBRAT/.test(mutation.type)) {
-                console.log("mutation:", mutation.type);
-                return false;
-            }
-            if (/MEDIA/.test(mutation.type)) {
-                console.log("mutation:", JSON.stringify(mutation));
-                return false;
-            }
-            if (/NOTE/.test(mutation.type)) {
-                console.log("mutation:", JSON.stringify(mutation));
-                return false;
-            }
-            if (/UPGRADE/.test(mutation.type)) {
-                console.log("mutation:", JSON.stringify(mutation));
-                return false;
-            }
 
-            console.log("mutation:", mutation.type);
+            if (mutation.payload) {
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
+            } else {
+                console.log("mutation:", mutation.type);
+            }
 
             return false;
         },
@@ -145,15 +121,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
             if (action.type == ActionTypes.REFRESH) {
                 return false;
             }
-            if (action.type == ActionTypes.TRY_STATION_ONCE) {
-                console.log("action:", action.type, JSON.stringify(action.payload));
-                return false;
-            }
             if (action.type == ActionTypes.QUERY_NECESSARY) {
-                return false;
-            }
-            if (action.type == ActionTypes.QUERY_STATION) {
-                console.log("action:", action.type, JSON.stringify(action.payload));
                 return false;
             }
             if (action.type == ActionTypes.STATION_REPLY) {
@@ -172,16 +140,12 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 console.log("action:", action.type);
                 return false;
             }
-            if (action.type == ActionTypes.FOUND || action.type == ActionTypes.LOST) {
-                console.log("action:", action.type, JSON.stringify(action.payload));
-                return false;
-            }
-            if (action.type == ActionTypes.REFRESH_NETWORK || action.type == ActionTypes.NETWORK_CHANGED) {
-                console.log("action:", action.type, JSON.stringify(action.payload));
-                return false;
-            }
 
-            console.log("action:", action.type, JSON.stringify(action.payload));
+            if (action.payload) {
+                console.log("action:", action.type, JSON.stringify(action.payload));
+            } else {
+                console.log("action:", action.type);
+            }
 
             return false;
         },
