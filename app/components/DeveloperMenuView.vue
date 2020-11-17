@@ -28,6 +28,9 @@
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
+                <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" />
+                <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" />
+
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
 
@@ -102,6 +105,9 @@ export default Vue.extend({
                 return null;
             }
             return selected.index;
+        },
+        discoveryRunning(): boolean {
+            return Services.DiscoverStation().monitoring;
         },
     },
     methods: {
@@ -195,6 +201,12 @@ export default Vue.extend({
                             });
                         });
                 });
+        },
+        async startDiscovery(): Promise<void> {
+            await Services.DiscoverStation().startServiceDiscovery();
+        },
+        async stopDiscovery(): Promise<void> {
+            await Services.DiscoverStation().stopServiceDiscovery();
         },
         viewStations(): Promise<any> {
             return this.$navigateTo(routes.stations, {});

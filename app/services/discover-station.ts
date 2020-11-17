@@ -121,7 +121,7 @@ export default class DiscoverStation {
     private readonly networkMonitor: NetworkMonitor;
     private readonly store: OurStore;
     private readonly conservify: Conservify;
-    private monitoring = false;
+    public monitoring = false;
 
     constructor(services: Services) {
         this.store = services.Store();
