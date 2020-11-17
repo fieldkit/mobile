@@ -181,6 +181,8 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 return false;
             }
 
+            console.log("action:", action.type, JSON.stringify(action.payload));
+
             return false;
         },
         /*
