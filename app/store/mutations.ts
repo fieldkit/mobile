@@ -54,6 +54,8 @@ export enum MutationTypes {
 
     UPGRADE_STATUS = "UPGRADE_STATUS",
     UPGRADE_PROGRESS = "UPGRADE_PROGRESS",
+
+    STATION_PORTAL_STATUS = "STATION_PORTAL_STATUS",
 }
 
 export class NoteMedia {

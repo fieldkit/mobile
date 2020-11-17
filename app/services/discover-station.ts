@@ -2,7 +2,7 @@ import Bluebird from "bluebird";
 import { Device } from "@nativescript/core";
 import { Conservify, Services, OurStore } from "@/services";
 import { Connectivity } from "@/wrappers/connectivity";
-import { ActionTypes, MutationTypes, PhoneNetwork } from "@/store";
+import { ActionTypes, RefreshNetworkAction } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
 import { fk_app } from "fk-app-protocol/fk-app";
 import Config from "@/config";
@@ -43,7 +43,6 @@ class NetworkMonitor {
     private readonly FixedAddresses: string[] = ["192.168.2.1"];
     private readonly store: OurStore;
     private enabled = false;
-    private wifi = false;
 
     constructor(private readonly services: Services) {
         this.store = services.Store();
@@ -65,11 +64,9 @@ class NetworkMonitor {
 
                 switch (newType) {
                     case Connectivity.connectionType.wifi:
-                        this.wifi = true;
                         this.handleWifiChange();
                         break;
                     default:
-                        this.wifi = false;
                         break;
                 }
                 void this.issue();
@@ -85,13 +82,8 @@ class NetworkMonitor {
         return Bluebird.delay(10000).then(() => this.issue().finally(() => void this.watch()));
     }
 
-    private issue(): Promise<void> {
-        return this.services
-            .Conservify()
-            .findConnectedNetwork()
-            .then((status) =>
-                this.store.commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(status.connectedWifi?.ssid || null, this.wifi))
-            );
+    private async issue(): Promise<void> {
+        await this.store.dispatch(new RefreshNetworkAction());
     }
 
     private handleWifiChange() {

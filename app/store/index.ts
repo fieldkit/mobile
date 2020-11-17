@@ -51,9 +51,11 @@ type PassedMutation = { type: string; payload: PayloadType };
 function sanitizeState(key: string, value: unknown): undefined | unknown {
     if (key == "token") return "<excluded>";
     if (key == "decodedStatus") return "<excluded>";
+    if (key == "serializedStatus") return "<excluded>";
     if (key == "email") return "<excluded>";
     if (key == "password") return "<excluded>";
     if (key == "passwordConfirmation") return "<excluded>";
+    if (key == "photoCache") return "<excluded>";
     return value;
 }
 
@@ -115,7 +117,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 const nearby = stateAfter.nearby.stations;
                 const payload = mutation.payload as { id: number; deviceId: string; name: string }[];
                 const summary = payload.map((s): [number, string, string, NearbyStation] => [s.id, s.deviceId, s.name, nearby[s.deviceId]]);
-                console.log("mutation:", mutation.type, JSON.stringify(summary));
+                console.log("mutation:", mutation.type, JSON.stringify({ summary: summary }));
                 return false;
             }
             if (/CALIBRAT/.test(mutation.type)) {
@@ -174,7 +176,12 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 console.log("action:", action.type, JSON.stringify(action.payload));
                 return false;
             }
-            return true;
+            if (action.type == ActionTypes.REFRESH_NETWORK || action.type == ActionTypes.NETWORK_CHANGED) {
+                console.log("action:", action.type, JSON.stringify(action.payload));
+                return false;
+            }
+
+            return false;
         },
         /*
         transformer(state: Record<string, unknown>) {

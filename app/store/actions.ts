@@ -1,5 +1,5 @@
 import { NetworkInfo, HttpStatusReply } from "@/store/http-types";
-import { ServiceInfo, PortalEnv, Schedules, Schedule, StationSyncStatus } from "./types";
+import { ServiceInfo, PortalEnv, Schedules, Schedule, StationSyncStatus, PhoneNetwork } from "./types";
 
 export enum ActionTypes {
     INITIALIZE = "INITIALIZE",
@@ -37,6 +37,9 @@ export enum ActionTypes {
 
     FIRMWARE_REFRESH = "FIRMWARE_REFRESH",
 
+    REFRESH_NETWORK = "REFRESH_NETWORK",
+    NETWORK_CHANGED = "NETWORK_CHANGED",
+
     // Media
 
     AUDIO_RECORD = "AUDIO_RECORD",
@@ -62,10 +65,6 @@ export enum ActionTypes {
     SAVE_NOTES = "SAVE_NOTES",
 
     UPGRADE_STATION_FIRMWARE = "UPGRADE_STATION_FIRMWARE",
-
-    // Portal
-
-    UPDATE_PORTAL = "UPDATE_PORTAL",
 
     // Calibration
 
@@ -194,4 +193,14 @@ export class UploadAllStationsDataAction {
     type = ActionTypes.UPLOAD_ALL;
 
     constructor(public readonly syncs: StationSyncStatus[]) {}
+}
+
+export class RefreshNetworkAction {
+    type = ActionTypes.REFRESH_NETWORK;
+}
+
+export class NetworkChangedAction {
+    type = ActionTypes.NETWORK_CHANGED;
+
+    constructor(public readonly network: PhoneNetwork) {}
 }

@@ -66,9 +66,11 @@ export default class Diagnostics {
 
         console.log(`diagnostics:prepare purging old logs`);
 
-        progress({ id: id, message: `Copying Database` });
+        progress({ id: id, message: `Compressing` });
 
         await this.services.Database().purgeOldLogs();
+
+        progress({ id: id, message: `Copying Database` });
 
         const databasePath = getDatabasePath("fieldkit.sqlite3");
         const databaseFile = File.fromPath(databasePath);
@@ -109,7 +111,7 @@ export default class Diagnostics {
             }
 			*/
 
-            const reference = await this.uploadDirectory(id, progress);
+            const reference = await this.uploadAll(id, progress);
 
             progress({ id: id, message: "Done!" });
 
@@ -145,43 +147,67 @@ export default class Diagnostics {
         return info;
     }
 
-    private getFileName(path: string): string {
-        const parts = path.split("/");
-        return parts[parts.length - 1];
+    private getRelativeTo(dir: string, path: string): string {
+        return path
+            .split("/")
+            .reduce((keep: string[], p: string) => {
+                if (keep.length > 0 || p == dir) {
+                    return [...keep, p];
+                }
+                return keep;
+            }, [])
+            .join("/");
     }
 
-    private async uploadDirectory(id: string, progress: ProgressFunc): Promise<Reference> {
-        const files = await this.getAllFiles(DiagnosticsDirectory + "/" + id, 0);
-        const responses: Buffer[] = [];
-        const totalOfAll = _(files)
+    private async uploadAll(id: string, progress: ProgressFunc): Promise<Reference> {
+        const files = await this.getAllFiles(DiagnosticsDirectory, 1);
+        const filesAndSizes = _(files)
             .map((path) => File.fromPath(path))
-            .map((f) => f.size)
+            .map((f) => {
+                return {
+                    path: f.path,
+                    size: f.size,
+                };
+            })
+            .sortBy((r) => r.size)
+            .value();
+        const totalOfAll = _(filesAndSizes)
+            .map((r) => r.size)
             .sum();
+        const responses: Buffer[] = [];
 
         let copiedOfAll = 0;
 
-        console.log(`uploading-directory: total=${totalOfAll} files=${JSON.stringify(files)}`);
+        console.log(`uploading: total=${totalOfAll} files=${JSON.stringify({ files: files })}`);
 
-        for (const path of files) {
-            const name = this.getFileName(path);
-            const file = File.fromPath(path);
-            const relative = `/${id}/${name}`;
-            console.log(`uploading: ${path} ${relative}`);
+        for (const row of filesAndSizes) {
+            const relative = this.getRelativeTo(DiagnosticsDirectory, row.path);
+            const relativeToDiagnostics = relative.replace(DiagnosticsDirectory, "");
+            if (relativeToDiagnostics[0] != "/") throw new Error(`malformed path`);
 
-            const r = await this.services.Conservify().upload({
-                method: "POST",
-                url: this.baseUrl + relative,
-                path: path,
-                progress: (_total: number, copied: number) => {
-                    progress({ id: id, message: `Uploading`, progress: (copiedOfAll + copied) / totalOfAll });
-                },
-            });
+            console.log(`uploading: path=${row.path} rel=${relative}`);
 
-            copiedOfAll += file.size;
+            try {
+                const r = await this.services.Conservify().upload({
+                    method: "POST",
+                    url: this.baseUrl + relativeToDiagnostics,
+                    path: row.path,
+                    progress: (_total: number, copied: number) => {
+                        progress({ id: id, message: `Uploading`, progress: (copiedOfAll + copied) / totalOfAll });
+                    },
+                });
 
-            responses.push(r.body);
+                if (r.statusCode != 200) {
+                    throw new Error(`unexpected upload status`);
+                }
 
-            await File.fromPath(path).remove();
+                responses.push(r.body);
+                copiedOfAll += row.size;
+            } catch (err) {
+                console.log(`error uploading file:`, err);
+            } finally {
+                await File.fromPath(row.path).remove();
+            }
         }
 
         if (responses.length == 0) {

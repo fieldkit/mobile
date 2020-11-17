@@ -13,6 +13,7 @@ import {
     TryStationAction,
     TryStationOnceAction,
     ConfigureStationSchedulesAction,
+    NetworkChangedAction,
 } from "@/store/actions";
 import { OpenProgressMutation } from "@/store/mutations";
 import { ServiceRef } from "@/services";
@@ -175,6 +176,17 @@ const actions = (services: ServiceRef) => {
                     )
                 )
             );
+        },
+        [ActionTypes.NETWORK_CHANGED]: async ({ commit, dispatch, state }: ActionParameters, payload: NetworkChangedAction) => {
+            if (payload.network.ssid != null) {
+                await dispatch(ActionTypes.SCAN_FOR_STATIONS);
+            } else {
+                console.log(`losing stations: ${JSON.stringify(state)}`);
+                for (const key of Object.keys(state.stations)) {
+                    // const nearby = state.stations[key];
+                    commit(MutationTypes.LOSE, { deviceId: key });
+                }
+            }
         },
         [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; name: string }) => {
             if (!payload?.deviceId) throw new Error("no nearby info");

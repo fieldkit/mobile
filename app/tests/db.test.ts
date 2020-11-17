@@ -9,6 +9,7 @@ describe("database", () => {
     describe("saving store log entries", () => {
         const mutation = { type: "IGNORE", payload: {} };
         let store;
+        // let db;
 
         beforeEach(async () => {
             const services = new ServicesImpl();
@@ -17,6 +18,7 @@ describe("database", () => {
             const fake = mockStation.newFakeStation();
             const reply = mockStation.newFakeStatusReply(fake, null, null);
 
+            // db = services.Database();
             store = services.Store();
             await store.dispatch(new StationRepliedAction(reply, "http://10.0.01/fk/v1"));
             const rows: AccountsTableRow[] = [
@@ -30,6 +32,17 @@ describe("database", () => {
                 },
             ];
             store.commit(MutationTypes.LOAD_ACCOUNTS, rows);
+        });
+
+        it("should exclude serializedStatus", async () => {
+            expect.assertions(2);
+
+            expect(store.state.stations.all[0]["serializedStatus"]).toBeDefined();
+
+            const afterRaw = stateFor(mutation, store.state);
+            const after = JSON.parse(afterRaw);
+
+            expect(after.stations.all[0]["serializedStatus"]).toBe("<excluded>");
         });
 
         it("should exclude decodedStatus", async () => {
@@ -73,6 +86,23 @@ describe("database", () => {
 
             expect(after.password).toBe("<excluded>");
             expect(after.passwordConfirmation).toBe("<excluded>");
+        });
+    });
+
+    describe("saving store log entries", () => {
+        // let store;
+        let db;
+
+        beforeEach(async () => {
+            const services = new ServicesImpl();
+            await services.CreateDb().initialize(null, false, false);
+
+            db = services.Database();
+            // store = services.Store();
+        });
+
+        it("purge old logs should wor", async () => {
+            await db.purgeOldLogs();
         });
     });
 });

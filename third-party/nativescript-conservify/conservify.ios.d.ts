@@ -1,58 +1,4 @@
 import { PromiseCallbacks, TransferInfo, HttpResponse } from "./conservify.common";
-interface NetworkingListener {
-    onStarted(): void;
-    onDiscoveryFailed(): void;
-    onFoundServiceWithService(service: ServiceInfo): void;
-    onLostServiceWithService(service: ServiceInfo): void;
-    onNetworkStatusWithStatus(status: NetworkingStatus): void;
-    onUdpMessageWithMessage(message: UdpMessage): void;
-}
-declare var NetworkingListener: {
-    prototype: NetworkingListener;
-};
-interface WebTransferListener {
-    onProgressWithTaskIdHeadersBytesTotal(taskId: string, headers: any, bytes: number, total: number): void;
-    onCompleteWithTaskIdHeadersContentTypeBodyStatusCode(taskId: string, headers: any, contentType: string, body: any, statusCode: number): void;
-    onErrorWithTaskIdMessage(taskId: string, message: string): void;
-}
-declare var WebTransferListener: {
-    prototype: WebTransferListener;
-};
-declare class WifiNetwork extends NSObject {
-    ssid: string;
-}
-declare class WifiNetworks extends NSObject {
-    networks: WifiNetwork[];
-}
-declare class NetworkingStatus extends NSObject {
-    connected: boolean;
-    connectedWifi: WifiNetwork;
-    wifiNetworks: WifiNetworks;
-    scanError: boolean;
-}
-declare class WebTransfer extends NSObject {
-    static alloc(): WebTransfer;
-    static new(): WebTransfer;
-    id: string;
-    method: string;
-    url: string;
-    path: string;
-    body: any;
-    uploadCopy: boolean;
-    base64EncodeResponseBody: boolean;
-    base64DecodeRequestBody: boolean;
-    headerWithKeyValue(key: string, value: string): WebTransfer;
-}
-declare class ServiceInfo extends NSObject {
-    type: string;
-    name: string;
-    host: string;
-    port: number;
-}
-declare class UdpMessage extends NSObject {
-    address: string;
-    data: string;
-}
 declare class ReadOptions extends NSObject {
     static alloc(): ReadOptions;
     static new(): ReadOptions;
@@ -78,86 +24,40 @@ declare class FileSystem extends NSObject {
     copyFileWithSourceDestiny(source: string, destiny: string): boolean;
     newToken(): string;
 }
-declare class ServiceDiscovery extends NSObject {
-    startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(serviceTypeSearch: string | null, serviceNameSelf: string | null, serviceTypeSelf: string | null): void;
-}
-declare class Web extends NSObject {
-    simpleWithInfo(info: WebTransfer): string;
-    downloadWithInfo(info: WebTransfer): string;
-    uploadWithInfo(info: WebTransfer): string;
-}
-declare class WifiNetworksManager extends NSObject {
-    findConnectedNetwork(): void;
-    scan(): void;
-}
-declare class Networking extends NSObject {
-    static alloc(): Networking;
-    static new(): Networking;
-    initWithNetworkingListenerUploadListenerDownloadListener(networkingListener: NetworkingListener, uploadListener: WebTransferListener, downloadListener: WebTransferListener): Networking;
-    serviceDiscovery: ServiceDiscovery;
-    web: Web;
-    wifi: WifiNetworksManager;
-}
 interface OtherPromises {
     getStartedPromise(): PromiseCallbacks;
+    getStoppedPromise(): PromiseCallbacks;
     getNetworkStatusPromise(): PromiseCallbacks;
     getDiscoveryEvents(): any;
-}
-declare class MyNetworkingListener extends NSObject implements NetworkingListener {
-    static ObjCProtocols: {
-        prototype: NetworkingListener;
-    }[];
-    promises: OtherPromises;
-    logger: any;
-    static alloc(): MyNetworkingListener;
-    initWithPromises(promises: OtherPromises, logger: any): MyNetworkingListener;
-    onStarted(): void;
-    onStopped(): void;
-    onDiscoveryFailed(): void;
-    onFoundServiceWithService(service: ServiceInfo): void;
-    onLostServiceWithService(service: ServiceInfo): void;
-    onUdpMessageWithMessage(message: UdpMessage): void;
-    onNetworkStatusWithStatus(status: NetworkingStatus): void;
 }
 interface ActiveTasks {
     getTask(id: string): any;
     removeTask(id: string): void;
 }
-declare class MyFileSystemListener extends NSObject implements FileSystemListener {
-    static ObjCProtocols: {
-        prototype: FileSystemListener;
-    }[];
-    logger: any;
-    tasks: ActiveTasks;
-    static alloc(): MyFileSystemListener;
-    initWithTasks(tasks: ActiveTasks, logger: any): MyFileSystemListener;
-    onFileInfoWithPathTokenInfo(path: string, token: string, info: any): void;
-    onFileRecordsWithPathTokenPositionSizeRecords(path: string, token: string, position: number, size: number, records: any): void;
-    onFileErrorWithPathTokenError(path: string, token: string, error: string): void;
-}
 declare class OpenedFile {
-    cfy: Conservify;
-    fs: FileSystem;
-    file: PbFile;
+    private cfy;
+    private fs;
+    private file;
     constructor(cfy: Conservify, file: PbFile);
     info(): Promise<{}>;
     delimited(listener: any): Promise<{}>;
 }
 export declare class Conservify implements ActiveTasks, OtherPromises {
-    logger: any;
+    private logger;
     active: {
         [key: string]: any;
     };
-    networkStatus: any;
-    started: any;
-    scan: any;
-    networking: Networking;
+    private networkStatus;
+    private started;
+    private stopped;
+    private scan;
+    private networking;
     fileSystem: FileSystem;
-    networkingListener: MyNetworkingListener;
-    uploadListener: WebTransferListener;
-    downloadListener: WebTransferListener;
-    fsListener: MyFileSystemListener;
-    discoveryEvents: any;
+    private networkingListener;
+    private uploadListener;
+    private downloadListener;
+    private fsListener;
+    private discoveryEvents;
     constructor(discoveryEvents: any, logger: any);
     getTask(id: string): any;
     removeTask(id: string): void;
@@ -173,6 +73,7 @@ export declare class Conservify implements ActiveTasks, OtherPromises {
     upload(info: TransferInfo): Promise<HttpResponse>;
     getDiscoveryEvents(): any;
     getStartedPromise(): PromiseCallbacks;
+    getStoppedPromise(): PromiseCallbacks;
     getNetworkStatusPromise(): PromiseCallbacks;
     findConnectedNetwork(): Promise<any>;
     scanNetworks(): Promise<any>;

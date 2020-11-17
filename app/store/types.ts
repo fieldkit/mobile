@@ -259,6 +259,16 @@ export interface StationPortalStatus {
     error: PortalError | null;
 }
 
+export interface StationPortalAcceptedStatus extends StationPortalStatus {
+    id: number;
+    portalId: number;
+}
+
+export interface StationPortalErrorStatus extends StationPortalStatus {
+    id: number;
+    error: PortalError | null;
+}
+
 export class Station implements StationCreationFields {
     public readonly id: number | null;
     public readonly deviceId: string;
@@ -520,7 +530,7 @@ export class CommonLocations {
 }
 
 export class PhoneNetwork {
-    constructor(public readonly ssid: string | null, public readonly wifi: boolean = false) {}
+    constructor(public readonly ssid: string | null) {}
 }
 
 // TODO We have two types with this name.

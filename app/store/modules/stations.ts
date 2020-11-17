@@ -12,6 +12,8 @@ import {
     Stream,
     Download,
     StationPortalStatus,
+    StationPortalErrorStatus,
+    StationPortalAcceptedStatus,
     SortableStationSorter,
     Schedules,
     PortalError,
@@ -22,8 +24,6 @@ import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, Downlo
 import { HttpStatusReply, AtlasStatus } from "@/store/http-types";
 import { StationsState, GlobalState } from "./global";
 import { ServiceRef, DatabaseInterface } from "@/services";
-
-export const STATION_PORTAL_STATUS = "STATION_PORTAL_STATUS";
 
 export const AvailableStationsSorter = (available: AvailableStation[]): AvailableStation[] => {
     return _.orderBy(available, [(available) => SortableStationSorter(available)]);
@@ -376,25 +376,30 @@ const actions = (services: ServiceRef) => {
                     return Promise.reject(err);
                 });
         },
-        [ActionTypes.STATION_PORTAL_ERROR]: ({ commit }: ActionParameters, status: StationPortalStatus) => {
-            return services
+        [ActionTypes.STATION_PORTAL_ERROR]: async ({ commit }: ActionParameters, status: StationPortalErrorStatus) => {
+            await services
                 .db()
                 .setStationPortalError({ id: status.id }, status.error)
-                .then(() => commit(STATION_PORTAL_STATUS, status));
+                .then((changed) => {
+                    if (changed) {
+                        commit(MutationTypes.STATION_PORTAL_STATUS, status);
+                    }
+                });
         },
-        [ActionTypes.STATION_PORTAL_REPLY]: ({ commit }: ActionParameters, status: StationPortalStatus) => {
-            return services
+        [ActionTypes.STATION_PORTAL_REPLY]: async ({ commit }: ActionParameters, status: StationPortalAcceptedStatus) => {
+            await services
                 .db()
                 .setStationPortalError({ id: status.id }, {})
                 .then(() =>
                     services
                         .db()
                         .setStationPortalId(status)
-                        .then(() => commit(STATION_PORTAL_STATUS, status))
+                        .then((changed) => {
+                            if (changed) {
+                                commit(MutationTypes.STATION_PORTAL_STATUS, status);
+                            }
+                        })
                 );
-        },
-        [ActionTypes.UPDATE_PORTAL]: async (_ap: ActionParameters) => {
-            //
         },
     };
 };
@@ -406,7 +411,7 @@ const mutations = {
     [MutationTypes.STATIONS]: (state: StationsState, stations: Station[]) => {
         Vue.set(state, "all", stations);
     },
-    [STATION_PORTAL_STATUS]: (state: StationsState, status: StationPortalStatus) => {
+    [MutationTypes.STATION_PORTAL_STATUS]: (state: StationsState, status: StationPortalStatus) => {
         const station = _.first(state.all.filter((s) => s.id == status.id));
         if (!station) throw new Error("missing station");
         station.updatePortalStatus(status);
