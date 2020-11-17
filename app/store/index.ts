@@ -176,7 +176,12 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 console.log("action:", action.type, JSON.stringify(action.payload));
                 return false;
             }
-            return true;
+            if (action.type == ActionTypes.REFRESH_NETWORK || action.type == ActionTypes.NETWORK_CHANGED) {
+                console.log("action:", action.type, JSON.stringify(action.payload));
+                return false;
+            }
+
+            return false;
         },
         /*
         transformer(state: Record<string, unknown>) {

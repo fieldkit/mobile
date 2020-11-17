@@ -1,7 +1,8 @@
 import Vue from "vue";
-import { Module } from "vuex";
+import { ActionContext, Module } from "vuex";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import { MutationTypes } from "../mutations";
+import { ActionTypes, RefreshNetworkAction, NetworkChangedAction } from "../actions";
 import { ServiceRef } from "@/services";
 
 export class PhoneState {
@@ -11,8 +12,20 @@ export class PhoneState {
 
 const getters = {};
 
-const actions = (_services: ServiceRef) => {
-    return {};
+type ActionParameters = ActionContext<PhoneState, never>;
+
+const actions = (services: ServiceRef) => {
+    return {
+        [ActionTypes.REFRESH_NETWORK]: async ({ dispatch, commit, state }: ActionParameters, _payload: RefreshNetworkAction) => {
+            const status = await services.conservify().findConnectedNetwork();
+            const newSsid = status.connectedWifi?.ssid || null;
+            if (newSsid != state.network.ssid) {
+                const network = new PhoneNetwork(newSsid);
+                commit(MutationTypes.PHONE_NETWORK, network);
+                await dispatch(new NetworkChangedAction(network));
+            }
+        },
+    };
 };
 
 const mutations = {
