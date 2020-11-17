@@ -235,10 +235,6 @@ export default Vue.extend({
     background-color: $fk-gray-lighter;
 }
 
-.pop {
-    height: 50;
-}
-
 AbsoluteLayout {
     background-color: $white;
 }
