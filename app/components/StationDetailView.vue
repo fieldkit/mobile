@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
-        <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35,55' : '*,55'">
+        <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35,55' : '*,55'" class="m-t-20">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
@@ -53,6 +53,14 @@
                             </StackLayout>
                         </GridLayout>
                     </AbsoluteLayout>
+                    <AbsoluteLayout v-if="recentlyDisconnected" row="0" col="0" class="text-center">
+                        <GridLayout top="75" width="100%">
+                            <StackLayout class="deployed-dialog-container">
+                                <Image width="60" src="~/images/Icon_Disconnected.png"></Image>
+                                <Label :text="_L('stationDisconnected')" class="size-16 m-t-20" />
+                            </StackLayout>
+                        </GridLayout>
+                    </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
 
@@ -94,9 +102,11 @@ export default Vue.extend({
             default: false,
         },
     },
-    data(): { newlyDeployed: boolean } {
+    data(): { newlyDeployed: boolean; unwatch: Function; recentlyDisconnected: boolean } {
         return {
             newlyDeployed: false,
+            unwatch: () => {},
+            recentlyDisconnected: false,
         };
     },
     computed: {
@@ -121,6 +131,23 @@ export default Vue.extend({
     mounted() {
         console.log("station-detail", this.stationId);
         void this.completeSetup();
+    },
+    created() {
+        this.unwatch = this.$s.watch(
+            (state, getters) => getters.legacyStations[this.stationId].connected,
+            (newValue, oldValue) => {
+                if (newValue === false) {
+                    this.recentlyDisconnected = true;
+
+                    setTimeout(() => {
+                        this.recentlyDisconnected = false;
+                    }, 3000);
+                }
+            }
+        );
+    },
+    beforeDestroy() {
+        this.unwatch();
     },
     methods: {
         goBack(ev) {
@@ -235,6 +262,7 @@ export default Vue.extend({
 .deployed-dialog-container {
     border-radius: 4;
     background-color: $fk-gray-lightest;
+    color: $fk-primary-black;
     border-color: $fk-gray-lighter;
     border-width: 1;
     width: 225;

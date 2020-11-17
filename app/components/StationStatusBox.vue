@@ -1,77 +1,72 @@
 <template>
-    <StackLayout id="station-status-box-container" :class="'m-10 ' + (loading ? '' : 'bordered-container')">
-        <GridLayout v-show="!loading" rows="auto,auto,auto" columns="*,*">
-            <!-- recording status -->
-            <StackLayout row="0" col="0" class="m-t-10">
-                <Label class="text-center size-16" :text="station.deployed ? _L('recordingData') : _L('notRecording')" />
-            </StackLayout>
+    <GridLayout row="auto">
+        <StackLayout id="station-status-box-container" :class="'p-t-30 m-20 ' + (loading ? '' : 'bordered-container')" row="0">
+            <GridLayout v-show="!loading" rows="auto,auto" columns="*,*" class="m-t-10">
+                <!-- recording time -->
+                <GridLayout row="0" col="0" rows="auto" columns="*" class="m-t-10">
+                    <StackLayout id="outer-circle" :class="station.connected ? 'active' : ''" row="0" />
+                    <StackLayout id="inner-circle" :class="station.connected ? 'active' : ''" row="0">
+                        <Label class="size-20 m-b-3 rec-time rec-time-top" :text="recording.time" />
+                        <Label class="size-12 rec-time" :text="recording.label" />
+                    </StackLayout>
+                </GridLayout>
 
-            <!-- battery level -->
-            <StackLayout v-if="station.connected" row="0" col="1" class="m-t-10">
-                <FlexboxLayout class="m-r-10" justifyContent="flex-end">
-                    <Label class="m-r-5 size-12 lighter" :text="batteryLevel" />
-                    <Image width="25" :src="batteryImage" />
-                </FlexboxLayout>
-            </StackLayout>
+                <!-- connected status and available memory -->
+                <StackLayout row="0" col="1">
+                    <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
+                        <Image width="14" :src="batteryImage" rowSpan="2" col="0" />
+                        <Label row="0" col="1" class="m-t-5 m-l-5 size-12" :text="_L('batteryLife')" />
+                        <Label class="m-l-5 m-r-5 size-10 lighter" :text="batteryLevel" row="1" col="1" />
+                    </GridLayout>
+                    <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
+                        <Image v-if="station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_memory.png" />
+                        <Image v-if="!station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_Memory_Grayed_Out.png" />
+                        <Label row="0" col="1" class="m-t-15 m-l-5 size-12" horizontalAlignment="left" :text="_L('memoryUsed')" />
+                        <Label
+                            row="1"
+                            col="1"
+                            class="m-l-5 m-t-2 m-b-5 size-10 lighter"
+                            horizontalAlignment="left"
+                            :text="displayConsumedMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
+                        />
+                        <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
+                            <StackLayout row="0" class="memory-bar" />
+                            <StackLayout id="station-memory-bar" row="0" class="memory-bar" horizontalAlignment="left" />
+                        </GridLayout>
+                    </GridLayout>
+                </StackLayout>
 
-            <!-- recording time -->
-            <GridLayout row="1" col="0" rows="auto" columns="*" class="m-t-10">
-                <StackLayout id="outer-circle" row="0" />
-                <StackLayout id="inner-circle" row="0">
-                    <Label class="size-16 bold m-b-3 rec-time rec-time-top" :text="recording.time" />
-                    <Label class="size-12 rec-time" :text="recording.label" />
+                <!-- deploy button -->
+                <StackLayout row="1" colSpan="2" class="m-l-10 m-r-10 m-t-30">
+                    <Button
+                        v-if="!station.deployed"
+                        :isEnabled="station.connected"
+                        class="btn btn-primary"
+                        :class="station.connected ? '' : 'button-disconnected'"
+                        :text="_L('deploy')"
+                        automationText="deployButton"
+                        @tap="emitDeployTap"
+                    />
+
+                    <!-- placeholder if no deploy button -->
+                    <StackLayout v-if="station.deployed" height="20" />
                 </StackLayout>
             </GridLayout>
-
-            <!-- connected status and available memory -->
-            <StackLayout row="1" col="1">
-                <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
-                    <Image v-if="station.connected && !syncing" rowSpan="2" col="0" width="20" src="~/images/Icon_Connected.png" />
-                    <Image v-if="!station.connected && !syncing" rowSpan="2" col="0" width="20" src="~/images/Icon_not_Connected.png" />
-                    <Image v-if="syncing" rowSpan="2" col="0" height="20" width="20" :src="dataSyncingIcon" />
-                    <Label
-                        v-if="!syncing"
-                        row="0"
-                        col="1"
-                        class="m-t-10 m-l-10 size-14"
-                        :text="station.connected ? _L('connected') : _L('notConnected')"
-                    />
-                    <Label v-if="!syncing && !station.connected" row="1" col="1" class="m-l-10 m-t-2 m-b-5 size-12" :text="lastSeen" />
-                    <Label v-if="syncing" row="0" col="1" class="m-10 size-14" :text="dataSyncMessage" />
-                </GridLayout>
-                <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
-                    <Image col="0" rowSpan="3" width="20" src="~/images/Icon_memory.png" />
-                    <Label row="0" col="1" class="m-t-15 m-l-10 size-14" horizontalAlignment="left" :text="_L('memoryUsed')" />
-                    <Label
-                        row="1"
-                        col="1"
-                        class="m-l-10 m-t-2 m-b-5 size-12"
-                        horizontalAlignment="left"
-                        :text="displayConsumedMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
-                    />
-                    <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
-                        <StackLayout row="0" class="memory-bar" />
-                        <StackLayout id="station-memory-bar" row="0" class="memory-bar" horizontalAlignment="left" />
-                    </GridLayout>
-                </GridLayout>
-            </StackLayout>
-
-            <!-- deploy button -->
-            <StackLayout row="2" colSpan="2" class="m-l-10 m-r-10">
-                <Button
-                    v-if="!station.deployed"
-                    :isEnabled="station.connected"
-                    class="btn btn-primary"
-                    :text="_L('deploy')"
-                    automationText="deployButton"
-                    @tap="emitDeployTap"
-                />
-
-                <!-- placeholder if no deploy button -->
-                <StackLayout v-if="station.deployed" height="20" />
-            </StackLayout>
-        </GridLayout>
-    </StackLayout>
+        </StackLayout>
+        <AbsoluteLayout v-if="!station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
+            <GridLayout rows="auto, auto" columns="40,*">
+                <Image width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Label row="0" col="1" class="m-l-10 size-12" :text="_L('notConnected')" />
+                <Label class="m-l-10 m-r-5 size-10 lighter" :text="lastSeen" row="1" col="1" />
+            </GridLayout>
+        </AbsoluteLayout>
+        <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
+            <GridLayout rows="auto" columns="30,*">
+                <Image width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
+                <Label row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + currentSSID" />
+            </GridLayout>
+        </AbsoluteLayout>
+    </GridLayout>
 </template>
 
 <script lang="ts">
@@ -79,7 +74,7 @@ import Vue from "vue";
 import { getLabelledElapsedTime, getLastSeen, convertBytesToLabel } from "@/utilities";
 // import { Enums } from "@nativescript/core";
 import { Timer } from "@/common/timer";
-import { Station } from "@/store";
+import { LegacyStation } from "@/store";
 
 interface OtherData {
     timer: Timer;
@@ -91,7 +86,7 @@ export default Vue.extend({
     name: "StationStatusBox",
     props: {
         station: {
-            type: Object as () => Station,
+            type: Object as () => LegacyStation,
             required: true,
         },
     },
@@ -122,23 +117,24 @@ export default Vue.extend({
             }
             return {
                 time: "00:00:00",
-                label: "",
+                label: _L("hrsMinSec"),
             };
         },
         batteryImage(): string {
             const battery = this.station.batteryLevel;
+            const statusString = this.station.connected ? "" : "_GrayedOut";
             if (battery == null || battery == 0) {
-                return "~/images/Icon_Battery_0.png";
+                return `~/images/Battery_0${statusString}.png`;
             } else if (battery <= 20) {
-                return "~/images/Icon_Battery_20.png";
+                return `~/images/Battery_20${statusString}.png`;
             } else if (battery <= 40) {
-                return "~/images/Icon_Battery_40.png";
+                return `~/images/Battery_40${statusString}.png`;
             } else if (battery <= 60) {
-                return "~/images/Icon_Battery_60.png";
+                return `~/images/Battery_60${statusString}.png`;
             } else if (battery <= 80) {
-                return "~/images/Icon_Battery_80.png";
+                return `~/images/Battery_80${statusString}.png`;
             } else {
-                return "~/images/Icon_Battery_100.png";
+                return `~/images/Icon_Battery_100${statusString}.png`;
             }
         },
         batteryLevel(): string {
@@ -149,6 +145,9 @@ export default Vue.extend({
             console.log("lastSeen", this.station.lastSeen);
             if (!this.station.lastSeen) return _L("unknown");
             return `${_L("since")} ${getLastSeen(this.station.lastSeen)}`;
+        },
+        currentSSID(): string | null {
+            return this.$s.state.phone.network?.ssid;
         },
     },
     mounted(): void {
@@ -180,7 +179,7 @@ export default Vue.extend({
 #inner-circle {
     background: $fk-gray-white;
     border-width: 2;
-    border-color: $fk-primary-black;
+    border-color: $fk-gray-light;
     border-radius: 60%;
 }
 #outer-circle {
@@ -190,15 +189,15 @@ export default Vue.extend({
 #inner-circle {
     width: 110;
     height: 110;
-    background: $fk-primary-black;
+    background: $fk-gray-light;
 }
-// was blue
+
 #outer-circle.active,
 #inner-circle.active {
-    border-color: $fk-primary-black;
+    border-color: $fk-primary-blue;
 }
 #inner-circle.active {
-    background: $fk-primary-black;
+    background: $fk-primary-blue;
 }
 
 .rec-time {
@@ -212,7 +211,7 @@ export default Vue.extend({
 
 .memory-bar-container {
     margin-right: 40;
-    margin-left: 10;
+    margin-left: 5;
 }
 #station-memory-bar {
     background: $fk-tertiary-green;
@@ -229,5 +228,18 @@ export default Vue.extend({
 
 .btn-primary {
     width: 100%;
+}
+
+.button-disconnected {
+    color: $white;
+    background-color: $fk-gray-lighter;
+}
+
+.pop {
+    height: 50;
+}
+
+AbsoluteLayout {
+    background-color: $white;
 }
 </style>
