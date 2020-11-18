@@ -30,6 +30,7 @@
 
                 <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" />
                 <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" />
+                <Button class="btn btn-primary btn-padded" text="Restart All Discovery" @tap="restartDiscovery" />
 
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
@@ -207,6 +208,9 @@ export default Vue.extend({
         },
         async stopDiscovery(): Promise<void> {
             await Services.DiscoverStation().stopServiceDiscovery();
+        },
+        async restartDiscovery(): Promise<void> {
+            await Services.DiscoverStation().restart();
         },
         viewStations(): Promise<any> {
             return this.$navigateTo(routes.stations, {});

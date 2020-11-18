@@ -137,7 +137,7 @@ export default class DiscoverStation {
     }
 
     public restart(): Promise<void> {
-        return this.stopServiceDiscovery().then(() => Bluebird.delay(500).then(() => this.startServiceDiscovery()));
+        return this.stopServiceDiscovery({ suspending: false }).then(() => Bluebird.delay(500).then(() => this.startServiceDiscovery()));
     }
 
     public async startServiceDiscovery(): Promise<void> {
@@ -164,12 +164,9 @@ export default class DiscoverStation {
         await this.conservify.start(options);
     }
 
-    public async stopServiceDiscovery(): Promise<void> {
-        const options: StopOptions = {
-            suspending: false,
-        };
+    public async stopServiceDiscovery(options: StopOptions | null): Promise<void> {
         this.monitoring = false;
-        await this.conservify.stop(options);
+        await this.conservify.stop(options || { suspending: true });
     }
 
     public onFoundService(info: FoundService): void {
