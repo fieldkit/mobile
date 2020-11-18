@@ -30,3 +30,11 @@ export interface HttpResponse {
     body: string;
 }
 export declare function encodeBody(body: Uint8Array | string): string;
+export interface StartOptions {
+    serviceTypeSearch: string | null;
+    serviceNameSelf: string | null;
+    serviceTypeSelf: string | null;
+}
+export interface StopOptions {
+    suspending: boolean;
+}

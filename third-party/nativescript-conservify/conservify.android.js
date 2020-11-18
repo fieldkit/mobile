@@ -293,35 +293,32 @@ var Conservify = (function () {
             this.downloadListener
         );
     }
-    Conservify.prototype.start = function (serviceTypeSearch, serviceNameSelf, serviceTypeSelf) {
+    Conservify.prototype.start = function (options) {
         var _this = this;
-        if (serviceTypeSearch === void 0) {
-            serviceTypeSearch = null;
-        }
-        if (serviceNameSelf === void 0) {
-            serviceNameSelf = null;
-        }
-        if (serviceTypeSelf === void 0) {
-            serviceTypeSelf = null;
-        }
         return new Promise(function (resolve, reject) {
             _this.started = {
                 resolve: resolve,
                 reject: reject,
             };
-            _this.logger("starting:", serviceTypeSearch, serviceNameSelf, serviceTypeSelf);
-            _this.networking.getServiceDiscovery().start(serviceTypeSearch, serviceNameSelf, serviceTypeSelf);
+            var javaOptions = new org.conservify.networking.StartOptions();
+            javaOptions.setServiceTypeSearch(options.serviceTypeSearch);
+            javaOptions.setServiceNameSelf(options.serviceNameSelf);
+            javaOptions.setServiceTypeSelf(options.serviceTypeSelf);
+            _this.logger("starting:", JSON.stringify(javaOptions), JSON.stringify(options));
+            _this.networking.getServiceDiscovery().start(javaOptions);
         });
     };
-    Conservify.prototype.stop = function () {
+    Conservify.prototype.stop = function (options) {
         var _this = this;
         return new Promise(function (resolve, reject) {
             _this.stopped = {
                 resolve: resolve,
                 reject: reject,
             };
-            _this.logger("stopping...");
-            _this.networking.getServiceDiscovery().stop();
+            var javaOptions = new org.conservify.networking.StopOptions();
+            javaOptions.setSuspending(options.suspending);
+            _this.logger("stopping:", JSON.stringify(javaOptions), JSON.stringify(options));
+            _this.networking.getServiceDiscovery().stop(javaOptions);
         });
     };
     Conservify.prototype.writeSampleData = function () {

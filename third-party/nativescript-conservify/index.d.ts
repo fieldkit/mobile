@@ -1,5 +1,3 @@
-import { Common } from "./conservify.common";
-
 type LoggerFunc = (...args: any[]) => void;
 
 export declare interface DiscoveryEvents {}
@@ -40,14 +38,20 @@ export declare interface ScannedNetworks {
     //
 }
 
-export declare class Conservify extends Common {
+export declare interface StartOptions {
+    serviceTypeSearch: string | null;
+    serviceNameSelf: string | null;
+    serviceTypeSelf: string | null;
+}
+
+export declare interface StopOptions {
+    suspending: boolean;
+}
+
+export declare class Conservify {
     constructor(discoveryEvents: DiscoveryEvents, logger: LoggerFunc);
-    start(
-        serviceTypeSearch: string | null = null,
-        serviceNameSelf: string | null = null,
-        serviceTypeSelf: string | null = null
-    ): Promise<void>;
-    stop(): Promise<void>;
+    start(options: StartOptions): Promise<void>;
+    stop(options: StopOptions): Promise<void>;
     text(info: TransferInfo): Promise<HttpResponse>;
     json(info: TransferInfo): Promise<HttpResponse>;
     protobuf(info: TransferInfo): Promise<HttpResponse>;

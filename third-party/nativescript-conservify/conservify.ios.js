@@ -4,7 +4,7 @@ var conservify_common_1 = require("./conservify.common");
 var MyNetworkingListener = (function (_super) {
     __extends(MyNetworkingListener, _super);
     function MyNetworkingListener() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return (_super !== null && _super.apply(this, arguments)) || this;
     }
     MyNetworkingListener.alloc = function () {
         return _super.new.call(this);
@@ -55,7 +55,7 @@ var MyNetworkingListener = (function (_super) {
     };
     MyNetworkingListener.ObjCProtocols = [NetworkingListener];
     return MyNetworkingListener;
-}(NSObject));
+})(NSObject);
 function toJsHeaders(headers) {
     var jsHeaders = {};
     for (var i = 0; i < headers.allKeys.count; ++i) {
@@ -67,7 +67,7 @@ function toJsHeaders(headers) {
 var UploadListener = (function (_super) {
     __extends(UploadListener, _super);
     function UploadListener() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return (_super !== null && _super.apply(this, arguments)) || this;
     }
     UploadListener.alloc = function () {
         return _super.new.call(this);
@@ -86,24 +86,29 @@ var UploadListener = (function (_super) {
             if (progress) {
                 progress(total, bytes, info);
             }
-        }
-        else {
+        } else {
             this.logger("upload:onProgress (orphaned)", taskId, bytes, total);
         }
     };
-    UploadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
+    UploadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (
+        taskId,
+        headers,
+        contentType,
+        body,
+        statusCode
+    ) {
         var jsHeaders = toJsHeaders(headers);
         this.logger("upload:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
         if (task) {
-            var info = task.info, transfer_1 = task.transfer;
+            var info = task.info,
+                transfer_1 = task.transfer;
             this.tasks.removeTask(taskId);
             var getBody = function () {
                 if (body) {
                     if (contentType.indexOf("application/json") >= 0) {
                         return JSON.parse(body);
-                    }
-                    else {
+                    } else {
                         if (transfer_1.base64EncodeResponseBody) {
                             return Buffer.from(body, "base64");
                         }
@@ -118,8 +123,7 @@ var UploadListener = (function (_super) {
                 statusCode: statusCode,
                 body: getBody(),
             });
-        }
-        else {
+        } else {
             this.logger("upload:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
         }
     };
@@ -130,18 +134,17 @@ var UploadListener = (function (_super) {
             var info = task.info;
             this.tasks.removeTask(taskId);
             task.reject(new conservify_common_1.ConnectionError(message, info));
-        }
-        else {
+        } else {
             this.logger("upload:onError (orphaned)", taskId);
         }
     };
     UploadListener.ObjCProtocols = [WebTransferListener];
     return UploadListener;
-}(NSObject));
+})(NSObject);
 var DownloadListener = (function (_super) {
     __extends(DownloadListener, _super);
     function DownloadListener() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return (_super !== null && _super.apply(this, arguments)) || this;
     }
     DownloadListener.alloc = function () {
         return _super.new.call(this);
@@ -160,24 +163,29 @@ var DownloadListener = (function (_super) {
             if (progress) {
                 progress(total, bytes, info);
             }
-        }
-        else {
+        } else {
             this.logger("download:onProgress (orphaned)", taskId, bytes, total);
         }
     };
-    DownloadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (taskId, headers, contentType, body, statusCode) {
+    DownloadListener.prototype.onCompleteWithTaskIdHeadersContentTypeBodyStatusCode = function (
+        taskId,
+        headers,
+        contentType,
+        body,
+        statusCode
+    ) {
         var jsHeaders = toJsHeaders(headers);
         this.logger("download:onComplete", taskId, jsHeaders, contentType, statusCode);
         var task = this.tasks.getTask(taskId);
         if (task) {
-            var info = task.info, transfer_2 = task.transfer;
+            var info = task.info,
+                transfer_2 = task.transfer;
             this.tasks.removeTask(taskId);
             var getBody = function () {
                 if (body) {
                     if (contentType.indexOf("application/json") >= 0) {
                         return JSON.parse(body);
-                    }
-                    else {
+                    } else {
                         if (transfer_2.base64EncodeResponseBody) {
                             return Buffer.from(body, "base64");
                         }
@@ -192,8 +200,7 @@ var DownloadListener = (function (_super) {
                 statusCode: statusCode,
                 body: getBody(),
             });
-        }
-        else {
+        } else {
             this.logger("download:onComplete (orphaned)", taskId, jsHeaders, contentType, statusCode);
         }
     };
@@ -204,18 +211,17 @@ var DownloadListener = (function (_super) {
             var info = task.info;
             this.tasks.removeTask(taskId);
             task.reject(new conservify_common_1.ConnectionError(message, info));
-        }
-        else {
+        } else {
             this.logger("download:onError (orphaned)", taskId, message);
         }
     };
     DownloadListener.ObjCProtocols = [WebTransferListener];
     return DownloadListener;
-}(NSObject));
+})(NSObject);
 var MyFileSystemListener = (function (_super) {
     __extends(MyFileSystemListener, _super);
     function MyFileSystemListener() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return (_super !== null && _super.apply(this, arguments)) || this;
     }
     MyFileSystemListener.alloc = function () {
         return _super.new.call(this);
@@ -237,11 +243,11 @@ var MyFileSystemListener = (function (_super) {
         console.log("fs:onFileRecords", path, token, position, size, records != null ? records.count : "");
         var task = this.tasks.getTask(token);
         if (task) {
-            var resolve = task.resolve, listener = task.listener;
+            var resolve = task.resolve,
+                listener = task.listener;
             if (records) {
                 listener(position, size, records);
-            }
-            else {
+            } else {
                 resolve();
             }
         }
@@ -256,7 +262,7 @@ var MyFileSystemListener = (function (_super) {
     };
     MyFileSystemListener.ObjCProtocols = [FileSystemListener];
     return MyFileSystemListener;
-}(NSObject));
+})(NSObject);
 var OpenedFile = (function () {
     function OpenedFile(cfy, file) {
         this.cfy = cfy;
@@ -289,7 +295,7 @@ var OpenedFile = (function () {
         });
     };
     return OpenedFile;
-}());
+})();
 var globalAny = global;
 var NetworkingProto = globalAny.Networking;
 var ServiceDiscoveryProto = globalAny.ServiceDiscovery;
@@ -315,7 +321,11 @@ var Conservify = (function () {
         this.networkingListener = MyNetworkingListener.alloc().initWithPromises(this, this.logger);
         this.uploadListener = UploadListener.alloc().initWithTasks(this, this.logger);
         this.downloadListener = DownloadListener.alloc().initWithTasks(this, this.logger);
-        this.networking = Networking.alloc().initWithNetworkingListenerUploadListenerDownloadListener(this.networkingListener, this.uploadListener, this.downloadListener);
+        this.networking = Networking.alloc().initWithNetworkingListenerUploadListenerDownloadListener(
+            this.networkingListener,
+            this.uploadListener,
+            this.downloadListener
+        );
         this.fsListener = MyFileSystemListener.alloc().initWithTasks(this, this.logger);
         this.fileSystem = FileSystem.alloc().initWithListener(this.fsListener);
     }
@@ -325,37 +335,32 @@ var Conservify = (function () {
     Conservify.prototype.removeTask = function (id) {
         delete this.active[id];
     };
-    Conservify.prototype.stop = function () {
+    Conservify.prototype.start = function (options) {
         var _this = this;
-        if (this.stopped) {
-            return Promise.resolve();
-        }
-        this.started = null;
-        return new Promise(function (resolve, reject) {
-            _this.stopped = {
-                resolve: resolve,
-                reject: reject,
-            };
-            _this.logger("stopping:");
-            _this.networking.serviceDiscovery.stop();
-        });
-    };
-    Conservify.prototype.start = function (serviceTypeSearch, serviceNameSelf, serviceTypeSelf) {
-        var _this = this;
-        if (serviceTypeSearch === void 0) { serviceTypeSearch = null; }
-        if (serviceNameSelf === void 0) { serviceNameSelf = null; }
-        if (serviceTypeSelf === void 0) { serviceTypeSelf = null; }
-        if (this.started) {
-            return Promise.resolve(true);
-        }
-        this.stopped = null;
         return new Promise(function (resolve, reject) {
             _this.started = {
                 resolve: resolve,
                 reject: reject,
             };
-            _this.logger("starting:", serviceTypeSearch, serviceNameSelf, serviceTypeSelf);
-            _this.networking.serviceDiscovery.startWithServiceTypeSearchServiceNameSelfServiceTypeSelf(serviceTypeSearch, serviceNameSelf, serviceTypeSelf);
+            var iosOptions = DiscoveryStartOptions.alloc().init();
+            iosOptions.serviceTypeSearch = options.serviceTypeSearch;
+            iosOptions.serviceNameSelf = options.serviceNameSelf;
+            iosOptions.serviceTypeSelf = options.serviceTypeSelf;
+            _this.logger("starting:", JSON.stringify(iosOptions), JSON.stringify(options));
+            _this.networking.serviceDiscovery.startWithOptions(iosOptions);
+        });
+    };
+    Conservify.prototype.stop = function (options) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this.stopped = {
+                resolve: resolve,
+                reject: reject,
+            };
+            var iosOptions = DiscoveryStopOptions.alloc().init();
+            iosOptions.suspending = options.suspending;
+            _this.logger("stopping:", JSON.stringify(iosOptions), JSON.stringify(options));
+            _this.networking.serviceDiscovery.stopWithOptions(iosOptions);
         });
     };
     Conservify.prototype.writeSampleData = function () {
@@ -374,25 +379,24 @@ var Conservify = (function () {
         });
     };
     Conservify.prototype.open = function (path) {
-        if (!this.fileSystem)
-            throw new Error("use before initialize");
+        if (!this.fileSystem) throw new Error("use before initialize");
         return Promise.resolve(new OpenedFile(this, this.fileSystem.openWithPath(path)));
     };
     Conservify.prototype.copyFile = function (source, destiny) {
-        if (!this.fileSystem)
-            throw new Error("use before initialize");
+        if (!this.fileSystem) throw new Error("use before initialize");
         return Promise.resolve(this.fileSystem.copyFileWithSourceDestiny(source, destiny));
     };
     Conservify.prototype.json = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = WebTransfer.alloc().init();
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.body = info.body;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.headerWithKeyValue(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -407,14 +411,15 @@ var Conservify = (function () {
     };
     Conservify.prototype.text = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = WebTransfer.alloc().init();
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.body = info.body;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.headerWithKeyValue(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -429,14 +434,15 @@ var Conservify = (function () {
     };
     Conservify.prototype.protobuf = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = WebTransfer.alloc().init();
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.base64EncodeResponseBody = true;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.headerWithKeyValue(key, value);
         }
         if (info.body) {
@@ -455,14 +461,15 @@ var Conservify = (function () {
     };
     Conservify.prototype.download = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = WebTransfer.alloc().init();
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.path = info.path;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.headerWithKeyValue(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -477,15 +484,16 @@ var Conservify = (function () {
     };
     Conservify.prototype.upload = function (info) {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         var transfer = WebTransfer.alloc().init();
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.path = info.path;
         transfer.uploadCopy = info.uploadCopy;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
+            var _b = _a[_i],
+                key = _b[0],
+                value = _b[1];
             transfer.headerWithKeyValue(key, value);
         }
         return new Promise(function (resolve, reject) {
@@ -512,8 +520,7 @@ var Conservify = (function () {
     };
     Conservify.prototype.findConnectedNetwork = function () {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
@@ -524,8 +531,7 @@ var Conservify = (function () {
     };
     Conservify.prototype.scanNetworks = function () {
         var _this = this;
-        if (!this.networking)
-            throw new Error("use before initialize");
+        if (!this.networking) throw new Error("use before initialize");
         return new Promise(function (resolve, reject) {
             _this.networkStatus = {
                 resolve: resolve,
@@ -535,6 +541,6 @@ var Conservify = (function () {
         });
     };
     return Conservify;
-}());
+})();
 exports.Conservify = Conservify;
 //# sourceMappingURL=conservify.ios.js.map

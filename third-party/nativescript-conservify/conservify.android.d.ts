@@ -1,4 +1,4 @@
-import { TransferInfo, HttpResponse } from "./conservify.common";
+import { TransferInfo, HttpResponse, StartOptions, StopOptions } from "./conservify.common";
 declare class OpenedFile {
     cfy: Conservify;
     fs: any;
@@ -25,8 +25,8 @@ export declare class Conservify {
     networking: org.conservify.networking.Networking;
     fileSystem: org.conservify.data.FileSystem;
     constructor(discoveryEvents: any, logger: any);
-    start(serviceTypeSearch?: string | null, serviceNameSelf?: string | null, serviceTypeSelf?: string | null): Promise<void>;
-    stop(): Promise<void>;
+    start(options: StartOptions): Promise<void>;
+    stop(options: StopOptions): Promise<void>;
     writeSampleData(): Promise<void>;
     open(path: string): Promise<OpenedFile>;
     copyFile(source: string, destiny: string): Promise<boolean>;

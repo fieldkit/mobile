@@ -1,6 +1,7 @@
 import Bluebird from "bluebird";
 import { Device } from "@nativescript/core";
 import { Conservify, Services, OurStore } from "@/services";
+import { StartOptions, StopOptions } from "@/wrappers/networking";
 import { Connectivity } from "@/wrappers/connectivity";
 import { ActionTypes, RefreshNetworkAction } from "@/store";
 import { FoundService, LostService, UdpMessage } from "@/services";
@@ -139,7 +140,7 @@ export default class DiscoverStation {
         return this.stopServiceDiscovery().then(() => Bluebird.delay(500).then(() => this.startServiceDiscovery()));
     }
 
-    public startServiceDiscovery(): Promise<void> {
+    public async startServiceDiscovery(): Promise<void> {
         this.networkMonitor.start();
 
         if (this.monitoring) {
@@ -148,12 +149,27 @@ export default class DiscoverStation {
 
         this.monitoring = true;
 
-        return this.conservify.start("_fk._tcp", Device.uuid, "_fk._tcp");
+        const options: StartOptions = {
+            serviceTypeSearch: "_fk._tcp",
+            serviceNameSelf: null,
+            serviceTypeSelf: null,
+        };
+
+        // eslint-disable-next-line
+        if (false) {
+            options.serviceNameSelf = Device.uuid;
+            options.serviceTypeSelf = "_fk._tcp";
+        }
+
+        await this.conservify.start(options);
     }
 
-    public stopServiceDiscovery(): Promise<void> {
+    public async stopServiceDiscovery(): Promise<void> {
+        const options: StopOptions = {
+            suspending: false,
+        };
         this.monitoring = false;
-        return Promise.resolve(this.conservify.stop());
+        await this.conservify.stop(options);
     }
 
     public onFoundService(info: FoundService): void {

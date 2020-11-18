@@ -1,4 +1,4 @@
-import { PromiseCallbacks, TransferInfo, HttpResponse } from "./conservify.common";
+import { PromiseCallbacks, TransferInfo, HttpResponse, StartOptions, StopOptions } from "./conservify.common";
 declare class ReadOptions extends NSObject {
     static alloc(): ReadOptions;
     static new(): ReadOptions;
@@ -61,8 +61,8 @@ export declare class Conservify implements ActiveTasks, OtherPromises {
     constructor(discoveryEvents: any, logger: any);
     getTask(id: string): any;
     removeTask(id: string): void;
-    stop(): Promise<void>;
-    start(serviceTypeSearch?: string | null, serviceNameSelf?: string | null, serviceTypeSelf?: string | null): Promise<any>;
+    start(options: StartOptions): Promise<any>;
+    stop(options: StopOptions): Promise<void>;
     writeSampleData(): Promise<void>;
     open(path: string): Promise<OpenedFile>;
     copyFile(source: string, destiny: string): Promise<boolean>;
