@@ -123,7 +123,7 @@ function initializeApplication(services: Services): Promise<any> {
                                 .then(
                                     () =>
                                         Promise.resolve()
-                                            .then(() => services.DiscoverStation().startServiceDiscovery())
+                                            // .then(() => services.DiscoverStation().startServiceDiscovery())
                                             .then(() => enableLocationServices(services))
                                             .then(() => services.PortalUpdater().start())
                                             .then(() => registerLifecycleEvents(() => services.DiscoverStation()))

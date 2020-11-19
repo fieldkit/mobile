@@ -183,7 +183,6 @@ const actions = (services: ServiceRef) => {
             } else {
                 console.log(`losing stations: ${JSON.stringify(state)}`);
                 for (const key of Object.keys(state.stations)) {
-                    // const nearby = state.stations[key];
                     commit(MutationTypes.LOSE, { deviceId: key });
                 }
             }
