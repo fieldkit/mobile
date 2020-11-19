@@ -37,4 +37,6 @@ export interface StartOptions {
 }
 export interface StopOptions {
     suspending: boolean;
+    mdns?: boolean;
+    dns?: boolean;
 }

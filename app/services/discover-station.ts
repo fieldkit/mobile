@@ -143,12 +143,6 @@ export default class DiscoverStation {
     public async startServiceDiscovery(): Promise<void> {
         this.networkMonitor.start();
 
-        if (this.monitoring) {
-            return Promise.resolve();
-        }
-
-        this.monitoring = true;
-
         const options: StartOptions = {
             serviceTypeSearch: "_fk._tcp",
             serviceNameSelf: null,
@@ -162,11 +156,14 @@ export default class DiscoverStation {
         }
 
         await this.conservify.start(options);
+
+        this.monitoring = true;
     }
 
     public async stopServiceDiscovery(options: StopOptions | null): Promise<void> {
-        this.monitoring = false;
         await this.conservify.stop(options || { suspending: true });
+
+        this.monitoring = false;
     }
 
     public onFoundService(info: FoundService): void {

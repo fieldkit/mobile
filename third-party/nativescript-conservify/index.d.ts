@@ -46,6 +46,8 @@ export declare interface StartOptions {
 
 export declare interface StopOptions {
     suspending: boolean;
+    mdns?: boolean;
+    dns?: boolean;
 }
 
 export declare class Conservify {
