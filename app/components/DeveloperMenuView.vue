@@ -207,7 +207,7 @@ export default Vue.extend({
             await Services.DiscoverStation().startServiceDiscovery();
         },
         async stopDiscovery(): Promise<void> {
-            await Services.DiscoverStation().stopServiceDiscovery();
+            await Services.DiscoverStation().stopServiceDiscovery({ suspending: false });
         },
         async restartDiscovery(): Promise<void> {
             await Services.DiscoverStation().restart();
