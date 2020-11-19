@@ -50,9 +50,9 @@ class NetworkMonitor {
         console.log("network-monitor: ctor");
     }
 
-    public start() {
+    public async start(): Promise<void> {
         if (this.enabled) {
-            return;
+            return Promise.resolve();
         }
 
         this.enabled = true;
@@ -77,10 +77,12 @@ class NetworkMonitor {
         });
 
         void this.watch();
+
+        return Promise.resolve();
     }
 
-    private watch(): Promise<void> {
-        return Bluebird.delay(10000).then(() => this.issue().finally(() => void this.watch()));
+    private async watch(): Promise<void> {
+        await Bluebird.delay(10000).then(() => this.issue().finally(() => void this.watch()));
     }
 
     private async issue(): Promise<void> {
@@ -140,9 +142,15 @@ export default class DiscoverStation {
         return this.stopServiceDiscovery({ suspending: false }).then(() => Bluebird.delay(500).then(() => this.startServiceDiscovery()));
     }
 
-    public async startServiceDiscovery(): Promise<void> {
-        this.networkMonitor.start();
+    public async startMonitorinNetwork(): Promise<void> {
+        await this.networkMonitor.start();
+    }
 
+    public async stopMonitorinNetwork(): Promise<void> {
+        //
+    }
+
+    public async startServiceDiscovery(): Promise<void> {
         const options: StartOptions = {
             serviceTypeSearch: "_fk._tcp",
             serviceNameSelf: null,
