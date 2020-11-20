@@ -96,7 +96,7 @@ function customizeLogger(appendLog: AppendStoreLog) {
             void appendLog({
                 time: new Date().getTime(),
                 mutation: mutation.type,
-                payload: JSON.stringify(mutation.payload, sanitizeState),
+                payload: JSON.stringify(mutation.payload || {}, sanitizeState),
                 before: stateFor(mutation, stateBefore),
                 after: stateFor(mutation, stateAfter),
             });
