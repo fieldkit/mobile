@@ -500,7 +500,9 @@ export default class DatabaseInterface {
             })
             .then((stationId) => {
                 return Promise.all([
-                    this.query<ModuleTableRow>("SELECT * FROM modules WHERE station_id = ?", [stationId]),
+                    // Query for all modules, they have globally
+                    // unique identifiers and can move around. We may need to eventually optimize.
+                    this.query<ModuleTableRow>("SELECT * FROM modules"),
                     this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [
                         stationId,
                     ]),

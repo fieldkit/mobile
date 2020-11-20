@@ -49,4 +49,21 @@ describe("Stations", () => {
 
         expect(Object.keys(store.state.firmware.stations).length).toBe(1);
     });
+
+    describe("module moves stations", () => {
+        it("loading station with another station's modules", async () => {
+            expect.assertions(2);
+
+            const fake1 = mockStation.newFakeStation();
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
+            expect(Object.keys(store.state.firmware.stations).length).toBe(1);
+
+            const fake2 = mockStation.newFakeStation();
+            console.log(fake1.moduleIds);
+            console.log(fake2.moduleIds);
+            fake2.moduleIds = fake1.moduleIds;
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake2), "http://10.0.0.1/fk/v1"));
+            expect(Object.keys(store.state.firmware.stations).length).toBe(2);
+        });
+    });
 });
