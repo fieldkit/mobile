@@ -266,7 +266,7 @@ export default class DatabaseInterface {
             values
         ).catch((error) => {
             console.log(`error inserting module: ${JSON.stringify(error)}`);
-            console.log(`error inserting values: ${JSON.stringify(values)}`);
+            console.log(`error inserting values: ${JSON.stringify({ values: values })}`);
             return Promise.reject(new Error(`error inserting module: ${JSON.stringify(error)}`));
         });
     }

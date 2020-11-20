@@ -402,8 +402,11 @@ export default class PortalInterface {
         );
     }
 
-    private parseToken(token: string): { refresh_token: string } | null {
+    private parseToken(token: string | undefined): { refresh_token: string } | null {
         try {
+            if (!token) {
+                return null;
+            }
             const encoded = token.split(".")[1];
             const decoded = Buffer.from(encoded, "base64").toString();
             return JSON.parse(decoded) as { refresh_token: string };
