@@ -73,6 +73,7 @@ ios-release: setup
 	rm -rf $(APP)/node_modules/*/.git
 	rm -rf $(APP)/node_modules/nativescript-conservify
 	rm -rf $(APP)/node_modules/fk-*-protocol
+	rm -rf $(APP)/platforms
 	npm install
 	$(MAKE) refresh-cms-data || true
 	if [ -d $(APP)/platforms/ios ]; then               \
