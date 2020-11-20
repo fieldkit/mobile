@@ -417,6 +417,7 @@ module.exports = {
     hrsMinSec: "hrs min sec",
 	downloadFirmware: "Download Firmware",
 	upgradeFirmware: "Upgrade Firmware",
+    batteryLife: "Battery Life",
     appSettings: {
         title: "Settings",
         data: {

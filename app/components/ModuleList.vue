@@ -4,8 +4,8 @@
             <template v-if="!m.internal">
                 <StackLayout class="bordered-container p-10 m-b-10">
                     <GridLayout rows="auto" columns="15*,70*,15*">
-                        <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m)"></Image>
-                        <Label col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-18" textWrap="true" />
+                        <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m, station.connected)"></Image>
+                        <Label col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-16" textWrap="true" />
 
                         <FlexboxLayout
                             col="2"
@@ -30,7 +30,7 @@
                             :key="s.id"
                             orientation="horizontal"
                             class="sensor-block"
-                            :opacity="station.connected ? 1 : 0.5"
+                            :class="station.connected ? 'station-connected' : 'station-disconnected'"
                         >
                             <FlexboxLayout>
                                 <Image width="7" verticalAlignment="bottom" :src="getDisplayIcon(s)" class="trend-icon"></Image>
@@ -97,26 +97,27 @@ export default Vue.extend({
             const newName = convertOldFirmwareResponse(mod);
             return _T(newName + ".sensors." + sensor.name);
         },
-        getModuleImage(mod: Module): string {
+        getModuleImage(mod: Module, connected: boolean): string {
+            const statusString = connected ? "" : "Gray_";
             switch (mod.name) {
                 case "modules.distance":
-                    return "~/images/Icon_Distance_Module.png";
+                    return `~/images/Icon_${statusString}Distance_Module.png`;
                 case "modules.weather":
-                    return "~/images/Icon_Weather_Module.png ";
+                    return `~/images/Icon_${statusString}Weather_Module.png`;
                 case "modules.water.ec":
-                    return "~/images/Icon_WaterConductivity_Module.png";
+                    return `~/images/Icon_${statusString}WaterConductivity_Module.png`;
                 case "modules.water.ph":
-                    return "~/images/Icon_WaterpH_Module.png";
+                    return `~/images/Icon_${statusString}WaterpH_Module.png`;
                 case "modules.water.do":
-                    return "~/images/Icon_DissolvedOxygen_Module.png";
+                    return `~/images/Icon_${statusString}DissolvedOxygen_Module.png`;
                 case "modules.water.temp":
-                    return "~/images/Icon_WaterTemp_Module.png";
+                    return `~/images/Icon_${statusString}WaterTemp_Module.png`;
                 case "modules.water.orp":
-                    return "~/images/Icon_Water_Module.png";
+                    return `~/images/Icon_${statusString}Water_Module.png`;
                 case "modules.water.unknown":
-                    return "~/images/Icon_Water_Module.png";
+                    return `~/images/Icon_${statusString}Water_Module.png`;
                 default:
-                    return "~/images/Icon_Generic_Module.png";
+                    return `~/images/Icon_${statusString}Generic_Module.png`;
             }
         },
         emitModuleTapped(mod: Module): void {
@@ -179,7 +180,9 @@ export default Vue.extend({
 .hint-color {
     color: $fk-gray-hint;
 }
-
+.station-disconnected Label {
+    opacity: 0.5;
+}
 .expand-button-container {
     /* background-color: #afefef; */
 }
