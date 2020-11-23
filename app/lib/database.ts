@@ -97,9 +97,9 @@ export class ReadingsDatabase {
         return ReadingsDatabase.open(ReadingsDatabase.nameForDevice(deviceId));
     }
 
-    public static async existsForDevice(_device: string): Promise<boolean> {
+    public static async existsForDevice(deviceId: string): Promise<boolean> {
         const sqlite = new Sqlite();
-        const e = sqlite.exists(name);
+        const e = sqlite.exists(ReadingsDatabase.nameForDevice(deviceId));
         return Promise.resolve(e);
     }
 
