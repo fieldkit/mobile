@@ -261,6 +261,7 @@ export default class DatabaseInterface {
             module.flags || 0,
             module.status ? JSON.stringify(module.status) : "",
         ];
+
         await this.execute(
             "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             values
@@ -322,13 +323,27 @@ export default class DatabaseInterface {
         moduleRows: ModuleTableRow[],
         sensorRows: SensorTableRow[]
     ): Promise<void> {
-        const incoming = _.keyBy(station.modules, (m) => m.moduleId);
-        const existing = _.keyBy(moduleRows, (m) => m.moduleId);
-        const adding = _.difference(_.keys(incoming), _.keys(existing));
-        const removed = _.difference(_.keys(existing), _.keys(incoming));
-        const keeping = _.intersection(_.keys(existing), _.keys(incoming));
+        const allExisting = _.keyBy(moduleRows, (m) => m.moduleId);
+        const stationModuleRows = moduleRows.filter((m) => m.stationId == stationId);
+        const stationExisting = _.keyBy(stationModuleRows, (m) => m.moduleId);
 
-        log.info("synchronize modules", stationId, adding, removed, keeping);
+        const incoming = _.keyBy(station.modules, (m) => m.moduleId);
+        const adding = _.difference(_.keys(incoming), _.keys(allExisting));
+        const removed = _.difference(_.keys(stationExisting), _.keys(incoming));
+        const keeping = _.intersection(_.keys(allExisting), _.keys(incoming));
+
+        console.log("modules", station.modules);
+
+        log.info(
+            `synchronize modules`,
+            JSON.stringify({
+                stationId,
+                all: _.keys(allExisting),
+                adding,
+                removed,
+                keeping,
+            })
+        );
 
         return Promise.all([
             Promise.all(
@@ -338,17 +353,17 @@ export default class DatabaseInterface {
             ),
             Promise.all(
                 removed.map((moduleId) =>
-                    this.execute("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id]).then(() =>
-                        this.execute("DELETE FROM modules WHERE id = ?", [existing[moduleId].id])
+                    this.execute("DELETE FROM sensors WHERE module_id = ?", [stationExisting[moduleId].id]).then(() =>
+                        this.execute("DELETE FROM modules WHERE id = ?", [stationExisting[moduleId].id])
                     )
                 )
             ),
             Promise.all(
                 keeping.map((moduleId) => {
                     const status = incoming[moduleId].status ? JSON.stringify(incoming[moduleId].status) : "";
-                    const values = [incoming[moduleId].flags || 0, status, existing[moduleId].id];
+                    const values = [incoming[moduleId].flags || 0, status, allExisting[moduleId].id];
                     return this.execute("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
-                        const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
+                        const moduleSensorRows = sensorRows.filter((r) => r.moduleId == allExisting[moduleId].id);
                         return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
                     });
                 })
@@ -453,13 +468,12 @@ export default class DatabaseInterface {
 
     private async insertStation(newStation: Station): Promise<void> {
         await this.execute(
-            `
-					INSERT INTO stations (device_id,
-						generation_id, name, archived, url, status,
-						deploy_start_time, battery_level, consumed_memory, total_memory,
-						consumed_memory_percent, schedules, status_json,
-						longitude, latitude, serialized_status, updated, last_seen)
-					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (
+				device_id, generation_id, name, archived, url, status,
+				deploy_start_time, battery_level, consumed_memory, total_memory,
+				consumed_memory_percent, schedules, status_json,
+				longitude, latitude, serialized_status, updated, last_seen)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.generationId,
@@ -503,9 +517,7 @@ export default class DatabaseInterface {
                     // Query for all modules, they have globally
                     // unique identifiers and can move around. We may need to eventually optimize.
                     this.query<ModuleTableRow>("SELECT * FROM modules"),
-                    this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [
-                        stationId,
-                    ]),
+                    this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules)"),
                     this.query<StreamTableRow>("SELECT * FROM streams WHERE station_id = ? AND generation_id = ?", [
                         stationId,
                         station.generationId,

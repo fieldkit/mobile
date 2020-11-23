@@ -10,6 +10,7 @@ describe("Stations", () => {
     let mockStation;
     let store;
     let clock;
+    let db;
 
     beforeEach(async () => {
         clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
@@ -18,6 +19,7 @@ describe("Stations", () => {
         services = new ServicesImpl();
         await services.CreateDb().initialize();
         store = services.Store();
+        db = services.Database();
         mockStation = new MockStationReplies(services);
 
         /*
@@ -52,18 +54,47 @@ describe("Stations", () => {
 
     describe("module moves stations", () => {
         it("loading station with another station's modules", async () => {
-            expect.assertions(2);
+            expect.assertions(4);
 
             const fake1 = mockStation.newFakeStation();
             await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
             expect(Object.keys(store.state.firmware.stations).length).toBe(1);
 
+            // console.log("station-modules", fake1.moduleIds);
+
+            const modulesBefore = await db.getModuleAll();
+            expect(modulesBefore.length).toBe(4);
+
             const fake2 = mockStation.newFakeStation();
-            console.log(fake1.moduleIds);
-            console.log(fake2.moduleIds);
-            fake2.moduleIds = fake1.moduleIds;
+            fake2.moduleIds = [fake1.moduleIds[0]];
+
+            // console.log("previous", fake1.moduleIds);
+            // console.log("incoming", fake2.moduleIds);
+
             await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake2), "http://10.0.0.1/fk/v1"));
             expect(Object.keys(store.state.firmware.stations).length).toBe(2);
+
+            const modulesAfter = await db.getModuleAll();
+            expect(modulesAfter.length).toBe(4);
+        });
+
+        it("loading remove modules that disappear", async () => {
+            expect.assertions(4);
+
+            const fake1 = mockStation.newFakeStation();
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
+            expect(Object.keys(store.state.firmware.stations).length).toBe(1);
+
+            const modulesBefore = await db.getModuleAll();
+            expect(modulesBefore.length).toBe(4);
+
+            fake1.moduleIds = [fake1.moduleIds[0], fake1.moduleIds[1], fake1.moduleIds[2]];
+
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
+            expect(Object.keys(store.state.firmware.stations).length).toBe(1);
+
+            const modulesAfter = await db.getModuleAll();
+            expect(modulesAfter.length).toBe(3);
         });
     });
 });

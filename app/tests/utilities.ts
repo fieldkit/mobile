@@ -28,6 +28,8 @@ interface FakeStation {
         url: string;
         deviceId: string;
     };
+
+    makeModules(): any[];
 }
 
 interface FakeStreams {
@@ -58,6 +60,27 @@ class MyFakeStation implements FakeStation {
 
     public factoryReset(): FakeStation {
         return new MyFakeStation(this.deviceId, this.moduleIds);
+    }
+
+    public makeModules(): any[] {
+        return this.moduleIds.map((moduleId) => {
+            return {
+                name: "modules.water.ph",
+                path: "",
+                flags: 0,
+                header: {
+                    manufacturer: 0,
+                    kind: 0,
+                    version: 0,
+                },
+                position: 0,
+                id: Buffer.from(moduleId, "hex"),
+                sensors: [
+                    { number: 0, name: "sensor_1", unitOfMeasure: "m" },
+                    { number: 1, name: "sensor_2", unitOfMeasure: "m" },
+                ],
+            };
+        });
     }
 }
 
@@ -238,24 +261,7 @@ export class MockStationReplies {
                 },
                 networks: [],
             },
-            modules: [
-                {
-                    name: "modules.water.ph",
-                    path: "",
-                    flags: 0,
-                    header: {
-                        manufacturer: 0,
-                        kind: 0,
-                        version: 0,
-                    },
-                    position: 0,
-                    id: Buffer.from(station.moduleIds[0], "hex"),
-                    sensors: [
-                        { number: 0, name: "sensor_1", unitOfMeasure: "m" },
-                        { number: 1, name: "sensor_2", unitOfMeasure: "m" },
-                    ],
-                },
-            ],
+            modules: station.makeModules(),
             liveReadings: [],
         };
     }
@@ -330,24 +336,9 @@ export class MockStationReplies {
             liveReadings: [
                 {
                     time: this.now,
-                    modules: [
-                        {
-                            module: {
-                                name: "modules.water.ph",
-                                path: "",
-                                flags: 0,
-                                header: {
-                                    manufacturer: 0,
-                                    kind: 0,
-                                    version: 0,
-                                },
-                                position: 0,
-                                id: Buffer.from(station.moduleIds[0], "hex"),
-                                sensors: [
-                                    { number: 0, name: "sensor_1", unitOfMeasure: "m" },
-                                    { number: 1, name: "sensor_2", unitOfMeasure: "m" },
-                                ],
-                            },
+                    modules: station.makeModules().map((m) => {
+                        return {
+                            module: m,
                             readings: [
                                 {
                                     sensor: { number: 0, name: "sensor_1", unitOfMeasure: "m" },
@@ -358,8 +349,8 @@ export class MockStationReplies {
                                     value: 200 * this.now,
                                 },
                             ],
-                        },
-                    ],
+                        };
+                    }),
                 },
             ],
         };

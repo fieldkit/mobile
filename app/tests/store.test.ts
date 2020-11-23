@@ -210,7 +210,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.FOUND, info);
 
             expect(mockStation.mock.calls.length).toBe(1);
-            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(4);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
             expect(store.state.stations.all[0].streams.length).toBe(2);
         });
@@ -275,7 +275,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.QUERY_STATION, info);
 
             expect(store.state.stations.all.length).toBe(1);
-            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(4);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
         });
 
@@ -291,7 +291,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.QUERY_STATION, info);
 
             expect(store.state.stations.all.length).toBe(1);
-            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(4);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
             expect(store.state.stations.all[0].modules[0].sensors[0].reading).toBe(100);
             expect(store.state.stations.all[0].modules[0].sensors[1].reading).toBe(200);
@@ -299,7 +299,9 @@ describe("Store", () => {
 
         it("loading readings reply twice updates readings", async () => {
             const station = mockStation.newFakeStation();
+            console.log("now", mockStation.now);
             mockStation.queueReadingsReply(station);
+            console.log("now", mockStation.now);
             mockStation.queueReadingsReply(station);
 
             expect.assertions(5);
@@ -311,7 +313,7 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.QUERY_STATION, info);
 
             expect(store.state.stations.all.length).toBe(1);
-            expect(store.state.stations.all[0].modules.length).toBe(1);
+            expect(store.state.stations.all[0].modules.length).toBe(4);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
             expect(store.state.stations.all[0].modules[0].sensors[0].reading).toBe(100 * 2);
             expect(store.state.stations.all[0].modules[0].sensors[1].reading).toBe(200 * 2);
