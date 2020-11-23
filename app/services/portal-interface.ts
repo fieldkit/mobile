@@ -158,10 +158,10 @@ export default class PortalInterface {
             authenticated: true,
             url: "/user",
         }).then((user: { name: string; id: number; email: string }) => {
+            console.log(`portal-interface:whoAmI: ${JSON.stringify(user)}`);
+            if (!user || !user.id) throw new Error(`no authenticated user`);
             const token = this.getCurrentToken();
-            if (!token) {
-                throw new Error(`no token after authentication`);
-            }
+            if (!token) throw new Error(`no token after authentication`);
             return {
                 name: user.name,
                 portalId: user.id,

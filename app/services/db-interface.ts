@@ -768,6 +768,9 @@ export default class DatabaseInterface {
     }
 
     public async addOrUpdateAccounts(account: UserAccount): Promise<void> {
+        if (account.email == null) {
+            return Promise.reject(new Error(`error saving account, email is required`));
+        }
         return await this.query(`SELECT id FROM accounts WHERE email = ?`, [account.email])
             .then((maybeId: { id: number }[]) => {
                 if (maybeId.length == 0) {
