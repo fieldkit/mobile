@@ -237,15 +237,13 @@ export default class DatabaseInterface {
     }
 
     private async insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
-        await this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) =>
-            this.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
-                modulePrimaryKey,
-                sensor.name,
-                sensor.unitOfMeasure,
-                0,
-                sensor.reading,
-            ]).catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)))
-        );
+        await this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) => {
+            const values = [modulePrimaryKey, sensor.name, sensor.position, sensor.unitOfMeasure, 0, sensor.reading];
+            return this.execute(
+                "INSERT INTO sensors (module_id, name, position, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?, ?)",
+                values
+            ).catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)));
+        });
     }
 
     private async insertModule(stationId: number, module: Module): Promise<void> {
@@ -302,14 +300,16 @@ export default class DatabaseInterface {
                         return {
                             id: existing[name].id,
                             reading: incoming[name].reading,
+                            position: incoming[name].position,
                             trend: getTrend(name),
                         };
                     })
                     .filter((update) => update.reading != null)
                     .map((update) =>
-                        this.execute("UPDATE sensors SET current_reading = ?, trend = ? WHERE id = ?", [
+                        this.execute("UPDATE sensors SET current_reading = ?, trend = ?, position = ? WHERE id = ?", [
                             update.reading,
                             update.trend,
+                            update.position,
                             update.id,
                         ])
                     )
@@ -516,8 +516,8 @@ export default class DatabaseInterface {
                 return Promise.all([
                     // Query for all modules, they have globally
                     // unique identifiers and can move around. We may need to eventually optimize.
-                    this.query<ModuleTableRow>("SELECT * FROM modules"),
-                    this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules)"),
+                    this.query<ModuleTableRow>("SELECT * FROM modules ORDER BY position"),
+                    this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules) ORDER BY position"),
                     this.query<StreamTableRow>("SELECT * FROM streams WHERE station_id = ? AND generation_id = ?", [
                         stationId,
                         station.generationId,

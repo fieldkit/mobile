@@ -11,6 +11,7 @@ export class Sensor {
     constructor(
         public readonly id: number | null,
         public readonly name: string,
+        public readonly position: number,
         public readonly unitOfMeasure: string,
         public readonly reading: number | null,
         public readonly trend: number | null

@@ -45,6 +45,7 @@ export interface ModuleCapabilities {
 export interface SensorCapabilities {
     name: string;
     unitOfMeasure: string;
+    number: number;
 }
 
 export interface ReplyScheduleInterval {

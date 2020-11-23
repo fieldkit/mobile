@@ -345,7 +345,7 @@ export class MockStationReplies {
                                     value: 100 * this.now,
                                 },
                                 {
-                                    sensor: { number: 0, name: "sensor_2", unitOfMeasure: "m" },
+                                    sensor: { number: 1, name: "sensor_2", unitOfMeasure: "m" },
                                     value: 200 * this.now,
                                 },
                             ],
