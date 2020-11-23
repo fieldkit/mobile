@@ -1,5 +1,6 @@
 import { NetworkInfo, HttpStatusReply } from "@/store/http-types";
 import { ServiceInfo, PortalEnv, Schedules, Schedule, StationSyncStatus, PhoneNetwork } from "./types";
+import { IBackOffOptions } from "exponential-backoff";
 
 export enum ActionTypes {
     INITIALIZE = "INITIALIZE",
@@ -98,12 +99,7 @@ export enum ActionTypes {
 export class TryStationAction {
     type = ActionTypes.TRY_STATION;
 
-    constructor(
-        public readonly info: ServiceInfo,
-        public readonly maxDelay = 30000,
-        public readonly numOfAttempts = 6,
-        public readonly startingDelay = 250
-    ) {}
+    constructor(public readonly info: ServiceInfo, public readonly backOffOptions: Partial<IBackOffOptions> | undefined = undefined) {}
 }
 
 export class TryStationOnceAction {

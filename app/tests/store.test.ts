@@ -29,18 +29,6 @@ describe("Store", () => {
         mockStation = new MockStationReplies(services);
         await services.CreateDb().initialize();
         store = services.Store();
-
-        store.hotUpdate({
-            modules: {
-                nearby: {
-                    actions: _.extend(nearby(new ServiceRef(() => services)).actions, {
-                        [ActionTypes.TRY_STATION]: () => {
-                            return Promise.resolve();
-                        },
-                    }),
-                },
-            },
-        });
     });
 
     afterEach(() => {});
@@ -52,7 +40,49 @@ describe("Store", () => {
         });
     });
 
+    describe("nearby stations, with TRY_STATION", () => {
+        it("should retry quickly if initial query fails", async () => {
+            expect.assertions(5);
+
+            const station = mockStation.newFakeStation();
+            mockStation.queueNoReply();
+            mockStation.queueStatusReply(station);
+
+            const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
+
+            expect(_.size(store.state.nearby.stations)).toEqual(0);
+            expect(store.getters.availableStations.length).toEqual(0);
+            await store.dispatch(ActionTypes.FOUND, info);
+
+            // clock.tick(400);
+            // We queue both above and actually wait for the delay
+            // here. This could be a better test.
+            expect(mockStation.mock.calls.length).toBe(2);
+
+            expect(_.size(store.state.nearby.stations)).toEqual(1);
+            expect(
+                _(store.getters.availableStations)
+                    .filter((s) => s.connected)
+                    .size()
+            ).toEqual(1);
+        });
+    });
+
     describe("nearby stations", () => {
+        beforeEach(() => {
+            store.hotUpdate({
+                modules: {
+                    nearby: {
+                        actions: _.extend(nearby(new ServiceRef(() => services)).actions, {
+                            [ActionTypes.TRY_STATION]: () => {
+                                return Promise.resolve();
+                            },
+                        }),
+                    },
+                },
+            });
+        });
+
         describe("try once", () => {
             it("should ignore replies from stations with unexpected device ids", async () => {
                 expect.assertions(3);
@@ -290,6 +320,8 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.LOAD);
             await store.dispatch(ActionTypes.QUERY_STATION, info);
 
+            console.log(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading));
+
             expect(store.state.stations.all.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(4);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
@@ -299,9 +331,7 @@ describe("Store", () => {
 
         it("loading readings reply twice updates readings", async () => {
             const station = mockStation.newFakeStation();
-            console.log("now", mockStation.now);
             mockStation.queueReadingsReply(station);
-            console.log("now", mockStation.now);
             mockStation.queueReadingsReply(station);
 
             expect.assertions(5);
@@ -311,6 +341,8 @@ describe("Store", () => {
             await store.dispatch(ActionTypes.LOAD);
             await store.dispatch(ActionTypes.QUERY_STATION, info);
             await store.dispatch(ActionTypes.QUERY_STATION, info);
+
+            console.log(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading));
 
             expect(store.state.stations.all.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(4);

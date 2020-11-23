@@ -102,15 +102,28 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.FOUND]: async ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
             const wrapper = new NearbyWrapper(state);
-            if (wrapper.isNewDiscovery(info.deviceId)) {
-                await dispatch(new TryStationAction(info, 1000, 3, 250));
-                return;
-            }
+            const newDiscovery = wrapper.isNewDiscovery(info.deviceId);
             if (wrapper.queriedRecentlyByDeviceId(info.deviceId)) {
                 return;
             }
             commit(MutationTypes.FIND, info);
-            await dispatch(ActionTypes.QUERY_STATION, info);
+            try {
+                await dispatch(ActionTypes.QUERY_STATION, info);
+            } catch (error) {
+                console.log(`found query error: ${JSON.stringify(error)} ${JSON.stringify(newDiscovery)}`);
+                if (newDiscovery) {
+                    await dispatch(
+                        new TryStationAction(info, {
+                            numOfAttempts: 1,
+                            startingDelay: 250,
+                            delayFirstAttempt: true,
+                        })
+                    );
+                    console.log(`done with second query`);
+                } else {
+                    throw error;
+                }
+            }
             return;
         },
         [ActionTypes.MAYBE_LOST]: async ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
@@ -130,11 +143,16 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
             if (!payload) throw new Error("payload required");
             if (!payload.info) throw new Error("payload.info required");
-            await backOff(() => dispatch(new TryStationOnceAction(payload.info)), {
-                maxDelay: payload.maxDelay,
-                numOfAttempts: payload.numOfAttempts,
-                startingDelay: payload.startingDelay,
-            });
+            console.log(`try-station start: ${JSON.stringify(payload.backOffOptions)}`);
+            await backOff(
+                () => dispatch(new TryStationOnceAction(payload.info)),
+                payload.backOffOptions || {
+                    maxDelay: 30000,
+                    numOfAttempts: 4,
+                    startingDelay: 250,
+                }
+            );
+            console.log("try-station done");
         },
         [ActionTypes.TRY_STATION_ONCE]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationOnceAction) => {
             if (!payload) throw new Error("payload required");
