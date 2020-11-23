@@ -38,7 +38,8 @@ export default Vue.extend({
     },
     computed: {
         numberOfNearbyStations(): number {
-            return this.$s.getters.availableStations.filter((s) => s.connected).length;
+            const legacyStations = this.$s.getters.legacyStations;
+            return Object.values(legacyStations).filter((ls) => ls.connected).length;
         },
     },
     watch: {
