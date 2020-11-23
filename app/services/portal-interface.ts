@@ -359,6 +359,7 @@ export default class PortalInterface {
                             }
                             console.log(req.url, "portal error", error.response.status, error.response.data);
                         }
+                        console.log(req.url, "portal error: ${JSON.stringify(error)}");
                         throw error;
                     });
             });
@@ -368,11 +369,12 @@ export default class PortalInterface {
     private tryRefreshToken<Q, V>(original: QueryFields<Q>): Promise<V> {
         const token = this.parseToken(this.appSettings.getString("accessToken"));
         if (token == null) {
+            console.log(`try-refresh: no token`);
             return Promise.reject(new AuthenticationError("no token"));
         }
 
         if (original.refreshed === true) {
-            console.log("refresh failed, clear token");
+            console.log("try-refresh: refresh failed, clear token");
             return this.logout().then(() => Promise.reject(new AuthenticationError("refresh token failed")));
         }
 
@@ -380,7 +382,7 @@ export default class PortalInterface {
             refreshToken: token.refresh_token,
         };
 
-        console.log("refreshing token");
+        console.log(`refreshing token`);
 
         return this.getUri().then((baseUri) =>
             axios({
