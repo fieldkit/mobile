@@ -36,6 +36,7 @@ export class Module {
     ) {
         this.internal = flags > 0;
         this.image = this.getImage(name);
+        this.sensors = _.sortBy(this.sensors, (s) => s.position);
     }
 
     private getImage(name: string): string {
