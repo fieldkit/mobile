@@ -15,8 +15,8 @@ export interface Notification {
     kind?: string;
     created?: number;
     silenced?: boolean;
-    dismissed_at?: number;
-    satisfied_at?: number;
+    dismissedAt?: number;
+    satisfiedAt?: number;
     project?: string;
     user?: string;
     station?: string;
@@ -67,7 +67,7 @@ const actions = (services: ServiceRef) => {
                 ...state.notifications.find((item) => item.key === payload.key),
                 key: payload.key,
                 silenced: payload.silenced,
-                dismissed_at: Number(new Date()),
+                dismissedAt: Number(new Date()),
             };
 
             return services
@@ -80,7 +80,7 @@ const actions = (services: ServiceRef) => {
             const notification: Notification = {
                 ...state.notifications.find((item) => item.key === payload.key),
                 key: payload.key,
-                dismissed_at: Number(new Date()),
+                dismissedAt: Number(new Date()),
             };
 
             return services
