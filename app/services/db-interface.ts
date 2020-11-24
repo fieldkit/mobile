@@ -893,8 +893,13 @@ export default class DatabaseInterface {
     }
 
     public async cleanup(): Promise<void> {
-        await this.execute("DELETE FROM modules WHERE module_id IS NULL");
-        await this.purgeOldLogs();
+        try {
+            await this.execute("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE module_id IS NULL)");
+            await this.execute("DELETE FROM modules WHERE module_id IS NULL");
+            await this.purgeOldLogs();
+        } catch (error) {
+            console.log(`cleanup error`, error);
+        }
     }
 
     public async purgeOldLogs(): Promise<void> {
