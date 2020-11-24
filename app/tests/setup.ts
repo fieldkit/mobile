@@ -58,6 +58,8 @@ function simpleFormatter(type: LogType, message: LogMessage): string {
         .join("\n");
 }
 
-if (false) {
+if (global.console.constructor.name == "NullConsole") {
+    // keep
+} else {
     global.console = new CustomConsole(process.stdout, process.stderr, simpleFormatter);
 }
