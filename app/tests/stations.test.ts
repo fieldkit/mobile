@@ -21,20 +21,6 @@ describe("Stations", () => {
         store = services.Store();
         db = services.Database();
         mockStation = new MockStationReplies(services);
-
-        /*
-        store.hotUpdate({
-            modules: {
-                nearby: {
-                    actions: _.extend(nearby(new ServiceRef(() => services)).actions, {
-                        [ActionTypes.TRY_STATION]: () => {
-                            return Promise.resolve();
-                        },
-                    }),
-                },
-            },
-        });
-		*/
     });
 
     afterEach(() => {});
@@ -54,13 +40,13 @@ describe("Stations", () => {
 
     describe("module moves stations", () => {
         it("loading station with another station's modules", async () => {
-            expect.assertions(4);
+            expect.assertions(5);
 
             const fake1 = mockStation.newFakeStation();
             await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
-            expect(Object.keys(store.state.firmware.stations).length).toBe(1);
-
-            // console.log("station-modules", fake1.moduleIds);
+            const ids = Object.keys(store.state.firmware.stations);
+            expect(ids.length).toBe(1);
+            const firstId = ids[0];
 
             const modulesBefore = await db.getModuleAll();
             expect(modulesBefore.length).toBe(4);
@@ -68,14 +54,13 @@ describe("Stations", () => {
             const fake2 = mockStation.newFakeStation();
             fake2.moduleIds = [fake1.moduleIds[0]];
 
-            // console.log("previous", fake1.moduleIds);
-            // console.log("incoming", fake2.moduleIds);
-
             await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake2), "http://10.0.0.1/fk/v1"));
             expect(Object.keys(store.state.firmware.stations).length).toBe(2);
 
             const modulesAfter = await db.getModuleAll();
             expect(modulesAfter.length).toBe(4);
+
+            expect(modulesAfter.filter((m) => m.stationId != firstId).length).toBe(1);
         });
 
         it("loading remove modules that disappear", async () => {

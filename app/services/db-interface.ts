@@ -361,8 +361,8 @@ export default class DatabaseInterface {
             Promise.all(
                 keeping.map((moduleId) => {
                     const status = incoming[moduleId].status ? JSON.stringify(incoming[moduleId].status) : "";
-                    const values = [incoming[moduleId].flags || 0, status, allExisting[moduleId].id];
-                    return this.execute("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
+                    const values = [incoming[moduleId].flags || 0, status, stationId, allExisting[moduleId].id];
+                    return this.execute("UPDATE modules SET flags = ?, status = ?, station_id = ? WHERE id = ?", values).then(() => {
                         const moduleSensorRows = sensorRows.filter((r) => r.moduleId == allExisting[moduleId].id);
                         return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
                     });

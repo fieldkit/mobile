@@ -313,7 +313,7 @@ describe("Store", () => {
             const station = mockStation.newFakeStation();
             mockStation.queueReadingsReply(station);
 
-            expect.assertions(5);
+            expect.assertions(6);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
@@ -325,6 +325,7 @@ describe("Store", () => {
             expect(store.state.stations.all.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(4);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
+            expect(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading)).toEqual([100 * 1, 200 * 1]);
             expect(store.state.stations.all[0].modules[0].sensors[0].reading).toBe(100);
             expect(store.state.stations.all[0].modules[0].sensors[1].reading).toBe(200);
         });
@@ -334,7 +335,7 @@ describe("Store", () => {
             mockStation.queueReadingsReply(station);
             mockStation.queueReadingsReply(station);
 
-            expect.assertions(5);
+            expect.assertions(6);
 
             const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
 
@@ -347,6 +348,7 @@ describe("Store", () => {
             expect(store.state.stations.all.length).toBe(1);
             expect(store.state.stations.all[0].modules.length).toBe(4);
             expect(store.state.stations.all[0].modules[0].sensors.length).toBe(2);
+            expect(store.state.stations.all[0].modules[0].sensors.map((s) => s.reading)).toEqual([100 * 2, 200 * 2]);
             expect(store.state.stations.all[0].modules[0].sensors[0].reading).toBe(100 * 2);
             expect(store.state.stations.all[0].modules[0].sensors[1].reading).toBe(200 * 2);
         });
