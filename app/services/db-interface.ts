@@ -892,6 +892,11 @@ export default class DatabaseInterface {
         }
     }
 
+    public async cleanup(): Promise<void> {
+        await this.execute("DELETE FROM modules WHERE module_id IS NULL");
+        await this.purgeOldLogs();
+    }
+
     public async purgeOldLogs(): Promise<void> {
         const now = new Date();
         const epoch = now.getTime() - 1 * 60 * 1000;
