@@ -145,6 +145,8 @@ export default Vue.extend({
                 }
             }
         );
+
+        this.generateNotificationsFromPortalErrors();
     },
     beforeDestroy() {
         this.unwatch();
@@ -211,7 +213,7 @@ export default Vue.extend({
                 key: `${userId}/${stationId}/station-deployed`,
                 kind: "station-deployed",
                 created: new Date(),
-                silenced: "false",
+                silenced: false,
                 project: {},
                 user: this.$s.state.portal.currentUser,
                 station: this.currentStation,
@@ -241,6 +243,33 @@ export default Vue.extend({
                     stationId: this.stationId,
                 },
             });
+        },
+        generateNotificationsFromPortalErrors() {
+            const portalError = this.currentStation?.portalHttpError;
+
+            if (this.$s.state.portal.currentUser && portalError?.name) {
+                const userId = this.$s.state.portal.currentUser.portalId;
+                const stationId = this.currentStation.id;
+
+                this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                        key: `${userId}/${stationId}/${portalError.name}`,
+                        kind: portalError.name,
+                        created: new Date(),
+                        silenced: false,
+                        project: {},
+                        user: this.$s.state.portal.currentUser,
+                        station: this.currentStation,
+                        actions: {},
+                    })
+                    .then(() => {
+                        return true;
+                    })
+                    .catch(() => {
+                        return false;
+                    });
+            }
+
+            return false;
         },
     },
 });
