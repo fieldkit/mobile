@@ -214,7 +214,7 @@ function toHexString(value: Uint8Array): string {
     return Buffer.from(value).toString("hex");
 }
 
-function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatusReply {
+function translateModule(m: fk_app.IModuleCapabilities | null, moduleStatuses: ModuleStatuses): ModuleStatusReply {
     if (!m) throw new Error(`malformed reply: null module`);
     if (!m.name) throw new Error(`malformed reply: no module name`);
     if (!m.sensors) throw new Error(`malformed reply: no module name`);
@@ -230,9 +230,16 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
         }
         return null;
     };
+
+    const moduleId = toHexString(m.id);
+    const status = maybeDecodeStatus(m) || moduleStatuses[moduleId];
+    if (status) {
+        moduleStatuses[moduleId] = status;
+    }
+
     return {
-        moduleId: toHexString(m.id),
-        status: maybeDecodeStatus(m),
+        moduleId: moduleId,
+        status: status,
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
         name: m.name,
         position: m.position!,
@@ -240,9 +247,11 @@ function translateModule(m: fk_app.IModuleCapabilities | undefined): ModuleStatu
     };
 }
 
-function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings): LiveModuleReadings {
+type ModuleStatuses = { [index: string]: ModuleStatus };
+
+function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings, moduleStatuses: ModuleStatuses): LiveModuleReadings {
     return {
-        module: translateModule(lmr.module),
+        module: translateModule(lmr.module || null, moduleStatuses),
         readings: lmr.readings!.map((lsr) => {
             return {
                 sensor: new fk_app.SensorCapabilities(lsr.sensor),
@@ -252,10 +261,10 @@ function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings): LiveModul
     };
 }
 
-function translateLiveReadings(lr: fk_app.ILiveReadings): LiveReadings {
+function translateLiveReadings(lr: fk_app.ILiveReadings, moduleStatuses: ModuleStatuses): LiveReadings {
     return {
         time: translateLong(lr.time),
-        modules: lr.modules!.map((lmr) => translateLiveModuleReadings(lmr)),
+        modules: lr.modules!.map((lmr) => translateLiveModuleReadings(lmr, moduleStatuses)),
     };
 }
 
@@ -339,7 +348,9 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
         };
     }
 
-    return {
+    const moduleStatuses: { [index: string]: ModuleStatus } = {};
+
+    const prepared = {
         type: reply.type,
         status: {
             identity: {
@@ -399,8 +410,8 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             readings: translateSchedule(reply.schedules.readings),
             network: translateSchedule(reply.schedules.network),
         },
-        modules: reply.modules.map((m: fk_app.IModuleCapabilities) => translateModule(m)),
-        liveReadings: reply.liveReadings.map((lr: fk_app.ILiveReadings) => translateLiveReadings(lr)),
+        modules: reply.modules.map((m: fk_app.IModuleCapabilities) => translateModule(m, moduleStatuses)),
+        liveReadings: reply.liveReadings.map((lr: fk_app.ILiveReadings) => translateLiveReadings(lr, moduleStatuses)),
         streams: reply.streams.map(
             (s: fk_app.IDataStream): ReplyStream => {
                 return {
@@ -426,6 +437,10 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
         errors: reply.errors,
         serialized: serialized,
     };
+
+    // console.log(`prepare-reply`, prepared);
+
+    return prepared;
 }
 
 function numberOfOnes(n: number): number {
