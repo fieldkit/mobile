@@ -109,6 +109,11 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 return false;
             }
 
+            if (mutation.type == MutationTypes.CALIBRATION_REFRESH) {
+                console.log("mutation:", mutation.type, JSON.stringify(stateAfter.cal));
+                return false;
+            }
+
             if (mutation.payload) {
                 console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
             } else {
@@ -128,12 +133,10 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 // eslint-disable-next-line
                 const payload: any = action.payload as any;
                 // eslint-disable-next-line
-                const device = payload.statusReply?.status?.identity?.device;
-                if (!device) {
-                    console.log("action:", action.type, device);
-                } else {
-                    console.log("action:", action.type);
-                }
+                const device = payload.statusReply?.status?.identity?.deviceId;
+                // eslint-disable-next-line
+                const name = payload.statusReply?.status?.identity?.name;
+                console.log("action:", action.type, device, name);
                 return false;
             }
             if (action.type == ActionTypes.STATIONS_LOADED) {

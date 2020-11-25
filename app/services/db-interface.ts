@@ -332,7 +332,7 @@ export default class DatabaseInterface {
         const removed = _.difference(_.keys(stationExisting), _.keys(incoming));
         const keeping = _.intersection(_.keys(allExisting), _.keys(incoming));
 
-        console.log("modules", station.modules);
+        // console.log("modules", station.modules);
 
         log.info(
             `synchronize modules`,
