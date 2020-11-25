@@ -37,6 +37,7 @@
 
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
                 <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
+                <Button class="btn btn-primary btn-padded" text="Generate notifications" @tap="generateNotifications" />
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -329,6 +330,43 @@ export default Vue.extend({
             crashlytics.sendCrashLog(new globalAny.java.lang.Exception("hello, fake crash"));
             analytics.logEvent({
                 key: "app_crash_manual",
+            });
+        },
+        generateNotifications(): void {
+            console.log("generate notifications");
+            const store = Services.Store();
+
+            store.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                key: "2/1/station-deployed",
+                kind: "station-deployed",
+                created: new Date(),
+                silenced: false,
+                project: {},
+                user: store.state.portal?.currentUser,
+                station: {},
+                actions: {},
+            });
+
+            store.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                key: "2/1/authentication",
+                kind: "authentication",
+                created: new Date(),
+                silenced: false,
+                project: {},
+                user: store.state.portal?.currentUser,
+                station: {},
+                actions: {},
+            });
+
+            store.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                key: "2/1/unknown",
+                kind: "unknown",
+                created: new Date(),
+                silenced: false,
+                project: {},
+                user: store.state.portal?.currentUser,
+                station: {},
+                actions: {},
             });
         },
     },

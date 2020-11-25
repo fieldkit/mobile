@@ -108,9 +108,9 @@ export interface NotificationsTableRow {
     key: string;
     kind: string;
     created: number;
-    silenced: boolean;
-    dismissed_at: number; // TODO Fix naming
-    satisfied_at: number; // TODO Fix naming
+    silenced: string;
+    dismissedAt: number;
+    satisfiedAt: number;
     project: string;
     user: string;
     station: string;
@@ -123,8 +123,8 @@ export interface QueriedNotificationsTableRow {
     kind: string;
     created: number;
     silenced: boolean;
-    dismissed_at: number; // TODO Fix naming
-    satisfied_at: number; // TODO Fix naming
+    dismissedAt: number;
+    satisfiedAt: number;
     project: Record<string, unknown>;
     user: Record<string, unknown>;
     station: Record<string, unknown>;
