@@ -324,7 +324,7 @@ export default class QueryStation {
             }
             return new Promise((resolve) => {
                 console.log(options.url, "queuing station query");
-                this.queued[stationKey] = resolve;
+                this.queued[stationKey] = () => resolve(undefined);
             }).then(() => {
                 return this.trackActivity(options, factory);
             });

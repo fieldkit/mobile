@@ -11,6 +11,7 @@ export class Sensor {
     constructor(
         public readonly id: number | null,
         public readonly name: string,
+        public readonly position: number,
         public readonly unitOfMeasure: string,
         public readonly reading: number | null,
         public readonly trend: number | null
@@ -35,6 +36,7 @@ export class Module {
     ) {
         this.internal = flags > 0;
         this.image = this.getImage(name);
+        this.sensors = _.sortBy(this.sensors, (s) => s.position);
     }
 
     private getImage(name: string): string {

@@ -112,7 +112,7 @@ function initializeApplication(services: Services): Promise<any> {
                         .CreateDb()
                         .initialize(null, false, false)
                         .then(() => services.Database().checkSettings())
-                        .then(() => services.Database().purgeOldLogs())
+                        .then(() => services.Database().cleanup())
                         .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
                         .then(() => {
                             console.log("services:ready");

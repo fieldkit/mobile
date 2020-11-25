@@ -53,6 +53,7 @@ export interface StreamTableRow {
 
 export interface SensorTableRow {
     id: number;
+    position: number;
     name: string;
     unit: string;
     currentReading: number | null;

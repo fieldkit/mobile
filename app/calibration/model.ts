@@ -99,12 +99,12 @@ export class CalibrationStrategies {
 export type ModuleStatusByModuleId = { [index: string]: ModuleStatus };
 
 export class ModuleCalibration {
-    name: string;
-    position: number;
-    image: string;
-    canCalibrate = false;
-    isCalibrated = false;
-    needsCalibration = false;
+    public readonly name: string;
+    public readonly position: number;
+    public readonly image: string;
+    public readonly canCalibrate: boolean;
+    public readonly isCalibrated: boolean;
+    public readonly needsCalibration: boolean;
 
     constructor(module: Module, status: ModuleStatus | null, haveStrategies: boolean) {
         this.name = _T(convertOldFirmwareResponse(module) + ".name");
@@ -118,16 +118,16 @@ export class ModuleCalibration {
 }
 
 export class StationCalibration {
-    id: number;
-    name: string;
-    connected: boolean;
-    modules: ModuleCalibration[] = [];
+    public readonly id: number;
+    public readonly name: string;
+    public readonly connected: boolean;
+    public readonly modules: ModuleCalibration[] = [];
 
     constructor(station: LegacyStation, statuses: ModuleStatusByModuleId, calibrationStrategies: CalibrationStrategies) {
         if (!station.id) throw new Error("missing station id");
         this.id = station.id;
         this.name = station.name;
-        this.connected = station.connected;
+        this.connected = station.connected || false;
         this.modules = station.modules
             .filter((m) => !m.internal)
             .map((m) => {

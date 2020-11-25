@@ -79,6 +79,10 @@ const actions = (services: ServiceRef) => {
                 .portal()
                 .whoAmI()
                 .then((self) => {
+                    if (self.email == null) {
+                        console.log("authenticated", self, "refusing to save");
+                        return;
+                    }
                     console.log("authenticated", self);
                     return services
                         .db()

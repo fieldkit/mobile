@@ -10,6 +10,7 @@ describe("Stations", () => {
     let mockStation;
     let store;
     let clock;
+    let db;
 
     beforeEach(async () => {
         clock = FakeTimers.install({ shouldAdvanceTime: true, advanceTimeDelta: 40 });
@@ -18,21 +19,8 @@ describe("Stations", () => {
         services = new ServicesImpl();
         await services.CreateDb().initialize();
         store = services.Store();
+        db = services.Database();
         mockStation = new MockStationReplies(services);
-
-        /*
-        store.hotUpdate({
-            modules: {
-                nearby: {
-                    actions: _.extend(nearby(new ServiceRef(() => services)).actions, {
-                        [ActionTypes.TRY_STATION]: () => {
-                            return Promise.resolve();
-                        },
-                    }),
-                },
-            },
-        });
-		*/
     });
 
     afterEach(() => {});
@@ -52,18 +40,46 @@ describe("Stations", () => {
 
     describe("module moves stations", () => {
         it("loading station with another station's modules", async () => {
-            expect.assertions(2);
+            expect.assertions(5);
+
+            const fake1 = mockStation.newFakeStation();
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
+            const ids = Object.keys(store.state.firmware.stations);
+            expect(ids.length).toBe(1);
+            const firstId = ids[0];
+
+            const modulesBefore = await db.getModuleAll();
+            expect(modulesBefore.length).toBe(4);
+
+            const fake2 = mockStation.newFakeStation();
+            fake2.moduleIds = [fake1.moduleIds[0]];
+
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake2), "http://10.0.0.1/fk/v1"));
+            expect(Object.keys(store.state.firmware.stations).length).toBe(2);
+
+            const modulesAfter = await db.getModuleAll();
+            expect(modulesAfter.length).toBe(4);
+
+            expect(modulesAfter.filter((m) => m.stationId != firstId).length).toBe(1);
+        });
+
+        it("loading remove modules that disappear", async () => {
+            expect.assertions(4);
 
             const fake1 = mockStation.newFakeStation();
             await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
             expect(Object.keys(store.state.firmware.stations).length).toBe(1);
 
-            const fake2 = mockStation.newFakeStation();
-            console.log(fake1.moduleIds);
-            console.log(fake2.moduleIds);
-            fake2.moduleIds = fake1.moduleIds;
-            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake2), "http://10.0.0.1/fk/v1"));
-            expect(Object.keys(store.state.firmware.stations).length).toBe(2);
+            const modulesBefore = await db.getModuleAll();
+            expect(modulesBefore.length).toBe(4);
+
+            fake1.moduleIds = [fake1.moduleIds[0], fake1.moduleIds[1], fake1.moduleIds[2]];
+
+            await store.dispatch(new StationRepliedAction(mockStation.newFakeStatusReply(fake1), "http://10.0.0.1/fk/v1"));
+            expect(Object.keys(store.state.firmware.stations).length).toBe(1);
+
+            const modulesAfter = await db.getModuleAll();
+            expect(modulesAfter.length).toBe(3);
         });
     });
 });

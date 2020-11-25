@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true">
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
@@ -83,32 +83,38 @@ export default Vue.extend({
                 });
         },
     },
-    methods: {
-        onPageLoaded(): void {
-            const legacyStations = this.$s.getters.legacyStations;
-            const connected = Object.values(legacyStations).filter((ls) => ls.connected);
-            if (connected.length == 0) {
-                throw new Error("invalid transition, no nearby stations");
-            }
+    async mounted(): Promise<void> {
+        const legacyStations = this.$s.getters.legacyStations;
+        const connected = Object.values(legacyStations).filter((ls) => ls.connected);
+        if (connected.length == 0) {
+            await this.$navigateTo(routes.onboarding.searching, {
+                props: {
+                    reconnecting: this.reconnecting,
+                },
+            });
+            return;
+        }
 
-            this.selectedStationId = connected[0].id;
+        this.selectedStationId = connected[0].id;
+    },
+    methods: {
+        async tryAgain(): Promise<void> {
+            await this.$navigateTo(routes.onboarding.searching, {});
         },
-        tryAgain(): Promise<any> {
-            return this.$navigateTo(routes.onboarding.searching, {});
-        },
-        forward(): Promise<any> {
+        async forward(): Promise<void> {
             if (this.reconnecting) {
-                return this.$navigateTo(routes.onboarding.recalibrate, {
+                await this.$navigateTo(routes.onboarding.recalibrate, {
+                    props: {
+                        stationId: this.selectedStationId,
+                    },
+                });
+            } else {
+                await this.$navigateTo(routes.onboarding.network, {
                     props: {
                         stationId: this.selectedStationId,
                     },
                 });
             }
-            return this.$navigateTo(routes.onboarding.network, {
-                props: {
-                    stationId: this.selectedStationId,
-                },
-            });
         },
         onCheckChange(id: number): void {
             console.log("choose", id);

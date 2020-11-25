@@ -191,7 +191,14 @@ class StationStatusFactory {
                             const sensors = _(moduleReply.readings)
                                 .map(
                                     (sensorReply) =>
-                                        new Sensor(null, sensorReply.sensor.name, sensorReply.sensor.unitOfMeasure, sensorReply.value, null)
+                                        new Sensor(
+                                            null,
+                                            sensorReply.sensor.name,
+                                            sensorReply.sensor.number,
+                                            sensorReply.sensor.unitOfMeasure,
+                                            sensorReply.value,
+                                            null
+                                        )
                                 )
                                 .value();
                             return new Module(
@@ -213,7 +220,7 @@ class StationStatusFactory {
         return _(statusReply.modules)
             .map((moduleReply) => {
                 const sensors = _(moduleReply.sensors)
-                    .map((sensorReply) => new Sensor(null, sensorReply.name, sensorReply.unitOfMeasure, null, null))
+                    .map((sensorReply) => new Sensor(null, sensorReply.name, sensorReply.number, sensorReply.unitOfMeasure, null, null))
                     .value();
                 return new Module(
                     null,
@@ -245,7 +252,17 @@ class StationDatabaseFactory {
             .map((moduleRow) => {
                 const sensorRows = this.sensors[moduleRow.id] || [];
                 const sensors = _(sensorRows)
-                    .map((sensorRow) => new Sensor(sensorRow.id, sensorRow.name, sensorRow.unit, sensorRow.currentReading, sensorRow.trend))
+                    .map(
+                        (sensorRow) =>
+                            new Sensor(
+                                sensorRow.id,
+                                sensorRow.name,
+                                sensorRow.position,
+                                sensorRow.unit,
+                                sensorRow.currentReading,
+                                sensorRow.trend
+                            )
+                    )
                     .value();
                 const status = this.parseModuleStatus(moduleRow.status);
                 return new Module(

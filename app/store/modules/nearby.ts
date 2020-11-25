@@ -41,6 +41,13 @@ class NearbyWrapper {
         return this.queriedRecently(nearby);
     }
 
+    public isNewDiscovery(deviceId: string): boolean {
+        if (this.state.stations[deviceId]) {
+            return false;
+        }
+        return true;
+    }
+
     public queriedRecently(nearby: NearbyStation): boolean {
         if (nearby.transferring) {
             return true;
@@ -81,9 +88,9 @@ const actions = (services: ServiceRef) => {
             const tries = offline.map((candidate) => dispatch(new TryStationOnceAction(candidate)));
             await Promise.all(tries);
         },
-        [ActionTypes.REFRESH]: ({ dispatch, state }: ActionParameters) => {
+        [ActionTypes.REFRESH]: async ({ dispatch, state }: ActionParameters) => {
             const now = new Date();
-            return Promise.all(
+            await Promise.all(
                 Object.values(state.stations).map((nearby) => {
                     if (!nearby.transferring && (nearby.old(now) || nearby.tooManyFailures())) {
                         console.log("station inactive, losing", nearby.info.deviceId, now.getTime() - nearby.activity.getTime());
@@ -93,13 +100,31 @@ const actions = (services: ServiceRef) => {
                 })
             ).then(() => dispatch(ActionTypes.QUERY_NECESSARY));
         },
-        [ActionTypes.FOUND]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
+        [ActionTypes.FOUND]: async ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
             const wrapper = new NearbyWrapper(state);
+            const newDiscovery = wrapper.isNewDiscovery(info.deviceId);
             if (wrapper.queriedRecentlyByDeviceId(info.deviceId)) {
                 return;
             }
             commit(MutationTypes.FIND, info);
-            return dispatch(ActionTypes.QUERY_STATION, info);
+            try {
+                await dispatch(ActionTypes.QUERY_STATION, info);
+            } catch (error) {
+                console.log(`found query error: ${JSON.stringify(error)} ${JSON.stringify(newDiscovery)}`);
+                if (newDiscovery) {
+                    await dispatch(
+                        new TryStationAction(info, {
+                            numOfAttempts: 1,
+                            startingDelay: 250,
+                            delayFirstAttempt: true,
+                        })
+                    );
+                    console.log(`done with second query`);
+                } else {
+                    throw error;
+                }
+            }
+            return;
         },
         [ActionTypes.MAYBE_LOST]: async ({ dispatch, state }: ActionParameters, payload: { deviceId: string }) => {
             const info = state.stations[payload.deviceId] || state.expired[payload.deviceId];
@@ -115,10 +140,24 @@ const actions = (services: ServiceRef) => {
             }
             return;
         },
-        [ActionTypes.TRY_STATION_ONCE]: ({ commit, dispatch, state }: ActionParameters, payload: TryStationOnceAction) => {
+        [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
             if (!payload) throw new Error("payload required");
             if (!payload.info) throw new Error("payload.info required");
-            return services
+            console.log(`try-station start: ${JSON.stringify(payload.backOffOptions)}`);
+            await backOff(
+                () => dispatch(new TryStationOnceAction(payload.info)),
+                payload.backOffOptions || {
+                    maxDelay: 30000,
+                    numOfAttempts: 4,
+                    startingDelay: 250,
+                }
+            );
+            console.log("try-station done");
+        },
+        [ActionTypes.TRY_STATION_ONCE]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationOnceAction) => {
+            if (!payload) throw new Error("payload required");
+            if (!payload.info) throw new Error("payload.info required");
+            await services
                 .queryStation()
                 .takeReadings(payload.info.url, state.location, { throttle: false })
                 .then((statusReply) => {
@@ -137,15 +176,6 @@ const actions = (services: ServiceRef) => {
                     commit(MutationTypes.STATION_ACTIVITY, infoCorected);
                     return dispatch(new StationRepliedAction(statusReply, payload.info.url), { root: true });
                 });
-        },
-        [ActionTypes.TRY_STATION]: async ({ commit, dispatch, state }: ActionParameters, payload: TryStationAction) => {
-            if (!payload) throw new Error("payload required");
-            if (!payload.info) throw new Error("payload.info required");
-            await backOff(() => dispatch(new TryStationOnceAction(payload.info)), {
-                maxDelay: 60000,
-                numOfAttempts: 10,
-                startingDelay: 250,
-            });
         },
         [ActionTypes.QUERY_STATION]: ({ commit, dispatch, state }: ActionParameters, info: ServiceInfo) => {
             commit(MutationTypes.STATION_QUERIED, info);

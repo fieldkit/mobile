@@ -158,10 +158,10 @@ export default class PortalInterface {
             authenticated: true,
             url: "/user",
         }).then((user: { name: string; id: number; email: string }) => {
+            console.log(`portal-interface:whoAmI: ${JSON.stringify(user)}`);
+            if (!user || !user.id) throw new Error(`no authenticated user`);
             const token = this.getCurrentToken();
-            if (!token) {
-                throw new Error(`no token after authentication`);
-            }
+            if (!token) throw new Error(`no token after authentication`);
             return {
                 name: user.name,
                 portalId: user.id,
@@ -359,6 +359,7 @@ export default class PortalInterface {
                             }
                             console.log(req.url, "portal error", error.response.status, error.response.data);
                         }
+                        console.log(req.url, "portal error: ${JSON.stringify(error)}");
                         throw error;
                     });
             });
@@ -368,11 +369,12 @@ export default class PortalInterface {
     private tryRefreshToken<Q, V>(original: QueryFields<Q>): Promise<V> {
         const token = this.parseToken(this.appSettings.getString("accessToken"));
         if (token == null) {
+            console.log(`try-refresh: no token`);
             return Promise.reject(new AuthenticationError("no token"));
         }
 
         if (original.refreshed === true) {
-            console.log("refresh failed, clear token");
+            console.log("try-refresh: refresh failed, clear token");
             return this.logout().then(() => Promise.reject(new AuthenticationError("refresh token failed")));
         }
 
@@ -380,7 +382,7 @@ export default class PortalInterface {
             refreshToken: token.refresh_token,
         };
 
-        console.log("refreshing token");
+        console.log(`refreshing token`);
 
         return this.getUri().then((baseUri) =>
             axios({

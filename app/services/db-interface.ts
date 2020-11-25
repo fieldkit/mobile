@@ -237,15 +237,13 @@ export default class DatabaseInterface {
     }
 
     private async insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
-        await this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) =>
-            this.execute("INSERT INTO sensors (module_id, name, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?)", [
-                modulePrimaryKey,
-                sensor.name,
-                sensor.unitOfMeasure,
-                0,
-                sensor.reading,
-            ]).catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)))
-        );
+        await this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) => {
+            const values = [modulePrimaryKey, sensor.name, sensor.position, sensor.unitOfMeasure, 0, sensor.reading];
+            return this.execute(
+                "INSERT INTO sensors (module_id, name, position, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?, ?)",
+                values
+            ).catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)));
+        });
     }
 
     private async insertModule(stationId: number, module: Module): Promise<void> {
@@ -261,6 +259,7 @@ export default class DatabaseInterface {
             module.flags || 0,
             module.status ? JSON.stringify(module.status) : "",
         ];
+
         await this.execute(
             "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             values
@@ -301,14 +300,16 @@ export default class DatabaseInterface {
                         return {
                             id: existing[name].id,
                             reading: incoming[name].reading,
+                            position: incoming[name].position,
                             trend: getTrend(name),
                         };
                     })
                     .filter((update) => update.reading != null)
                     .map((update) =>
-                        this.execute("UPDATE sensors SET current_reading = ?, trend = ? WHERE id = ?", [
+                        this.execute("UPDATE sensors SET current_reading = ?, trend = ?, position = ? WHERE id = ?", [
                             update.reading,
                             update.trend,
+                            update.position,
                             update.id,
                         ])
                     )
@@ -322,13 +323,27 @@ export default class DatabaseInterface {
         moduleRows: ModuleTableRow[],
         sensorRows: SensorTableRow[]
     ): Promise<void> {
-        const incoming = _.keyBy(station.modules, (m) => m.moduleId);
-        const existing = _.keyBy(moduleRows, (m) => m.moduleId);
-        const adding = _.difference(_.keys(incoming), _.keys(existing));
-        const removed = _.difference(_.keys(existing), _.keys(incoming));
-        const keeping = _.intersection(_.keys(existing), _.keys(incoming));
+        const allExisting = _.keyBy(moduleRows, (m) => m.moduleId);
+        const stationModuleRows = moduleRows.filter((m) => m.stationId == stationId);
+        const stationExisting = _.keyBy(stationModuleRows, (m) => m.moduleId);
 
-        log.info("synchronize modules", stationId, adding, removed, keeping);
+        const incoming = _.keyBy(station.modules, (m) => m.moduleId);
+        const adding = _.difference(_.keys(incoming), _.keys(allExisting));
+        const removed = _.difference(_.keys(stationExisting), _.keys(incoming));
+        const keeping = _.intersection(_.keys(allExisting), _.keys(incoming));
+
+        console.log("modules", station.modules);
+
+        log.info(
+            `synchronize modules`,
+            JSON.stringify({
+                stationId,
+                all: _.keys(allExisting),
+                adding,
+                removed,
+                keeping,
+            })
+        );
 
         return Promise.all([
             Promise.all(
@@ -338,17 +353,17 @@ export default class DatabaseInterface {
             ),
             Promise.all(
                 removed.map((moduleId) =>
-                    this.execute("DELETE FROM sensors WHERE module_id = ?", [existing[moduleId].id]).then(() =>
-                        this.execute("DELETE FROM modules WHERE id = ?", [existing[moduleId].id])
+                    this.execute("DELETE FROM sensors WHERE module_id = ?", [stationExisting[moduleId].id]).then(() =>
+                        this.execute("DELETE FROM modules WHERE id = ?", [stationExisting[moduleId].id])
                     )
                 )
             ),
             Promise.all(
                 keeping.map((moduleId) => {
                     const status = incoming[moduleId].status ? JSON.stringify(incoming[moduleId].status) : "";
-                    const values = [incoming[moduleId].flags || 0, status, existing[moduleId].id];
-                    return this.execute("UPDATE modules SET flags = ?, status = ? WHERE id = ?", values).then(() => {
-                        const moduleSensorRows = sensorRows.filter((r) => r.moduleId == existing[moduleId].id);
+                    const values = [incoming[moduleId].flags || 0, status, stationId, allExisting[moduleId].id];
+                    return this.execute("UPDATE modules SET flags = ?, status = ?, station_id = ? WHERE id = ?", values).then(() => {
+                        const moduleSensorRows = sensorRows.filter((r) => r.moduleId == allExisting[moduleId].id);
                         return this.synchronizeSensors(moduleId, incoming[moduleId], moduleSensorRows);
                     });
                 })
@@ -453,13 +468,12 @@ export default class DatabaseInterface {
 
     private async insertStation(newStation: Station): Promise<void> {
         await this.execute(
-            `
-					INSERT INTO stations (device_id,
-						generation_id, name, archived, url, status,
-						deploy_start_time, battery_level, consumed_memory, total_memory,
-						consumed_memory_percent, schedules, status_json,
-						longitude, latitude, serialized_status, updated, last_seen)
-					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO stations (
+				device_id, generation_id, name, archived, url, status,
+				deploy_start_time, battery_level, consumed_memory, total_memory,
+				consumed_memory_percent, schedules, status_json,
+				longitude, latitude, serialized_status, updated, last_seen)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 newStation.deviceId,
                 newStation.generationId,
@@ -502,10 +516,8 @@ export default class DatabaseInterface {
                 return Promise.all([
                     // Query for all modules, they have globally
                     // unique identifiers and can move around. We may need to eventually optimize.
-                    this.query<ModuleTableRow>("SELECT * FROM modules"),
-                    this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE station_id = ?)", [
-                        stationId,
-                    ]),
+                    this.query<ModuleTableRow>("SELECT * FROM modules ORDER BY position"),
+                    this.query<SensorTableRow>("SELECT * FROM sensors WHERE module_id IN (SELECT id FROM modules) ORDER BY position"),
                     this.query<StreamTableRow>("SELECT * FROM streams WHERE station_id = ? AND generation_id = ?", [
                         stationId,
                         station.generationId,
@@ -768,6 +780,9 @@ export default class DatabaseInterface {
     }
 
     public async addOrUpdateAccounts(account: UserAccount): Promise<void> {
+        if (account.email == null) {
+            return Promise.reject(new Error(`error saving account, email is required`));
+        }
         return await this.query(`SELECT id FROM accounts WHERE email = ?`, [account.email])
             .then((maybeId: { id: number }[]) => {
                 if (maybeId.length == 0) {
@@ -874,6 +889,16 @@ export default class DatabaseInterface {
             await this.execute("INSERT INTO store_log (time, mutation, payload, before, after) VALUES (?, ?, ?, ?, ?)", values);
         } catch (error) {
             console.log(`add-store-log error`, error);
+        }
+    }
+
+    public async cleanup(): Promise<void> {
+        try {
+            await this.execute("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE module_id IS NULL)");
+            await this.execute("DELETE FROM modules WHERE module_id IS NULL");
+            await this.purgeOldLogs();
+        } catch (error) {
+            console.log(`cleanup error`, error);
         }
     }
 

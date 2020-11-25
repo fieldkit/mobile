@@ -6,7 +6,7 @@
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
                         <StackLayout orientation="vertical">
-                            <StationStatusBox order="1" :station="currentStation" @deployTapped="goToDeploy" />
+                            <StationStatusBox order="1" :station="currentStation" @deploy-tapped="goToDeploy" />
                             <GridLayout
                                 order="2"
                                 rows="auto"
