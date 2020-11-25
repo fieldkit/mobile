@@ -10,10 +10,6 @@ import { calibrationStrategies, StationCalibration, AtlasCalValue } from "@/cali
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 import CalibrationService, { WireAtlasReply } from "@/services/calibration-service";
 
-export const CALIBRATED = "CALIBRATED";
-export const CLEARED_CALIBRATION = "CLEARED_CALIBRATION";
-export const CALIBRATION_REFRESH = "CALIBRATION_REFRESH";
-
 type PossibleCalibrations = WireAtlasReply;
 
 export class ClearAtlasCalibration {
@@ -71,7 +67,7 @@ const actions = (services: ServiceRef) => {
                 )
             );
 
-            return commit(CALIBRATION_REFRESH, updating);
+            return commit(MutationTypes.CALIBRATION_REFRESH, updating);
         },
         [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
             const updating = _.fromPairs(
@@ -83,7 +79,7 @@ const actions = (services: ServiceRef) => {
                 })
             );
 
-            return commit(CALIBRATION_REFRESH, updating);
+            return commit(MutationTypes.CALIBRATION_REFRESH, updating);
         },
         [ActionTypes.CLEAR_SENSOR_CALIBRATION]: ({ commit, dispatch, state }: ActionParameters, payload: ClearAtlasCalibration) => {
             const info = state.connected[payload.deviceId];
@@ -94,7 +90,7 @@ const actions = (services: ServiceRef) => {
             const url = `${info.url}/modules/${payload.position}`;
             return service.clearCalibration(url).then((cleared) => {
                 console.log("cal:", "cleared", payload.moduleId, cleared);
-                return commit(CLEARED_CALIBRATION, { [payload.moduleId]: cleared });
+                return commit(MutationTypes.CLEARED_CALIBRATION, { [payload.moduleId]: cleared });
             });
         },
         [ActionTypes.CALIBRATE_SENSOR]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
@@ -110,7 +106,7 @@ const actions = (services: ServiceRef) => {
             };
             return service.calibrateSensor(url, params).then((calibrated: ModuleStatus) => {
                 console.log("cal:", "calibrated", payload.moduleId, calibrated);
-                return commit(CALIBRATED, { [payload.moduleId]: calibrated });
+                return commit(MutationTypes.CALIBRATED, { [payload.moduleId]: calibrated });
             });
         },
     };
@@ -126,13 +122,13 @@ const mutations = {
     [MutationTypes.LOSE]: (state: CalibrationState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, null);
     },
-    [CALIBRATED]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
+    [MutationTypes.CALIBRATED]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
         Vue.set(state, "status", { ...state.status, ...payload });
     },
-    [CLEARED_CALIBRATION]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
+    [MutationTypes.CLEARED_CALIBRATION]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
         Vue.set(state, "status", { ...state.status, ...payload });
     },
-    [CALIBRATION_REFRESH]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
+    [MutationTypes.CALIBRATION_REFRESH]: (state: CalibrationState, payload: { [index: string]: PossibleCalibrations }) => {
         Vue.set(state, "status", { ...state.status, ...payload });
     },
 };
