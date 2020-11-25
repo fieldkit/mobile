@@ -89,37 +89,33 @@ export default Vue.extend({
             try {
                 const station = this.station;
                 if (!station) throw new Error(`station missing: ${this.stationId}`);
-                const module = station.modules[this.position];
-                if (!module) throw new Error(`module missing: ${this.stationId} ${this.position}`);
+                const mod = station.modules.find((m) => m.position == this.position);
+                if (!mod) throw new Error(`module missing: ${this.stationId} ${this.position} ${JSON.stringify(station.modules)}`);
 
-                console.log("module-full", module);
+                console.log(`module-full: ${JSON.stringify(mod)}`);
 
-                const moduleId = module.moduleId;
-
-                console.log("module-id", moduleId);
-                console.log("module-cal-status", this.$s.state.cal.status);
-
+                const moduleId = mod.moduleId;
                 const moduleCalibration = this.$s.state.cal.status[moduleId] || null;
-                console.log("module-cal", moduleCalibration);
 
+                console.log(`module-cal: ${JSON.stringify(moduleCalibration)}`);
                 if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
 
-                const displaySensor = module.sensors[0];
+                const displaySensor = mod.sensors[0];
                 const stationSensors = _.fromPairs(
                     _.flatten(
-                        station.modules.map((module) => {
-                            return module.sensors.map((sensor) => {
-                                return [module.name + "." + sensor.name, sensor.reading];
+                        station.modules.map((mod) => {
+                            return mod.sensors.map((sensor) => {
+                                return [mod.name + "." + sensor.name, sensor.reading];
                             });
                         })
                     )
                 ) as { [index: string]: number };
 
-                console.log("station-sensors", stationSensors);
+                console.log(`station-sensors: ${JSON.stringify(stationSensors)}`);
 
                 const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
 
-                console.log("cal-value", calibrationValue);
+                console.log(`cal-value: ${JSON.stringify(calibrationValue)}`);
 
                 return new CalibratingSensor(
                     this.stationId,

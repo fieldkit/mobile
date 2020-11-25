@@ -134,10 +134,12 @@ export class StationCalibration {
                 const haveStrategies = calibrationStrategies.getModuleStrategies(m.name).length > 0;
                 return new ModuleCalibration(m, statuses[m.moduleId], haveStrategies);
             });
-        console.log(
-            "station-calibration",
-            this.modules.map((m) => [m.name, m.isCalibrated])
-        );
+
+        const status = {
+            modules: this.modules.map((m) => [m.name, m.isCalibrated]),
+            self: this,
+        };
+        console.log(`station-calibration ${JSON.stringify(status)}`);
     }
 
     get completed(): boolean {
