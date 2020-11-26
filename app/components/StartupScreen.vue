@@ -1,149 +1,15 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded"></Page>
 </template>
-
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { isAndroid } from "@nativescript/core";
-
-import registerLifecycleEvents from "@/services/lifecycle";
+import { Route } from "@/routes/navigate";
 import { Services } from "@/services";
+import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
-import Sqlite from "@/wrappers/sqlite";
-import { promiseAfter } from "@/utilities";
-import routes from "@/routes";
-import { Route } from "@/routes/navigate";
 import Config from "@/config";
-// import { ProcessAllStationsTask } from "@/lib/process";
-import { analytics } from "@nativescript/firebase/analytics";
-import { ActionTypes, OurStore } from "@/store";
-
-function restartDiscovery(discoverStation): null {
-    if (false) {
-        promiseAfter(1000 * 30)
-            .then(() => discoverStation.restart())
-            .catch((err) => {
-                console.log("refresh error", err, err ? err.stack : null);
-            })
-            .finally(() => restartDiscovery(discoverStation));
-    }
-    return null;
-}
-
-function updateStore(store: OurStore): Promise<any> {
-    promiseAfter(1000)
-        .then(() => store.dispatch(ActionTypes.REFRESH))
-        .catch((err) => {
-            console.log("refresh error", err, err ? err.stack : null);
-        })
-        .finally(() => updateStore(store));
-
-    return Promise.resolve();
-}
-
-function enableLocationServices(services: Services): Promise<any> {
-    // On iOS this can take a while, so we do this in the background.
-    services.PhoneLocation().enableAndGetLocation();
-
-    return Promise.resolve();
-}
-
-function resumeSession(services: Services): Promise<any> {
-    return services
-        .StationFirmware()
-        .cleanupFirmware()
-        .then(() => {
-            const store = services.Store();
-            if (store.state.portal.currentUser) {
-                store.dispatch(ActionTypes.AUTHENTICATED);
-            }
-            return null;
-        });
-}
-
-function downloadDatabase(services: Services, url: string): Promise<void> {
-    if (true) {
-        return Promise.resolve();
-    }
-
-    const progress = (total: number, copied: number, info) => {
-        console.log("progress", total, copied);
-    };
-
-    const folder = services.FileSystem().getFolder(isAndroid ? "app" : "");
-    const name = "fieldkit.sqlite3";
-    const destination = folder.getFile(name);
-
-    return services
-        .Conservify()
-        .download({
-            method: "GET",
-            url: url,
-            path: destination.path,
-            progress: progress,
-        })
-        .catch((error) => {
-            console.log("error", error);
-            return Promise.resolve();
-        })
-        .then((response) => {
-            new Sqlite().copy(name);
-        });
-}
-
-function initializeApplication(services: Services): Promise<any> {
-    const started = new Date();
-
-    return analytics
-        .logEvent({
-            key: "app_open",
-        })
-        .then(() => {
-            console.log("firebase:recorded");
-        })
-        .catch((message) => {
-            console.log("firebase:error", message);
-        })
-        .then(() =>
-            downloadDatabase(services, "http://192.168.0.100:8000/fk.db")
-                .then(() =>
-                    services
-                        .CreateDb()
-                        .initialize(null, false, false)
-                        .then(() => services.Database().checkSettings())
-                        .then(() => services.Database().cleanup())
-                        .then(() => services.Store().dispatch(ActionTypes.INITIALIZE))
-                        .then(() => {
-                            console.log("services:ready");
-
-                            return services
-                                .Store()
-                                .dispatch(ActionTypes.LOAD)
-                                .then(
-                                    () =>
-                                        Promise.resolve()
-                                            .then(() => services.DiscoverStation().startMonitorinNetwork())
-                                            .then(() => enableLocationServices(services))
-                                            .then(() => services.PortalUpdater().start())
-                                            .then(() => registerLifecycleEvents(() => services.DiscoverStation()))
-                                            .then(() => updateStore(services.Store()))
-                                            .then(() => resumeSession(services))
-                                            .then(() => restartDiscovery(services.DiscoverStation()))
-                                    // .then(() => services.Tasks().enqueue(new ProcessAllStationsTask()))
-                                );
-                        })
-                )
-                .then(() => {
-                    const now = new Date();
-                    const elapsed = now.getTime() - started.getTime();
-                    console.log("startup:started", elapsed);
-                })
-                .catch((err) => {
-                    console.log("startup:error:", err, err ? err.stack : null);
-                })
-        );
-}
+import routes from "@/routes";
 
 function getFirstRoute(services: Services): Route {
     const appSettings = new AppSettings();
@@ -159,25 +25,27 @@ function getFirstRoute(services: Services): Route {
 
 @Component
 export default class StartupScreen extends Vue {
-    onPageLoaded(args): Promise<any> {
+    async onPageLoaded(args): Promise<any> {
         const services: Services = ServicesSingleton;
 
         console.log("startup loaded");
-        return initializeApplication(services).then(() => {
-            console.log("developer", Config.env.developer);
-            if (Config.env.developer) {
-                // if (services.Store().getters.stationCalibrations[1]) {
-                //     return this.$navigateTo(routes.onboarding.recalibrate, {
-                //         clearHistory: true,
-                //         props: {
-                //             stationId: 1,
-                //         },
-                //
-                //     });
-                // } else {
-                //     console.log("no test station");
-                // }
-                /*
+
+        await initializeApplication(services);
+
+        console.log("developer", Config.env.developer);
+        if (Config.env.developer) {
+            // if (services.Store().getters.stationCalibrations[1]) {
+            //     return this.$navigateTo(routes.onboarding.recalibrate, {
+            //         clearHistory: true,
+            //         props: {
+            //             stationId: 1,
+            //         },
+            //
+            //     });
+            // } else {
+            //     console.log("no test station");
+            // }
+            /*
                 return this.$navigateTo(routes.internal.calibrate, {
                     clearHistory: true,
                     props: {
@@ -232,22 +100,21 @@ export default class StartupScreen extends Vue {
                     console.log("no test station");
                 }
 				*/
-                if (services.Store().getters.stationCalibrations[1]) {
-                    return this.$navigateTo(routes.calibration.start, {
-                        clearHistory: true,
-                        props: {
-                            stationId: 1,
-                            position: 3,
-                        },
-                    });
-                }
+            if (services.Store().getters.stationCalibrations[1]) {
+                return this.$navigateTo(routes.calibration.start, {
+                    clearHistory: true,
+                    props: {
+                        stationId: 1,
+                        position: 3,
+                    },
+                });
             }
+        }
 
-            console.log("first navigate");
+        console.log("first navigate");
 
-            return this.$navigateTo(getFirstRoute(services), {
-                clearHistory: true,
-            });
+        await this.$navigateTo(getFirstRoute(services), {
+            clearHistory: true,
         });
     }
 }
