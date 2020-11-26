@@ -40,6 +40,11 @@ export default class DatabaseInterface {
         return this.services.CreateDb().getDatabase();
     }
 
+    public async startup(): Promise<void> {
+        await this.checkSettings();
+        await this.cleanup();
+    }
+
     private async query<T>(sql: string, args: unknown[] | undefined = undefined): Promise<T[]> {
         const db = await this.getDatabase();
         const raw = await db.query(sql, args);

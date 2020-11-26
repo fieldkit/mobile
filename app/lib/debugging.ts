@@ -3,11 +3,7 @@ import Sqlite from "@/wrappers/sqlite";
 import { Services } from "@/services";
 
 export function downloadDatabase(services: Services, url: string): Promise<void> {
-    if (true) {
-        return Promise.resolve();
-    }
-
-    const progress = (total: number, copied: number, info) => {
+    const progress = (total: number, copied: number, _info: unknown) => {
         console.log("progress", total, copied);
     };
 
@@ -27,7 +23,7 @@ export function downloadDatabase(services: Services, url: string): Promise<void>
             console.log("error", error);
             return Promise.resolve();
         })
-        .then((response) => {
+        .then((_response: unknown) => {
             new Sqlite().copy(name);
         });
 }

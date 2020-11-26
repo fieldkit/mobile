@@ -5,22 +5,18 @@ import { ActionTypes, OurStore } from "@/store";
 import registerLifecycleEvents from "@/services/lifecycle";
 // import { ProcessAllStationsTask } from "@/lib/process";
 
-async function updateStore(store: OurStore): Promise<void> {
+function updateStore(store: OurStore): void {
     void promiseAfter(1000)
         .then(() => store.dispatch(ActionTypes.REFRESH))
-        .catch((err) => {
-            console.log("refresh error", err, err ? err.stack : null);
+        .catch((error) => {
+            console.log(`refresh:error: ${JSON.stringify(error)}`);
         })
-        .finally(() => updateStore(store));
-
-    return;
+        .finally(() => void updateStore(store));
 }
 
-async function enableLocationServices(services: Services): Promise<void> {
+function enableLocationServices(services: Services): void {
     // On iOS this can take a while, so we do this in the background.
     void services.PhoneLocation().enableAndGetLocation();
-
-    return;
 }
 
 async function resumePortalSession(services: Services): Promise<void> {
@@ -42,7 +38,7 @@ async function background(services: Services): Promise<void> {
         // await services.Tasks().enqueue(new ProcessAllStationsTask()))
     ]);
 
-    await registerLifecycleEvents(() => services.DiscoverStation());
+    registerLifecycleEvents(() => services.DiscoverStation());
 }
 
 export async function initializeApplication(services: Services): Promise<void> {
@@ -51,14 +47,12 @@ export async function initializeApplication(services: Services): Promise<void> {
     try {
         await analytics.logEvent({ key: "app_open" });
     } catch (error) {
-        console.log("firebase:error:", error, error ? error.stack : null);
+        console.log(`firebase:error: ${JSON.stringify(error)}`);
     }
 
     try {
         await services.CreateDb().initialize(null, false, false);
-        await services.Database().checkSettings();
-        await services.Database().cleanup();
-
+        await services.Database().startup();
         await services.Store().dispatch(ActionTypes.LOAD);
 
         console.log("startup:bg");
@@ -69,6 +63,6 @@ export async function initializeApplication(services: Services): Promise<void> {
         const elapsed = now.getTime() - started.getTime();
         console.log("startup:started", elapsed);
     } catch (error) {
-        console.log("startup:error:", error, error ? error.stack : null);
+        console.log(`startup:error: ${JSON.stringify(error)}`);
     }
 }
