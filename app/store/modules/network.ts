@@ -17,7 +17,7 @@ const getters = {};
 
 const actions = (_services: ServiceRef) => {
     return {
-        [ActionTypes.INITIALIZE]: ({ commit }: ActionParameters) => {
+        [ActionTypes.LOAD]: ({ commit }: ActionParameters) => {
             const appSettings = new AppSettings();
             const token = appSettings.getString("accessToken");
             if (token) {

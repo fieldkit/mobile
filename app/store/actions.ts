@@ -3,8 +3,6 @@ import { ServiceInfo, PortalEnv, Schedules, Schedule, StationSyncStatus, PhoneNe
 import { IBackOffOptions } from "exponential-backoff";
 
 export enum ActionTypes {
-    INITIALIZE = "INITIALIZE",
-
     LOAD = "LOAD",
     SAVE = "SAVE",
     UPDATE = "SAVE",

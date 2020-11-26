@@ -60,7 +60,7 @@ class UpgradeProgressMutation {
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.INITIALIZE]: async ({ commit, dispatch, state }: ActionParameters) => {
+        [ActionTypes.LOAD]: async ({ commit, dispatch, state }: ActionParameters) => {
             await dispatch(ActionTypes.RELOAD_FIRMWARE);
         },
         [ActionTypes.AUTHENTICATED]: async ({ commit, dispatch, state }: ActionParameters) => {

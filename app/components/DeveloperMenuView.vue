@@ -266,14 +266,12 @@ export default Vue.extend({
                     store.commit(MutationTypes.RESET);
 
                     return Services.Store()
-                        .dispatch(ActionTypes.INITIALIZE)
+                        .dispatch(ActionTypes.LOAD)
                         .then(() => {
-                            return store.dispatch(ActionTypes.LOAD).then(() => {
-                                return alert({
-                                    title: _L("devOptions"),
-                                    message: _L("dbDeleted"),
-                                    okButtonText: _L("ok"),
-                                });
+                            return alert({
+                                title: _L("devOptions"),
+                                message: _L("dbDeleted"),
+                                okButtonText: _L("ok"),
                             });
                         });
                 });

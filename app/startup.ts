@@ -59,7 +59,6 @@ export async function initializeApplication(services: Services): Promise<void> {
         await services.Database().checkSettings();
         await services.Database().cleanup();
 
-        await services.Store().dispatch(ActionTypes.INITIALIZE);
         await services.Store().dispatch(ActionTypes.LOAD);
 
         console.log("startup:bg");
