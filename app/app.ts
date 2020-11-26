@@ -154,8 +154,8 @@ Bluebird.config({
 // Crashlytics.
 void initializeLogging();
 
-console.log("starting: config", Config);
-console.log("starting: build", Build);
+console.log(`starting: config ${JSON.stringify(Config)}`);
+console.log(`starting: build ${JSON.stringify(Build)}`);
 
 // This has to be the last thing we do. On iOS this will never return.
 startVueJs(Services);
