@@ -22,6 +22,7 @@ export enum ActionTypes {
     STATION_PORTAL_ERROR = "STATION_PORTAL_ERROR",
     STATION_PORTAL_REPLY = "STATION_PORTAL_REPLY",
 
+    LOGIN = "LOGIN",
     AUTHENTICATED = "AUTHENTICATED",
 
     REFRESH = "REFRESH",
@@ -144,6 +145,12 @@ export class ChangePortalEnvAction {
     type = ActionTypes.CHANGE_PORTAL_ENV;
 
     constructor(public readonly env: PortalEnv) {}
+}
+
+export class LoginAction {
+    type = ActionTypes.LOGIN;
+
+    constructor(public readonly email: string, public readonly password: string) {}
 }
 
 export class NameStationLocationAction {

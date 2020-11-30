@@ -182,8 +182,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-// import { defaultUsers } from "@/secrets";
-import { ActionTypes } from "@/store/actions";
+import { LoginAction } from "@/store/actions";
 import { Dialogs } from "@nativescript/core";
 
 import SharedComponents from "@/components/shared";
@@ -312,14 +311,12 @@ export default Vue.extend({
         login(): Promise<any> {
             this.processing = true;
             return this.$services
-                .PortalInterface()
-                .login(this.user)
-                .then((token) => {
-                    return this.$s.dispatch(ActionTypes.AUTHENTICATED).then(() => {
-                        console.log("redirecting");
-                        return this.$navigateTo(routes.onboarding.assembleStation, {
-                            clearHistory: true,
-                        });
+                .Store()
+                .dispatch(new LoginAction(this.user.email, this.user.password))
+                .then(() => {
+                    console.log("redirecting");
+                    return this.$navigateTo(routes.onboarding.assembleStation, {
+                        clearHistory: true,
                     });
                 })
                 .catch((error) => {

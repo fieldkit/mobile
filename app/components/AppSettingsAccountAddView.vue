@@ -180,7 +180,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { ActionTypes } from "@/store/actions";
+import { LoginAction } from "@/store/actions";
 import Services from "@/services/singleton";
 import { Dialogs } from "@nativescript/core";
 
@@ -281,13 +281,9 @@ export default Vue.extend({
         },
         login(this: any) {
             this.processing = true;
-            return Services.PortalInterface()
-                .login(this.user)
-                .then((token) => {
-                    return this.$s.dispatch(ActionTypes.AUTHENTICATED).then(() => {
-                        return this.$navigateBack();
-                    });
-                })
+            return Services.Store()
+                .dispatch(new LoginAction(this.user.email, this.user.password))
+                .then(() => this.$navigateBack())
                 .catch((error) => {
                     console.log("error", error);
                     this.processing = false;

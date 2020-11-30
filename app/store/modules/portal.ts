@@ -3,7 +3,7 @@ import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { ServiceRef } from "@/services";
 import { CurrentUser } from "@/services/portal-interface";
-import { ActionTypes, ChangePortalEnvAction } from "../actions";
+import { ActionTypes, LoginAction, ChangePortalEnvAction } from "../actions";
 import { PortalEnv } from "../types";
 import { MutationTypes } from "../mutations";
 import { AccountsTableRow, SettingsTableRow } from "../row-types";
@@ -43,19 +43,22 @@ const actions = (services: ServiceRef) => {
                 dispatch(ActionTypes.LOAD_PORTAL_ENVS),
             ]);
 
-            try {
-                console.log(`authenticating default-users`);
-                await Promise.all(
-                    Config.defaultUsers.map(async (da) => {
-                        try {
-                            await services.portal().login(da);
-                        } catch (error) {
-                            console.log(`default-user failed: ${JSON.stringify(error)}`);
-                        }
-                    })
-                );
-            } catch (error) {
-                console.log(`failed: ${JSON.stringify(error)}`);
+            if (Config.defaultUsers.length > 0) {
+                try {
+                    console.log(`authenticating default-users`);
+                    await Promise.all(
+                        Config.defaultUsers.map(async (da) => {
+                            try {
+                                await dispatch(new LoginAction(da.email, da.password));
+                                console.log(`authenticated: ${JSON.stringify(da.email)}`);
+                            } catch (error) {
+                                console.log(`default-user failed: ${JSON.stringify(error)}`);
+                            }
+                        })
+                    );
+                } catch (error) {
+                    console.log(`failed: ${JSON.stringify(error)}`);
+                }
             }
         },
         [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
@@ -88,6 +91,10 @@ const actions = (services: ServiceRef) => {
                     }
                 })
                 .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
+        },
+        [ActionTypes.LOGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: LoginAction) => {
+            await services.portal().login(payload);
+            await dispatch(ActionTypes.AUTHENTICATED);
         },
         [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
             return services
