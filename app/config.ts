@@ -1,33 +1,34 @@
-import DeveloperConfig from "./secrets";
+import developerConfig, { LocalConfig } from "./secrets";
 
-function getBlankDeveloperConfig() {
-    return {};
-}
-
-function getDeveloperConfig() {
-    return DeveloperConfig;
-}
-
-interface SimpleConfig {
-    vue: { verbose: boolean };
-    baseUri: string;
-    ingestionUri: string;
-    db: {
-        drop: boolean;
+function getBlankLocalConfig(): LocalConfig {
+    return {
+        vue: {
+            verbose: false,
+        },
+        dev: false,
+        baseUri: "http://192.168.0.100:8080",
+        ingestionUri: "http://192.168.0.100:8080/ingestion",
+        debugging: {
+            machine: null,
+        },
+        db: {
+            drop: false,
+        },
+        defaultUsers: [],
+        mapbox: {
+            token: "",
+            style: "",
+        },
+        lossBufferDelay: 0,
     };
-    lossBufferDelay: number;
 }
 
-interface FinalConfig extends SimpleConfig {
+function getLocalConfig(): LocalConfig {
+    return developerConfig;
+}
+
+interface FinalConfig extends LocalConfig {
     logger: (name: string) => SimpleLogger;
-    defaultUsers: {
-        email: string;
-        password: string;
-    }[];
-    mapbox: {
-        token: string;
-        style: string;
-    };
     env: {
         dev: boolean;
         test: boolean;
@@ -38,7 +39,7 @@ interface FinalConfig extends SimpleConfig {
     };
 }
 
-const configs: { [index: string]: SimpleConfig } = {
+const configs: { [index: string]: Partial<LocalConfig> } = {
     default: {
         vue: {
             verbose: false,
@@ -98,16 +99,16 @@ function getConfig(): FinalConfig {
         env: {
             dev: /^dev/.test(TNS_ENV),
             test: /^test/.test(TNS_ENV),
-            developer: !/^test/.test(TNS_ENV) && DeveloperConfig.dev === true,
+            developer: !/^test/.test(TNS_ENV) && developerConfig.dev === true,
         },
     };
     const loggerConfig = {
         logger: loggerFactory,
     };
     if (envs.env.test) {
-        return Object.assign({}, envs, configs["test"], loggerConfig, getBlankDeveloperConfig()) as FinalConfig;
+        return Object.assign({}, envs, configs["test"], loggerConfig, getBlankLocalConfig()) as FinalConfig;
     }
-    return Object.assign({}, envs, configs["default"], loggerConfig, getDeveloperConfig()) as FinalConfig;
+    return Object.assign({}, envs, configs["default"], loggerConfig, getLocalConfig()) as FinalConfig;
 }
 
 export const Build = {
