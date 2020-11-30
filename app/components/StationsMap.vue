@@ -40,9 +40,8 @@
 import Vue from "vue";
 import Promise from "bluebird";
 import routes from "@/routes";
-import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
+import Config from "@/config";
 import { isIOS } from "@nativescript/core";
-
 import { AvailableStation } from "@/store/types";
 
 export default Vue.extend({
@@ -71,7 +70,7 @@ export default Vue.extend({
             loading: true,
             unavailable: false,
             shown: false,
-            token: MAPBOX_ACCESS_TOKEN,
+            token: Config.mapbox.token,
             hasMap: false,
         };
     },

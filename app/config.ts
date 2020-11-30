@@ -1,4 +1,4 @@
-import { CONFIG as DeveloperConfig } from "./secrets";
+import DeveloperConfig from "./secrets";
 
 function getBlankDeveloperConfig() {
     return {
@@ -25,6 +25,14 @@ interface SimpleConfig {
 
 interface FinalConfig extends SimpleConfig {
     logger: (name: string) => SimpleLogger;
+    defaultUsers: {
+        email: string;
+        password: string;
+    }[];
+    mapbox: {
+        token: string;
+        style: string;
+    };
     developer: {
         machine: null;
         stationFilter: (url: string) => boolean;

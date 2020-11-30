@@ -180,7 +180,6 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { USERNAME, PASSWORD } from "@/secrets";
 import { ActionTypes } from "@/store/actions";
 import Services from "@/services/singleton";
 import { Dialogs } from "@nativescript/core";
@@ -221,11 +220,6 @@ export default Vue.extend({
         onPageLoaded(this: any, args) {
             // logging out sends resetUser = true
             this.page = args.object;
-            if (USERNAME && PASSWORD && !this.resetUser) {
-                this.user.email = USERNAME;
-                this.user.password = PASSWORD;
-                this.login();
-            }
         },
         toggleForm() {
             this.isLoggingIn = !this.isLoggingIn;

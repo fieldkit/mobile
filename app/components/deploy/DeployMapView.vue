@@ -20,7 +20,7 @@
                 <FlexboxLayout flexDirection="column" justifyContent="flex-start">
                     <StackLayout>
                         <Mapbox
-                            :accessToken="mapboxToken"
+                            :accessToken="token"
                             automationText="currentLocationMap"
                             mapStyle="mapbox://styles/mapbox/outdoors-v11"
                             height="150"
@@ -91,7 +91,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { isIOS } from "@nativescript/core";
-import { MAPBOX_ACCESS_TOKEN } from "@/secrets";
+import Config from "@/config";
 import routes from "@/routes";
 import { ConfigureStationSchedulesAction, NameStationLocationAction } from "@/store/actions";
 import { Schedule, Station, Notes } from "@/store";
@@ -108,7 +108,7 @@ export default Vue.extend({
     },
     data(): {
         ios: boolean;
-        mapboxToken: string;
+        token: string;
         form: {
             location: string;
             schedule: Schedule | null;
@@ -123,7 +123,7 @@ export default Vue.extend({
     } {
         return {
             ios: isIOS,
-            mapboxToken: MAPBOX_ACCESS_TOKEN,
+            token: Config.mapbox.token,
             form: {
                 location: "",
                 schedule: null,
