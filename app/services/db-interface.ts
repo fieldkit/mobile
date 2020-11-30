@@ -163,10 +163,13 @@ export default class DatabaseInterface {
                 station.id,
             ]);
             if (rows.length == 0) throw new Error(`setting portal-error for unknown station`);
+
             if (this.samePortalError(rows[0].portalHttpError, error)) {
+                console.log(`error-same: ${JSON.stringify({ existing: rows[0].portalHttpError, updating: error })}`);
                 return false;
             }
 
+            console.log(`error-change: ${JSON.stringify({ existing: rows[0].portalHttpError, updating: error })}`);
             await this.updateStationPortalError(station.id, error);
             return true;
         } catch (error) {
@@ -176,7 +179,7 @@ export default class DatabaseInterface {
     }
 
     private async updateStationPortalError(stationId: number, error: Record<string, unknown> | null): Promise<void> {
-        const values = [error ? "{}" : JSON.stringify(error), new Date(), new Date(), stationId];
+        const values = [JSON.stringify(error || {}), new Date(), new Date(), stationId];
         await this.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", values);
     }
 

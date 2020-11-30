@@ -12,13 +12,11 @@ import {
     Stream,
     Download,
     StationPortalStatus,
-    StationPortalErrorStatus,
-    StationPortalAcceptedStatus,
     SortableStationSorter,
     Schedules,
     PortalError,
 } from "@/store/types";
-import { ActionTypes, StationRepliedAction } from "@/store/actions";
+import { ActionTypes, StationRepliedAction, PortalReplyAction, PortalErrorAction } from "@/store/actions";
 import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
 import { HttpStatusReply, AtlasStatus } from "@/store/http-types";
@@ -395,27 +393,27 @@ const actions = (services: ServiceRef) => {
                     return Promise.reject(err);
                 });
         },
-        [ActionTypes.STATION_PORTAL_ERROR]: async ({ commit }: ActionParameters, status: StationPortalErrorStatus) => {
+        [ActionTypes.STATION_PORTAL_ERROR]: async ({ commit }: ActionParameters, payload: PortalErrorAction) => {
             await services
                 .db()
-                .setStationPortalError({ id: status.id }, status.error)
+                .setStationPortalError({ id: payload.id }, payload.error)
                 .then((changed) => {
                     if (changed) {
-                        commit(MutationTypes.STATION_PORTAL_STATUS, status);
+                        commit(MutationTypes.STATION_PORTAL_STATUS, payload);
                     }
                 });
         },
-        [ActionTypes.STATION_PORTAL_REPLY]: async ({ commit }: ActionParameters, status: StationPortalAcceptedStatus) => {
+        [ActionTypes.STATION_PORTAL_REPLY]: async ({ commit }: ActionParameters, payload: PortalReplyAction) => {
             await services
                 .db()
-                .setStationPortalError({ id: status.id }, {})
+                .setStationPortalError({ id: payload.id }, {})
                 .then(() =>
                     services
                         .db()
-                        .setStationPortalId(status)
+                        .setStationPortalId(payload)
                         .then((changed) => {
                             if (changed) {
-                                commit(MutationTypes.STATION_PORTAL_STATUS, status);
+                                commit(MutationTypes.STATION_PORTAL_STATUS, payload);
                             }
                         })
                 );

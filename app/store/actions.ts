@@ -1,5 +1,5 @@
 import { NetworkInfo, HttpStatusReply } from "@/store/http-types";
-import { ServiceInfo, PortalEnv, Schedules, Schedule, StationSyncStatus, PhoneNetwork } from "./types";
+import { ServiceInfo, PortalEnv, Schedules, Schedule, StationSyncStatus, PhoneNetwork, StationPortalStatus, PortalError } from "./types";
 import { IBackOffOptions } from "exponential-backoff";
 
 export enum ActionTypes {
@@ -202,4 +202,21 @@ export class NetworkChangedAction {
     type = ActionTypes.NETWORK_CHANGED;
 
     constructor(public readonly network: PhoneNetwork) {}
+}
+
+export class PortalReplyAction implements StationPortalStatus {
+    type = ActionTypes.STATION_PORTAL_REPLY;
+
+    public readonly error = null;
+
+    constructor(public readonly id: number, public readonly portalId: number, public readonly ownerId: number) {}
+}
+
+export class PortalErrorAction implements StationPortalStatus {
+    type = ActionTypes.STATION_PORTAL_ERROR;
+
+    public readonly portalId = null;
+    public readonly ownerId = null;
+
+    constructor(public readonly id: number, public readonly error: PortalError) {}
 }

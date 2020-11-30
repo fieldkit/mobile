@@ -2,7 +2,7 @@ import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { ServiceRef, ServicesImpl } from "@/services";
 import { MockStationReplies } from "./utilities";
-import { ActionTypes, StationPortalAcceptedStatus, StationRepliedAction } from "@/store";
+import { ActionTypes, PortalReplyAction, PortalErrorAction, StationRepliedAction } from "@/store";
 import { stations } from "@/store/modules/stations";
 
 // const actionsInjector = require("inject-loader!./actions");
@@ -28,24 +28,19 @@ describe("portal sync", () => {
         it("should update when changed", async () => {
             expect.assertions(4);
 
-            const payload: StationPortalAcceptedStatus = {
-                id: 1,
-                portalId: 100,
-                ownerId: 1,
-                error: null,
-            };
+            const payload = new PortalReplyAction(1, 100, 1);
 
             expect(store.state.stations.all[0].portalId).toBeNull();
 
             const spy = jest.spyOn($s.Database(), "updateStationPortalId");
 
-            await store.dispatch(ActionTypes.STATION_PORTAL_REPLY, payload);
+            await store.dispatch(payload);
 
             expect(spy.mock.calls.length).toBe(1);
 
             expect(store.state.stations.all[0].portalId).toBe(100);
 
-            await store.dispatch(ActionTypes.STATION_PORTAL_REPLY, payload);
+            await store.dispatch(payload);
 
             expect(store.state.stations.all[0].portalId).toBe(100);
         });
@@ -54,12 +49,7 @@ describe("portal sync", () => {
             expect.assertions(5);
 
             const sm = stations(new ServiceRef(() => $s)) as any;
-            const payload: StationPortalAcceptedStatus = {
-                id: 1,
-                portalId: 100,
-                ownerId: 1,
-                error: null,
-            };
+            const payload = new PortalReplyAction(1, 100, 1);
 
             const store = $s.Store();
             const commitSpy = jest.spyOn(store, "commit");
@@ -85,17 +75,11 @@ describe("portal sync", () => {
             expect.assertions(5);
 
             const sm = stations(new ServiceRef(() => $s)) as any;
-            const payload: Record<string, unknown> = {
-                id: 1,
-                portalId: 100,
-                error: {
-                    name: "conflict",
-                },
-            };
+            const payload = new PortalErrorAction(1, { name: "conflict" });
 
             const store = $s.Store();
             const commitSpy = jest.spyOn(store, "commit");
-            const action = sm.actions[ActionTypes.STATION_PORTAL_REPLY];
+            const action = sm.actions[ActionTypes.STATION_PORTAL_ERROR];
             const state = store.state.stations;
 
             expect(store.state.stations.all[0].portalId).toBeNull();
@@ -104,13 +88,13 @@ describe("portal sync", () => {
 
             expect(commitSpy.mock.calls.length).toBe(1);
 
-            expect(store.state.stations.all[0].portalId).toBe(100);
+            expect(store.state.stations.all[0].portalId).toBe(null);
 
             await action({ commit: store.commit, state: state }, payload);
 
             expect(commitSpy.mock.calls.length).toBe(1);
 
-            expect(store.state.stations.all[0].portalId).toBe(100);
+            expect(store.state.stations.all[0].portalId).toBe(null);
         });
     });
 });

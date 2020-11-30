@@ -226,6 +226,13 @@ export interface LoraSettings {
 
 export type PortalError = Record<string, unknown>;
 
+export interface StationPortalStatus {
+    id: number;
+    portalId: number | null;
+    ownerId: number | null;
+    error: PortalError | null;
+}
+
 export interface StationCreationFields {
     id: number | null;
     userId: number | null;
@@ -254,23 +261,6 @@ export class FirmwareInfo {
         public readonly time: number,
         public readonly hash: string
     ) {}
-}
-
-export interface StationPortalStatus {
-    id: number;
-    portalId: number | null;
-    error: PortalError | null;
-}
-
-export interface StationPortalAcceptedStatus extends StationPortalStatus {
-    id: number;
-    portalId: number;
-    ownerId: number;
-}
-
-export interface StationPortalErrorStatus extends StationPortalStatus {
-    id: number;
-    error: PortalError | null;
 }
 
 export class Station implements StationCreationFields {

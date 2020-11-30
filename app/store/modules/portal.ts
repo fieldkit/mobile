@@ -95,10 +95,10 @@ const actions = (services: ServiceRef) => {
                 .whoAmI()
                 .then((self) => {
                     if (self.email == null) {
-                        console.log("authenticated", self, "refusing to save");
+                        console.log(`authenticated: ${JSON.stringify(self)} refusing to save`);
                         return;
                     }
-                    console.log("authenticated", self);
+                    console.log(`authenticated: ${JSON.stringify(self)}`);
                     return services
                         .db()
                         .addOrUpdateAccounts(self)
@@ -138,7 +138,7 @@ const actions = (services: ServiceRef) => {
                 .getAvailablePortalEnvs()
                 .then((rows) => {
                     if (Config.env.developer) {
-                        console.log("portal-envs: using developer");
+                        console.log(`portal-envs: using developer`);
                         const env = {
                             name: null,
                             baseUri: Config.baseUri,
@@ -146,10 +146,10 @@ const actions = (services: ServiceRef) => {
                         };
                         commit(MutationTypes.SET_CURRENT_PORTAL_ENV, env);
                     } else if (rows.length > 1) {
-                        console.log("portal-envs", rows[0]);
+                        console.log(`portal-envs: ${JSON.stringify(rows[0])}`);
                         commit(MutationTypes.SET_CURRENT_PORTAL_ENV, rows[0]);
                     } else {
-                        console.log("portal-envs", fkprd);
+                        console.log(`portal-envs: ${JSON.stringify(fkprd)}`);
                         commit(MutationTypes.SET_CURRENT_PORTAL_ENV, fkprd);
                     }
                 });
