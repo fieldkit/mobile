@@ -121,11 +121,11 @@ export default class DatabaseInterface {
             if (rows.length == 0) throw new Error(`setting portal-id for unknown station`);
             const existing = rows[0];
             if (existing.portalId == station.portalId && existing.userId == station.ownerId) {
-                console.log(`same: ${JSON.stringify({ existing, station })}`);
+                console.log(`reply-same: ${JSON.stringify({ existing, station })}`);
                 return false;
             }
 
-            console.log(`changed! ${JSON.stringify({ existing, station })}`);
+            console.log(`reply-changed: ${JSON.stringify({ existing, station })}`);
             await this.updateStationPortalId(station.id, station.portalId, station.ownerId);
             return true;
         } catch (error) {
@@ -138,7 +138,6 @@ export default class DatabaseInterface {
         if (!userId) throw new Error(`invalid operation`);
         if (!portalId) throw new Error(`invalid operation`);
         const values = [portalId, userId, new Date(), stationId];
-        console.log(`values: ${JSON.stringify({ values: values })}`);
         await this.execute("UPDATE stations SET portal_id = ?, user_id = ?, updated = ? WHERE id = ?", values);
     }
 
