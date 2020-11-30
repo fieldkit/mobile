@@ -176,10 +176,6 @@ export default class QueryStation {
     }
 
     public calculateDownloadSize(url: string): Promise<CalculatedSize> {
-        if (!Config.developer.stationFilter(url)) {
-            return Promise.reject(new StationQueryError("ignored"));
-        }
-
         return this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .json({
@@ -366,10 +362,6 @@ export default class QueryStation {
     private stationQuery(url: string, message: fk_app.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
         return this.trackActivity(finalOptions, () => {
-            if (!Config.developer.stationFilter(url)) {
-                return Promise.reject(new StationQueryError("ignored"));
-            }
-
             const binaryQuery = HttpQuery.encodeDelimited(message as fk_app.IHttpQuery).finish();
             log.info(url, "querying", JSON.stringify(message));
 

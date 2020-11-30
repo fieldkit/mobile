@@ -110,8 +110,8 @@ function configureVueJs(services: typeof Services): Store {
     Vue.prototype._L = _L;
 
     // Enable use of dev tools on developer machine.
-    if (Config.developer.machine) {
-        Vue.use(VueDevtools, { host: Config.developer.machine });
+    if (Config.debugging.machine) {
+        Vue.use(VueDevtools, { host: Config.debugging.machine });
     }
 
     // This is extremely verbose and sometimes the only way to

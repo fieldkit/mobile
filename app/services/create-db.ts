@@ -20,7 +20,7 @@ export default class CreateDB {
     public initialize(path: string | null, userInvokedDelete: boolean, readOnly: boolean): Promise<Database> {
         return this.open(path, readOnly)
             .then(() => {
-                if (!path && (Config.dropTables || userInvokedDelete)) {
+                if (!path && (Config.db.drop || userInvokedDelete)) {
                     return this.dropTables().then(() => {
                         return this.database;
                     });

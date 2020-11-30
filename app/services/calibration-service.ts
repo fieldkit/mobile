@@ -276,9 +276,6 @@ export default class CalibrationService {
      * request/response bodies.
      */
     private stationQuery(url: string, message: AtlasProto.WireAtlasQuery): Promise<AtlasProto.WireAtlasReply> {
-        if (!Config.developer.stationFilter(url)) {
-            return Promise.reject("ignored");
-        }
         const binaryQuery = AtlasQuery.encodeDelimited(message).finish();
         log.info(url, "calibration querying", message);
 

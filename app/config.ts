@@ -1,14 +1,7 @@
 import DeveloperConfig from "./secrets";
 
 function getBlankDeveloperConfig() {
-    return {
-        developer: {
-            machine: null,
-            stationFilter: (_url: string): boolean => {
-                return true;
-            },
-        },
-    };
+    return {};
 }
 
 function getDeveloperConfig() {
@@ -19,7 +12,9 @@ interface SimpleConfig {
     vue: { verbose: boolean };
     baseUri: string;
     ingestionUri: string;
-    dropTables: boolean;
+    db: {
+        drop: boolean;
+    };
     lossBufferDelay: number;
 }
 
@@ -33,14 +28,13 @@ interface FinalConfig extends SimpleConfig {
         token: string;
         style: string;
     };
-    developer: {
-        machine: null;
-        stationFilter: (url: string) => boolean;
-    };
     env: {
         dev: boolean;
         test: boolean;
         developer: boolean;
+    };
+    debugging: {
+        machine: string | null;
     };
 }
 
@@ -49,18 +43,22 @@ const configs: { [index: string]: SimpleConfig } = {
         vue: {
             verbose: false,
         },
+        db: {
+            drop: true,
+        },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
-        dropTables: true,
         lossBufferDelay: 2000,
     },
     test: {
         vue: {
             verbose: false,
         },
+        db: {
+            drop: true,
+        },
         baseUri: "https://api.fkdev.org",
         ingestionUri: "https://api.fkdev.org/ingestion",
-        dropTables: true,
         lossBufferDelay: 0,
     },
 };
