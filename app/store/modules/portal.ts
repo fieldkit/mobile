@@ -36,12 +36,27 @@ const getters = {};
 
 const actions = (services: ServiceRef) => {
     return {
-        [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
-            return Promise.all([
+        [ActionTypes.LOAD]: async ({ dispatch }: ActionParameters) => {
+            await Promise.all([
                 dispatch(ActionTypes.LOAD_SETTINGS),
                 dispatch(ActionTypes.LOAD_ACCOUNTS),
                 dispatch(ActionTypes.LOAD_PORTAL_ENVS),
             ]);
+
+            try {
+                console.log(`authenticating default-users`);
+                await Promise.all(
+                    Config.defaultUsers.map(async (da) => {
+                        try {
+                            await services.portal().login(da);
+                        } catch (error) {
+                            console.log(`default-user failed: ${JSON.stringify(error)}`);
+                        }
+                    })
+                );
+            } catch (error) {
+                console.log(`failed: ${JSON.stringify(error)}`);
+            }
         },
         [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
             return services

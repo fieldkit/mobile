@@ -31,6 +31,7 @@ describe("portal sync", () => {
             const payload: StationPortalAcceptedStatus = {
                 id: 1,
                 portalId: 100,
+                ownerId: 1,
                 error: null,
             };
 
@@ -56,6 +57,7 @@ describe("portal sync", () => {
             const payload: StationPortalAcceptedStatus = {
                 id: 1,
                 portalId: 100,
+                ownerId: 1,
                 error: null,
             };
 

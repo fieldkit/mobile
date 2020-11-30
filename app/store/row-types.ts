@@ -13,6 +13,7 @@ export interface StationTableRow {
     deployStartTime: string | null;
     serializedStatus: string;
     lastSeen: number;
+    userId: number | null;
     portalId: number | null;
     portalHttpError: string | null;
 }

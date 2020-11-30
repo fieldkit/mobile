@@ -157,6 +157,7 @@ class StationStatusFactory {
         };
         const fields: StationCreationFields = {
             id: null,
+            userId: null,
             archived: false,
             deviceId: deviceId,
             generationId: generationId,
@@ -311,6 +312,7 @@ class StationDatabaseFactory {
     private getCreationFields(stationRow: StationTableRow): StationCreationFields {
         return {
             id: stationRow.id,
+            userId: stationRow.userId,
             deviceId: stationRow.deviceId,
             generationId: stationRow.generationId,
             name: stationRow.name,

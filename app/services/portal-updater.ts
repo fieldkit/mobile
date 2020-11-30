@@ -65,27 +65,30 @@ export default class PortalUpdater {
             locationName: notes.location,
         };
 
-        console.log("adding station", id);
-
+        console.log(`adding-station: ${JSON.stringify({ params, userId: station.userId })}`);
         return this.portal
             .addStation(params)
             .then(
                 (saved) => {
                     if (!id) throw new Error("no station id (should never)");
                     const ids = new Ids(id, saved.id);
-                    return this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, { id: id, portalId: saved.id }).then(() => {
-                        console.log("updating station", ids, params);
-                        return this.portal
-                            .updateStation(params, ids.portal)
-                            .then((saved) =>
-                                this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, {
-                                    id: id,
-                                    portalId: saved.id,
+                    return this.store
+                        .dispatch(ActionTypes.STATION_PORTAL_REPLY, { id: id, portalId: saved.id, ownerId: saved.owner.id })
+                        .then(() => {
+                            console.log(`updating-station: ${JSON.stringify({ ids, params })}`);
+                            return this.portal
+                                .updateStation(params, ids.portal)
+                                .then((saved) => {
+                                    console.log(`updated-station: ${JSON.stringify({ saved })}`);
+                                    return this.store.dispatch(ActionTypes.STATION_PORTAL_REPLY, {
+                                        id: id,
+                                        portalId: saved.id,
+                                        ownerId: saved.owner.id,
+                                    });
                                 })
-                            )
-                            .catch((error) => this.recordError(id, error))
-                            .then(() => this.synchronizeNotes.synchronize(ids));
-                    });
+                                .catch((error) => this.recordError(id, error))
+                                .then(() => this.synchronizeNotes.synchronize(ids));
+                        });
                 },
                 (error) => this.recordError(id, error)
             )

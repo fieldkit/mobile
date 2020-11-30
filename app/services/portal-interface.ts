@@ -86,6 +86,9 @@ export interface PortalStation {
     id: number;
     name: string;
     deviceId: string;
+    owner: {
+        id: number;
+    };
 }
 
 export interface PortalFirmware {

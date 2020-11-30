@@ -228,6 +228,7 @@ export type PortalError = Record<string, unknown>;
 
 export interface StationCreationFields {
     id: number | null;
+    userId: number | null;
     deviceId: string;
     generationId: string;
     name: string;
@@ -264,6 +265,7 @@ export interface StationPortalStatus {
 export interface StationPortalAcceptedStatus extends StationPortalStatus {
     id: number;
     portalId: number;
+    ownerId: number;
 }
 
 export interface StationPortalErrorStatus extends StationPortalStatus {
@@ -273,6 +275,7 @@ export interface StationPortalErrorStatus extends StationPortalStatus {
 
 export class Station implements StationCreationFields {
     public readonly id: number | null;
+    public readonly userId: number | null;
     public readonly deviceId: string;
     public readonly generationId: string;
     public readonly name: string;
@@ -310,6 +313,7 @@ export class Station implements StationCreationFields {
     constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = [], downloads: Download[] = []) {
         // if (!o.id) throw new Error(`station id is required`);
         this.id = o.id;
+        this.userId = o.userId;
         this.deviceId = o.deviceId;
         this.generationId = o.generationId;
         this.name = o.name;

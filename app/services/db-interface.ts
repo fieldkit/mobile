@@ -102,22 +102,31 @@ export default class DatabaseInterface {
         });
     }
 
-    public async setStationPortalId(station: { id: number; portalId: number }): Promise<boolean> {
+    public async setStationPortalId(station: { id: number; portalId: number; ownerId: number }): Promise<boolean> {
         if (!station.portalId) {
             console.log(`no portal id`);
             throw new Error(`no portal id`);
         }
 
+        if (!station.ownerId) {
+            console.log(`no owner id`);
+            throw new Error(`no owner id`);
+        }
+
         try {
-            const rows = await this.query<{ portalId: number | null }>("SELECT portal_id FROM stations WHERE id = ?", [station.id]);
+            const rows = await this.query<{ portalId: number | null; userId: number | null }>(
+                "SELECT portal_id, user_id FROM stations WHERE id = ?",
+                [station.id]
+            );
             if (rows.length == 0) throw new Error(`setting portal-id for unknown station`);
-            const existing = rows[0].portalId;
-            if (existing == station.portalId) {
+            const existing = rows[0];
+            if (existing.portalId == station.portalId && existing.userId == station.ownerId) {
+                console.log(`same: ${JSON.stringify({ existing, station })}`);
                 return false;
             }
 
-            console.log("changed!", existing, station.portalId);
-            await this.updateStationPortalId(station.id, station.portalId);
+            console.log(`changed! ${JSON.stringify({ existing, station })}`);
+            await this.updateStationPortalId(station.id, station.portalId, station.ownerId);
             return true;
         } catch (error) {
             console.log(`error setting portal id`, error);
@@ -125,9 +134,12 @@ export default class DatabaseInterface {
         }
     }
 
-    private async updateStationPortalId(stationId: number, portalId: number): Promise<void> {
-        const values = [portalId, new Date(), stationId];
-        await this.execute("UPDATE stations SET portal_id = ?, updated = ? WHERE id = ?", values);
+    private async updateStationPortalId(stationId: number, portalId: number, userId: number): Promise<void> {
+        if (!userId) throw new Error(`invalid operation`);
+        if (!portalId) throw new Error(`invalid operation`);
+        const values = [portalId, userId, new Date(), stationId];
+        console.log(`values: ${JSON.stringify({ values: values })}`);
+        await this.execute("UPDATE stations SET portal_id = ?, user_id = ?, updated = ? WHERE id = ?", values);
     }
 
     // {"id":3,"error":{"name":"station-owner-conflict","id":"7KE71s8T","message":"station already registered","temporary":false,"timeout":false,"fault":false}}
