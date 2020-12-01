@@ -1,5 +1,14 @@
 # TODO
-*.test.ts
+app/tests/syncing.test.ts
+app/tests/store.test.ts
+app/tests/stations.test.ts
+app/tests/replay.test.ts
+app/tests/portal-sync.test.ts
+# app/tests/portal-interface.test.ts
+app/tests/notes.test.ts
+app/tests/firmware.test.ts
+app/tests/db.test.ts
+app/tests/authentication.test.ts
 *.test.js
 fixtures.js
 app/tests/setup.ts

@@ -100,15 +100,10 @@ export default class StartupScreen extends Vue {
                     console.log("no test station");
                 }
 				*/
-            if (services.Store().getters.stationCalibrations[1]) {
-                return this.$navigateTo(routes.calibration.start, {
-                    clearHistory: true,
-                    props: {
-                        stationId: 1,
-                        position: 3,
-                    },
-                });
-            }
+            return this.$navigateTo(routes.onboarding.start, {
+                clearHistory: true,
+                props: {},
+            });
         }
 
         console.log("first navigate");

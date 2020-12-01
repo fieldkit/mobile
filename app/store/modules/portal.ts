@@ -85,37 +85,28 @@ const actions = (services: ServiceRef) => {
                     commit(MutationTypes.LOAD_ACCOUNTS, accounts);
                     const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
                     if (sorted.length > 0) {
-                        console.log("currentUser", sorted); // PRIVACY ANONYMIZE
-                        services.portal().setCurrentUser(sorted[0]);
+                        // console.log("currentUser", sorted); // PRIVACY ANONYMIZE
+                        // services.portal().setCurrentUser(sorted[0]);
                         commit(MutationTypes.SET_CURRENT_USER, sorted[0]);
                     }
                 })
                 .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
         },
         [ActionTypes.LOGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: LoginAction) => {
-            await services.portal().login(payload);
+            const portal = services.portal();
+            const self = await portal.login(payload);
+
+            portal.setCurrentUser(self);
+            commit(MutationTypes.SET_CURRENT_USER, self);
+
+            await services.db().addOrUpdateAccounts(self);
+
+            await dispatch(ActionTypes.LOAD_ACCOUNTS);
+
             await dispatch(ActionTypes.AUTHENTICATED);
         },
         [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
-                .portal()
-                .whoAmI()
-                .then((self) => {
-                    if (self.email == null) {
-                        console.log(`authenticated: ${JSON.stringify(self)} refusing to save`);
-                        return;
-                    }
-                    console.log(`authenticated: ${JSON.stringify(self)}`);
-                    return services
-                        .db()
-                        .addOrUpdateAccounts(self)
-                        .then(() => {
-                            services.portal().setCurrentUser(self);
-                            commit(MutationTypes.SET_CURRENT_USER, self);
-                            return dispatch(ActionTypes.LOAD_ACCOUNTS);
-                        })
-                        .catch((e) => console.log(ActionTypes.UPDATE_ACCOUNT, e));
-                });
+            //
         },
         [ActionTypes.LOGOUT_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
             return services
@@ -134,7 +125,7 @@ const actions = (services: ServiceRef) => {
                 .db()
                 .addOrUpdateAccounts(chosen[0])
                 .then(() => {
-                    services.portal().setCurrentUser(chosen[0]);
+                    // services.portal().setCurrentUser(chosen[0]);
                     commit(MutationTypes.SET_CURRENT_USER, chosen[0]);
                 })
                 .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
