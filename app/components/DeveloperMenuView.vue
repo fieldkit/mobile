@@ -214,7 +214,7 @@ export default Vue.extend({
             await Services.DiscoverStation().restart();
         },
         viewStations(): Promise<any> {
-            return this.$navigateTo(routes.stations, {});
+            return this.$navigateTo(routes.stations, { clearHistory: true });
         },
         goOnboardingFlow(): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {

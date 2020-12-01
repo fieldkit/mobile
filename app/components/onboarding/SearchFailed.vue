@@ -46,7 +46,7 @@ export default Vue.extend({
             return this.$navigateTo(routes.onboarding.searching, {});
         },
         skip(): Promise<any> {
-            return this.$navigateTo(routes.stations, {});
+            return this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

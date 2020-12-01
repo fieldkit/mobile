@@ -142,7 +142,8 @@ export default Vue.extend({
             const thisAny = this as any;
             thisAny._appSettings = new AppSettings();
             if (thisAny.stepParam) {
-                thisAny.step = thisAny.stepParam == "last" ? this.lastStep - 2 : thisAny.stepParam == "first" ? 0 : parseInt(thisAny.stepParam);
+                thisAny.step =
+                    thisAny.stepParam == "last" ? this.lastStep - 2 : thisAny.stepParam == "first" ? 0 : parseInt(thisAny.stepParam);
                 this.goNext();
             }
             if (!thisAny.animateFrameTimer) {
@@ -165,7 +166,7 @@ export default Vue.extend({
                 return animations.pressed(ev);
             } else {
                 console.log("no more steps");
-                return Promise.all([animations.pressed(ev), this.$navigateTo(routes.stations)]);
+                return Promise.all([animations.pressed(ev), this.$navigateTo(routes.stations, { clearHistory: true })]);
             }
         },
         goNext() {

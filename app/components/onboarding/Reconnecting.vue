@@ -55,7 +55,7 @@ export default Vue.extend({
         },
         back(): void {},
         skip(): Promise<any> {
-            return this.$navigateTo(routes.stations, {});
+            return this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

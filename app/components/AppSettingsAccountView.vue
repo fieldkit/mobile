@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
         <GridLayout rows="75,*,55">
             <ScreenHeader
                 row="0"
@@ -60,6 +60,7 @@ import { ActionTypes } from "~/store/actions";
 import routes from "@/routes";
 import Promise from "bluebird";
 import Services from "@/services/singleton";
+import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     data() {
@@ -80,16 +81,24 @@ export default Vue.extend({
         SettingsItemIconText,
     },
     methods: {
+        onPageLoaded() {
+            if (application.android) {
+                application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                    args.cancel = true; //this cancels the normal backbutton behaviour
+                    this.$navigateTo(routes.appSettings.list, { clearHistory: true, backstackVisible: false });
+                });
+            }
+        },
         addAccount() {
             return this.$navigateTo(routes.appSettings.accountAdd, {});
         },
         logoutAll() {
             return Services.PortalInterface().logout();
         },
-        goBack(this: any, ev) {
-            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.list, {})]);
+        goBack(ev) {
+            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.list, { clearHistory: true })]);
         },
-        onChooseAccount(this: any, account) {
+        onChooseAccount(account) {
             return Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);
         },
     },

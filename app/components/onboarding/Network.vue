@@ -134,11 +134,7 @@ export default Vue.extend({
         },
         skip(this: any) {
             console.log("forward", this.form);
-            return this.$navigateTo(routes.stations, {
-                props: {
-                    stationId: this.stationId,
-                },
-            });
+            return this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

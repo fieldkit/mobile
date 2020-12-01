@@ -156,9 +156,7 @@ export default Vue.extend({
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
-                    props: {
-                        stationId: this.stationId,
-                    },
+                    clearHistory: true,
                     transition: {
                         name: "slideRight",
                         duration: 250,
@@ -251,7 +249,8 @@ export default Vue.extend({
                 const userId = this.$s.state.portal.currentUser.portalId;
                 const stationId = this.currentStation.id;
 
-                this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                this.$s
+                    .dispatch(ActionTypes.ADD_NOTIFICATION, {
                         key: `${userId}/${stationId}/${portalError.name}`,
                         kind: portalError.name,
                         created: new Date(),

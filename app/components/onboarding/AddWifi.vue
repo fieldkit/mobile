@@ -120,11 +120,7 @@ export default Vue.extend({
         },
         skip(): Promise<any> {
             console.log("forward", this.form);
-            return this.$navigateTo(routes.stations, {
-                props: {
-                    stationId: this.stationId,
-                },
-            });
+            return this.$navigateTo(routes.stations, { clearHistory: true });
         },
         onBack(): Promise<any> {
             console.log("onBack");

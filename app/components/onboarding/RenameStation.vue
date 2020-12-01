@@ -99,15 +99,15 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(this: any) {
+        currentStation() {
             return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(this: any, rgs) {
+        onPageLoaded(rgs) {
             this.form.name = this.currentStation.name;
         },
-        rename(this: any) {
+        rename() {
             if (!this.validate()) {
                 return;
             }
@@ -136,7 +136,7 @@ export default Vue.extend({
                 },
             });
         },
-        validate(this: any) {
+        validate() {
             this.form.v = {
                 required: false,
                 long: false,
@@ -148,11 +148,11 @@ export default Vue.extend({
             this.form.v = _.extend(this.form.v, validateStationName(this.form.name));
             return !this.form.v.any;
         },
-        clearName(this: any) {
+        clearName() {
             this.form.name = "";
         },
-        skip(this: any) {
-            return this.$navigateTo(routes.stations, {});
+        skip() {
+            return this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

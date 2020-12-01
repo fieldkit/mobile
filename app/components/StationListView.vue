@@ -54,6 +54,7 @@ import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
+import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     components: {
@@ -69,6 +70,13 @@ export default Vue.extend({
     },
     computed: {
         ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
+    },
+    created: function () {
+        if (application.android) {
+            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                args.cancel = true; //this cancels the normal backbutton behaviour
+            });
+        }
     },
     methods: {
         getDeployStatus(station: AvailableStation): string {
