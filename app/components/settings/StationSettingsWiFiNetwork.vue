@@ -75,9 +75,9 @@
                             @tap="addNetwork"
                         />
 
-                        <!--
-                        <ConnectionNote :station="station" :stationId="stationId" />
+                        <ConnectionNote :station="station" />
 
+                        <!--
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
                             <Button
@@ -107,7 +107,7 @@ import SharedComponents from "@/components/shared";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import WiFi from "./StationSettingsWiFi.vue";
 
-import { Station, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
+import { AvailableStation, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 
 export default Vue.extend({
     data(): {
@@ -142,16 +142,16 @@ export default Vue.extend({
         maximumNetworks(): number {
             return 2;
         },
-        station(): Station {
-            return this.$s.getters.stationsById[this.stationId];
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
         networks(): NetworkInfo[] {
             return this.station.networks;
         },
     },
     methods: {
-        goBack(ev: any): Promise<any> {
-            return Promise.all([
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(WiFi, {
                     props: {
@@ -171,17 +171,17 @@ export default Vue.extend({
                 this.addingNetwork = true;
             }
         },
-        addNetwork(): Promise<any> {
+        async addNetwork(): Promise<void> {
             this.addingNetwork = false;
             const adding = _.clone(this.form);
             this.form = {
                 ssid: "",
                 password: "",
             };
-            return this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
+            await this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
         },
-        removeNetwork(network: NetworkInfo): Promise<void> {
-            return Dialogs.confirm({
+        async removeNetwork(network: NetworkInfo): Promise<void> {
+            await Dialogs.confirm({
                 title: _L("areYouSureRemoveNetwork"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("cancel"),
