@@ -25,14 +25,6 @@ import { Notification } from "~/store/modules/notifications";
 
 const log = Config.logger("DbInterface");
 
-export interface UserAccount {
-    name: string;
-    email: string;
-    portalId: number;
-    token: string;
-    usedAt: Date | null;
-}
-
 export default class DatabaseInterface {
     constructor(private readonly services: Services) {}
 
@@ -798,18 +790,24 @@ export default class DatabaseInterface {
         );
     }
 
-    public async addOrUpdateAccounts(account: UserAccount): Promise<void> {
+    public async addOrUpdateAccounts(account: AccountsTableRow): Promise<void> {
         if (account.email == null) {
             return Promise.reject(new Error(`error saving account, email is required`));
         }
         return await this.query(`SELECT id FROM accounts WHERE email = ?`, [account.email])
             .then((maybeId: { id: number }[]) => {
                 if (maybeId.length == 0) {
-                    const values = [account.name, account.email, account.portalId, account.token, new Date()];
-                    return this.execute(`INSERT INTO accounts (name, email, portal_id, token, used_at) VALUES (?, ?, ?, ?, ?)`, values);
+                    const values = [account.name, account.email, account.portalId, account.token, account.details, new Date()];
+                    return this.execute(
+                        `INSERT INTO accounts (name, email, portal_id, token, details, used_at) VALUES (?, ?, ?, ?, ?, ?)`,
+                        values
+                    );
                 }
-                const values = [account.name, account.email, account.portalId, account.token, new Date(), maybeId[0].id];
-                return this.execute(`UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, used_at = ? WHERE id = ?`, values);
+                const values = [account.name, account.email, account.portalId, account.token, account.details, new Date(), maybeId[0].id];
+                return this.execute(
+                    `UPDATE accounts SET name = ?, email = ?, portal_id = ?, token = ?, details = ?, used_at = ? WHERE id = ?`,
+                    values
+                );
             })
             .then(() => Promise.resolve())
             .catch((error) => Promise.reject(new Error(`error fetching accounts: ${JSON.stringify(error)}`)));

@@ -20,3 +20,4 @@ export * from "./20201109_103509_add_station_archived.ts";
 export * from "./20201110_152705_add_vuex_log.ts";
 export * from "./20201123_140043_add_sensor_number.ts";
 export * from "./20201129_145857_add_station_user_id.ts";
+export * from "./20201130_191611_add_user_details.ts";

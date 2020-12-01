@@ -96,12 +96,13 @@ export interface SettingsTableRow {
 }
 
 export interface AccountsTableRow {
+    id?: number;
     portalId: number;
-    id: number;
     name: string;
     email: string;
     token: string;
     usedAt: Date;
+    details: string | null;
 }
 
 export interface NotificationsTableRow {

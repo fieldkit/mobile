@@ -26,7 +26,7 @@ const fkdev: PortalEnv = {
 export class PortalState {
     authenticated = false;
     settings: Record<string, unknown> = {};
-    accounts: AccountsTableRow[] = [];
+    accounts: CurrentUser[] = [];
     currentUser: CurrentUser | null = null;
     availableEnvs: PortalEnv[] = [fkprd, fkdev];
     env: PortalEnv = fkprd;
@@ -43,6 +43,31 @@ const getters = {
         );
     },
 };
+
+function userToRow(user: CurrentUser): AccountsTableRow {
+    return {
+        portalId: user.portalId,
+        name: user.name,
+        email: user.email,
+        token: user.token,
+        usedAt: user.usedAt ?? new Date(),
+        details: JSON.stringify(user),
+    };
+}
+
+function rowToUser(row: AccountsTableRow): CurrentUser {
+    if (row.details) {
+        return JSON.parse(row.details) as CurrentUser;
+    }
+    return {
+        portalId: row.portalId,
+        name: row.name,
+        email: row.email,
+        token: row.token,
+        usedAt: row.usedAt ?? new Date(),
+        transmission: null,
+    };
+}
 
 const actions = (services: ServiceRef) => {
     return {
@@ -92,10 +117,10 @@ const actions = (services: ServiceRef) => {
             await services
                 .db()
                 .getAllAccounts()
-                .then((accounts) => {
-                    commit(MutationTypes.LOAD_ACCOUNTS, accounts);
-
-                    const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
+                .then((rows) => {
+                    const users = rows.map(rowToUser);
+                    commit(MutationTypes.LOAD_ACCOUNTS, users);
+                    const sorted = _.reverse(_.sortBy(users, (a) => a.usedAt));
                     if (sorted.length > 0 && !state.currentUser) {
                         commit(MutationTypes.SET_CURRENT_USER, sorted[0]);
                     }
@@ -108,7 +133,7 @@ const actions = (services: ServiceRef) => {
 
             commit(MutationTypes.SET_CURRENT_USER, self);
 
-            await services.db().addOrUpdateAccounts(self);
+            await services.db().addOrUpdateAccounts(userToRow(self));
 
             await dispatch(ActionTypes.LOAD_ACCOUNTS);
 
@@ -131,9 +156,8 @@ const actions = (services: ServiceRef) => {
             if (chosen.length == 0) throw new Error(`no such account: ${email}`);
             await services
                 .db()
-                .addOrUpdateAccounts(chosen[0])
+                .addOrUpdateAccounts(userToRow(chosen[0]))
                 .then(() => {
-                    // services.portal().setCurrentUser(chosen[0]);
                     commit(MutationTypes.SET_CURRENT_USER, chosen[0]);
                 })
                 .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
