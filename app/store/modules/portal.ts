@@ -9,6 +9,8 @@ import { MutationTypes } from "../mutations";
 import { AccountsTableRow, SettingsTableRow } from "../row-types";
 import Config from "@/config";
 
+export { CurrentUser };
+
 const fkprd: PortalEnv = {
     name: "fkprd",
     baseUri: "https://api.fieldkit.org",
@@ -32,7 +34,15 @@ export class PortalState {
 
 type ActionParameters = ActionContext<PortalState, never>;
 
-const getters = {};
+const getters = {
+    usersById(state: PortalState): { [id: number]: CurrentUser } {
+        return _.fromPairs(
+            state.accounts.map((row) => {
+                return [row.portalId, _.extend({ transmission: null }, row)];
+            })
+        );
+    },
+};
 
 const actions = (services: ServiceRef) => {
     return {
@@ -43,11 +53,12 @@ const actions = (services: ServiceRef) => {
                 dispatch(ActionTypes.LOAD_PORTAL_ENVS),
             ]);
 
-            if (Config.defaultUsers.length > 0) {
+            const users = Config.defaultUsers;
+            if (users.length > 0) {
                 try {
                     console.log(`authenticating default-users`);
                     await Promise.all(
-                        Config.defaultUsers.map(async (da) => {
+                        users.map(async (da) => {
                             try {
                                 await dispatch(new LoginAction(da.email, da.password));
                                 console.log(`authenticated: ${JSON.stringify(da.email)}`);
@@ -61,8 +72,8 @@ const actions = (services: ServiceRef) => {
                 }
             }
         },
-        [ActionTypes.LOAD_SETTINGS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
+        [ActionTypes.LOAD_SETTINGS]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await services
                 .db()
                 .getSettings()
                 .then((settings) => {
@@ -70,23 +81,22 @@ const actions = (services: ServiceRef) => {
                 })
                 .catch((e) => console.log(ActionTypes.LOAD_SETTINGS, e));
         },
-        [ActionTypes.UPDATE_SETTINGS]: ({ dispatch }: ActionParameters, settings) => {
-            return services
+        [ActionTypes.UPDATE_SETTINGS]: async ({ dispatch }: ActionParameters, settings) => {
+            await services
                 .db()
                 .updateSettings(settings)
                 .then((res) => dispatch(ActionTypes.LOAD_SETTINGS).then(() => res))
                 .catch((e) => console.log(ActionTypes.UPDATE_SETTINGS, e));
         },
-        [ActionTypes.LOAD_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
+        [ActionTypes.LOAD_ACCOUNTS]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await services
                 .db()
                 .getAllAccounts()
                 .then((accounts) => {
                     commit(MutationTypes.LOAD_ACCOUNTS, accounts);
+
                     const sorted = _.reverse(_.sortBy(accounts, (a) => a.usedAt));
-                    if (sorted.length > 0) {
-                        // console.log("currentUser", sorted); // PRIVACY ANONYMIZE
-                        // services.portal().setCurrentUser(sorted[0]);
+                    if (sorted.length > 0 && !state.currentUser) {
                         commit(MutationTypes.SET_CURRENT_USER, sorted[0]);
                     }
                 })
@@ -96,7 +106,6 @@ const actions = (services: ServiceRef) => {
             const portal = services.portal();
             const self = await portal.login(payload);
 
-            portal.setCurrentUser(self);
             commit(MutationTypes.SET_CURRENT_USER, self);
 
             await services.db().addOrUpdateAccounts(self);
@@ -105,11 +114,8 @@ const actions = (services: ServiceRef) => {
 
             await dispatch(ActionTypes.AUTHENTICATED);
         },
-        [ActionTypes.AUTHENTICATED]: ({ commit, dispatch, state }: ActionParameters) => {
-            //
-        },
-        [ActionTypes.LOGOUT_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters) => {
-            return services
+        [ActionTypes.LOGOUT_ACCOUNTS]: async ({ commit, dispatch, state }: ActionParameters) => {
+            await services
                 .db()
                 .deleteAllAccounts()
                 .then(() => {
@@ -117,11 +123,13 @@ const actions = (services: ServiceRef) => {
                     return dispatch(ActionTypes.LOAD_ACCOUNTS);
                 })
                 .catch((e) => console.log(ActionTypes.LOGOUT_ACCOUNTS, e));
+
+            commit(MutationTypes.LOGOUT);
         },
-        [ActionTypes.CHANGE_ACCOUNT]: ({ commit, dispatch, state }: ActionParameters, email: string) => {
+        [ActionTypes.CHANGE_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, email: string) => {
             const chosen = state.accounts.filter((a) => a.email === email);
             if (chosen.length == 0) throw new Error(`no such account: ${email}`);
-            return services
+            await services
                 .db()
                 .addOrUpdateAccounts(chosen[0])
                 .then(() => {
@@ -130,8 +138,8 @@ const actions = (services: ServiceRef) => {
                 })
                 .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
         },
-        [ActionTypes.LOAD_PORTAL_ENVS]: ({ commit, dispatch, state }: ActionParameters, _payload: ChangePortalEnvAction) => {
-            return services
+        [ActionTypes.LOAD_PORTAL_ENVS]: async ({ commit, dispatch, state }: ActionParameters, _payload: ChangePortalEnvAction) => {
+            await services
                 .db()
                 .getAvailablePortalEnvs()
                 .then((rows) => {
@@ -152,8 +160,8 @@ const actions = (services: ServiceRef) => {
                     }
                 });
         },
-        [ActionTypes.CHANGE_PORTAL_ENV]: ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
-            return services
+        [ActionTypes.CHANGE_PORTAL_ENV]: async ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
+            await services
                 .db()
                 .updatePortalEnv(payload.env)
                 .then(() => {
@@ -164,17 +172,18 @@ const actions = (services: ServiceRef) => {
 };
 
 const mutations = {
-    [MutationTypes.SET_CURRENT_USER]: (state: PortalState, currentUser: CurrentUser) => {
-        Vue.set(state, "currentUser", currentUser);
-    },
     [MutationTypes.RESET]: (state: PortalState) => {
         Object.assign(state, new PortalState());
+    },
+    [MutationTypes.SET_CURRENT_USER]: (state: PortalState, currentUser: CurrentUser) => {
+        Vue.set(state, "currentUser", currentUser);
     },
     [MutationTypes.LOGIN]: (state: PortalState) => {
         Vue.set(state, "authenticated", true);
     },
     [MutationTypes.LOGOUT]: (state: PortalState) => {
         Vue.set(state, "authenticated", false);
+        Vue.set(state, "currentUser", null);
     },
     [MutationTypes.LOAD_SETTINGS]: (state: PortalState, rows: SettingsTableRow[]) => {
         if (rows.length == 0) {

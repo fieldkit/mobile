@@ -151,7 +151,7 @@ const actions = (services: ServiceRef) => {
                 console.log("syncing:upload", sync.name, download);
                 return services
                     .portal()
-                    .uploadPreviouslyDownloaded(sync.name, download, (total: number, copied: number) => {
+                    .uploadPreviouslyDownloaded(sync.id, sync.name, download, (total: number, copied: number) => {
                         commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, download.path, total, copied));
                     })
                     .then(() => services.db().markDownloadAsUploaded(download))

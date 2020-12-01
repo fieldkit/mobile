@@ -5,7 +5,7 @@ import { PhoneState } from "./phone";
 import { NetworkState } from "./network";
 import { SyncingState } from "./syncing";
 import { NotesState } from "./notes";
-import { PortalState } from "./portal";
+import { CurrentUser, PortalState } from "./portal";
 import { FirmwareState } from "./firmware";
 import { NotificationsState } from "./notifications";
 import { MediaState } from "./media";
@@ -45,4 +45,5 @@ export interface GlobalGetters {
     readonly syncs: StationSyncStatus[];
     readonly stationCalibrations: { [index: number]: StationCalibration };
     readonly stationsById: { [index: number]: Station };
+    readonly usersById: { [id: number]: CurrentUser };
 }

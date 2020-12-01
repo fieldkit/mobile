@@ -75,8 +75,8 @@ export interface PortalPatchNotesPayload {
 }
 
 export interface CurrentUser {
-    name: string;
     portalId: number;
+    name: string;
     email: string;
     token: string;
     usedAt: Date | null;
@@ -130,7 +130,6 @@ export default class PortalInterface {
     private fs: FileSystem;
     private conservify: Conservify;
     private store: OurStore;
-    private currentUser: CurrentUser | null = null;
 
     constructor(public readonly services: Services) {
         this.fs = services.FileSystem();
@@ -138,12 +137,12 @@ export default class PortalInterface {
         this.store = services.Store();
     }
 
-    public isLoggedIn(): boolean {
-        return this.currentUser != null;
+    private get currentUser(): CurrentUser | null {
+        return this.store.state.portal.currentUser;
     }
 
-    public setCurrentUser(user: CurrentUser): void {
-        this.currentUser = user;
+    public isLoggedIn(): boolean {
+        return this.currentUser != null;
     }
 
     public async isAvailable(): Promise<boolean> {
@@ -201,7 +200,6 @@ export default class PortalInterface {
     }
 
     public async logout(): Promise<void> {
-        this.currentUser = null;
         await this.store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
     }
 
@@ -288,13 +286,17 @@ export default class PortalInterface {
     }
 
     public async uploadPreviouslyDownloaded(
-        _stationId: number,
+        stationId: number,
         deviceName: string,
         download: Download,
         progress: ProgressFunc
     ): Promise<{ statusCode: number; headers: { [index: string]: string } }> {
-        const token = this.getCurrentToken();
-        if (!token) return Promise.reject(new AuthenticationError("no token"));
+        const defaultUser = this.store.state.portal.currentUser;
+        const usersById = this.store.getters.usersById;
+        const station = this.store.getters.stationsById[stationId];
+        if (!station) return Promise.reject(new Error(`no such station: ${stationId}`));
+        const user = (station.userId ? usersById[station.userId] : null) ?? defaultUser;
+        if (!user) return Promise.reject(new AuthenticationError("no user"));
 
         const headers = {
             "Fk-Blocks": download.blocks,
@@ -330,7 +332,7 @@ export default class PortalInterface {
 
         const defaultHeaders = {
             "Content-Type": "application/octet-stream",
-            Authorization: token,
+            Authorization: user.token,
             "Fk-DeviceId": download.deviceId,
             "Fk-DeviceName": deviceName,
         };

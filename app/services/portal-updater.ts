@@ -23,8 +23,8 @@ export default class PortalUpdater {
         return Promise.resolve();
     }
 
-    public addOrUpdateStations(): Promise<void> {
-        return this.portal.isAvailable().then((yes: boolean) => {
+    public async addOrUpdateStations(): Promise<void> {
+        return await this.portal.isAvailable().then((yes: boolean) => {
             if (!yes) {
                 console.log("portal unavailable, offline?");
                 return Promise.resolve();
@@ -41,16 +41,18 @@ export default class PortalUpdater {
         });
     }
 
-    private recordError(stationId: number, error: AxiosError) {
+    private async recordError(stationId: number, error: AxiosError): Promise<void> {
         if (error?.response?.data) {
-            return this.store.dispatch(new PortalErrorAction(stationId, error.response.data as PortalError));
+            await this.store.dispatch(new PortalErrorAction(stationId, error.response.data as PortalError));
+        } else {
+            await this.store.dispatch(new PortalErrorAction(stationId, { unknown: true, message: error.message }));
         }
-        return this.store.dispatch(new PortalErrorAction(stationId, { unknown: true, message: error.message }));
     }
 
-    private update(station: Station): Promise<void> {
+    private async update(station: Station): Promise<void> {
         const id = station.id;
         if (!id) throw new Error(`station id is required`);
+
         const notes = this.store.state.notes.stations[id];
         const params = {
             name: station.name,
@@ -60,25 +62,22 @@ export default class PortalUpdater {
         };
 
         console.log(`adding-station: ${JSON.stringify({ params, userId: station.userId })}`);
-        return this.portal
-            .addStation(params)
-            .then(
-                (saved) => {
-                    if (!id) throw new Error("no station id (should never)");
-                    const ids = new Ids(id, saved.id);
-                    return this.store.dispatch(new PortalReplyAction(id, saved.id, saved.owner.id)).then(() => {
-                        console.log(`updating-station: ${JSON.stringify({ ids, params })}`);
-                        return this.portal
-                            .updateStation(params, ids.portal)
-                            .then((saved) => {
-                                return this.store.dispatch(new PortalReplyAction(id, saved.id, saved.owner.id));
-                            })
-                            .catch((error) => this.recordError(id, error))
-                            .then(() => this.synchronizeNotes.synchronize(ids));
-                    });
-                },
-                (error) => this.recordError(id, error)
-            )
-            .then(() => Promise.resolve());
+        try {
+            const defaultUser = this.store.state.portal.currentUser;
+            const usersById = this.store.getters.usersById;
+            const user = (station.userId ? usersById[station.userId] : null) ?? defaultUser;
+            if (!user) {
+                console.log(`no-user: ${JSON.stringify({ defaultUser, usersById })}`);
+                throw new Error(`no user `);
+            }
+            console.log(`adding-station: ${JSON.stringify({ userId: user.portalId })}`);
+            const saved = await this.portal.addStation(user, params);
+            await this.store.dispatch(new PortalReplyAction(id, saved.id, saved.owner.id));
+            const ids = new Ids(id, saved.id);
+            await this.synchronizeNotes.synchronize(ids);
+        } catch (error) {
+            console.log(`error: ${JSON.stringify(error)}`);
+            await this.recordError(id, error);
+        }
     }
 }

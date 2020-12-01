@@ -24,7 +24,7 @@ describe("UserAuth", () => {
         mockedAxios.request.mockReset();
     });
 
-    it("should not have a user logged in by default", () => {
+    it("should be unauthenticated by defeault", () => {
         expect(portalInterface.isLoggedIn()).toBeFalsy();
     });
 
@@ -69,7 +69,7 @@ describe("UserAuth", () => {
         expect(portalInterface.isLoggedIn()).toBeTruthy();
     });
 
-    it("should not log non-existing user in", async () => {
+    it("should be unauthenticated after failed login", async () => {
         const user = {
             email: "fakeuser@example.com",
             password: "fakeuserspassword",

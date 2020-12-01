@@ -114,6 +114,11 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 return false;
             }
 
+            if (mutation.type == MutationTypes.LOGIN) {
+                console.log("mutation:", mutation.type);
+                return false;
+            }
+
             if (mutation.payload) {
                 console.log("mutation:", mutation.type, JSON.stringify(mutation.payload));
             } else {
@@ -140,6 +145,11 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 return false;
             }
             if (action.type == ActionTypes.STATIONS_LOADED) {
+                console.log("action:", action.type);
+                return false;
+            }
+
+            if (action.type == ActionTypes.LOGIN) {
                 console.log("action:", action.type);
                 return false;
             }
