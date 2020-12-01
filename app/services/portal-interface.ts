@@ -513,7 +513,9 @@ export default class PortalInterface {
                 console.log(`portal query`, req.method || "GET", baseUri + req.url);
                 req.headers = headers;
                 req.url = baseUri + req.url;
-                const promised = axios.request(req as any); // eslint-disable-line
+                // eslint-disable-next-line
+                const axiosRequest = _.extend(req as any, { timeout: 5000 });
+                const promised = axios.request(axiosRequest); // eslint-disable-line
                 // if (!promised) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
                 return promised
                     .then((response) => {
