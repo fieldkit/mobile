@@ -15,6 +15,7 @@ function getBlankLocalConfig(): LocalConfig {
             drop: false,
         },
         defaultUsers: [],
+        defaultNetworks: [],
         mapbox: {
             token: "",
             style: "",
