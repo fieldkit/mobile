@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('stationSettings')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="*,70">
             <ScrollView row="0">
@@ -29,7 +29,6 @@
 import Vue from "vue";
 import routes from "../../routes";
 import Services from "@/services/singleton";
-
 import SharedComponents from "@/components/shared";
 import General from "./StationSettingsGeneral.vue";
 import Networks from "./StationSettingsNetworks.vue";
@@ -62,7 +61,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(args) {},
         selectFromMenu(event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -89,7 +87,6 @@ export default Vue.extend({
             return this.$navigateTo(General, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
@@ -97,7 +94,6 @@ export default Vue.extend({
             return this.$navigateTo(Networks, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
@@ -112,7 +108,6 @@ export default Vue.extend({
             return this.$navigateTo(Modules, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
@@ -120,7 +115,6 @@ export default Vue.extend({
             return this.$navigateTo(EndDeploy, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },

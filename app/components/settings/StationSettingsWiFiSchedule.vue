@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('uploadSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="*,70">
             <ScrollView row="0">
@@ -25,11 +25,10 @@
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import * as animations from "@/components/animations";
-
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import WiFi from "./StationSettingsWiFi.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
+import WiFi from "./StationSettingsWiFi.vue";
 
 export default Vue.extend({
     data() {
@@ -65,16 +64,12 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
-            this.page = args.object;
-        },
         goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(WiFi, {
                     props: {
                         stationId: this.stationId,
-                        station: this.station,
                     },
                     transition: {
                         name: "slideRight",

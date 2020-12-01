@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
         <GridLayout rows="*,70">
@@ -61,7 +61,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {},
         goBack(this: any, event) {
             if (event) {
                 // Change background color when pressed
@@ -75,7 +74,6 @@ export default Vue.extend({
             return this.$navigateTo(routes.stationSettings, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",

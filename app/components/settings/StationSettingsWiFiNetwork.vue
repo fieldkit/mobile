@@ -100,14 +100,12 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
+import { AvailableStation, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 import { Dialogs } from "@nativescript/core";
 import * as animations from "@/components/animations";
-
 import SharedComponents from "@/components/shared";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import WiFi from "./StationSettingsWiFi.vue";
-
-import { AvailableStation, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 
 export default Vue.extend({
     data(): {
@@ -156,7 +154,6 @@ export default Vue.extend({
                 this.$navigateTo(WiFi, {
                     props: {
                         stationId: this.stationId,
-                        station: this.station,
                     },
                     transition: {
                         name: "slideRight",

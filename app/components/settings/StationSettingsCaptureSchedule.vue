@@ -90,7 +90,6 @@ export default Vue.extend({
             return this.$navigateTo(General, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",

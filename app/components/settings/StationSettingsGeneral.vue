@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('general')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="*,70">
             <ScrollView row="0">
@@ -25,7 +25,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "../../routes";
-
+import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import StationName from "./StationSettingsName.vue";
 import CaptureSchedule from "./StationSettingsCaptureSchedule.vue";
@@ -41,18 +41,18 @@ export default Vue.extend({
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
     components: {
         ...SharedComponents,
         StationName,
         CaptureSchedule,
     },
+    computed: {
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
+        },
+    },
     methods: {
-        onPageLoaded(this: any, args) {},
         selectFromMenu(this: any, event) {
             const cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -71,7 +71,6 @@ export default Vue.extend({
             return this.$navigateTo(StationName, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
@@ -79,7 +78,6 @@ export default Vue.extend({
             return this.$navigateTo(CaptureSchedule, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
@@ -94,7 +92,6 @@ export default Vue.extend({
             return this.$navigateTo(routes.stationSettings, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",

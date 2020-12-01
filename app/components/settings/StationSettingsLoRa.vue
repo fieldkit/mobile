@@ -105,10 +105,6 @@ export default Vue.extend({
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
     components: {
         ...SharedComponents,
@@ -143,7 +139,6 @@ export default Vue.extend({
             this.$navigateTo(Networks, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
                 transition: {
                     name: "slideRight",

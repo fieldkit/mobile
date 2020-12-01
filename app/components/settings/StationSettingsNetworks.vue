@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('networks')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
         <GridLayout rows="*,70">
@@ -26,7 +26,7 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-
+import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
@@ -42,18 +42,18 @@ export default Vue.extend({
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
     components: {
         ...SharedComponents,
         WiFi,
         LoRa,
     },
+    computed: {
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
+        },
+    },
     methods: {
-        onPageLoaded(this: any, args) {},
         selectFromMenu(this: any, event) {
             let cn = event.object.className;
             event.object.className = cn + " pressed";
@@ -74,7 +74,6 @@ export default Vue.extend({
             this.$navigateTo(WiFi, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
@@ -82,7 +81,6 @@ export default Vue.extend({
             this.$navigateTo(LoRa, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },

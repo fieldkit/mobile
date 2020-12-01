@@ -146,7 +146,6 @@ export default Vue.extend({
         upgradeFirmware(): Promise<unknown> {
             const options = {
                 props: {
-                    station: this.station,
                     stationId: this.stationId,
                     downloadOnly: false,
                 },
@@ -165,7 +164,6 @@ export default Vue.extend({
             await Promise.all([
                 this.$navigateTo(routes.stationSettings, {
                     props: {
-                        station: this.station,
                         stationId: this.station.id,
                     },
                     transition: {

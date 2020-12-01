@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
         <GridLayout rows="*,70">
@@ -48,7 +48,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {},
         goBack(this: any, ev) {
             return Promise.all([
                 animations.pressed(ev),
