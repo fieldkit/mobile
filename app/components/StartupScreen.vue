@@ -34,76 +34,68 @@ export default class StartupScreen extends Vue {
 
         console.log("developer", Config.env.developer);
         if (Config.env.developer) {
-            // if (services.Store().getters.stationCalibrations[1]) {
-            //     return this.$navigateTo(routes.onboarding.recalibrate, {
-            //         clearHistory: true,
-            //         props: {
-            //             stationId: 1,
-            //         },
-            //
-            //     });
-            // } else {
-            //     console.log("no test station");
-            // }
             /*
-                return this.$navigateTo(routes.internal.calibrate, {
-                    clearHistory: true,
-                    props: {
-                        stationId: 2,
-                        position: 0,
-                    },
-                });
-                return this.$navigateTo(routes.onboarding.assembleStation, {
-                    clearHistory: true,
-                    props: {},
-                });
-                return this.$navigateTo(routes.login, {
-                    clearHistory: true,
-                    props: {},
-                });
-                return this.$navigateTo(routes.reader.flow, {
-                    clearHistory: true,
-                    props: {
-                        flowName: "onboarding",
-                    },
-                });
-                return this.$navigateTo(routes.appSettings.account, {
-                    clearHistory: true,
-                    props: {},
-                });
-                return this.$navigateTo(routes.stations, {
-                    clearHistory: true,
-                    props: {},
-                });
-                return this.$navigateTo(routes.dataSync, {
-                    clearHistory: true,
-                    props: {},
-                });
-                return this.$navigateTo(routes.developerMenu, {
-                    clearHistory: true,
-                    props: {},
-                });
-                if (services.Store().getters.stationCalibrations[1]) {
-                    // return this.$navigateTo(routes.deploy.start, {
-                    // return this.$navigateTo(routes.deploy.notes, {
-                    // return this.$navigateTo(routes.deploy.review, {
-                    // return this.$navigateTo(routes.stationSettings, {
-                    // return this.$navigateTo(routes.station.settings.firmware, {
+			return this.$navigateTo(routes.internal.calibrate, {
+				clearHistory: true,
+				props: {
+					stationId: 2,
+					position: 0,
+				},
+			});
+			return this.$navigateTo(routes.onboarding.assembleStation, {
+				clearHistory: true,
+				props: {},
+			});
+			return this.$navigateTo(routes.login, {
+				clearHistory: true,
+				props: {},
+			});
+			return this.$navigateTo(routes.reader.flow, {
+				clearHistory: true,
+				props: {
+					flowName: "onboarding",
+				},
+			});
+			return this.$navigateTo(routes.appSettings.account, {
+				clearHistory: true,
+				props: {},
+			});
+			return this.$navigateTo(routes.stations, {
+				clearHistory: true,
+				props: {},
+			});
+			return this.$navigateTo(routes.dataSync, {
+				clearHistory: true,
+				props: {},
+			});
+			return this.$navigateTo(routes.developerMenu, {
+				clearHistory: true,
+				props: {},
+			});
+			*/
+            if (services.Store().getters.stationCalibrations[1]) {
+                // return this.$navigateTo(routes.deploy.start, {
+                // return this.$navigateTo(routes.deploy.notes, {
+                // return this.$navigateTo(routes.deploy.review, {
+                // return this.$navigateTo(routes.stationSettings, {
+                // return this.$navigateTo(routes.station.settings.firmware, {
+                return this.$navigateTo(routes.station.settings.wifiNetworks, {
                     // return this.$navigateTo(routes.stationDetail, {
-                        // return this.$navigateTo(routes.onboarding.start, {
-                        clearHistory: true,
-                        props: {
-                            stationId: 1,
-                        },
-                    });
-                } else {
-                    console.log("no test station");
-                }
-				*/
-            return this.$navigateTo(routes.onboarding.start, {
-                clearHistory: true,
-                props: {},
-            });
+                    // return this.$navigateTo(routes.onboarding.start, {
+                    clearHistory: true,
+                    props: {
+                        stationId: 1,
+                    },
+                });
+            } else {
+                console.log("no test station");
+            }
+            /*
+			return this.$navigateTo(routes.onboarding.start, {
+				clearHistory: true,
+				props: {},
+			});
+			*/
         }
 
         console.log("first navigate");
