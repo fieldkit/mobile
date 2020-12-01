@@ -75,6 +75,8 @@
                             @tap="addNetwork"
                         />
 
+                        <ActivityIndicator :busy="busy" row="0" />
+
                         <ConnectionNote :station="station" />
 
                         <!--
@@ -111,6 +113,7 @@ export default Vue.extend({
     data(): {
         addingNetwork: boolean;
         hidePassword: boolean;
+        busy: boolean;
         form: {
             ssid: string;
             password: string;
@@ -121,6 +124,7 @@ export default Vue.extend({
                 ssid: "",
                 password: "",
             },
+            busy: false,
             addingNetwork: false,
             hidePassword: true,
         };
@@ -175,7 +179,12 @@ export default Vue.extend({
                 ssid: "",
                 password: "",
             };
-            await this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
+            this.busy = true;
+            try {
+                await this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
+            } finally {
+                this.busy = false;
+            }
         },
         async removeNetwork(network: NetworkInfo): Promise<void> {
             await Dialogs.confirm({
@@ -184,7 +193,12 @@ export default Vue.extend({
                 cancelButtonText: _L("cancel"),
             }).then((confirmed) => {
                 if (confirmed) {
-                    return this.$s.dispatch(new RemoveStationNetworkAction(this.station.deviceId, network, this.station.networks));
+                    this.busy = true;
+                    return this.$s
+                        .dispatch(new RemoveStationNetworkAction(this.station.deviceId, network, this.station.networks))
+                        .finally(() => {
+                            this.busy = false;
+                        });
                 }
                 return Promise.resolve();
             });
