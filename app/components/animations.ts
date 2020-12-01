@@ -1,6 +1,6 @@
 // import { promiseAfter } from "../utilities";
 
-export function pressed(view: Event): Promise<void> {
+export function pressed(view: Event | null): Promise<void> {
     if (view) {
         /*
         const cn = view.className;

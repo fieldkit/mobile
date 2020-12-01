@@ -17,12 +17,9 @@
 import Vue from "vue";
 import { _T } from "../../utilities";
 import routes from "../../routes";
-
 import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
-
-import { ModuleCalibration } from "@/calibration/model";
-
+import { StationCalibration, ModuleCalibration } from "@/calibration/model";
 import * as animations from "../animations";
 
 export default Vue.extend({
@@ -32,29 +29,25 @@ export default Vue.extend({
     },
     props: {
         stationId: {
-            required: true,
             type: Number,
+            required: true,
         },
-    },
-    data() {
-        return {};
     },
     computed: {
-        station(this: any) {
+        station(): StationCalibration {
             return this.$s.getters.stationCalibrations[this.stationId];
         },
-        deployed(this: any) {
-            return this.$s.getters.legacyStations[this.stationId].deployStartTime !== null;
+        deployed(): boolean {
+            return this.$s.getters.availableStationsById[this.stationId].deployStartTime !== null;
         },
     },
     methods: {
-        goBack(this: any, ev) {
-            return Promise.all([
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
                     props: {
                         stationId: this.stationId,
-                        station: this.station,
                     },
                     transition: {
                         name: "slideRight",
@@ -64,9 +57,9 @@ export default Vue.extend({
                 }),
             ]);
         },
-        calibrateModule(this: any, m: ModuleCalibration) {
+        async calibrateModule(m: ModuleCalibration): Promise<void> {
             console.log("module", m);
-            return this.$navigateTo(routes.calibration.start, {
+            await this.$navigateTo(routes.calibration.start, {
                 clearHistory: true,
                 props: {
                     stationId: this.station.id,

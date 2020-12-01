@@ -69,7 +69,7 @@
 import Vue from "vue";
 import routes from "@/routes";
 import { promiseAfter } from "@/utilities";
-import { FirmwareInfo, AvailableFirmware, LegacyStation } from "@/store";
+import { FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
@@ -99,8 +99,8 @@ export default Vue.extend({
         },
     },
     computed: {
-        station(): LegacyStation {
-            return this.$s.getters.legacyStations[this.stationId];
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
         stationFirmware(): FirmwareInfo {
             return this.$s.state.firmware.stations[this.stationId];
@@ -143,7 +143,7 @@ export default Vue.extend({
                 });
             });
         },
-        upgradeFirmware(): Promise<unknown> {
+        upgradeFirmware(): Promise<void> {
             const options = {
                 props: {
                     stationId: this.stationId,

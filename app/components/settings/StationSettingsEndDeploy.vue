@@ -34,10 +34,9 @@
 import Vue from "vue";
 import { Dialogs } from "@nativescript/core";
 import routes from "../../routes";
-
 import SharedComponents from "@/components/shared";
-
-import { ActionTypes } from "../../store/actions";
+import * as animations from "@/components/animations";
+import { AvailableStation, ActionTypes } from "@/store";
 
 export default Vue.extend({
     data() {
@@ -53,44 +52,37 @@ export default Vue.extend({
         ...SharedComponents,
     },
     computed: {
-        station(this: any) {
-            return this.$s.getters.legacyStations[this.stationId];
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
-        deployed(this: any) {
-            return this.$s.getters.legacyStations[this.stationId].deployStartTime !== null;
+        deployed(): boolean {
+            return this.$s.getters.availableStationsById[this.stationId].deployStartTime !== null;
         },
     },
     methods: {
-        goBack(this: any, event) {
-            if (event) {
-                // Change background color when pressed
-                const cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {
-                    event.object.className = cn;
-                }, 500);
-            }
-
-            return this.$navigateTo(routes.stationSettings, {
-                props: {
-                    stationId: this.stationId,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationSettings, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                    transition: {
+                        name: "slideRight",
+                        duration: 250,
+                        curve: "linear",
+                    },
+                }),
+            ]);
         },
-        stopRecording(this: any, event) {
-            const station = this.$s.getters.legacyStations[this.stationId];
-            return Dialogs.confirm({
+        async stopRecording(ev: Event): Promise<void> {
+            await Dialogs.confirm({
                 title: _L("areYouSureStopRecording"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("cancel"),
-            }).then((yes) => {
+            }).then(async (yes) => {
                 if (yes) {
-                    return this.$s.dispatch(ActionTypes.END_STATION_DEPLOYMENT, { deviceId: station.deviceId });
+                    await this.$s.dispatch(ActionTypes.END_STATION_DEPLOYMENT, { deviceId: this.station.deviceId });
                 }
             });
         },

@@ -487,6 +487,7 @@ export class AvailableStation {
     public readonly location: Location | null;
     public readonly lastSeen: Date | null;
     public readonly networks: NetworkInfo[] = [];
+    public readonly schedules: Schedules;
 
     constructor(deviceId: string, nearby: NearbyStation | null, station: Station) {
         if (!station) throw new Error(`AvailableStation station required`);
@@ -503,6 +504,7 @@ export class AvailableStation {
         this.streams = station.streams || [];
         this.downloads = station.downloads || [];
         this.networks = station.networks;
+        this.schedules = station.schedules;
 
         this.connected = nearby != null;
         this.url = nearby?.url || null;
