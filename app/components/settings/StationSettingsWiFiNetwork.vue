@@ -10,7 +10,14 @@
                             <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0" />
                             <GridLayout rows="auto" columns="0,*,30" v-for="n in networks" :key="n.ssid" class="m-10">
                                 <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid" />
-                                <Image row="0" col="2" src="~/images/Icon_Close.png" width="17" @tap="(ev) => removeNetwork(n)" />
+                                <Image
+                                    row="0"
+                                    col="2"
+                                    src="~/images/Icon_Close.png"
+                                    width="17"
+                                    @tap="(ev) => removeNetwork(n)"
+                                    v-if="station.connected"
+                                />
                             </GridLayout>
                         </WrapLayout>
 
@@ -19,7 +26,7 @@
                         </StackLayout>
 
                         <GridLayout
-                            v-if="!addingNetwork"
+                            v-if="!addingNetwork && station.connected"
                             rows="auto"
                             columns="10*,90*"
                             @tap="showNetworkForm"
