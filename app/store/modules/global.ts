@@ -41,9 +41,11 @@ export interface GlobalState {
 
 export interface GlobalGetters {
     readonly availableStations: AvailableStation[];
+    readonly availableStationsById: { [id: number]: AvailableStation };
     readonly legacyStations: { [index: string]: LegacyStation };
     readonly syncs: StationSyncStatus[];
     readonly stationCalibrations: { [index: number]: StationCalibration };
-    readonly stationsById: { [index: number]: Station };
     readonly usersById: { [id: number]: CurrentUser };
+    // TODO Deprecate
+    readonly stationsById: { [index: number]: Station };
 }

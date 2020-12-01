@@ -279,26 +279,9 @@ export class Station implements StationCreationFields {
     public readonly deployStartTime: Date | null;
     public readonly serializedStatus: string;
     public readonly lastSeen: Date;
-    private _portalId: number | null;
-    private _portalHttpError: PortalError | null;
     public readonly modules: Module[] = [];
     public readonly streams: Stream[] = [];
     public readonly downloads: Download[] = [];
-
-    public get portalId(): number | null {
-        return this._portalId;
-    }
-
-    public get portalHttpError(): PortalError | null {
-        return this._portalHttpError;
-    }
-
-    public updatePortalStatus(status: StationPortalStatus): void {
-        if (status.portalId) {
-            this._portalId = status.portalId;
-        }
-        this._portalHttpError = status.error;
-    }
 
     constructor(o: StationCreationFields, modules: Module[] = [], streams: Stream[] = [], downloads: Download[] = []) {
         // if (!o.id) throw new Error(`station id is required`);
@@ -322,6 +305,24 @@ export class Station implements StationCreationFields {
         this.modules = modules;
         this.streams = streams;
         this.downloads = downloads;
+    }
+
+    private _portalId: number | null;
+    private _portalHttpError: PortalError | null;
+
+    public get portalId(): number | null {
+        return this._portalId;
+    }
+
+    public get portalHttpError(): PortalError | null {
+        return this._portalHttpError;
+    }
+
+    public updatePortalStatus(status: StationPortalStatus): void {
+        if (status.portalId) {
+            this._portalId = status.portalId;
+        }
+        this._portalHttpError = status.error;
     }
 
     public location(): Location | null {
@@ -474,34 +475,37 @@ export enum StationStatus {
 }
 
 export class AvailableStation {
-    readonly id: number | null;
-    readonly deviceId: string;
-    readonly connected: boolean;
-    readonly url: string | null;
-    readonly streams: Stream[] = [];
-    readonly downloads: Download[] = [];
+    public readonly id: number;
+    public readonly deviceId: string;
+    public readonly connected: boolean;
+    public readonly url: string | null;
+    public readonly streams: Stream[] = [];
+    public readonly downloads: Download[] = [];
+    public readonly name: string | null;
+    public readonly generationId: string | null;
+    public readonly deployStartTime: Date | null;
+    public readonly location: Location | null;
+    public readonly lastSeen: Date | null;
+    public readonly networks: NetworkInfo[] = [];
 
-    readonly name: string | null;
-    readonly generationId: string | null;
-    readonly deployStartTime: Date | null;
-    readonly location: Location | null;
-    readonly lastSeen: Date | null;
+    constructor(deviceId: string, nearby: NearbyStation | null, station: Station) {
+        if (!station) throw new Error(`AvailableStation station required`);
+        const id = station.id;
+        if (!id) throw new Error(`AvailableStation id required`);
 
-    constructor(deviceId: string, nearby: NearbyStation | null, station: Station | null) {
-        if (!nearby && !station) {
-            throw new Error(`AvailableStation invalid args`);
-        }
+        this.id = id;
         this.deviceId = deviceId;
-        this.generationId = station?.generationId || null;
-        this.id = station?.id || null;
-        this.name = station?.name || null;
-        this.deployStartTime = station?.deployStartTime || null;
-        this.url = nearby?.url || null;
-        this.lastSeen = station?.lastSeen || null;
-        this.location = station?.location() || null;
-        this.streams = station?.streams || [];
-        this.downloads = station?.downloads || [];
+        this.generationId = station.generationId || null;
+        this.name = station.name || null;
+        this.deployStartTime = station.deployStartTime || null;
+        this.lastSeen = station.lastSeen || null;
+        this.location = station.location() || null;
+        this.streams = station.streams || [];
+        this.downloads = station.downloads || [];
+        this.networks = station.networks;
+
         this.connected = nearby != null;
+        this.url = nearby?.url || null;
     }
 }
 

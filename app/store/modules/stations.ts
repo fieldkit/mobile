@@ -27,6 +27,33 @@ export const AvailableStationsSorter = (available: AvailableStation[]): Availabl
     return _.orderBy(available, [(available) => SortableStationSorter(available)]);
 };
 
+function makeAvailableStations(state: StationsState, rootState: GlobalState): AvailableStation[] {
+    const nearby = rootState.nearby.stations;
+    const stations = _(state.all)
+        .keyBy((a) => a.deviceId)
+        .value();
+    const deviceIds = _.keys(stations); // _(nearby).keys().union(_.keys(stations)).uniq().value();
+    const available = _(deviceIds)
+        .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
+        .value();
+
+    /*
+	if (false) {
+		console.log(
+			"available",
+			_.map(available, (s) => {
+				return {
+					name: s.name,
+					connected: s.connected,
+					nearby: nearby[s.deviceId],
+				};
+			})
+		);
+	}
+	*/
+    return AvailableStationsSorter(available);
+}
+
 const getters = {
     stationsById: (state: StationsState): { [index: number]: Station } => {
         const stations = state.all.filter((s) => s.id);
@@ -37,31 +64,11 @@ const getters = {
             return s.id;
         });
     },
+    availableStationsById: (state: StationsState, _getters: never, rootState: GlobalState): { [index: number]: AvailableStation } => {
+        return _.keyBy(makeAvailableStations(state, rootState), (s) => s.id);
+    },
     availableStations: (state: StationsState, _getters: never, rootState: GlobalState): AvailableStation[] => {
-        const nearby = rootState.nearby.stations;
-        const stations = _(state.all)
-            .keyBy((a) => a.deviceId)
-            .value();
-        const deviceIds = _(nearby).keys().union(_.keys(stations)).uniq().value();
-        const available = _(deviceIds)
-            .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
-            .value();
-
-        /*
-        if (false) {
-            console.log(
-                "available",
-                _.map(available, (s) => {
-                    return {
-                        name: s.name,
-                        connected: s.connected,
-                        nearby: nearby[s.deviceId],
-                    };
-                })
-            );
-        }
-		*/
-        return AvailableStationsSorter(available);
+        return makeAvailableStations(state, rootState);
     },
     legacyStations: (state: StationsState, _getters: never, rootState: GlobalState): { [index: number]: LegacyStation } => {
         const nearby = rootState.nearby.stations;
