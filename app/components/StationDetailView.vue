@@ -112,7 +112,7 @@ export default Vue.extend({
     },
     computed: {
         notifications(): Notification[] {
-            return this.$s.state.notifications.notifications;
+            return this.$s.state.notifications.notifications.filter((item: Notification) => item.silenced === false);
         },
         isDeployed(): boolean {
             return this.currentStation.deployStartTime != null;
