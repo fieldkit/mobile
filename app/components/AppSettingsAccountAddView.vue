@@ -2,7 +2,13 @@
     <Page actionBarHidden="true" @loaded="onPageLoaded">
         <ScrollView>
             <FlexboxLayout class="page login-page" flexDirection="column">
-                <Label :text="_L('appSettings.account.addAccount')" class="size-16 m-5 m-t-20 m-b-25 bold" />
+                <ScreenHeader
+                    :title="_L('appSettings.account.addAccount')"
+                    :canNavigateBack="true"
+                    :canNavigateSettings="false"
+                    :onBack="goBack"
+                    class="size-16 m-5 m-t-20 m-b-25 bold"
+                />
                 <StackLayout class="form">
                     <GridLayout rows="auto, auto, auto, auto">
                         <StackLayout row="0" v-show="!isLoggingIn" class="input-field">
@@ -185,6 +191,8 @@ import Services from "@/services/singleton";
 import { Dialogs } from "@nativescript/core";
 
 import SharedComponents from "@/components/shared";
+import Promise from "bluebird";
+import * as animations from "~/components/animations";
 
 export default Vue.extend({
     name: "LoginView",
@@ -349,6 +357,9 @@ export default Vue.extend({
                 okButtonText: _L("ok"),
                 message: message,
             });
+        },
+        goBack(ev) {
+            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.account, {})]);
         },
     },
 });
