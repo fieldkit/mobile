@@ -53,14 +53,17 @@ import { Timer } from "../../common/timer";
 
 export default Vue.extend({
     props: {},
-    data(): { frame: number; step: number } {
+    data(): {
+        frame: number;
+        step: number;
+    } {
         return {
             frame: 0,
             step: 0,
         };
     },
     methods: {
-        onPageLoaded(args): void {
+        onPageLoaded(): void {
             console.log("onboarding/start:", "loaded");
 
             const thisAny = this as any;
@@ -73,25 +76,24 @@ export default Vue.extend({
             const thisAny = this as any;
             thisAny.timer.stop();
         },
-        forward(): Promise<any> {
+        async forward(): Promise<void> {
             this.step++;
             if (this.step == 2) {
-                return this.$navigateTo(routes.onboarding.searching, {
+                await this.$navigateTo(routes.onboarding.searching, {
                     clearHistory: true,
                     backstackVisible: false,
                 });
             }
-            return Promise.resolve();
         },
-        back(this: any): Promise<any> {
+        async back(): Promise<void> {
             console.log("onboarding/start:", "back");
-            return this.$navigateTo(routes.stations, {
+            await this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });
         },
-        skip(this: any): Promise<any> {
-            return this.$navigateTo(routes.stations, {
+        async skip(): Promise<any> {
+            await this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });

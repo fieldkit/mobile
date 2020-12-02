@@ -77,8 +77,8 @@ export default Vue.extend({
         onUnloaded(): void {
             this.stopAnimation();
         },
-        goNext(ev): Promise<any> {
-            return Promise.all([
+        async goNext(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.onboarding.recalibrate, {
                     clearHistory: true,

@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" actionBarHidden="true">
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
@@ -76,6 +76,7 @@ import Vue from "vue";
 import routes from "@/routes";
 import { _T } from "@/utilities";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
+import { LegacyStation } from "@/store";
 
 export default Vue.extend({
     name: "Network",
@@ -88,7 +89,12 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {
+        form: {
+            network: number;
+            options: { selected: boolean }[];
+        };
+    } {
         return {
             form: {
                 network: 0,
@@ -97,44 +103,43 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation(this: any) {
+        currentStation(): LegacyStation {
             const station = this.$s.getters.legacyStations[this.stationId];
-            if (!station) {
-                throw new Error("no station");
-            }
+            if (!station) throw new Error("no station");
             return station;
         },
     },
     methods: {
-        onPageLoaded(args) {},
-        forward(this: any) {
+        async forward(): Promise<void> {
             if (this.form.network == 0) {
                 console.log("forward", "rename", this.form.network);
-                return this.$navigateTo(routes.onboarding.rename, {
+                await this.$navigateTo(routes.onboarding.rename, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
+                return;
             }
             if (this.form.network == 1) {
                 console.log("forward", "network", this.form.network);
-                return this.$navigateTo(routes.onboarding.addWifi, {
+                await this.$navigateTo(routes.onboarding.addWifi, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
+                return;
             }
             console.log("forward", "error", this.form.network);
         },
-        selectOption(this: any, index: number) {
+        selectOption(index: number): void {
             this.form.network = index;
             this.form.options[0].selected = false;
             this.form.options[1].selected = false;
             this.form.options[index].selected = true;
         },
-        skip(this: any) {
+        async skip(): Promise<void> {
             console.log("forward", this.form);
-            return this.$navigateTo(routes.stations, {
+            await this.$navigateTo(routes.stations, {
                 props: {
                     stationId: this.stationId,
                 },

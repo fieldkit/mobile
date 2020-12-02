@@ -60,12 +60,12 @@ export default class StartupScreen extends Vue {
 				clearHistory: true,
 				props: {},
 			});
-			*/
+			*
             return this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 props: {},
             });
-            /*
+            *
 			return this.$navigateTo(routes.dataSync, {
 				clearHistory: true,
 				props: {},
@@ -74,8 +74,8 @@ export default class StartupScreen extends Vue {
 				clearHistory: true,
 				props: {},
 			});
-			*/
             /*
+			*/
             if (services.Store().getters.stationCalibrations[1]) {
                 // return this.$navigateTo(routes.deploy.start, {
                 // return this.$navigateTo(routes.deploy.notes, {
@@ -84,7 +84,7 @@ export default class StartupScreen extends Vue {
                 // return this.$navigateTo(routes.station.settings.firmware, {
                 // return this.$navigateTo(routes.station.settings.wifiNetworks, {
                 // return this.$navigateTo(routes.stationDetail, {
-                // return this.$navigateTo(routes.onboarding.start, {
+                return this.$navigateTo(routes.onboarding.start, {
                     clearHistory: true,
                     props: {
                         stationId: 1,
@@ -93,7 +93,6 @@ export default class StartupScreen extends Vue {
             } else {
                 console.log("no test station");
             }
-			*/
             /*
 			return this.$navigateTo(routes.onboarding.start, {
 				clearHistory: true,

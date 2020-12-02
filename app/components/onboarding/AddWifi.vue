@@ -87,14 +87,13 @@ export default Vue.extend({
             return this.currentStation.connected && this.form.ssid.length > 0 && this.form.password.length > 0;
         },
     },
-    mounted(): Promise<any> {
-        return this.$s.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
+    async mounted(): Promise<void> {
+        await this.$s.dispatch(ActionTypes.SCAN_STATION_NETWORKS, { deviceId: this.currentStation.deviceId }).then((networks) => {
             console.log("networks", networks);
-            return {};
         });
     },
     methods: {
-        addNetwork(): Promise<any> {
+        async addNetwork(): Promise<void> {
             this.busy = true;
 
             const action = new AddStationNetworkAction(
@@ -105,7 +104,7 @@ export default Vue.extend({
                 },
                 []
             );
-            return this.$s.dispatch(action).then(
+            await this.$s.dispatch(action).then(
                 () => {
                     return this.$navigateTo(routes.onboarding.rename, {
                         props: {
@@ -118,17 +117,17 @@ export default Vue.extend({
                 }
             );
         },
-        skip(): Promise<any> {
+        async skip(): Promise<void> {
             console.log("forward", this.form);
-            return this.$navigateTo(routes.stations, {
+            await this.$navigateTo(routes.stations, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        onBack(): Promise<any> {
+        async onBack(): Promise<void> {
             console.log("onBack");
-            return this.$navigateTo(routes.onboarding.network, {
+            await this.$navigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
                 },
