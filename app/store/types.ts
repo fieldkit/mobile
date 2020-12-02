@@ -488,6 +488,7 @@ export class AvailableStation {
     public readonly lastSeen: Date | null;
     public readonly networks: NetworkInfo[] = [];
     public readonly schedules: Schedules;
+    public readonly lora: { deviceEui: string } | null = null;
 
     constructor(deviceId: string, nearby: NearbyStation | null, station: Station) {
         if (!station) throw new Error(`AvailableStation station required`);
