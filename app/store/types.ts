@@ -474,6 +474,10 @@ export enum StationStatus {
     Recording,
 }
 
+export class DiscoveringStation {
+    constructor(public readonly deviceId: string, public readonly url: string) {}
+}
+
 export class AvailableStation {
     public readonly id: number;
     public readonly deviceId: string;

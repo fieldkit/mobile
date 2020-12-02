@@ -100,6 +100,25 @@ describe("Store", () => {
             });
         });
 
+        it("should appear in discovering stations until queried", async () => {
+            const station = mockStation.newFakeStation();
+
+            const info = { url: "http://127.0.0.1", deviceId: station.deviceId };
+
+            expect.assertions(4);
+
+            expect(_.size(store.state.nearby.stations)).toEqual(0);
+
+            store.commit(MutationTypes.FIND, info);
+
+            expect(_.size(store.state.nearby.stations)).toEqual(1);
+
+            store.commit(MutationTypes.STATION_QUERIED, info);
+
+            expect(_.size(store.state.nearby.stations)).toEqual(1);
+            expect(store.getters.availableStations.length).toEqual(0);
+        });
+
         it("should be blank to begin with and add stations when found", async () => {
             const station = mockStation.newFakeStation();
             mockStation.queueStatusReply(station);

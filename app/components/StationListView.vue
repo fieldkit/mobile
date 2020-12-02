@@ -7,7 +7,9 @@
                 <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
                     <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
-                    <NoStationsWannaAdd v-if="stations.length == 0" />
+                    <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
+
+                    <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
 
                     <GridLayout
                         v-for="station in stations"
@@ -45,15 +47,12 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import { Dialogs } from "@nativescript/core";
 import routes from "@/routes";
-import * as animations from "./animations";
-
-import { AvailableStation } from "@/store";
-import { ActionTypes } from "@/store/actions";
-
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
+import * as animations from "./animations";
+import { ActionTypes, AvailableStation, DiscoveringStation } from "@/store";
 
 export default Vue.extend({
     components: {
@@ -69,6 +68,9 @@ export default Vue.extend({
     },
     computed: {
         ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
+        discovering(): DiscoveringStation[] {
+            return this.$s.getters.discovering;
+        },
     },
     methods: {
         getDeployStatus(station: AvailableStation): string {

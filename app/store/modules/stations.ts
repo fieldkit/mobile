@@ -6,6 +6,7 @@ import {
     StationCreationFields,
     Station,
     AvailableStation,
+    DiscoveringStation,
     Module,
     Sensor,
     LegacyStation,
@@ -32,7 +33,7 @@ function makeAvailableStations(state: StationsState, rootState: GlobalState): Av
     const stations = _(state.all)
         .keyBy((a) => a.deviceId)
         .value();
-    const deviceIds = _.keys(stations); // _(nearby).keys().union(_.keys(stations)).uniq().value();
+    const deviceIds = _.keys(stations);
     const available = _(deviceIds)
         .map((deviceId) => new AvailableStation(deviceId, nearby[deviceId], stations[deviceId]))
         .value();
@@ -69,6 +70,13 @@ const getters = {
     },
     availableStations: (state: StationsState, _getters: never, rootState: GlobalState): AvailableStation[] => {
         return makeAvailableStations(state, rootState);
+    },
+    discovering: (state: StationsState, _getters: never, rootState: GlobalState): DiscoveringStation[] => {
+        const nearby = Object.keys(rootState.nearby.stations);
+        const known = state.all.map((s) => s.deviceId);
+        const newIds = _.difference(nearby, known);
+        console.log(`discovering: ${JSON.stringify({ nearby, known, newIds })}`);
+        return newIds.map((deviceId) => new DiscoveringStation(deviceId, rootState.nearby.stations[deviceId].url));
     },
     legacyStations: (state: StationsState, _getters: never, rootState: GlobalState): { [index: number]: LegacyStation } => {
         const nearby = rootState.nearby.stations;
@@ -379,11 +387,11 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
             return dispatch(ActionTypes.LOAD_STATIONS);
         },
-        [ActionTypes.LOAD_STATIONS]: ({ dispatch }: ActionParameters) => {
-            return loadStationsFromDatabase(services.db()).then((stations) => dispatch(ActionTypes.STATIONS_LOADED, stations));
-        },
-        [ActionTypes.STATIONS_LOADED]: ({ commit }: ActionParameters, stations: Station[]) => {
-            commit(MutationTypes.STATIONS, stations);
+        [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch }: ActionParameters) => {
+            return loadStationsFromDatabase(services.db()).then((stations) => {
+                commit(MutationTypes.STATIONS, stations);
+                return dispatch(ActionTypes.STATIONS_LOADED, stations);
+            });
         },
         [ActionTypes.STATION_REPLY]: ({ dispatch }: ActionParameters, payload: StationRepliedAction) => {
             const statusReply = payload.statusReply;
