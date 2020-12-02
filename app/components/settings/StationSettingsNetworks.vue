@@ -30,6 +30,7 @@ import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
+import * as animations from "../animations";
 
 export default Vue.extend({
     data() {
@@ -54,14 +55,10 @@ export default Vue.extend({
         },
     },
     methods: {
-        selectFromMenu(this: any, event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
+        async selectFromMenu(ev: Event): Promise<void> {
+            void animations.pressed(ev);
 
-            switch (event.object.text) {
+            switch ((ev as any).object.text) {
                 case "WiFi":
                     this.goToWiFi();
                     break;
@@ -69,40 +66,32 @@ export default Vue.extend({
                     this.goToLoRa();
                     break;
             }
+            return Promise.resolve();
         },
-        goToWiFi(this: any) {
-            this.$navigateTo(WiFi, {
+        async goToWiFi(): Promise<void> {
+            await this.$navigateTo(WiFi, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goToLoRa(this: any) {
-            this.$navigateTo(LoRa, {
+        async goToLoRa(): Promise<void> {
+            await this.$navigateTo(LoRa, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goBack(this: any, event) {
-            // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            this.$navigateTo(routes.stationSettings, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationSettings, {
+                    props: {
+                        stationId: this.stationId,
+                        station: this.station,
+                    },
+                }),
+            ]);
         },
     },
 });

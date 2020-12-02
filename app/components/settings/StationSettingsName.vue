@@ -113,11 +113,6 @@ export default Vue.extend({
                         stationId: this.stationId,
                         station: this.station,
                     },
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
-                    },
                 }),
             ]);
         },
