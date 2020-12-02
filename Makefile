@@ -84,7 +84,7 @@ ios-release: setup
 	$(MAKE) platform-libraries
 	xcode-select -p
 	xcodebuild -version
-	xcrun simctl list
+	xcrun simctl list || true
 	pod repo update
 	cd $(APP) && ns build ios --provision || true
 	cd $(APP) && ns build ios --team-id || true
