@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('stationSettings')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="*,70">
             <ScrollView row="0">
@@ -29,16 +29,20 @@
 import Vue from "vue";
 import routes from "../../routes";
 import Services from "@/services/singleton";
-
 import SharedComponents from "@/components/shared";
+import * as animations from "@/components/animations";
 import General from "./StationSettingsGeneral.vue";
 import Networks from "./StationSettingsNetworks.vue";
 import Firmware from "./StationSettingsFirmware.vue";
 import Modules from "./StationSettingsModuleList.vue";
 import EndDeploy from "./StationSettingsEndDeploy.vue";
+import { AvailableStation } from "@/store";
 
 export default Vue.extend({
-    data(this: any) {
+    data(): {
+        loggedIn: boolean;
+        menuOptions: string[];
+    } {
         return {
             loggedIn: Services.PortalInterface().isLoggedIn(),
             menuOptions: [_L("general"), _L("networks"), _L("firmware"), _L("modulesTitle"), _L("endDeployment")],
@@ -46,8 +50,8 @@ export default Vue.extend({
     },
     props: {
         stationId: {
-            required: true,
             type: Number,
+            required: true,
         },
     },
     components: {
@@ -57,20 +61,15 @@ export default Vue.extend({
         Networks,
     },
     computed: {
-        station(this: any) {
-            return this.$s.getters.legacyStations[this.stationId];
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(args) {},
-        selectFromMenu(event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
+        selectFromMenu(ev: Event): Promise<void> {
+            void animations.pressed(ev);
 
-            switch (event.object.text) {
+            switch ((ev as any).object.text) {
                 case _L("general"):
                     return this.goToGeneral();
                 case _L("networks"):
@@ -85,63 +84,50 @@ export default Vue.extend({
 
             throw new Error("unknown option");
         },
-        goToGeneral() {
-            return this.$navigateTo(General, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-            });
-        },
-        goToNetworks() {
-            return this.$navigateTo(Networks, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-            });
-        },
-        goToFirmware() {
-            return this.$navigateTo(Firmware, {
+        async goToGeneral(): Promise<void> {
+            await this.$navigateTo(General, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goToModules() {
-            return this.$navigateTo(Modules, {
+        async goToNetworks(): Promise<void> {
+            await this.$navigateTo(Networks, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
-        goToEndDeploy() {
-            return this.$navigateTo(EndDeploy, {
+        async goToFirmware(): Promise<void> {
+            await this.$navigateTo(Firmware, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
                 },
             });
         },
-        goBack(event) {
-            // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
-
-            return this.$navigateTo(routes.stationDetail, {
+        async goToModules(): Promise<void> {
+            await this.$navigateTo(Modules, {
                 props: {
-                    stationId: this.station.id,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
+                    stationId: this.stationId,
                 },
             });
+        },
+        async goToEndDeploy(): Promise<void> {
+            await this.$navigateTo(EndDeploy, {
+                props: {
+                    stationId: this.stationId,
+                },
+            });
+        },
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(routes.stationDetail, {
+                    props: {
+                        stationId: this.station.id,
+                    },
+                }),
+            ]);
         },
     },
 });

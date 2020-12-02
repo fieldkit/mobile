@@ -44,8 +44,8 @@ export default Vue.extend({
         return {};
     },
     methods: {
-        forward(): Promise<any> {
-            return this.$navigateTo(routes.onboarding.searching, {
+        async forward(): Promise<void> {
+            await this.$navigateTo(routes.onboarding.searching, {
                 clearHistory: true,
                 backstackVisible: false,
                 props: {
@@ -54,8 +54,8 @@ export default Vue.extend({
             });
         },
         back(): void {},
-        skip(): Promise<any> {
-            return this.$navigateTo(routes.stations, { clearHistory: true });
+        async skip(): Promise<void> {
+            await this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

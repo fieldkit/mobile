@@ -2,11 +2,7 @@
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" navigatingTo="onNavigatingTo">
         <GridLayout rows="auto">
             <StackLayout row="0" height="100%" backgroundColor="white" verticalAlignment="middle">
-                <GridLayout rows="auto, auto" columns="*">
-                    <StackLayout row="0" id="loading-circle-blue"></StackLayout>
-                    <StackLayout row="0" id="loading-circle-white"></StackLayout>
-                    <Label row="1" class="instruction m-t-20" :text="_L('connecting')" lineHeight="4" textWrap="true"></Label>
-                </GridLayout>
+                <LargeSpinner :label="_L('connecting')" />
             </StackLayout>
         </GridLayout>
     </Page>
@@ -17,6 +13,8 @@ import { Page } from "@nativescript/core";
 import Vue from "vue";
 import routes from "@/routes";
 import { promiseAfter } from "@/utilities";
+import { LegacyStation } from "@/store";
+import LargeSpinner from "@/components/LargeSpinner.vue";
 
 export default Vue.extend({
     props: {
@@ -24,6 +22,9 @@ export default Vue.extend({
             type: Boolean,
             default: false,
         },
+    },
+    components: {
+        LargeSpinner,
     },
     data(): {
         left: boolean;
@@ -38,8 +39,8 @@ export default Vue.extend({
     },
     computed: {
         numberOfNearbyStations(): number {
-            const legacyStations = this.$s.getters.legacyStations;
-            return Object.values(legacyStations).filter((ls) => ls.connected).length;
+            const legacyStations: LegacyStation[] = Object.values(this.$s.getters.legacyStations);
+            return legacyStations.filter((ls) => ls.connected).length;
         },
     },
     watch: {
@@ -93,10 +94,10 @@ export default Vue.extend({
                     });
                 }
 
-                const legacyStations = this.$s.getters.legacyStations;
-                const connected = Object.values(legacyStations).filter((ls) => ls.connected);
+                const legacyStations: LegacyStation[] = Object.values(this.$s.getters.legacyStations);
+                const connected = legacyStations.filter((ls) => ls.connected);
                 if (connected.length < 1) {
-                    throw new Error("expected a connected station");
+                    throw new Error(`expected a connected station`);
                 }
 
                 if (this.reconnecting) {
@@ -129,29 +130,4 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
-
-#loading-circle-blue,
-#loading-circle-white {
-    width: 75;
-    height: 75;
-    background: $fk-gray-white;
-    border-width: 2;
-    border-radius: 60%;
-}
-#loading-circle-white {
-    border-color: $fk-gray-white;
-    clip-path: circle(100% at 50% 0);
-}
-#loading-circle-blue {
-    border-color: $fk-secondary-blue;
-}
-.instruction {
-    color: $fk-primary-black;
-    text-align: center;
-    font-size: 16;
-    margin-top: 5;
-    margin-bottom: 10;
-    margin-right: 30;
-    margin-left: 30;
-}
 </style>

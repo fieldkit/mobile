@@ -54,7 +54,10 @@ import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     props: {},
-    data(): { frame: number; step: number } {
+    data(): {
+        frame: number;
+        step: number;
+    } {
         return {
             frame: 0,
             step: 0,
@@ -81,30 +84,29 @@ export default Vue.extend({
             const thisAny = this as any;
             thisAny.timer.stop();
         },
-        forward() {
+        async forward(): Promise<void> {
             this.step++;
             if (this.step == 2) {
-                return this.$navigateTo(routes.onboarding.searching, {
+                await this.$navigateTo(routes.onboarding.searching, {
                     clearHistory: true,
                     backstackVisible: false,
                 });
             }
-            return Promise.resolve();
         },
-        back() {
+        async back(): Promise<void> {
             console.log("onboarding/start:", "back");
             if (this.step > 0) {
                 this.step -= 1;
             } else {
-                this.$navigateTo(routes.onboarding.assembleStation, {
+                await this.$navigateTo(routes.onboarding.assembleStation, {
                     props: {
                         stepParam: 8,
                     },
                 });
             }
         },
-        skip() {
-            return this.$navigateTo(routes.stations, {
+        async skip(): Promise<any> {
+            await this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });

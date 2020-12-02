@@ -26,12 +26,9 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import { Station, UpgradeStatus, UpgradeInfo, UpgradeStationFirmwareAction } from "@/store";
+import { AvailableStation, UpgradeStatus, UpgradeInfo, UpgradeStationFirmwareAction } from "@/store";
 
 export default Vue.extend({
-    data(): {} {
-        return {};
-    },
     props: {
         stationId: {
             required: true,
@@ -49,8 +46,8 @@ export default Vue.extend({
         error(): boolean {
             return this.status.error || false;
         },
-        station(): Station {
-            return this.$s.getters.stationsById[this.stationId];
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
         upgrade(): UpgradeInfo {
             return this.$s.state.firmware.status[this.stationId] || {};
@@ -64,32 +61,10 @@ export default Vue.extend({
     },
     methods: {
         onLoaded(): Promise<void> {
-            /*
-            if (this.downloadOnly) {
-                console.log("downloading only");
-                return this.$services
-                    .StationFirmware()
-                    .downloadFirmware(updateProgress, true)
-                    .then((status) => {
-                        console.log("status", status);
-                        this.done = true;
-                    })
-                    .catch((err) => {
-                        this.done = true;
-                        this.error = true;
-                        console.log("error", err, err.stack);
-                    });
-            }
-			*/
-
-            const availableStations = _.keyBy(this.$s.getters.availableStations, (s) => s.id!);
-            const station = availableStations[this.stationId];
-
-            if (!station) throw new Error(`firmware-modal: no such station`);
-            if (!station.id) throw new Error(`firmware-modal: no station id`);
-            if (!station.url) throw new Error(`firmware-modal: no station url`);
-
-            return this.$s.dispatch(new UpgradeStationFirmwareAction(station.id, station.url));
+            if (!this.station) throw new Error(`firmware-modal: no such station`);
+            if (!this.station.id) throw new Error(`firmware-modal: no station id`);
+            if (!this.station.url) throw new Error(`firmware-modal: no station url`);
+            return this.$s.dispatch(new UpgradeStationFirmwareAction(this.station.id, this.station.url));
         },
         onClose(): void {
             console.log("closing", this.$modal);

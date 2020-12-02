@@ -74,16 +74,13 @@
 import Vue from "vue";
 import routes from "@/routes";
 import { promiseAfter } from "@/utilities";
-
-import * as animations from "./animations";
-
 import { Station, Notes, Notification } from "@/store";
-
+import { ActionTypes } from "~/store/actions";
+import * as animations from "./animations";
 import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
 import ModuleList from "./ModuleList.vue";
 import NotificationFooter from "./NotificationFooter.vue";
-import { ActionTypes } from "~/store/actions";
 
 export default Vue.extend({
     components: {
@@ -102,7 +99,11 @@ export default Vue.extend({
             default: false,
         },
     },
-    data(): { newlyDeployed: boolean; unwatch: Function; recentlyDisconnected: boolean } {
+    data(): {
+        newlyDeployed: boolean;
+        unwatch: Function;
+        recentlyDisconnected: boolean;
+    } {
         return {
             newlyDeployed: false,
             unwatch: () => {},

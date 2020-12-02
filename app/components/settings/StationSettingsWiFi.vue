@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('wifi')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
 
         <GridLayout rows="*,70">
@@ -25,14 +25,17 @@
 
 <script lang="ts">
 import Vue from "vue";
-
+import { AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import Networks from "./StationSettingsNetworks.vue";
 import WiFiNetwork from "./StationSettingsWiFiNetwork.vue";
 import WiFiSchedule from "./StationSettingsWiFiSchedule.vue";
+import * as animations from "@/components/animations";
 
 export default Vue.extend({
-    data() {
+    data(): {
+        menuOptions: string[];
+    } {
         return {
             menuOptions: [_L("network"), _L("uploadSchedule")],
         };
@@ -42,10 +45,6 @@ export default Vue.extend({
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
     components: {
         ...SharedComponents,
@@ -53,16 +52,16 @@ export default Vue.extend({
         WiFiNetwork,
         WiFiSchedule,
     },
+    computed: {
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
+        },
+    },
     methods: {
-        onPageLoaded(this: any, args) {},
-        selectFromMenu(this: any, event) {
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
+        selectFromMenu(event: Event): Promise<void> {
+            void animations.pressed(event);
 
-            switch (event.object.text) {
+            switch ((event as any).object.text) {
                 case _L("network"):
                     this.goToNetwork();
                     break;
@@ -70,42 +69,32 @@ export default Vue.extend({
                     this.goToSchedule();
                     break;
             }
-        },
-        goToNetwork(this: any) {
-            this.$navigateTo(WiFiNetwork, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-            });
-        },
-        goToSchedule(this: any) {
-            this.$navigateTo(WiFiSchedule, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-            });
-        },
-        goBack(this: any, event) {
-            // Change background color when pressed
-            let cn = event.object.className;
-            event.object.className = cn + " pressed";
-            setTimeout(() => {
-                event.object.className = cn;
-            }, 500);
 
-            this.$navigateTo(Networks, {
+            return Promise.resolve();
+        },
+        async goToNetwork(): Promise<void> {
+            await this.$navigateTo(WiFiNetwork, {
                 props: {
                     stationId: this.stationId,
-                    station: this.station,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
                 },
             });
+        },
+        async goToSchedule(): Promise<void> {
+            await this.$navigateTo(WiFiSchedule, {
+                props: {
+                    stationId: this.stationId,
+                },
+            });
+        },
+        async goBack(event: Event): Promise<void> {
+            await Promise.all([
+                animations.pressed(event),
+                this.$navigateTo(Networks, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                }),
+            ]);
         },
     },
 });

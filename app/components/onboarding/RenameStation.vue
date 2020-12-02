@@ -61,14 +61,12 @@
         </GridLayout>
     </Page>
 </template>
-
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
 import routes from "../../routes";
 import { _T, validateStationName } from "../../utilities";
-import { ActionTypes } from "../../store/actions";
-
+import { ActionTypes, LegacyStation } from "@/store";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import LabeledTextField from "../LabeledTextField";
 
@@ -83,7 +81,19 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {
+        error: boolean;
+        busy: boolean;
+        form: {
+            name: string;
+            v: {
+                required: boolean;
+                long: boolean;
+                characters: boolean;
+                any: boolean;
+            };
+        };
+    } {
         return {
             error: false,
             busy: false,
@@ -99,15 +109,15 @@ export default Vue.extend({
         };
     },
     computed: {
-        currentStation() {
+        currentStation(): LegacyStation {
             return this.$s.getters.legacyStations[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(rgs) {
+        onPageLoaded(): void {
             this.form.name = this.currentStation.name;
         },
-        rename() {
+        async rename(): Promise<void> {
             if (!this.validate()) {
                 return;
             }
@@ -118,8 +128,8 @@ export default Vue.extend({
                 console.log("rename", this.form.name, this.currentStation.name);
                 return this.$s
                     .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.currentStation.deviceId, name: this.form.name })
-                    .then(() => {
-                        return this.$navigateTo(routes.onboarding.reconnecting, {
+                    .then(async () => {
+                        await this.$navigateTo(routes.onboarding.reconnecting, {
                             props: {
                                 stationId: this.currentStation.id,
                             },
@@ -130,13 +140,13 @@ export default Vue.extend({
                         this.error = true;
                     });
             }
-            return this.$navigateTo(routes.onboarding.recalibrate, {
+            await this.$navigateTo(routes.onboarding.recalibrate, {
                 props: {
                     stationId: this.currentStation.id,
                 },
             });
         },
-        validate() {
+        validate(): boolean {
             this.form.v = {
                 required: false,
                 long: false,
@@ -148,11 +158,11 @@ export default Vue.extend({
             this.form.v = _.extend(this.form.v, validateStationName(this.form.name));
             return !this.form.v.any;
         },
-        clearName() {
+        clearName(): void {
             this.form.name = "";
         },
-        skip() {
-            return this.$navigateTo(routes.stations, { clearHistory: true });
+        async skip() {
+            await this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

@@ -85,27 +85,27 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(args): void {
+        onPageLoaded(): void {
             console.log("recalibrating", this.stationId);
         },
-        goToStations() {
-            return this.$navigateTo(routes.stations, {
+        async goToStations(): Promise<void> {
+            await this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });
         },
-        goToDetails() {
-            return this.$navigateTo(routes.stationDetail, {
+        async goToDetails(): Promise<void> {
+            await this.$navigateTo(routes.stationDetail, {
                 props: {
                     stationId: this.currentStation.id,
                 },
             });
         },
-        calibrateModule(m: ModuleCalibration) {
+        async calibrateModule(m: ModuleCalibration): Promise<void> {
             if (!this.currentStation.connected) {
                 return Promise.resolve();
             }
-            return this.$navigateTo(routes.calibration.start, {
+            await this.$navigateTo(routes.calibration.start, {
                 clearHistory: true,
                 props: {
                     stationId: this.stationId,
@@ -114,8 +114,8 @@ export default Vue.extend({
                 },
             });
         },
-        addModule() {
-            return this.$navigateTo(routes.onboarding.addModule, {
+        async addModule(): Promise<void> {
+            await this.$navigateTo(routes.onboarding.addModule, {
                 clearHistory: true,
                 props: {
                     stationId: this.stationId,

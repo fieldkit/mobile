@@ -9,9 +9,7 @@ import { CurrentUser, PortalState } from "./portal";
 import { FirmwareState } from "./firmware";
 import { NotificationsState } from "./notifications";
 import { MediaState } from "./media";
-
-import { ServiceInfo, ModuleStatus, Station, AvailableStation, LegacyStation, StationSyncStatus } from "../types";
-
+import { ServiceInfo, ModuleStatus, Station, AvailableStation, LegacyStation, StationSyncStatus, DiscoveringStation } from "../types";
 import { StationCalibration } from "../../calibration";
 
 export class StationsState {
@@ -41,9 +39,12 @@ export interface GlobalState {
 
 export interface GlobalGetters {
     readonly availableStations: AvailableStation[];
+    readonly availableStationsById: { [id: number]: AvailableStation };
     readonly legacyStations: { [index: string]: LegacyStation };
     readonly syncs: StationSyncStatus[];
     readonly stationCalibrations: { [index: number]: StationCalibration };
-    readonly stationsById: { [index: number]: Station };
     readonly usersById: { [id: number]: CurrentUser };
+    // TODO Deprecate
+    readonly stationsById: { [index: number]: Station };
+    readonly discovering: DiscoveringStation[];
 }

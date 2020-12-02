@@ -7,7 +7,9 @@
                 <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
                     <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
-                    <NoStationsWannaAdd v-if="stations.length == 0" />
+                    <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
+
+                    <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
 
                     <GridLayout
                         v-for="station in stations"
@@ -45,16 +47,13 @@ import Vue from "vue";
 import { mapGetters } from "vuex";
 import { Dialogs } from "@nativescript/core";
 import routes from "@/routes";
-import * as animations from "./animations";
-
-import { AvailableStation } from "@/store";
-import { ActionTypes } from "@/store/actions";
-
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 import * as application from "@nativescript/core/application";
+import * as animations from "./animations";
+import { ActionTypes, AvailableStation, DiscoveringStation } from "@/store";
 
 export default Vue.extend({
     components: {
@@ -70,11 +69,16 @@ export default Vue.extend({
     },
     computed: {
         ...mapGetters({ stations: "availableStations", mappedStations: "mappedStations" }),
+        discovering(): DiscoveringStation[] {
+            return this.$s.getters.discovering;
+        },
     },
     created: function () {
         if (application.android) {
+            // eslint-disable-next-line
             application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                args.cancel = true; //this cancels the normal backbutton behaviour
+                // eslint-disable-next-line
+                args.cancel = true; // This cancels the normal backbutton behaviour
             });
         }
     },

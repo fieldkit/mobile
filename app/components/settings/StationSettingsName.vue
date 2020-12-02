@@ -60,20 +60,28 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { ActionTypes } from "../../store/actions";
-
 import SharedComponents from "@/components/shared";
 import General from "./StationSettingsGeneral.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
+import { ActionTypes, AvailableStation } from "@/store";
 
 export default Vue.extend({
-    data() {
+    data(): {
+        stationName: string;
+        origName: string;
+        noName: boolean;
+        nameTooLong: boolean;
+        nameNotPrintable: boolean;
+        error: boolean;
+    } {
         return {
             stationName: "",
+            origName: "",
             noName: false,
             nameTooLong: false,
             nameNotPrintable: false,
+            error: false,
         };
     },
     props: {
@@ -88,36 +96,27 @@ export default Vue.extend({
         ConnectionNote,
     },
     computed: {
-        station(this: any) {
-            return this.$s.getters.legacyStations[this.stationId];
+        station(this: any): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
     },
     methods: {
-        getStation(this: any) {
-            return this.$s.getters.legacyStations[this.stationId];
-        },
-        onPageLoaded(this: any, args) {
-            this.page = args.object;
-            this.stationName = this.getStation().name;
+        onPageLoaded(): void {
+            this.stationName = this.station.name ?? "";
             this.origName = this.stationName;
         },
-        goBack(this: any, ev) {
-            return Promise.all([
+        async goBack(ev: Event | null): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(General, {
                     props: {
                         stationId: this.stationId,
-                        station: this.getStation(),
-                    },
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
+                        station: this.station,
                     },
                 }),
             ]);
         },
-        checkName(this: any) {
+        checkName(): boolean {
             this.stationName = this.stationName.trim();
             this.noName = false;
             this.nameNotPrintable = false;
@@ -132,24 +131,23 @@ export default Vue.extend({
             this.nameTooLong = this.stationName.length > 40;
             return !this.nameTooLong && !this.nameNotPrintable;
         },
-        saveStationName(this: any) {
+        async saveStationName(): Promise<void> {
             const valid = this.checkName();
             if (valid && this.origName != this.stationName) {
-                return this.$s
-                    .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.getStation().deviceId, name: this.stationName })
+                await this.$s
+                    .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.station.deviceId, name: this.stationName })
                     .then(() => {
-                        return this.goBack();
+                        return this.goBack(null);
                     })
                     .catch((error) => {
                         this.error = true;
                     });
             }
         },
-        clearName(this: any) {
-            this.editingName = true;
+        clearName(): void {
             this.stationName = "";
         },
-        cancelRename(this: any) {
+        cancelRename(): void {
             this.noName = false;
             this.nameNotPrintable = false;
             this.nameTooLong = false;

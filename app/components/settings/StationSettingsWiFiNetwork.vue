@@ -10,7 +10,14 @@
                             <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0" />
                             <GridLayout rows="auto" columns="0,*,30" v-for="n in networks" :key="n.ssid" class="m-10">
                                 <Label row="0" col="1" class="m-t-5 m-l-5" :text="n.ssid" />
-                                <Image row="0" col="2" src="~/images/Icon_Close.png" width="17" @tap="(ev) => removeNetwork(n)" />
+                                <Image
+                                    row="0"
+                                    col="2"
+                                    src="~/images/Icon_Close.png"
+                                    width="17"
+                                    @tap="(ev) => removeNetwork(n)"
+                                    v-if="station.connected"
+                                />
                             </GridLayout>
                         </WrapLayout>
 
@@ -19,7 +26,7 @@
                         </StackLayout>
 
                         <GridLayout
-                            v-if="!addingNetwork"
+                            v-if="!addingNetwork && station.connected"
                             rows="auto"
                             columns="10*,90*"
                             @tap="showNetworkForm"
@@ -75,9 +82,11 @@
                             @tap="addNetwork"
                         />
 
-                        <!--
-                        <ConnectionNote :station="station" :stationId="stationId" />
+                        <ActivityIndicator :busy="busy" row="0" />
 
+                        <ConnectionNote :station="station" />
+
+                        <!--
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />
                             <Button
@@ -100,19 +109,18 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
+import { AvailableStation, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 import { Dialogs } from "@nativescript/core";
 import * as animations from "@/components/animations";
-
 import SharedComponents from "@/components/shared";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import WiFi from "./StationSettingsWiFi.vue";
-
-import { Station, NetworkInfo, AddStationNetworkAction, RemoveStationNetworkAction } from "@/store";
 
 export default Vue.extend({
     data(): {
         addingNetwork: boolean;
         hidePassword: boolean;
+        busy: boolean;
         form: {
             ssid: string;
             password: string;
@@ -123,6 +131,7 @@ export default Vue.extend({
                 ssid: "",
                 password: "",
             },
+            busy: false,
             addingNetwork: false,
             hidePassword: true,
         };
@@ -142,26 +151,20 @@ export default Vue.extend({
         maximumNetworks(): number {
             return 2;
         },
-        station(): Station {
-            return this.$s.getters.stationsById[this.stationId];
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
         networks(): NetworkInfo[] {
             return this.station.networks;
         },
     },
     methods: {
-        goBack(ev: any): Promise<any> {
-            return Promise.all([
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(WiFi, {
                     props: {
                         stationId: this.stationId,
-                        station: this.station,
-                    },
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
                     },
                 }),
             ]);
@@ -171,23 +174,33 @@ export default Vue.extend({
                 this.addingNetwork = true;
             }
         },
-        addNetwork(): Promise<any> {
+        async addNetwork(): Promise<void> {
             this.addingNetwork = false;
             const adding = _.clone(this.form);
             this.form = {
                 ssid: "",
                 password: "",
             };
-            return this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
+            this.busy = true;
+            try {
+                await this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
+            } finally {
+                this.busy = false;
+            }
         },
-        removeNetwork(network: NetworkInfo): Promise<void> {
-            return Dialogs.confirm({
+        async removeNetwork(network: NetworkInfo): Promise<void> {
+            await Dialogs.confirm({
                 title: _L("areYouSureRemoveNetwork"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("cancel"),
             }).then((confirmed) => {
                 if (confirmed) {
-                    return this.$s.dispatch(new RemoveStationNetworkAction(this.station.deviceId, network, this.station.networks));
+                    this.busy = true;
+                    return this.$s
+                        .dispatch(new RemoveStationNetworkAction(this.station.deviceId, network, this.station.networks))
+                        .finally(() => {
+                            this.busy = false;
+                        });
                 }
                 return Promise.resolve();
             });

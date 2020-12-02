@@ -86,76 +86,66 @@
 
 <script lang="ts">
 import Vue from "vue";
-
 import SharedComponents from "@/components/shared";
 import Networks from "./StationSettingsNetworks.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
+import { AvailableStation } from "@/store";
+import * as animations from "../animations";
 
 export default Vue.extend({
-    data() {
-        return {
-            invalidEui: false,
-            invalidKey: false,
-            lora: { deviceEui: "", appEui: "", appKey: "" },
-            editingLora: false,
-        };
+    components: {
+        ...SharedComponents,
+        Networks,
+        ConnectionNote,
     },
     props: {
         stationId: {
             required: true,
             type: Number,
         },
-        station: {
-            required: true,
-            type: Object,
-        },
     },
-    components: {
-        ...SharedComponents,
-        Networks,
-        ConnectionNote,
+    data(): {
+        invalidEui: boolean;
+        invalidKey: boolean;
+        editingLora: boolean;
+        lora: {
+            deviceEui: string;
+            appEui: string;
+            appKey: string;
+        };
+    } {
+        return {
+            invalidEui: false,
+            invalidKey: false,
+            editingLora: false,
+            lora: { deviceEui: "", appEui: "", appKey: "" },
+        };
+    },
+    computed: {
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
+        },
     },
     methods: {
-        onPageLoaded(this: any, args) {
-            this.page = args.object;
-            const user = this.$services.PortalInterface().getCurrentUser();
-            if (!user) throw new Error("no user");
-            this.userName = user.name;
-            const deviceStatus = this.station.statusJson;
-            if (deviceStatus && deviceStatus.loraSettings) {
-                let deviceEui = deviceStatus.loraSettings.deviceEui;
-                if (deviceEui) {
-                    this.lora.deviceEui = Buffer.from(Object.values(deviceEui)).toString("hex");
-                }
+        onPageLoaded(): void {
+            if (this.station.lora) {
+                this.lora.deviceEui = this.station.lora.deviceEui;
             }
-            this.deviceStatus = deviceStatus;
         },
-        goBack(this: any, event) {
-            if (event) {
-                // Change background color when pressed
-                let cn = event.object.className;
-                event.object.className = cn + " pressed";
-                setTimeout(() => {
-                    event.object.className = cn;
-                }, 500);
-            }
-
-            this.$navigateTo(Networks, {
-                props: {
-                    stationId: this.stationId,
-                    station: this.station,
-                },
-                transition: {
-                    name: "slideRight",
-                    duration: 250,
-                    curve: "linear",
-                },
-            });
+        async goBack(ev: Event | null): Promise<void> {
+            await Promise.all([
+                animations.pressed(ev),
+                this.$navigateTo(Networks, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                }),
+            ]);
         },
-        showLoraForm(this: any, event) {
+        showLoraForm(): void {
             this.editingLora = true;
         },
-        checkAppEui(this: any) {
+        checkAppEui(): Buffer | null {
             try {
                 if (this.lora.appEui.length != 16) {
                     throw Error("invalid length");
@@ -166,7 +156,7 @@ export default Vue.extend({
                 return null;
             }
         },
-        checkAppKey(this: any) {
+        checkAppKey(): Buffer | null {
             try {
                 if (this.lora.appKey.length != 32) {
                     throw Error("invalid length");
@@ -177,27 +167,30 @@ export default Vue.extend({
                 return null;
             }
         },
-        editLora(this: any, event) {
+        async editLora(ev: Event): Promise<void> {
             this.invalidEui = false;
             this.invalidKey = false;
-            let appEui = this.checkAppEui();
-            let appKey = this.checkAppKey();
+            const appEui = this.checkAppEui();
+            const appKey = this.checkAppKey();
 
             if (appEui && appKey) {
                 this.editingLora = false;
                 this.invalidEui = false;
                 this.invalidKey = false;
 
-                let sendableLora = {
+                const sendableLora = {
                     appEui: appEui,
                     appKey: appKey,
                 };
 
-                this.$services
+                const url = this.station.url;
+                if (!url) throw new Error(`no nearby info`);
+
+                await this.$services
                     .QueryStation()
-                    .sendLoraSettings(this.station.url, sendableLora)
+                    .sendLoraSettings(url, sendableLora)
                     .then((result) => {
-                        this.goBack();
+                        this.goBack(null);
                         // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
                         // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
                         // in order to match in the interim, must edit station.statusJson

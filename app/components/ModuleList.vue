@@ -67,7 +67,7 @@ export default Vue.extend({
     },
     methods: {
         getDisplayReading(s: Sensor): string {
-            if (s.reading === null) {
+            if (!_.isNumber(s.reading)) {
                 return "--";
             }
             return s.reading.toFixed(1);

@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('uploadSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="*,70">
             <ScrollView row="0">
@@ -25,14 +25,25 @@
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import * as animations from "@/components/animations";
-
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import WiFi from "./StationSettingsWiFi.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
+import WiFi from "./StationSettingsWiFi.vue";
+import { AvailableStation } from "@/store";
 
 export default Vue.extend({
-    data() {
+    data(): {
+        busy: boolean;
+        form: {
+            schedule: {
+                intervals: {
+                    start: number;
+                    end: number;
+                    interval: number;
+                }[];
+            };
+        };
+    } {
         return {
             busy: false,
             form: {
@@ -60,45 +71,36 @@ export default Vue.extend({
         ScheduleEditor,
     },
     computed: {
-        station(this: any) {
-            return this.$s.getters.legacyStations[this.stationId];
+        station(): AvailableStation {
+            return this.$s.getters.availableStationsById[this.stationId];
         },
     },
     methods: {
-        onPageLoaded(this: any, args) {
-            this.page = args.object;
-        },
-        goBack(this: any, ev) {
-            return Promise.all([
+        async goBack(ev: Event | null): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(WiFi, {
                     props: {
                         stationId: this.stationId,
-                        station: this.station,
-                    },
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
                     },
                 }),
             ]);
         },
-        onScheduleChange(this: any, schedule) {
+        onScheduleChange(schedule: any): void {
             console.log("schedule:change", schedule);
             this.form.schedule = schedule;
         },
-        saveUploadInterval(this: any) {
+        async saveUploadInterval(): Promise<void> {
             console.log("schedule:form", this.form);
 
             this.busy = true;
 
-            return this.$s
+            await this.$s
                 .dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
                     deviceId: this.station.deviceId,
                     schedules: { network: this.form.schedule },
                 })
-                .then(() => this.goBack())
+                .then(() => this.goBack(null))
                 .finally(() => {
                     this.busy = false;
                 });
