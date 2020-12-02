@@ -10,19 +10,18 @@
 
                         <Label class="instruction" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
 
-                        <GridLayout rows="auto,auto" columns="30,*" class="option-container" @tap="selectOption(0)">
+                        <GridLayout rows="auto,auto" columns="30,*" class="option-container">
                             <CheckBox
                                 row="0"
                                 col="0"
-                                :checked="form.options[0].selected"
-                                :isEnabled="!form.options[0].selected"
+                                :checked="this.form.network === 0"
                                 fillColor="#2C3E50"
                                 onCheckColor="#2C3E50"
                                 onTintColor="#2C3E50"
                                 fontSize="18"
                                 boxType="circle"
                                 class="checkbox"
-                                @checkedChange="$event.value !== form.options[0].selected && selectOption(0)"
+                                @checkedChange="checkEvent($event, 0)"
                             />
                             <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('stationWifi')"></Label>
                             <Label
@@ -35,19 +34,18 @@
                             ></Label>
                         </GridLayout>
 
-                        <GridLayout rows="auto,auto" columns="30,*" class="option-container" @tap="selectOption(1)">
+                        <GridLayout rows="auto,auto" columns="30,*" class="option-container">
                             <CheckBox
                                 row="0"
                                 col="0"
-                                :checked="form.options[1].selected"
-                                :isEnabled="!form.options[1].selected"
+                                :checked="this.form.network === 1"
                                 fillColor="#2C3E50"
                                 onCheckColor="#2C3E50"
                                 onTintColor="#2C3E50"
                                 fontSize="18"
                                 boxType="circle"
                                 class="checkbox"
-                                @checkedChange="$event.value !== form.options[1].selected && selectOption(1)"
+                                @checkedChange="checkEvent($event, 1)"
                             />
                             <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('yourWifi')"></Label>
                             <Label
@@ -92,7 +90,6 @@ export default Vue.extend({
         return {
             form: {
                 network: 0,
-                options: [{ selected: true }, { selected: false }],
             },
         };
     },
@@ -107,7 +104,7 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded(args) {},
-        forward(this: any) {
+        forward() {
             if (this.form.network == 0) {
                 console.log("forward", "rename", this.form.network);
                 return this.$navigateTo(routes.onboarding.rename, {
@@ -118,6 +115,7 @@ export default Vue.extend({
             }
             if (this.form.network == 1) {
                 console.log("forward", "network", this.form.network);
+
                 return this.$navigateTo(routes.onboarding.addWifi, {
                     props: {
                         stationId: this.stationId,
@@ -125,14 +123,14 @@ export default Vue.extend({
                 });
             }
             console.log("forward", "error", this.form.network);
+            return;
         },
-        selectOption(this: any, index: number) {
-            this.form.network = index;
-            this.form.options[0].selected = false;
-            this.form.options[1].selected = false;
-            this.form.options[index].selected = true;
+        checkEvent($event, index) {
+            if ($event.value) {
+                this.form.network = index;
+            }
         },
-        skip(this: any) {
+        skip() {
             console.log("forward", this.form);
             return this.$navigateTo(routes.stations, {
                 props: {
