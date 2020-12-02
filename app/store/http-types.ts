@@ -302,9 +302,17 @@ function translateConnectedNetwork(network: fk_app.INetworkInfo | undefined): Ne
     if (!network) {
         return null;
     }
+    if (!network.ssid) {
+        console.log(`translateConnectedNetwork: ssid is required ignoring network`);
+        return null;
+    }
+    if (!network.password) {
+        console.log(`translateConnectedNetwork: password is required`);
+    }
     return {
-        ssid: network.ssid!,
-        password: "", // PRIVACY
+        ssid: network.ssid ?? "",
+        // password: "", // PRIVACY
+        password: network.password ?? "",
     };
 }
 
