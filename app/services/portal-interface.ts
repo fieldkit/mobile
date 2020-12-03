@@ -146,12 +146,19 @@ export default class PortalInterface {
     }
 
     public async isAvailable(): Promise<boolean> {
-        return await this.getUri().then((baseUri) =>
-            axios
+        return await this.getUri().then((baseUri) => {
+            console.log(`portal query`, "GET", baseUri + "/status");
+            return axios
                 .request({ url: baseUri + "/status" })
-                .then(() => true)
-                .catch(() => false)
-        );
+                .then((response) => {
+                    console.log(`portal available: ${JSON.stringify(response)}`);
+                    return true;
+                })
+                .catch((error) => {
+                    console.log(`portal available: ${JSON.stringify(error)}`);
+                    return false;
+                });
+        });
     }
 
     private async whoAmI(token: string): Promise<CurrentUser> {
