@@ -62,10 +62,12 @@ export default Vue.extend({
         });
     },
     destroyed(): void {
-        console.log("searching:destroyed");
         if (this.timer) {
+            console.log("searching:destroyed");
             this.timer.cancel();
             this.timer = null;
+        } else {
+            console.log("searching:destroyed (no-timer)");
         }
     },
     methods: {
