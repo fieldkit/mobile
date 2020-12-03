@@ -139,7 +139,9 @@ export default class DatabaseInterface {
         if (db == null || saving == null) return false;
         try {
             const parsed = JSON.parse(db) as Record<string, unknown>;
-            if (parsed["name"] == saving["name"]) {
+            if (parsed["name"] == saving["name"] && parsed["name"] && saving["name"]) {
+                console.log(`same-error: ${JSON.stringify({ db, saving })}`);
+                console.log(`same-error: ${JSON.stringify({ existing: parsed["name"], saving: saving["name"] })}`);
                 return true;
             }
         } catch (error) {
