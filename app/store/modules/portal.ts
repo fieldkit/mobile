@@ -82,7 +82,7 @@ const actions = (services: ServiceRef) => {
             if (users.length > 0) {
                 try {
                     console.log(`authenticating default-users`);
-                    await Promise.all(
+                    void Promise.all(
                         users.map(async (da) => {
                             try {
                                 await dispatch(new LoginAction(da.email, da.password));
