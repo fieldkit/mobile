@@ -354,13 +354,30 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
 type LoadStationsValue = [StationTableRow[], ModuleTableRow[], SensorTableRow[], StreamTableRow[], DownloadTableRow[]];
 
 function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[]> {
+    console.log(`loading stations from database`);
     return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
         (values: LoadStationsValue) => {
             const stations: StationTableRow[] = values[0];
-            const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(values[1], (m) => m.stationId);
-            const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(values[2], (s) => s.moduleId);
-            const streams: { [index: number]: StreamTableRow[] } = _.groupBy(values[3], (s) => s.stationId);
-            const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(values[4], (s) => s.stationId);
+            const moduleRows: ModuleTableRow[] = values[1];
+            const sensorsRows: SensorTableRow[] = values[2];
+            const streamsRows: StreamTableRow[] = values[3];
+            const downloadsRows: DownloadTableRow[] = values[4];
+
+            console.log(
+                `loading stations: ${JSON.stringify({
+                    stations: stations.length,
+                    modules: moduleRows.length,
+                    sensors: sensorsRows.length,
+                    streams: streamsRows.length,
+                    downloads: downloadsRows.length,
+                })}`
+            );
+
+            const modules: { [index: number]: ModuleTableRow[] } = _.groupBy(moduleRows, (m) => m.stationId);
+            const sensors: { [index: number]: SensorTableRow[] } = _.groupBy(sensorsRows, (s) => s.moduleId);
+            const streams: { [index: number]: StreamTableRow[] } = _.groupBy(streamsRows, (s) => s.stationId);
+            const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(downloadsRows, (s) => s.stationId);
+
             // TODO Handle generation changes.
             return Promise.all(
                 stations.map((stationRow) => {
@@ -370,6 +387,7 @@ function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[]> {
                     if (!station.shouldArchive()) {
                         return Promise.resolve([station]);
                     }
+                    console.log(`archiving station: ${JSON.stringify(station)}`);
                     return db.archiveStation(station.id).then(() => {
                         return [];
                     });

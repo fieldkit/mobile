@@ -184,6 +184,8 @@ export default class DatabaseInterface {
     private async updateStation(station: Station): Promise<void> {
         if (!station.id) new Error(`no station id in update station`);
 
+        console.log(`updating station: ${JSON.stringify({ name: station.name, deviceId: station.deviceId })}`);
+
         // For the time being, need to not update the fields that are being set individually,
         // as they get overwritten with null if we do. Those include:
         // station.locationName,
@@ -485,6 +487,7 @@ export default class DatabaseInterface {
     }
 
     private async insertStation(newStation: Station): Promise<void> {
+        console.log(`inserting station: ${JSON.stringify({ name: newStation.name, deviceId: newStation.deviceId })}`);
         await this.execute(
             `INSERT INTO stations (
 				device_id, generation_id, name, archived, url, status,
@@ -496,7 +499,7 @@ export default class DatabaseInterface {
                 newStation.deviceId,
                 newStation.generationId,
                 newStation.name,
-                newStation.archived,
+                newStation.archived ? 1 : 0,
                 "", // TODO remove newStatus.url,
                 "", // TODO remove newStation.status,
                 newStation.deployStartTime,
@@ -548,6 +551,9 @@ export default class DatabaseInterface {
                         return this.synchronizeStreams(stationId, station, streamRows);
                     });
                 });
+            })
+            .then(() => {
+                console.log(`station updated: ${JSON.stringify({ deviceId: station.deviceId })}`);
             });
     }
 
