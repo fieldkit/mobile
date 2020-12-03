@@ -183,6 +183,7 @@ export default class PortalInterface {
 
     public async login(user: { email: string; password: string }): Promise<CurrentUser> {
         const baseUri = await this.getUri();
+        console.log(`portal query`, "POST", baseUri + "/login");
         return await axios
             .request({
                 method: "POST",
