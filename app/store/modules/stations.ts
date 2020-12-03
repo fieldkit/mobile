@@ -16,6 +16,7 @@ import {
     SortableStationSorter,
     Schedules,
     PortalError,
+    NoPortalError,
 } from "@/store/types";
 import { ActionTypes, StationRepliedAction, PortalReplyAction, PortalErrorAction } from "@/store/actions";
 import { HasLocation } from "@/store/map-types";
@@ -421,7 +422,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.STATION_PORTAL_REPLY]: async ({ commit }: ActionParameters, payload: PortalReplyAction) => {
             await services
                 .db()
-                .setStationPortalError({ id: payload.id }, {})
+                .setStationPortalError({ id: payload.id }, NoPortalError)
                 .then(() =>
                     services
                         .db()

@@ -137,6 +137,11 @@ export default class DatabaseInterface {
     private samePortalError(db: string | null, saving: Record<string, unknown> | null): boolean {
         if (db == null && saving == null) return true;
         if (db == null || saving == null) return false;
+        if (_.isEmpty(db) && _.isEmpty(saving)) return true;
+        // Wish this wasn't necessary, but the above wasn't catching
+        // some strange objects I was getting back.
+        if (JSON.stringify(db) == JSON.stringify(saving)) return true;
+
         try {
             const parsed = JSON.parse(db) as Record<string, unknown>;
             if (parsed["name"] == saving["name"] && parsed["name"] && saving["name"]) {
@@ -172,7 +177,7 @@ export default class DatabaseInterface {
     }
 
     private async updateStationPortalError(stationId: number, error: Record<string, unknown> | null): Promise<void> {
-        const values = [JSON.stringify(error || {}), new Date(), new Date(), stationId];
+        const values = [error ? JSON.stringify(error) : null, new Date(), new Date(), stationId];
         await this.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", values);
     }
 
