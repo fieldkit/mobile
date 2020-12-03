@@ -94,7 +94,7 @@
         "vue-loader": "^15.9.5",
         "vue-template-compiler": "^2.6.12",
         "webpack-dev-server": "^3.11.0",
-        "yup": "^0.29.3"
+        "yup": "^0.31.1"
     },
     "gitHead": "aaf1b81dc02ec5757ffff8131651798f179712fc",
     "readme": "NativeScript Application",
