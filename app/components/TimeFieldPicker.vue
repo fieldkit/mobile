@@ -19,16 +19,6 @@ import Vue from "vue";
 import { isAndroid, isIOS } from "@nativescript/core";
 import { TimePicker } from "@nativescript/core";
 
-interface Self {
-    value: number;
-    form: { hour: number; minute: number; time: number };
-    updateDisplay: () => any;
-    $emit: (type: string, value: number) => any;
-    $modal: {
-        close: (value: number) => any;
-    };
-}
-
 export default Vue.extend({
     name: "TimeFieldPicker",
     props: {
@@ -41,7 +31,13 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {
+        form: {
+            hour: number;
+            minute: number;
+            time: number;
+        };
+    } {
         return {
             form: {
                 hour: 0,
@@ -50,16 +46,16 @@ export default Vue.extend({
             },
         };
     },
-    mounted(this: Self) {
+    mounted(): void {
         this.updateDisplay();
     },
     watch: {
-        value(this: Self) {
+        value(): void {
             this.updateDisplay();
         },
     },
     methods: {
-        onPickerLoaded(this: Self, args: any) {
+        onPickerLoaded(args: any): void {
             this.updateDisplay();
 
             // From: https://docs.nativescript.org/ui/components/time-picker
@@ -77,7 +73,7 @@ export default Vue.extend({
                 timePicker.minute = this.form.minute;
             }
         },
-        updateDisplay(this: Self) {
+        updateDisplay(): void {
             let hour = this.value / 60 / 60;
             let minute = (this.value / 60) % 60;
             if (hour > 23) {
@@ -89,14 +85,14 @@ export default Vue.extend({
             this.form.time = this.value;
             console.log("time-field:update-display", this.value, this.form);
         },
-        onTimeChanged(this: Self, ev: any) {
+        onTimeChanged(ev: any): void {
             const date: Date = ev.value;
             const time = date.getHours() * 60 * 60 + date.getMinutes() * 60;
             console.log("time-field:time-change", date.getHours(), date.getMinutes());
             this.form.time = time;
             this.$emit("change", time);
         },
-        onSave(this: Self, ev: any) {
+        onSave(): void {
             this.$modal.close(this.form.time);
         },
     },
