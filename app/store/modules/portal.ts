@@ -127,6 +127,14 @@ const actions = (services: ServiceRef) => {
                 })
                 .catch((e) => console.log(ActionTypes.LOAD_ACCOUNTS, e));
         },
+        /*
+        [ActionTypes.REGISTER]: async ({ commit, dispatch, state }: ActionParameters, payload: RegisterAction) => {
+            const portal = services.portal();
+            const value = await portal.register(payload);
+            console.log(`register: ${JSON.stringify(value)}`);
+            console.log("register-value", value);
+        },
+		*/
         [ActionTypes.LOGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: LoginAction) => {
             const portal = services.portal();
             const self = await portal.login(payload);

@@ -7,6 +7,7 @@
             :hint="label"
             :text="value"
             :keyboardType="keyboardType"
+            :secure="secure"
             autocorrect="false"
             autocapitalizationType="none"
             @focus="onFocus"
@@ -33,6 +34,10 @@ export default Vue.extend({
         keyboardType: {
             type: String,
             default: "name",
+        },
+        secure: {
+            type: Boolean,
+            default: false,
         },
     },
     data(): { typing: boolean; focus: boolean } {

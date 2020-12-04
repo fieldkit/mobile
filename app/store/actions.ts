@@ -22,6 +22,7 @@ export enum ActionTypes {
     STATION_PORTAL_ERROR = "STATION_PORTAL_ERROR",
     STATION_PORTAL_REPLY = "STATION_PORTAL_REPLY",
 
+    REGISTER = "REGISTER",
     LOGIN = "LOGIN",
     AUTHENTICATED = "AUTHENTICATED",
 
@@ -151,6 +152,12 @@ export class LoginAction {
     type = ActionTypes.LOGIN;
 
     constructor(public readonly email: string, public readonly password: string) {}
+}
+
+export class RegisterAction {
+    type = ActionTypes.REGISTER;
+
+    constructor(public readonly name: string, public readonly email: string, public readonly password: string) {}
 }
 
 export class NameStationLocationAction {

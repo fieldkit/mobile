@@ -211,11 +211,28 @@ export default class PortalInterface {
         await this.store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
     }
 
+    public async forgotPassword(payload: { email: string }): Promise<void> {
+        const baseUri = await this.getUri();
+        console.log(`portal query`, "POST", baseUri + "/user/recovery/lookup");
+        await axios
+            .request({
+                method: "POST",
+                url: baseUri + "/user/recovery/lookup",
+                headers: { "Content-Type": "application/json" },
+                data: payload,
+            })
+            .catch((error) => this.handleError(error));
+    }
+
     public async register(user: AddUserFields): Promise<void> {
         await this.query({
             method: "POST",
             url: "/users",
-            data: user,
+            data: {
+                name: user.name,
+                email: user.email,
+                password: user.password,
+            },
         });
     }
 
@@ -537,7 +554,7 @@ export default class PortalInterface {
                             }
                             console.log(req.url, "portal error", error.response.status, error.response.data);
                         }
-                        console.log(req.url, "portal error: ${JSON.stringify(error)}");
+                        console.log(req.url, `portal error: ${JSON.stringify(error)}`);
                         throw error;
                     });
             });
