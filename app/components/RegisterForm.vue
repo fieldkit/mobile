@@ -10,7 +10,7 @@
             textWrap="true"
         />
 
-        <LabeledTextField v-model="form.email" label="EMail" @blur="checkEmail" />
+        <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" />
         <Label
             v-show="form.v.email.required"
             id="email-required"
@@ -25,7 +25,7 @@
             id="email-format"
             class="validation-error"
             horizontalAlignment="left"
-            text="Invalid E-Mail"
+            text="Invalid Email"
             textWrap="true"
         />
 
