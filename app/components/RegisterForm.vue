@@ -73,6 +73,7 @@
 import Vue from "vue";
 import routes from "@/routes";
 import SharedComponents from "@/components/shared";
+import { email } from "vuelidate/lib/validators";
 
 const ErrorUserEmailRegistered = "user-email-registered";
 
@@ -117,9 +118,8 @@ export default Vue.extend({
             this.form.v.name.required = this.form.name.length == 0;
         },
         checkEmail(): void {
-            const emailPattern = /^([a-zA-Z0-9_+-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
             this.form.v.email.required = this.form.email.length == 0;
-            this.form.v.email.format = this.form.email.length > 0 && !emailPattern.test(this.form.email);
+            this.form.v.email.format = this.form.email.length > 0 && !email(this.form.email);
         },
         checkPassword(): void {
             this.form.v.password.required = this.form.password.length == 0;
