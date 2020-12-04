@@ -34,11 +34,15 @@ export default class StartupScreen extends Vue {
 
         console.log("developer", Config.env.developer);
         if (Config.env.developer) {
-            return this.$navigateTo(routes.login, {
+            return this.$navigateTo(routes.appSettings.account, {
                 clearHistory: true,
                 props: {},
             });
             /*
+            return this.$navigateTo(routes.login, {
+                clearHistory: true,
+                props: {},
+            });
 			return this.$navigateTo(routes.internal.calibrate, {
 				clearHistory: true,
 				props: {
@@ -56,16 +60,10 @@ export default class StartupScreen extends Vue {
 					flowName: "onboarding",
 				},
 			});
-			return this.$navigateTo(routes.appSettings.account, {
-				clearHistory: true,
-				props: {},
-			});
-			*
             return this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 props: {},
             });
-            *
 			return this.$navigateTo(routes.dataSync, {
 				clearHistory: true,
 				props: {},

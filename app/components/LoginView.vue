@@ -4,7 +4,8 @@
             <FlexboxLayout class="page login-page" justifyContent="space-between">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
 
-                <LoginForm v-if="login" />
+                <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" />
+
                 <RegisterForm v-else />
 
                 <Label class="sign-up-label" @tap="toggle">
@@ -21,6 +22,8 @@
 import Vue from "vue";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
+import routes from "@/routes";
+import { LoginAction } from "@/store/actions";
 
 export default Vue.extend({
     name: "LoginView",
@@ -30,9 +33,11 @@ export default Vue.extend({
     },
     data(): {
         login: boolean;
+        busy: boolean;
     } {
         return {
             login: true,
+            busy: false,
         };
     },
     methods: {
@@ -40,6 +45,30 @@ export default Vue.extend({
             console.log(`toggle-form`);
             this.login = !this.login;
         },
+        async onLoginSaved(form: { email: string; password: string }): Promise<void> {
+            this.busy = true;
+            try {
+                await this.$services
+                    .Store()
+                    .dispatch(new LoginAction(form.email, form.password))
+                    .then(() => {
+                        return this.$navigateTo(routes.onboarding.assembleStation, {
+                            clearHistory: true,
+                        });
+                    })
+                    .catch((error) => {
+                        console.log("error", error);
+                        this.busy = false;
+                        return alert(_L("loginFailed"));
+                    });
+            } finally {
+                this.busy = false;
+            }
+        },
+        /*
+        async onRegisterSaved(form: { name:string;email: string; password: string }): Promise<void> {
+        },
+		*/
     },
 });
 </script>

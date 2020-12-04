@@ -1,6 +1,6 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="75,*,55">
+        <GridLayout rows="75,*,auto,55">
             <ScreenHeader
                 row="0"
                 :title="_L('appSettings.account.account')"
@@ -39,18 +39,17 @@
                             verticalAlignment="center"
                         />
                     </GridLayout>
-                    <StackLayout>
-                        <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')" @tap="logoutAll"></Button>
-                    </StackLayout>
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="2" active="settings" />
+            <StackLayout row="2" class="m-r-20 m-l-20">
+                <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')" @tap="logoutAll"></Button>
+            </StackLayout>
+            <ScreenFooter row="3" active="settings" />
         </GridLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
-
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
@@ -58,12 +57,11 @@ import SettingsItemIconText from "~/components/SettingsItemIconText.vue";
 import * as animations from "~/components/animations";
 import { ActionTypes } from "~/store/actions";
 import routes from "@/routes";
-import Promise from "bluebird";
 import Services from "@/services/singleton";
 import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
@@ -81,7 +79,7 @@ export default Vue.extend({
         SettingsItemIconText,
     },
     methods: {
-        onPageLoaded() {
+        onPageLoaded(): void {
             if (application.android) {
                 application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
                     args.cancel = true; //this cancels the normal backbutton behaviour
@@ -89,17 +87,17 @@ export default Vue.extend({
                 });
             }
         },
-        addAccount() {
-            return this.$navigateTo(routes.appSettings.accountAdd, {});
+        async addAccount(): Promise<void> {
+            await this.$navigateTo(routes.appSettings.accountAdd, {});
         },
-        logoutAll() {
-            return Services.PortalInterface().logout();
+        async logoutAll(): Promise<void> {
+            await Services.PortalInterface().logout();
         },
-        goBack(ev) {
-            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.list, { clearHistory: true })]);
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.list, { clearHistory: true })]);
         },
-        onChooseAccount(account) {
-            return Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);
+        async onChooseAccount(account): Promise<void> {
+            await Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);
         },
     },
 });

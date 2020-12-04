@@ -41,14 +41,18 @@
 
         <Button class="btn btn-primary btn-padded m-t-20" :text="_L('logIn')" :isEnabled="!busy" @tap="login" />
 
-        <Button class="btn btn-primary btn-padded m-t-20" :text="_L('continueOffline')" @tap="continueOffline" />
+        <Button
+            class="btn btn-primary btn-padded m-t-20"
+            :text="_L('continueOffline')"
+            @tap="continueOffline"
+            v-if="allowContinueOffline"
+        />
     </StackLayout>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import routes from "@/routes";
-import { LoginAction } from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import { Dialogs } from "@nativescript/core";
 
@@ -57,8 +61,17 @@ export default Vue.extend({
     components: {
         ...SharedComponents,
     },
+    props: {
+        busy: {
+            type: Boolean,
+            default: false,
+        },
+        allowContinueOffline: {
+            type: Boolean,
+            default: true,
+        },
+    },
     data(): {
-        busy: boolean;
         form: {
             email: string;
             password: string;
@@ -69,7 +82,6 @@ export default Vue.extend({
         };
     } {
         return {
-            busy: false,
             form: {
                 email: "",
                 password: "",
@@ -103,26 +115,8 @@ export default Vue.extend({
             return false;
         },
         async login(): Promise<void> {
-            if (this.invalid()) {
-                return;
-            }
-            this.busy = true;
-            try {
-                await this.$services
-                    .Store()
-                    .dispatch(new LoginAction(this.form.email, this.form.password))
-                    .then(() => {
-                        return this.$navigateTo(routes.onboarding.assembleStation, {
-                            clearHistory: true,
-                        });
-                    })
-                    .catch((error) => {
-                        console.log("error", error);
-                        this.busy = false;
-                        return this.alert(_L("loginFailed"));
-                    });
-            } finally {
-                this.busy = false;
+            if (!this.invalid()) {
+                this.$emit("saved", this.form);
             }
         },
         alert(message: string): Promise<void> {
