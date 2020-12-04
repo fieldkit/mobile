@@ -72,6 +72,8 @@ describe("Notes", () => {
             services.Database().addOrUpdateNotes = addOrUpdates;
             services.PortalInterface().updateStationNotes = patches;
 
+            clock.tick(63030);
+
             services.PortalInterface().getStationNotes = () => {
                 return Promise.resolve({
                     notes: [{ key: "studyObjective", createdAt: new Date(), updatedAt: new Date(), body: "Portal Note", media: [] }],
@@ -174,6 +176,49 @@ describe("Notes", () => {
         });
     });
 
+    describe("notes everywhere and mobile is newer and had text emptied", () => {
+        it("should keep the mobile notes and patch portal", async () => {
+            expect.assertions(4);
+
+            const ids = new Ids(200, 100);
+            const patches = jest.fn(() => {
+                return Promise.resolve();
+            });
+            const addOrUpdates = jest.fn(() => {
+                return Promise.resolve();
+            });
+
+            services.Database().addOrUpdateNotes = addOrUpdates;
+            services.PortalInterface().updateStationNotes = patches;
+
+            services.PortalInterface().getStationNotes = () => {
+                return Promise.resolve({
+                    notes: [{ key: "studyObjective", createdAt: new Date(), updatedAt: new Date(), body: "Portal Note", media: [] }],
+                    media: [],
+                });
+            };
+
+            clock.tick(60000);
+
+            store.commit(new UpdateNoteMutation(ids.mobile, "studyObjective", { body: "" }));
+
+            await store.dispatch(new SaveNotesAction(ids.mobile));
+
+            addOrUpdates.mockClear();
+
+            const synchronize = new SynchronizeNotes(services.PortalInterface(), store, services.FileSystem());
+            await synchronize.synchronize(ids);
+
+            expect(patches.mock.calls.length).toBe(1);
+            expect(addOrUpdates.mock.calls.length).toBe(0);
+
+            const [id, saved] = (patches.mock.calls[0] as unknown) as [number, PatchPortalNotes];
+
+            expect(id).toBe(ids.portal);
+            expect(saved.notes[0].body).toBe("");
+        });
+    });
+
     describe("notes everywhere and portal is newer and portal has media", () => {
         it("should keep the portal notes and save them", async () => {
             expect.assertions(4);
@@ -223,8 +268,6 @@ describe("Notes", () => {
             const [saved] = (addOrUpdates.mock.calls[0] as unknown) as [Notes];
 
             expect(saved.studyObjective.body).toBe("Portal Note");
-
-            console.log("saved ********", saved);
         });
     });
 });
