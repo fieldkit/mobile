@@ -139,7 +139,7 @@ export default Vue.extend({
                 console.log(`upgrade-done: ${value}`);
                 // We do this to prevent them from tapping again right after.
                 return promiseAfter(10000).then(() => {
-                    this.canUpgrade = true;
+                    // this.canUpgrade = true;
                 });
             });
         },
@@ -156,7 +156,7 @@ export default Vue.extend({
                 console.log(`upgrade-done: ${value}`);
                 // We do this to prevent them from tapping again right after.
                 return promiseAfter(10000).then(() => {
-                    this.canUpgrade = true;
+                    // this.canUpgrade = true;
                 });
             });
         },
