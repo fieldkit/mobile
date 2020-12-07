@@ -187,7 +187,6 @@ export default Vue.extend({
                 this.$navigateTo(routes.stationSettings, {
                     props: {
                         stationId: this.currentStation.id,
-                        station: this.currentStation,
                     },
                 }),
             ]);
