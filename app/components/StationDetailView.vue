@@ -129,11 +129,11 @@ export default Vue.extend({
             return station;
         },
     },
-    mounted() {
+    mounted(): void {
         console.log("station-detail", this.stationId);
         void this.completeSetup();
     },
-    created() {
+    async created(): Promise<void> {
         this.unwatch = this.$s.watch(
             (state, getters) => getters.legacyStations[this.stationId].connected,
             (newValue, oldValue) => {
@@ -147,14 +147,14 @@ export default Vue.extend({
             }
         );
 
-        this.generateNotificationsFromPortalErrors();
+        await this.generateNotificationsFromPortalErrors();
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.unwatch();
     },
     methods: {
-        goBack(ev) {
-            return Promise.all([
+        async goBack(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
                     clearHistory: true,
@@ -166,23 +166,23 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDeploy() {
-            return this.$navigateTo(routes.deploy.start, {
+        async goToDeploy(): Promise<void> {
+            await this.$navigateTo(routes.deploy.start, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        goToFieldNotes() {
-            return this.$navigateTo(routes.deploy.notes, {
+        async goToFieldNotes(): Promise<void> {
+            await this.$navigateTo(routes.deploy.notes, {
                 props: {
                     stationId: this.stationId,
                     linkedFromStation: true,
                 },
             });
         },
-        goToSettings(ev) {
-            return Promise.all([
+        async goToSettings(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationSettings, {
                     props: {
@@ -191,8 +191,8 @@ export default Vue.extend({
                 }),
             ]);
         },
-        goToDetail(ev) {
-            return Promise.all([
+        async goToDetail(ev: Event): Promise<void> {
+            await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stationDetail, {
                     props: {
@@ -218,57 +218,48 @@ export default Vue.extend({
                 actions: {},
             });
         },
-        completeSetup(): Promise<void> {
+        async completeSetup(): Promise<void> {
             if (!this.currentStation) throw new Error(`no station`);
 
             if (this.redirectedFromDeploy) {
                 this.newlyDeployed = true;
 
-                return Promise.all([this.addDeployedNotification(), promiseAfter(3000)]).then(() => {
+                await Promise.all([this.addDeployedNotification(), promiseAfter(3000)]).then(() => {
                     this.newlyDeployed = false;
                 });
             }
 
-            return Promise.resolve();
+            return;
         },
         getDeployedStatus(): string {
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
-        addModule() {
-            return this.$navigateTo(routes.onboarding.addModule, {
+        async addModule(): Promise<void> {
+            await this.$navigateTo(routes.onboarding.addModule, {
                 clearHistory: true,
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        generateNotificationsFromPortalErrors() {
+        async generateNotificationsFromPortalErrors(): Promise<void> {
             const portalError = this.currentStation?.portalHttpError;
 
             if (this.$s.state.portal.currentUser && portalError?.name) {
                 const userId = this.$s.state.portal.currentUser.portalId;
                 const stationId = this.currentStation.id;
 
-                this.$s
-                    .dispatch(ActionTypes.ADD_NOTIFICATION, {
-                        key: `${userId}/${stationId}/${portalError.name}`,
-                        kind: portalError.name,
-                        created: new Date(),
-                        silenced: false,
-                        project: {},
-                        user: this.$s.state.portal.currentUser,
-                        station: this.currentStation,
-                        actions: {},
-                    })
-                    .then(() => {
-                        return true;
-                    })
-                    .catch(() => {
-                        return false;
-                    });
+                await this.$s.dispatch(ActionTypes.ADD_NOTIFICATION, {
+                    key: `${userId}/${stationId}/${portalError.name}`,
+                    kind: portalError.name,
+                    created: new Date(),
+                    silenced: false,
+                    project: {},
+                    user: this.$s.state.portal.currentUser,
+                    station: this.currentStation,
+                    actions: {},
+                });
             }
-
-            return false;
         },
     },
 });

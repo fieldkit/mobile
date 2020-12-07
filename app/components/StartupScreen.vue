@@ -34,11 +34,11 @@ export default class StartupScreen extends Vue {
 
         console.log("developer", Config.env.developer);
         if (Config.env.developer) {
+            /*
             return this.$navigateTo(routes.appSettings.account, {
                 clearHistory: true,
                 props: {},
             });
-            /*
             return this.$navigateTo(routes.login, {
                 clearHistory: true,
                 props: {},
@@ -64,10 +64,6 @@ export default class StartupScreen extends Vue {
                 clearHistory: true,
                 props: {},
             });
-			return this.$navigateTo(routes.dataSync, {
-				clearHistory: true,
-				props: {},
-			});
 			return this.$navigateTo(routes.developerMenu, {
 				clearHistory: true,
 				props: {},
@@ -94,6 +90,10 @@ export default class StartupScreen extends Vue {
 				props: {},
 			});
 			*/
+            return this.$navigateTo(routes.dataSync, {
+                clearHistory: true,
+                props: {},
+            });
         }
 
         console.log("first navigate");

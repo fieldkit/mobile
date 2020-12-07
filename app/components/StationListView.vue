@@ -121,6 +121,7 @@ export default Vue.extend({
         },
         async onDoubleTap(): Promise<void> {
             this.scanning = true;
+            console.log(`user initiated station scan`);
             await this.$s.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
                 this.scanning = false;
             });
