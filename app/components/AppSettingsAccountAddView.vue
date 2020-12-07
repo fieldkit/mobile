@@ -28,12 +28,16 @@ import Vue from "vue";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
+import routes from "@/routes";
+import * as animations from "@/components/animations";
+import ScreenHeader from "@/components/ScreenHeader.vue";
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
     components: {
         LoginForm,
         RegisterForm,
+        ScreenHeader
     },
     data(): {
         login: boolean;
