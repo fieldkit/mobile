@@ -98,7 +98,20 @@ export default Vue.extend({
     props: {
         stepParam: {},
     },
-    data() {
+    data(): {
+        step: number;
+        lastStep: number;
+        title: string;
+        instruction: string;
+        buttonText: string;
+        frameImage: string;
+        displayFrame: string;
+        animateFrameTimer: number;
+        noImageText: string | null;
+        percentDone: number;
+        steps: { title: string; instruction: string; button: string; images: string[] }[];
+        checklist: { id: number; row: number; col: number; text: string }[];
+    } {
         const steps = createSteps();
         return {
             step: 0,
@@ -115,13 +128,11 @@ export default Vue.extend({
             checklist: createCheckList(),
         };
     },
-    components: {},
-    created: function () {
+    created(): void {
         if (application.android) {
             application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
                 if (this.step > 0) {
                     args.cancel = true; //this cancels the normal backbutton behaviour
-
                     this.step -= 1;
                     this.animateFrames();
                     this.title = this.steps[this.step].title;
@@ -133,7 +144,7 @@ export default Vue.extend({
         }
     },
     methods: {
-        onPageLoaded(args) {
+        onPageLoaded(): void {
             if (this.step == this.steps.length - 1) {
                 setTimeout(() => {
                     this.$navigateTo(routes.onboarding.start);
@@ -142,17 +153,18 @@ export default Vue.extend({
             const thisAny = this as any;
             thisAny._appSettings = new AppSettings();
             if (thisAny.stepParam) {
-                thisAny.step = thisAny.stepParam == "last" ? this.lastStep - 2 : thisAny.stepParam == "first" ? 0 : parseInt(thisAny.stepParam);
+                thisAny.step =
+                    thisAny.stepParam == "last" ? this.lastStep - 2 : thisAny.stepParam == "first" ? 0 : parseInt(thisAny.stepParam);
                 this.goNext();
             }
             if (!thisAny.animateFrameTimer) {
                 thisAny.animateFrameTimer = setInterval(thisAny.animateFrames, 1000);
             }
         },
-        onUnloaded() {
+        onUnloaded(): void {
             this.stopAnimation();
         },
-        goBack(ev) {
+        async goBack(ev: Event): Promise<void> {
             console.log("goBack");
 
             if (this.step > 0) {
@@ -162,13 +174,13 @@ export default Vue.extend({
                 this.instruction = this.steps[this.step].instruction;
                 this.buttonText = this.steps[this.step].button;
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
-                return animations.pressed(ev);
+                await animations.pressed(ev);
             } else {
                 console.log("no more steps");
-                return Promise.all([animations.pressed(ev), this.$navigateTo(routes.stations)]);
+                await Promise.all([animations.pressed(ev), this.$navigateTo(routes.stations, { clearHistory: true })]);
             }
         },
-        goNext() {
+        goNext(): void {
             if (this.step < this.steps.length - 1) {
                 this.step += 1;
                 this.animateFrames();
@@ -183,16 +195,16 @@ export default Vue.extend({
                 }
             }
         },
-        skip() {
+        async skip(): Promise<void> {
             const thisAny = this as any;
             thisAny._appSettings.setNumber("skipCount", (thisAny._appSettings.getNumber("skipCount") || 0) + 1);
-            this.$navigateTo(routes.onboarding.start);
+            await this.$navigateTo(routes.onboarding.start);
         },
-        stopAnimation() {
+        stopAnimation(): void {
             this.displayFrame = "";
             clearInterval(this.animateFrameTimer);
         },
-        animateFrames() {
+        animateFrames(): void {
             this.frameImage =
                 this.frameImage == this.steps[this.step].images[0] ? this.steps[this.step].images[1] : this.steps[this.step].images[0];
             this.displayFrame = this.frameImage ? "~/images/" + this.frameImage : "";

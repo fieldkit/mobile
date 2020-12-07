@@ -157,9 +157,7 @@ export default Vue.extend({
             return Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
-                    props: {
-                        stationId: this.stationId,
-                    },
+                    clearHistory: true,
                     transition: {
                         name: "slideRight",
                         duration: 250,

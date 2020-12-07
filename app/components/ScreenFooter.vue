@@ -53,7 +53,7 @@ export default Vue.extend({
             await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
-                    // clearHistory: true,
+                    clearHistory: true,
                 }),
             ]);
         },
@@ -61,7 +61,7 @@ export default Vue.extend({
             await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.dataSync, {
-                    // clearHistory: true,
+                    clearHistory: true,
                 }),
             ]);
         },
@@ -69,7 +69,7 @@ export default Vue.extend({
             await Promise.all([
                 animations.pressed(ev),
                 this.$navigateTo(routes.appSettings.list, {
-                    // clearHistory: true,
+                    clearHistory: true,
                 }),
             ]);
         },

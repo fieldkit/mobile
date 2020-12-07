@@ -50,48 +50,63 @@ import Vue from "vue";
 import routes from "../../routes";
 import { _T } from "../../utilities";
 import { Timer } from "../../common/timer";
+import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     props: {},
-    data(): { frame: number; step: number } {
+    data(): {
+        frame: number;
+        step: number;
+    } {
         return {
             frame: 0,
             step: 0,
         };
     },
     methods: {
-        onPageLoaded(args): void {
+        onPageLoaded(): void {
             console.log("onboarding/start:", "loaded");
 
             const thisAny = this as any;
             thisAny.timer = new Timer(1000, () => {
                 this.frame += 1;
             });
+
+            if (application.android) {
+                application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                    args.cancel = true; //this cancels the normal backbutton behaviour
+                    this.back();
+                });
+            }
         },
         onNavigatingTo(): void {
             console.log("nav away");
             const thisAny = this as any;
             thisAny.timer.stop();
         },
-        forward(): Promise<any> {
+        async forward(): Promise<void> {
             this.step++;
             if (this.step == 2) {
-                return this.$navigateTo(routes.onboarding.searching, {
+                await this.$navigateTo(routes.onboarding.searching, {
                     clearHistory: true,
                     backstackVisible: false,
                 });
             }
-            return Promise.resolve();
         },
-        back(this: any): Promise<any> {
+        async back(): Promise<void> {
             console.log("onboarding/start:", "back");
-            return this.$navigateTo(routes.stations, {
-                clearHistory: true,
-                backstackVisible: false,
-            });
+            if (this.step > 0) {
+                this.step -= 1;
+            } else {
+                await this.$navigateTo(routes.onboarding.assembleStation, {
+                    props: {
+                        stepParam: 8,
+                    },
+                });
+            }
         },
-        skip(this: any): Promise<any> {
-            return this.$navigateTo(routes.stations, {
+        async skip(): Promise<any> {
+            await this.$navigateTo(routes.stations, {
                 clearHistory: true,
                 backstackVisible: false,
             });

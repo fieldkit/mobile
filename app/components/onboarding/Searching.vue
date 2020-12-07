@@ -49,7 +49,9 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("searching:mounted");
+        console.log(
+            `searching:mounted ${JSON.stringify({ numberNearby: this.numberOfNearbyStations, nearby: this.$s.state.nearby.stations })}`
+        );
         this.timer = promiseAfter(5000).then(() => {
             if (this.timer) {
                 console.log("searching:failed");
@@ -62,10 +64,12 @@ export default Vue.extend({
         });
     },
     destroyed(): void {
-        console.log("searching:destroyed");
         if (this.timer) {
+            console.log(`searching:destroyed`);
             this.timer.cancel();
             this.timer = null;
+        } else {
+            console.log(`searching:destroyed (no-timer)`);
         }
     },
     methods: {

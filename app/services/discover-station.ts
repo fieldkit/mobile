@@ -93,7 +93,7 @@ class NetworkMonitor {
         void Bluebird.delay(1000).then(() => this.tryFixedAddresses());
     }
 
-    private tryFixedAddresses(): Promise<void> {
+    public tryFixedAddresses(): Promise<void> {
         return Promise.all(
             this.FixedAddresses.map((ip: string) =>
                 this.services
@@ -166,6 +166,8 @@ export default class DiscoverStation {
         await this.conservify.start(options);
 
         this.monitoring = true;
+
+        void this.networkMonitor.tryFixedAddresses();
     }
 
     public async stopServiceDiscovery(options: StopOptions | null): Promise<void> {

@@ -12,14 +12,16 @@ export class MergedNotes {
     constructor(public readonly patch: PatchPortalNotes, public readonly modified: boolean) {}
 }
 
+const EarlyDate: Date = new Date(-8640000000000000);
+
 export default class SynchronizeNotes {
     constructor(private readonly portal: PortalInterface, private readonly store: Store, private readonly fs: FileSystem) {}
 
-    public synchronize(ids: Ids): Promise<void> {
-        return this.portal
+    public async synchronize(ids: Ids): Promise<void> {
+        await this.portal
             .getStationNotes(ids.portal)
             .then((portalNotes: PortalStationNotesReply) => {
-                const mobileNotes = this.store.state.notes.stations[ids.mobile] || new Notes(ids.mobile, new Date(), new Date());
+                const mobileNotes = this.store.state.notes.stations[ids.mobile] || new Notes(ids.mobile, EarlyDate, EarlyDate);
 
                 return this.media(ids, portalNotes, mobileNotes).then((resolvedMedia) => {
                     console.log(`notes: resolved-media`, resolvedMedia);
@@ -39,12 +41,12 @@ export default class SynchronizeNotes {
             .then(() => Promise.resolve());
     }
 
-    private patchPortal(ids: Ids, patch: PatchPortalNotes): Promise<void> {
+    private async patchPortal(ids: Ids, patch: PatchPortalNotes): Promise<void> {
         console.log(`patching: ${JSON.stringify({ ids, patch })}`);
         if (patch.creating.length == 0 && patch.notes.length == 0) {
-            return Promise.resolve();
+            return;
         }
-        return this.portal.updateStationNotes(ids.portal, patch).then(() => Promise.resolve());
+        await this.portal.updateStationNotes(ids.portal, patch);
     }
 
     private parseStampMaybe(key: string): string {
@@ -81,7 +83,7 @@ export default class SynchronizeNotes {
         return "application/octet-stream";
     }
 
-    private media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes): Promise<{ [index: string]: number }> {
+    private async media(ids: Ids, portalNotes: PortalStationNotesReply, mobileNotes: Notes): Promise<{ [index: string]: number }> {
         const allPortalMedia = [...(portalNotes.media || []), ..._.flatten(portalNotes.notes.map((n) => n.media || []))];
         const portalByKey = _.keyBy(
             allPortalMedia.filter((m) => m.key),
@@ -97,7 +99,7 @@ export default class SynchronizeNotes {
         const allKeys = _.union(_.flatten([Object.keys(localByKey), Object.keys(portalByKey)]));
 
         console.log(`notes: ${JSON.stringify({ ids, portalByKey, localByKey, allKeys })}`);
-        return serializePromiseChain(allKeys, (key: string) => {
+        return await serializePromiseChain(allKeys, (key: string) => {
             if (portalByKey[key]) {
                 if (!localByKey[key]) {
                     // Portal has the media and we gotta download.
@@ -176,7 +178,7 @@ export default class SynchronizeNotes {
 
                     console.log(`notes: times`, remoteTime, localTime);
 
-                    if (localEmpty || remoteTime.isAfter(localTime)) {
+                    if (remoteTime.isAfter(localTime)) {
                         console.log(`portal wins`, key);
                         this.store.commit(new UpdateNoteMutation(ids.mobile, key, portalExisting[key]));
                         return {

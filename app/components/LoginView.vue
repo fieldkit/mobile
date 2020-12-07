@@ -1,177 +1,16 @@
 <template>
-    <Page actionBarHidden="true" @loaded="onPageLoaded">
+    <Page actionBarHidden="true">
         <ScrollView>
             <FlexboxLayout class="page login-page" justifyContent="space-between">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
-                <StackLayout class="form">
-                    <GridLayout rows="auto, auto, auto, auto">
-                        <StackLayout row="0" v-show="!isLoggingIn" class="input-field">
-                            <TextField
-                                id="name-field"
-                                class="input"
-                                :hint="_L('name')"
-                                horizontalAlignment="left"
-                                :isEnabled="!processing"
-                                keyboardType="name"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                v-model="user.name"
-                                returnKeyType="next"
-                                @returnPress="focusEmail"
-                                @focus="showActive"
-                                @blur="checkName"
-                            />
-                            <StackLayout class="spacer-top" id="name-field-spacer" v-show="!noName && !nameTooLong" />
-                            <Label class="validation-error" id="no-name" :text="_L('nameRequired')" textWrap="true" v-show="noName" />
-                            <Label
-                                class="validation-error"
-                                id="name-too-long"
-                                :text="_L('nameOver255')"
-                                textWrap="true"
-                                v-show="nameTooLong"
-                            />
-                        </StackLayout>
 
-                        <StackLayout row="1" class="input-field">
-                            <GridLayout rows="auto" columns="*">
-                                <TextField
-                                    row="0"
-                                    id="email-field"
-                                    class="input"
-                                    :hint="_L('email')"
-                                    ref="email"
-                                    horizontalAlignment="left"
-                                    :isEnabled="!processing"
-                                    keyboardType="email"
-                                    autocorrect="false"
-                                    autocapitalizationType="none"
-                                    v-model="user.email"
-                                    automationText="loginEmailInput"
-                                    returnKeyType="next"
-                                    @focus="showActive"
-                                    @returnPress="focusPassword"
-                                    @blur="checkEmail"
-                                ></TextField>
-                                <Image
-                                    row="0"
-                                    width="25"
-                                    class="bottom-pad"
-                                    horizontalAlignment="right"
-                                    v-show="isLoggingIn"
-                                    src="~/images/Icon_Email_login.png"
-                                ></Image>
-                            </GridLayout>
-                            <StackLayout class="spacer-top" id="email-field-spacer" v-show="!noEmail && !emailNotValid"></StackLayout>
-                            <Label
-                                class="validation-error"
-                                id="no-email"
-                                :text="_L('emailRequired')"
-                                textWrap="true"
-                                v-show="noEmail"
-                            ></Label>
-                            <Label
-                                class="validation-error"
-                                id="email-not-valid"
-                                :text="_L('emailNotValid')"
-                                textWrap="true"
-                                v-show="emailNotValid"
-                            ></Label>
-                        </StackLayout>
+                <LoginForm v-if="login" :busy="busy" @saved="onLoginSaved" />
 
-                        <StackLayout row="2" class="input-field">
-                            <GridLayout rows="auto" columns="*">
-                                <TextField
-                                    id="password-field"
-                                    class="input"
-                                    :hint="_L('password')"
-                                    secure="true"
-                                    ref="password"
-                                    horizontalAlignment="left"
-                                    :isEnabled="!processing"
-                                    v-model="user.password"
-                                    automationText="loginPasswordInput"
-                                    :returnKeyType="isLoggingIn ? 'done' : 'next'"
-                                    @focus="showActive"
-                                    @returnPress="focusConfirmPassword"
-                                    @blur="checkPassword"
-                                ></TextField>
-                                <Image
-                                    row="0"
-                                    width="25"
-                                    class="bottom-pad"
-                                    horizontalAlignment="right"
-                                    v-show="isLoggingIn"
-                                    src="~/images/Icon_Password_login.png"
-                                ></Image>
-                            </GridLayout>
-                            <StackLayout
-                                class="spacer-top"
-                                id="password-field-spacer"
-                                v-show="!noPassword && !passwordTooShort"
-                            ></StackLayout>
-                            <Label
-                                class="validation-error"
-                                id="no-password"
-                                :text="_L('passwordRequired')"
-                                textWrap="true"
-                                v-show="noPassword"
-                            ></Label>
-                            <Label
-                                class="validation-error"
-                                id="password-too-short"
-                                :text="_L('passwordTooShort')"
-                                textWrap="true"
-                                v-show="passwordTooShort"
-                            ></Label>
-                            <Label
-                                class="m-t-5"
-                                horizontalAlignment="right"
-                                v-show="isLoggingIn"
-                                :text="_L('forgotLink')"
-                                @tap="forgotPassword()"
-                            ></Label>
-                        </StackLayout>
+                <RegisterForm v-else />
 
-                        <StackLayout row="3" v-show="!isLoggingIn" class="input-field">
-                            <TextField
-                                id="confirm-password-field"
-                                class="input"
-                                :hint="_L('confirmPassword')"
-                                secure="true"
-                                ref="confirmPassword"
-                                horizontalAlignment="left"
-                                :isEnabled="!processing"
-                                v-model="user.confirmPassword"
-                                returnKeyType="done"
-                                @focus="showActive"
-                                @blur="checkConfirmPassword"
-                            ></TextField>
-                            <StackLayout class="spacer-top" id="confirm-password-field-spacer" v-show="!passwordsNotMatch"></StackLayout>
-                            <Label
-                                class="validation-error"
-                                id="passwords-not-match"
-                                :text="_L('noMatch')"
-                                textWrap="true"
-                                v-show="passwordsNotMatch"
-                            ></Label>
-                        </StackLayout>
-
-                        <ActivityIndicator rowSpan="4" :busy="processing"></ActivityIndicator>
-                    </GridLayout>
-
-                    <Button
-                        class="btn btn-primary btn-padded m-t-20"
-                        :text="isLoggingIn ? _L('logIn') : _L('signUp')"
-                        :isEnabled="!processing"
-                        @tap="submit"
-                    ></Button>
-
-                    <Button class="btn btn-primary btn-padded m-t-20" :text="_L('continueOffline')" @tap="continueOffline"></Button>
-                </StackLayout>
-
-                <Label class="sign-up-label" @tap="toggleForm">
+                <Label class="sign-up-label" @tap="toggle">
                     <FormattedString>
-                        <Span :text="isLoggingIn ? _L('needAccount') : _L('backToLogin')"></Span>
+                        <Span :text="login ? _L('needAccount') : _L('backToLogin')"></Span>
                     </FormattedString>
                 </Label>
             </FlexboxLayout>
@@ -181,213 +20,55 @@
 
 <script lang="ts">
 import Vue from "vue";
+import LoginForm from "./LoginForm.vue";
+import RegisterForm from "./RegisterForm.vue";
 import routes from "@/routes";
 import { LoginAction } from "@/store/actions";
-import { Dialogs } from "@nativescript/core";
-
-import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
     name: "LoginView",
     components: {
-        ...SharedComponents,
+        LoginForm,
+        RegisterForm,
     },
     data(): {
-        isLoggingIn: boolean;
-        processing: boolean;
-        noName: boolean;
-        nameTooLong: boolean;
-        noEmail: boolean;
-        emailNotValid: boolean;
-        noPassword: boolean;
-        passwordTooShort: boolean;
-        passwordsNotMatch: boolean;
-        navigatedAway: boolean;
-        user: {
-            name: string;
-            email: string;
-            password: string;
-            confirmPassword: string;
-        };
+        login: boolean;
+        busy: boolean;
     } {
         return {
-            isLoggingIn: true,
-            processing: false,
-            noName: false,
-            nameTooLong: false,
-            noEmail: false,
-            emailNotValid: false,
-            noPassword: false,
-            passwordTooShort: false,
-            passwordsNotMatch: false,
-            navigatedAway: false,
-            user: {
-                name: "",
-                email: "",
-                password: "",
-                confirmPassword: "",
-            },
+            login: true,
+            busy: false,
         };
     },
-    props: {
-        resetUser: {
-            type: Boolean,
-            required: false,
-        },
-    },
-    computed: {
-        thisAny(this: any): any {
-            return this as any;
-        },
-        thisPage(this: any): any {
-            return this.thisAny.page;
-        },
-    },
     methods: {
-        onPageLoaded(args: any): void {
-            // logging out sends resetUser = true
-            this.thisAny.page = args.object;
+        toggle(): void {
+            console.log(`toggle-form`);
+            this.login = !this.login;
         },
-        toggleForm(): void {
-            this.isLoggingIn = !this.isLoggingIn;
-        },
-        showActive(event: any): void {
-            let spacer = this.thisPage.getViewById(event.object.id + "-spacer");
-            spacer.className = "spacer-top active";
-        },
-        checkName(event: any): void {
-            let spacer = this.thisPage.getViewById("name-field-spacer");
-            spacer.className = "spacer-top";
-            this.noName = !this.user.name || this.user.name.length == 0;
-            if (this.noName) {
-                return;
-            }
-            this.nameTooLong = this.user.name.length > 255;
-        },
-        checkEmail(event: any): void {
-            let spacer = this.thisPage.getViewById("email-field-spacer");
-            spacer.className = "spacer-top";
-            this.noEmail = !this.user.email || this.user.email.length == 0;
-            if (this.noEmail) {
-                return;
-            }
-            let emailPattern = /^([a-zA-Z0-9_+\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
-            this.emailNotValid = !emailPattern.test(this.user.email);
-        },
-        checkPassword(event: any): void {
-            let spacer = this.thisPage.getViewById("password-field-spacer");
-            spacer.className = "spacer-top";
-            this.noPassword = !this.user.password || this.user.password.length == 0;
-            if (this.noPassword) {
-                return;
-            }
-            this.passwordTooShort = this.user.password.length < 10;
-        },
-        checkConfirmPassword(event): void {
-            let spacer = this.thisPage.getViewById("confirm-password-field-spacer");
-            spacer.className = "spacer-top";
-            this.passwordsNotMatch = this.user.password != this.user.confirmPassword;
-        },
-        continueOffline(): Promise<any> {
-            if (!this.navigatedAway) {
-                this.navigatedAway = true;
-                return this.$navigateTo(routes.onboarding.assembleStation, { clearHistory: true });
-            }
-            return Promise.resolve();
-        },
-        submit(): Promise<any> {
-            if (!this.user.email || !this.user.password) {
-                this.alert(_L("provideBoth"));
-                return Promise.resolve();
-            }
-
-            this.processing = true;
-            if (this.isLoggingIn) {
-                return this.login();
-            } else {
-                return this.register();
-            }
-        },
-        login(): Promise<any> {
-            this.processing = true;
-            return this.$services
-                .Store()
-                .dispatch(new LoginAction(this.user.email, this.user.password))
-                .then(() => {
-                    console.log("redirecting");
-                    return this.$navigateTo(routes.onboarding.assembleStation, {
-                        clearHistory: true,
-                    });
-                })
-                .catch((error) => {
-                    console.log("error", error);
-                    this.processing = false;
-                    if (!this.navigatedAway) {
-                        return this.alert(_L("loginFailed"));
-                    }
-                });
-        },
-        register(): Promise<any> {
-            if (this.user.password != this.user.confirmPassword) {
-                this.processing = false;
-                this.alert(_L("noMatch"));
-                return Promise.resolve();
-            }
-
-            return this.$services
-                .PortalInterface()
-                .register(this.user)
-                .then(() => {
-                    this.processing = false;
-                    this.isLoggingIn = true;
-                    return this.alert(_L("accountCreated"));
-                })
-                .catch(() => {
-                    this.processing = false;
-                    return this.alert(_L("accountCreateFailed"));
-                });
-        },
-        forgotPassword(): Promise<any> {
-            return Dialogs.prompt({
-                title: _L("forgotTitle"),
-                message: _L("forgotInstruction"),
-                inputType: "email",
-                defaultText: "",
-                okButtonText: _L("ok"),
-                cancelButtonText: _L("cancel"),
-            }).then((data) => {
-                if (data.result) {
-                    return this.$services
-                        .PortalInterface()
-                        .logout()
-                        .then(() => {
-                            return this.alert(_L("passwordResetSucceeded"));
-                        })
-                        .catch(() => {
-                            return this.alert(_L("passwordResetFailed"));
+        async onLoginSaved(form: { email: string; password: string }): Promise<void> {
+            this.busy = true;
+            try {
+                await this.$services
+                    .Store()
+                    .dispatch(new LoginAction(form.email, form.password))
+                    .then(() => {
+                        return this.$navigateTo(routes.onboarding.assembleStation, {
+                            clearHistory: true,
                         });
-                }
-                return Promise.resolve();
-            });
-        },
-        focusEmail(): void {
-            (this.$refs.email as any).nativeView.focus();
-        },
-        focusPassword(): void {
-            (this.$refs.password as any).nativeView.focus();
-        },
-        focusConfirmPassword(): void {
-            if (!this.isLoggingIn) {
-                (this.$refs.confirmPassword as any).nativeView.focus();
+                    })
+                    .catch((error) => {
+                        console.log("error", error);
+                        this.busy = false;
+                        return alert(_L("loginFailed"));
+                    });
+            } finally {
+                this.busy = false;
             }
         },
-        alert(message: string): void {
-            return alert({
-                title: "FieldKit",
-                okButtonText: _L("ok"),
-                message: message,
-            });
+        /*
+        async onRegisterSaved(form: { name:string;email: string; password: string }): Promise<void> {
         },
+		*/
     },
 });
 </script>
@@ -401,59 +82,13 @@ export default Vue.extend({
     flex-direction: column;
 }
 
-.form {
-    margin-left: 5;
-    margin-right: 5;
-    flex-grow: 2;
-    vertical-align: center;
-}
-
 .logo {
     margin-top: 50;
     height: 47;
 }
 
-.spacer-top {
-    border-top-color: $fk-gray-lighter;
-    border-top-width: 2;
-}
-
-.active {
-    border-top-color: $fk-secondary-blue;
-}
-
-.input-field {
-    margin-bottom: 15;
-}
-
-.input {
-    width: 100%;
-    font-size: 16;
-    color: $fk-primary-black;
-    placeholder-color: $fk-gray-hint;
-}
-
-.input:disabled {
-    opacity: 0.5;
-}
-
-.btn-primary {
-    margin: 20 5 15 5;
-}
-
-.bottom-pad {
-    margin-bottom: 8;
-}
-
 .sign-up-label {
     horizontal-align: center;
     margin-bottom: 10;
-}
-
-.validation-error {
-    color: $fk-tertiary-red;
-    border-top-color: $fk-tertiary-red;
-    border-top-width: 2;
-    padding-top: 5;
 }
 </style>

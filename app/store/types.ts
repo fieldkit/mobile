@@ -226,6 +226,8 @@ export interface LoraSettings {
 
 export type PortalError = Record<string, unknown>;
 
+export const NoPortalError = null;
+
 export interface StationPortalStatus {
     id: number;
     portalId: number | null;

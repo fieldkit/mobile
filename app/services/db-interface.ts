@@ -137,9 +137,16 @@ export default class DatabaseInterface {
     private samePortalError(db: string | null, saving: Record<string, unknown> | null): boolean {
         if (db == null && saving == null) return true;
         if (db == null || saving == null) return false;
+        if (_.isEmpty(db) && _.isEmpty(saving)) return true;
+        // Wish this wasn't necessary, but the above wasn't catching
+        // some strange objects I was getting back.
+        if (JSON.stringify(db) == JSON.stringify(saving)) return true;
+
         try {
             const parsed = JSON.parse(db) as Record<string, unknown>;
-            if (parsed["name"] == saving["name"]) {
+            if (parsed["name"] == saving["name"] && parsed["name"] && saving["name"]) {
+                console.log(`same-error: ${JSON.stringify({ db, saving })}`);
+                console.log(`same-error: ${JSON.stringify({ existing: parsed["name"], saving: saving["name"] })}`);
                 return true;
             }
         } catch (error) {
@@ -170,12 +177,14 @@ export default class DatabaseInterface {
     }
 
     private async updateStationPortalError(stationId: number, error: Record<string, unknown> | null): Promise<void> {
-        const values = [JSON.stringify(error || {}), new Date(), new Date(), stationId];
+        const values = [error ? JSON.stringify(error) : null, new Date(), new Date(), stationId];
         await this.execute("UPDATE stations SET portal_http_error = ?, portal_updated = ?, updated = ? WHERE id = ?", values);
     }
 
     private async updateStation(station: Station): Promise<void> {
         if (!station.id) new Error(`no station id in update station`);
+
+        console.log(`updating station: ${JSON.stringify({ name: station.name, deviceId: station.deviceId })}`);
 
         // For the time being, need to not update the fields that are being set individually,
         // as they get overwritten with null if we do. Those include:
@@ -478,6 +487,7 @@ export default class DatabaseInterface {
     }
 
     private async insertStation(newStation: Station): Promise<void> {
+        console.log(`inserting station: ${JSON.stringify({ name: newStation.name, deviceId: newStation.deviceId })}`);
         await this.execute(
             `INSERT INTO stations (
 				device_id, generation_id, name, archived, url, status,
@@ -489,7 +499,7 @@ export default class DatabaseInterface {
                 newStation.deviceId,
                 newStation.generationId,
                 newStation.name,
-                newStation.archived,
+                newStation.archived ? 1 : 0,
                 "", // TODO remove newStatus.url,
                 "", // TODO remove newStation.status,
                 newStation.deployStartTime,
@@ -541,6 +551,9 @@ export default class DatabaseInterface {
                         return this.synchronizeStreams(stationId, station, streamRows);
                     });
                 });
+            })
+            .then(() => {
+                console.log(`station updated: ${JSON.stringify({ deviceId: station.deviceId })}`);
             });
     }
 

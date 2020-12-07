@@ -38,15 +38,12 @@ export default Vue.extend({
             default: false,
         },
     },
-    data(): {} {
-        return {};
-    },
     methods: {
-        forward(): Promise<any> {
-            return this.$navigateTo(routes.onboarding.searching, {});
+        async forward(): Promise<void> {
+            await this.$navigateTo(routes.onboarding.searching, {});
         },
-        skip(): Promise<any> {
-            return this.$navigateTo(routes.stations, {});
+        async skip(): Promise<void> {
+            await this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

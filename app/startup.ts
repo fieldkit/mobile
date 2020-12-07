@@ -5,18 +5,20 @@ import { ActionTypes, OurStore } from "@/store";
 import registerLifecycleEvents from "@/services/lifecycle";
 // import { ProcessAllStationsTask } from "@/lib/process";
 
-function updateStore(store: OurStore): void {
+function updateStore(store: OurStore): Promise<void> {
     void promiseAfter(1000)
         .then(() => store.dispatch(ActionTypes.REFRESH))
         .catch((error) => {
             console.log(`refresh:error: ${JSON.stringify(error)}`);
         })
         .finally(() => void updateStore(store));
+    return Promise.resolve();
 }
 
-function enableLocationServices(services: Services): void {
+function enableLocationServices(services: Services): Promise<void> {
     // On iOS this can take a while, so we do this in the background.
     void services.PhoneLocation().enableAndGetLocation();
+    return Promise.resolve();
 }
 
 async function resumePortalSession(services: Services): Promise<void> {
@@ -26,19 +28,35 @@ async function resumePortalSession(services: Services): Promise<void> {
     }
 }
 
-async function background(services: Services): Promise<void> {
-    await resumePortalSession(services);
+async function startupPortal(services: Services): Promise<void> {
+    console.log(`startup-portal: begin`);
 
-    await Promise.all([
-        services.StationFirmware().cleanupFirmware(),
-        enableLocationServices(services),
-        services.DiscoverStation().startMonitorinNetwork(),
-        updateStore(services.Store()),
-        services.PortalUpdater().start(),
-        // await services.Tasks().enqueue(new ProcessAllStationsTask()))
-    ]);
+    await services.StationFirmware().cleanupFirmware();
+    await resumePortalSession(services);
+    await services.PortalUpdater().start();
+
+    console.log(`startup-portal: end`);
+}
+
+async function startupStore(services: Services): Promise<void> {
+    console.log(`startup-store: begin`);
+
+    await services.DiscoverStation().startMonitorinNetwork();
+    await updateStore(services.Store());
+    // await services.Tasks().enqueue(new ProcessAllStationsTask()));
+    await enableLocationServices(services);
+
+    console.log(`startup-store: end`);
+}
+
+async function background(services: Services): Promise<void> {
+    console.log(`startup:bg begin`);
+
+    await Promise.all([startupPortal(services), startupStore(services)]);
 
     registerLifecycleEvents(() => services.DiscoverStation());
+
+    console.log(`startup:bg end`);
 }
 
 export async function initializeApplication(services: Services): Promise<void> {

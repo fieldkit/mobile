@@ -51,6 +51,7 @@ import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
+import * as application from "@nativescript/core/application";
 import * as animations from "./animations";
 import { ActionTypes, AvailableStation, DiscoveringStation } from "@/store";
 
@@ -71,6 +72,15 @@ export default Vue.extend({
         discovering(): DiscoveringStation[] {
             return this.$s.getters.discovering;
         },
+    },
+    created: function () {
+        if (application.android) {
+            // eslint-disable-next-line
+            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                // eslint-disable-next-line
+                args.cancel = true; // This cancels the normal backbutton behaviour
+            });
+        }
     },
     methods: {
         getDeployStatus(station: AvailableStation): string {

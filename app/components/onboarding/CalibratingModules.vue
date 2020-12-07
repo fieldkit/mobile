@@ -45,7 +45,7 @@ export default Vue.extend({
         return {};
     },
     methods: {
-        selected(this: any, m: ModuleCalibration) {
+        selected(m: ModuleCalibration): void {
             this.$emit("selected", m);
         },
     },

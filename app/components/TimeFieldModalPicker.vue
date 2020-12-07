@@ -11,12 +11,6 @@ import moment from "moment";
 import Vue from "vue";
 import TimeFieldPicker from "./TimeFieldPicker.vue";
 
-interface Self {
-    value: number;
-    $emit: (type: string, value: number) => any;
-    $showModal: (c: any, params: any) => Promise<any>;
-}
-
 export default Vue.extend({
     name: "TimeFieldModalPicker",
     props: {
@@ -29,11 +23,11 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
+    data(): {} {
         return {};
     },
     computed: {
-        display(this: Self): string {
+        display(): string {
             let displayValue = this.value;
             if (displayValue >= 86400) {
                 displayValue = 86400 - 60;
@@ -43,8 +37,8 @@ export default Vue.extend({
         },
     },
     methods: {
-        showPicker(this: Self, ev: any) {
-            return this.$showModal(TimeFieldPicker, {
+        async showPicker(): Promise<void> {
+            await this.$showModal(TimeFieldPicker, {
                 props: {
                     value: this.value,
                 },

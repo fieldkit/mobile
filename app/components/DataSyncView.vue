@@ -164,6 +164,7 @@ import Config from "@/config";
 
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
+import * as application from "@nativescript/core/application";
 
 const log = Config.logger("DataSyncView");
 
@@ -181,6 +182,13 @@ export default Vue.extend({
         syncs(): StationSyncStatus[] {
             return this.$s.getters.syncs;
         },
+    },
+    created: function () {
+        if (application.android) {
+            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                args.cancel = true; //this cancels the normal backbutton behaviour
+            });
+        }
     },
     methods: {
         onPageLoaded(): void {

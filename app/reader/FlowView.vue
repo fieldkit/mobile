@@ -86,9 +86,7 @@ export default Vue.extend({
             await this.nav.move(this.screen.navOptions.forward).then((done) => {
                 if (done) {
                     // TODO: pass via prop?
-                    return this.$navigateTo(routes.stations, {
-                        props: {},
-                    });
+                    return this.$navigateTo(routes.stations, { clearHistory: true });
                 }
                 return;
             });
@@ -101,17 +99,13 @@ export default Vue.extend({
             console.log("skip", this.screen.name);
             await this.nav.move(NavigationOption.Skip).then(() => {
                 // TODO: pass via prop?
-                return this.$navigateTo(routes.stations, {
-                    props: {},
-                });
+                return this.$navigateTo(routes.stations, { clearHistory: true });
             });
         },
         async cancel(): Promise<void> {
             console.log("cancel", this.screen.name);
             // TODO: pass via prop?
-            await this.$navigateTo(routes.stations, {
-                props: {},
-            });
+            await this.$navigateTo(routes.stations, { clearHistory: true });
         },
     },
 });

@@ -56,11 +56,19 @@ import Vue from "vue";
 
 import SharedComponents from "@/components/shared";
 import SettingsItemIconText from "./SettingsItemIconText.vue";
+import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
         SettingsItemIconText,
+    },
+    created: function () {
+        if (application.android) {
+            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                args.cancel = true; //this cancels the normal backbutton behaviour
+            });
+        }
     },
 });
 </script>

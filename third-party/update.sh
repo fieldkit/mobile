@@ -12,9 +12,9 @@ if [ -d $SOURCE ]; then
     popd
 
     pushd third-party
-    rm -rf nativescript-drop-down
-    mkdir nativescript-drop-down
-    cp -ar $SOURCE/bin/dist/* nativescript-drop-down
+    mkdir nativescript-drop-down-temp
+    cp -ar $SOURCE/bin/dist/* nativescript-drop-down-temp
+    rm -rf nativescript-drop-down && mv nativescript-drop-down-temp nativescript-drop-down
     popd
 fi
 
@@ -30,8 +30,9 @@ if [ -d $SOURCE ]; then
     popd
 
     pushd third-party
-    rm -rf nativescript-conservify
-    mkdir nativescript-conservify
-    tar xf $SOURCE/publish/package/*.tgz --strip 1 -C nativescript-conservify
+	rm -rf nativescript-conservify-temp
+    mkdir nativescript-conservify-temp
+    tar xf $SOURCE/publish/package/*.tgz --strip 1 -C nativescript-conservify-temp
+    rm -rf nativescript-conservify && mv nativescript-conservify-temp nativescript-conservify
     popd
 fi

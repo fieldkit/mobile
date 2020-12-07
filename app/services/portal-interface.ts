@@ -146,12 +146,19 @@ export default class PortalInterface {
     }
 
     public async isAvailable(): Promise<boolean> {
-        return await this.getUri().then((baseUri) =>
-            axios
+        return await this.getUri().then((baseUri) => {
+            console.log(`portal query`, "GET", baseUri + "/status");
+            return axios
                 .request({ url: baseUri + "/status" })
-                .then(() => true)
-                .catch(() => false)
-        );
+                .then((response) => {
+                    console.log(`portal available: ${JSON.stringify(response)}`);
+                    return true;
+                })
+                .catch((error) => {
+                    console.log(`portal available: ${JSON.stringify(error)}`);
+                    return false;
+                });
+        });
     }
 
     private async whoAmI(token: string): Promise<CurrentUser> {
@@ -183,6 +190,7 @@ export default class PortalInterface {
 
     public async login(user: { email: string; password: string }): Promise<CurrentUser> {
         const baseUri = await this.getUri();
+        console.log(`portal query`, "POST", baseUri + "/login");
         return await axios
             .request({
                 method: "POST",
@@ -203,11 +211,28 @@ export default class PortalInterface {
         await this.store.dispatch(ActionTypes.LOGOUT_ACCOUNTS);
     }
 
+    public async forgotPassword(payload: { email: string }): Promise<void> {
+        const baseUri = await this.getUri();
+        console.log(`portal query`, "POST", baseUri + "/user/recovery/lookup");
+        await axios
+            .request({
+                method: "POST",
+                url: baseUri + "/user/recovery/lookup",
+                headers: { "Content-Type": "application/json" },
+                data: payload,
+            })
+            .catch((error) => this.handleError(error));
+    }
+
     public async register(user: AddUserFields): Promise<void> {
         await this.query({
             method: "POST",
             url: "/users",
-            data: user,
+            data: {
+                name: user.name,
+                email: user.email,
+                password: user.password,
+            },
         });
     }
 
@@ -519,7 +544,7 @@ export default class PortalInterface {
                 // if (!promised) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
                 return promised
                     .then((response) => {
-                        console.log(`portal reply: ${JSON.stringify(response.data)}`);
+                        console.log(`portal reply: ${JSON.stringify(response)}`);
                         return response.data as V;
                     })
                     .catch((error: AxiosError) => {
@@ -529,7 +554,7 @@ export default class PortalInterface {
                             }
                             console.log(req.url, "portal error", error.response.status, error.response.data);
                         }
-                        console.log(req.url, "portal error: ${JSON.stringify(error)}");
+                        console.log(req.url, `portal error: ${JSON.stringify(error)}`);
                         throw error;
                     });
             });

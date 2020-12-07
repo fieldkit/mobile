@@ -1,4 +1,5 @@
-import developerConfig, { LocalConfig } from "./secrets";
+import { LocalConfig } from "./local-config";
+import developerConfig from "./secrets";
 
 function getBlankLocalConfig(): LocalConfig {
     return {
