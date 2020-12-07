@@ -2,8 +2,13 @@
     <Page actionBarHidden="true">
         <ScrollView>
             <FlexboxLayout class="page login-page" flexDirection="column">
-                <Label :text="_L('appSettings.account.addAccount')" class="size-16 m-5 m-t-20 m-b-25 bold" />
-
+                <ScreenHeader
+                    :title="_L('appSettings.account.addAccount')"
+                    :canNavigateBack="true"
+                    :canNavigateSettings="false"
+                    :onBack="goBack"
+                    class="size-16 m-5 m-t-20 m-b-25 bold"
+                />
                 <LoginForm v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
                 <RegisterForm v-else />
@@ -23,12 +28,16 @@ import Vue from "vue";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
+import routes from "@/routes";
+import * as animations from "@/components/animations";
+import ScreenHeader from "@/components/ScreenHeader.vue";
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
     components: {
         LoginForm,
         RegisterForm,
+        ScreenHeader
     },
     data(): {
         login: boolean;
@@ -59,6 +68,9 @@ export default Vue.extend({
             } finally {
                 this.busy = false;
             }
+        },
+        goBack(ev) {
+            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.account, {})]);
         },
     },
 });

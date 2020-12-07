@@ -10,7 +10,7 @@
                                 <Label
                                     row="0"
                                     col="0"
-                                    :text="currentNotifications.length"
+                                    :text="activeNotifications.length"
                                     class="notify-num text-center"
                                     @loaded="onLabelLoadedCentered"
                                 />
