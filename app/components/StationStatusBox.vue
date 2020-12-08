@@ -63,7 +63,7 @@
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto" columns="30,*">
                 <Image width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
-                <Label row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + currentSSID" />
+                <Label row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" />
             </GridLayout>
         </AbsoluteLayout>
     </GridLayout>
@@ -146,8 +146,9 @@ export default Vue.extend({
             if (!this.station.lastSeen) return _L("unknown");
             return `${_L("since")} ${getLastSeen(this.station.lastSeen)}`;
         },
-        currentSSID(): string | null {
-            return this.$s.state.phone.network?.ssid;
+        displayedSSID(): string | null {
+            const currentSSID = this.$s.state.phone.network?.ssid;
+            return currentSSID && currentSSID.length > 0 ? currentSSID.substr(0, 10) + "..." : currentSSID;
         },
     },
     mounted(): void {
