@@ -5,6 +5,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
+                    <ConnectionStatusHeader :connected="station.connected" />
                     <StackLayout class="m-t-5">
                         <Label
                             v-for="(option, i) in menuOptions"
@@ -31,6 +32,7 @@ import SharedComponents from "@/components/shared";
 import WiFi from "./StationSettingsWiFi.vue";
 import LoRa from "./StationSettingsLoRa.vue";
 import * as animations from "../animations";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data() {
@@ -48,6 +50,7 @@ export default Vue.extend({
         ...SharedComponents,
         WiFi,
         LoRa,
+        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {

@@ -5,7 +5,8 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <StackLayout class="m-t-5">
+                    <ConnectionStatusHeader :connected="station.connected" />
+                    <StackLayout :class="station.connected ? 'm-t-5' : ''">
                         <Label
                             v-for="(option, i) in menuOptions"
                             :key="option"
@@ -31,6 +32,7 @@ import Networks from "./StationSettingsNetworks.vue";
 import WiFiNetwork from "./StationSettingsWiFiNetwork.vue";
 import WiFiSchedule from "./StationSettingsWiFiSchedule.vue";
 import * as animations from "@/components/animations";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -51,6 +53,7 @@ export default Vue.extend({
         Networks,
         WiFiNetwork,
         WiFiSchedule,
+        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {

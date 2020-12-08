@@ -4,6 +4,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="body-container">
+                    <ConnectionStatusHeader :connected="station.connected" />
                     <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" />
 
                     <Button
@@ -30,6 +31,7 @@ import ScheduleEditor from "../ScheduleEditor.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import WiFi from "./StationSettingsWiFi.vue";
 import { AvailableStation } from "@/store";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -69,6 +71,7 @@ export default Vue.extend({
         ...SharedComponents,
         ConnectionNote,
         ScheduleEditor,
+        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {
