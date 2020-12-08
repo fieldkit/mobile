@@ -148,6 +148,12 @@ export class ChangePortalEnvAction {
     constructor(public readonly env: PortalEnv) {}
 }
 
+export class ScanForStationsAction {
+    type = ActionTypes.SCAN_FOR_STATIONS;
+
+    constructor(public readonly flags: { user?: boolean; wifi?: boolean }) {}
+}
+
 export class LoginAction {
     type = ActionTypes.LOGIN;
 

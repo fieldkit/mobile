@@ -53,7 +53,7 @@ import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
 import * as application from "@nativescript/core/application";
 import * as animations from "./animations";
-import { ActionTypes, AvailableStation, DiscoveringStation } from "@/store";
+import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
 
 export default Vue.extend({
     components: {
@@ -122,7 +122,7 @@ export default Vue.extend({
         async onDoubleTap(): Promise<void> {
             this.scanning = true;
             console.log(`user initiated station scan`);
-            await this.$s.dispatch(ActionTypes.SCAN_FOR_STATIONS).finally(() => {
+            await this.$s.dispatch(new ScanForStationsAction({ user: true })).finally(() => {
                 this.scanning = false;
             });
         },

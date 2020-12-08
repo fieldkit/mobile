@@ -14,6 +14,7 @@ import {
     TryStationOnceAction,
     ConfigureStationSchedulesAction,
     NetworkChangedAction,
+    ScanForStationsAction,
 } from "@/store/actions";
 import { OpenProgressMutation } from "@/store/mutations";
 import { ServiceRef } from "@/services";
@@ -209,7 +210,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.NETWORK_CHANGED]: async ({ commit, dispatch, state }: ActionParameters, payload: NetworkChangedAction) => {
             if (payload.network.ssid != null) {
-                await dispatch(ActionTypes.SCAN_FOR_STATIONS);
+                await dispatch(new ScanForStationsAction({ wifi: true }));
             } else {
                 console.log(`losing stations: ${JSON.stringify(state)}`);
                 for (const key of Object.keys(state.stations)) {
