@@ -35,9 +35,15 @@
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
                 <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
 
+                <StackLayout v-for="(s, i) in status" v-bind:key="i" class="status-messages">
+                    <Label :text="s.message" textWrap="true" />
+                </StackLayout>
+
+                <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" />
+
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
                 <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
-                <Button class="btn btn-primary btn-padded" text="Generate notifications" @tap="generateNotifications" />
+                <Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -50,6 +56,7 @@ import { Dialogs, knownFolders } from "@nativescript/core";
 import { ValueList } from "nativescript-drop-down";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
+import Bluebird from "bluebird";
 
 import { getFilePath, getFileName, serializePromiseChain } from "@/utilities";
 import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
@@ -71,10 +78,21 @@ interface EnvOption {
     index: number;
 }
 
+class StatusMessages {
+    constructor(public readonly message: string) {}
+}
+
+// asdfasdf;
 export default Vue.extend({
-    data(): { syncing: boolean } {
+    data(): {
+        status: StatusMessages[];
+        syncing: boolean;
+        busy: boolean;
+    } {
         return {
+            status: [],
             syncing: false,
+            busy: false,
         };
     },
     components: {
@@ -367,6 +385,32 @@ export default Vue.extend({
                 actions: {},
             });
         },
+        async examineNetwork(): Promise<void> {
+            console.log(`examining network`);
+
+            this.update("Examining network...");
+
+            await Bluebird.delay(500);
+
+            const conservify = Services.Conservify();
+
+            try {
+                this.update("Querying 192.168.2.1 ...");
+                const response = await conservify.text({ url: "http://192.168.2.1" });
+                this.update("Success!");
+                this.update(response.body.toString());
+                console.log(`192.168.2.1: ${JSON.stringify(response)}`);
+            } catch (error) {
+                this.update(`Error: ${JSON.stringify(error)}`);
+            }
+
+            await Bluebird.delay(500);
+
+            this.update("Done.");
+        },
+        update(message: string): void {
+            this.status.push(new StatusMessages(message));
+        },
     },
 });
 </script>
@@ -387,5 +431,10 @@ export default Vue.extend({
     border-width: 1;
     border-radius: 4;
     border-color: $fk-gray-lighter;
+}
+
+.status-messages {
+    padding-left: 20;
+    padding-right: 20;
 }
 </style>

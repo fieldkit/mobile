@@ -64,10 +64,6 @@ export default class StartupScreen extends Vue {
                 clearHistory: true,
                 props: {},
             });
-			return this.$navigateTo(routes.developerMenu, {
-				clearHistory: true,
-				props: {},
-			});
             if (services.Store().getters.stationCalibrations[1]) {
                 // return this.$navigateTo(routes.deploy.start, {
                 // return this.$navigateTo(routes.deploy.notes, {
@@ -89,8 +85,12 @@ export default class StartupScreen extends Vue {
 				clearHistory: true,
 				props: {},
 			});
-			*/
             return this.$navigateTo(routes.dataSync, {
+                clearHistory: true,
+                props: {},
+            });
+			*/
+            return this.$navigateTo(routes.developerMenu, {
                 clearHistory: true,
                 props: {},
             });
