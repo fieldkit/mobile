@@ -381,6 +381,7 @@ var Conservify = (function () {
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.body = info.body;
+        transfer.favorLocal = info.favorLocal;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
@@ -403,6 +404,7 @@ var Conservify = (function () {
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.body = info.body;
+        transfer.favorLocal = info.favorLocal;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
@@ -425,6 +427,7 @@ var Conservify = (function () {
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.base64EncodeResponseBody = true;
+        transfer.favorLocal = info.favorLocal;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
@@ -451,6 +454,7 @@ var Conservify = (function () {
         transfer.method = info.method;
         transfer.url = info.url;
         transfer.path = info.path;
+        transfer.favorLocal = info.favorLocal;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);
@@ -474,6 +478,7 @@ var Conservify = (function () {
         transfer.url = info.url;
         transfer.path = info.path;
         transfer.uploadCopy = info.uploadCopy;
+        transfer.favorLocal = info.favorLocal;
         for (var _i = 0, _a = Object.entries(info.headers || {}); _i < _a.length; _i++) {
             var _b = _a[_i], key = _b[0], value = _b[1];
             transfer.headerWithKeyValue(key, value);

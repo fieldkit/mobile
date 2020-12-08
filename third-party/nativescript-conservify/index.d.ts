@@ -22,6 +22,7 @@ export declare interface TransferInfo {
     body?: Uint8Array | string;
     path?: string;
     uploadCopy?: boolean;
+    favorLocal?: boolean;
     connectionTimeout?: number;
     defaultTimeout?: number;
     headers?: { [index: string]: string };
