@@ -39,7 +39,7 @@
                     <Label :text="s.message" textWrap="true" />
                 </StackLayout>
 
-                <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" />
+                <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
 
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
                 <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
@@ -52,6 +52,7 @@
 <script lang="ts">
 import Vue from "vue";
 import _ from "lodash";
+import axios from "axios";
 import { Dialogs, knownFolders } from "@nativescript/core";
 import { ValueList } from "nativescript-drop-down";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
@@ -388,18 +389,34 @@ export default Vue.extend({
         async examineNetwork(): Promise<void> {
             console.log(`examining network`);
 
+            this.busy = true;
+
             this.update("Examining network...");
 
             await Bluebird.delay(500);
 
-            const conservify = Services.Conservify();
+            const url = "http://192.168.2.1";
 
             try {
-                this.update("Querying 192.168.2.1 ...");
-                const response = await conservify.text({ url: "http://192.168.2.1" });
+                const conservify = Services.Conservify();
+                this.update(`Querying ${url} (conservify)...`);
+                const response = await conservify.text({ url: url });
                 this.update("Success!");
                 this.update(response.body.toString());
-                console.log(`192.168.2.1: ${JSON.stringify(response)}`);
+                console.log(`${url}: ${JSON.stringify(response)}`);
+            } catch (error) {
+                this.update(`Error: ${JSON.stringify(error)}`);
+            }
+
+            try {
+                const abort = axios.CancelToken.source();
+                const id = setTimeout(() => abort.cancel("timeout"), 3000);
+                this.update(`Querying ${url} (axios)...`);
+                const response = await axios.request({ url: url, timeout: 3000, cancelToken: abort.token });
+                clearTimeout(id);
+                this.update("Success!");
+                this.update(response.data.toString());
+                console.log(`${url}: ${JSON.stringify(response)}`);
             } catch (error) {
                 this.update(`Error: ${JSON.stringify(error)}`);
             }
@@ -407,8 +424,11 @@ export default Vue.extend({
             await Bluebird.delay(500);
 
             this.update("Done.");
+
+            this.busy = false;
         },
         update(message: string): void {
+            console.log(`examine: ${message}`);
             this.status.push(new StatusMessages(message));
         },
     },
