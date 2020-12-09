@@ -14,7 +14,7 @@ export const Connectivity = {
 export const knownFolders = {
     documents: () => {
         return {
-            path: "/var/tests/docs",
+            path: "/var/test-app/Documents",
         };
     },
 };

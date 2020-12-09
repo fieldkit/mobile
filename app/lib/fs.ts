@@ -131,6 +131,10 @@ export function getRelativeTo(dir: string, path: string): string {
         .join("/");
 }
 
+export function getAppRelative(path: string): string {
+    return removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
+}
+
 export function removeLeadingDirectory(path: string): string {
     const parts = path.split("/");
     parts.shift();
@@ -142,6 +146,9 @@ export function getPathTimestamp(ts: Moment | Date | string | number): string {
 }
 
 export function rebaseAbsolutePath(path: string): string {
-    const relative = removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
-    return [knownFolders.documents().path, relative].join("/");
+    if (path[0] == "/") {
+        const relative = removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
+        return [knownFolders.documents().path, relative].join("/");
+    }
+    return [knownFolders.documents().path, path].join("/");
 }

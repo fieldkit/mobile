@@ -5,7 +5,7 @@ import { MutationTypes, NoteMedia } from "../mutations";
 import { ServiceRef } from "@/services";
 import { ImageAsset, SavedImage } from "@/services/types";
 import { serializePromiseChain } from "@/utilities";
-import { getFileName } from "@/lib/fs";
+import { getFileName, getAppRelative } from "@/lib/fs";
 
 export class ActiveRecording extends NoteMedia {
     private readonly started: Date = new Date();
@@ -38,7 +38,7 @@ export class ActiveRecording extends NoteMedia {
     }
 
     public toPlainNoteMedia(): NoteMedia {
-        return new NoteMedia(this.path, this.key);
+        return new NoteMedia(getAppRelative(this.path), this.key);
     }
 }
 

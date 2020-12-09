@@ -131,7 +131,7 @@ import { Dialogs } from "@nativescript/core";
 import { Station, Notes, NoteMedia } from "@/store";
 
 import { promiseAfter } from "@/utilities";
-import { getFileName, rebaseAbsolutePath } from "@/lib/fs";
+import { getAppRelative, getFileName, rebaseAbsolutePath } from "@/lib/fs";
 
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -201,7 +201,7 @@ export default Vue.extend({
                 .then((savedImage) => {
                     console.log("saved image", savedImage);
                     return promiseAfter(100).then(() => {
-                        const media = new NoteMedia(savedImage.path, getFileName(savedImage.path));
+                        const media = new NoteMedia(getAppRelative(savedImage.path), getFileName(savedImage.path));
                         this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
                         return this.$s.dispatch(new SaveNotesAction(this.stationId));
                     });
@@ -214,7 +214,7 @@ export default Vue.extend({
                 .then((savedImage) => {
                     console.log("saved image", savedImage);
                     return promiseAfter(100).then(() => {
-                        const media = new NoteMedia(savedImage.path, getFileName(savedImage.path));
+                        const media = new NoteMedia(getAppRelative(savedImage.path), getFileName(savedImage.path));
                         this.$s.commit(new AttachNoteMediaMutation(this.stationId, null, media, false));
                         return this.$s.dispatch(new SaveNotesAction(this.stationId));
                     });

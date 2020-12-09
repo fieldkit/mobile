@@ -67,10 +67,10 @@ export default class StartupScreen extends Vue {
 			*/
             if (services.Store().getters.stationCalibrations[1]) {
                 // return this.$navigateTo(routes.deploy.start, {
-                // return this.$navigateTo(routes.deploy.notes, {
-                // return this.$navigateTo(routes.deploy.review, {
-                // return this.$navigateTo(routes.stationSettings, {
-                return this.$navigateTo(routes.station.settings.firmware, {
+                return this.$navigateTo(routes.deploy.notes, {
+                    // return this.$navigateTo(routes.deploy.review, {
+                    // return this.$navigateTo(routes.stationSettings, {
+                    // return this.$navigateTo(routes.station.settings.firmware, {
                     // return this.$navigateTo(routes.station.settings.wifiNetworks, {
                     // return this.$navigateTo(routes.stationDetail, {
                     // return this.$navigateTo(routes.onboarding.start, {

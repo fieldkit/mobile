@@ -3,6 +3,8 @@ import { Services } from "@/services";
 import { promiseAfter } from "@/utilities";
 import { ActionTypes, OurStore } from "@/store";
 import registerLifecycleEvents from "@/services/lifecycle";
+import { deleteMissingAssets } from "@/services";
+
 // import { ProcessAllStationsTask } from "@/lib/process";
 
 function updateStore(store: OurStore): Promise<void> {
@@ -71,6 +73,7 @@ export async function initializeApplication(services: Services): Promise<void> {
     try {
         await services.CreateDb().initialize(null, false, false);
         await services.Database().startup();
+        await deleteMissingAssets(services.Database());
         await services.Store().dispatch(ActionTypes.LOAD);
 
         console.log("startup:bg");

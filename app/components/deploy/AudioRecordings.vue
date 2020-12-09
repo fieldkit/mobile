@@ -27,7 +27,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { NoteMedia } from "@/store";
-import { getFileName } from "@/lib/fs";
+import { getFileName, rebaseAbsolutePath } from "@/lib/fs";
 
 export default Vue.extend({
     props: {
@@ -55,7 +55,7 @@ export default Vue.extend({
             console.log("recording:playing");
             return this.$services
                 .Audio()
-                .playRecordedFile(media.path, ({ error }) => {
+                .playRecordedFile(rebaseAbsolutePath(media.path), ({ error }) => {
                     console.log("recording:playback:done", error);
                     this.playing = null;
                 })
