@@ -38,7 +38,7 @@ export class ActiveRecording extends NoteMedia {
     }
 
     public toPlainNoteMedia(): NoteMedia {
-        return new NoteMedia(this.path, this.path);
+        return new NoteMedia(this.path, this.key);
     }
 }
 
