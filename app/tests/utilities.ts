@@ -1,5 +1,5 @@
 import { Services } from "@/services/interface";
-import { prepareReply, HttpStatusReply } from "@/store";
+import { prepareReply, HttpStatusReply, Station, Schedule } from "@/store";
 import protobuf from "protobufjs";
 import crypto from "crypto";
 
@@ -373,4 +373,86 @@ export class MockStationReplies {
         this.call.mockReturnValueOnce(Promise.resolve(response));
         return this;
     }
+}
+
+export function createStation(id: number, name: string): Station {
+    const deviceId = name;
+    const generationId = deviceId + "-generation";
+    const serialized = Buffer.from(
+        HttpReply.encodeDelimited({
+            errors: [],
+            type: 15,
+            status: {
+                identity: {
+                    name: name,
+                    device: name,
+                    deviceId: Buffer.from(deviceId, "hex"),
+                    generationId: Buffer.from(generationId, "hex"),
+                },
+                power: {
+                    battery: {},
+                    solar: {},
+                },
+                memory: {
+                    dataMemoryUsed: 0,
+                },
+                recording: {
+                    startedTime: 0,
+                    location: {
+                        longitude: 0,
+                        latitude: 0,
+                        time: 0,
+                    },
+                },
+                gps: {},
+                firmware: {
+                    version: "version",
+                    build: "build",
+                    timestamp: 0,
+                    number: "120",
+                    has: "hash",
+                },
+                schedules: {
+                    readings: {},
+                    network: {},
+                },
+            },
+            streams: [],
+            schedules: {
+                readings: {},
+                network: {},
+            },
+            networkSettings: {
+                connected: {
+                    ssid: "SSID",
+                },
+                networks: [],
+            },
+            modules: [],
+            liveReadings: [],
+        }).finish()
+    ).toString("base64");
+
+    return new Station({
+        id: id,
+        userId: null,
+        deviceId: deviceId,
+        generationId: generationId,
+        name: name,
+        archived: false,
+        batteryLevel: 50,
+        consumedMemory: 0,
+        totalMemory: 0,
+        schedules: {
+            readings: new Schedule(),
+            network: new Schedule(),
+        },
+        longitude: null,
+        latitude: null,
+        deployStartTime: null,
+        serializedStatus: serialized,
+        lastSeen: new Date(),
+        portalId: null,
+        portalHttpError: null,
+    });
 }

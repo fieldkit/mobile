@@ -66,7 +66,7 @@ import _ from "lodash";
 import Vue from "vue";
 import routes from "../../routes";
 import { _T, validateStationName } from "../../utilities";
-import { ActionTypes, LegacyStation } from "@/store";
+import { RenameStationAction, LegacyStation } from "@/store";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import LabeledTextField from "../LabeledTextField";
 
@@ -127,7 +127,7 @@ export default Vue.extend({
             if (this.form.name != this.currentStation.name) {
                 console.log("rename", this.form.name, this.currentStation.name);
                 return this.$s
-                    .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.currentStation.deviceId, name: this.form.name })
+                    .dispatch(new RenameStationAction(this.currentStation.deviceId, this.form.name))
                     .then(async () => {
                         await this.$navigateTo(routes.onboarding.reconnecting, {
                             props: {

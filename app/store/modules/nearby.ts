@@ -15,8 +15,9 @@ import {
     ConfigureStationSchedulesAction,
     NetworkChangedAction,
     ScanForStationsAction,
+    RenameStationAction,
 } from "@/store/actions";
-import { OpenProgressMutation } from "@/store/mutations";
+import { OpenProgressMutation, RenameStationMutation } from "@/store/mutations";
 import { ServiceRef } from "@/services";
 
 import { backOff } from "exponential-backoff";
@@ -218,7 +219,7 @@ const actions = (services: ServiceRef) => {
                 }
             }
         },
-        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: { deviceId: string; name: string }) => {
+        [ActionTypes.RENAME_STATION]: ({ commit, dispatch, state }: ActionParameters, payload: RenameStationAction) => {
             if (!payload?.deviceId) throw new Error("no nearby info");
             const info = state.stations[payload.deviceId];
             if (!info) throw new Error("no nearby info");
@@ -229,6 +230,7 @@ const actions = (services: ServiceRef) => {
                 .configureName(info.url, payload.name)
                 .then(
                     (statusReply) => {
+                        commit(new RenameStationMutation(payload.deviceId, payload.name));
                         commit(MutationTypes.STATION_ACTIVITY, info);
                         return dispatch(new StationRepliedAction(statusReply, info.url), { root: true });
                     },

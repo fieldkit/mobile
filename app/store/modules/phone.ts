@@ -1,16 +1,26 @@
+import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
-import { MutationTypes } from "../mutations";
+import { MutationTypes, RenameStationMutation } from "../mutations";
 import { ActionTypes, RefreshNetworkAction, NetworkChangedAction } from "../actions";
+import { Station } from "../types";
 import { ServiceRef } from "@/services";
 
 export class PhoneState {
     network: PhoneNetwork = new PhoneNetwork(null);
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
+    stationNetworks: string[] = [];
 }
 
-const getters = {};
+const getters = {
+    directlyConnected: (state: PhoneState): boolean => {
+        if (state.network.ssid) {
+            return _.includes(state.stationNetworks, state.network.ssid);
+        }
+        return false;
+    },
+};
 
 type ActionParameters = ActionContext<PhoneState, never>;
 
@@ -37,6 +47,16 @@ const mutations = {
     },
     [MutationTypes.PHONE_NETWORK]: (state: PhoneState, network: PhoneNetwork) => {
         Vue.set(state, "network", network);
+    },
+    [MutationTypes.STATION_RENAME]: (state: PhoneState, payload: RenameStationMutation) => {
+        Vue.set(state, "stationNetworks", _.uniq([...state.stationNetworks, payload.name]));
+    },
+    [MutationTypes.STATIONS]: (state: PhoneState, stations: Station[]) => {
+        Vue.set(
+            state,
+            "stationNetworks",
+            stations.map((station) => station.name)
+        );
     },
 };
 

@@ -240,3 +240,9 @@ export class PortalErrorAction implements StationPortalStatus {
 
     constructor(public readonly id: number, public readonly error: PortalError) {}
 }
+
+export class RenameStationAction {
+    type = ActionTypes.RENAME_STATION;
+
+    constructor(public readonly deviceId: string, public readonly name: string) {}
+}

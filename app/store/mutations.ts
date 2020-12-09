@@ -26,6 +26,7 @@ export enum MutationTypes {
 
     STATION_QUERIED = "STATION_QUERIED",
     STATION_ACTIVITY = "STATION_ACTIVITY",
+    STATION_RENAME = "STATION_RENAME",
 
     UPDATE_NOTE = "UPDATE_NOTE",
     ATTACH_NOTE_MEDIA = "ATTACH_NOTE_MEDIA",
@@ -134,4 +135,10 @@ export class OpenProgressMutation {
     type = MutationTypes.TRANSFER_OPEN;
 
     constructor(public readonly deviceId: string, public readonly downloading: boolean, public readonly totalBytes: number) {}
+}
+
+export class RenameStationMutation {
+    type = MutationTypes.STATION_RENAME;
+
+    constructor(public readonly deviceId: string, public readonly name: string) {}
 }

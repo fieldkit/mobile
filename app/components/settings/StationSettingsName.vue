@@ -65,7 +65,7 @@ import SharedComponents from "@/components/shared";
 import General from "./StationSettingsGeneral.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
-import { ActionTypes, AvailableStation } from "@/store";
+import { RenameStationAction, AvailableStation } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
@@ -138,7 +138,7 @@ export default Vue.extend({
             const valid = this.checkName();
             if (valid && this.origName != this.stationName) {
                 await this.$s
-                    .dispatch(ActionTypes.RENAME_STATION, { deviceId: this.station.deviceId, name: this.stationName })
+                    .dispatch(new RenameStationAction(this.station.deviceId, this.stationName))
                     .then(() => {
                         return this.goBack(null);
                     })

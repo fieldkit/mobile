@@ -44,6 +44,7 @@ export interface GlobalGetters {
     readonly syncs: StationSyncStatus[];
     readonly stationCalibrations: { [index: number]: StationCalibration };
     readonly usersById: { [id: number]: CurrentUser };
+    readonly directlyConnected: boolean;
     // TODO Deprecate
     readonly stationsById: { [index: number]: Station };
     readonly discovering: DiscoveringStation[];

@@ -406,18 +406,18 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.LOAD]: ({ dispatch }: ActionParameters) => {
             return dispatch(ActionTypes.LOAD_STATIONS);
         },
-        [ActionTypes.LOAD_STATIONS]: ({ commit, dispatch }: ActionParameters) => {
-            return loadStationsFromDatabase(services.db()).then((stations) => {
+        [ActionTypes.LOAD_STATIONS]: async ({ commit, dispatch }: ActionParameters) => {
+            await loadStationsFromDatabase(services.db()).then((stations) => {
                 commit(MutationTypes.STATIONS, stations);
                 return dispatch(ActionTypes.STATIONS_LOADED, stations);
             });
         },
-        [ActionTypes.STATION_REPLY]: ({ dispatch }: ActionParameters, payload: StationRepliedAction) => {
+        [ActionTypes.STATION_REPLY]: async ({ dispatch }: ActionParameters, payload: StationRepliedAction) => {
             const statusReply = payload.statusReply;
             if ((statusReply?.errors?.length || 0) > 0) {
-                return Promise.reject(new Error(`station error reply`));
+                throw new Error(`station error reply`);
             }
-            return services
+            await services
                 .db()
                 .addOrUpdateStation(makeStationFromStatus(statusReply), payload.url)
                 .then(() => dispatch(ActionTypes.LOAD_STATIONS))
