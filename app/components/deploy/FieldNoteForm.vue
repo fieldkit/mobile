@@ -75,17 +75,17 @@ export default Vue.extend({
             console.log("note cancel", this.form);
             this.$emit("cancel");
         },
-        onSave() {
+        onSave(): void {
             console.log("note save", this.form);
             this.$emit("save", this.form);
         },
-        onAudioTap() {
+        onAudioTap(): void {
             this.audioReady = !this.audioReady;
         },
-        onAudioDone(...args): void {
+        onAudioDone(...args: unknown[]): void {
             this.$emit("attach-media", ...args);
         },
-        raiseRemoveAudio(...args): void {
+        raiseRemoveAudio(...args: unknown[]): void {
             this.$emit("remove-audio", ...args);
         },
         maybeDismissKeyboard(): void {

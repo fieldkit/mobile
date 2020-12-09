@@ -1,15 +1,18 @@
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { ActionTypes } from "../actions";
-import { MutationTypes } from "../mutations";
+import { MutationTypes, NoteMedia } from "../mutations";
 import { ServiceRef } from "@/services";
 import { ImageAsset, SavedImage } from "@/services/types";
 import { serializePromiseChain } from "@/utilities";
+import { getFileName } from "@/lib/fs";
 
-export class ActiveRecording {
+export class ActiveRecording extends NoteMedia {
     private readonly started: Date = new Date();
 
-    constructor(public readonly path: string, public readonly paused: boolean = false, private readonly accumulated = 0) {}
+    constructor(public readonly path: string, public readonly paused: boolean = false, private readonly accumulated = 0) {
+        super(path, getFileName(path));
+    }
 
     public get duration(): number {
         if (!this.paused) {
@@ -32,6 +35,10 @@ export class ActiveRecording {
 
     public stop(): ActiveRecording {
         return new ActiveRecording(this.path, true, this.duration);
+    }
+
+    public toPlainNoteMedia(): NoteMedia {
+        return new NoteMedia(this.path, this.path);
     }
 }
 

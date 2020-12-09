@@ -68,7 +68,7 @@ export default Vue.extend({
                 const recording: ActiveRecording = this.$s.state.media.recording;
                 await this.$s.dispatch(ActionTypes.AUDIO_STOP).then(() => {
                     console.log(`stop-recording`, recording);
-                    return this.$emit("stop", recording);
+                    return this.$emit("stop", recording.toPlainNoteMedia());
                 });
             }
         },
