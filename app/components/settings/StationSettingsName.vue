@@ -5,6 +5,7 @@
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*" verticalAlignment="middle" class="p-t-10">
                     <StackLayout>
+                        <ConnectionStatusHeader :connected="station.connected" />
                         <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
                             <TextField
                                 col="0"
@@ -65,6 +66,7 @@ import General from "./StationSettingsGeneral.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import * as animations from "../animations";
 import { ActionTypes, AvailableStation } from "@/store";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -94,6 +96,7 @@ export default Vue.extend({
         ...SharedComponents,
         General,
         ConnectionNote,
+        ConnectionStatusHeader,
     },
     computed: {
         station(this: any): AvailableStation {

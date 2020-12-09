@@ -4,7 +4,8 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
-                    <StackLayout class="m-t-5">
+                    <ConnectionStatusHeader :connected="station.connected" />
+                    <StackLayout :class="station.connected ? 'm-t-5' : ''">
                         <Label
                             v-for="(option, i) in menuOptions"
                             :key="option"
@@ -30,6 +31,7 @@ import SharedComponents from "@/components/shared";
 import StationName from "./StationSettingsName.vue";
 import CaptureSchedule from "./StationSettingsCaptureSchedule.vue";
 import * as animations from "../animations";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data() {
@@ -47,6 +49,7 @@ export default Vue.extend({
         ...SharedComponents,
         StationName,
         CaptureSchedule,
+        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {

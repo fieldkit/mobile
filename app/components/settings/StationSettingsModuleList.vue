@@ -5,6 +5,7 @@
         <GridLayout rows="*,70">
             <ScrollView row="0">
                 <StackLayout class="p-t-10">
+                    <ConnectionStatusHeader :connected="station.connected" />
                     <CalibratingModules :station="station" @selected="calibrateModule" />
                 </StackLayout>
             </ScrollView>
@@ -21,11 +22,13 @@ import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration/model";
 import * as animations from "../animations";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
         CalibratingModules,
+        ConnectionStatusHeader,
     },
     props: {
         stationId: {

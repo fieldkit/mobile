@@ -18,6 +18,7 @@
 
             <ScrollView row="1" :rowSpan="linkedFromStation ? 2 : 1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
+                    <ConnectionStatusHeader :connected="currentStation.connected" class="m-b-10" />
                     <StackLayout class="m-x-20">
                         <GridLayout rows="auto,auto" columns="35*,65*" class="m-b-20">
                             <Label row="0" col="0" :text="_L('fieldNotes')" class="size-18 bold"></Label>

@@ -6,6 +6,7 @@
             <ScrollView row="0">
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
                     <StackLayout class="m-t-10 m-b-30">
+                        <ConnectionStatusHeader :connected="station.connected" />
                         <Label :text="_L('stationFirmwareVersion')" class="size-20 m-x-15" />
                         <Label
                             :text="_L('firmwareNumber') + ': ' + stationFirmware.simpleNumber"
@@ -73,11 +74,13 @@ import { FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
         ConnectionNote,
+        ConnectionStatusHeader,
     },
     data(): {
         canUpgrade: boolean;

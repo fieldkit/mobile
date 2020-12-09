@@ -5,6 +5,7 @@
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout class="m-x-10">
+                        <ConnectionStatusHeader :connected="station.connected" />
                         <WrapLayout orientation="horizontal" class="networks-container">
                             <Label :text="_L('savedNetworks')" class="size-20" width="100%" />
                             <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0" />
@@ -115,6 +116,7 @@ import * as animations from "@/components/animations";
 import SharedComponents from "@/components/shared";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import WiFi from "./StationSettingsWiFi.vue";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -146,6 +148,7 @@ export default Vue.extend({
         ...SharedComponents,
         WiFi,
         ConnectionNote,
+        ConnectionStatusHeader,
     },
     computed: {
         maximumNetworks(): number {

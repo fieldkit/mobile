@@ -6,6 +6,7 @@
                 <GridLayout rows="*" columns="*">
                     <!-- edit LoRa -->
                     <StackLayout class="m-x-10">
+                        <ConnectionStatusHeader :connected="station.connected" />
                         <!-- <Label :text="_L('loraNetwork')" class="size-20"></Label> -->
                         <Label :text="_L('deviceEUI') + ': ' + lora.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
 
@@ -91,12 +92,14 @@ import Networks from "./StationSettingsNetworks.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { AvailableStation } from "@/store";
 import * as animations from "../animations";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
         Networks,
         ConnectionNote,
+        ConnectionStatusHeader,
     },
     props: {
         stationId: {

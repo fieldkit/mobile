@@ -6,7 +6,8 @@
                 <StackLayout class="p-t-10">
                     <GridLayout rows="*" columns="*">
                         <StackLayout row="0">
-                            <StackLayout class="m-t-5">
+                            <ConnectionStatusHeader :connected="station.connected" />
+                            <StackLayout :class="station.connected ? 'm-t-5' : ''">
                                 <Label
                                     v-for="(option, i) in menuOptions"
                                     :key="option"
@@ -37,6 +38,7 @@ import Firmware from "./StationSettingsFirmware.vue";
 import Modules from "./StationSettingsModuleList.vue";
 import EndDeploy from "./StationSettingsEndDeploy.vue";
 import { AvailableStation } from "@/store";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -59,6 +61,7 @@ export default Vue.extend({
         General,
         Firmware,
         Networks,
+        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {

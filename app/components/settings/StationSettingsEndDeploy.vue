@@ -7,6 +7,7 @@
                 <StackLayout class="p-t-10">
                     <GridLayout rows="*" columns="*">
                         <StackLayout row="0">
+                            <ConnectionStatusHeader :connected="station.connected" />
                             <StackLayout class="m-x-20 m-t-20" v-if="deployed">
                                 <Label :text="_L('mustBeConnectedToStop')" class="size-18 m-y-5" lineHeight="4" textWrap="true" />
                                 <StackLayout class="m-t-10" />
@@ -37,6 +38,7 @@ import routes from "../../routes";
 import SharedComponents from "@/components/shared";
 import * as animations from "@/components/animations";
 import { AvailableStation, ActionTypes } from "@/store";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data() {
@@ -50,6 +52,7 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
+        ConnectionStatusHeader,
     },
     computed: {
         station(): AvailableStation {
