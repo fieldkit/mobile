@@ -4,7 +4,7 @@ import { ImageSource, path, knownFolders } from "@nativescript/core";
 import * as ImagePicker from "@nativescript/imagepicker";
 import * as Camera from "@nativescript/camera";
 
-import { getPathTimestamp } from "@/utilities";
+import { getPathTimestamp } from "@/lib/fs";
 import { ImageAsset, IncomingImage, SavedImage } from "./types";
 
 export default class ImagesSaver {

@@ -3,7 +3,7 @@ import { describe, expect, it } from "@jest/globals";
 import { ServicesImpl } from "@/services";
 import { MockStationReplies } from "./utilities";
 import FakeTimers from "@sinonjs/fake-timers";
-import { getPathTimestamp } from "@/utilities";
+import { getPathTimestamp } from "@/lib/fs";
 
 import { ActionTypes, DownloadAllStationsDataAction, UploadAllStationsDataAction } from "@/store";
 import { TryStationOnceAction, StationRepliedAction, FileTypeUtils, FileType, TransferProgress } from "@/store";

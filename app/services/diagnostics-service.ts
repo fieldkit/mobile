@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { Device, Folder, File, knownFolders } from "@nativescript/core";
 import { copyLogs } from "@/lib/logging";
-import { DiagnosticsDirectory, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
+import { DiagnosticsDirectory, getRelativeTo, getDatabasePath, listAllFiles, dumpAllFiles } from "@/lib/fs";
 import { Services } from "@/services";
 import Config, { Build } from "@/config";
 
@@ -147,18 +147,6 @@ export default class Diagnostics {
         return info;
     }
 
-    private getRelativeTo(dir: string, path: string): string {
-        return path
-            .split("/")
-            .reduce((keep: string[], p: string) => {
-                if (keep.length > 0 || p == dir) {
-                    return [...keep, p];
-                }
-                return keep;
-            }, [])
-            .join("/");
-    }
-
     private async uploadAll(id: string, progress: ProgressFunc): Promise<Reference> {
         const files = await this.getAllFiles(DiagnosticsDirectory, 1);
         const filesAndSizes = _(files)
@@ -181,7 +169,7 @@ export default class Diagnostics {
         console.log(`uploading: total=${totalOfAll} files=${JSON.stringify({ files: files })}`);
 
         for (const row of filesAndSizes) {
-            const relative = this.getRelativeTo(DiagnosticsDirectory, row.path);
+            const relative = getRelativeTo(DiagnosticsDirectory, row.path);
             const relativeToDiagnostics = relative.replace(DiagnosticsDirectory, "");
             if (relativeToDiagnostics[0] != "/") throw new Error(`malformed path`);
 

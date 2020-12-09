@@ -5,6 +5,7 @@ export * from "./db-interface";
 export * from "./discovery-events";
 export * from "./query-station";
 export * from "./station-firmware";
+export * from "./maintenance";
 
 export * from "./interface";
 export * from "./services";

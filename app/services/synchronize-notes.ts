@@ -6,7 +6,8 @@ import { UpdateNoteMutation, AttachNoteMediaMutation } from "../store/mutations"
 import { Store } from "../store/our-store";
 import PortalInterface, { Ids, PatchPortalNotes, PortalStationNotesReply, ExistingFieldNote, NewFieldNote } from "./portal-interface";
 import { Notes } from "../store/modules/notes";
-import { getPathTimestamp, serializePromiseChain } from "../utilities";
+import { serializePromiseChain } from "../utilities";
+import { getPathTimestamp, rebaseAbsolutePath } from "@/lib/fs";
 
 export class MergedNotes {
     constructor(public readonly patch: PatchPortalNotes, public readonly modified: boolean) {}
@@ -119,7 +120,8 @@ export default class SynchronizeNotes {
             }
             const path = localByKey[key].path;
             const contentType = this.getContentType(path);
-            return this.portal.uploadStationMedia(ids.portal, key, contentType, path).then((response): [string, number] => {
+            const rebasedPath = rebaseAbsolutePath(path);
+            return this.portal.uploadStationMedia(ids.portal, key, contentType, rebasedPath).then((response): [string, number] => {
                 if (response.status != 200) {
                     new Error(`error uploading media`);
                 }

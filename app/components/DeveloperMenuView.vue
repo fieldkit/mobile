@@ -59,8 +59,8 @@ import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import Bluebird from "bluebird";
 
-import { getFilePath, getFileName, serializePromiseChain } from "@/utilities";
-import { DownloadsDirectory, listAllFiles } from "@/lib/fs";
+import { serializePromiseChain } from "@/utilities";
+import { DownloadsDirectory, getFilePath, getFileName, listAllFiles } from "@/lib/fs";
 import routes from "@/routes";
 import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
@@ -415,7 +415,7 @@ export default Vue.extend({
                 const response = await axios.request({ url: url, timeout: 3000, cancelToken: abort.token });
                 clearTimeout(id);
                 this.update("Success!");
-                this.update(response.data.toString());
+                this.update(response?.data?.toString() || "");
                 console.log(`${url}: ${JSON.stringify(response)}`);
             } catch (error) {
                 this.update(`Error: ${JSON.stringify(error)}`);

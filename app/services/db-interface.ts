@@ -4,6 +4,7 @@ import Settings from "@/settings";
 import { sqliteToJs } from "@/utilities";
 import { Database } from "@/wrappers/sqlite";
 import { Download, FileTypeUtils, Station, Sensor, Module, Stream } from "@/store/types";
+import { NoteMedia } from "@/store/mutations";
 import {
     AccountsTableRow,
     DownloadTableRow,
@@ -22,6 +23,7 @@ import {
 } from "@/store/row-types";
 import { Services } from "@/services";
 import { Notification } from "~/store/modules/notifications";
+import { Notes } from "@/store/modules/notes";
 
 const log = Config.logger("DbInterface");
 
@@ -710,7 +712,7 @@ export default class DatabaseInterface {
         });
     }
 
-    public async addOrUpdateNotes(notes: { stationId: number }): Promise<void> {
+    public async addOrUpdateNotes(notes: Notes): Promise<void> {
         function serializeNotesJson(notes): string {
             try {
                 return JSON.stringify(notes);
@@ -733,8 +735,8 @@ export default class DatabaseInterface {
             .catch((error) => Promise.reject(new Error(`error fetching notes: ${JSON.stringify(error)}`)));
     }
 
-    public getAllNotes(): Promise<NotesTableRow[]> {
-        return this.query<NotesTableRow>("SELECT * FROM notes")
+    public async getAllNotes(): Promise<NotesTableRow[]> {
+        return await this.query<NotesTableRow>("SELECT * FROM notes")
             .then((rows) =>
                 rows.map((row) => {
                     try {
@@ -948,5 +950,17 @@ export default class DatabaseInterface {
         await this.execute("VACUUM");
 
         console.log(`database-logs ready`);
+    }
+
+    public async getAllMedia(): Promise<NoteMedia[]> {
+        const rows = await this.getAllNotes();
+        const notes = rows.map((r) => {
+            const obj = new Notes(0, new Date(), new Date());
+            const filled = _.extend(obj, r.notesObject);
+            if (filled.stationId === 0) throw new Error(`failed to hydrate notes`);
+            return filled;
+        });
+        console.log(`notes: ${JSON.stringify(notes)}`);
+        return _.flatten(notes.map((notes) => notes.allMedia()));
     }
 }

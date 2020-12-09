@@ -60,7 +60,7 @@
                                     </StackLayout>
                                     <StackLayout v-if="!photoCache[photo.path] && photo.path">
                                         <Image
-                                            :src="photo.path"
+                                            :src="rebaseAbsolutePath(photo.path)"
                                             stretch="aspectFit"
                                             decodeWidth="400"
                                             decodeHeight="400"
@@ -130,7 +130,8 @@ import routes from "@/routes";
 import { Dialogs } from "@nativescript/core";
 import { Station, Notes, NoteMedia } from "@/store";
 
-import { promiseAfter, getFileName } from "@/utilities";
+import { promiseAfter } from "@/utilities";
+import { getFileName, rebaseAbsolutePath } from "@/lib/fs";
 
 import SharedComponents from "@/components/shared";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
@@ -173,6 +174,9 @@ export default Vue.extend({
         },
     },
     methods: {
+        rebaseAbsolutePath(path: string): string {
+            return rebaseAbsolutePath(path);
+        },
         onPageLoaded(args): Promise<void> {
             if (false) {
                 console.log("notes", this.$s.state.notes.stations[this.stationId]);

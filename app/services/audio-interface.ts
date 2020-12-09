@@ -1,6 +1,6 @@
 import { isAndroid, path, knownFolders, Folder } from "@nativescript/core";
 import { AudioPlayerOptions, AudioRecorderOptions, TNSPlayer, TNSRecorder } from "nativescript-audio";
-import { getPathTimestamp } from "@/utilities";
+import { getPathTimestamp } from "@/lib/fs";
 
 export class VolumeMutedError extends Error {
     public readonly volumeMutedError = true;

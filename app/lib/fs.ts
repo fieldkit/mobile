@@ -1,11 +1,13 @@
 import _ from "lodash";
+import moment, { Moment } from "moment";
 import { Folder, knownFolders, isAndroid, Utils, File, FileSystemEntity } from "@nativescript/core";
-
 export { File, Folder };
 
 export const DownloadsDirectory = "downloads";
 
 export const DiagnosticsDirectory = "diagnostics";
+
+export const DocumentsDirectory = "Documents";
 
 export interface FileLike {
     path: string;
@@ -85,7 +87,6 @@ export function getDatabasePath(name: string): string {
         // eslint-disable-next-line
         return context.getDatabasePath(name).getAbsolutePath() as string;
     }
-
     const folder = knownFolders.documents().path;
     return `${folder}/${name}`;
 }
@@ -100,4 +101,47 @@ export function getDeviceIdFromPath(path: string): string {
     } catch (e) {
         throw new Error(`no device id in path: ${path}`);
     }
+}
+
+export function getFilePath(path: string): string {
+    const parts = path.split("/");
+    if (parts.length < 2) {
+        throw new Error(`error getting file path: ${path}`);
+    }
+    return _.take(parts, parts.length - 1).join("/");
+}
+
+export function getFileName(path: string): string {
+    const name = _.last(path.split("/"));
+    if (!name) {
+        throw new Error(`error getting file name: ${path}`);
+    }
+    return name;
+}
+
+export function getRelativeTo(dir: string, path: string): string {
+    return path
+        .split("/")
+        .reduce((keep: string[], p: string) => {
+            if (keep.length > 0 || p == dir) {
+                return [...keep, p];
+            }
+            return keep;
+        }, [])
+        .join("/");
+}
+
+export function removeLeadingDirectory(path: string): string {
+    const parts = path.split("/");
+    parts.shift();
+    return parts.join("/");
+}
+
+export function getPathTimestamp(ts: Moment | Date | string | number): string {
+    return moment(ts).utc().format("YYYYMMDD_hhmmss");
+}
+
+export function rebaseAbsolutePath(path: string): string {
+    const relative = removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
+    return [knownFolders.documents().path, relative].join("/");
 }

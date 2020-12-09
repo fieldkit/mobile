@@ -1,5 +1,4 @@
 import _ from "lodash";
-import moment, { Moment } from "moment";
 import Bluebird from "bluebird";
 
 // From https://matthiashager.com/converting-snake-case-to-camel-case-object-keys-with-javascript
@@ -41,10 +40,6 @@ export function keysToCamel(o: any): any {
 // eslint-disable-next-line
 export function sqliteToJs<T>(o: any[]): T[] {
     return keysToCamel(o) as T[]; // eslint-disable-line
-}
-
-export function getPathTimestamp(ts: Moment | Date | string | number): string {
-    return moment(ts).utc().format("YYYYMMDD_hhmmss");
 }
 
 export type SerializeFunc<V, R> = (value: V, index: number) => Promise<R>;
@@ -198,20 +193,4 @@ export function validateStationName(name: string): { required: boolean; long: bo
         characters: characters,
         any: any,
     };
-}
-
-export function getFilePath(path: string): string {
-    const parts = path.split("/");
-    if (parts.length < 2) {
-        throw new Error(`error getting file path: ${path}`);
-    }
-    return _.take(parts, parts.length - 1).join("/");
-}
-
-export function getFileName(path: string): string {
-    const name = _.last(path.split("/"));
-    if (!name) {
-        throw new Error(`error getting file name: ${path}`);
-    }
-    return name;
 }

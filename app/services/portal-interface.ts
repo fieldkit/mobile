@@ -544,7 +544,7 @@ export default class PortalInterface {
                 // if (!promised) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
                 return promised
                     .then((response) => {
-                        console.log(`portal reply: ${JSON.stringify(response)}`);
+                        console.log(`portal reply: ${JSON.stringify(response.data)}`);
                         return response.data as V;
                     })
                     .catch((error: AxiosError) => {

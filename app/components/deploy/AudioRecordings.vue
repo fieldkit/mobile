@@ -27,6 +27,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { NoteMedia } from "@/store";
+import { getFileName } from "@/lib/fs";
 
 export default Vue.extend({
     props: {
@@ -42,8 +43,7 @@ export default Vue.extend({
     },
     methods: {
         getFileName(media: NoteMedia): string {
-            const parts = media.path.split("/");
-            return parts[parts.length - 1];
+            return getFileName(media.path);
         },
         toggleAudio(ev, media: NoteMedia): Promise<void> {
             if (this.playing) {

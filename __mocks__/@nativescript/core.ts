@@ -10,3 +10,11 @@ export const Connectivity = {
         return Promise.resolve();
     },
 };
+
+export const knownFolders = {
+    documents: () => {
+        return {
+            path: "/var/tests/docs",
+        };
+    },
+};
