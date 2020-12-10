@@ -10,6 +10,15 @@
             textWrap="true"
         />
 
+        <Label
+            v-show="form.v.name.length"
+            id="email-length"
+            class="validation-error"
+            horizontalAlignment="left"
+            text="Name too long."
+            textWrap="true"
+        />
+
         <LabeledTextField v-model="form.email" label="Email" @blur="checkEmail" />
         <Label
             v-show="form.v.email.required"
@@ -17,6 +26,15 @@
             class="validation-error"
             horizontalAlignment="left"
             :text="_L('emailRequired')"
+            textWrap="true"
+        />
+
+        <Label
+            v-show="form.v.email.length"
+            id="email-length"
+            class="validation-error"
+            horizontalAlignment="left"
+            text="Email too long."
             textWrap="true"
         />
 
@@ -90,8 +108,8 @@ export default Vue.extend({
             password: string;
             confirmPassword: string;
             v: {
-                name: { required: boolean; format: boolean };
-                email: { required: boolean; format: boolean };
+                name: { required: boolean; length: boolean; format: boolean };
+                email: { required: boolean; length: boolean; format: boolean };
                 password: { required: boolean; length: boolean };
                 confirmPassword: { required: boolean; sameAs: boolean };
             };
@@ -105,8 +123,8 @@ export default Vue.extend({
                 password: "",
                 confirmPassword: "",
                 v: {
-                    name: { required: false, format: false },
-                    email: { required: false, format: false },
+                    name: { required: false, length: false, format: false },
+                    email: { required: false, length: false, format: false },
                     password: { required: false, length: false },
                     confirmPassword: { required: false, sameAs: false },
                 },
@@ -116,9 +134,11 @@ export default Vue.extend({
     methods: {
         checkName(): void {
             this.form.v.name.required = this.form.name.length == 0;
+            this.form.v.name.length = this.form.name.length > 0 && this.form.name.length < 256;
         },
         checkEmail(): void {
             this.form.v.email.required = this.form.email.length == 0;
+            this.form.v.email.length = this.form.email.length > 0 && this.form.email.length < 40;
             this.form.v.email.format = this.form.email.length > 0 && !email(this.form.email);
         },
         checkPassword(): void {
@@ -138,7 +158,9 @@ export default Vue.extend({
             this.checkPassword();
             this.checkConfirmPassword();
             if (this.form.v.name.required) return true;
+            if (this.form.v.name.length) return true;
             if (this.form.v.email.required) return true;
+            if (this.form.v.email.length) return true;
             if (this.form.v.email.format) return true;
             if (this.form.v.password.required) return true;
             if (this.form.v.password.length) return true;

@@ -11,6 +11,15 @@
         />
 
         <Label
+            v-show="form.v.email.length"
+            id="email-length"
+            class="validation-error"
+            horizontalAlignment="left"
+            text="Email too long."
+            textWrap="true"
+        />
+
+        <Label
             v-show="form.v.email.format"
             id="email-format"
             class="validation-error"
@@ -77,7 +86,7 @@ export default Vue.extend({
             email: string;
             password: string;
             v: {
-                email: { required: boolean; format: boolean };
+                email: { required: boolean; length: boolean; format: boolean };
                 password: { required: boolean; length: boolean };
             };
         };
@@ -87,16 +96,16 @@ export default Vue.extend({
                 email: "",
                 password: "",
                 v: {
-                    email: { required: false, format: false },
+                    email: { required: false, length: false, format: false },
                     password: { required: false, length: false },
                 },
             },
         };
     },
-
     methods: {
         checkEmail(): void {
             this.form.v.email.required = this.form.email.length == 0;
+            this.form.v.email.length = this.form.email.length > 0 && this.form.email.length < 40;
             this.form.v.email.format = this.form.email.length > 0 && !email(this.form.email);
         },
         checkPassword(): void {
@@ -110,6 +119,7 @@ export default Vue.extend({
             this.checkEmail();
             this.checkPassword();
             if (this.form.v.email.required) return true;
+            if (this.form.v.email.length) return true;
             if (this.form.v.email.format) return true;
             if (this.form.v.password.required) return true;
             if (this.form.v.password.length) return true;
