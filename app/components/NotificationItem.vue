@@ -121,7 +121,6 @@ export default Vue.extend({
     padding-bottom: 10;
     border-width: 1;
     border-color: $fk-gray-lighter;
-    height: 124;
     margin-bottom: 10;
 }
 
