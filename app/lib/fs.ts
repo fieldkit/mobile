@@ -7,7 +7,7 @@ export const DownloadsDirectory = "downloads";
 
 export const DiagnosticsDirectory = "diagnostics";
 
-export const DocumentsDirectory = "Documents";
+export const DocumentsDirectory = isAndroid ? "files" : "Documents";
 
 export interface FileLike {
     path: string;
@@ -132,7 +132,9 @@ export function getRelativeTo(dir: string, path: string): string {
 }
 
 export function getAppRelative(path: string): string {
-    return removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
+    const modified = removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
+    if (modified.length == 0) throw new Error(`error creating relative path`);
+    return modified;
 }
 
 export function removeLeadingDirectory(path: string): string {

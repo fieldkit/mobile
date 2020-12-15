@@ -16,9 +16,9 @@ export default class ImagesSaver {
         console.log("saving", incoming, destination);
         // eslint-disable-next-line
         return await ImageSource.fromAsset(incoming.asset as any).then((imageSource) => {
-            console.log("saving, have source", imageSource, destination);
+            console.log("saving image. source:", imageSource, "destination:", destination);
             if (!imageSource.saveToFile(destination, "jpg")) {
-                console.log("saving, failed", destination);
+                console.log("saving failed. destination:", destination);
                 throw new Error("save failed");
             }
             return new SavedImage(destination, imageSource, incoming.asset);
@@ -52,6 +52,7 @@ export default class ImagesSaver {
             saveToGallery: true,
             allowsEditing: false,
         });
+
         return await this.savePicture(asset);
     }
 
