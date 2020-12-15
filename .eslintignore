@@ -18,6 +18,7 @@ app/tests/utilities.ts
 app/i18n/*
 app/migrations/*.js
 app/reader/FlowView.vue
+app/components/WiFiNetworkForm.vue
 # app/components/PlatformHeader.vue
 # app/components/ScreenHeader.vue
 # app/components/ScreenFooter.vue

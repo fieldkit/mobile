@@ -239,6 +239,7 @@ module.exports = {
     stationDisconnected: "Station disconnected.",
     nameYourLocation: "Name your location",
     locationRequired: "Location is a required field.",
+    required: "This field is required.",
     locationOver255: "Location must be less than 256 letters.",
     locationNotPrintable: "Location has invalid letters, acceptable letters are A-Z, 0-9 and \"~!@#$%^&*()-.'`",
     continue: "Continue",

@@ -1,19 +1,32 @@
 <template>
     <StackLayout>
         <Label ref="label" :text="label" class="size-12 field-label" :visibility="typing ? 'visible' : 'collapsed'" width="100%" />
-        <TextField
-            row="1"
-            :class="fieldClass"
-            :hint="label"
-            :text="value"
-            :keyboardType="keyboardType"
-            :secure="secure"
-            autocorrect="false"
-            autocapitalizationType="none"
-            @focus="onFocus"
-            @textChange="onChange"
-            @blur="onBlur"
-        />
+
+        <GridLayout rows="auto" :columns="canShow ? '*, 45' : '*'">
+            <TextField
+                row="0"
+                :class="fieldClass"
+                :hint="label"
+                :text="value"
+                :keyboardType="keyboardType"
+                :secure="secure && hidden"
+                autocorrect="false"
+                autocapitalizationType="none"
+                @focus="onFocus"
+                @textChange="onChange"
+                @blur="onBlur"
+            />
+
+            <Label
+                v-if="canShow"
+                row="0"
+                col="1"
+                :text="hidden ? _L('show') : _L('hide')"
+                class="size-16"
+                verticalAlignment="middle"
+                @tap="toggle"
+            />
+        </GridLayout>
     </StackLayout>
 </template>
 
@@ -39,17 +52,29 @@ export default Vue.extend({
             type: Boolean,
             default: false,
         },
+        canShow: {
+            type: Boolean,
+            default: false,
+        },
     },
-    data(): { typing: boolean; focus: boolean } {
+    data(): {
+        typing: boolean;
+        focus: boolean;
+        hidden: boolean;
+    } {
         return {
             typing: false,
             focus: false,
+            hidden: true,
         };
     },
     computed: {
         fieldClass(): string {
             return ["labeled-text-field", "input", this.focus ? "active-line" : "inactive-line"].join(" ");
         },
+    },
+    mounted(): void {
+        console.log("can-show", this.canShow);
     },
     methods: {
         onFocus(): void {
@@ -86,6 +111,10 @@ export default Vue.extend({
                 curve: Enums.AnimationCurve.easeIn,
             });
             this.typing = true;
+        },
+        toggle(): void {
+            this.hidden = !this.hidden;
+            console.log(`toggle hidden`);
         },
     },
 });

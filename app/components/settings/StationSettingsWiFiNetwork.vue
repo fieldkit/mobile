@@ -37,51 +37,7 @@
                             <Label col="1" :text="_L('addNetwork')" class="size-16" />
                         </GridLayout>
 
-                        <StackLayout v-show="addingNetwork" class="m-t-20">
-                            <TextField
-                                class="size-18 p-x-20 m-t-20 input"
-                                :hint="_L('networkNameHint')"
-                                autocorrect="false"
-                                autocapitalizationType="none"
-                                v-model="form.ssid"
-                            />
-
-                            <GridLayout rows="auto" columns="*,42" class="input m-t-20">
-                                <Label
-                                    row="0"
-                                    colSpan="2"
-                                    :text="_L('networkPasswordHint')"
-                                    class="size-18 hint"
-                                    :opacity="form.password.length == 0 ? 1 : 0"
-                                />
-                                <TextField
-                                    row="0"
-                                    col="0"
-                                    class="size-18 no-border-input"
-                                    :secure="hidePassword"
-                                    ref="password"
-                                    v-model="form.password"
-                                />
-                                <Label
-                                    row="0"
-                                    col="1"
-                                    :text="hidePassword ? _L('show') : _L('hide')"
-                                    class="size-16"
-                                    verticalAlignment="middle"
-                                    :opacity="form.password.length > 0 ? 1 : 0"
-                                    @tap="togglePassword"
-                                />
-                            </GridLayout>
-                        </StackLayout>
-                        <StackLayout class="p-b-20"></StackLayout>
-
-                        <Button
-                            v-show="addingNetwork"
-                            class="btn btn-primary btn-padded"
-                            :text="_L('save')"
-                            :isEnabled="station.connected"
-                            @tap="addNetwork"
-                        />
+                        <WiFiNetworkForm v-if="addingNetwork" @saved="addNetwork" />
 
                         <ActivityIndicator :busy="busy" row="0" />
 
@@ -115,27 +71,18 @@ import { Dialogs } from "@nativescript/core";
 import * as animations from "@/components/animations";
 import SharedComponents from "@/components/shared";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import WiFi from "./StationSettingsWiFi.vue";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import StationSettingsWiFi from "./StationSettingsWiFi.vue";
+import WiFiNetworkForm from "~/components/WiFiNetworkForm.vue";
 
 export default Vue.extend({
     data(): {
         addingNetwork: boolean;
-        hidePassword: boolean;
         busy: boolean;
-        form: {
-            ssid: string;
-            password: string;
-        };
     } {
         return {
-            form: {
-                ssid: "",
-                password: "",
-            },
             busy: false,
             addingNetwork: false,
-            hidePassword: true,
         };
     },
     props: {
@@ -146,9 +93,9 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        WiFi,
         ConnectionNote,
         ConnectionStatusHeader,
+        WiFiNetworkForm,
     },
     computed: {
         maximumNetworks(): number {
@@ -165,7 +112,7 @@ export default Vue.extend({
         async goBack(ev: Event): Promise<void> {
             await Promise.all([
                 animations.pressed(ev),
-                this.$navigateTo(WiFi, {
+                this.$navigateTo(StationSettingsWiFi, {
                     props: {
                         stationId: this.stationId,
                     },
@@ -177,13 +124,8 @@ export default Vue.extend({
                 this.addingNetwork = true;
             }
         },
-        async addNetwork(): Promise<void> {
+        async addNetwork(adding: { ssid: string; password: string }): Promise<void> {
             this.addingNetwork = false;
-            const adding = _.clone(this.form);
-            this.form = {
-                ssid: "",
-                password: "",
-            };
             this.busy = true;
             try {
                 await this.$s.dispatch(new AddStationNetworkAction(this.station.deviceId, adding, this.station.networks));
@@ -207,9 +149,6 @@ export default Vue.extend({
                 }
                 return Promise.resolve();
             });
-        },
-        togglePassword(): void {
-            this.hidePassword = !this.hidePassword;
         },
     },
 });
