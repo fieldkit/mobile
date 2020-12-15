@@ -10,12 +10,12 @@ import { ImageAsset, IncomingImage, SavedImage } from "./types";
 export default class ImagesSaver {
     constructor(private readonly store: OurStore) {}
 
-    public saveImage(incoming: IncomingImage): Promise<SavedImage> {
+    public async saveImage(incoming: IncomingImage): Promise<SavedImage> {
         const folder = knownFolders.documents().getFolder("media/images");
         const destination = path.join(folder.path, getPathTimestamp(new Date()) + ".jpg");
         console.log("saving", incoming, destination);
         // eslint-disable-next-line
-        return ImageSource.fromAsset(incoming.asset as any).then((imageSource) => {
+        return await ImageSource.fromAsset(incoming.asset as any).then((imageSource) => {
             console.log("saving, have source", imageSource, destination);
             if (!imageSource.saveToFile(destination, "jpg")) {
                 console.log("saving, failed", destination);
@@ -25,35 +25,39 @@ export default class ImagesSaver {
         });
     }
 
-    public fromFile(path: string): Promise<SavedImage> {
-        return ImageSource.fromFile(path).then((source) => {
+    public async fromFile(path: string): Promise<SavedImage> {
+        return await ImageSource.fromFile(path).then((source) => {
             return new SavedImage(path, source, null);
         });
     }
 
-    public findPicture(): Promise<SavedImage> {
+    public async findPicture(): Promise<SavedImage> {
         const context = ImagePicker.create({
             mode: "single",
         });
 
-        return context
+        await Camera.requestPhotosPermissions();
+
+        return await context
             .authorize()
             .then(() => context.present())
             .then((assets: ImageAsset[]) => this.savePicture(assets[0]));
     }
 
-    public takePicture(): Promise<SavedImage> {
-        return Camera.takePicture({
+    public async takePicture(): Promise<SavedImage> {
+        await Camera.requestCameraPermissions();
+
+        const asset = await Camera.takePicture({
             keepAspectRatio: true,
             saveToGallery: true,
             allowsEditing: false,
-        }).then((asset) => this.savePicture(asset));
+        });
+        return await this.savePicture(asset);
     }
 
-    private savePicture(asset: ImageAsset): Promise<SavedImage> {
-        return this.saveImage(new IncomingImage(asset)).then((saved: SavedImage) => {
-            this.store.commit(MutationTypes.CACHE_PHOTO, saved);
-            return saved;
-        });
+    private async savePicture(asset: ImageAsset): Promise<SavedImage> {
+        const saved = await this.saveImage(new IncomingImage(asset));
+        this.store.commit(MutationTypes.CACHE_PHOTO, saved);
+        return saved;
     }
 }
