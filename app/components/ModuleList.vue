@@ -113,7 +113,7 @@ export default Vue.extend({
                 case "modules.water.temp":
                     return `~/images/Icon_${statusString}WaterTemp_Module.png`;
                 case "modules.water.orp":
-                    return `~/images/Icon_${statusString}Water_Module.png`;
+                    return `~/images/Icon_${statusString}ORP_Module.png`;
                 case "modules.water.unknown":
                     return `~/images/Icon_${statusString}Water_Module.png`;
                 default:

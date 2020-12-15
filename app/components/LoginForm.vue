@@ -148,11 +148,15 @@ export default Vue.extend({
                 cancelButtonText: _L("cancel"),
             }).then(async (data) => {
                 if (data.result) {
-                    await this.$services
-                        .PortalInterface()
-                        .forgotPassword({ email: data.text })
-                        .then(() => this.alert(_L("passwordResetSucceeded")))
-                        .catch(() => this.alert(_L("passwordResetFailed")));
+                    if (data.text) {
+                        await this.$services
+                            .PortalInterface()
+                            .forgotPassword({ email: data.text })
+                            .then(() => this.alert(_L("passwordResetSucceeded")))
+                            .catch(() => this.alert(_L("passwordResetFailed")));
+                    } else {
+                        await this.forgotPassword();
+                    }
                 }
             });
         },
