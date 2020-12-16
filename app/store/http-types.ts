@@ -169,7 +169,7 @@ export function decodeAndPrepare(reply: Buffer, serialized: SerializedStatus): H
     return prepareReply(HttpReply.decodeDelimited(reply), serialized);
 }
 
-export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasStatus | null {
+export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasStatus {
     /* Maybe ModuleStatus? */
     if (!reply.calibration) {
         throw new Error(`reply has no calibration`);
@@ -193,13 +193,13 @@ export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasSta
             total = numberOfOnes(reply.calibration.ec || 0);
             break;
         case SensorType.SENSOR_NONE:
-            break;
+            throw new Error(`unexpected calibration type`);
         default:
             throw new Error(`unexpected calibration type`);
     }
 
-    if (!total) {
-        return null;
+    if (total === null) {
+        throw new Error(`unexpected calibration type`);
     }
 
     return {

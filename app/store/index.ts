@@ -136,12 +136,17 @@ function customizeLogger(appendLog: AppendStoreLog) {
             }
             if (action.type == ActionTypes.STATION_REPLY) {
                 // eslint-disable-next-line
-                const payload: any = action.payload as any;
-                // eslint-disable-next-line
-                const device = payload.statusReply?.status?.identity?.deviceId;
-                // eslint-disable-next-line
-                const name = payload.statusReply?.status?.identity?.name;
-                console.log("action:", action.type, device, name);
+                if (true) {
+                    // eslint-disable-next-line
+                    const payload: any = action.payload as any;
+                    // eslint-disable-next-line
+                    const device = payload.statusReply?.status?.identity?.deviceId;
+                    // eslint-disable-next-line
+                    const name = payload.statusReply?.status?.identity?.name;
+                    console.log("action:", action.type, device, name);
+                } else {
+                    console.log("action:", action.type, JSON.stringify(action.payload));
+                }
                 return false;
             }
             if (action.type == ActionTypes.STATIONS_LOADED) {
