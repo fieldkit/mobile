@@ -51,6 +51,10 @@ app/components/deploy/FieldNoteForm.vue
 app/components/deploy/EditNoteView.vue
 app/components/deploy/AudioRecordings.vue
 app/components/deploy/DeployMapView.vue
+app/components/onboarding/DeploymentLocation.vue
+app/components/onboarding/DataSync.vue
+app/components/onboarding/NetworkTypeItem.vue
+app/components/onboarding/CompleteSettings.vue
 app/components/onboarding/AssembleStationView.vue
 app/components/onboarding/Network.vue
 app/components/onboarding/Recalibrate.vue
