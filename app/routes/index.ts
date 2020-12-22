@@ -50,7 +50,6 @@ import DeploymentLocation from "~/components/onboarding/DeploymentLocation.vue";
 import DataSyncOnboarding from "~/components/onboarding/DataSync.vue";
 import CompleteSettings from "~/components/onboarding/CompleteSettings.vue";
 
-// @ts-ignore
 const routes = {
     login: new Route(Login, { login: true }),
     developerMenu: new Route(DeveloperMenu, { developer: true }),
