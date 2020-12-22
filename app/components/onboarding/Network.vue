@@ -19,13 +19,13 @@
                                 :selected="selected === REMOTE_SELECTED"
                                 :remote="true"
                                 :recommended="true"
-                                @onTap="select(REMOTE_SELECTED)"
+                                @tapped="select(REMOTE_SELECTED)"
                             ></NetworkTypeItem>
                             <NetworkTypeItem
                                 :selected="selected === CONNECTED_SELECTED"
                                 :remote="false"
                                 :recommended="false"
-                                @onTap="select(CONNECTED_SELECTED)"
+                                @tapped="select(CONNECTED_SELECTED)"
                             ></NetworkTypeItem>
                         </StackLayout>
 
@@ -34,14 +34,14 @@
                                 :selected="selected === CONNECTED_SELECTED"
                                 :remote="false"
                                 :recommended="true"
-                                @onTap="select(CONNECTED_SELECTED)"
+                                @tapped="select(CONNECTED_SELECTED)"
                             ></NetworkTypeItem>
 
                             <NetworkTypeItem
                                 :selected="selected === REMOTE_SELECTED"
                                 :remote="true"
                                 :recommended="false"
-                                @onTap="select(REMOTE_SELECTED)"
+                                @tapped="select(REMOTE_SELECTED)"
                             ></NetworkTypeItem>
                         </StackLayout>
                     </StackLayout>

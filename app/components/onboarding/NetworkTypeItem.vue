@@ -52,9 +52,6 @@ export default Vue.extend({
             type: Boolean,
             required: true,
         },
-        onTap: {
-            type: Function as PropType<() => void>,
-        },
     },
     data() {
         return {
@@ -64,7 +61,7 @@ export default Vue.extend({
     },
     methods: {
         emitTap() {
-            this.$emit("onTap");
+            this.$emit("tapped");
         },
     },
 });
