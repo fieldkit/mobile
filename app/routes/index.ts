@@ -46,7 +46,11 @@ import AddModuleView from "~/components/onboarding/AddModuleView.vue";
 import NotificationsView from "~/components/NotificationsView.vue";
 
 import { inferNames, Route } from "./navigate";
+import DeploymentLocation from "~/components/onboarding/DeploymentLocation.vue";
+import DataSyncOnboarding from "~/components/onboarding/DataSync.vue";
+import CompleteSettings from "~/components/onboarding/CompleteSettings.vue";
 
+// @ts-ignore
 const routes = {
     login: new Route(Login, { login: true }),
     developerMenu: new Route(DeveloperMenu, { developer: true }),
@@ -90,11 +94,13 @@ const routes = {
         searchFailed: new Route(SearchFailedView, {}),
         network: new Route(OnboardingNetwork, {}),
         addWifi: new Route(AddWifiNetwork, {}),
-
+        deploymentLocation: new Route(DeploymentLocation, {}),
+        dataSync: new Route(DataSyncOnboarding, {}),
         rename: new Route(RenameStation, {}),
         reconnecting: new Route(OnboardingReconnecting, {}),
         recalibrate: new Route(Recalibrate, {}),
         addModule: new Route(AddModuleView, {}),
+        completeSettings: new Route(CompleteSettings, {}),
     },
 
     // Deployment
