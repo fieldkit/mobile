@@ -66,7 +66,11 @@ export default Vue.extend({
         },
         bottomMargin: {
             type: Boolean,
-            default: true,
+            default: false,
+        },
+        bottomBorder: {
+            type: Boolean,
+            default: false,
         },
     },
     data(): { ios: boolean } {
@@ -77,8 +81,9 @@ export default Vue.extend({
     computed: {
         classes(): string {
             const c: string[] = [];
-            if (this.bottomMargin || this.ios) c.push("m-b-20");
+            if (this.bottomMargin) c.push("m-b-20");
             if (this.actionBar) c.push("header-container");
+            if (this.bottomBorder) c.push("bottom-border");
             return c.join(" ");
         },
     },
@@ -107,6 +112,13 @@ export default Vue.extend({
 @import "~/_app-variables";
 
 .header-container {
+    padding-top: 15;
+}
+
+.bottom-border {
+    border-bottom-color: $fk-gray-border;
+    border-bottom-width: 1;
+    padding-bottom: 15;
     padding-top: 15;
 }
 </style>

@@ -1,69 +1,60 @@
 <template>
-    <Page class="page" actionBarHidden="true">
-        <GridLayout rows="*,140">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+        <GridLayout rows="*,65">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
+                        <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
                         <ConnectionStatusHeader :connected="currentStation.connected" />
 
-                        <Label class="title m-t-20 m-b-10 text-center" :text="_L('chooseWifiSettings')" textWrap="true"></Label>
+                        <Label
+                            class="m-t-20 m-l-20 m-r-20 m-b-10 text-center bold"
+                            :text="_L('chooseWifiSettings')"
+                            textWrap="true"
+                        ></Label>
+                        <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
 
-                        <Label class="instruction" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
+                        <StackLayout v-if="remote">
+                            <NetworkTypeItem
+                                :selected="selected === REMOTE_SELECTED"
+                                :remote="true"
+                                :recommended="true"
+                                @onTap="select(REMOTE_SELECTED)"
+                            ></NetworkTypeItem>
+                            <NetworkTypeItem
+                                :selected="selected === CONNECTED_SELECTED"
+                                :remote="false"
+                                :recommended="false"
+                                @onTap="select(CONNECTED_SELECTED)"
+                            ></NetworkTypeItem>
+                        </StackLayout>
 
-                        <GridLayout rows="auto,auto" columns="30,*" class="option-container">
-                            <CheckBox
-                                row="0"
-                                col="0"
-                                :checked="this.form.network === 0"
-                                fillColor="#2C3E50"
-                                onCheckColor="#2C3E50"
-                                onTintColor="#2C3E50"
-                                fontSize="18"
-                                boxType="circle"
-                                class="checkbox"
-                                @checkedChange="checkEvent($event, 0)"
-                            />
-                            <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('stationWifi')"></Label>
-                            <Label
-                                row="1"
-                                colSpan="2"
-                                class="radio-info size-15"
-                                lineHeight="4"
-                                :text="_L('stationWifiInfo')"
-                                textWrap="true"
-                            ></Label>
-                        </GridLayout>
+                        <StackLayout v-if="!remote">
+                            <NetworkTypeItem
+                                :selected="selected === CONNECTED_SELECTED"
+                                :remote="false"
+                                :recommended="true"
+                                @onTap="select(CONNECTED_SELECTED)"
+                            ></NetworkTypeItem>
 
-                        <GridLayout rows="auto,auto" columns="30,*" class="option-container">
-                            <CheckBox
-                                row="0"
-                                col="0"
-                                :checked="this.form.network === 1"
-                                fillColor="#2C3E50"
-                                onCheckColor="#2C3E50"
-                                onTintColor="#2C3E50"
-                                fontSize="18"
-                                boxType="circle"
-                                class="checkbox"
-                                @checkedChange="checkEvent($event, 1)"
-                            />
-                            <Label row="0" col="1" class="m-t-5 m-l-5" :text="_L('yourWifi')"></Label>
-                            <Label
-                                row="1"
-                                colSpan="2"
-                                class="radio-info size-15"
-                                lineHeight="4"
-                                :text="_L('yourWifiInfo')"
-                                textWrap="true"
-                            ></Label>
-                        </GridLayout>
+                            <NetworkTypeItem
+                                :selected="selected === REMOTE_SELECTED"
+                                :remote="true"
+                                :recommended="false"
+                                @onTap="select(REMOTE_SELECTED)"
+                            ></NetworkTypeItem>
+                        </StackLayout>
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" @tap="forward" :isEnabled="currentStation.connected" />
-                <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
+            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-5 m-b-25">
+                <Button
+                    class="btn btn-primary btn-padded m-y-10"
+                    :text="_L('next')"
+                    @tap="forward"
+                    :isEnabled="currentStation.connected && selected !== NO_SELECTION"
+                />
             </StackLayout>
         </GridLayout>
     </Page>
@@ -74,23 +65,32 @@ import Vue from "vue";
 import routes from "@/routes";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import { LegacyStation } from "@/store";
+import ScreenHeader from "~/components/ScreenHeader.vue";
+import NetworkTypeItem from "~/components/onboarding/NetworkTypeItem.vue";
 
 export default Vue.extend({
     name: "Network",
     components: {
         ConnectionStatusHeader,
+        ScreenHeader,
+        NetworkTypeItem,
     },
     props: {
         stationId: {
             type: Number,
             required: true,
         },
+        remote: {
+            type: Boolean,
+            required: true,
+        },
     },
     data() {
         return {
-            form: {
-                network: 0,
-            },
+            selected: 0,
+            NO_SELECTION: 0,
+            REMOTE_SELECTED: 1,
+            CONNECTED_SELECTED: 2,
         };
     },
     computed: {
@@ -101,35 +101,38 @@ export default Vue.extend({
         },
     },
     methods: {
-        forward() {
-            if (this.form.network == 0) {
-                console.log("forward", "rename", this.form.network);
-                return this.$navigateTo(routes.onboarding.rename, {
+        onPageLoaded() {
+            this.selected = this.remote ? this.REMOTE_SELECTED : this.CONNECTED_SELECTED;
+        },
+        async forward() {
+            if (this.selected === this.REMOTE_SELECTED) {
+                await this.$navigateTo(routes.onboarding.dataSync, {
                     props: {
                         stationId: this.stationId,
+                        remote: true,
                     },
                 });
             }
-            if (this.form.network == 1) {
-                console.log("forward", "network", this.form.network);
 
-                return this.$navigateTo(routes.onboarding.addWifi, {
+            if (this.selected === this.CONNECTED_SELECTED) {
+                await this.$navigateTo(routes.onboarding.addWifi, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
             }
-            console.log("forward", "error", this.form.network);
-            return;
         },
-        checkEvent($event, index) {
-            if ($event.value) {
-                this.form.network = index;
-            }
+        select(value: number) {
+            this.selected = value;
         },
-        skip() {
-            console.log("forward", this.form);
-            return this.$navigateTo(routes.stations, {});
+        async onBack(): Promise<void> {
+            console.log("onBack");
+            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+                props: {
+                    stationId: this.stationId,
+                    remote: this.remote,
+                },
+            });
         },
     },
 });
@@ -138,56 +141,19 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.skip {
-    padding-top: 10;
-    padding-bottom: 10;
-    background-color: white;
-    font-size: 14;
-    font-weight: bold;
-    text-align: center;
-    margin: 10;
-}
-.instruction {
-    color: $fk-primary-black;
-    text-align: center;
-    font-size: 16;
-    margin-top: 5;
-    margin-bottom: 10;
-    margin-right: 30;
-    margin-left: 30;
-}
-.option-container {
-    margin-top: 30;
-    margin-left: 30;
-    margin-right: 30;
-}
-.radio-info {
-    color: $fk-gray-hint;
-    margin-top: 10;
-    margin-bottom: 20;
-    margin-left: 35;
-}
-.input {
-    width: 90%;
-    margin-left: 20;
-    margin-right: 20;
-    border-bottom-width: 1px;
-    text-align: center;
-}
-.small {
-    width: 50;
-    margin: 20;
-}
-
 .bordered-container {
     border-radius: 4;
     border-color: $fk-gray-lighter;
     border-width: 1;
+
+    &.selected {
+        border-color: $fk-logo-blue;
+        border-width: 3;
+    }
 }
-.gray-text {
-    color: $fk-gray-hint;
-}
-.red-text {
-    color: $fk-primary-red;
+
+.recommended {
+    color: $fk-primary-blue;
+    font-weight: bold;
 }
 </style>

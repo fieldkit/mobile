@@ -103,13 +103,13 @@ export default Vue.extend({
         },
         async forward(): Promise<void> {
             if (this.reconnecting) {
-                await this.$navigateTo(routes.onboarding.recalibrate, {
+                await this.$navigateTo(routes.onboarding.deploymentLocation, {
                     props: {
                         stationId: this.selectedStationId,
                     },
                 });
             } else {
-                await this.$navigateTo(routes.onboarding.network, {
+                await this.$navigateTo(routes.onboarding.rename, {
                     props: {
                         stationId: this.selectedStationId,
                     },

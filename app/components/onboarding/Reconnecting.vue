@@ -1,15 +1,10 @@
 <template>
     <Page class="page" actionBarHidden="true">
-        <GridLayout rows="75,*,140">
-            <GridLayout row="0" rows="auto" columns="*" class="m-y-20">
-                <StackLayout col="0" class="round-bkgd m-l-10" verticalAlignment="top" horizontalAlignment="left" @tap="back">
-                    <Image width="21" src="~/images/Icon_Backarrow.png" />
-                </StackLayout>
-            </GridLayout>
-
-            <ScrollView row="1">
-                <GridLayout rows="auto" columns="*" verticalAlignment="middle">
+        <GridLayout rows="*,140">
+            <ScrollView row="0">
+                <GridLayout rows="*" columns="*">
                     <StackLayout row="0">
+                        <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
                         <Label class="title text-center m-b-20" :text="_L('reconnectToStation')" textWrap="true"></Label>
 
                         <Label class="instruction" :text="_L('reconnectInstruction')" lineHeight="4" textWrap="true"></Label>
@@ -21,7 +16,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout :row="2" verticalAlignment="bottom" class="m-x-10">
+            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10">
                 <Button class="btn btn-primary btn-padded m-y-10" :text="_L('done')" @tap="forward"></Button>
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>

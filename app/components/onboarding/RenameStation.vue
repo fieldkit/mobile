@@ -1,11 +1,13 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="auto,*,140">
-            <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
-            <ScrollView row="1">
-                <GridLayout rows="*" columns="*" verticalAlignment="middle">
+        <GridLayout rows="*,140">
+            <ScrollView row="0">
+                <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <Label class="title m-t-20 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
+                        <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
+                        <ConnectionStatusHeader :connected="currentStation.connected" />
+
+                        <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
 
                         <Label class="instruction" :text="_L('changeStationNameInstruction')" lineHeight="4" textWrap="true" />
 
@@ -13,7 +15,7 @@
                             <TextField
                                 col="0"
                                 textWrap="true"
-                                class="size-18 no-border-input"
+                                class="size-16 no-border-input"
                                 :hint="_L('stationNameHint')"
                                 v-model="form.name"
                                 keyboardType="_L('stationNameHint')"
@@ -49,7 +51,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout row="2" verticalAlignment="bottom" class="m-x-10">
+            <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
                 <Button
                     class="btn btn-primary btn-padded m-y-10"
                     :text="_L('saveNewName')"
@@ -65,15 +67,17 @@
 import _ from "lodash";
 import Vue from "vue";
 import routes from "../../routes";
-import { _T, validateStationName } from "../../utilities";
+import { validateStationName } from "../../utilities";
 import { RenameStationAction, LegacyStation } from "@/store";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import LabeledTextField from "../LabeledTextField";
+import ScreenHeader from "~/components/ScreenHeader.vue";
+import LabeledTextField from "~/components/LabeledTextField.vue";
 
 export default Vue.extend({
     components: {
         ConnectionStatusHeader,
         LabeledTextField,
+        ScreenHeader,
     },
     props: {
         stationId: {
@@ -140,7 +144,7 @@ export default Vue.extend({
                         this.error = true;
                     });
             }
-            await this.$navigateTo(routes.onboarding.recalibrate, {
+            await this.$navigateTo(routes.onboarding.deploymentLocation, {
                 props: {
                     stationId: this.currentStation.id,
                 },
@@ -161,8 +165,16 @@ export default Vue.extend({
         clearName(): void {
             this.form.name = "";
         },
-        async skip() {
-            await this.$navigateTo(routes.stations, { clearHistory: true });
+        async skip(): Promise<void> {
+            await this.$navigateTo(routes.onboarding.deploymentLocation, {
+                props: {
+                    stationId: this.currentStation.id,
+                },
+            });
+        },
+        async onBack(): Promise<void> {
+            console.log("onBack");
+            await this.$navigateTo(routes.onboarding.nearby, {});
         },
     },
 });
@@ -199,7 +211,7 @@ export default Vue.extend({
     padding-top: 10;
     padding-bottom: 10;
     background-color: white;
-    font-size: 14;
+    font-size: 16;
     font-weight: bold;
     text-align: center;
     margin: 10;
@@ -207,10 +219,13 @@ export default Vue.extend({
 .instruction {
     color: $fk-primary-black;
     text-align: center;
-    font-size: 16;
+    font-size: 18;
     margin-top: 5;
-    margin-bottom: 10;
+    margin-bottom: 100;
     margin-right: 30;
     margin-left: 30;
+}
+.m-t-60 {
+    margin-top: 60;
 }
 </style>
