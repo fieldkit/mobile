@@ -129,7 +129,7 @@ export default Vue.extend({
                 },
             });
         },
-        hideKeyboard(ev): void {
+        hideKeyboard(): void {
             if (isAndroid) {
                 Utils.ad.dismissSoftInput();
             }

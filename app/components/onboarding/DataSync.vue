@@ -70,17 +70,17 @@ export default Vue.extend({
     },
     methods: {
         onPageLoaded() {},
-        saveSettings() {
+        saveSettings(): void {
             this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
-        async forward() {
+        async forward(): Promise<void> {
             await this.$navigateTo(routes.onboarding.completeSettings, {
                 props: {
                     stationId: this.stationId,
                 },
             });
         },
-        async onBack() {
+        async onBack(): Promise<void> {
             await this.$navigateTo(routes.onboarding.network, {
                 props: {
                     stationId: this.stationId,
