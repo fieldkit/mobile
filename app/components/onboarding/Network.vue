@@ -1,6 +1,6 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="*,65">
+        <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
@@ -48,7 +48,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-5 m-b-25">
+            <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10 m-b-25">
                 <Button
                     class="btn btn-primary btn-padded m-y-10"
                     :text="_L('next')"
@@ -101,10 +101,10 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded() {
+        onPageLoaded(): void {
             this.selected = this.remote ? this.REMOTE_SELECTED : this.CONNECTED_SELECTED;
         },
-        async forward() {
+        async forward(): Promise<void> {
             if (this.selected === this.REMOTE_SELECTED) {
                 await this.$navigateTo(routes.onboarding.dataSync, {
                     props: {
@@ -122,7 +122,7 @@ export default Vue.extend({
                 });
             }
         },
-        select(value: number) {
+        select(value: number): void {
             this.selected = value;
         },
         async onBack(): Promise<void> {
