@@ -105,7 +105,7 @@ export default Vue.extend({
         },
     },
     methods: {
-        async forward() {
+        async forward(): Promise<void> {
             if (this.selected === this.NO_SELECTION) {
                 throw new Error("no selection");
             }
@@ -117,7 +117,7 @@ export default Vue.extend({
                 },
             });
         },
-        select(value: number) {
+        select(value: number): void {
             this.selected = value;
         },
         async onBack(): Promise<void> {

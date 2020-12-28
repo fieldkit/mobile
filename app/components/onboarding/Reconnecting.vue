@@ -27,7 +27,6 @@
 <script lang="ts">
 import Vue from "vue";
 import routes from "../../routes";
-import { _T } from "../../utilities";
 
 export default Vue.extend({
     props: {
