@@ -254,6 +254,7 @@ export default class QueryStation {
                     url: url + "/upload/firmware?swap=1",
                     path: path,
                     progress: progress,
+                    defaultTimeout: 30,
                 })
                 .then((response) => {
                     console.log("upload-firmware:", response.body);
