@@ -1,7 +1,7 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('appSettings.account.account')" :canNavigateSettings="false" />
-        <GridLayout rows="*,auto,55">
+        <GridLayout rows="*,auto">
             <ScrollView row="0" class="m-r-20 m-l-20">
                 <StackLayout>
                     <StackLayout class="top-bordered-item">
@@ -37,7 +37,6 @@
             <StackLayout row="1" class="m-r-20 m-l-20">
                 <Button class="btn btn-secondary btn-logout" :text="_L('appSettings.account.logoutAll')" @tap="logoutAll"></Button>
             </StackLayout>
-            <ScreenFooter row="2" active="settings" />
         </GridLayout>
     </Page>
 </template>

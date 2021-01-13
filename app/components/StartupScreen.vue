@@ -1,34 +1,35 @@
 <template>
-    <Frame>
-        <BottomNavigation>
-            <TabStrip>
-                <TabStripItem>
-                    <Label text="Stations"></Label>
-                </TabStripItem>
-                <TabStripItem>
-                    <Label text="Data"></Label>
-                </TabStripItem>
-                <TabStripItem>
-                    <Label text="Settings"></Label>
-                </TabStripItem>
-            </TabStrip>
-            <TabContentItem>
-                <Frame id="stations-frame">
-                    <Label text="Stations"></Label>
-                </Frame>
-            </TabContentItem>
-            <TabContentItem>
-                <Frame id="data-frame">
-                    <Label text="Data"></Label>
-                </Frame>
-            </TabContentItem>
-            <TabContentItem>
-                <Frame id="settings-frame">
-                    <Label text="Settings"></Label>
-                </Frame>
-            </TabContentItem>
-        </BottomNavigation>
-    </Frame>
+    <BottomNavigation id="bottom-nav" @selectedIndexChanged="onSelectedIndexChanged">
+        <TabStrip backgroundColor="white">
+            <TabStripItem>
+                <Image width="22" height="22" src="~/images/Icon_Station_inactive2.png"></Image>
+                <Label text="Stations"></Label>
+            </TabStripItem>
+            <TabStripItem>
+                <Image width="22" height="22" src="~/images/Icon_DataSync_inactive2.png"></Image>
+                <Label text="Data"></Label>
+            </TabStripItem>
+            <TabStripItem>
+                <Image width="22" height="22" src="~/images/Icon_Settings_inactive2.png"></Image>
+                <Label text="Settings"></Label>
+            </TabStripItem>
+        </TabStrip>
+        <TabContentItem>
+            <Frame id="stations-frame">
+                <StationListView />
+            </Frame>
+        </TabContentItem>
+        <TabContentItem>
+            <Frame id="data-frame">
+                <DataSync />
+            </Frame>
+        </TabContentItem>
+        <TabContentItem>
+            <Frame id="settings-frame">
+                <AppSettingsView />
+            </Frame>
+        </TabContentItem>
+    </BottomNavigation>
 </template>
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
@@ -69,7 +70,7 @@ export default Vue.extend({
 
         console.log("startup loaded");
 
-        if (false) {
+        if (true) {
             await initializeApplication(services);
         }
 
@@ -149,6 +150,11 @@ export default Vue.extend({
         });
 		*/
     },
+	methods: {
+		onSelectedIndexChanged() {
+			console.log("tab-changed")
+		}
+	}
 });
 </script>
 

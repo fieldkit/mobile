@@ -56,19 +56,24 @@ export class Route {
 // eslint-disable-next-line
 type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<void>;
 
+function addDefaults(options: NavigateOptions | null): NavigateOptions {
+    const frame = Frame.topmost();
+    const defaults = {
+        frame: frame.id,
+    };
+    return _.extend({}, defaults, options);
+}
+
 export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
     // eslint-disable-next-line
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<void> => {
-        const frame = Frame.topmost();
-        if (options) {
-            options.frame = options.frame || frame.id;
-        }
+        const withDefaults = addDefaults(options);
         if (pageOrRoute instanceof Route) {
-            const routeState = pageOrRoute.combine(options);
-            store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name, options: options });
-            return navigateTo(pageOrRoute.page, options);
+            const routeState = pageOrRoute.combine(withDefaults);
+            store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name, options: withDefaults });
+            return navigateTo(pageOrRoute.page, withDefaults);
         }
         console.log("nav: deprecated navigateTo");
-        return navigateTo(pageOrRoute, options);
+        return navigateTo(pageOrRoute, withDefaults);
     };
 }

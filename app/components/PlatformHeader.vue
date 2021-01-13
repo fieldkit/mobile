@@ -1,5 +1,5 @@
 <template>
-    <ActionBar backgroundColor="white" flat="true">
+    <ActionBar backgroundColor="orange" flat="true">
         <template v-if="ios">
             <template v-if="canNavigateSettings">
                 <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
@@ -103,7 +103,7 @@ export default Vue.extend({
         haveBackStack(): boolean {
             const frame = Frame.topmost();
             if (frame) {
-                console.log("platform-header:backStack", frame.backStack.length);
+                console.log("platform-header:backStack", frame.id, frame.backStack.length);
                 return frame.backStack.length > 0;
             }
             return false;
@@ -115,7 +115,7 @@ export default Vue.extend({
         // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
         const frame = Frame.topmost();
         if (frame) {
-            console.log("platform-header:backStack", frame.backStack.length);
+            console.log("platform-header:backStack", frame.id, frame.backStack.length);
         }
     },
     methods: {

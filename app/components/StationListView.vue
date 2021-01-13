@@ -2,7 +2,7 @@
     <Page>
         <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
 
-        <GridLayout rows="*,55">
+        <GridLayout rows="*">
             <ScrollView row="0">
                 <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
                     <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
@@ -37,7 +37,6 @@
             <StackLayout horizontalAlignment="right" verticalAlignment="bottom">
                 <Label text="dev" class="dev-link" @doubleTap="showDev" />
             </StackLayout>
-            <ScreenFooter row="1" active="stations" />
         </GridLayout>
     </Page>
 </template>

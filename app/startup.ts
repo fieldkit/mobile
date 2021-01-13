@@ -56,7 +56,9 @@ async function background(services: Services): Promise<void> {
 
     await Promise.all([startupPortal(services), startupStore(services)]);
 
-    registerLifecycleEvents(() => services.DiscoverStation());
+    if (false) {
+        registerLifecycleEvents(() => services.DiscoverStation());
+    }
 
     console.log(`startup:bg end`);
 }
