@@ -1,12 +1,10 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
-        <GridLayout rows="*,70">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,70">
+            <ConnectionStatusHeader row="0" :connected="station.connected" />
+            <ScrollView row="1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
-                    <ConnectionNote :station="station" :stationId="stationId" />
-
                     <StackLayout class="editor-container">
                         <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
                     </StackLayout>
@@ -14,8 +12,7 @@
                     <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
                 </FlexboxLayout>
             </ScrollView>
-
-            <ScreenFooter row="1" :station="station" active="stations" />
+            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>
@@ -29,6 +26,7 @@ import * as animations from "@/components/animations";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import General from "./StationSettingsGeneral.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {
@@ -50,6 +48,7 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
+        ConnectionStatusHeader,
         ConnectionNote,
         ScheduleEditor,
     },

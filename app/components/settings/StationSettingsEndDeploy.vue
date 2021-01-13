@@ -1,13 +1,12 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
-        <GridLayout rows="*,70">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,70">
+            <ConnectionStatusHeader row="0" :connected="station.connected" />
+            <ScrollView row="1">
                 <StackLayout class="p-t-10">
                     <GridLayout rows="*" columns="*">
                         <StackLayout row="0">
-                            <ConnectionStatusHeader :connected="station.connected" />
                             <StackLayout class="m-x-20 m-t-20" v-if="deployed">
                                 <Label :text="_L('mustBeConnectedToStop')" class="size-18 m-y-5" lineHeight="4" textWrap="true" />
                                 <StackLayout class="m-t-10" />
@@ -25,8 +24,7 @@
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
-
-            <ScreenFooter row="1" :station="station" active="stations" />
+            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

@@ -1,13 +1,11 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('longRangeNetwork')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-        <GridLayout rows="*,70">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,70">
+            <ConnectionStatusHeader row="0" :connected="station.connected" />
+            <ScrollView row="1">
                 <GridLayout rows="*" columns="*">
-                    <!-- edit LoRa -->
                     <StackLayout class="m-x-10">
-                        <ConnectionStatusHeader :connected="station.connected" />
-                        <!-- <Label :text="_L('loraNetwork')" class="size-20"></Label> -->
                         <Label :text="_L('deviceEUI') + ': ' + lora.deviceEui" col="0" class="m-l-15 m-y-10"></Label>
 
                         <GridLayout rows="auto" columns="10*,90*" @tap="showLoraForm">
@@ -17,13 +15,7 @@
 
                         <StackLayout v-if="editingLora">
                             <GridLayout rows="auto,auto,auto,auto" columns="35*,65*">
-                                <Label
-                                    row="0"
-                                    col="0"
-                                    :text="_L('appEUI') + ': '"
-                                    verticalAlignment="middle"
-                                    class="text-right m-y-10"
-                                ></Label>
+                                <Label row="0" col="0" :text="_L('appEUI') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
                                 <TextField
                                     row="0"
                                     col="1"
@@ -32,7 +24,7 @@
                                     autocapitalizationType="none"
                                     v-model="lora.appEui"
                                     returnKeyType="next"
-                                ></TextField>
+                                />
                                 <Label
                                     row="1"
                                     col="1"
@@ -40,14 +32,8 @@
                                     :text="_L('invalidAppEUI')"
                                     textWrap="true"
                                     :visibility="invalidEui ? 'visible' : 'collapsed'"
-                                ></Label>
-                                <Label
-                                    row="2"
-                                    col="0"
-                                    :text="_L('appKey') + ': '"
-                                    verticalAlignment="middle"
-                                    class="text-right m-y-10"
-                                ></Label>
+                                />
+                                <Label row="2" col="0" :text="_L('appKey') + ': '" verticalAlignment="middle" class="text-right m-y-10" />
                                 <TextField
                                     row="2"
                                     col="1"
@@ -56,7 +42,7 @@
                                     autocapitalizationType="none"
                                     v-model="lora.appKey"
                                     returnKeyType="done"
-                                ></TextField>
+                                />
                                 <Label
                                     row="3"
                                     col="1"
@@ -64,23 +50,17 @@
                                     :text="_L('invalidAppKey')"
                                     textWrap="true"
                                     :visibility="invalidKey ? 'visible' : 'collapsed'"
-                                ></Label>
+                                />
                             </GridLayout>
                             <StackLayout class="p-b-20"></StackLayout>
-                            <Button
-                                class="btn btn-primary btn-padded"
-                                :text="_L('save')"
-                                :isEnabled="station.connected"
-                                @tap="editLora"
-                            ></Button>
+                            <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="editLora" />
                             <ConnectionNote :station="station" />
                             <StackLayout class="p-b-20"></StackLayout>
                         </StackLayout>
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
-
-            <ScreenFooter row="1" :station="station" active="stations" />
+            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

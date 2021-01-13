@@ -1,11 +1,11 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('wifiNetwork')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-        <GridLayout rows="*,70">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,70">
+            <ConnectionStatusHeader row="0" :connected="station.connected" />
+            <ScrollView row="1">
                 <GridLayout rows="*" columns="*">
                     <StackLayout class="m-x-10">
-                        <ConnectionStatusHeader :connected="station.connected" />
                         <WrapLayout orientation="horizontal" class="networks-container">
                             <Label :text="_L('savedNetworks')" class="size-20" width="100%" />
                             <Label :text="_L('noSavedNetworks')" class="size-16 m-t-10" v-if="networks.length == 0" />
@@ -57,8 +57,7 @@
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
-
-            <ScreenFooter row="1" :station="station" active="stations" />
+            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

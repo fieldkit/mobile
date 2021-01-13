@@ -1,28 +1,23 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('stationSettings')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-        <GridLayout rows="*,70">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,70">
+            <ConnectionStatusHeader row="0" :connected="station.connected" />
+            <ScrollView row="1">
                 <StackLayout class="p-t-10">
-                    <GridLayout rows="*" columns="*">
-                        <StackLayout row="0">
-                            <ConnectionStatusHeader :connected="station.connected" />
-                            <StackLayout :class="station.connected ? 'm-t-5' : ''">
-                                <Label
-                                    v-for="(option, i) in menuOptions"
-                                    :key="option"
-                                    :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
-                                    :text="option"
-                                    textWrap="true"
-                                    @tap="selectFromMenu"
-                                ></Label>
-                            </StackLayout>
-                        </StackLayout>
-                    </GridLayout>
+                    <StackLayout :class="station.connected ? 'm-t-5' : ''">
+                        <Label
+                            v-for="(option, i) in menuOptions"
+                            :key="option"
+                            :class="'menu-text size-18 ' + (i == menuOptions.length - 1 ? 'bottom-border' : '')"
+                            :text="option"
+                            textWrap="true"
+                            @tap="selectFromMenu"
+                        />
+                    </StackLayout>
                 </StackLayout>
             </ScrollView>
-
-            <ScreenFooter row="1" :station="station" active="stations" />
+            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

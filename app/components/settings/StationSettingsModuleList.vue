@@ -1,15 +1,14 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-
-        <GridLayout rows="*,70">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,70">
+            <ConnectionStatusHeader row="0" :connected="station.connected" />
+            <ScrollView row="1">
                 <StackLayout class="p-t-10">
-                    <ConnectionStatusHeader :connected="station.connected" />
                     <CalibratingModules :station="station" @selected="calibrateModule" />
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="1" :station="station" active="stations" />
+            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

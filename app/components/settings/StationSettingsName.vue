@@ -1,11 +1,11 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('stationName')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
-        <GridLayout rows="*,70">
-            <ScrollView row="0">
+        <GridLayout rows="auto,*,70">
+            <ConnectionStatusHeader row="0" :connected="station.connected" />
+            <ScrollView row="1">
                 <GridLayout rows="*" columns="*" verticalAlignment="middle" class="p-t-10">
                     <StackLayout>
-                        <ConnectionStatusHeader :connected="station.connected" />
                         <GridLayout rows="auto" columns="*,30" class="bottom-bordered m-x-20">
                             <TextField
                                 col="0"
@@ -16,8 +16,8 @@
                                 autocorrect="false"
                                 autocapitalizationType="none"
                                 @blur="checkName"
-                            ></TextField>
-                            <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png"></Image>
+                            />
+                            <Image col="1" width="17" @tap="clearName" src="~/images/Icon_Close.png" />
                         </GridLayout>
                         <Label
                             class="validation-error"
@@ -25,21 +25,21 @@
                             :text="_L('nameRequired')"
                             textWrap="true"
                             :visibility="noName ? 'visible' : 'collapsed'"
-                        ></Label>
+                        />
                         <Label
                             class="validation-error"
                             id="name-too-long"
                             :text="_L('nameOver40')"
                             textWrap="true"
                             :visibility="nameTooLong ? 'visible' : 'collapsed'"
-                        ></Label>
+                        />
                         <Label
                             class="validation-error"
                             id="name-not-printable"
                             :text="_L('nameNotPrintable')"
                             textWrap="true"
                             :visibility="nameNotPrintable ? 'visible' : 'collapsed'"
-                        ></Label>
+                        />
 
                         <StackLayout class="m-30"></StackLayout>
 
@@ -53,8 +53,7 @@
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
-
-            <ScreenFooter row="1" :station="station" active="stations" />
+            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>
