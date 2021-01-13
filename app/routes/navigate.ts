@@ -2,10 +2,12 @@ import _ from "lodash";
 import { Component } from "vue";
 import { MutationTypes } from "@/store/mutations";
 import { Store } from "@/store/our-store";
+import { Frame } from "@nativescript/core";
 
 export interface NavigateOptions {
     clearHistory: boolean | null;
     props: Record<string, unknown> | null;
+    frame: string | null;
 }
 
 export interface RouteState {
@@ -57,6 +59,10 @@ type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<vo
 export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
     // eslint-disable-next-line
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<void> => {
+        const frame = Frame.topmost();
+        if (options) {
+            options.frame = options.frame || frame.id;
+        }
         if (pageOrRoute instanceof Route) {
             const routeState = pageOrRoute.combine(options);
             store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name, options: options });
