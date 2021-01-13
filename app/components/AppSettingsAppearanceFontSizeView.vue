@@ -1,15 +1,8 @@
 <template>
-    <Page class="page" actionBarHidden="true">
-        <GridLayout rows="75,*,55">
-            <ScreenHeader
-                row="0"
-                :title="_L('appSettings.appearance.fontSize')"
-                :canNavigateBack="true"
-                :canNavigateSettings="false"
-                :onBack="goBack"
-                class="m-t-10 m-r-20 m-l-20"
-            />
-            <ScrollView row="1" class="m-r-20 m-l-20">
+    <Page>
+        <PlatformHeader :title="_L('appSettings.appearance.fontSize')" :canNavigateBack="true" :canNavigateSettings="false" />
+        <GridLayout rows="*,55">
+            <ScrollView row="0" class="m-r-20 m-l-20">
                 <GridLayout rows="auto,*" columns="*">
                     <FlexboxLayout alignItems="stretch" flexDirection="row" height="10" :class="isAndroid ? 'm-r-15 m-l-15' : ''" row="0">
                         <Label borderColor="#d8dce0" borderRightWidth="1" borderLeftWidth="1" width="25%" />
@@ -34,19 +27,18 @@
                     </DockLayout>
                 </GridLayout>
             </ScrollView>
-            <ScreenFooter row="2" active="settings" />
+            <ScreenFooter row="1" active="settings" />
         </GridLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
-
 import { ActionTypes } from "@/store/actions";
+import SharedComponents from "@/components/shared";
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
 import * as animations from "~/components/animations";
 import routes from "@/routes";
-import Promise from "bluebird";
 import { isAndroid, isIOS } from "@nativescript/core";
 
 export default Vue.extend({
@@ -54,27 +46,28 @@ export default Vue.extend({
         currentSettings(this: any) {
             return this.$s.state.portal.settings;
         },
-        isAndroid() {
+        isAndroid(): boolean {
             return isAndroid;
         },
-        isIOS() {
+        isIOS(): boolean {
             return isIOS;
         },
     },
     components: {
+        ...SharedComponents,
         ScreenHeader,
         ScreenFooter,
     },
     methods: {
-        saveSettings() {
-            this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+        async saveSettings(): Promise<void> {
+            await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
-        goBack(this: any, ev) {
-            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.appearance, {})]);
+        async goBack(this: any, ev): Promise<void> {
+            await Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.appearance, {})]);
         },
-        selectFontSize(size) {
+        async selectFontSize(size): Promise<void> {
             this.currentSettings.appearance.font_size = Math.round(size.value);
-            this.saveSettings();
+            await this.saveSettings();
         },
     },
 });

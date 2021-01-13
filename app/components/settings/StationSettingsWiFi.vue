@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('wifi')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('wifi')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -86,16 +86,6 @@ export default Vue.extend({
                     stationId: this.stationId,
                 },
             });
-        },
-        async goBack(event: Event): Promise<void> {
-            await Promise.all([
-                animations.pressed(event),
-                this.$navigateTo(Networks, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
         },
     },
 });

@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('endDeployment')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('endDeployment')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -32,9 +32,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Dialogs } from "@nativescript/core";
-import routes from "../../routes";
 import SharedComponents from "@/components/shared";
-import * as animations from "@/components/animations";
 import { AvailableStation, ActionTypes } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
@@ -61,16 +59,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        async goBack(ev: Event): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.stationSettings, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
-        },
         async stopRecording(ev: Event): Promise<void> {
             await Dialogs.confirm({
                 title: _L("areYouSureStopRecording"),

@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('uploadSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('uploadSchedule')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -24,11 +24,9 @@
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
-import * as animations from "@/components/animations";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import WiFi from "./StationSettingsWiFi.vue";
 import { AvailableStation } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
@@ -78,16 +76,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        async goBack(ev: Event | null): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(WiFi, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
-        },
         onScheduleChange(schedule: any): void {
             console.log("schedule:change", schedule);
             this.form.schedule = schedule;
@@ -102,7 +90,7 @@ export default Vue.extend({
                     deviceId: this.station.deviceId,
                     schedules: { network: this.form.schedule },
                 })
-                .then(() => this.goBack(null))
+                .then(() => this.$navigateBack())
                 .finally(() => {
                     this.busy = false;
                 });

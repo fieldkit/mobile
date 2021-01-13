@@ -181,12 +181,14 @@ export default Vue.extend({
             console.log("navigateBack", this.fromSettings);
             if (this.fromSettings) {
                 return this.$navigateTo(StationSettingsModules, {
+                    clearHistory: true,
                     props: {
                         stationId: this.stationId,
                     },
                 });
             } else {
                 return this.$navigateTo(Recalibrate, {
+                    clearHistory: true,
                     props: {
                         stationId: this.stationId,
                     },

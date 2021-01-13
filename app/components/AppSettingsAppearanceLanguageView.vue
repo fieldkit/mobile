@@ -1,15 +1,8 @@
 <template>
-    <Page class="page" actionBarHidden="true">
-        <GridLayout rows="75,*,55">
-            <ScreenHeader
-                row="0"
-                :title="_L('appSettings.appearance.language')"
-                :canNavigateBack="true"
-                :canNavigateSettings="false"
-                :onBack="goBack"
-                class="m-t-10 m-r-20 m-l-20"
-            />
-            <ScrollView row="1" class="m-r-20 m-l-20">
+    <Page>
+        <PlatformHeader :title="_L('appSettings.appearance.language')" :canNavigateBack="true" :canNavigateSettings="false" />
+        <GridLayout rows="*,55">
+            <ScrollView row="0" class="m-r-20 m-l-20">
                 <StackLayout orientation="vertical">
                     <GridLayout columns="30,*" class="top-bordered-item p-t-30 p-b-10" @tap="selectLanguage('en')">
                         <CheckBox
@@ -58,14 +51,14 @@
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="2" active="settings" />
+            <ScreenFooter row="1" active="settings" />
         </GridLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
-
 import { ActionTypes } from "@/store/actions";
+import SharedComponents from "@/components/shared";
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
 import * as animations from "~/components/animations";
@@ -83,6 +76,7 @@ export default Vue.extend({
         },
     },
     components: {
+        ...SharedComponents,
         ScreenHeader,
         ScreenFooter,
     },

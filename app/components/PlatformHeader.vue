@@ -102,30 +102,39 @@ export default Vue.extend({
         },
         haveBackStack(): boolean {
             const frame = Frame.topmost();
-            console.log("platform-header:backStack", frame.backStack.length);
-            return frame.backStack.length > 0;
+            if (frame) {
+                console.log("platform-header:backStack", frame.backStack.length);
+                return frame.backStack.length > 0;
+            }
+            return false;
         },
     },
     mounted(): void {
         // https://docs.nativescript.org/ui/action-bar
-        console.log("platform-header:mounted", this.ios, this.canNavigateSettings, this.canNavigateBack);
+        console.log("platform-header:mounted", "ios", this.ios, "settings", this.canNavigateSettings, "back", this.canNavigateBack);
         // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
         const frame = Frame.topmost();
-        console.log("platform-header:backStack", frame.backStack.length);
+        if (frame) {
+            console.log("platform-header:backStack", frame.backStack.length);
+        }
     },
     methods: {
-        raiseBack(ev): void {
+        async raiseBack(ev): Promise<void> {
             console.log("platform-header:back");
             this.$emit("back");
             if (this.onBack) {
-                this.onBack(ev);
+                return this.onBack(ev);
+            } else {
+                await this.$navigateBack();
             }
         },
-        raiseCancel(ev): void {
+        async raiseCancel(ev): Promise<void> {
             console.log("platform-header:cancel");
             this.$emit("cancel");
             if (this.onCancel) {
-                this.onCancel(ev);
+                return this.onCancel(ev);
+            } else {
+                await this.$navigateBack();
             }
         },
     },

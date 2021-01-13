@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('modulesTitle')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -20,7 +20,6 @@ import routes from "../../routes";
 import SharedComponents from "@/components/shared";
 import CalibratingModules from "../onboarding/CalibratingModules.vue";
 import { StationCalibration, ModuleCalibration } from "@/calibration/model";
-import * as animations from "../animations";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
@@ -44,20 +43,9 @@ export default Vue.extend({
         },
     },
     methods: {
-        async goBack(ev: Event): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.stationSettings, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
-        },
         async calibrateModule(m: ModuleCalibration): Promise<void> {
             console.log("module", m);
             await this.$navigateTo(routes.calibration.start, {
-                clearHistory: true,
                 props: {
                     stationId: this.station.id,
                     position: m.position,

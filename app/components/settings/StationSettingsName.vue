@@ -1,6 +1,6 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <PlatformHeader :title="_L('stationName')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('stationName')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -46,7 +46,7 @@
                         <Button
                             class="btn btn-primary btn-padded"
                             :text="_L('saveName')"
-                            :isEnabled="station.connected"
+                            :isEnabled="station.connected && !busy"
                             @tap="saveStationName"
                         />
                         <ConnectionNote :station="station" :stationId="stationId" />
@@ -63,7 +63,6 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import General from "./StationSettingsGeneral.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
-import * as animations from "../animations";
 import { RenameStationAction, AvailableStation } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
@@ -75,6 +74,7 @@ export default Vue.extend({
         nameTooLong: boolean;
         nameNotPrintable: boolean;
         error: boolean;
+        busy: boolean;
     } {
         return {
             stationName: "",
@@ -83,6 +83,7 @@ export default Vue.extend({
             nameTooLong: false,
             nameNotPrintable: false,
             error: false,
+            busy: false,
         };
     },
     props: {
@@ -107,17 +108,6 @@ export default Vue.extend({
             this.stationName = this.station.name ?? "";
             this.origName = this.stationName;
         },
-        async goBack(ev: Event | null): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(General, {
-                    props: {
-                        stationId: this.stationId,
-                        station: this.station,
-                    },
-                }),
-            ]);
-        },
         checkName(): boolean {
             this.stationName = this.stationName.trim();
             this.noName = false;
@@ -136,10 +126,14 @@ export default Vue.extend({
         async saveStationName(): Promise<void> {
             const valid = this.checkName();
             if (valid && this.origName != this.stationName) {
+                this.busy = true;
                 await this.$s
                     .dispatch(new RenameStationAction(this.station.deviceId, this.stationName))
                     .then(() => {
-                        return this.goBack(null);
+                        return this.$navigateBack();
+                    })
+                    .finally(() => {
+                        this.busy = false;
                     })
                     .catch((error) => {
                         this.error = true;

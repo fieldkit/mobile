@@ -1,16 +1,50 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded"></Page>
+    <Frame>
+        <BottomNavigation>
+            <TabStrip>
+                <TabStripItem>
+                    <Label text="Stations"></Label>
+                </TabStripItem>
+                <TabStripItem>
+                    <Label text="Data"></Label>
+                </TabStripItem>
+                <TabStripItem>
+                    <Label text="Settings"></Label>
+                </TabStripItem>
+            </TabStrip>
+            <TabContentItem>
+                <Frame id="stations-frame">
+                    <Label text="Stations"></Label>
+                </Frame>
+            </TabContentItem>
+            <TabContentItem>
+                <Frame id="data-frame">
+                    <Label text="Data"></Label>
+                </Frame>
+            </TabContentItem>
+            <TabContentItem>
+                <Frame id="settings-frame">
+                    <Label text="Settings"></Label>
+                </Frame>
+            </TabContentItem>
+        </BottomNavigation>
+    </Frame>
 </template>
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { Route } from "@/routes/navigate";
+import { Vue } from "vue-property-decorator";
+// import { Route } from "@/routes/navigate";
 import { Services } from "@/services";
 import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
-import AppSettings from "@/wrappers/app-settings";
+// import AppSettings from "@/wrappers/app-settings";
 import Config from "@/config";
-import routes from "@/routes";
+//import routes from "@/routes";
 
+import StationListView from "../components/StationListView.vue";
+import DataSync from "../components/DataSyncView.vue";
+import AppSettingsView from "../components/AppSettingsView.vue";
+
+/*
 function getFirstRoute(services: Services): Route {
     const appSettings = new AppSettings();
 
@@ -22,24 +56,28 @@ function getFirstRoute(services: Services): Route {
 
     return routes.login;
 }
+*/
 
-@Component
-export default class StartupScreen extends Vue {
-    async onPageLoaded(args): Promise<any> {
+export default Vue.extend({
+    components: {
+        StationListView,
+        DataSync,
+        AppSettingsView,
+    },
+    async mounted(): Promise<void> {
         const services: Services = ServicesSingleton;
 
         console.log("startup loaded");
 
-        await initializeApplication(services);
+        if (false) {
+            await initializeApplication(services);
+        }
 
         console.log("developer", Config.env.developer);
+
         if (Config.env.developer) {
             /*
             return this.$navigateTo(routes.login, {
-                clearHistory: true,
-                props: {},
-            });
-            return this.$navigateTo(routes.appSettings.account, {
                 clearHistory: true,
                 props: {},
             });
@@ -64,7 +102,10 @@ export default class StartupScreen extends Vue {
                 clearHistory: true,
                 props: {},
             });
-			*/
+            return this.$navigateTo(routes.appSettings.list, {
+                clearHistory: true,
+                props: {},
+            });
             if (services.Store().getters.stationCalibrations[1]) {
                 // return this.$navigateTo(routes.calibration.start, {
                 // return this.$navigateTo(routes.deploy.start, {
@@ -76,6 +117,7 @@ export default class StartupScreen extends Vue {
                     // return this.$navigateTo(routes.stationDetail, {
                     // return this.$navigateTo(routes.onboarding.start, {
                     clearHistory: true,
+                    backstackVisible: true,
                     props: {
                         stationId: 1,
                         position: 3,
@@ -84,7 +126,6 @@ export default class StartupScreen extends Vue {
             } else {
                 console.log("no test station");
             }
-            /*
 			return this.$navigateTo(routes.onboarding.start, {
 				clearHistory: true,
 				props: {},
@@ -100,13 +141,15 @@ export default class StartupScreen extends Vue {
 			*/
         }
 
+        /*
         console.log("first navigate");
 
         await this.$navigateTo(getFirstRoute(services), {
             clearHistory: true,
         });
-    }
-}
+		*/
+    },
+});
 </script>
 
 <style scoped lang="scss">

@@ -1,6 +1,6 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -22,9 +22,7 @@ import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import { AvailableStation, Schedule } from "@/store";
 import SharedComponents from "@/components/shared";
-import * as animations from "@/components/animations";
 import ScheduleEditor from "../ScheduleEditor.vue";
-import General from "./StationSettingsGeneral.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
@@ -72,21 +70,11 @@ export default Vue.extend({
                     schedules: { readings: this.form.schedule },
                 }),
             ])
-                .then(() => this.goBack(null))
+                .then(() => this.$navigateBack())
                 .catch((error) => {
                     console.log("error", error);
                     return error;
                 });
-        },
-        async goBack(ev: Event | null): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(General, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
         },
     },
 });

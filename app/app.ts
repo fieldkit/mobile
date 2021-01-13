@@ -133,7 +133,7 @@ function startVueJs(services: typeof Services): void {
 
     new Vue({
         store,
-        render: (h) => h("Frame", [h(StartupScreen)]),
+        render: (h) => h(StartupScreen),
     }).$start();
 }
 

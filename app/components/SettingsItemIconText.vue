@@ -1,7 +1,7 @@
 <template>
     <GridLayout rows="50" columns="30, *" class="bottom-bordered-item" :class="cssClass" @tap="goToRoute()">
         <Image width="20" height="20" :src="imageSrc" row="0" col="0" verticalAlignment="center"></Image>
-        <Label :text="_L(text)" class="size-16 m-10 v-middle" row="0" col="1" verticalAlignment="center"/>
+        <Label :text="_L(text)" class="size-16 m-10 v-middle" row="0" col="1" verticalAlignment="center" />
     </GridLayout>
 </template>
 <script lang="ts">
@@ -14,23 +14,23 @@ export default Vue.extend({
     },
     props: {
         link: {
-            type: String
+            type: String,
         },
         text: {
-            type: String
+            type: String,
         },
         imageSrc: {
-            type: String
+            type: String,
         },
         cssClass: {
-            type: String
-        }
+            type: String,
+        },
     },
     methods: {
-        goToRoute() {
+        async goToRoute(): Promise<void> {
             if (this.link) {
-                this.$navigateTo(routes.appSettings[this.link], {
-                    clearHistory: true,
+                await this.$navigateTo(routes.appSettings[this.link], {
+                    // clearHistory: false,
                 });
             }
         },

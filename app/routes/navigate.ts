@@ -59,7 +59,7 @@ export default function navigatorFactory(store: Store, navigateTo: NavigateToFun
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<void> => {
         if (pageOrRoute instanceof Route) {
             const routeState = pageOrRoute.combine(options);
-            store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name });
+            store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name, options: options });
             return navigateTo(pageOrRoute.page, options);
         }
         console.log("nav: deprecated navigateTo");

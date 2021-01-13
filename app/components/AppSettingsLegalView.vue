@@ -1,30 +1,23 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <GridLayout rows="75,*,55">
-            <ScreenHeader
-                row="0"
-                :title="_L('appSettings.legal.legal')"
-                :canNavigateBack="true"
-                :canNavigateSettings="false"
-                :onBack="goBack"
-                class="m-t-10 m-r-20 m-l-20"
-            />
-            <ScrollView row="1" class="m-r-20 m-l-20">
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('appSettings.legal.legal')" :canNavigateBack="true" :canNavigateSettings="false" />
+        <GridLayout rows="*,55">
+            <ScrollView row="0" class="m-r-20 m-l-20">
                 <StackLayout>
-                    <SettingsItemText :text="'appSettings.legal.termsOfService'" :cssClass="'top-bordered-item'"></SettingsItemText>
-                    <SettingsItemText :text="'appSettings.legal.privacyPolicy'"></SettingsItemText>
-                    <SettingsItemText :text="'appSettings.legal.dataPolicy'"></SettingsItemText>
-                    <SettingsItemText :text="'appSettings.legal.licenses'"></SettingsItemText>
+                    <SettingsItemText :text="'appSettings.legal.termsOfService'" :cssClass="'top-bordered-item'" />
+                    <SettingsItemText :text="'appSettings.legal.privacyPolicy'" />
+                    <SettingsItemText :text="'appSettings.legal.dataPolicy'" />
+                    <SettingsItemText :text="'appSettings.legal.licenses'" />
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="2" active="settings" />
+            <ScreenFooter row="1" active="settings" />
         </GridLayout>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
-
 import { ActionTypes } from "@/store/actions";
+import SharedComponents from "@/components/shared";
 import ScreenHeader from "./ScreenHeader.vue";
 import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
@@ -41,6 +34,7 @@ export default Vue.extend({
         },
     },
     components: {
+        ...SharedComponents,
         ScreenHeader,
         ScreenFooter,
         SettingsItemSlider,

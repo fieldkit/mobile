@@ -1,6 +1,6 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <PlatformHeader :title="_L('longRangeNetwork')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('longRangeNetwork')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -71,7 +71,6 @@ import SharedComponents from "@/components/shared";
 import Networks from "./StationSettingsNetworks.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { AvailableStation } from "@/store";
-import * as animations from "../animations";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
@@ -114,16 +113,6 @@ export default Vue.extend({
             if (this.station.lora) {
                 this.lora.deviceEui = this.station.lora.deviceEui;
             }
-        },
-        async goBack(ev: Event | null): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(Networks, {
-                    props: {
-                        stationId: this.stationId,
-                    },
-                }),
-            ]);
         },
         showLoraForm(): void {
             this.editingLora = true;
@@ -173,7 +162,7 @@ export default Vue.extend({
                     .QueryStation()
                     .sendLoraSettings(url, sendableLora)
                     .then((result) => {
-                        this.goBack(null);
+                        this.$navigateBack();
                         // this.appEui = new Buffer.from(Object.values(result.appEui)).toString("hex");
                         // this.appKey = new Buffer.from(Object.values(result.appKey)).toString("hex");
                         // in order to match in the interim, must edit station.statusJson

@@ -1,37 +1,32 @@
 <template>
     <GridLayout rows="50" columns="*" class="bottom-bordered-item" :class="cssClass" @tap="goToRoute()">
-        <Label :text="_L(text)" class="size-16 m-5 v-middle" row="0" col="1" verticalAlignment="center"/>
+        <Label :text="_L(text)" class="size-16 m-5 v-middle" row="0" col="1" verticalAlignment="center" />
     </GridLayout>
 </template>
 <script lang="ts">
-    import Vue from "vue";
-    import routes from "@/routes";
+import Vue from "vue";
+import routes from "@/routes";
 
-    export default Vue.extend({
-        data() {
-            return {};
+export default Vue.extend({
+    props: {
+        link: {
+            type: String,
         },
-        props: {
-            link: {
-                type: String
-            },
-            text: {
-                type: String
-            },
-            cssClass: {
-                type: String
+        text: {
+            type: String,
+        },
+        cssClass: {
+            type: String,
+        },
+    },
+    methods: {
+        async goToRoute(): Promise<void> {
+            if (this.link) {
+                await this.$navigateTo(routes.appSettings[this.link], {});
             }
         },
-        methods: {
-            goToRoute() {
-                if (this.link) {
-                    this.$navigateTo(routes.appSettings[this.link], {
-                        clearHistory: true,
-                    });
-                }
-            },
-        },
-    });
+    },
+});
 </script>
 <style scoped lang="scss">
 @import "~/_app-variables";

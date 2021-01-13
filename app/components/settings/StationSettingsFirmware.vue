@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('firmware')" :subtitle="station.name" :onBack="goBack" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('firmware')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*,70">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
@@ -66,7 +66,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import routes from "@/routes";
 import { promiseAfter } from "@/utilities";
 import { FirmwareInfo, AvailableFirmware, AvailableStation } from "@/store";
 import SharedComponents from "@/components/shared";
@@ -160,15 +159,6 @@ export default Vue.extend({
                     // this.canUpgrade = true;
                 });
             });
-        },
-        async goBack(): Promise<void> {
-            await Promise.all([
-                this.$navigateTo(routes.stationSettings, {
-                    props: {
-                        stationId: this.station.id,
-                    },
-                }),
-            ]);
         },
     },
 });

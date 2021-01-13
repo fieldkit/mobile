@@ -1,14 +1,8 @@
 <template>
-    <Page actionBarHidden="true">
+    <Page>
+        <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateBack="true" :canNavigateSettings="false" />
         <ScrollView>
             <FlexboxLayout class="page login-page" flexDirection="column">
-                <ScreenHeader
-                    :title="_L('appSettings.account.addAccount')"
-                    :canNavigateBack="true"
-                    :canNavigateSettings="false"
-                    :onBack="goBack"
-                    class="size-16 m-5 m-t-20 m-b-25 bold"
-                />
                 <LoginForm v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
                 <RegisterForm v-else />
@@ -30,14 +24,16 @@ import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
 import routes from "@/routes";
 import * as animations from "@/components/animations";
+import SharedComponents from "@/components/shared";
 import ScreenHeader from "@/components/ScreenHeader.vue";
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
     components: {
+        ...SharedComponents,
         LoginForm,
         RegisterForm,
-        ScreenHeader
+        ScreenHeader,
     },
     data(): {
         login: boolean;
