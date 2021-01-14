@@ -1,15 +1,15 @@
 <template>
     <BottomNavigation id="bottom-nav" @selectedIndexChanged="onSelectedIndexChanged">
         <TabStrip backgroundColor="white">
-            <TabStripItem>
+            <TabStripItem @tap="tapStations">
                 <Image width="22" height="22" src="~/images/Icon_Station_inactive2.png"></Image>
                 <Label text="Stations"></Label>
             </TabStripItem>
-            <TabStripItem>
+            <TabStripItem @tap="tapData">
                 <Image width="22" height="22" src="~/images/Icon_DataSync_inactive2.png"></Image>
                 <Label text="Data"></Label>
             </TabStripItem>
-            <TabStripItem>
+            <TabStripItem @tap="tapSettings">
                 <Image width="22" height="22" src="~/images/Icon_Settings_inactive2.png"></Image>
                 <Label text="Settings"></Label>
             </TabStripItem>
@@ -39,7 +39,7 @@ import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
 // import AppSettings from "@/wrappers/app-settings";
 import Config from "@/config";
-//import routes from "@/routes";
+import routes from "@/routes";
 
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
@@ -150,11 +150,32 @@ export default Vue.extend({
         });
 		*/
     },
-	methods: {
-		onSelectedIndexChanged() {
-			console.log("tab-changed")
-		}
-	}
+    methods: {
+        onSelectedIndexChanged() {
+            console.log("tab-changed");
+        },
+        tapStations() {
+            console.log("tab: stations");
+            return this.$navigateTo(routes.stations, {
+                frame: "stations-frame",
+                clearHistory: true,
+            });
+        },
+        tapData() {
+            console.log("tab: data");
+            return this.$navigateTo(routes.dataSync, {
+                frame: "data-frame",
+                clearHistory: true,
+            });
+        },
+        tapSettings() {
+            console.log("tab: settings");
+            return this.$navigateTo(routes.appSettings.list, {
+                frame: "settings-frame",
+                clearHistory: true,
+            });
+        },
+    },
 });
 </script>
 
