@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('wifiNetwork')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*,70">
+        <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
                 <GridLayout rows="*" columns="*">
@@ -57,7 +57,6 @@
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
-            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

@@ -1,7 +1,7 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('dataCaptureSchedule')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*,70">
+        <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
@@ -12,7 +12,6 @@
                     <Button class="btn btn-primary btn-padded" :text="_L('save')" :isEnabled="station.connected" @tap="onSaveSchedule" />
                 </FlexboxLayout>
             </ScrollView>
-            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

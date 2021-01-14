@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
-        <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35,55' : '*,55'" class="m-t-20">
+        <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35' : '*'" class="m-t-20">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
@@ -65,7 +65,6 @@
             </ScrollView>
 
             <NotificationFooter v-if="notifications.length > 0" row="1" :onClose="goToDetail" :notifications="notifications" />
-            <ScreenFooter :row="notifications.length > 0 ? '2' : '1'" active="stations" />
         </GridLayout>
     </Page>
 </template>

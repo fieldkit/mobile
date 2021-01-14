@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('firmware')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*,70">
+        <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
                 <FlexboxLayout flexDirection="column" justifyContent="space-between" class="p-t-10">
@@ -59,7 +59,6 @@
                     </WrapLayout>
                 </FlexboxLayout>
             </ScrollView>
-            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>

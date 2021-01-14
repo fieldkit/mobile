@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('endDeployment')" :subtitle="station.name" :canNavigateSettings="false" />
-        <GridLayout rows="auto,*,70">
+        <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
                 <StackLayout class="p-t-10">
@@ -24,7 +24,6 @@
                     </GridLayout>
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="2" :station="station" active="stations" />
         </GridLayout>
     </Page>
 </template>
