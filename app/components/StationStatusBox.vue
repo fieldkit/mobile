@@ -63,8 +63,8 @@
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto" columns="30,*">
                 <Image width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
-                <Label row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" v-if="displayedSSID" />
-                <Label row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ...'" v-else />
+                <Label v-if="displayedSSID" row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" />
+                <Label v-else row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ...'" />
             </GridLayout>
         </AbsoluteLayout>
     </GridLayout>

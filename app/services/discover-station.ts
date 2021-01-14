@@ -101,7 +101,7 @@ class NetworkMonitor {
             this.FixedAddresses.map((fa) =>
                 this.services
                     .QueryStation()
-                    .getStatus("http://" + fa.address + ":" + fa.port + "/fk/v1")
+                    .getStatus(`http://${fa.address}:${fa.port}/fk/v1`)
                     .then(
                         (status) => {
                             console.log("found device in ap mode", status.status.identity.deviceId);
@@ -149,7 +149,9 @@ export default class DiscoverStation {
         await this.networkMonitor.start();
     }
 
-    public async stopMonitorinNetwork(): Promise<void> {}
+    public async stopMonitorinNetwork(): Promise<void> {
+        // noop
+    }
 
     public async startServiceDiscovery(): Promise<void> {
         const options: StartOptions = {

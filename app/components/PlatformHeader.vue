@@ -91,6 +91,7 @@ export default Vue.extend({
         },
         icon: {
             type: String,
+            default: null,
             required: false,
         },
     },
@@ -129,25 +130,25 @@ export default Vue.extend({
         }
     },
     methods: {
-        async raiseBack(ev): Promise<void> {
+        raiseBack(ev): void {
             console.log("platform-header:back");
             this.$emit("back");
             if (this.onBack) {
-                return this.onBack(ev);
+                this.onBack(ev);
             } else {
-                await this.$navigateBack();
+                this.$navigateBack();
             }
         },
-        async raiseCancel(ev): Promise<void> {
+        raiseCancel(ev): void {
             console.log("platform-header:cancel");
             this.$emit("cancel");
             if (this.onCancel) {
-                return this.onCancel(ev);
+                this.onCancel(ev);
             } else {
-                await this.$navigateBack();
+                this.$navigateBack();
             }
         },
-        async raiseIcon(ev): Promise<void> {
+        raiseIcon(): void {
             console.log("platform-header:icon-tapped");
             this.$emit("icon-tapped");
         },
