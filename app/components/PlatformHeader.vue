@@ -26,11 +26,14 @@
                     <Label row="0" class="title m-t-10 m-b-5 text-center" :text="title" textWrap="true"></Label>
                     <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
-                <StackLayout v-if="canCancel" col="2" class="round-bkgd" @tap="raiseCancel">
+                <StackLayout v-if="!icon && canCancel" col="2" class="round-bkgd" @tap="raiseCancel">
                     <Image width="21" src="~/images/Icon_Close.png"></Image>
                 </StackLayout>
-                <StackLayout v-if="canNavigateSettings" col="2" class="round-bkgd" @tap="onSettings">
+                <StackLayout v-if="!icon && canNavigateSettings" col="2" class="round-bkgd" @tap="onSettings">
                     <Image width="25" src="~/images/Icon_Congfigure.png"></Image>
+                </StackLayout>
+                <StackLayout v-if="icon" col="2" class="round-bkgd" @tap="raiseIcon">
+                    <Image width="25" :src="icon"></Image>
                 </StackLayout>
             </GridLayout>
         </template>
@@ -86,6 +89,10 @@ export default Vue.extend({
             type: Boolean,
             default: true,
         },
+        icon: {
+            type: String,
+            required: false,
+        },
     },
     data(): { ios: boolean } {
         return {
@@ -139,6 +146,10 @@ export default Vue.extend({
             } else {
                 await this.$navigateBack();
             }
+        },
+        async raiseIcon(ev): Promise<void> {
+            console.log("platform-header:icon-tapped");
+            this.$emit("icon-tapped");
         },
     },
 });

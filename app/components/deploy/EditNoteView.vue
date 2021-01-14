@@ -1,14 +1,30 @@
 <template>
-    <Page class="page plain" actionBarHidden="true">
-        <GridLayout rows="*">
-            <FieldNoteForm
-                :help="help"
-                :note="note"
-                @save="onSaveNote"
-                @cancel="onCancelEditing"
-                @attach-media="onAttachNoteMedia"
-                @remove-audio="onRemoveAudio"
-            />
+    <Page class="page plain">
+        <PlatformHeader :title="help.title" icon="~/images/Icon_Save.png" :canNavigateSettings="false" @icon-tapped="onSave" />
+        <GridLayout rows="*,auto">
+            <ScrollView row="0">
+                <GridLayout rows="auto,*,auto" v-if="!note.image" class="container">
+                    <Label :text="help.instructions" row="0" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
+                    <TextView
+                        ref="noteBody"
+                        row="1"
+                        textWrap="true"
+                        width="100%"
+                        class="large-text-field"
+                        :hint="help.instructions"
+                        v-model="form.body"
+                    />
+                    <StackLayout row="2" width="100%" class="audio-container">
+                        <AudioRecordings :recordings="note.audio" @remove-audio="raiseRemoveAudio" />
+                        <MakeAudioRecording v-if="audioReady" @cancel="onAudioTap" @stop="onAudioDone" />
+                    </StackLayout>
+                </GridLayout>
+            </ScrollView>
+
+            <DockLayout row="1" @tap="maybeDismissKeyboard" class="bottom-container" width="100%" stretchLastChild="false">
+                <Label :text="new Date() | prettyTime" dock="left" class="m-t-15 m-l-10 m-b-10 size-14 lighter" />
+                <Image width="40" src="~/images/Icon_Mic_Button.png" dock="right" v-if="!note.image" @tap="onAudioTap" />
+            </DockLayout>
         </GridLayout>
     </Page>
 </template>
@@ -18,7 +34,9 @@ import _ from "lodash";
 import Vue from "vue";
 
 import SharedComponents from "@/components/shared";
-import FieldNoteForm from "./FieldNoteForm.vue";
+import LabeledTextView from "../LabeledTextView.vue";
+import MakeAudioRecording from "./MakeAudioRecording.vue";
+import AudioRecordings from "./AudioRecordings.vue";
 
 import {
     Station,
@@ -26,7 +44,6 @@ import {
     NoteData,
     NoteMedia,
     NoteHelp,
-    NoteForm,
     SaveNotesAction,
     UpdateNoteMutation,
     RemoveNoteMediaMutation,
@@ -36,7 +53,9 @@ import {
 export default Vue.extend({
     components: {
         ...SharedComponents,
-        FieldNoteForm,
+        LabeledTextView,
+        MakeAudioRecording,
+        AudioRecordings,
     },
     props: {
         stationId: {
@@ -48,8 +67,15 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(): {} {
-        return {};
+    data(): { audioReady: boolean; form: { body: string } } {
+        const notes = this.$s.state.notes.stations[this.stationId];
+        const existing = notes[this.editingKey] || new NoteData();
+        return {
+            audioReady: false,
+            form: {
+                body: existing.body || "",
+            },
+        };
     },
     computed: {
         notes(): Notes {
@@ -72,27 +98,39 @@ export default Vue.extend({
         },
     },
     methods: {
-        onSaveNote(form: NoteForm): Promise<any> {
-            console.log("notes-view:saving", this.editingKey, form);
-            this.$s.commit(new UpdateNoteMutation(this.stationId, this.editingKey, form));
-            return this.$s.dispatch(new SaveNotesAction(this.stationId)).then(() => {
+        async onSave(): Promise<void> {
+            console.log("notes-view:saving", this.editingKey, this.form);
+            this.$s.commit(new UpdateNoteMutation(this.stationId, this.editingKey, this.form));
+            await this.$s.dispatch(new SaveNotesAction(this.stationId)).then(() => {
                 return this.$navigateBack({});
             });
         },
-        onAttachNoteMedia(media: NoteMedia): Promise<any> {
+        async onAttachNoteMedia(media: NoteMedia): Promise<void> {
             if (NoteMedia.isAudio(media)) {
                 this.$s.commit(new AttachNoteMediaMutation(this.stationId, this.editingKey, media, true));
             } else {
                 this.$s.commit(new AttachNoteMediaMutation(this.stationId, this.editingKey, media, false));
             }
-            return this.$s.dispatch(new SaveNotesAction(this.stationId));
+            await this.$s.dispatch(new SaveNotesAction(this.stationId));
         },
-        onRemoveAudio(media: NoteMedia): Promise<any> {
+        async onRemoveAudio(media: NoteMedia): Promise<void> {
             this.$s.commit(new RemoveNoteMediaMutation(this.stationId, this.editingKey, media));
-            return this.$s.dispatch(new SaveNotesAction(this.stationId));
+            await this.$s.dispatch(new SaveNotesAction(this.stationId));
         },
         async onCancelEditing(): Promise<void> {
             await this.$navigateBack();
+        },
+        onAudioTap(): void {
+            this.audioReady = !this.audioReady;
+        },
+        onAudioDone(...args: unknown[]): void {
+            this.$emit("attach-media", ...args);
+        },
+        raiseRemoveAudio(...args: unknown[]): void {
+            this.$emit("remove-audio", ...args);
+        },
+        maybeDismissKeyboard(): void {
+            (this.$refs.noteBody as any).nativeView.dismissSoftInput();
         },
     },
 });
