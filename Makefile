@@ -1,4 +1,4 @@
-ANDROID ?= $(HOME)/Android/Sdk/tools/bin
+ANDROID ?= $(HOME)/android-sdk/tools/bin
 APP ?= .
 
 NSSQLITE = nativescript-sqlite-commercial-1.3.2.tgz
@@ -14,7 +14,7 @@ setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 	$(ANDROID)/sdkmanager --verbose "system-images;android-30;google_apis;x86_64"
 	$(ANDROID)/sdkmanager --verbose "platforms;android-29"
 	$(ANDROID)/sdkmanager --verbose "emulator"
-	echo | $(ANDROID)/avdmanager create avd --force -n test -k "system-images;android-29;google_apis;x86_64"
+	echo | $(ANDROID)/avdmanager create avd --force -n test -k "system-images;android-29;google_apis;x86_64" --abi google_apis/x86_64
 	touch .setup-completed
 	pip3 install requests
 
