@@ -41,7 +41,10 @@ class DiscoveredStation {
 }
 
 class NetworkMonitor {
-    private readonly FixedAddresses: string[] = ["192.168.2.1"];
+    private readonly FixedAddresses: { address: string; port: number }[] = [
+        { address: "192.168.2.1", port: 80 },
+        // { address: "192.168.0.100", port: 2380 },
+    ];
     private readonly store: OurStore;
     private enabled = false;
 
@@ -95,18 +98,18 @@ class NetworkMonitor {
 
     public tryFixedAddresses(): Promise<void> {
         return Promise.all(
-            this.FixedAddresses.map((ip: string) =>
+            this.FixedAddresses.map((fa) =>
                 this.services
                     .QueryStation()
-                    .getStatus("http://" + ip + "/fk/v1")
+                    .getStatus("http://" + fa.address + ":" + fa.port + "/fk/v1")
                     .then(
                         (status) => {
                             console.log("found device in ap mode", status.status.identity.deviceId);
                             return this.services.DiscoverStation().onFoundService({
                                 type: "_fk._tcp",
                                 name: status.status.identity.deviceId,
-                                host: ip,
-                                port: 80,
+                                host: fa.address,
+                                port: fa.port,
                             });
                         },
                         () => {
@@ -146,9 +149,7 @@ export default class DiscoverStation {
         await this.networkMonitor.start();
     }
 
-    public async stopMonitorinNetwork(): Promise<void> {
-        //
-    }
+    public async stopMonitorinNetwork(): Promise<void> {}
 
     public async startServiceDiscovery(): Promise<void> {
         const options: StartOptions = {
