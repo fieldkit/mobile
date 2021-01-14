@@ -102,11 +102,14 @@ export default Vue.extend({
         },
         haveBackStack(): boolean {
             const frame = Frame.topmost();
+            if (!this.canNavigateBack) {
+                return false;
+            }
             if (frame) {
                 console.log("platform-header:backStack", frame.id, frame.backStack.length);
-                return frame.backStack.length > 0;
+                return true; // frame.backStack.length > 0;
             }
-            return false;
+            return true;
         },
     },
     mounted(): void {

@@ -1,8 +1,8 @@
 <template>
     <Page @loaded="onPageLoaded">
-        <PlatformHeader row="0" :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('dataSync')" :canNavigateBack="false" :canNavigateSettings="false" />
 
-        <ScrollView row="0">
+        <ScrollView>
             <NoStationsWannaAdd v-if="syncs.length == 0" :image="true" />
             <StackLayout class="sync-panel-container" v-if="syncs.length > 0">
                 <StackLayout v-for="sync in syncs" :key="sync.deviceId" class="station-container">

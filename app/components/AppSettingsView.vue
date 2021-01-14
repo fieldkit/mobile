@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('appSettings.title')" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('appSettings.title')" :canNavigateBack="false" :canNavigateSettings="false" />
         <ScrollView row="0">
             <StackLayout>
                 <SettingsItemIconText
