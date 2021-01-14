@@ -1,10 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page" @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
                         <ConnectionStatusHeader :connected="currentStation.connected" />
 
                         <Label class="title m-t-60 m-b-10 text-center" :text="_L('changeStationName')" textWrap="true" />
@@ -66,18 +66,18 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "../../routes";
 import { validateStationName } from "../../utilities";
 import { RenameStationAction, LegacyStation } from "@/store";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import ScreenHeader from "~/components/ScreenHeader.vue";
 import LabeledTextField from "~/components/LabeledTextField.vue";
 
 export default Vue.extend({
     components: {
+        ...SharedComponents,
         ConnectionStatusHeader,
         LabeledTextField,
-        ScreenHeader,
     },
     props: {
         stationId: {

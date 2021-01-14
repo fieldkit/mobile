@@ -28,10 +28,15 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "../../routes";
 import { _T } from "../../utilities";
+import StationListView from "../StationListView";
 
 export default Vue.extend({
+    components: {
+        ...SharedComponents,
+    },
     props: {
         reconnecting: {
             type: Boolean,
@@ -43,7 +48,7 @@ export default Vue.extend({
             await this.$navigateTo(routes.onboarding.searching, {});
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(routes.stations, { clearHistory: true });
+            await this.$navigateTo(StationListView, { clearHistory: true });
         },
     },
 });

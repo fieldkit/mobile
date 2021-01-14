@@ -1,32 +1,23 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('appSettings.help.help')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <GridLayout rows="*,55">
-            <ScrollView row="0" class="m-r-20 m-l-20">
-                <StackLayout>
-                    <SettingsItemText
-                        :link="'appearanceFontSize'"
-                        :text="'appSettings.appearance.fontSize'"
-                        :cssClass="'top-bordered-item'"
-                    />
-                    <SettingsItemText :link="'appearanceLanguage'" :text="'appSettings.appearance.language'"></SettingsItemText>
-                    <SettingsItemSlider
-                        :title="'appSettings.appearance.darkMode'"
-                        v-model="currentSettings.appearance.dark_mode"
-                        v-on:change="saveSettings"
-                    />
-                </StackLayout>
-            </ScrollView>
-            <ScreenFooter row="1" active="settings" />
-        </GridLayout>
+        <ScrollView row="0" class="m-r-20 m-l-20">
+            <StackLayout>
+                <SettingsItemText :link="'appearanceFontSize'" :text="'appSettings.appearance.fontSize'" :cssClass="'top-bordered-item'" />
+                <SettingsItemText :link="'appearanceLanguage'" :text="'appSettings.appearance.language'"></SettingsItemText>
+                <SettingsItemSlider
+                    :title="'appSettings.appearance.darkMode'"
+                    v-model="currentSettings.appearance.dark_mode"
+                    v-on:change="saveSettings"
+                />
+            </StackLayout>
+        </ScrollView>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
 import * as animations from "~/components/animations";
@@ -42,8 +33,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ScreenHeader,
-        ScreenFooter,
         SettingsItemSlider,
         SettingsItemText,
     },

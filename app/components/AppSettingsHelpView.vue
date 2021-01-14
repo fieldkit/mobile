@@ -1,32 +1,27 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('appSettings.help.help')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <GridLayout rows="*,55">
-            <ScrollView row="0" class="m-r-20 m-l-20">
-                <StackLayout>
-                    <SettingsItemText :link="'helpAppVersion'" :text="'appSettings.help.appVersion'" :cssClass="'top-bordered-item'" />
-                    <SettingsItemSlider
-                        :title="'appSettings.help.crashReports'"
-                        v-model="currentSettings.help.crash_reports"
-                        v-on:change="saveSettings"
-                    />
-                    <SettingsItemSlider
-                        :title="'appSettings.help.tutorialGuide'"
-                        v-model="currentSettings.help.tutorial_guide"
-                        v-on:change="saveSettings"
-                    />
-                </StackLayout>
-            </ScrollView>
-            <ScreenFooter row="1" active="settings" />
-        </GridLayout>
+        <ScrollView class="m-r-20 m-l-20">
+            <StackLayout>
+                <SettingsItemText :link="'helpAppVersion'" :text="'appSettings.help.appVersion'" :cssClass="'top-bordered-item'" />
+                <SettingsItemSlider
+                    :title="'appSettings.help.crashReports'"
+                    v-model="currentSettings.help.crash_reports"
+                    v-on:change="saveSettings"
+                />
+                <SettingsItemSlider
+                    :title="'appSettings.help.tutorialGuide'"
+                    v-model="currentSettings.help.tutorial_guide"
+                    v-on:change="saveSettings"
+                />
+            </StackLayout>
+        </ScrollView>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
 import * as animations from "~/components/animations";
@@ -42,8 +37,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ScreenHeader,
-        ScreenFooter,
         SettingsItemSlider,
         SettingsItemText,
     },

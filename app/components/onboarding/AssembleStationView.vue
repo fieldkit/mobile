@@ -89,12 +89,16 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "@/routes";
 import AppSettings from "@/wrappers/app-settings";
 import * as animations from "../animations";
 import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
+    components: {
+        ...SharedComponents,
+    },
     props: {
         stepParam: {},
     },

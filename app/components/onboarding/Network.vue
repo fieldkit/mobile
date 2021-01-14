@@ -1,10 +1,10 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
-                        <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
                         <ConnectionStatusHeader :connected="currentStation.connected" />
 
                         <Label
@@ -62,17 +62,17 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "@/routes";
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
 import { LegacyStation } from "@/store";
-import ScreenHeader from "~/components/ScreenHeader.vue";
 import NetworkTypeItem from "~/components/onboarding/NetworkTypeItem.vue";
 
 export default Vue.extend({
     name: "Network",
     components: {
+        ...SharedComponents,
         ConnectionStatusHeader,
-        ScreenHeader,
         NetworkTypeItem,
     },
     props: {

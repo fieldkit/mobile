@@ -1,42 +1,37 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.appearance.fontSize')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <GridLayout rows="*,55">
-            <ScrollView row="0" class="m-r-20 m-l-20">
-                <GridLayout rows="auto,*" columns="*">
-                    <FlexboxLayout alignItems="stretch" flexDirection="row" height="10" :class="isAndroid ? 'm-r-15 m-l-15' : ''" row="0">
-                        <Label borderColor="#d8dce0" borderRightWidth="1" borderLeftWidth="1" width="25%" />
-                        <Label borderColor="#d8dce0" borderRightWidth="1" width="25%" />
-                        <Label borderColor="#d8dce0" borderRightWidth="1" width="25%" />
-                        <Label borderColor="#d8dce0" borderRightWidth="1" width="25%" />
-                    </FlexboxLayout>
-                    <Slider
-                        :value="currentSettings.appearance.font_size"
-                        minValue="0"
-                        maxValue="4"
-                        opacity="1"
-                        selectedBackgroundColor="#f4f5f7"
-                        backgroundColor="#d8dce0"
-                        color="#1b80c9"
-                        @valueChange="selectFontSize"
-                        row="0"
-                    />
-                    <DockLayout stretchLastChild="false" row="1">
-                        <Label class="size-12" dock="left" :text="_L('appSettings.appearance.tiny')"></Label>
-                        <Label class="size-12" dock="right" :text="_L('appSettings.appearance.huge')"></Label>
-                    </DockLayout>
-                </GridLayout>
-            </ScrollView>
-            <ScreenFooter row="1" active="settings" />
-        </GridLayout>
+        <ScrollView class="m-r-20 m-l-20">
+            <GridLayout rows="auto,*" columns="*">
+                <FlexboxLayout alignItems="stretch" flexDirection="row" height="10" :class="isAndroid ? 'm-r-15 m-l-15' : ''" row="0">
+                    <Label borderColor="#d8dce0" borderRightWidth="1" borderLeftWidth="1" width="25%" />
+                    <Label borderColor="#d8dce0" borderRightWidth="1" width="25%" />
+                    <Label borderColor="#d8dce0" borderRightWidth="1" width="25%" />
+                    <Label borderColor="#d8dce0" borderRightWidth="1" width="25%" />
+                </FlexboxLayout>
+                <Slider
+                    :value="currentSettings.appearance.font_size"
+                    minValue="0"
+                    maxValue="4"
+                    opacity="1"
+                    selectedBackgroundColor="#f4f5f7"
+                    backgroundColor="#d8dce0"
+                    color="#1b80c9"
+                    @valueChange="selectFontSize"
+                    row="0"
+                />
+                <DockLayout stretchLastChild="false" row="1">
+                    <Label class="size-12" dock="left" :text="_L('appSettings.appearance.tiny')"></Label>
+                    <Label class="size-12" dock="right" :text="_L('appSettings.appearance.huge')"></Label>
+                </DockLayout>
+            </GridLayout>
+        </ScrollView>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
 import * as animations from "~/components/animations";
 import routes from "@/routes";
 import { isAndroid, isIOS } from "@nativescript/core";
@@ -55,8 +50,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ScreenHeader,
-        ScreenFooter,
     },
     methods: {
         async saveSettings(): Promise<void> {

@@ -27,6 +27,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "@/routes";
 import * as animations from "../animations";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
@@ -56,8 +57,8 @@ export default Vue.extend({
             animateFrameTimer: 0,
         };
     },
-
     components: {
+        ...SharedComponents,
         ConnectionStatusHeader,
     },
     computed: {

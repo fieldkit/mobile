@@ -1,197 +1,188 @@
 <template>
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="_L('appSettings.units.units')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <GridLayout rows="*,55">
-            <ScrollView row="0" class="m-r-20 m-l-20">
-                <StackLayout>
-                    <GridLayout rows="50" columns="*, 180" class="top-bordered-item bottom-bordered-item">
-                        <Label :text="_L('appSettings.units.unitSystem')" class="size-16 m-5" col="0" verticalAlignment="center" />
-                        <StackLayout
-                            orientation="horizontal"
-                            borderRadius="4"
-                            col="1"
-                            class="m-10 border"
-                            verticalAlignment="center"
-                            height="30"
-                        >
-                            <Label
-                                :text="_L('appSettings.units.imperial')"
-                                class="size-13 text-center p-t-3 b-right"
-                                width="82"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.unit_system == 'imperial' ? 'b-active' : ''"
-                                @tap="setUnitSystem('imperial')"
-                            />
-                            <Label
-                                :text="_L('appSettings.units.metric')"
-                                class="size-13 text-center p-t-3"
-                                width="82"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.unit_system == 'metric' ? 'b-active' : ''"
-                                @tap="setUnitSystem('metric')"
-                            />
-                        </StackLayout>
-                    </GridLayout>
-                    <GridLayout rows="85" columns="*">
+        <ScrollView row="0" class="m-r-20 m-l-20">
+            <StackLayout>
+                <GridLayout rows="50" columns="*, 180" class="top-bordered-item bottom-bordered-item">
+                    <Label :text="_L('appSettings.units.unitSystem')" class="size-16 m-5" col="0" verticalAlignment="center" />
+                    <StackLayout
+                        orientation="horizontal"
+                        borderRadius="4"
+                        col="1"
+                        class="m-10 border"
+                        verticalAlignment="center"
+                        height="30"
+                    >
                         <Label
-                            :text="_L('appSettings.units.customMetricSettings')"
-                            class="size-16 m-l-5 v-middle bold m-t-50 m-b-12"
-                            row="0"
+                            :text="_L('appSettings.units.imperial')"
+                            class="size-13 text-center p-t-3 b-right"
+                            width="82"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.unit_system == 'imperial' ? 'b-active' : ''"
+                            @tap="setUnitSystem('imperial')"
                         />
-                    </GridLayout>
-                    <GridLayout rows="50" columns="*, 180" class="top-bordered-item bottom-bordered-item">
-                        <Label :text="_L('appSettings.units.temperature')" class="size-16 m-5" col="0" verticalAlignment="center" />
-                        <StackLayout
-                            orientation="horizontal"
-                            borderRadius="4"
-                            col="1"
-                            class="m-10 border"
-                            verticalAlignment="center"
-                            height="30"
+                        <Label
+                            :text="_L('appSettings.units.metric')"
+                            class="size-13 text-center p-t-3"
+                            width="82"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.unit_system == 'metric' ? 'b-active' : ''"
+                            @tap="setUnitSystem('metric')"
+                        />
+                    </StackLayout>
+                </GridLayout>
+                <GridLayout rows="85" columns="*">
+                    <Label :text="_L('appSettings.units.customMetricSettings')" class="size-16 m-l-5 v-middle bold m-t-50 m-b-12" row="0" />
+                </GridLayout>
+                <GridLayout rows="50" columns="*, 180" class="top-bordered-item bottom-bordered-item">
+                    <Label :text="_L('appSettings.units.temperature')" class="size-16 m-5" col="0" verticalAlignment="center" />
+                    <StackLayout
+                        orientation="horizontal"
+                        borderRadius="4"
+                        col="1"
+                        class="m-10 border"
+                        verticalAlignment="center"
+                        height="30"
+                    >
+                        <Label
+                            :text="'ºF'"
+                            class="size-13 text-center p-t-3 b-right"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.temperature == 'f' ? 'b-active' : ''"
+                            @tap="setTemperature('f')"
+                        />
+                        <Label
+                            :text="'ºC'"
+                            class="size-13 text-center p-t-3 b-right"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.temperature == 'c' ? 'b-active' : ''"
+                            @tap="setTemperature('c')"
+                        />
+                        <Label
+                            :text="'K'"
+                            class="size-13 text-center p-t-3"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.temperature == 'k' ? 'b-active' : ''"
+                            @tap="setTemperature('k')"
+                        />
+                    </StackLayout>
+                </GridLayout>
+                <GridLayout rows="50" columns="*, 130" class="bottom-bordered-item">
+                    <Label :text="_L('appSettings.units.unitName')" class="size-16 m-5" col="0" verticalAlignment="center" />
+                    <StackLayout
+                        orientation="horizontal"
+                        borderRadius="4"
+                        col="1"
+                        class="m-10 border"
+                        verticalAlignment="center"
+                        height="30"
+                    >
+                        <Label
+                            :text="'mg/L'"
+                            class="size-13 text-center p-t-3 b-right"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.unit_name == 'mgl' ? 'b-active' : ''"
+                            @tap="setUnitName('mgl')"
+                        />
+                        <FlexboxLayout
+                            v-if="isIOS"
+                            flexDirection="column"
+                            justifyContent="center"
+                            width="55"
+                            :class="currentSettings.units.unit_name == 'kgm3' ? 'b-active' : ''"
+                            @tap="setUnitName('kgm3')"
                         >
-                            <Label
-                                :text="'ºF'"
-                                class="size-13 text-center p-t-3 b-right"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.temperature == 'f' ? 'b-active' : ''"
-                                @tap="setTemperature('f')"
+                            <HtmlView
+                                class="size-13"
+                                height="15"
+                                alignSelf="center"
+                                html="<p style='text-align:center'>kg/m<sup style='font-size:10'>3</sup></p>"
                             />
-                            <Label
-                                :text="'ºC'"
-                                class="size-13 text-center p-t-3 b-right"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.temperature == 'c' ? 'b-active' : ''"
-                                @tap="setTemperature('c')"
-                            />
-                            <Label
-                                :text="'K'"
-                                class="size-13 text-center p-t-3"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.temperature == 'k' ? 'b-active' : ''"
-                                @tap="setTemperature('k')"
-                            />
-                        </StackLayout>
-                    </GridLayout>
-                    <GridLayout rows="50" columns="*, 130" class="bottom-bordered-item">
-                        <Label :text="_L('appSettings.units.unitName')" class="size-16 m-5" col="0" verticalAlignment="center" />
-                        <StackLayout
-                            orientation="horizontal"
-                            borderRadius="4"
-                            col="1"
-                            class="m-10 border"
-                            verticalAlignment="center"
-                            height="30"
+                        </FlexboxLayout>
+                        <Label
+                            v-if="isAndroid"
+                            class="size-13 text-center"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.unit_name == 'kgm3' ? 'b-active' : ''"
+                            @tap="setUnitName('kgm3')"
                         >
-                            <Label
-                                :text="'mg/L'"
-                                class="size-13 text-center p-t-3 b-right"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.unit_name == 'mgl' ? 'b-active' : ''"
-                                @tap="setUnitName('mgl')"
-                            />
-                            <FlexboxLayout
-                                v-if="isIOS"
-                                flexDirection="column"
-                                justifyContent="center"
-                                width="55"
-                                :class="currentSettings.units.unit_name == 'kgm3' ? 'b-active' : ''"
-                                @tap="setUnitName('kgm3')"
-                            >
-                                <HtmlView
-                                    class="size-13"
-                                    height="15"
-                                    alignSelf="center"
-                                    html="<p style='text-align:center'>kg/m<sup style='font-size:10'>3</sup></p>"
-                                />
-                            </FlexboxLayout>
-                            <Label
-                                v-if="isAndroid"
-                                class="size-13 text-center"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.unit_name == 'kgm3' ? 'b-active' : ''"
-                                @tap="setUnitName('kgm3')"
-                            >
-                                <FormattedString>
-                                    <Span text="kg/m" class="span"></Span>
-                                    <Span text="3" class="span" style="font-size: 10; vertical-align: top"></Span>
-                                </FormattedString>
-                            </Label>
-                        </StackLayout>
-                    </GridLayout>
-                    <GridLayout rows="50" columns="*, 130" class="bottom-bordered-item">
-                        <Label :text="_L('appSettings.units.pressure')" class="size-16 m-5" col="0" verticalAlignment="center" />
-                        <StackLayout
-                            orientation="horizontal"
-                            borderRadius="4"
-                            col="1"
-                            class="m-10 border"
-                            verticalAlignment="center"
-                            height="30"
-                        >
-                            <Label
-                                :text="'mBar'"
-                                class="size-13 text-center p-t-3 b-right"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.pressure == 'mBar' ? 'b-active' : ''"
-                                @tap="setPressure('mBar')"
-                            />
+                            <FormattedString>
+                                <Span text="kg/m" class="span"></Span>
+                                <Span text="3" class="span" style="font-size: 10; vertical-align: top"></Span>
+                            </FormattedString>
+                        </Label>
+                    </StackLayout>
+                </GridLayout>
+                <GridLayout rows="50" columns="*, 130" class="bottom-bordered-item">
+                    <Label :text="_L('appSettings.units.pressure')" class="size-16 m-5" col="0" verticalAlignment="center" />
+                    <StackLayout
+                        orientation="horizontal"
+                        borderRadius="4"
+                        col="1"
+                        class="m-10 border"
+                        verticalAlignment="center"
+                        height="30"
+                    >
+                        <Label
+                            :text="'mBar'"
+                            class="size-13 text-center p-t-3 b-right"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.pressure == 'mBar' ? 'b-active' : ''"
+                            @tap="setPressure('mBar')"
+                        />
 
-                            <Label
-                                :text="'kPa'"
-                                class="size-13 text-center p-t-3"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.pressure == 'kPa' ? 'b-active' : ''"
-                                @tap="setPressure('kPa')"
-                            />
-                        </StackLayout>
-                    </GridLayout>
-                    <GridLayout rows="50" columns="*, 130" class="bottom-bordered-item">
-                        <Label :text="_L('appSettings.units.velocity')" class="size-16 m-5" col="0" verticalAlignment="center" />
-                        <StackLayout
-                            orientation="horizontal"
-                            borderRadius="4"
-                            col="1"
-                            class="m-10 border"
-                            verticalAlignment="center"
-                            height="30"
-                        >
-                            <Label
-                                :text="'mBar'"
-                                class="size-13 text-center p-t-3 b-right"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.velocity == 'mBar' ? 'b-active' : ''"
-                                @tap="setVelocity('mBar')"
-                            />
-                            <Label
-                                :text="'kPa'"
-                                class="size-13 text-center p-t-3"
-                                width="55"
-                                @loaded="onLabelLoaded"
-                                :class="currentSettings.units.velocity == 'kPa' ? 'b-active' : ''"
-                                @tap="setVelocity('kPa')"
-                            />
-                        </StackLayout>
-                    </GridLayout>
-                </StackLayout>
-            </ScrollView>
-            <ScreenFooter row="1" active="settings" />
-        </GridLayout>
+                        <Label
+                            :text="'kPa'"
+                            class="size-13 text-center p-t-3"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.pressure == 'kPa' ? 'b-active' : ''"
+                            @tap="setPressure('kPa')"
+                        />
+                    </StackLayout>
+                </GridLayout>
+                <GridLayout rows="50" columns="*, 130" class="bottom-bordered-item">
+                    <Label :text="_L('appSettings.units.velocity')" class="size-16 m-5" col="0" verticalAlignment="center" />
+                    <StackLayout
+                        orientation="horizontal"
+                        borderRadius="4"
+                        col="1"
+                        class="m-10 border"
+                        verticalAlignment="center"
+                        height="30"
+                    >
+                        <Label
+                            :text="'mBar'"
+                            class="size-13 text-center p-t-3 b-right"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.velocity == 'mBar' ? 'b-active' : ''"
+                            @tap="setVelocity('mBar')"
+                        />
+                        <Label
+                            :text="'kPa'"
+                            class="size-13 text-center p-t-3"
+                            width="55"
+                            @loaded="onLabelLoaded"
+                            :class="currentSettings.units.velocity == 'kPa' ? 'b-active' : ''"
+                            @tap="setVelocity('kPa')"
+                        />
+                    </StackLayout>
+                </GridLayout>
+            </StackLayout>
+        </ScrollView>
     </Page>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
 import * as animations from "~/components/animations";
@@ -214,8 +205,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ScreenHeader,
-        ScreenFooter,
         SettingsItemSlider,
         SettingsItemText,
     },

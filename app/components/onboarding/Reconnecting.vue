@@ -1,10 +1,10 @@
 <template>
     <Page class="page" actionBarHidden="true">
+        <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0">
-                        <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
                         <Label class="title text-center m-b-20" :text="_L('reconnectToStation')" textWrap="true"></Label>
 
                         <Label class="instruction" :text="_L('reconnectInstruction')" lineHeight="4" textWrap="true"></Label>
@@ -26,9 +26,13 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "../../routes";
 
 export default Vue.extend({
+    components: {
+        ...SharedComponents,
+    },
     props: {
         deviceId: {
             type: String,

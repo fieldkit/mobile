@@ -9,8 +9,9 @@
 </template>
 
 <script lang="ts">
-import { Page } from "@nativescript/core";
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
+import { Page } from "@nativescript/core";
 import routes from "@/routes";
 import { promiseAfter } from "@/utilities";
 import { LegacyStation } from "@/store";
@@ -24,6 +25,7 @@ export default Vue.extend({
         },
     },
     components: {
+        ...SharedComponents,
         LargeSpinner,
     },
     data(): {

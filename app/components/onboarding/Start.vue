@@ -1,17 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" navigatingTo="onNavigatingTo">
-        <GridLayout rows="75,*,140">
-            <GridLayout row="0" rows="auto" columns="*" class="m-y-20">
-                <StackLayout col="0" class="round-bkgd m-l-10" verticalAlignment="top" horizontalAlignment="left" @tap="back">
-                    <Image width="21" src="~/images/Icon_Backarrow.png" />
-                </StackLayout>
-            </GridLayout>
-
-            <ScrollView row="1" v-show="step == 0">
+    <Page class="page" @loaded="onPageLoaded" navigatingTo="onNavigatingTo">
+        <PlatformHeader :title="_L('fieldkitWifi')" :canNavigateSettings="false" />
+        <GridLayout rows="*,140">
+            <ScrollView row="0" v-show="step == 0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <StackLayout row="0">
-                        <Label class="title text-center m-b-20" :text="_L('fieldkitWifi')" textWrap="true"></Label>
-
                         <Label class="instruction" :text="_L('introConnectStep1')" lineHeight="4" textWrap="true"></Label>
                         <Label class="instruction" :text="_L('introConnectStep2')" lineHeight="4" textWrap="true"></Label>
 
@@ -23,7 +16,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <ScrollView row="1" v-show="step == 1">
+            <ScrollView row="0" v-show="step == 1">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
                     <StackLayout row="0">
                         <Label class="title text-center m-b-20" :text="_L('connectYourStation')" textWrap="true"></Label>
@@ -37,7 +30,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <StackLayout :row="2" verticalAlignment="bottom" class="m-x-10">
+            <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">
                 <Button class="btn btn-primary btn-padded m-y-10" :text="_L('continue')" @tap="forward"></Button>
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
@@ -47,12 +40,17 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "../../routes";
 import { _T } from "../../utilities";
 import { Timer } from "../../common/timer";
 import * as application from "@nativescript/core/application";
+import StationListView from "../StationListView";
 
 export default Vue.extend({
+    components: {
+        ...SharedComponents,
+    },
     props: {},
     data(): {
         frame: number;
@@ -80,7 +78,7 @@ export default Vue.extend({
             }
         },
         onNavigatingTo(): void {
-            console.log("nav away");
+            console.log("onboarding/start:", "nav away");
             const thisAny = this as any;
             thisAny.timer.stop();
         },
@@ -106,7 +104,7 @@ export default Vue.extend({
             }
         },
         async skip(): Promise<any> {
-            await this.$navigateTo(routes.stations, {
+            await this.$navigateTo(StationListView, {
                 clearHistory: true,
                 backstackVisible: false,
             });

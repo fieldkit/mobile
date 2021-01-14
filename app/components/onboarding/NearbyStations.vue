@@ -47,6 +47,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "@/routes";
 
 interface NearbyStation {
@@ -56,6 +57,9 @@ interface NearbyStation {
 }
 
 export default Vue.extend({
+    components: {
+        ...SharedComponents,
+    },
     props: {
         reconnecting: {
             type: Boolean,

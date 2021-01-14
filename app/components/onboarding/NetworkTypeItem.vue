@@ -35,10 +35,13 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
     name: "NetworkTypeItem",
-    components: {},
+    components: {
+        ...SharedComponents,
+    },
     props: {
         selected: {
             type: Boolean,

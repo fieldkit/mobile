@@ -25,7 +25,6 @@ import { LoginAction } from "@/store/actions";
 import routes from "@/routes";
 import * as animations from "@/components/animations";
 import SharedComponents from "@/components/shared";
-import ScreenHeader from "@/components/ScreenHeader.vue";
 
 export default Vue.extend({
     name: "AppSettingsAccountAddView",
@@ -33,7 +32,6 @@ export default Vue.extend({
         ...SharedComponents,
         LoginForm,
         RegisterForm,
-        ScreenHeader,
     },
     data(): {
         login: boolean;

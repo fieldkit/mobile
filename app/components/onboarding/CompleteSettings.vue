@@ -1,8 +1,8 @@
 <template>
     <Page class="page" actionBarHidden="true">
+        <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <StackLayout row="0">
-                <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
                 <StackLayout height="100%" backgroundColor="white" verticalAlignment="middle">
                     <GridLayout rows="auto, auto" columns="*">
                         <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
@@ -20,13 +20,13 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "../../routes";
-import ScreenHeader from "~/components/ScreenHeader.vue";
 
 export default Vue.extend({
     name: "CompleteSettings",
     components: {
-        ScreenHeader,
+        ...SharedComponents,
     },
     props: {
         stationId: {

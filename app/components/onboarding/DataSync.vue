@@ -1,9 +1,9 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <StackLayout>
-                    <ScreenHeader :title="_L('connectStation')" :canNavigateSettings="false" :bottomBorder="true" @back="onBack" />
                     <ConnectionStatusHeader :connected="currentStation.connected" />
                     <Label class="m-t-20 m-l-20 m-r-20 m-b-10 text-center bold" :text="_L('dataSyncStationTitle')" textWrap="true"></Label>
                     <Label class="m-20 text-center" :text="_L('dataSyncStationInfo')" lineHeight="4" textWrap="true"></Label>
@@ -32,18 +32,18 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 
 import { ActionTypes } from "@/store/actions";
 import { LegacyStation } from "@/store";
 import SettingsItemIconText from "~/components/SettingsItemIconText.vue";
 import routes from "@/routes";
-import ScreenHeader from "~/components/ScreenHeader.vue";
 import SettingsItemSlider from "~/components/SettingsItemSlider.vue";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     components: {
-        ScreenHeader,
+        ...SharedComponents,
         SettingsItemSlider,
         SettingsItemIconText,
         ConnectionStatusHeader,

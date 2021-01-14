@@ -30,11 +30,15 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 
 import { StationCalibration, ModuleCalibration } from "@/calibration/model";
 
 export default Vue.extend({
     name: "CalibratingModules",
+    components: {
+        ...SharedComponents,
+    },
     props: {
         station: {
             type: StationCalibration,

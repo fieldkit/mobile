@@ -25,7 +25,6 @@
                     />
                 </StackLayout>
             </ScrollView>
-            <ScreenFooter row="1" active="settings" />
         </GridLayout>
     </Page>
 </template>
@@ -33,8 +32,6 @@
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import ScreenHeader from "./ScreenHeader.vue";
-import ScreenFooter from "./ScreenFooter.vue";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemIconText from "~/components/SettingsItemIconText.vue";
 import * as animations from "~/components/animations";
@@ -50,8 +47,6 @@ export default Vue.extend({
     },
     components: {
         ...SharedComponents,
-        ScreenHeader,
-        ScreenFooter,
         SettingsItemSlider,
         SettingsItemIconText,
     },

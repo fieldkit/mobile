@@ -1,11 +1,10 @@
 <template>
-    <Page class="page" actionBarHidden="true">
+    <Page class="page">
+        <PlatformHeader :title="_L('connectStation')" subtitle="Add WiFi" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView :row="0">
-                <GridLayout rows="auto,auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
+                <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
                     <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
-
-                    <ScreenHeader row="1" title="Connect Station" subtitle="Add WiFi" :canNavigateSettings="false" @back="onBack" />
 
                     <StackLayout row="2">
                         <Label :text="_L('wifiStep1')" textWrap="true" class="wifi-help" />
@@ -44,19 +43,19 @@
 
 <script lang="ts">
 import Vue from "vue";
+import SharedComponents from "@/components/shared";
 import routes from "@/routes";
 import { _T } from "@/utilities";
 import { isAndroid, Utils } from "@nativescript/core";
 import { ActionTypes, AddStationNetworkAction, LegacyStation } from "@/store";
 
 import ConnectionStatusHeader from "../ConnectionStatusHeader.vue";
-import ScreenHeader from "../ScreenHeader.vue";
 
 export default Vue.extend({
     name: "AddWifi",
     components: {
+        ...SharedComponents,
         ConnectionStatusHeader,
-        ScreenHeader,
     },
     props: {
         stationId: {
