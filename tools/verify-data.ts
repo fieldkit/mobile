@@ -3,6 +3,7 @@ import fs from "fs";
 import { promises as fsPromises } from "fs";
 import request from "request";
 import axios from "axios";
+import Jimp from "jimp";
 
 import flowSchema from "../app/data/flow-schema";
 
@@ -70,6 +71,10 @@ async function downloadAllPhotos(flows: any): Promise<any> {
                 const path = "../app/images/reader" + relativeUrl;
                 console.log("downloading", url, path);
                 await saveToFile(url, path);
+
+                const loaded = await Jimp.read(path);
+                await loaded.resize(800, 800);
+                await loaded.writeAsync(path);
             }
         }
     }

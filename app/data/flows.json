@@ -23,7 +23,7 @@
                 "name": "onboarding.01",
                 "locale": "en_US",
                 "forward": "Next",
-                "skip": "Skip",
+                "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
