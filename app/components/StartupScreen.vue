@@ -1,78 +1,36 @@
 <template>
-    <BottomNavigation id="bottom-nav" @selectedIndexChanged="onSelectedIndexChanged">
-        <TabStrip backgroundColor="white">
-            <TabStripItem @tap="tapStations">
-                <Image width="22" height="22" src="~/images/Icon_Station_inactive2.png"></Image>
-                <Label text="Stations"></Label>
-            </TabStripItem>
-            <TabStripItem @tap="tapData">
-                <Image width="22" height="22" src="~/images/Icon_DataSync_inactive2.png"></Image>
-                <Label text="Data"></Label>
-            </TabStripItem>
-            <TabStripItem @tap="tapSettings">
-                <Image width="22" height="22" src="~/images/Icon_Settings_inactive2.png"></Image>
-                <Label text="Settings"></Label>
-            </TabStripItem>
-        </TabStrip>
-        <TabContentItem>
-            <Frame id="stations-frame">
-                <StationListView />
-            </Frame>
-        </TabContentItem>
-        <TabContentItem>
-            <Frame id="data-frame">
-                <DataSync />
-            </Frame>
-        </TabContentItem>
-        <TabContentItem>
-            <Frame id="settings-frame">
-                <AppSettingsView />
-            </Frame>
-        </TabContentItem>
-    </BottomNavigation>
+    <Page actionBarHidden="true"></Page>
 </template>
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
-// import { Route } from "@/routes/navigate";
+import { Route } from "@/routes/navigate";
 import { Services } from "@/services";
 import { initializeApplication } from "@/startup";
 import ServicesSingleton from "@/services/singleton";
-// import AppSettings from "@/wrappers/app-settings";
+import AppSettings from "@/wrappers/app-settings";
 import Config from "@/config";
 import routes from "@/routes";
 
-import StationListView from "../components/StationListView.vue";
-import DataSync from "../components/DataSyncView.vue";
-import AppSettingsView from "../components/AppSettingsView.vue";
-
-/*
 function getFirstRoute(services: Services): Route {
     const appSettings = new AppSettings();
 
     if (services.PortalInterface().isLoggedIn()) {
         return appSettings.getString("completedSetup") || appSettings.getNumber("skipCount") > 2
-            ? routes.stations
+            ? routes.tabbed
             : routes.onboarding.assembleStation;
     }
 
     return routes.login;
 }
-*/
 
 export default Vue.extend({
-    components: {
-        StationListView,
-        DataSync,
-        AppSettingsView,
-    },
+    components: {},
     async mounted(): Promise<void> {
         const services: Services = ServicesSingleton;
 
         console.log("startup loaded");
 
-        if (true) {
-            await initializeApplication(services);
-        }
+        await initializeApplication(services);
 
         console.log("developer", Config.env.developer);
 
@@ -142,43 +100,18 @@ export default Vue.extend({
 			*/
         }
 
-        /*
-        console.log("first navigate");
+        // console.log("first navigate");
 
-        await this.$navigateTo(getFirstRoute(services), {
-            clearHistory: true,
-        });
-		*/
-    },
-    methods: {
-        onSelectedIndexChanged() {
-            console.log("tab-changed");
-        },
-        tapStations() {
-            console.log("tab: stations");
-            return this.$navigateTo(routes.stations, {
-                frame: "stations-frame",
-                clearHistory: true,
+        try {
+            await this.$navigateTo(getFirstRoute(services), {
+                frame: "outer-frame",
             });
-        },
-        tapData() {
-            console.log("tab: data");
-            return this.$navigateTo(routes.dataSync, {
-                frame: "data-frame",
-                clearHistory: true,
-            });
-        },
-        tapSettings() {
-            console.log("tab: settings");
-            return this.$navigateTo(routes.appSettings.list, {
-                frame: "settings-frame",
-                clearHistory: true,
-            });
-        },
+        } catch (err) {
+            console.log("error", err, err.stack);
+        }
     },
 });
 </script>
-
 <style scoped lang="scss">
 @import "~/_app-variables";
 </style>

@@ -31,7 +31,7 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import routes from "../../routes";
 import { _T } from "../../utilities";
-import StationListView from "../StationListView";
+import TabbedLayout from "../TabbedLayout";
 
 export default Vue.extend({
     components: {
@@ -48,7 +48,10 @@ export default Vue.extend({
             await this.$navigateTo(routes.onboarding.searching, {});
         },
         async skip(): Promise<void> {
-            await this.$navigateTo(StationListView, { clearHistory: true });
+            await this.$navigateTo(TabbedLayout, {
+                frame: "outer-frame",
+                clearHistory: true,
+            });
         },
     },
 });

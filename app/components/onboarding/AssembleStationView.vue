@@ -151,7 +151,10 @@ export default Vue.extend({
         onPageLoaded(): void {
             if (this.step == this.steps.length - 1) {
                 setTimeout(() => {
-                    this.$navigateTo(routes.onboarding.start);
+                    this.$navigateTo(routes.onboarding.start, {
+                        frame: "outer-frame",
+                        clearHistory: true,
+                    });
                 }, 3000);
             }
             const thisAny = this as any;
@@ -181,7 +184,13 @@ export default Vue.extend({
                 await animations.pressed(ev);
             } else {
                 console.log("no more steps");
-                await Promise.all([animations.pressed(ev), this.$navigateTo(routes.stations, { clearHistory: true })]);
+                await Promise.all([
+                    animations.pressed(ev),
+                    this.$navigateTo(routes.tabbed, {
+                        frame: "outer-frame",
+                        clearHistory: true,
+                    }),
+                ]);
             }
         },
         goNext(): void {
@@ -194,7 +203,10 @@ export default Vue.extend({
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
                 if (this.step == this.steps.length - 1) {
                     setTimeout(() => {
-                        this.$navigateTo(routes.onboarding.start);
+                        this.$navigateTo(routes.onboarding.start, {
+                            frame: "outer-frame",
+                            clearHistory: true,
+                        });
                     }, 3000);
                 }
             }
@@ -202,7 +214,15 @@ export default Vue.extend({
         async skip(): Promise<void> {
             const thisAny = this as any;
             thisAny._appSettings.setNumber("skipCount", (thisAny._appSettings.getNumber("skipCount") || 0) + 1);
-            await this.$navigateTo(routes.onboarding.start);
+            try {
+                console.log("skip");
+                await this.$navigateTo(routes.onboarding.start, {
+                    frame: "outer-frame",
+                    clearHistory: true,
+                });
+            } catch (err) {
+                console.log(err, err.stack);
+            }
         },
         stopAnimation(): void {
             this.displayFrame = "";

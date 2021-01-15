@@ -45,7 +45,7 @@ import routes from "../../routes";
 import { _T } from "../../utilities";
 import { Timer } from "../../common/timer";
 import * as application from "@nativescript/core/application";
-import StationListView from "../StationListView";
+import TabbedLayout from "../TabbedLayout.vue";
 
 export default Vue.extend({
     components: {
@@ -86,8 +86,8 @@ export default Vue.extend({
             this.step++;
             if (this.step == 2) {
                 await this.$navigateTo(routes.onboarding.searching, {
+                    frame: "outer-frame",
                     clearHistory: true,
-                    backstackVisible: false,
                 });
             }
         },
@@ -104,9 +104,9 @@ export default Vue.extend({
             }
         },
         async skip(): Promise<any> {
-            await this.$navigateTo(StationListView, {
+            await this.$navigateTo(TabbedLayout, {
+                frame: "outer-frame",
                 clearHistory: true,
-                backstackVisible: false,
             });
         },
     },

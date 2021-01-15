@@ -59,7 +59,7 @@ type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<vo
 function addDefaults(options: NavigateOptions | null): NavigateOptions {
     const frame = Frame.topmost();
     const defaults = {
-        frame: frame.id,
+        frame: frame ? frame.id : null,
     };
     return _.extend({}, defaults, options);
 }

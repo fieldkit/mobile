@@ -20,7 +20,10 @@ export default Vue.extend({
     },
     methods: {
         goToAddStation(): Promise<any> {
-            return this.$navigateTo(routes.onboarding.start, {});
+            return this.$navigateTo(routes.onboarding.start, {
+                frame: "outer-frame",
+                clearHistory: true,
+            });
         },
     },
 });

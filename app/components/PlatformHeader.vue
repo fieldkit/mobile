@@ -1,9 +1,9 @@
 <template>
     <ActionBar backgroundColor="orange" flat="true">
-        <template v-if="ios">
+        <ios>
             <template v-if="canNavigateSettings">
                 <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
-                <GridLayout rows="auto,auto" columns="*">
+                <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
@@ -11,19 +11,19 @@
             </template>
             <template v-else>
                 <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
-                <GridLayout rows="auto,auto" columns="*">
+                <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
             </template>
-        </template>
-        <template v-else>
+        </ios>
+        <android>
             <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
-                <StackLayout v-if="haveBackStack" col="0" class="round-bkgd" @tap="raiseBack">
+                <StackLayout v-if="haveBackStack" col="0" @tap="raiseBack">
                     <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
-                <GridLayout col="1" rows="auto,auto" columns="*">
-                    <Label row="0" class="title m-t-10 m-b-5 text-center" :text="title" textWrap="true"></Label>
+                <GridLayout col="1" :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
+                    <Label row="0" class="title text-center" :text="title" textWrap="true"></Label>
                     <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
                 <StackLayout v-if="!icon && canCancel" col="2" class="round-bkgd" @tap="raiseCancel">
@@ -36,7 +36,7 @@
                     <Image width="25" :src="icon"></Image>
                 </StackLayout>
             </GridLayout>
-        </template>
+        </android>
     </ActionBar>
 </template>
 <script lang="ts">

@@ -53,6 +53,7 @@ export default Vue.extend({
                     .dispatch(new LoginAction(form.email, form.password))
                     .then(() => {
                         return this.$navigateTo(routes.onboarding.assembleStation, {
+                            frame: "outer-frame",
                             clearHistory: true,
                         });
                     })

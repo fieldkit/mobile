@@ -96,8 +96,8 @@ class NetworkMonitor {
         void Bluebird.delay(1000).then(() => this.tryFixedAddresses());
     }
 
-    public tryFixedAddresses(): Promise<void> {
-        return Promise.all(
+    public async tryFixedAddresses(): Promise<void> {
+        await Promise.all(
             this.FixedAddresses.map((fa) =>
                 this.services
                     .QueryStation()

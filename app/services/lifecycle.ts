@@ -8,6 +8,8 @@ import {
 import DiscoverStation from "./discover-station";
 
 export default function (discoverStation: () => DiscoverStation): void {
+    console.log("lifecyle: registering");
+
     Application.on(Application.launchEvent, (args: LaunchEventData) => {
         if (args.android) {
             console.log("lifecycle: launched android:" /*, args.android*/);

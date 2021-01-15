@@ -45,13 +45,17 @@ import AppSettingsAppearanceFontSize from "~/components/AppSettingsAppearanceFon
 import AddModuleView from "~/components/onboarding/AddModuleView.vue";
 import NotificationsView from "~/components/NotificationsView.vue";
 
-import { inferNames, Route } from "./navigate";
 import DeploymentLocation from "~/components/onboarding/DeploymentLocation.vue";
 import DataSyncOnboarding from "~/components/onboarding/DataSync.vue";
 import CompleteSettings from "~/components/onboarding/CompleteSettings.vue";
 
+import TabbedLayout from "~/components/TabbedLayout.vue";
+
+import { inferNames, Route } from "./navigate";
+
 const routes = {
     login: new Route(Login, { login: true }),
+    tabbed: new Route(TabbedLayout, {}),
     developerMenu: new Route(DeveloperMenu, { developer: true }),
 
     // Bottom navigation
