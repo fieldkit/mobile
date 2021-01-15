@@ -39,7 +39,6 @@ import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
 import StationsMap from "./StationsMap.vue";
 import MapModal from "./MapModal.vue";
-import * as application from "@nativescript/core/application";
 import * as animations from "./animations";
 import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
 
