@@ -37,10 +37,18 @@ function download(): Promise<any> {
         method: "POST",
         url: baseUrl + "/graphql",
         data: query,
-    }).then((response) => {
-        console.log("data", response.data);
-        return response.data;
-    });
+        transformResponse: (res) => {
+            const fixed = res.replace(String.fromCharCode(8232), "\\n");
+            return JSON.parse(fixed);
+        },
+    })
+        .then((response) => {
+            console.log("data", response.data);
+            return response.data;
+        })
+        .then((data) => {
+            return data;
+        });
 }
 
 async function saveToFile(uri: string, filename: string): Promise<string> {
