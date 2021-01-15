@@ -45,7 +45,6 @@ import routes from "../../routes";
 import { _T } from "../../utilities";
 import { Timer } from "../../common/timer";
 import * as application from "@nativescript/core/application";
-import TabbedLayout from "../TabbedLayout.vue";
 
 export default Vue.extend({
     components: {
@@ -104,7 +103,7 @@ export default Vue.extend({
             }
         },
         async skip(): Promise<any> {
-            await this.$navigateTo(TabbedLayout, {
+            await this.$navigateTo(routes.tabbed, {
                 frame: "outer-frame",
                 clearHistory: true,
             });
