@@ -435,6 +435,10 @@ module.exports = {
     batteryLife: "Battery Life",
     appSettings: {
         title: "Settings",
+		developer: {
+			developer: "Developer",
+			notice: "The options below have irreversible consequences. Please only use them when directed to."
+		},
         data: {
             data: "Data",
             autoSyncStationTitle: "Auto Sync Station",

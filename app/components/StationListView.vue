@@ -2,49 +2,38 @@
     <Page>
         <PlatformHeader title="FieldKit Stations" :canNavigateBack="false" :canNavigateSettings="false" />
 
-        <GridLayout rows="*">
-            <ScrollView row="0">
-                <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
-                    <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
+        <ScrollView>
+            <StackLayout id="stations-list" class="m-y-10" @doubleTap="onDoubleTap">
+                <StationsMap id="stations-map" :mappedStations="mappedStations" @toggle-modal="openModalMap" />
 
-                    <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
+                <NoStationsWannaAdd v-if="discovering.length == 0 && stations.length == 0" />
 
-                    <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
+                <ActivityIndicator v-if="discovering.length > 0" busy="true"></ActivityIndicator>
 
-                    <GridLayout
-                        v-for="station in stations"
-                        :key="station.deviceId"
-                        rows="*,*"
-                        columns="85*,15*"
-                        class="station-container m-y-5 m-x-15 p-10"
-                        orientation="vertical"
-                        @tap="goToDetail($event, station)"
-                    >
-                        <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
-                        <Label
-                            row="1"
-                            col="0"
-                            :text="getDeployStatus(station)"
-                            :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')"
-                        />
-                        <Image v-if="station.connected" col="1" rowSpan="2" width="20" src="~/images/Icon_Connected.png" />
-                        <Image v-if="!station.connected" col="1" rowSpan="2" width="20" src="~/images/Icon_not_Connected.png" />
-                    </GridLayout>
-                    <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
-                    <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
-                </StackLayout>
-            </ScrollView>
-            <StackLayout horizontalAlignment="right" verticalAlignment="bottom">
-                <Label text="dev" class="dev-link" @doubleTap="showDev" />
+                <GridLayout
+                    v-for="station in stations"
+                    :key="station.deviceId"
+                    rows="*,*"
+                    columns="85*,15*"
+                    class="station-container m-y-5 m-x-15 p-10"
+                    orientation="vertical"
+                    @tap="goToDetail($event, station)"
+                >
+                    <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
+                    <Label row="1" col="0" :text="getDeployStatus(station)" :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')" />
+                    <Image v-if="station.connected" col="1" rowSpan="2" width="20" src="~/images/Icon_Connected.png" />
+                    <Image v-if="!station.connected" col="1" rowSpan="2" width="20" src="~/images/Icon_not_Connected.png" />
+                </GridLayout>
+                <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
+                <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
             </StackLayout>
-        </GridLayout>
+        </ScrollView>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 import { mapGetters } from "vuex";
-import { Dialogs } from "@nativescript/core";
 import routes from "@/routes";
 import SharedComponents from "@/components/shared";
 import NoStationsWannaAdd from "./NoStationsWannaAdd.vue";
@@ -95,28 +84,6 @@ export default Vue.extend({
                     },
                 }),
             ]);
-        },
-        async showDev(): Promise<void> {
-            if (this.busy) {
-                return Promise.resolve();
-            }
-
-            this.busy = true;
-
-            await Dialogs.confirm({
-                title: _L("confirmViewDevMenu"),
-                okButtonText: _L("yes"),
-                cancelButtonText: _L("cancel"),
-            })
-                .then((yes: boolean) => {
-                    if (yes) {
-                        return this.$navigateTo(routes.developerMenu, {});
-                    }
-                    return;
-                })
-                .finally(() => {
-                    this.busy = false;
-                });
         },
         async onDoubleTap(): Promise<void> {
             this.scanning = true;

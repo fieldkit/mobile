@@ -75,6 +75,7 @@ const routes = {
         help: new Route(AppSettingsHelp, {}),
         helpAppVersion: new Route(AppSettingsHelpAppVersion, {}),
         legal: new Route(AppSettingsLegal, {}),
+        developer: new Route(DeveloperMenu, { developer: true }),
     },
 
     // Per station

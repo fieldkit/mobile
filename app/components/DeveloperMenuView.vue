@@ -3,8 +3,7 @@
         <PlatformHeader title="Developer" :canNavigateBack="false" :canNavigateSettings="false" />
         <Scrollview>
             <FlexboxLayout flexDirection="column" class="p-t-10">
-                <Button class="btn btn-primary btn-padded" :text="_L('viewStations')" @tap="viewStations"></Button>
-
+                <!--
                 <StackLayout class="m-x-20 m-b-20">
                     <DropDown
                         class="drop-down"
@@ -15,25 +14,19 @@
                     />
                     <Label text="Using Developer Configuration" v-else />
                 </StackLayout>
+				-->
 
+                <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
                 <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
                 <Button class="btn btn-primary btn-padded" :text="'Onboarding Flow'" @tap="goOnboardingFlow" />
                 <Button class="btn btn-primary btn-padded" :text="'Calibration Flow'" @tap="goCalibrationFlow" />
                 <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" />
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" />
-                <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
-
-                <Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
-                <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
-                <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
                 <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" />
                 <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" />
                 <Button class="btn btn-primary btn-padded" text="Restart All Discovery" @tap="restartDiscovery" />
-
-                <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
-                <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
 
                 <StackLayout v-for="(s, i) in status" v-bind:key="i" class="status-messages">
                     <Label :text="s.message" textWrap="true" />
@@ -41,9 +34,19 @@
 
                 <Button class="btn btn-primary btn-padded" text="Examine Network" @tap="examineNetwork" :disabled="busy" />
 
+                <!--
+                <Button class="btn btn-primary btn-padded" text="Get Sample Data" @tap="downloadSampleData" />
                 <Button class="btn btn-primary btn-padded" :text="_L('crash')" @tap="crash" />
                 <Button class="btn btn-primary btn-padded" text="Manual Crash" @tap="manualCrash" />
                 <Button class="btn btn-primary btn-padded" text="Generate Notifications" @tap="generateNotifications" />
+				-->
+
+                <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
+
+                <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
+                <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
+                <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
+                <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -193,8 +196,13 @@ export default Vue.extend({
                     this.syncing = false;
                 });
         },
-        forgetUploads(): Promise<any> {
-            return Services.Database()
+        async forgetUploads(): Promise<void> {
+            const confirmation = await this.superConfirm();
+            if (!confirmation) {
+                return;
+            }
+
+            await Services.Database()
                 .forgetUploads()
                 .then(() => {
                     return Services.Store()
@@ -208,8 +216,13 @@ export default Vue.extend({
                         });
                 });
         },
-        forgetDownloads(): Promise<any> {
-            return Services.Database()
+        async forgetDownloads(): Promise<void> {
+            const confirmation = await this.superConfirm();
+            if (!confirmation) {
+                return;
+            }
+
+            await Services.Database()
                 .forgetDownloads()
                 .then(() => {
                     return Services.Store()
@@ -252,6 +265,22 @@ export default Vue.extend({
         goOnboarding(): Promise<any> {
             return this.$navigateTo(routes.onboarding.assembleStation, {});
         },
+        superConfirm(): Promise<boolean> {
+            return Dialogs.confirm({
+                title: "Are you sure?",
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("no"),
+            }).then((yesNo) => {
+                if (yesNo) {
+                    return Dialogs.confirm({
+                        title: "Are really you sure?",
+                        okButtonText: _L("yes"),
+                        cancelButtonText: _L("no"),
+                    });
+                }
+                return false;
+            });
+        },
         resetOnboarding(): Promise<any> {
             const appSettings = new AppSettings();
             appSettings.remove("completedSetup");
@@ -272,10 +301,15 @@ export default Vue.extend({
                 props: {},
             });
         },
-        deleteDB(): Promise<any> {
+        async deleteDB(): Promise<void> {
+            const confirmation = await this.superConfirm();
+            if (!confirmation) {
+                return;
+            }
+
             console.log("deleting database");
 
-            return Services.CreateDb()
+            await Services.CreateDb()
                 .initialize(null, true, false)
                 .then(() => {
                     const store = Services.Store();
@@ -302,14 +336,18 @@ export default Vue.extend({
                 });
             });
         },
-        deleteFiles(): Promise<any> {
+        async deleteFiles(): Promise<void> {
+            const confirmation = await this.superConfirm();
+            if (!confirmation) {
+                return;
+            }
             const rootFolder = knownFolders.documents();
             const diagnosticsFolder = rootFolder.getFolder("diagnostics");
             const firmwareFolder = rootFolder.getFolder("firmware");
             const oldDataFolder = rootFolder.getFolder("FieldKitData");
             const downloadsFolder = rootFolder.getFolder(DownloadsDirectory);
 
-            return Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), downloadsFolder.clear(), oldDataFolder.clear()])
+            await Promise.all([firmwareFolder.clear(), diagnosticsFolder.clear(), downloadsFolder.clear(), oldDataFolder.clear()])
                 .catch((res) => {
                     console.log("error removing files", res, res ? res.stack : null);
 
@@ -456,5 +494,12 @@ export default Vue.extend({
 .status-messages {
     padding-left: 20;
     padding-right: 20;
+}
+
+.danger-notice {
+    color: $fk-primary-black;
+    padding-left: 20;
+    padding-right: 20;
+    line-height: 4;
 }
 </style>

@@ -32,6 +32,11 @@
                 />
                 <SettingsItemIconText :link="'help'" :text="'appSettings.help.help'" :imageSrc="'~/images/icon_help_settings.png'" />
                 <SettingsItemIconText :link="'legal'" :text="'appSettings.legal.legal'" :imageSrc="'~/images/icon_legal_settings.png'" />
+                <SettingsItemIconText
+                    :link="'developer'"
+                    :text="'appSettings.developer.developer'"
+                    :imageSrc="'~/images/icon_legal_settings.png'"
+                />
             </StackLayout>
         </ScrollView>
     </Page>
@@ -39,23 +44,12 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-// import routes from "@/routes";
 import SettingsItemIconText from "./SettingsItemIconText.vue";
-// import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     components: {
         ...SharedComponents,
         SettingsItemIconText,
-    },
-    created: function () {
-        /*
-        if (application.android) {
-            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                args.cancel = true; //this cancels the normal backbutton behaviour
-            });
-        }
-		*/
     },
 });
 </script>
