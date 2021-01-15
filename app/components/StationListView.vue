@@ -61,15 +61,6 @@ export default Vue.extend({
             return this.$s.getters.discovering;
         },
     },
-    created: function () {
-        if (application.android) {
-            // eslint-disable-next-line
-            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                // eslint-disable-next-line
-                args.cancel = true; // This cancels the normal backbutton behaviour
-            });
-        }
-    },
     methods: {
         getDeployStatus(station: AvailableStation): string {
             return station.deployStartTime ? _L("deployed", station.deployStartTime) : _L("readyToDeploy");
