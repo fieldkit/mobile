@@ -148,7 +148,7 @@ export default Vue.extend({
             return `${_L("since")} ${getLastSeen(this.station.lastSeen)}`;
         },
         displayedSSID(): string | null {
-            const currentSSID = this.$s.state.phone.network?.ssid;
+            const currentSSID = this.$s.state.phone.network?.ssid || null;
             return currentSSID && currentSSID.length > 0 ? currentSSID.substr(0, 10) + "..." : currentSSID;
         },
     },

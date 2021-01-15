@@ -67,6 +67,7 @@ export default Vue.extend({
     },
     methods: {
         onSelectedIndexChanged(args) {
+            // eslint-disable-next-line
             const view = <BottomNavigation>args.object;
             this.tab = view.selectedIndex;
             console.log("tab-changed", this.tab);

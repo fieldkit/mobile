@@ -8,14 +8,14 @@ import { Station } from "../types";
 import { ServiceRef } from "@/services";
 
 export class PhoneState {
-    network: PhoneNetwork = new PhoneNetwork(null);
+    network: PhoneNetwork | null = null;
     location: PhoneLocation = CommonLocations.TwinPeaksEastLosAngelesNationalForest;
     stationNetworks: string[] = [];
 }
 
 const getters = {
     directlyConnected: (state: PhoneState): boolean => {
-        if (state.network.ssid) {
+        if (state.network && state.network.ssid) {
             return _.includes(state.stationNetworks, state.network.ssid);
         }
         return false;
@@ -29,10 +29,13 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.REFRESH_NETWORK]: async ({ dispatch, commit, state }: ActionParameters, _payload: RefreshNetworkAction) => {
             const status = await services.conservify().findConnectedNetwork();
             const newSsid = status.connectedWifi?.ssid || null;
-            if (newSsid != state.network.ssid) {
+            const first = state.network == null;
+            if (first || newSsid != state.network?.ssid) {
                 const network = new PhoneNetwork(newSsid);
                 commit(MutationTypes.PHONE_NETWORK, network);
-                await dispatch(new NetworkChangedAction(network));
+                if (!first) {
+                    await dispatch(new NetworkChangedAction(network));
+                }
             }
         },
     };
