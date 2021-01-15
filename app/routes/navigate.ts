@@ -60,6 +60,9 @@ function addDefaults(options: NavigateOptions | null): NavigateOptions {
     const frame = Frame.topmost();
     const defaults = {
         frame: frame ? frame.id : null,
+        transition: {
+            name: "fade",
+        },
     };
     return _.extend({}, defaults, options);
 }

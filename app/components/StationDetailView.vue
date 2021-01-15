@@ -157,11 +157,6 @@ export default Vue.extend({
                 animations.pressed(ev),
                 this.$navigateTo(routes.stations, {
                     clearHistory: true,
-                    transition: {
-                        name: "slideRight",
-                        duration: 250,
-                        curve: "linear",
-                    },
                 }),
             ]);
         },
