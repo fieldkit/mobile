@@ -196,10 +196,10 @@ export default Vue.extend({
 
 #outer-circle.active,
 #inner-circle.active {
-    border-color: $fk-primary-blue;
+    border-color: $fk-circle-blue;
 }
 #inner-circle.active {
-    background: $fk-primary-blue;
+    background: $fk-circle-blue;
 }
 
 .rec-time {
