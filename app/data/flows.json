@@ -26,11 +26,11 @@
                 "skip": "Skip",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\nA) Upper board \nB) Lower board\nC) Module base \nD) Module board(s)\nE) Battery\nF) FieldKit Case\nG) Cable Plate\nH) Screws\nI) Micro USB cable\n\n+ Phillips screwdriver (not included)",
+                        "body": "Do you have everything?\nCheck that you have all necessary parts to assemble your FieldKit station.\n\nA) Upper Board \nB) Lower Board\nC) Module Base \nD) Module Board(s)\nE) Battery\nF) FieldKit Case\nG) Cable Plate\nH) Screws\nI) Micro USB cable\n\n+ Phillips screwdriver (not included)",
                         "images": [
                             {
                                 "url": "/uploads/TI_1_A_e444ba76b8.jpg"
@@ -50,11 +50,11 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "If not already pre-assembled, combine your upper and lower boards. Be sure to line up the pin headers and sockets. Then press them together firmly.",
+                        "body": "Combine Upper and Lower Boards\nIf not already pre-assembled, combine your Upper Board and Lower Board. Be sure to line up the pin headers and sockets. Then press them together firmly.",
                         "images": [
                             {
                                 "url": "/uploads/TI_2_A_112a78f350.jpg"
@@ -77,11 +77,11 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Attach the combined upper and lower boards to the module base. You now have your FieldKit core.",
+                        "body": "Attach Module Base\nAttach the combined Upper and Lower Boards to the Module Base. You now have your FieldKit Core.",
                         "images": [
                             {
                                 "url": "/uploads/TI_3_A_e2c8ce7917.png"
@@ -101,11 +101,11 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Attach your individual module boards to the module base, and secure them with screws.",
+                        "body": "Attach Module Boards\nAttach your individual Module Boards to the Module Base, and secure them with screws.",
                         "images": [
                             {
                                 "url": "/uploads/TI_4_A_e9dc955a94.jpg"
@@ -125,11 +125,11 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Place your assembled components inside the case. Secure everything down with screws so it doesn't move around.\n\nNote: You'll have to temporarily lift off the upper board to reach one of the screw holes in the lower board.",
+                        "body": "Secure Inside Case\nPlace your assembled components inside the Case. Secure everything down with screws so it doesn't move around.\n\nNote: You'll have to temporarily lift off the Upper Board to reach one of the screw holes in the Lower Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_5_A_ccf0984f18.png"
@@ -149,11 +149,11 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Insert the battery cable to the top left of the upper board where it says “BATTERY”.",
+                        "body": "Attach Battery\nInsert the battery cable to the top left of the Upper Board where it says “BATTERY”.",
                         "images": [
                             {
                                 "url": "/uploads/TI_6_A_501dfaea02.png"
@@ -173,11 +173,11 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Insert the button cable to the top right of the upper board where it says “BTN”.",
+                        "body": "Attach Button\nInsert the button cable to the top right of the Upper Board where it says “BTN”.",
                         "images": [
                             {
                                 "url": "/uploads/TI_7_A_836b705122.png"
@@ -191,17 +191,17 @@
             },
             {
                 "id": "8",
-                "name": "onboarding.08",
+                "name": "onboarding.09",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Screw the glands or connectors into the cable plate. The number of holes depends on your sensor/power configuration.",
+                        "body": "Assemble Cable Plate\nAdd the inserts into the glands, and screw them into the Cable Plate. \n\nNote: Your Cable Plate depends on your sensor and power configuration. For solar gland, you'll need to snip the insert in order to thread the solar cable through.",
                         "images": [
                             {
                                 "url": "/uploads/TI_21_1c7cdf7182.png"
@@ -218,17 +218,17 @@
             },
             {
                 "id": "9",
-                "name": "onboarding.09",
+                "name": "onboarding.08",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Set Up"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Plug it in to charge the battery from a power source. ",
+                        "body": "Plug in Micro USB Cable\nPlug in the Micro USB cable to a power source to charge  the Battery.",
                         "images": [
                             {
                                 "url": "/uploads/TI_8_A_5c71cc37f2.png"
@@ -248,11 +248,11 @@
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Screw the cable plate onto the case.",
+                        "body": "Attach Cable Plate to Case\nScrew the Cable Plate onto the Case.",
                         "images": [
                             {
                                 "url": "/uploads/TI_24_6362509d17.png"
@@ -266,17 +266,17 @@
             },
             {
                 "id": "11",
-                "name": "onboarding.10",
+                "name": "onboarding.11",
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
                 "header": {
                     "title": "Onboarding",
-                    "subtitle": "Assemble"
+                    "subtitle": "Assemble Station"
                 },
                 "simple": [
                     {
-                        "body": "Flip the switch to the “ON” position. Leave micro USB cable plugged in until the battery reads fully charged.",
+                        "body": "Leave Station to Charge\nFlip the switch to the “ON” position. Leave Micro USB cable plugged in until the battery reads fully charged.",
                         "images": [
                             {
                                 "url": "/uploads/TI_15_A_NEW_x2_9759453cc0.png"
@@ -285,23 +285,6 @@
                                 "url": "/uploads/TI_15_B_NEW_x2_05f6fd4bb9.png"
                             }
                         ]
-                    }
-                ]
-            },
-            {
-                "id": "12",
-                "name": "onboarding.11",
-                "locale": "en_US",
-                "forward": "Done",
-                "skip": null,
-                "header": {
-                    "title": "Onboarding",
-                    "subtitle": "Set Up"
-                },
-                "simple": [
-                    {
-                        "body": "Station Assembled",
-                        "images": []
                     }
                 ]
             },
