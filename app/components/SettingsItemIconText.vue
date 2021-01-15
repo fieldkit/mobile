@@ -29,9 +29,13 @@ export default Vue.extend({
     methods: {
         async goToRoute(): Promise<void> {
             if (this.link) {
-                await this.$navigateTo(routes.appSettings[this.link], {
-                    // clearHistory: false,
-                });
+                try {
+                    await this.$navigateTo(routes.appSettings[this.link], {
+                        // clearHistory: false,
+                    });
+                } catch (error) {
+                    console.log("error", error, error.stack);
+                }
             }
         },
     },

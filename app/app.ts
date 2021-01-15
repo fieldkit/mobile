@@ -36,6 +36,9 @@ function configureVueJs(services: typeof Services): Store {
 
     Object.defineProperty(Vue.prototype, "$s", {
         get: function (this: Vue) {
+            if (this.$store == null) {
+                console.log("$s IS NULL");
+            }
             return this.$store;
         },
     });

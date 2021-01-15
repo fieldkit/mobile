@@ -56,21 +56,15 @@ export default Vue.extend({
         },
         onBack: {
             type: Function as PropType<(ev: unknown) => void>,
-            default: (_ev: unknown) => {
-                Frame.topmost().goBack();
-            },
+            default: null,
         },
         onCancel: {
             type: Function as PropType<(ev: unknown) => void>,
-            default: (_ev: unknown) => {
-                // noop
-            },
+            default: null,
         },
         onSettings: {
             type: Function as PropType<(ev: unknown) => void>,
-            default: (_ev: unknown) => {
-                // noop
-            },
+            default: null,
         },
         canCancel: {
             type: Boolean,
@@ -131,20 +125,22 @@ export default Vue.extend({
     },
     methods: {
         raiseBack(ev): void {
-            console.log("platform-header:back");
             this.$emit("back");
             if (this.onBack) {
+                console.log("platform-header:back (fn)");
                 this.onBack(ev);
             } else {
+                console.log("platform-header:back (nav)");
                 this.$navigateBack();
             }
         },
         raiseCancel(ev): void {
-            console.log("platform-header:cancel");
             this.$emit("cancel");
             if (this.onCancel) {
+                console.log("platform-header:cancel (fn)");
                 this.onCancel(ev);
             } else {
+                console.log("platform-header:cancel (nav)");
                 this.$navigateBack();
             }
         },

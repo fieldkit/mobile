@@ -87,9 +87,6 @@ export default Vue.extend({
             }
         });
     },
-    destroyed(this: any) {
-        console.log("StationsMap::destroyed");
-    },
     methods: {
         onMapReady(this: any, ev) {
             this.map = ev.map;

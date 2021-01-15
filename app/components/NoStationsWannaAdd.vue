@@ -20,6 +20,7 @@ export default Vue.extend({
     },
     methods: {
         goToAddStation(): Promise<any> {
+            // NOTE Without this weird things break after the navigation. Need to address this when we've got more time.
             return this.$navigateTo(routes.onboarding.start, {
                 frame: "outer-frame",
                 clearHistory: true,

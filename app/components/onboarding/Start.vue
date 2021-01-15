@@ -1,6 +1,6 @@
 <template>
     <Page class="page" @loaded="onPageLoaded" navigatingTo="onNavigatingTo">
-        <PlatformHeader :title="_L('fieldkitWifi')" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('fieldkitWifi')" :canNavigateBack="false" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0" v-show="step == 0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">
