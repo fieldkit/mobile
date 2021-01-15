@@ -51,6 +51,7 @@ import { BottomNavigation } from "@nativescript/core";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/AppSettingsView.vue";
+import { Frame } from "@nativescript/core";
 
 export default Vue.extend({
     components: {
@@ -74,23 +75,32 @@ export default Vue.extend({
         },
         tapStations() {
             console.log("tab: stations");
+            const frame: Frame = Frame.getFrameById("stations-frame");
+            console.log(this.$s.state.nav.route);
             return this.$navigateTo(StationListView, {
-                frame: "stations-frame",
+                frame: frame.id,
                 clearHistory: true,
+                transition: { name: "fade" },
             });
         },
         tapData() {
             console.log("tab: data");
+            const frame = Frame.getFrameById("data-frame");
+            console.log(this.$s.state.nav.route);
             return this.$navigateTo(DataSync, {
-                frame: "data-frame",
+                frame: frame.id,
                 clearHistory: true,
+                transition: { name: "fade" },
             });
         },
         tapSettings() {
             console.log("tab: settings");
+            const frame = Frame.getFrameById("settings-frame");
+            console.log(this.$s.state.nav.route);
             return this.$navigateTo(AppSettingsView, {
-                frame: "settings-frame",
+                frame: frame.id,
                 clearHistory: true,
+                transition: { name: "fade" },
             });
         },
     },
