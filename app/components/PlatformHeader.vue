@@ -1,6 +1,6 @@
 <template>
-    <ActionBar backgroundColor="orange" flat="true">
-        <ios>
+    <ActionBar backgroundColor="white" flat="true">
+        <template v-if="ios">
             <template v-if="canNavigateSettings">
                 <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
@@ -16,8 +16,8 @@
                     <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
             </template>
-        </ios>
-        <android>
+        </template>
+        <template v-else>
             <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
                 <StackLayout v-if="haveBackStack" col="0" @tap="raiseBack">
                     <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
@@ -36,7 +36,7 @@
                     <Image width="25" :src="icon"></Image>
                 </StackLayout>
             </GridLayout>
-        </android>
+        </template>
     </ActionBar>
 </template>
 <script lang="ts">
