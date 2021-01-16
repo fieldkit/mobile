@@ -165,7 +165,7 @@ module.exports = {
     // AppSettingsView.vue
     fieldkitSettings: "FieldKit Settings",
     // CalibrationView.vue
-    stationDisconnectedTapHere: "Station disconnected. Tap here to reconnect.",
+    stationDisconnectedTapHere: "Station disconnected.",
     expectedValue: "Expected value",
     calibrationFailed: "Calibration Failed",
     calibrationErrorOccured: "Looks like an error occured. Try calibration again now or try later if you prefer.",
