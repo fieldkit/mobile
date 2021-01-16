@@ -1,5 +1,5 @@
 <template>
-    <GridLayout rows="auto" columns="*" class="top-line-bkgd">
+    <GridLayout rows="auto" columns="*" class="top-line-bkgd progress-container">
         <StackLayout horizontalAlignment="left" :width="progress + '%'" class="top-line" />
     </GridLayout>
 </template>
@@ -25,9 +25,10 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
+.progress-container {
+}
 .top-line-bkgd {
     background-color: $fk-gray-lighter;
-    margin-bottom: 40;
 }
 .top-line {
     border-bottom-width: 3;

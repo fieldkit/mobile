@@ -250,6 +250,7 @@ export default Vue.extend({
         },
         goOnboardingFlow(): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {
+                frame: "outer-frame",
                 props: {
                     flowName: "onboarding",
                 },
@@ -257,6 +258,7 @@ export default Vue.extend({
         },
         goCalibrationFlow(): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {
+                frame: "outer-frame",
                 props: {
                     flowName: "calibration",
                 },

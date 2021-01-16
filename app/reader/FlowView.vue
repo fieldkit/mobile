@@ -8,23 +8,21 @@
             :onBack="backward"
             :onCancel="cancel"
         />
-        <StackLayout>
-            <FlowProgress :progress="progress" />
-            <GridLayout rows="*,auto">
-                <StackLayout row="0">
-                    <SimpleScreen v-if="screen.simple.length >= 1" :screen="screen.simple[0]" :frame="frame" />
-                </StackLayout>
-                <StackLayout row="1" class="m-x-10">
-                    <Button
-                        class="btn btn-primary btn-padded"
-                        :text="screen.forward"
-                        :isEnabled="screen.navOptions.forward.allowed"
-                        @tap="forward"
-                    />
-                    <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="skip" />
-                </StackLayout>
-            </GridLayout>
-        </StackLayout>
+        <GridLayout rows="auto,*,auto" class="container">
+            <FlowProgress row="0" :progress="progress" />
+            <ScrollView row="1" class="container">
+                <SimpleScreen v-if="screen.simple.length >= 1" :screen="screen.simple[0]" :frame="frame" class="simple-screen-container" />
+            </ScrollView>
+            <StackLayout row="2" class="m-x-10">
+                <Button
+                    class="btn btn-primary btn-padded"
+                    :text="screen.forward"
+                    :isEnabled="screen.navOptions.forward.allowed"
+                    @tap="forward"
+                />
+                <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="skip" />
+            </StackLayout>
+        </GridLayout>
     </Page>
 </template>
 
@@ -87,7 +85,7 @@ export default Vue.extend({
             await this.nav.move(this.screen.navOptions.forward).then((done) => {
                 if (done) {
                     // TODO: pass via prop?
-                    return this.$navigateTo(routes.stations, { clearHistory: true });
+                    return this.$navigateTo(routes.tabbed, { clearHistory: true });
                 }
                 return;
             });
@@ -96,17 +94,18 @@ export default Vue.extend({
             console.log("backward", this.screen.name, this.screen.navOptions.backward);
             return this.nav.move(this.screen.navOptions.backward);
         },
+
         async skip(): Promise<void> {
             console.log("skip", this.screen.name);
             await this.nav.move(NavigationOption.Skip).then(() => {
                 // TODO: pass via prop?
-                return this.$navigateTo(routes.stations, { clearHistory: true });
+                return this.$navigateTo(routes.tabbed, { clearHistory: true });
             });
         },
         async cancel(): Promise<void> {
             console.log("cancel", this.screen.name);
             // TODO: pass via prop?
-            await this.$navigateTo(routes.stations, { clearHistory: true });
+            await this.$navigateTo(routes.tabbed, { clearHistory: true });
         },
     },
 });
@@ -122,5 +121,18 @@ export default Vue.extend({
     font-size: 14;
     font-weight: bold;
     text-align: center;
+}
+
+.center-container {
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    padding: 0;
+    margin: 0;
+}
+
+.simple-screen-container {
 }
 </style>
