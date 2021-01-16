@@ -93,13 +93,13 @@ export default Vue.extend({
                 clearHistory: true,
                 props: {},
             });
-			*/
-            await this.$navigateTo(routes.stations, {
+            await this.$navigateTo(routes.tabbed, {
                 clearHistory: true,
                 props: {},
             });
 
             return;
+			*/
         }
 
         console.log("first navigate");
@@ -107,6 +107,7 @@ export default Vue.extend({
         try {
             await this.$navigateTo(getFirstRoute(services), {
                 frame: "outer-frame",
+                clearHistory: true,
             });
         } catch (err) {
             console.log("error", err, err.stack);

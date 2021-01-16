@@ -44,7 +44,6 @@ import SharedComponents from "@/components/shared";
 import routes from "../../routes";
 import { _T } from "../../utilities";
 import { Timer } from "../../common/timer";
-import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     components: {
@@ -68,13 +67,6 @@ export default Vue.extend({
             thisAny.timer = new Timer(1000, () => {
                 this.frame += 1;
             });
-
-            if (application.android) {
-                application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                    args.cancel = true; //this cancels the normal backbutton behaviour
-                    this.back();
-                });
-            }
         },
         onNavigatingTo(): void {
             console.log("onboarding/start:", "nav away");
