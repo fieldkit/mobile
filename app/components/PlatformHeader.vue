@@ -1,5 +1,5 @@
 <template>
-    <ActionBar backgroundColor="white" flat="true">
+    <ActionBar backgroundColor="white" flat="true" class="action-bar">
         <template v-if="ios">
             <template v-if="canNavigateSettings">
                 <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
@@ -19,20 +19,20 @@
         </template>
         <template v-else>
             <GridLayout rows="auto" columns="15*,70*,15*" :class="classes">
-                <StackLayout v-if="haveBackStack" col="0" @tap="raiseBack">
+                <StackLayout v-if="haveBackStack" col="0" class="back-icon" @tap="raiseBack">
                     <Image width="21" src="~/images/Icon_Backarrow.png"></Image>
                 </StackLayout>
                 <GridLayout col="1" :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
                     <Label row="0" class="title text-center" :text="title" textWrap="true"></Label>
                     <Label row="1" class="text-center subtitle" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
                 </GridLayout>
-                <StackLayout v-if="!icon && canCancel" col="2" class="round-bkgd" @tap="raiseCancel">
+                <StackLayout v-if="!icon && canCancel" col="2" class="close-icon" @tap="raiseCancel">
                     <Image width="21" src="~/images/Icon_Close.png"></Image>
                 </StackLayout>
-                <StackLayout v-if="!icon && canNavigateSettings" col="2" class="round-bkgd" @tap="onSettings">
+                <StackLayout v-if="!icon && canNavigateSettings" col="2" class="configure-icon" @tap="onSettings">
                     <Image width="25" src="~/images/Icon_Congfigure.png"></Image>
                 </StackLayout>
-                <StackLayout v-if="icon" col="2" class="round-bkgd" @tap="raiseIcon">
+                <StackLayout v-if="icon" col="2" class="normal-icon" @tap="raiseIcon">
                     <Image width="25" :src="icon"></Image>
                 </StackLayout>
             </GridLayout>
@@ -97,7 +97,7 @@ export default Vue.extend({
     computed: {
         classes(): string {
             const c: string[] = [];
-            if (this.bottomMargin || this.ios) c.push("m-b-20");
+            // if (this.bottomMargin || this.ios) c.push("m-b-20");
             if (this.ios) c.push("ios");
             if (!this.ios) c.push("android");
             return c.join(" ");
@@ -116,7 +116,17 @@ export default Vue.extend({
     },
     mounted(): void {
         // https://docs.nativescript.org/ui/action-bar
-        console.log("platform-header:mounted", "ios", this.ios, "settings", this.canNavigateSettings, "back", this.canNavigateBack);
+        console.log(
+            "platform-header:mounted",
+            "ios",
+            this.ios,
+            "settings",
+            this.canNavigateSettings,
+            "back",
+            this.canNavigateBack,
+            "classes",
+            this.classes
+        );
         // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
         const frame = Frame.topmost();
         if (frame) {
@@ -156,5 +166,30 @@ export default Vue.extend({
 
 .android.header-container {
     padding-top: 15;
+}
+
+.action-bar {
+    margin-left: -20;
+}
+
+.back-icon,
+.normal-icon,
+.configure-icon,
+.close-icon {
+    /* background-color: orange; */
+    padding-bottom: 10;
+    border-radius: 20;
+}
+.close-icon {
+    padding-top: 8;
+}
+.back-icon {
+    padding-top: 10;
+}
+.normal-icon {
+    padding-top: 10;
+}
+.configure-icon {
+    padding-top: 8;
 }
 </style>

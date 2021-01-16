@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onBack="goBack" :onSettings="goToSettings" />
+        <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onSettings="goToSettings" />
         <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35' : '*'" class="m-t-20">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">

@@ -1,6 +1,6 @@
 <template>
     <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
-        <GridLayout rows="75,*,80">
+        <GridLayout rows="75,*,80" v-if="step > 0">
             <!-- header section -->
             <GridLayout row="0" rows="auto" columns="15*,70*,15*" class="m-y-20">
                 <template v-if="step > 0">
@@ -67,23 +67,19 @@
                 </GridLayout>
             </StackLayout>
             <!-- end final screen -->
-
-            <!-- intro screen -->
-            <!-- needs to be "on top of" assembly steps section -->
-            <FlexboxLayout rowSpan="3" v-if="step == 0" flexDirection="column" justifyContent="center" class="m-b-10">
+        </GridLayout>
+        <template v-if="step == 0">
+            <StackLayout verticalAlignment="bottom" class="m-x-10">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
                 <Image class="illo" src="~/images/FieldKit_welcome_image.jpg"></Image>
                 <StackLayout class="welcome-text-container">
                     <Label :text="_L('welcome')" class="welcome text-center" />
                     <Label :text="_L('mobileAppIntro')" textWrap="true" lineHeight="4" class="m-t-5 m-x-20" />
                 </StackLayout>
-                <StackLayout class="m-x-10">
-                    <Button class="btn btn-primary btn-padded" :text="_L('getStarted')" @tap="goNext"></Button>
-                </StackLayout>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('getStarted')" @tap="goNext"></Button>
                 <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
-            </FlexboxLayout>
-            <!-- end intro screen -->
-        </GridLayout>
+            </StackLayout>
+        </template>
     </Page>
 </template>
 
@@ -391,13 +387,13 @@ function createCheckList() {
     font-size: 18;
 }
 .skip {
-    width: 115;
     padding-top: 10;
     padding-bottom: 10;
     background-color: white;
     font-size: 14;
     font-weight: bold;
     text-align: center;
+    margin: 10;
 }
 
 .top-line-bkgd {

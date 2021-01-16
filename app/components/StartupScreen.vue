@@ -57,10 +57,6 @@ export default Vue.extend({
 					flowName: "onboarding",
 				},
 			});
-            return this.$navigateTo(routes.stations, {
-                clearHistory: true,
-                props: {},
-            });
             return this.$navigateTo(routes.appSettings.list, {
                 clearHistory: true,
                 props: {},
@@ -98,9 +94,15 @@ export default Vue.extend({
                 props: {},
             });
 			*/
+            await this.$navigateTo(routes.stations, {
+                clearHistory: true,
+                props: {},
+            });
+
+            return;
         }
 
-        // console.log("first navigate");
+        console.log("first navigate");
 
         try {
             await this.$navigateTo(getFirstRoute(services), {

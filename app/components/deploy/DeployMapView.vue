@@ -1,9 +1,8 @@
 <template>
-    <Page class="page plain" @loaded="onPageLoaded">
+    <Page @loaded="onPageLoaded">
         <PlatformHeader
             :title="_L('deployment')"
             :subtitle="currentStation.name"
-            :canNavigateBack="false"
             :canCancel="true"
             :onCancel="onNavCancel"
             :canNavigateSettings="false"
