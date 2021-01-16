@@ -137,7 +137,7 @@ export default Vue.extend({
         raiseBack(ev): void {
             this.$emit("back");
             if (this.onBack) {
-                console.log("platform-header:back (fn)");
+                console.log("platform-header:back (fn)", this.onBack);
                 this.onBack(ev);
             } else {
                 console.log("platform-header:back (nav)");

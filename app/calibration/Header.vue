@@ -1,5 +1,5 @@
 <template>
-    <PlatformHeader :title="title" :subtitle="subtitle" :icon="icon" onBack="back" />
+    <PlatformHeader :title="title" :subtitle="subtitle" :icon="icon" :onBack="back" />
 </template>
 
 <script lang="ts">
