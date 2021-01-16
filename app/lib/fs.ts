@@ -148,6 +148,9 @@ export function getPathTimestamp(ts: Moment | Date | string | number): string {
 }
 
 export function rebaseAbsolutePath(path: string): string {
+    if (path.length == 0) {
+        throw new Error("empty path");
+    }
     if (path[0] == "/") {
         const relative = removeLeadingDirectory(getRelativeTo(DocumentsDirectory, path));
         return [knownFolders.documents().path, relative].join("/");

@@ -8,7 +8,7 @@
                     class="small-round"
                     src="~/images/Icon_Play.png"
                     v-if="playing != r"
-                    @tap="(ev) => startPlaying(ev, r)"
+                    @tap="(ev) => startPlaying(r)"
                 />
                 <Image
                     col="0"
@@ -52,7 +52,7 @@ export default Vue.extend({
             return this.startPlaying(media);
         },
         startPlaying(media: NoteMedia): Promise<void> {
-            console.log("recording:playing");
+            console.log(`recording:playing: ${JSON.stringify(media)}`);
             return this.$services
                 .Audio()
                 .playRecordedFile(rebaseAbsolutePath(media.path), ({ error }) => {
