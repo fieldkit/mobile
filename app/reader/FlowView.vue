@@ -1,37 +1,38 @@
 <template>
-    <Page class="page" actionBarHidden="true">
-        <GridLayout rows="auto,*,auto">
-            <StackLayout row="0">
-                <Header
-                    :header="screen.header"
-                    :canBack="screen.navOptions.backward.allowed"
-                    :canCancel="true"
-                    @back="backward"
-                    @cancel="cancel"
-                />
-                <FlowProgress :progress="progress" />
-            </StackLayout>
-            <StackLayout row="1">
-                <SimpleScreen v-if="screen.simple.length >= 1" :screen="screen.simple[0]" :frame="frame" />
-            </StackLayout>
-            <StackLayout row="2" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded"
-                    :text="screen.forward"
-                    :isEnabled="screen.navOptions.forward.allowed"
-                    @tap="forward"
-                />
-                <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="skip" />
-            </StackLayout>
-        </GridLayout>
+    <Page class="page">
+        <PlatformHeader
+            :title="screen.header.title"
+            :canCancel="true"
+            :canNavigateSettings="false"
+            :canNavigateBack="screen.navOptions.backward.allowed"
+            :onBack="backward"
+            :onCancel="cancel"
+        />
+        <StackLayout>
+            <FlowProgress :progress="progress" />
+            <GridLayout rows="*,auto">
+                <StackLayout row="0">
+                    <SimpleScreen v-if="screen.simple.length >= 1" :screen="screen.simple[0]" :frame="frame" />
+                </StackLayout>
+                <StackLayout row="1" class="m-x-10">
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="screen.forward"
+                        :isEnabled="screen.navOptions.forward.allowed"
+                        @tap="forward"
+                    />
+                    <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="skip" />
+                </StackLayout>
+            </GridLayout>
+        </StackLayout>
     </Page>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import Header from "./Header.vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
+import PlatformHeader from "@/components/PlatformHeader";
 import routes from "@/routes";
 import flows from "@/data/flows.json";
 import { Timer } from "@/common/timer";
@@ -40,7 +41,7 @@ import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 export default Vue.extend({
     name: "FlowView",
     components: {
-        Header,
+        PlatformHeader,
         FlowProgress,
         SimpleScreen,
     },
