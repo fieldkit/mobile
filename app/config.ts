@@ -7,6 +7,7 @@ function getBlankLocalConfig(): LocalConfig {
             verbose: false,
         },
         dev: false,
+        beta: false,
         baseUri: "http://192.168.0.100:8080",
         ingestionUri: "http://192.168.0.100:8080/ingestion",
         debugging: {

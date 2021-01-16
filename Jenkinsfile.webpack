@@ -16,7 +16,7 @@ timestamps {
             stage ('npm') {
 				sh "rm -rf node_modules/*/.git node_modules/fk-*-protocol"
 				sh "npm install"
-				sh "cp app/secrets.ts.template app/secrets.ts"
+				sh "cp app/secrets.ts.release app/secrets.ts"
             }
 
             stage ('tests') {

@@ -3,8 +3,7 @@
         <PlatformHeader title="Developer" :canNavigateBack="false" :canNavigateSettings="false" />
         <Scrollview>
             <FlexboxLayout flexDirection="column" class="p-t-10">
-                <!--
-                <StackLayout class="m-x-20 m-b-20">
+                <StackLayout class="m-x-20 m-b-20" v-if="beta">
                     <DropDown
                         class="drop-down"
                         :items="dropDownValues"
@@ -14,18 +13,17 @@
                     />
                     <Label text="Using Developer Configuration" v-else />
                 </StackLayout>
-				-->
 
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
                 <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
-                <Button class="btn btn-primary btn-padded" :text="'Onboarding Flow'" @tap="goOnboardingFlow" />
-                <Button class="btn btn-primary btn-padded" :text="'Calibration Flow'" @tap="goCalibrationFlow" />
-                <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" />
-                <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" />
+                <Button class="btn btn-primary btn-padded" :text="'Onboarding Flow'" @tap="goOnboardingFlow" v-if="beta" />
+                <Button class="btn btn-primary btn-padded" :text="'Calibration Flow'" @tap="goCalibrationFlow" v-if="beta" />
+                <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" v-if="beta" />
+                <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" v-if="beta" />
 
-                <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" />
-                <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" />
+                <Button class="btn btn-primary btn-padded" text="Stop Discovery" @tap="stopDiscovery" v-if="beta" />
+                <Button class="btn btn-primary btn-padded" text="Start Discovery" @tap="startDiscovery" v-if="beta" />
                 <Button class="btn btn-primary btn-padded" text="Restart All Discovery" @tap="restartDiscovery" />
 
                 <StackLayout v-for="(s, i) in status" v-bind:key="i" class="status-messages">
@@ -61,6 +59,7 @@ import { ValueList } from "nativescript-drop-down";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
 import Bluebird from "bluebird";
+import Config from "@/config";
 
 import { serializePromiseChain } from "@/utilities";
 import { DownloadsDirectory, getFilePath, getFileName, listAllFiles } from "@/lib/fs";
@@ -86,7 +85,6 @@ class StatusMessages {
     constructor(public readonly message: string) {}
 }
 
-// asdfasdf;
 export default Vue.extend({
     data(): {
         status: StatusMessages[];
@@ -104,6 +102,9 @@ export default Vue.extend({
         Recalibrate,
     },
     computed: {
+        beta(): boolean {
+            return Config.beta;
+        },
         dropDownValues(): ValueList<any> {
             return new ValueList<any>(this.portalEnvs);
         },

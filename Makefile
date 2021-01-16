@@ -1,4 +1,5 @@
 ANDROID ?= $(HOME)/android-sdk/tools/bin
+BUILD_TYPE ?= beta
 APP ?= .
 
 NSSQLITE = nativescript-sqlite-commercial-1.3.2.tgz
@@ -27,7 +28,7 @@ update:
 emulator:
 	sudo $(ANDROID)/../emulator -avd test
 
-$(APP)/app/secrets.ts: $(APP)/app/secrets.ts.template
+$(APP)/app/secrets.ts: $(APP)/app/secrets.ts.$(BUILD_TYPE)
 	cp $^ $@
 
 prettier:

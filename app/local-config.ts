@@ -1,5 +1,6 @@
 export interface LocalConfig {
     dev: boolean;
+    beta: boolean;
     debugging: {
         machine: string | null;
     };
