@@ -15,8 +15,8 @@
                         v-model="form.body"
                     />
                     <StackLayout row="2" width="100%" class="audio-container">
-                        <AudioRecordings :recordings="note.audio" @remove-audio="raiseRemoveAudio" />
-                        <MakeAudioRecording v-if="audioReady" @cancel="onAudioTap" @stop="onAudioDone" />
+                        <AudioRecordings :recordings="note.audio" @remove-audio="onRemoveAudio" />
+                        <MakeAudioRecording v-if="audioReady" @cancel="onAudioTap" @stop="onAttachNoteMedia" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -122,12 +122,6 @@ export default Vue.extend({
         },
         onAudioTap(): void {
             this.audioReady = !this.audioReady;
-        },
-        onAudioDone(...args: unknown[]): void {
-            this.$emit("attach-media", ...args);
-        },
-        raiseRemoveAudio(...args: unknown[]): void {
-            this.$emit("remove-audio", ...args);
         },
         maybeDismissKeyboard(): void {
             (this.$refs.noteBody as any).nativeView.dismissSoftInput();
