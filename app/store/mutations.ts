@@ -142,3 +142,9 @@ export class RenameStationMutation {
 
     constructor(public readonly deviceId: string, public readonly name: string) {}
 }
+
+export class NavigationMutation {
+    type = MutationTypes.NAVIGATION;
+
+    constructor(public readonly frame: string, public readonly name: string, public readonly file: string) {}
+}

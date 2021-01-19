@@ -52,8 +52,10 @@ import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/AppSettingsView.vue";
 import { Frame } from "@nativescript/core";
+import { NavigationMutation } from "@/store";
 
 export default Vue.extend({
+    name: "TabbedLayout",
     components: {
         StationListView,
         DataSync,
@@ -66,6 +68,11 @@ export default Vue.extend({
             tab: 0,
         };
     },
+    mounted() {
+        this.$s.commit(new NavigationMutation("stations-frame", "StationListView", ""));
+        this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
+        this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
+    },
     methods: {
         onSelectedIndexChanged(args) {
             // eslint-disable-next-line
@@ -73,35 +80,57 @@ export default Vue.extend({
             this.tab = view.selectedIndex;
             console.log("tab-changed", this.tab);
         },
-        tapStations() {
-            console.log("tab: stations");
+        // eslint-disable-next-line
+        isSameView(frameId: string, page: any): boolean {
+            const frameStateNow = this.$s.state.nav.frames[frameId] || { name: null };
+            // eslint-disable-next-line
+            const desiredPage: string | null = page.options?.name || null;
+            if (!desiredPage) {
+                return false;
+            }
+            return desiredPage == frameStateNow.name;
+        },
+        async tapStations() {
             const frame: Frame = Frame.getFrameById("stations-frame");
-            console.log(this.$s.state.nav.route);
-            return this.$navigateTo(StationListView, {
-                frame: frame.id,
-                clearHistory: true,
-                transition: { name: "fade" },
-            });
+            console.log(`tab: stations nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            if (this.tab == 0) {
+                // eslint-disable-next-line
+                if (!this.isSameView(frame.id, StationListView)) {
+                    await this.$navigateTo(StationListView, {
+                        frame: frame.id,
+                        clearHistory: true,
+                        transition: { name: "fade" },
+                    });
+                }
+            }
         },
-        tapData() {
-            console.log("tab: data");
+        async tapData() {
             const frame = Frame.getFrameById("data-frame");
-            console.log(this.$s.state.nav.route);
-            return this.$navigateTo(DataSync, {
-                frame: frame.id,
-                clearHistory: true,
-                transition: { name: "fade" },
-            });
+            console.log(`tab: data nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            if (this.tab == 1) {
+                // eslint-disable-next-line
+                if (!this.isSameView(frame.id, DataSync)) {
+                    await this.$navigateTo(DataSync, {
+                        frame: frame.id,
+                        clearHistory: true,
+                        transition: { name: "fade" },
+                    });
+                }
+            }
         },
-        tapSettings() {
-            console.log("tab: settings");
+        async tapSettings() {
             const frame = Frame.getFrameById("settings-frame");
-            console.log(this.$s.state.nav.route);
-            return this.$navigateTo(AppSettingsView, {
-                frame: frame.id,
-                clearHistory: true,
-                transition: { name: "fade" },
-            });
+            console.log(`tab: settings nav frame: ${frame.id} ${JSON.stringify(this.$s.state.nav.frames[frame.id])}`);
+            if (this.tab == 2) {
+                // eslint-disable-next-line
+                if (!this.isSameView(frame.id, AppSettingsView)) {
+                    await this.$navigateTo(AppSettingsView, {
+                        frame: frame.id,
+                        clearHistory: true,
+                        transition: { name: "fade" },
+                    });
+                }
+            }
         },
     },
 });

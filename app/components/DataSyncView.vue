@@ -158,6 +158,7 @@ import * as application from "@nativescript/core/application";
 const log = Config.logger("DataSyncView");
 
 export default Vue.extend({
+    name: "DataSync",
     components: {
         ...SharedComponents,
         NoStationsWannaAdd,

@@ -43,6 +43,7 @@ import * as animations from "./animations";
 import { AvailableStation, DiscoveringStation, ScanForStationsAction } from "@/store";
 
 export default Vue.extend({
+    name: "StationListView",
     components: {
         ...SharedComponents,
         NoStationsWannaAdd,

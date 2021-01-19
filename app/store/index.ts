@@ -81,7 +81,8 @@ function customizeLogger(appendLog: AppendStoreLog) {
     return createLogger({
         filter(mutation: PassedMutation, stateBefore: GlobalState, stateAfter: GlobalState) {
             if (mutation.type == MutationTypes.NAVIGATION) {
-                return simpleMutation(appendLog, mutation);
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload), JSON.stringify(stateAfter.nav.frames));
+                return;
             }
             if (mutation.type == MutationTypes.PHONE_LOCATION) {
                 return simpleMutation(appendLog, mutation);

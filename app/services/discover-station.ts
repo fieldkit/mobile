@@ -43,7 +43,7 @@ class DiscoveredStation {
 class NetworkMonitor {
     private readonly FixedAddresses: { address: string; port: number }[] = [
         { address: "192.168.2.1", port: 80 },
-        // { address: "192.168.0.100", port: 2380 },
+        { address: "192.168.0.100", port: 2380 },
     ];
     private readonly store: OurStore;
     private enabled = false;

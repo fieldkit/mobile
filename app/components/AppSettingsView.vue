@@ -52,6 +52,7 @@ import SharedComponents from "@/components/shared";
 import SettingsItemIconText from "./SettingsItemIconText.vue";
 
 export default Vue.extend({
+    name: "AppSettingsView",
     components: {
         ...SharedComponents,
         SettingsItemIconText,

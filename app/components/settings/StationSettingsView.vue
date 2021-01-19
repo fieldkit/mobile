@@ -24,14 +24,14 @@
 import Vue from "vue";
 import Services from "@/services/singleton";
 import SharedComponents from "@/components/shared";
-import * as animations from "@/components/animations";
+import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 import General from "./StationSettingsGeneral.vue";
 import Networks from "./StationSettingsNetworks.vue";
 import Firmware from "./StationSettingsFirmware.vue";
 import Modules from "./StationSettingsModuleList.vue";
 import EndDeploy from "./StationSettingsEndDeploy.vue";
+import * as animations from "@/components/animations";
 import { AvailableStation } from "@/store";
-import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
 
 export default Vue.extend({
     data(): {

@@ -1,15 +1,9 @@
 import { Module } from "vuex";
-import { MutationTypes } from "../mutations";
-import { RouteState } from "../../routes/navigate";
+import { MutationTypes, NavigationMutation } from "../mutations";
 import { ServiceRef } from "@/services";
 
-export interface Navigation {
-    name: string;
-    routeState: RouteState;
-}
-
 export class NavigationState {
-    public route: Navigation | null = null;
+    public frames: { [frame: string]: NavigationMutation } = {};
 }
 
 const getters = {};
@@ -19,8 +13,10 @@ const actions = (_services: ServiceRef) => {
 };
 
 const mutations = {
-    [MutationTypes.NAVIGATION]: (state: NavigationState, route: Navigation) => {
-        state.route = route;
+    [MutationTypes.NAVIGATION]: (state: NavigationState, payload: NavigationMutation) => {
+        if (payload.frame != "") {
+            state.frames[payload.frame] = payload;
+        }
     },
 };
 

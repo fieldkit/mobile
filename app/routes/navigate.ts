@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Component } from "vue";
-import { MutationTypes } from "@/store/mutations";
+import { NavigationMutation } from "@/store/mutations";
 import { Store } from "@/store/our-store";
 import { Frame } from "@nativescript/core";
 
@@ -72,11 +72,14 @@ export default function navigatorFactory(store: Store, navigateTo: NavigateToFun
     return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<void> => {
         const withDefaults = addDefaults(options);
         if (pageOrRoute instanceof Route) {
-            const routeState = pageOrRoute.combine(withDefaults);
-            store.commit(MutationTypes.NAVIGATION, { routeState: routeState, name: pageOrRoute.name, options: withDefaults });
+            // eslint-disable-next-line
+            const page = pageOrRoute.page as any;
+            // eslint-disable-next-line
+            store.commit(new NavigationMutation(withDefaults.frame || "", page.options.name || "", page.options.__file || ""));
             return navigateTo(pageOrRoute.page, withDefaults);
         }
-        console.log("nav: deprecated navigateTo");
+        // eslint-disable-next-line
+        store.commit(new NavigationMutation(withDefaults.frame || "", pageOrRoute.options.name || "", pageOrRoute.options.__file || ""));
         return navigateTo(pageOrRoute, withDefaults);
     };
 }
