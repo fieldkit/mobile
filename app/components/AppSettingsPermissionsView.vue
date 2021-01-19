@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.permissions.permissions')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <ScrollView row="0" class="m-r-20 m-l-20">
+        <ScrollView class="m-r-20 m-l-20">
             <StackLayout>
                 <SettingsItemSlider
                     :title="'appSettings.permissions.locationTitle'"

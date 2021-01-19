@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.legal.legal')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <ScrollView row="0" class="m-r-20 m-l-20">
+        <ScrollView class="m-r-20 m-l-20">
             <StackLayout>
                 <SettingsItemText :text="'appSettings.legal.termsOfService'" :cssClass="'top-bordered-item'" @tap="onTermsOfService" />
                 <SettingsItemText :text="'appSettings.legal.privacyPolicy'" @tap="onPrivacyPolicy" />

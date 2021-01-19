@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.title')" :canNavigateBack="false" :canNavigateSettings="false" />
-        <ScrollView row="0">
+        <ScrollView>
             <StackLayout>
                 <SettingsItemIconText
                     :link="'data'"

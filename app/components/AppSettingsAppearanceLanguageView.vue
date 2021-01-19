@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.appearance.language')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <ScrollView row="0" class="m-r-20 m-l-20">
+        <ScrollView class="m-r-20 m-l-20">
             <StackLayout orientation="vertical">
                 <GridLayout columns="30,*" class="top-bordered-item p-t-30 p-b-10" @tap="selectLanguage('en')">
                     <CheckBox

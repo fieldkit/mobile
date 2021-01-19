@@ -1,9 +1,9 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('appSettings.help.appVersion')" :canNavigateBack="true" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('appSettings.help.appVersion')" :canNavigateSettings="false" />
         <ScrollView class="m-r-20 m-l-20">
             <StackLayout>
-                <StackLayout verticalAlignment="center" backgroundColor="white" class="m-r-30 top-bordered-item bottom-bordered-item">
+                <StackLayout class="top-bordered-item bottom-bordered-item">
                     <Label :text="_L('appSettings.help.version')" class="size-16 m-2 m-t-15" />
                     <Label :text="storeVersion" class="size-12 m-2 m-t-0" />
                     <Label :text="_L('appSettings.help.gitHash')" class="size-16 m-2 m-t-15" @tap="openGit" />

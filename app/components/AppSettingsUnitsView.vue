@@ -1,7 +1,7 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.units.units')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <ScrollView row="0" class="m-r-20 m-l-20">
+        <ScrollView class="m-r-20 m-l-20">
             <StackLayout>
                 <GridLayout rows="50" columns="*, 180" class="top-bordered-item bottom-bordered-item">
                     <Label :text="_L('appSettings.units.unitSystem')" class="size-16 m-5" col="0" verticalAlignment="center" />

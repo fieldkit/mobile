@@ -1,31 +1,29 @@
 <template>
     <Page>
         <PlatformHeader :title="_L('appSettings.data.data')" :canNavigateBack="true" :canNavigateSettings="false" />
-        <GridLayout rows="*,55">
-            <ScrollView row="0" class="m-r-20 m-l-20">
-                <StackLayout>
-                    <SettingsItemSlider
-                        :title="'appSettings.data.autoSyncStationTitle'"
-                        :description="'appSettings.data.autoSyncStationDescription'"
-                        :cssClass="'top-bordered-item'"
-                        v-model="currentSettings.data.auto_sync_station"
-                        v-on:change="saveSettings"
-                    />
-                    <SettingsItemSlider
-                        :title="'appSettings.data.autoSyncPortalTitle'"
-                        :description="'appSettings.data.autoSyncPortalDescription'"
-                        v-model="currentSettings.data.auto_sync_portal"
-                        v-on:change="saveSettings"
-                    />
-                    <SettingsItemSlider
-                        :title="'appSettings.data.mobileDataUsageTitle'"
-                        :description="'appSettings.data.mobileDataUsageDescription'"
-                        v-model="currentSettings.data.mobile_data_usage"
-                        v-on:change="saveSettings"
-                    />
-                </StackLayout>
-            </ScrollView>
-        </GridLayout>
+        <ScrollView class="m-r-20 m-l-20">
+            <StackLayout>
+                <SettingsItemSlider
+                    :title="'appSettings.data.autoSyncStationTitle'"
+                    :description="'appSettings.data.autoSyncStationDescription'"
+                    :cssClass="'top-bordered-item'"
+                    v-model="currentSettings.data.auto_sync_station"
+                    v-on:change="saveSettings"
+                />
+                <SettingsItemSlider
+                    :title="'appSettings.data.autoSyncPortalTitle'"
+                    :description="'appSettings.data.autoSyncPortalDescription'"
+                    v-model="currentSettings.data.auto_sync_portal"
+                    v-on:change="saveSettings"
+                />
+                <SettingsItemSlider
+                    :title="'appSettings.data.mobileDataUsageTitle'"
+                    :description="'appSettings.data.mobileDataUsageDescription'"
+                    v-model="currentSettings.data.mobile_data_usage"
+                    v-on:change="saveSettings"
+                />
+            </StackLayout>
+        </ScrollView>
     </Page>
 </template>
 <script lang="ts">
