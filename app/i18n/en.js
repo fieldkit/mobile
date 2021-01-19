@@ -418,6 +418,12 @@ module.exports = {
     invalidAppKey: "Invalid App Key",
     submit: "Submit",
     logOut: "Log Out",
+    tooltipText1: "Tap button to initiate deploying your station out in the field and recording data. This step also includes gathering Field Notes and pictures to describe deploment site.",
+    tooltipText2: "Tap button to initiate deploying your station out in the field and recording data. This step also includes gathering Field Notes and pictures to describe deploment site.",
+    tooltipText3: "Tap button to initiate deploying your station out in the field and recording data. This step also includes gathering Field Notes and pictures to describe deploment site.",
+    tooltipText4: "Tap button to initiate deploying your station out in the field and recording data. This step also includes gathering Field Notes and pictures to describe deploment site.",
+    tooltipNext: "Next",
+    tooltipHideAll: "Hide all Tips",
     // StationStatusBox.vue
     unknown: "Unknown",
     since: "Since",
