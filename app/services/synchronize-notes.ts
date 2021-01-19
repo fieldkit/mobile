@@ -72,6 +72,7 @@ export default class SynchronizeNotes {
         if (/gif/.test(contentType)) return ts + ".gif";
         if (/caf/.test(contentType)) return ts + ".caf";
         if (/mp4a/.test(contentType)) return ts + ".m4a";
+        if (/m4a/.test(contentType)) return ts + ".m4a";
         throw new Error(`unexpected contentType: ${contentType}`);
     }
 
