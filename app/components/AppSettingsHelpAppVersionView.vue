@@ -5,7 +5,12 @@
             <StackLayout>
                 <StackLayout verticalAlignment="center" backgroundColor="white" class="m-r-30 top-bordered-item bottom-bordered-item">
                     <Label :text="_L('appSettings.help.version')" class="size-16 m-2 m-t-15" />
-                    <Label :text="versions.buildNumber" class="size-12 m-2 m-t-0" />
+                    <Label :text="storeVersion" class="size-12 m-2 m-t-0" />
+                    <Label :text="_L('appSettings.help.gitHash')" class="size-16 m-2 m-t-15" />
+                    <StackLayout orientation="horizontal">
+                        <Label :text="versions.gitHash.substring(0, 8)" class="size-12 m-2 m-t-0 hash-prefix" />
+                        <Label :text="versions.gitHash.substring(8)" class="size-12 m-2 m-t-0 hash-suffix" />
+                    </StackLayout>
                     <Label :text="_L('appSettings.help.updatesTitle')" class="size-16 m-2 m-t-30" />
                     <Label :text="_L('appSettings.help.updatesDescription')" class="size-12 m-2 m-t-0 m-b-15" textWrap="true" />
                 </StackLayout>
@@ -26,11 +31,16 @@ import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
 import { Build } from "@/config";
+import * as appVersion from "nativescript-appversion";
 
 export default Vue.extend({
-    data(this: any) {
+    data(): {
+        versions: typeof Build;
+        storeVersion: string | null;
+    } {
         return {
             versions: Build,
+            storeVersion: null,
         };
     },
     computed: {
@@ -42,6 +52,13 @@ export default Vue.extend({
         ...SharedComponents,
         SettingsItemSlider,
         SettingsItemText,
+    },
+    async mounted(): Promise<void> {
+        const versionName = await appVersion.getVersionName();
+        const versionCode = await appVersion.getVersionCode();
+        const appId = await appVersion.getAppId();
+        console.log(`versions: ${versionName} ${versionCode} ${appId} ${JSON.stringify(Build)}`);
+        this.storeVersion = versionName;
     },
     methods: {
         async saveSettings(): Promise<void> {
@@ -61,5 +78,12 @@ export default Vue.extend({
 .top-bordered-item {
     border-top-color: $fk-gray-lighter;
     border-top-width: 1;
+}
+
+.hash-prefix {
+    font-weight: bold;
+}
+.hash-suffix {
+    color: #a0a0a0;
 }
 </style>

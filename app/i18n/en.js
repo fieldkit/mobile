@@ -498,6 +498,7 @@ module.exports = {
             crashReports: "Crash Reports",
             tutorialGuide: "Tutorial Guide",
             version: "Version",
+            gitHash: "Git Hash",
             updatesTitle: "Updates",
             updatesDescription: "No available updates",
             downloadUpdatesTitle: "Download Updates",

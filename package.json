@@ -21,6 +21,7 @@
         "fk-data-protocol": "git+https://github.com/fieldkit/data-protocol.git#main",
         "lodash": "^4.17.20",
         "moment": "^2.29.1",
+        "nativescript-appversion": "^1.4.4",
         "nativescript-audio": "^6.2.1",
         "nativescript-clipboard": "^2.0.0",
         "nativescript-conservify": "file:third-party/nativescript-conservify",

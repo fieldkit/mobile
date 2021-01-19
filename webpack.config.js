@@ -19,6 +19,8 @@ const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const gitHash = require("child_process").execSync("git rev-parse HEAD").toString().trim();
 const gitBranch = require("child_process").execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
 
+console.log("git:", gitHash, gitBranch);
+
 const hashSalt = Date.now().toString();
 
 const smp = new SpeedMeasurePlugin();
