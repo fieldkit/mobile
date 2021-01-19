@@ -24,7 +24,6 @@
 import Vue from "vue";
 import Services from "@/services/singleton";
 import SharedComponents from "@/components/shared";
-import routes from "@/routes";
 import * as animations from "@/components/animations";
 import General from "./StationSettingsGeneral.vue";
 import Networks from "./StationSettingsNetworks.vue";
@@ -33,7 +32,6 @@ import Modules from "./StationSettingsModuleList.vue";
 import EndDeploy from "./StationSettingsEndDeploy.vue";
 import { AvailableStation } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
-import { Frame } from "@nativescript/core";
 
 export default Vue.extend({
     data(): {
@@ -97,17 +95,7 @@ export default Vue.extend({
             });
         },
         async goToFirmware(): Promise<void> {
-            /*
             await this.$navigateTo(Firmware, {
-                props: {
-                    stationId: this.stationId,
-                },
-            });
-			*/
-            const frame = Frame.topmost();
-            console.log("navigating", frame.backStack.length);
-            // It is expected that the back entry be on the stack at this point. So clearing history clears... after?
-            await this.$navigateTo(routes.appSettings.account, {
                 props: {
                     stationId: this.stationId,
                 },
