@@ -276,7 +276,7 @@ export default Vue.extend({
             }).then((yesNo) => {
                 if (yesNo) {
                     return Dialogs.confirm({
-                        title: "Are really you sure?",
+                        title: "Are really you sure? This is irreversible.",
                         okButtonText: _L("yes"),
                         cancelButtonText: _L("no"),
                     });
