@@ -56,9 +56,6 @@
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import * as animations from "~/components/animations";
-import routes from "@/routes";
-import Promise from "bluebird";
 import { isIOS } from "@nativescript/core";
 
 export default Vue.extend({
@@ -66,7 +63,7 @@ export default Vue.extend({
         currentSettings(this: any) {
             return this.$s.state.portal.settings;
         },
-        isIOS() {
+        isIOS(): boolean {
             return isIOS;
         },
     },
@@ -74,15 +71,12 @@ export default Vue.extend({
         ...SharedComponents,
     },
     methods: {
-        saveSettings() {
-            this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+        async saveSettings(): Promise<void> {
+            await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
-        goBack(this: any, ev) {
-            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.appearance, {})]);
-        },
-        selectLanguage(language) {
+        async selectLanguage(language): Promise<void> {
             this.currentSettings.appearance.language = language;
-            this.saveSettings();
+            await this.saveSettings();
         },
     },
 });

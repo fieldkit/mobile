@@ -1,6 +1,6 @@
 <template>
-    <Page @loaded="onPageLoaded">
-        <PlatformHeader title="Developer" :canNavigateBack="false" :canNavigateSettings="false" />
+    <Page>
+        <PlatformHeader title="Developer" :canNavigateSettings="false" />
         <Scrollview>
             <FlexboxLayout flexDirection="column" class="p-t-10">
                 <StackLayout class="m-x-20 m-b-20" v-if="beta">
@@ -136,9 +136,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(): Promise<void> {
-            return Promise.resolve();
-        },
         onPortalEnvChange(ev: { newIndex: number }): Promise<void> {
             console.log("portal-env-change", ev.newIndex);
             const newEnv = this.$s.state.portal.availableEnvs[ev.newIndex];

@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('appSettings.permissions.permissions')" :canNavigateBack="true" :canNavigateSettings="false" />
         <ScrollView row="0" class="m-r-20 m-l-20">
             <StackLayout>
@@ -33,10 +33,6 @@ import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
-import * as animations from "~/components/animations";
-import routes from "@/routes";
-import Promise from "bluebird";
-import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     computed: {
@@ -49,19 +45,8 @@ export default Vue.extend({
         SettingsItemSlider,
     },
     methods: {
-        onPageLoaded() {
-            if (application.android) {
-                application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                    args.cancel = true; //this cancels the normal backbutton behaviour
-                    this.$navigateTo(routes.appSettings.list, { clearHistory: true, backstackVisible: false });
-                });
-            }
-        },
         saveSettings() {
             this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
-        },
-        goBack(ev) {
-            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.list, { clearHistory: true })]);
         },
     },
 });

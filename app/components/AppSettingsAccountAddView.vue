@@ -22,8 +22,6 @@ import Vue from "vue";
 import LoginForm from "./LoginForm.vue";
 import RegisterForm from "./RegisterForm.vue";
 import { LoginAction } from "@/store/actions";
-import routes from "@/routes";
-import * as animations from "@/components/animations";
 import SharedComponents from "@/components/shared";
 
 export default Vue.extend({
@@ -62,9 +60,6 @@ export default Vue.extend({
             } finally {
                 this.busy = false;
             }
-        },
-        goBack(ev) {
-            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.account, {})]);
         },
     },
 });

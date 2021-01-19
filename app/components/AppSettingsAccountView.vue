@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <PlatformHeader :title="_L('appSettings.account.account')" :canNavigateSettings="false" />
         <GridLayout rows="*,auto">
             <ScrollView row="0" class="m-r-20 m-l-20">
@@ -45,11 +45,9 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemIconText from "~/components/SettingsItemIconText.vue";
-import * as animations from "~/components/animations";
 import { ActionTypes } from "~/store/actions";
 import routes from "@/routes";
 import Services from "@/services/singleton";
-// import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     data(): {} {
@@ -69,24 +67,11 @@ export default Vue.extend({
         SettingsItemIconText,
     },
     methods: {
-        onPageLoaded(): void {
-            /*
-            if (application.android) {
-                application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                    args.cancel = true; //this cancels the normal backbutton behaviour
-                    this.$navigateTo(routes.appSettings.list, { clearHistory: true, backstackVisible: false });
-                });
-            }
-			*/
-        },
         async addAccount(): Promise<void> {
             await this.$navigateTo(routes.appSettings.accountAdd, {});
         },
         async logoutAll(): Promise<void> {
             await Services.PortalInterface().logout();
-        },
-        async goBack(ev: Event): Promise<void> {
-            await Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.list, { clearHistory: true })]);
         },
         async onChooseAccount(account): Promise<void> {
             await Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);

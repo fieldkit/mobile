@@ -25,9 +25,6 @@ import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
-import * as animations from "~/components/animations";
-import routes from "@/routes";
-import Promise from "bluebird";
 import { Build } from "@/config";
 
 export default Vue.extend({
@@ -47,11 +44,8 @@ export default Vue.extend({
         SettingsItemText,
     },
     methods: {
-        saveSettings() {
-            this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
-        },
-        goBack(this: any, ev) {
-            return Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.help, {})]);
+        async saveSettings(): Promise<void> {
+            await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
     },
 });

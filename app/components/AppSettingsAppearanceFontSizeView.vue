@@ -32,8 +32,6 @@
 import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
-import * as animations from "~/components/animations";
-import routes from "@/routes";
 import { isAndroid, isIOS } from "@nativescript/core";
 
 export default Vue.extend({
@@ -54,9 +52,6 @@ export default Vue.extend({
     methods: {
         async saveSettings(): Promise<void> {
             await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
-        },
-        async goBack(this: any, ev): Promise<void> {
-            await Promise.all([animations.pressed(ev), this.$navigateTo(routes.appSettings.appearance, {})]);
         },
         async selectFontSize(size): Promise<void> {
             this.currentSettings.appearance.font_size = Math.round(size.value);

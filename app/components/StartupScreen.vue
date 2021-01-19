@@ -51,10 +51,6 @@ export default Vue.extend({
 				clearHistory: true,
 				props: {},
 			});
-            return this.$navigateTo(routes.appSettings.list, {
-                clearHistory: true,
-                props: {},
-            });
             if (services.Store().getters.stationCalibrations[1]) {
                 // return this.$navigateTo(routes.calibration.start, {
                 // return this.$navigateTo(routes.deploy.start, {
@@ -91,14 +87,16 @@ export default Vue.extend({
                 clearHistory: true,
                 props: {},
             });
-
-            return;
-			*/
             await this.$navigateTo(routes.reader.flow, {
                 clearHistory: true,
                 props: {
                     flowName: "onboarding",
                 },
+            });
+			*/
+            await this.$navigateTo(routes.appSettings.list, {
+                clearHistory: true,
+                props: {},
             });
             return;
         }
