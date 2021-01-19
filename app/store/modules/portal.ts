@@ -235,6 +235,44 @@ const mutations = {
     },
 };
 
+export interface Settings {
+    data?: {
+        auto_sync_station: boolean;
+        auto_sync_portal: boolean;
+        mobile_data_usage: boolean;
+    };
+    notifications?: {
+        push_notifications: boolean;
+    };
+    units?: {
+        unit_system: string;
+        temperature: string;
+        unit_name: string;
+        pressure: string;
+        velocity: string;
+    };
+    permissions?: {
+        location: boolean;
+        files: boolean;
+        camera: boolean;
+        microphone: boolean;
+    };
+    appearance?: {
+        font_size: number;
+        language: string;
+        dark_mode: boolean;
+    };
+    help?: {
+        app_version: {
+            updates: boolean;
+            download_updates: boolean;
+        };
+        crash_reports: boolean;
+        tutorial_guide: boolean;
+    };
+    legal?: {};
+}
+
 type ModuleType = Module<PortalState, never>;
 
 export const portal = (services: ServiceRef): ModuleType => {
