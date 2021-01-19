@@ -14,7 +14,12 @@
                     :text="'appSettings.notifications.notifications'"
                     :imageSrc="'~/images/icon_settings_notifications.png'"
                 />
-                <SettingsItemIconText :link="'units'" :text="'appSettings.units.units'" :imageSrc="'~/images/icons_units.png'" />
+                <SettingsItemIconText
+                    :link="'units'"
+                    :text="'appSettings.units.units'"
+                    :imageSrc="'~/images/icons_units.png'"
+                    v-if="false"
+                />
                 <SettingsItemIconText
                     :link="'permissions'"
                     :text="'appSettings.permissions.permissions'"

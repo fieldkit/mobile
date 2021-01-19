@@ -3,8 +3,13 @@
         <PlatformHeader :title="_L('appSettings.help.help')" :canNavigateBack="true" :canNavigateSettings="false" />
         <ScrollView row="0" class="m-r-20 m-l-20">
             <StackLayout>
-                <SettingsItemText :link="'appearanceFontSize'" :text="'appSettings.appearance.fontSize'" :cssClass="'top-bordered-item'" />
-                <SettingsItemText :link="'appearanceLanguage'" :text="'appSettings.appearance.language'"></SettingsItemText>
+                <SettingsItemText
+                    :link="'appearanceFontSize'"
+                    :text="'appSettings.appearance.fontSize'"
+                    :cssClass="'top-bordered-item'"
+                    v-if="false"
+                />
+                <SettingsItemText :link="'appearanceLanguage'" :text="'appSettings.appearance.language'" v-if="false" />
                 <SettingsItemSlider
                     :title="'appSettings.appearance.darkMode'"
                     v-model="currentSettings.appearance.dark_mode"

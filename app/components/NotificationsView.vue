@@ -28,7 +28,7 @@
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
-                    ></NotificationItem>
+                    />
                 </GridLayout>
                 <Label
                     :text="_L('notificationArchive')"
@@ -43,7 +43,7 @@
                         @toggleMenu="toggleMenu"
                         @dismiss="dismiss"
                         @satisfy="satisfy"
-                    ></NotificationItem>
+                    />
                 </GridLayout>
             </StackLayout>
         </ScrollView>

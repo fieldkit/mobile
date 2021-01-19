@@ -10,9 +10,6 @@
                     v-model="currentSettings.notifications.push_notifications"
                     v-on:change="saveSettings"
                 />
-                <SettingsItemText :text="'appSettings.lorem'" />
-                <SettingsItemText :text="'appSettings.lorem'" />
-                <SettingsItemText :text="'appSettings.lorem'" />
             </StackLayout>
         </ScrollView>
     </Page>
