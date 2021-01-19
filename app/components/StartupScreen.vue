@@ -35,68 +35,29 @@ export default Vue.extend({
         console.log("developer", Config.env.developer);
 
         if (Config.env.developer) {
-            /*
-            return this.$navigateTo(routes.login, {
-                clearHistory: true,
-                props: {},
-            });
-			return this.$navigateTo(routes.internal.calibrate, {
-				clearHistory: true,
-				props: {
-					stationId: 2,
-					position: 0,
-				},
-			});
-			return this.$navigateTo(routes.onboarding.assembleStation, {
-				clearHistory: true,
-				props: {},
-			});
-            if (services.Store().getters.stationCalibrations[1]) {
-                // return this.$navigateTo(routes.calibration.start, {
-                // return this.$navigateTo(routes.deploy.start, {
-                // return this.$navigateTo(routes.deploy.notes, {
-                // return this.$navigateTo(routes.deploy.review, {
-                return this.$navigateTo(routes.stationSettings, {
-                    // return this.$navigateTo(routes.station.settings.firmware, {
-                    // return this.$navigateTo(routes.station.settings.wifiNetworks, {
-                    // return this.$navigateTo(routes.stationDetail, {
-                    // return this.$navigateTo(routes.onboarding.start, {
-                    clearHistory: true,
-                    backstackVisible: true,
-                    props: {
-                        stationId: 1,
-                        position: 3,
-                    },
-                });
-            } else {
-                console.log("no test station");
-            }
-			return this.$navigateTo(routes.onboarding.start, {
-				clearHistory: true,
-				props: {},
-			});
-            return this.$navigateTo(routes.dataSync, {
-                clearHistory: true,
-                props: {},
-            });
-            return this.$navigateTo(routes.developerMenu, {
-                clearHistory: true,
-                props: {},
-            });
-            await this.$navigateTo(routes.tabbed, {
-                clearHistory: true,
-                props: {},
-            });
-            await this.$navigateTo(routes.reader.flow, {
+            // const route = routes.calibration.start;
+            // const route = routes.deploy.start;
+            // const route = routes.deploy.notes;
+            // const route = routes.deploy.review;
+            // const route = routes.stationSettings;
+            // const route = routes.station.settings.firmware;
+            // const route = routes.station.settings.wifiNetworks;
+            // const route = routes.stationDetail;
+            // const route = routes.onboarding.start;
+            // const route = routes.internal.calibrate;
+            // const route = routes.onboarding.assembleStation;
+            // const route = routes.onboarding.start;
+            // const route = routes.dataSync;
+            // const route = routes.developerMenu;
+            // const route = routes.tabbed;
+            // const route = routes.reader.flow;
+            const route = routes.tabbed;
+            await this.$navigateTo(route, {
                 clearHistory: true,
                 props: {
-                    flowName: "onboarding",
+                    stationId: 1,
+                    position: 0,
                 },
-            });
-			*/
-            await this.$navigateTo(routes.appSettings.list, {
-                clearHistory: true,
-                props: {},
             });
             return;
         }
