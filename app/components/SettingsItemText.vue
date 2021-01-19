@@ -23,6 +23,8 @@ export default Vue.extend({
         async goToRoute(): Promise<void> {
             if (this.link) {
                 await this.$navigateTo(routes.appSettings[this.link], {});
+            } else {
+                this.$emit("tap");
             }
         },
     },
