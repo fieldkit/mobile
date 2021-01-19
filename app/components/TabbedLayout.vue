@@ -50,7 +50,7 @@ import { Vue } from "vue-property-decorator";
 import { BottomNavigation } from "@nativescript/core";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
-import AppSettingsView from "../components/AppSettingsView.vue";
+import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
 import { Frame } from "@nativescript/core";
 import { NavigationMutation } from "@/store";
 

@@ -11,12 +11,15 @@ export default Vue.extend({
     props: {
         link: {
             type: String,
+            default: null,
         },
         text: {
             type: String,
+            required: true,
         },
         cssClass: {
             type: String,
+            default: "",
         },
     },
     methods: {

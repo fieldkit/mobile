@@ -15,10 +15,10 @@
                     :imageSrc="'~/images/icon_settings_notifications.png'"
                 />
                 <SettingsItemIconText
+                    v-if="false"
                     :link="'units'"
                     :text="'appSettings.units.units'"
                     :imageSrc="'~/images/icons_units.png'"
-                    v-if="false"
                 />
                 <SettingsItemIconText
                     :link="'permissions'"

@@ -33,13 +33,11 @@
 <script lang="ts">
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
-
-import { ActionTypes } from "@/store/actions";
-import { LegacyStation } from "@/store";
-import SettingsItemIconText from "~/components/SettingsItemIconText.vue";
-import routes from "@/routes";
-import SettingsItemSlider from "~/components/SettingsItemSlider.vue";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import SettingsItemIconText from "~/components/app-settings/SettingsItemIconText.vue";
+import SettingsItemSlider from "~/components/app-settings/SettingsItemSlider.vue";
+import routes from "@/routes";
+import { ActionTypes, LegacyStation } from "@/store";
 
 export default Vue.extend({
     components: {

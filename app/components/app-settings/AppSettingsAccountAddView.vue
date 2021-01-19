@@ -19,9 +19,9 @@
 
 <script lang="ts">
 import Vue from "vue";
-import LoginForm from "./LoginForm.vue";
-import RegisterForm from "./RegisterForm.vue";
-import { LoginAction } from "@/store/actions";
+import LoginForm from "../LoginForm.vue";
+import RegisterForm from "../RegisterForm.vue";
+import { LoginAction } from "@/store";
 import SharedComponents from "@/components/shared";
 
 export default Vue.extend({

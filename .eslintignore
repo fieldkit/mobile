@@ -28,21 +28,21 @@ app/components/WiFiNetworkForm.vue
 app/components/LoginForm.vue
 # Remove after fixing components eslint bug?
 app/components/RegisterForm.vue
-app/components/AppSettingsUnitsView.vue
+app/components/app-settings/AppSettingsUnitsView.vue
 app/components/DiagnosticsModal.vue
-app/components/SettingsItemSlider.vue
+app/components/app-settings/SettingsItemSlider.vue
 app/components/MapModal.vue
 app/components/NotificationsView.vue
 # app/components/LabeledTextField.vue
-app/components/AppSettingsHelpView.vue
+app/components/app-settings/AppSettingsHelpView.vue
 app/components/CircularProgressBar.vue
 app/components/PortalWarning.vue
-app/components/AppSettingsHelpAppVersionView.vue
+app/components/app-settings/AppSettingsHelpAppVersionView.vue
 app/components/SettingsItemText.vue
 app/components/NotificationItem.vue
 app/components/TimeFieldPicker.vue
 app/components/StationPickerModal.vue
-app/components/SettingsItemIconText.vue
+app/components/app-settings/SettingsItemIconText.vue
 app/components/deploy/NoteDisplay.vue
 app/components/deploy/DeployReviewView.vue
 app/components/deploy/DeployNotesView.vue
@@ -68,9 +68,9 @@ app/components/onboarding/AddWifi.vue
 app/components/onboarding/Searching.vue
 app/components/onboarding/NearbyStations.vue
 app/components/StartupScreen.vue
-app/components/AppSettingsAppearanceLanguageView.vue
-app/components/AppSettingsPermissionsView.vue
-app/components/AppSettingsAppearanceView.vue
+app/components/app-settings/AppSettingsAppearanceLanguageView.vue
+app/components/app-settings/AppSettingsPermissionsView.vue
+app/components/app-settings/AppSettingsAppearanceView.vue
 # app/components/ModuleList.vue
 app/components/settings/StationSettingsEndDeploy.vue
 app/components/settings/StationSettingsWiFiSchedule.vue
@@ -86,10 +86,10 @@ app/components/settings/StationSettingsNetworks.vue
 app/components/settings/StationSettingsName.vue
 app/components/settings/StationSettingsWiFi.vue
 app/components/settings/UpgradeFirmwareModal.vue
-app/components/AppSettingsNotificationsView.vue
+app/components/app-settings/AppSettingsNotificationsView.vue
 app/components/NoStationsWannaAdd.vue
 app/components/StationsMap.vue
-app/components/AppSettingsAppearanceFontSizeView.vue
+app/components/app-settings/AppSettingsAppearanceFontSizeView.vue
 app/components/DataSyncView.vue
 app/components/LabeledTextView.vue
 app/components/StationDetailView.vue
@@ -97,15 +97,15 @@ app/components/DeveloperMenuView.vue
 app/components/ScheduleEditor.vue
 app/components/AppSettingsView.vue
 app/components/IntervalEditor.vue
-app/components/AppSettingsAccountAddView.vue
-app/components/AppSettingsLegalView.vue
+app/components/app-settings/AppSettingsAccountAddView.vue
+app/components/app-settings/AppSettingsLegalView.vue
 app/components/TimeFieldModalPicker.vue
 app/components/ConnectionStatusHeader.vue
-app/components/AppSettingsDataView.vue
+app/components/app-settings/AppSettingsDataView.vue
 app/components/NotificationModal.vue
 app/components/TimePickerModal.vue
 # app/components/StationListView.vue
-app/components/AppSettingsAccountView.vue
+app/components/app-settings/AppSettingsAccountView.vue
 app/calibration/__mocks__/Prepare.vue
 app/calibration/__mocks__/Check.vue
 app/calibration/__mocks__/Wait.vue

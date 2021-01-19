@@ -1,4 +1,3 @@
-import AppSettings from "../components/AppSettingsView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import DeveloperMenu from "../components/DeveloperMenuView.vue";
 import Login from "../components/LoginView.vue";
@@ -27,21 +26,22 @@ import DeployNotes from "../components/deploy/DeployNotesView.vue";
 import EditNoteView from "../components/deploy/EditNoteView.vue";
 import DeployReview from "../components/deploy/DeployReviewView.vue";
 
-import AppSettingsData from "../components/AppSettingsDataView.vue";
-import AppSettingsNotifications from "../components/AppSettingsNotificationsView.vue";
-
 import FlowView from "@/reader/FlowView.vue";
 
-import AppSettingsPermissions from "~/components/AppSettingsPermissionsView.vue";
-import AppSettingsHelp from "~/components/AppSettingsHelpView.vue";
-import AppSettingsHelpAppVersion from "~/components/AppSettingsHelpAppVersionView.vue";
-import AppSettingsLegal from "~/components/AppSettingsLegalView.vue";
-import AppSettingsUnits from "~/components/AppSettingsUnitsView.vue";
-import AppSettingsAccount from "~/components/AppSettingsAccountView.vue";
-import AppSettingsAccountAdd from "~/components/AppSettingsAccountAddView.vue";
-import AppSettingsAppearance from "~/components/AppSettingsAppearanceView.vue";
-import AppSettingsAppearanceLanguage from "~/components/AppSettingsAppearanceLanguageView.vue";
-import AppSettingsAppearanceFontSize from "~/components/AppSettingsAppearanceFontSizeView.vue";
+import AppSettings from "../components/app-settings/AppSettingsView.vue";
+import AppSettingsData from "../components/app-settings/AppSettingsDataView.vue";
+import AppSettingsNotifications from "../components/app-settings/AppSettingsNotificationsView.vue";
+import AppSettingsPermissions from "~/components/app-settings/AppSettingsPermissionsView.vue";
+import AppSettingsHelp from "~/components/app-settings/AppSettingsHelpView.vue";
+import AppSettingsHelpAppVersion from "~/components/app-settings/AppSettingsHelpAppVersionView.vue";
+import AppSettingsLegal from "~/components/app-settings/AppSettingsLegalView.vue";
+import AppSettingsUnits from "~/components/app-settings/AppSettingsUnitsView.vue";
+import AppSettingsAccount from "~/components/app-settings/AppSettingsAccountView.vue";
+import AppSettingsAccountAdd from "~/components/app-settings/AppSettingsAccountAddView.vue";
+import AppSettingsAppearance from "~/components/app-settings/AppSettingsAppearanceView.vue";
+import AppSettingsAppearanceLanguage from "~/components/app-settings/AppSettingsAppearanceLanguageView.vue";
+import AppSettingsAppearanceFontSize from "~/components/app-settings/AppSettingsAppearanceFontSizeView.vue";
+
 import AddModuleView from "~/components/onboarding/AddModuleView.vue";
 import NotificationsView from "~/components/NotificationsView.vue";
 

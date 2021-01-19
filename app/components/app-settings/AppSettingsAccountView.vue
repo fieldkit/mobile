@@ -44,7 +44,7 @@
 import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
-import SettingsItemIconText from "~/components/SettingsItemIconText.vue";
+import SettingsItemIconText from "./SettingsItemIconText.vue";
 import { ActionTypes } from "~/store/actions";
 import routes from "@/routes";
 import Services from "@/services/singleton";
