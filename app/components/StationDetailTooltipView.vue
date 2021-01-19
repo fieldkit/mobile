@@ -1,14 +1,14 @@
 <template>
-    <AbsoluteLayout :top="topPosition - (arrowDirection === 'up' ? 0 : 200)" :left="0" width="100%">
+    <AbsoluteLayout :top="topPosition - (arrowDirection === 'up' || !showTooltip ? 0 : 200)" :left="0" width="100%">
         <Label
-            :top="arrowDirection === 'up' ? 2 : 200"
+            :top="arrowDirection === 'up' || !showTooltip ? 2 : 200"
             :left="parseInt(leftPosition) + 2"
             width="15"
             height="15"
             class="tooltip-button"
         ></Label>
         <Label
-            :top="arrowDirection === 'up' ? 0 : 198"
+            :top="arrowDirection === 'up' || !showTooltip ? 0 : 198"
             :left="parseInt(leftPosition)"
             width="19"
             height="19"
@@ -23,7 +23,7 @@
                         <Label :text="_L('tooltipHideAll')" class="p-t-25" textWrap="true" @tap="dismissTooltips" />
                     </StackLayout>
                 </GridLayout>
-                <Label top="20" :left="parseInt(leftPosition) - 2" class="arrow-up"></Label>
+                <Label top="21" :left="parseInt(leftPosition) - 2" class="arrow-up"></Label>
                 <Label top="31" :left="parseInt(leftPosition) - 5" style="background-color: white; height: 5; width: 30"></Label>
             </template>
             <template v-if="arrowDirection === 'down'">
@@ -34,8 +34,8 @@
                         <Label :text="_L('tooltipHideAll')" class="p-t-25" textWrap="true" @tap="dismissTooltips" />
                     </StackLayout>
                 </GridLayout>
-                <Label top="168" :left="parseInt(leftPosition) - 2" class="arrow-down"></Label>
-                <Label top="176" :left="parseInt(leftPosition) - 5" style="background-color: white; height: 5; width: 30"></Label>
+                <Label top="163" :left="parseInt(leftPosition) - 2" class="arrow-down"></Label>
+                <Label top="173" :left="parseInt(leftPosition) - 5" style="background-color: white; height: 5; width: 30"></Label>
             </template>
         </template>
     </AbsoluteLayout>
@@ -99,7 +99,6 @@ export default Vue.extend({
     border-color: $fk-secondary-blue;
     border-width: 1;
 }
-
 .arrow-up {
     background-color: white;
     height: 25;
@@ -116,7 +115,6 @@ export default Vue.extend({
     border-width: 1;
     border-color: $fk-gray-border;
 }
-
 .tooltip-container {
     padding: 20 10;
     border-width: 1;

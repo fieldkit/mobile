@@ -2,7 +2,7 @@
     <Page @loaded="onPageLoaded">
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onSettings="goToSettings" />
         <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35' : '*'" class="m-t-20">
-            <ScrollView row="0" ref="scrollview" style="z-index: 1">
+            <ScrollView row="0" ref="scrollview">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
                         <StackLayout orientation="vertical">
@@ -63,7 +63,7 @@
                     </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
-            <AbsoluteLayout height="100%" width="100%" style="z-index: 20" v-if="currentSettings.help.tutorial_guide">
+            <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorial_guide">
                 <StationDetailTooltipView
                     topPosition="170"
                     leftPosition="120"
