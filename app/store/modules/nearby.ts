@@ -86,9 +86,9 @@ const actions = (services: ServiceRef) => {
                     );
                 })
             );
-            const offline = candidates;
-            const tries = offline.map((candidate) => dispatch(new TryStationOnceAction(candidate)));
-            await Promise.all(tries);
+            const offline = _.groupBy(candidates, (info) => info.url);
+            const tries = _.mapValues(offline, (candidates) => dispatch(new TryStationOnceAction(candidates[0])));
+            await Promise.all(Object.values(tries));
         },
         [ActionTypes.REFRESH]: async ({ dispatch, state }: ActionParameters) => {
             const now = new Date();
