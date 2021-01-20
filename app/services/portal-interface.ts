@@ -2,7 +2,7 @@ import _ from "lodash";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { HttpResponse } from "@/wrappers/networking";
 import { AuthenticationError } from "@/lib/errors";
-import { ActionTypes } from "@/store/actions";
+import { ActionTypes, CurrentUser } from "@/store/actions";
 import { Download, FileTypeUtils } from "@/store/types";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
 
@@ -72,18 +72,6 @@ export class PatchPortalNotes {
 
 export interface PortalPatchNotesPayload {
     notes: PatchPortalNotes[];
-}
-
-export interface CurrentUser {
-    portalId: number;
-    name: string;
-    email: string;
-    token: string;
-    usedAt: Date | null;
-    transmission: {
-        token: string;
-        url: string;
-    } | null;
 }
 
 export interface PortalStation {
@@ -185,6 +173,7 @@ export default class PortalInterface {
             token: token,
             transmission: transmission,
             usedAt: new Date(),
+            lastSync: null,
         };
     }
 
@@ -237,6 +226,7 @@ export default class PortalInterface {
     }
 
     public async addStation(user: CurrentUser, data: AddStationFields): Promise<PortalStation> {
+        if (!user.token) throw new Error(`no token for account`);
         return await this.query({
             authenticated: true,
             token: user.token,
@@ -354,6 +344,8 @@ export default class PortalInterface {
         }
 
         console.log("uploading", local.path, local.exists, local.size);
+
+        if (!user.token) throw new Error(`no token for account`);
 
         const defaultHeaders = {
             "Content-Type": "application/octet-stream",

@@ -1,4 +1,4 @@
-import PortalInterface, { CurrentUser } from "./portal-interface";
+import PortalInterface from "./portal-interface";
 import PortalUpdater from "./portal-updater";
 import DiscoverStation from "./discover-station";
 import Diagnostics from "./diagnostics-service";
@@ -19,7 +19,6 @@ import { OurStore } from "@/store";
 
 export {
     PortalInterface,
-    CurrentUser,
     PortalUpdater,
     DiscoverStation,
     Diagnostics,

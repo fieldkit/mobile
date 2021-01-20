@@ -100,7 +100,7 @@ export interface AccountsTableRow {
     portalId: number;
     name: string;
     email: string;
-    token: string;
+    token: string | null;
     usedAt: Date;
     details: string | null;
 }

@@ -27,6 +27,7 @@ export * from "./types";
 export * from "./actions";
 export * from "./mutations";
 
+export * from "./modules/portal";
 export * from "./modules/nearby";
 export * from "./modules/stations";
 export * from "./modules/syncing";

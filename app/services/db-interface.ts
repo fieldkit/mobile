@@ -5,6 +5,7 @@ import { sqliteToJs } from "@/utilities";
 import { Database } from "@/wrappers/sqlite";
 import { Download, FileTypeUtils, Station, Sensor, Module, Stream } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";
+import { CurrentUser } from "@/store/actions";
 import {
     AccountsTableRow,
     DownloadTableRow,
@@ -125,6 +126,16 @@ export default class DatabaseInterface {
         } catch (error) {
             console.log(`error setting portal id`, error);
             throw new Error(`error setting portal id: ${JSON.stringify(error)}`);
+        }
+    }
+
+    public async updateLastSyncedAt(user: CurrentUser): Promise<void> {
+        try {
+            const values = [new Date(), user.email];
+            await this.execute("UPDATE accounts SET last_synced = ? WHERE email = ?", values);
+        } catch (error) {
+            console.log(`error updating last synced`, error);
+            throw new Error(`error updating last synced: ${JSON.stringify(error)}`);
         }
     }
 
@@ -800,9 +811,26 @@ export default class DatabaseInterface {
     }
 
     public async getAllAccounts(): Promise<AccountsTableRow[]> {
-        return await this.query<AccountsTableRow>("SELECT * FROM accounts").catch((error) =>
+        const rows = await this.query<AccountsTableRow>("SELECT * FROM accounts").catch((error) =>
             Promise.reject(new Error(`error fetching accounts: ${JSON.stringify(error)}`))
         );
+
+        return rows.map((row) => {
+            return {
+                id: row.id,
+                portalId: row.portalId,
+                name: row.name,
+                email: row.email,
+                token: row.token == "" ? null : row.token,
+                usedAt: row.usedAt,
+                details: row.details,
+            };
+        });
+    }
+
+    public async removeAccount(email: string): Promise<void> {
+        console.log(`deleting ${email}`);
+        await this.execute(`DELETE FROM accounts WHERE email = ?`, [email]);
     }
 
     public async addOrUpdateAccounts(account: AccountsTableRow): Promise<void> {

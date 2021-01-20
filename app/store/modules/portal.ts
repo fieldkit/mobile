@@ -2,8 +2,7 @@ import _ from "lodash";
 import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { ServiceRef } from "@/services";
-import { CurrentUser } from "@/services/portal-interface";
-import { ActionTypes, LoginAction, ChangePortalEnvAction } from "../actions";
+import { ActionTypes, LoginAction, ChangePortalEnvAction, CurrentUser, SyncAccountAction, RemoveAccountAction } from "../actions";
 import { PortalEnv } from "../types";
 import { MutationTypes } from "../mutations";
 import { AccountsTableRow, SettingsTableRow } from "../row-types";
@@ -59,12 +58,14 @@ function rowToUser(row: AccountsTableRow): CurrentUser {
     if (row.details) {
         return JSON.parse(row.details) as CurrentUser;
     }
+    console.log(`deprecated account-row: ${row}`);
     return {
         portalId: row.portalId,
         name: row.name,
         email: row.email,
         token: row.token,
         usedAt: row.usedAt ?? new Date(),
+        lastSync: null,
         transmission: null,
     };
 }
