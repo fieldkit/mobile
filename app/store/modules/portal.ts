@@ -198,13 +198,14 @@ const actions = (services: ServiceRef) => {
             commit(MutationTypes.SET_CURRENT_PORTAL_ENV, payload.env);
         },
         [ActionTypes.REFRESH_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
-            console.log(`refresh`);
+            console.log(`refresh`, payload);
         },
         [ActionTypes.REMOVE_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, payload: RemoveAccountAction) => {
             await services.db().removeAccount(payload.email);
             await dispatch(ActionTypes.LOAD_ACCOUNTS);
         },
         [ActionTypes.SYNC_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, payload: SyncAccountAction) => {
+            console.log(`sync`, payload);
             await services.updater().addOrUpdateStations();
         },
     };

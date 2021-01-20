@@ -71,8 +71,8 @@
                     :instructionText="_L('tooltipText1')"
                     :showTooltip="tip === 0"
                     :class="tip === 0 ? 'active' : ''"
-                    @nextTooltip="nextTooltip"
-                    @dismissTooltips="dismissTooltip"
+                    @next-tool-tip="nextTooltip"
+                    @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
                     topPosition="220"
@@ -81,8 +81,8 @@
                     :instructionText="_L('tooltipText2')"
                     :showTooltip="tip === 1"
                     :class="tip === 1 ? 'active' : ''"
-                    @nextTooltip="nextTooltip"
-                    @dismissTooltips="dismissTooltip"
+                    @next-tool-tip="nextTooltip"
+                    @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
                     topPosition="30"
@@ -91,8 +91,8 @@
                     :instructionText="_L('tooltipText3')"
                     :showTooltip="tip === 2"
                     :class="tip === 2 ? 'active' : ''"
-                    @nextTooltip="nextTooltip"
-                    @dismissTooltips="dismissTooltip"
+                    @next-tool-tip="nextTooltip"
+                    @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
                     topPosition="510"
@@ -102,8 +102,8 @@
                     :showTooltip="tip === 3"
                     :class="tip === 3 ? 'active' : ''"
                     :showNextButton="false"
-                    @nextTooltip="nextTooltip"
-                    @dismissTooltips="dismissTooltip"
+                    @next-tool-tip="nextTooltip"
+                    @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
             </AbsoluteLayout>
 

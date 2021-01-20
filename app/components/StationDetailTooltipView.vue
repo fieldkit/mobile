@@ -30,7 +30,7 @@
                 <GridLayout rows="*,*" class="tooltip-container" top="10" :left="textLeftPosition" width="270">
                     <Label row="0" width="270" lineHeight="4" class="size-14" :text="instructionText" textWrap="true" height="90"></Label>
                     <StackLayout row="1" orientation="horizontal" class="size-12">
-                        <Label :text="_L('tooltipNext')" class="p-t-25 m-r-25" textWrap="true" v-if="showNextButton" @tap="nextTooltip" />
+                        <Label v-if="showNextButton" :text="_L('tooltipNext')" class="p-t-25 m-r-25" textWrap="true" @tap="nextTooltip" />
                         <Label :text="_L('tooltipHideAll')" class="p-t-25" textWrap="true" @tap="dismissTooltips" />
                     </StackLayout>
                 </GridLayout>
@@ -78,10 +78,10 @@ export default Vue.extend({
     },
     methods: {
         nextTooltip(): void {
-            this.$emit("nextTooltip");
+            this.$emit("next-tool-tip");
         },
         dismissTooltips(): void {
-            this.$emit("dismissTooltips");
+            this.$emit("dismiss-tool-tips");
         },
     },
 });
