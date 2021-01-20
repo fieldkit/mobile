@@ -4,14 +4,17 @@
         <GridLayout rows="*,auto">
             <ScrollView row="0" class="">
                 <StackLayout>
-                    <StackLayout
-                        v-for="account in accounts"
-                        :key="account.email"
-                        @tap="(ev) => onChooseAccount(account)"
-                        class="account-container"
-                    >
-                        <GridLayout rows="auto" columns="*,30" @tap="onToggle(account)">
-                            <StackLayout row="0" col="0">
+                    <StackLayout v-for="account in accounts" :key="account.email" class="account-container">
+                        <GridLayout rows="auto" columns="30,*,30" @tap="onToggle(account)">
+                            <Image
+                                col="0"
+                                v-if="currentUser && account.email == currentUser.email"
+                                width="15"
+                                class="v-middle"
+                                src="~/images/Icon_Save.png"
+                            />
+                            <StackLayout col="0" row="0" v-else />
+                            <StackLayout col="1" row="0">
                                 <Label :text="account.email" textWrap="true" class="account-email" />
                                 <Label text="Logged In" textWrap="true" class="account-subtitle" v-if="account.token" />
                                 <Label text="Not Logged In" textWrap="true" class="account-subtitle" v-else="" />
@@ -19,7 +22,7 @@
 
                             <FlexboxLayout
                                 row="0"
-                                col="1"
+                                col="2"
                                 class="container-icon"
                                 flexDirection="column"
                                 justifyContent="space-around"
@@ -33,6 +36,11 @@
                             <Label :text="'Last synchronized at ' + prettyTime(account.lastSynced)" />
                             <Button text="Log Out" v-if="account.token && false" />
                             <Button text="Log In" v-if="!account.token && false" />
+                            <Button
+                                text="Switch"
+                                @tap="onChooseAccount(account)"
+                                v-if="!currentUser || currentUser.email != account.email"
+                            />
                             <Button text="Remove" @tap="onRemove(account)" />
                             <Button text="Sync" @tap="onSync(account)" />
                         </StackLayout>

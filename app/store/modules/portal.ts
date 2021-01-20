@@ -58,7 +58,7 @@ function rowToUser(row: AccountsTableRow): CurrentUser {
     if (row.details) {
         return JSON.parse(row.details) as CurrentUser;
     }
-    console.log(`deprecated account-row: ${row}`);
+    console.log(`deprecated account-row: ${JSON.stringify(row)}`);
     return {
         portalId: row.portalId,
         name: row.name,
@@ -194,14 +194,10 @@ const actions = (services: ServiceRef) => {
                 });
         },
         [ActionTypes.CHANGE_PORTAL_ENV]: async ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
-            await services
-                .db()
-                .updatePortalEnv(payload.env)
-                .then(() => {
-                    commit(MutationTypes.SET_CURRENT_PORTAL_ENV, payload.env);
-                });
+            await services.db().updatePortalEnv(payload.env);
+            commit(MutationTypes.SET_CURRENT_PORTAL_ENV, payload.env);
         },
-        [ActionTypes.REFRESH_ACCOUNTS]: async ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
+        [ActionTypes.REFRESH_ACCOUNTS]: ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
             console.log(`refresh`);
         },
         [ActionTypes.REMOVE_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, payload: RemoveAccountAction) => {
