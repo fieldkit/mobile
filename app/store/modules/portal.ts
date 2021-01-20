@@ -201,6 +201,16 @@ const actions = (services: ServiceRef) => {
                     commit(MutationTypes.SET_CURRENT_PORTAL_ENV, payload.env);
                 });
         },
+        [ActionTypes.REFRESH_ACCOUNTS]: async ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
+            console.log(`refresh`);
+        },
+        [ActionTypes.REMOVE_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, payload: RemoveAccountAction) => {
+            await services.db().removeAccount(payload.email);
+            await dispatch(ActionTypes.LOAD_ACCOUNTS);
+        },
+        [ActionTypes.SYNC_ACCOUNT]: async ({ commit, dispatch, state }: ActionParameters, payload: SyncAccountAction) => {
+            await services.updater().addOrUpdateStations();
+        },
     };
 };
 
@@ -210,6 +220,12 @@ const mutations = {
     },
     [MutationTypes.SET_CURRENT_USER]: (state: PortalState, currentUser: CurrentUser) => {
         Vue.set(state, "currentUser", currentUser);
+    },
+    [MutationTypes.REMOVE_ACCOUNT]: (state: PortalState, account: CurrentUser) => {
+        if (state.currentUser && state.currentUser.email == account.email) {
+            Vue.set(state, "currentUser", null);
+            Vue.set(state, "authenticated", false);
+        }
     },
     [MutationTypes.LOGIN]: (state: PortalState) => {
         Vue.set(state, "authenticated", true);

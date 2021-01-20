@@ -438,19 +438,12 @@ const actions = (services: ServiceRef) => {
                 });
         },
         [ActionTypes.STATION_PORTAL_REPLY]: async ({ commit }: ActionParameters, payload: PortalReplyAction) => {
-            await services
-                .db()
-                .setStationPortalError({ id: payload.id }, NoPortalError)
-                .then(() =>
-                    services
-                        .db()
-                        .setStationPortalId(payload)
-                        .then((changed) => {
-                            if (changed) {
-                                commit(MutationTypes.STATION_PORTAL_STATUS, payload);
-                            }
-                        })
-                );
+            await services.db().setStationPortalError({ id: payload.id }, NoPortalError);
+            const changed = await services.db().setStationPortalId(payload);
+            if (changed) {
+                commit(MutationTypes.STATION_PORTAL_STATUS, payload);
+            }
+            await services.db().updateLastSyncedAt(payload.user);
         },
     };
 };

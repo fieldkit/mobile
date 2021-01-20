@@ -484,6 +484,7 @@ module.exports = {
         },
         account: {
             account: "Account",
+            accounts: "Accounts",
             addAccount: "Add Account",
             logoutAll: "Log Out All Accounts",
             email: 'Email',

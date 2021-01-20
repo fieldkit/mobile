@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateBack="true" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateSettings="false" :canCancel="true" />
         <ScrollView>
             <FlexboxLayout class="page login-page" flexDirection="column">
                 <LoginForm v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
@@ -58,7 +58,7 @@ export default Vue.extend({
                         return alert(_L("loginFailed"));
                     });
             } finally {
-                this.busy = false;
+                // this.busy = false;
             }
         },
     },

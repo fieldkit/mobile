@@ -25,6 +25,9 @@ export enum ActionTypes {
     REGISTER = "REGISTER",
     LOGIN = "LOGIN",
     AUTHENTICATED = "AUTHENTICATED",
+    REFRESH_ACCOUNTS = "REFRESH_ACCOUNTS",
+    REMOVE_ACCOUNT = "REMOVE_ACCOUNT",
+    SYNC_ACCOUNT = "SYNC_ACCOUNT",
 
     REFRESH = "REFRESH",
 
@@ -242,7 +245,12 @@ export class PortalReplyAction implements StationPortalStatus {
 
     public readonly error = null;
 
-    constructor(public readonly id: number, public readonly portalId: number, public readonly ownerId: number) {}
+    constructor(
+        public readonly user: CurrentUser,
+        public readonly id: number,
+        public readonly portalId: number,
+        public readonly ownerId: number
+    ) {}
 }
 
 export class PortalErrorAction implements StationPortalStatus {
@@ -258,4 +266,16 @@ export class RenameStationAction {
     type = ActionTypes.RENAME_STATION;
 
     constructor(public readonly deviceId: string, public readonly name: string) {}
+}
+
+export class RemoveAccountAction {
+    type = ActionTypes.REMOVE_ACCOUNT;
+
+    constructor(public readonly email: string) {}
+}
+
+export class SyncAccountAction {
+    type = ActionTypes.SYNC_ACCOUNT;
+
+    constructor(public readonly email: string) {}
 }

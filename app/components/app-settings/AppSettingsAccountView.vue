@@ -1,28 +1,43 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('appSettings.account.account')" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('appSettings.account.accounts')" :canNavigateSettings="false" />
         <GridLayout rows="*,auto">
-            <ScrollView row="0" class="m-r-20 m-l-20">
+            <ScrollView row="0" class="">
                 <StackLayout>
-                    <StackLayout class="top-bordered-item">
-                        <Label :text="_L('appSettings.account.accounts')" class="size-16 m-5 m-t-20 m-b-25" />
-                    </StackLayout>
                     <StackLayout
                         v-for="account in accounts"
-                        orientation="horizontal"
-                        class="v-middle m-b-16"
                         :key="account.email"
                         @tap="(ev) => onChooseAccount(account)"
+                        class="account-container"
                     >
-                        <Label :text="account.email" class="size-14 m-10 v-middle" />
-                        <Image
-                            v-if="currentUser && account.email == currentUser.email"
-                            width="10"
-                            class="v-middle"
-                            src="~/images/Icon_Save.png"
-                        />
+                        <GridLayout rows="auto" columns="*,30" @tap="onToggle(account)">
+                            <StackLayout row="0" col="0">
+                                <Label :text="account.email" textWrap="true" class="account-email" />
+                                <Label text="Logged In" textWrap="true" class="account-subtitle" v-if="account.token" />
+                                <Label text="Not Logged In" textWrap="true" class="account-subtitle" v-else="" />
+                            </StackLayout>
+
+                            <FlexboxLayout
+                                row="0"
+                                col="1"
+                                class="container-icon"
+                                flexDirection="column"
+                                justifyContent="space-around"
+                                alignItems="center"
+                            >
+                                <Image v-show="opened(account)" class="icon-button" width="25" src="~/images/Icon_Cheveron_Up.png" />
+                                <Image v-show="!opened(account)" class="icon-button" width="25" src="~/images/Icon_Cheveron_Down.png" />
+                            </FlexboxLayout>
+                        </GridLayout>
+                        <StackLayout v-if="opened(account)" class="details-container">
+                            <Label :text="'Last synchronized at ' + prettyTime(account.lastSynced)" />
+                            <Button text="Log Out" v-if="account.token && false" />
+                            <Button text="Log In" v-if="!account.token && false" />
+                            <Button text="Remove" @tap="onRemove(account)" />
+                            <Button text="Sync" @tap="onSync(account)" />
+                        </StackLayout>
                     </StackLayout>
-                    <GridLayout rows="50" columns="20, *" @tap="addAccount" class="m-t-15">
+                    <GridLayout rows="50" columns="20, *" @tap="addAccount" class="m-t-15 m-r-20 m-l-20">
                         <Image width="20" height="20" row="0" col="0" src="~/images/Icon_Add_Button.png" verticalAlignment="center" />
                         <Label
                             :text="_L('appSettings.account.addAccount')"
@@ -45,19 +60,25 @@ import Vue from "vue";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemIconText from "./SettingsItemIconText.vue";
-import { ActionTypes } from "~/store/actions";
+import { Dialogs } from "@nativescript/core";
+import { ActionTypes, CurrentUser, RemoveAccountAction, SyncAccountAction } from "@/store";
 import routes from "@/routes";
 import Services from "@/services/singleton";
+import moment from "moment";
 
 export default Vue.extend({
-    data(): {} {
-        return {};
+    data(): {
+        closed: { [index: string]: boolean };
+    } {
+        return {
+            closed: {},
+        };
     },
     computed: {
-        currentUser() {
+        currentUser(): CurrentUser | null {
             return this.$s.state.portal.currentUser;
         },
-        accounts() {
+        accounts(): CurrentUser[] {
             return this.$s.state.portal.accounts;
         },
     },
@@ -66,15 +87,69 @@ export default Vue.extend({
         SettingsItemSlider,
         SettingsItemIconText,
     },
+    async mounted(): Promise<void> {
+        void this.$s.dispatch(ActionTypes.REFRESH_ACCOUNTS);
+    },
     methods: {
+        prettyTime(date: Date | null): string {
+            if (date) {
+                return moment(date).format("YYYY/MM/DD h:mm:ss");
+            }
+            return "N/A";
+        },
+        onToggle(account: CurrentUser): void {
+            Vue.set(this.closed, account.email, this.opened(account));
+        },
+        opened(account: CurrentUser): boolean {
+            if (this.closed[account.email] === true) {
+                return false;
+            }
+            if (this.closed[account.email] === false) {
+                return true;
+            }
+            return false;
+        },
+        onLogin(account: CurrentUser): void {
+            // Confirm
+        },
+        onLogout(account: CurrentUser): void {
+            // Confirm
+        },
+        async onSync(account: CurrentUser): Promise<void> {
+            const yesNo = await Dialogs.confirm({
+                title: "Are you sure?",
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("no"),
+            });
+            if (yesNo) {
+                void this.$s.dispatch(new SyncAccountAction(account.email));
+            }
+        },
+        async onRemove(account: CurrentUser): Promise<void> {
+            const yesNo = await Dialogs.confirm({
+                title: "Are you sure?",
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("no"),
+            });
+            if (yesNo) {
+                await this.$s.dispatch(new RemoveAccountAction(account.email));
+            }
+        },
+        async onChooseAccount(account: CurrentUser): Promise<void> {
+            await Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);
+        },
         async addAccount(): Promise<void> {
             await this.$navigateTo(routes.appSettings.accountAdd, {});
         },
         async logoutAll(): Promise<void> {
-            await Services.PortalInterface().logout();
-        },
-        async onChooseAccount(account): Promise<void> {
-            await Services.Store().dispatch(ActionTypes.CHANGE_ACCOUNT, account.email);
+            const yesNo = await Dialogs.confirm({
+                title: "Are you sure?",
+                okButtonText: _L("yes"),
+                cancelButtonText: _L("no"),
+            });
+            if (yesNo) {
+                await Services.PortalInterface().logout();
+            }
         },
     },
 });
@@ -95,10 +170,39 @@ export default Vue.extend({
 .btn-logout {
     margin-right: 0;
     margin-left: 0;
-    margin-top: 85;
+}
+
+.btn-secondary {
+    font-size: 18;
+    text-transform: none;
+    font-family: "Avenir LT Pro", "AvenirLTPro-Heavy";
+    font-weight: bold;
+    border-color: $fk-primary-red;
+    border-width: 1;
+    background-color: white;
 }
 
 .v-middle {
     vertical-align: middle;
+}
+
+.account-container {
+    margin: 15;
+    border-color: $fk-gray-lighter;
+    border-width: 1;
+    border-radius: 4;
+    padding: 10;
+}
+
+.details-container {
+    margin-top: 10;
+    padding-top: 15;
+    padding-bottom: 10;
+    border-top-color: $fk-gray-lighter;
+    border-top-width: 1;
+}
+
+.account-email {
+    font-size: 18;
 }
 </style>
