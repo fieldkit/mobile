@@ -283,7 +283,9 @@ export interface Settings {
         crash_reports: boolean;
         tutorial_guide: boolean;
     };
-    legal?: {};
+    legal?: {
+        //
+    };
 }
 
 type ModuleType = Module<PortalState, never>;

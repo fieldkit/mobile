@@ -7,8 +7,8 @@
         <GridLayout row="0" col="1" verticalAlignment="center">
             <GridLayout class="wrapSwitch">
                 <GridLayout verticalAlignment="center" borderRadius="50" borderColor="#d8dce0" borderWidth="2" width="50">
-                    <Switch :checked="content" offBackgroundColor="#fcfcfc" @tap="handleInput" v-if="false" />
-                    <Switch :isEnabled="false" />
+                    <Switch :checked="content" offBackgroundColor="#fcfcfc" @tap="handleInput" v-if="enabled" />
+                    <Switch :isEnabled="enabled" v-else />
                 </GridLayout>
             </GridLayout>
         </GridLayout>
@@ -28,15 +28,23 @@ export default Vue.extend({
     props: {
         title: {
             type: String,
+            required: true,
         },
         description: {
             type: String,
+            required: true,
         },
         cssClass: {
             type: String,
+            default: "",
         },
         value: {
             type: Boolean,
+            required: true,
+        },
+        enabled: {
+            type: Boolean,
+            default: false,
         },
     },
     methods: {

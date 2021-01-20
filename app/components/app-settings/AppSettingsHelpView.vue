@@ -11,6 +11,7 @@
                 />
                 <SettingsItemSlider
                     :title="'appSettings.help.tutorialGuide'"
+                    :enabled="true"
                     v-model="currentSettings.help.tutorial_guide"
                     v-on:change="saveSettings"
                 />
