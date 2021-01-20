@@ -84,8 +84,12 @@ export default Vue.extend({
             console.log("forward", this.screen.name, this.screen.navOptions.forward);
             await this.nav.move(this.screen.navOptions.forward).then((done) => {
                 if (done) {
+                    console.log("done");
                     // TODO: pass via prop?
-                    return this.$navigateTo(routes.tabbed, { clearHistory: true });
+                    return this.$navigateTo(routes.tabbed, {
+                        frame: "outer-frame",
+                        // clearHistory: true,
+                    });
                 }
                 return;
             });
@@ -99,13 +103,19 @@ export default Vue.extend({
             console.log("skip", this.screen.name);
             await this.nav.move(NavigationOption.Skip).then(() => {
                 // TODO: pass via prop?
-                return this.$navigateTo(routes.tabbed, { clearHistory: true });
+                return this.$navigateTo(routes.tabbed, {
+                    frame: "outer-frame",
+                    // clearHistory: true,
+                });
             });
         },
         async cancel(): Promise<void> {
             console.log("cancel", this.screen.name);
             // TODO: pass via prop?
-            await this.$navigateTo(routes.tabbed, { clearHistory: true });
+            await this.$navigateTo(routes.tabbed, {
+                frame: "outer-frame",
+                // clearHistory: true,
+            });
         },
     },
 });
