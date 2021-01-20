@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page class="page">
         <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0">
@@ -14,14 +14,14 @@
                         class="m-l-20 m-r-20 m-t-30"
                         v-model="currentSettings.data.auto_sync_station"
                         v-on:change="saveSettings"
-                    ></SettingsItemSlider>
+                    />
                     <SettingsItemSlider
                         :title="'appSettings.data.mobileDataUsageTitle'"
                         :description="'appSettings.data.mobileDataUsageDescription'"
                         class="m-l-20 m-r-20"
                         v-model="currentSettings.data.mobile_data_usage"
                         v-on:change="saveSettings"
-                    ></SettingsItemSlider>
+                    />
                 </StackLayout>
             </ScrollView>
             <StackLayout :row="1" verticalAlignment="bottom" class="m-x-5 m-b-25">
@@ -67,7 +67,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded() {},
         saveSettings(): void {
             this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },

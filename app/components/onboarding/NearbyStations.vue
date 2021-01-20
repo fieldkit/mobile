@@ -2,39 +2,27 @@
     <Page class="page" actionBarHidden="true">
         <GridLayout rows="*,140">
             <ScrollView row="0">
-                <GridLayout rows="auto" columns="*" verticalAlignment="middle">
-                    <StackLayout row="0" verticalAlignment="middle">
-                        <GridLayout rows="*" columns="*">
-                            <StackLayout row="0" verticalAlignment="middle">
-                                <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true"></Label>
+                <StackLayout>
+                    <Label class="title m-t-20 m-b-10 text-center" :text="_L('selectYourStation')" textWrap="true"></Label>
 
-                                <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true"></Label>
+                    <Label class="instruction" :text="_L('selectStationInstruction')" lineHeight="4" textWrap="true"></Label>
 
-                                <StackLayout class="m-t-10"></StackLayout>
-                                <GridLayout
-                                    rows="auto"
-                                    columns="30,*"
-                                    class="option-container"
-                                    v-for="station in nearbyStations"
-                                    :key="station.id"
-                                >
-                                    <CheckBox
-                                        col="0"
-                                        :checked="station.selected"
-                                        :isEnabled="!station.selected"
-                                        fillColor="#2C3E50"
-                                        onCheckColor="#2C3E50"
-                                        onTintColor="#2C3E50"
-                                        fontSize="18"
-                                        boxType="circle"
-                                        @checkedChange="$event.value !== station.selected && onCheckChange(station.id)"
-                                    />
-                                    <Label col="1" class="m-t-5 m-l-5" :text="station.name"></Label>
-                                </GridLayout>
-                            </StackLayout>
-                        </GridLayout>
-                    </StackLayout>
-                </GridLayout>
+                    <StackLayout class="m-t-10"></StackLayout>
+                    <GridLayout rows="auto" columns="30,*" class="option-container" v-for="station in nearbyStations" :key="station.id">
+                        <CheckBox
+                            col="0"
+                            :checked="station.selected"
+                            :isEnabled="!station.selected"
+                            fillColor="#2C3E50"
+                            onCheckColor="#2C3E50"
+                            onTintColor="#2C3E50"
+                            fontSize="18"
+                            boxType="circle"
+                            @checkedChange="$event.value !== station.selected && onCheckChange(station.id)"
+                        />
+                        <Label col="1" class="m-t-5 m-l-5" :text="station.name"></Label>
+                    </GridLayout>
+                </StackLayout>
             </ScrollView>
 
             <StackLayout row="1" verticalAlignment="bottom" class="m-x-10">

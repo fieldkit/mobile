@@ -1,17 +1,12 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
-        <PlatformHeader :title="_L('connectStation')" :canNavigateSettings="false" />
+    <Page @loaded="onPageLoaded">
+        <PlatformHeader :title="_L('chooseWifiSettings')" :canNavigateSettings="false" />
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="*" columns="*">
                     <StackLayout row="0" verticalAlignment="middle">
                         <ConnectionStatusHeader :connected="currentStation.connected" />
 
-                        <Label
-                            class="m-t-20 m-l-20 m-r-20 m-b-10 text-center bold"
-                            :text="_L('chooseWifiSettings')"
-                            textWrap="true"
-                        ></Label>
                         <Label class="m-20 text-center" :text="_L('chooseWifiInstruction')" lineHeight="4" textWrap="true"></Label>
 
                         <StackLayout v-if="remote">
@@ -106,7 +101,8 @@ export default Vue.extend({
         },
         async forward(): Promise<void> {
             if (this.selected === this.REMOTE_SELECTED) {
-                await this.$navigateTo(routes.onboarding.dataSync, {
+                // Skipping dataSync
+                await this.$navigateTo(routes.onboarding.completeSettings, {
                     props: {
                         stationId: this.stationId,
                         remote: true,

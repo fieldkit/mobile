@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded">
+    <Page actionBarHidden="true">
         <GridLayout rows="auto,*,140">
             <GridLayout row="0" rows="auto,auto" columns="*" class="">
                 <StackLayout row="0" verticalAlignment="middle">
@@ -87,13 +87,9 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(): void {
-            console.log("recalibrating", this.stationId);
-        },
         async goToStations(): Promise<void> {
-            await this.$navigateTo(routes.stations, {
-                clearHistory: true,
-                backstackVisible: false,
+            await this.$navigateTo(routes.tabbed, {
+                frame: "outer-frame",
             });
         },
         async goToDetails(): Promise<void> {

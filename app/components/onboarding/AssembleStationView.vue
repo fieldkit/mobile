@@ -1,20 +1,7 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @unloaded="onUnloaded">
+    <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
+        <PlatformHeader :title="title" :onBack="goBack" :canNavigateSettings="false" />
         <GridLayout rows="75,*,80" v-if="step > 0">
-            <!-- header section -->
-            <GridLayout row="0" rows="auto" columns="15*,70*,15*" class="m-y-20">
-                <template v-if="step > 0">
-                    <StackLayout col="0" class="round-bkgd" verticalAlignment="top" @tap="goBack">
-                        <Image width="21" src="~/images/Icon_Backarrow.png" />
-                    </StackLayout>
-                    <StackLayout col="1" verticalAlignment="middle">
-                        <Label class="title text-center" :text="title" textWrap="true"></Label>
-                    </StackLayout>
-                    <StackLayout col="2" />
-                </template>
-            </GridLayout>
-            <!-- end header section -->
-
             <!-- assembly steps -->
             <StackLayout row="1">
                 <!-- progress bar at top -->

@@ -29,7 +29,7 @@ app/components/LoginForm.vue
 # Remove after fixing components eslint bug?
 app/components/RegisterForm.vue
 app/components/app-settings/AppSettingsUnitsView.vue
-app/components/DiagnosticsModal.vue
+app/components/app-settings/DiagnosticsModal.vue
 app/components/app-settings/SettingsItemSlider.vue
 app/components/MapModal.vue
 app/components/NotificationsView.vue
@@ -93,7 +93,7 @@ app/components/app-settings/AppSettingsAppearanceFontSizeView.vue
 app/components/DataSyncView.vue
 app/components/LabeledTextView.vue
 app/components/StationDetailView.vue
-app/components/DeveloperMenuView.vue
+app/components/app-settings/DeveloperMenuView.vue
 app/components/ScheduleEditor.vue
 app/components/AppSettingsView.vue
 app/components/IntervalEditor.vue

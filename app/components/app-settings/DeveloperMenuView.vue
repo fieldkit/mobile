@@ -243,9 +243,6 @@ export default Vue.extend({
         async restartDiscovery(): Promise<void> {
             await Services.DiscoverStation().restart();
         },
-        viewStations(): Promise<any> {
-            return this.$navigateTo(routes.stations, { clearHistory: true });
-        },
         goOnboardingFlow(): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {
                 frame: "outer-frame",
@@ -263,7 +260,9 @@ export default Vue.extend({
             });
         },
         goOnboarding(): Promise<any> {
-            return this.$navigateTo(routes.onboarding.assembleStation, {});
+            return this.$navigateTo(routes.onboarding.assembleStation, {
+                frame: "outer-frame",
+            });
         },
         superConfirm(): Promise<boolean> {
             return Dialogs.confirm({

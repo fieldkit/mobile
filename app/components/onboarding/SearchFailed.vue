@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true">
+    <Page actionBarHidden="true">
         <GridLayout rows="*,140">
             <ScrollView row="0">
                 <GridLayout rows="auto" columns="*" verticalAlignment="middle">

@@ -6,16 +6,17 @@
                 <GridLayout rows="auto,auto,auto,auto" columns="*" @tap="hideKeyboard">
                     <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
 
-                    <StackLayout row="2">
+                    <StackLayout row="1">
                         <Label :text="_L('wifiStep1')" textWrap="true" class="wifi-help" />
                         <Label :text="_L('wifiStep2')" textWrap="true" class="wifi-help" />
                     </StackLayout>
 
-                    <StackLayout row="3" class="field-container">
+                    <StackLayout row="2" class="field-container">
                         <Label text="SSID" />
                         <TextField class="text-field" v-model="form.ssid" autocorrect="false" autocapitalizationType="none" />
                     </StackLayout>
-                    <StackLayout row="4" class="field-container">
+
+                    <StackLayout row="3" class="field-container">
                         <Label text="Password" />
                         <TextField
                             class="text-field"
@@ -29,12 +30,7 @@
             </ScrollView>
 
             <StackLayout :row="1" verticalAlignment="bottom" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded m-y-10"
-                    :text="_L('next')"
-                    :isEnabled="canAdd && !busy"
-                    @tap="addNetwork"
-                ></Button>
+                <Button class="btn btn-primary btn-padded m-y-10" :text="_L('next')" :isEnabled="canAdd && !busy" @tap="addNetwork" />
                 <Label :text="_L('skipStep')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </GridLayout>
