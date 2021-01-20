@@ -31,7 +31,7 @@ const settings = {
             download_updates: true
         },
         crash_reports: true,
-        tutorial_guide: false
+        tutorial_guide: true
     },
     legal: {}
 };

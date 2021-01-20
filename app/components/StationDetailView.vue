@@ -1,8 +1,8 @@
 <template>
-    <Page>
+    <Page @loaded="onPageLoaded">
         <PlatformHeader :title="currentStation.name" :subtitle="getDeployedStatus()" :onSettings="goToSettings" />
         <GridLayout v-if="currentStation" :rows="notifications.length > 0 ? '*,35' : '*'" class="m-t-20">
-            <ScrollView row="0">
+            <ScrollView row="0" ref="scrollview">
                 <GridLayout rows="*" columns="*">
                     <GridLayout row="0" col="0">
                         <StackLayout orientation="vertical">
@@ -63,6 +63,49 @@
                     </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
+            <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorial_guide">
+                <StationDetailTooltipView
+                    topPosition="170"
+                    leftPosition="120"
+                    arrowDirection="up"
+                    :instructionText="_L('tooltipText1')"
+                    :showTooltip="tip === 0"
+                    :class="tip === 0 ? 'active' : ''"
+                    @nextTooltip="nextTooltip"
+                    @dismissTooltips="dismissTooltip"
+                ></StationDetailTooltipView>
+                <StationDetailTooltipView
+                    topPosition="220"
+                    leftPosition="240"
+                    arrowDirection="up"
+                    :instructionText="_L('tooltipText2')"
+                    :showTooltip="tip === 1"
+                    :class="tip === 1 ? 'active' : ''"
+                    @nextTooltip="nextTooltip"
+                    @dismissTooltips="dismissTooltip"
+                ></StationDetailTooltipView>
+                <StationDetailTooltipView
+                    topPosition="30"
+                    leftPosition="200"
+                    arrowDirection="up"
+                    :instructionText="_L('tooltipText3')"
+                    :showTooltip="tip === 2"
+                    :class="tip === 2 ? 'active' : ''"
+                    @nextTooltip="nextTooltip"
+                    @dismissTooltips="dismissTooltip"
+                ></StationDetailTooltipView>
+                <StationDetailTooltipView
+                    topPosition="510"
+                    leftPosition="100"
+                    arrowDirection="down"
+                    :instructionText="_L('tooltipText4')"
+                    :showTooltip="tip === 3"
+                    :class="tip === 3 ? 'active' : ''"
+                    :showNextButton="false"
+                    @nextTooltip="nextTooltip"
+                    @dismissTooltips="dismissTooltip"
+                ></StationDetailTooltipView>
+            </AbsoluteLayout>
 
             <NotificationFooter v-if="notifications.length > 0" row="1" :onClose="goToDetail" :notifications="notifications" />
         </GridLayout>
@@ -80,6 +123,8 @@ import SharedComponents from "@/components/shared";
 import StationStatusBox from "./StationStatusBox.vue";
 import ModuleList from "./ModuleList.vue";
 import NotificationFooter from "./NotificationFooter.vue";
+import StationDetailTooltipView from "~/components/StationDetailTooltipView.vue";
+import { Settings } from "~/store/modules/portal";
 
 export default Vue.extend({
     components: {
@@ -87,6 +132,7 @@ export default Vue.extend({
         StationStatusBox,
         ModuleList,
         NotificationFooter,
+        StationDetailTooltipView,
     },
     props: {
         stationId: {
@@ -102,11 +148,17 @@ export default Vue.extend({
         newlyDeployed: boolean;
         unwatch: Function;
         recentlyDisconnected: boolean;
+        tip: number;
+        lastTip: number;
+        buttonsTappable: boolean;
     } {
         return {
             newlyDeployed: false,
             unwatch: () => {},
             recentlyDisconnected: false,
+            tip: 0,
+            lastTip: 3,
+            buttonsTappable: false,
         };
     },
     computed: {
@@ -126,6 +178,9 @@ export default Vue.extend({
                 throw new Error(`missing legacyStation`);
             }
             return station;
+        },
+        currentSettings(): Settings {
+            return this.$s.state.portal.settings;
         },
     },
     mounted(): void {
@@ -153,47 +208,57 @@ export default Vue.extend({
     },
     methods: {
         async goBack(ev: Event): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.stations, {
-                    clearHistory: true,
-                }),
-            ]);
+            if (this.buttonsTappable) {
+                await Promise.all([
+                    animations.pressed(ev),
+                    this.$navigateTo(routes.stations, {
+                        clearHistory: true,
+                    }),
+                ]);
+            }
         },
         async goToDeploy(): Promise<void> {
-            await this.$navigateTo(routes.deploy.start, {
-                props: {
-                    stationId: this.stationId,
-                },
-            });
+            if (this.buttonsTappable) {
+                await this.$navigateTo(routes.deploy.start, {
+                    props: {
+                        stationId: this.stationId,
+                    },
+                });
+            }
         },
         async goToFieldNotes(): Promise<void> {
-            await this.$navigateTo(routes.deploy.notes, {
-                props: {
-                    stationId: this.stationId,
-                    linkedFromStation: true,
-                },
-            });
+            if (this.buttonsTappable) {
+                await this.$navigateTo(routes.deploy.notes, {
+                    props: {
+                        stationId: this.stationId,
+                        linkedFromStation: true,
+                    },
+                });
+            }
         },
         async goToSettings(ev: Event): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.stationSettings, {
-                    props: {
-                        stationId: this.currentStation.id,
-                    },
-                }),
-            ]);
+            if (this.buttonsTappable) {
+                await Promise.all([
+                    animations.pressed(ev),
+                    this.$navigateTo(routes.stationSettings, {
+                        props: {
+                            stationId: this.currentStation.id,
+                        },
+                    }),
+                ]);
+            }
         },
         async goToDetail(ev: Event): Promise<void> {
-            await Promise.all([
-                animations.pressed(ev),
-                this.$navigateTo(routes.stationDetail, {
-                    props: {
-                        stationId: this.currentStation.id,
-                    },
-                }),
-            ]);
+            if (this.buttonsTappable) {
+                await Promise.all([
+                    animations.pressed(ev),
+                    this.$navigateTo(routes.stationDetail, {
+                        props: {
+                            stationId: this.currentStation.id,
+                        },
+                    }),
+                ]);
+            }
         },
         async addDeployedNotification(): Promise<void> {
             // TODO Eventually these shouldn't depend on the portal id for the user.
@@ -229,12 +294,14 @@ export default Vue.extend({
             return this.currentStation.deployStartTime ? _L("deployed", this.currentStation.deployStartTime) : _L("readyToDeploy");
         },
         async addModule(): Promise<void> {
-            await this.$navigateTo(routes.onboarding.addModule, {
-                clearHistory: true,
-                props: {
-                    stationId: this.stationId,
-                },
-            });
+            if (this.buttonsTappable) {
+                await this.$navigateTo(routes.onboarding.addModule, {
+                    clearHistory: true,
+                    props: {
+                        stationId: this.stationId,
+                    },
+                });
+            }
         },
         async generateNotificationsFromPortalErrors(): Promise<void> {
             const portalError = this.currentStation?.portalHttpError;
@@ -253,6 +320,27 @@ export default Vue.extend({
                     station: this.currentStation,
                     actions: {},
                 });
+            }
+        },
+        nextTooltip() {
+            this.tip++;
+            if (this.lastTip < this.tip) {
+                this.dismissTooltip();
+                this.tip = 0;
+            }
+        },
+        dismissTooltip() {
+            (this.$refs.scrollview as any).nativeView.isScrollEnabled = true;
+            this.buttonsTappable = true;
+
+            if (this.currentSettings.help?.tutorial_guide) {
+                this.currentSettings.help.tutorial_guide = false;
+                this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+            }
+        },
+        onPageLoaded() {
+            if (this.currentSettings.help?.tutorial_guide) {
+                (this.$refs.scrollview as any).nativeView.isScrollEnabled = false;
             }
         },
     },
@@ -291,5 +379,12 @@ export default Vue.extend({
 .small {
     width: 50;
     margin: 20;
+}
+
+StationDetailTooltipView {
+    z-index: 1;
+}
+.active {
+    z-index: 99;
 }
 </style>
