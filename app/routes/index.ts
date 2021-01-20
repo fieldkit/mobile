@@ -1,5 +1,4 @@
 import DataSync from "../components/DataSyncView.vue";
-import DeveloperMenu from "../components/DeveloperMenuView.vue";
 import Login from "../components/LoginView.vue";
 
 import StationDetail from "../components/StationDetailView.vue";
@@ -41,6 +40,7 @@ import AppSettingsAccountAdd from "~/components/app-settings/AppSettingsAccountA
 import AppSettingsAppearance from "~/components/app-settings/AppSettingsAppearanceView.vue";
 import AppSettingsAppearanceLanguage from "~/components/app-settings/AppSettingsAppearanceLanguageView.vue";
 import AppSettingsAppearanceFontSize from "~/components/app-settings/AppSettingsAppearanceFontSizeView.vue";
+import DeveloperMenu from "../components/app-settings/DeveloperMenuView.vue";
 
 import AddModuleView from "~/components/onboarding/AddModuleView.vue";
 import NotificationsView from "~/components/NotificationsView.vue";

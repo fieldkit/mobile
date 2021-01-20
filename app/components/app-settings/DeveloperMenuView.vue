@@ -69,7 +69,7 @@ import AppSettings from "@/wrappers/app-settings";
 import { testWithFiles } from "@/lib/testing";
 import { ActionTypes, MutationTypes, PortalEnv, ChangePortalEnvAction } from "@/store";
 
-import Recalibrate from "./onboarding/Recalibrate.vue";
+import Recalibrate from "../onboarding/Recalibrate.vue";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 import SharedComponents from "@/components/shared";
 
