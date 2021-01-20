@@ -115,6 +115,7 @@ function getConfig(): FinalConfig {
 }
 
 export const Build = {
+    buildJob: FK_BUILD_JOB || "",
     buildTime: FK_BUILD_TIMESTAMP || "",
     buildNumber: FK_BUILD_NUMBER || "",
     buildTag: FK_BUILD_TAG || "",

@@ -30,6 +30,7 @@ declare global {
     const FK_BUILD_TIMESTAMP: string;
     const FK_BUILD_NUMBER: string;
     const FK_BUILD_TAG: string;
+    const FK_BUILD_JOB: string;
     const FK_GIT_COMMIT: string;
     const FK_GIT_BRANCH: string;
 }

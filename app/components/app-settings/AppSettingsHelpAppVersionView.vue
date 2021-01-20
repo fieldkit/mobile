@@ -5,7 +5,10 @@
             <StackLayout>
                 <StackLayout class="top-bordered-item bottom-bordered-item">
                     <Label :text="_L('appSettings.help.version')" class="size-16 m-2 m-t-15" />
-                    <Label :text="storeVersion" class="size-12 m-2 m-t-0" />
+                    <StackLayout orientation="horizontal">
+                        <Label :text="storeVersion" class="size-12 m-2 m-t-0" />
+                        <Label :text="versions.buildTag" class="size-12 m-2 m-t-0" />
+                    </StackLayout>
                     <Label :text="_L('appSettings.help.gitHash')" class="size-16 m-2 m-t-15" @tap="openGit" />
                     <StackLayout orientation="horizontal" @tap="openGit">
                         <Label :text="versions.gitHash.substring(0, 8)" class="size-12 m-2 m-t-0 hash-prefix" />

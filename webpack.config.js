@@ -321,6 +321,7 @@ module.exports = (env) => {
                 FK_BUILD_TIMESTAMP: JSON.stringify(process.env.BUILD_TIMESTAMP),
                 FK_BUILD_NUMBER: JSON.stringify(process.env.BUILD_NUMBER),
                 FK_BUILD_TAG: JSON.stringify(process.env.BUILD_TAG),
+                FK_BUILD_JOB: JSON.stringify(process.env.JOB_NAME),
                 FK_GIT_COMMIT: JSON.stringify(gitHash),
                 FK_GIT_BRANCH: JSON.stringify(gitBranch),
             }),
