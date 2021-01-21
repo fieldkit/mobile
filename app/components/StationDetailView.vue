@@ -65,8 +65,8 @@
             </ScrollView>
             <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorial_guide">
                 <StationDetailTooltipView
-                    topPosition="170"
-                    leftPosition="120"
+                    :topPosition="170"
+                    :leftPosition="120"
                     arrowDirection="up"
                     :instructionText="_L('tooltipText1')"
                     :showTooltip="tip === 0"
@@ -75,8 +75,8 @@
                     @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
-                    topPosition="220"
-                    leftPosition="240"
+                    :topPosition="220"
+                    :leftPosition="240"
                     arrowDirection="up"
                     :instructionText="_L('tooltipText2')"
                     :showTooltip="tip === 1"
@@ -85,8 +85,8 @@
                     @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
-                    topPosition="30"
-                    leftPosition="200"
+                    :topPosition="30"
+                    :leftPosition="200"
                     arrowDirection="up"
                     :instructionText="_L('tooltipText3')"
                     :showTooltip="tip === 2"
@@ -95,8 +95,8 @@
                     @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
-                    topPosition="510"
-                    leftPosition="100"
+                    :topPosition="510"
+                    :leftPosition="100"
                     arrowDirection="down"
                     :instructionText="_L('tooltipText4')"
                     :showTooltip="tip === 3"
@@ -106,7 +106,6 @@
                     @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
             </AbsoluteLayout>
-
             <NotificationFooter v-if="notifications.length > 0" row="1" :onClose="goToDetail" :notifications="notifications" />
         </GridLayout>
     </Page>
