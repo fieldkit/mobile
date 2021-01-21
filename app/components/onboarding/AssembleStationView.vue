@@ -1,6 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
-        <PlatformHeader :title="title" :onBack="goBack" :canNavigateSettings="false" />
+    <Page @loaded="onPageLoaded" actionBarHidden="true" @unloaded="onUnloaded">
         <template v-if="step == 0">
             <StackLayout verticalAlignment="bottom" class="m-x-10">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
@@ -113,7 +112,7 @@ export default Vue.extend({
                 setTimeout(() => {
                     this.$navigateTo(routes.onboarding.start, {
                         frame: "outer-frame",
-                        clearHistory: true,
+                        // clearHistory: true,
                     });
                 }, 3000);
             }
@@ -132,8 +131,6 @@ export default Vue.extend({
             this.stopAnimation();
         },
         async goBack(ev: Event): Promise<void> {
-            console.log("goBack");
-
             if (this.step > 0) {
                 this.step -= 1;
                 this.animateFrames();
@@ -143,12 +140,11 @@ export default Vue.extend({
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
                 await animations.pressed(ev);
             } else {
-                console.log("no more steps");
                 await Promise.all([
                     animations.pressed(ev),
                     this.$navigateTo(routes.tabbed, {
                         frame: "outer-frame",
-                        clearHistory: true,
+                        // clearHistory: true,
                     }),
                 ]);
             }
@@ -161,13 +157,11 @@ export default Vue.extend({
                 this.instruction = this.steps[this.step].instruction;
                 this.buttonText = this.steps[this.step].button;
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
-                console.log("AssembleStationView::goNext");
-                if (false && this.step == this.steps.length - 1) {
+                if (this.step == this.steps.length - 1) {
                     setTimeout(() => {
-                        console.log("AssembleStationView::navigateTo");
                         this.$navigateTo(routes.onboarding.start, {
                             frame: "outer-frame",
-                            clearHistory: true,
+                            // clearHistory: true,
                         });
                     }, 3000);
                 }
@@ -180,7 +174,7 @@ export default Vue.extend({
                 console.log("skip");
                 await this.$navigateTo(routes.onboarding.start, {
                     frame: "outer-frame",
-                    clearHistory: true,
+                    // clearHistory: true,
                 });
             } catch (err) {
                 console.log(err, err.stack);
@@ -353,7 +347,6 @@ function createCheckList() {
     font-size: 18;
 }
 .skip {
-    padding-top: 10;
     padding-bottom: 10;
     background-color: white;
     font-size: 14;
