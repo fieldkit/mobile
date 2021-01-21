@@ -112,7 +112,7 @@
                             <Label text="Ready to upload" class="transfer-label" />
                         </StackLayout>
                         <StackLayout row="0" col="1" class="container-icon">
-                            <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onUpload(sync)" />
+                            <Image class="icon-button" width="20" src="~/images/Icon_Upload.png" @tap="onUpload(sync)" />
                         </StackLayout>
                     </GridLayout>
 
