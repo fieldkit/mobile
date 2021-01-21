@@ -172,26 +172,22 @@ const actions = (services: ServiceRef) => {
                 .catch((e) => console.log(ActionTypes.CHANGE_ACCOUNT, e));
         },
         [ActionTypes.LOAD_PORTAL_ENVS]: async ({ commit, dispatch, state }: ActionParameters, _payload: ChangePortalEnvAction) => {
-            await services
-                .db()
-                .getAvailablePortalEnvs()
-                .then((rows) => {
-                    if (Config.env.developer) {
-                        console.log(`portal-envs: using developer`);
-                        const env = {
-                            name: null,
-                            baseUri: Config.baseUri,
-                            ingestionUri: Config.ingestionUri,
-                        };
-                        commit(MutationTypes.SET_CURRENT_PORTAL_ENV, env);
-                    } else if (rows.length > 1) {
-                        console.log(`portal-envs: ${JSON.stringify(rows[0])}`);
-                        commit(MutationTypes.SET_CURRENT_PORTAL_ENV, rows[0]);
-                    } else {
-                        console.log(`portal-envs: ${JSON.stringify(fkprd)}`);
-                        commit(MutationTypes.SET_CURRENT_PORTAL_ENV, fkprd);
-                    }
-                });
+            const rows = await services.db().getAvailablePortalEnvs();
+            if (Config.env.developer) {
+                console.log(`portal-envs: using developer`);
+                const env = {
+                    name: null,
+                    baseUri: Config.baseUri,
+                    ingestionUri: Config.ingestionUri,
+                };
+                commit(MutationTypes.SET_CURRENT_PORTAL_ENV, env);
+            } else if (rows.length > 1) {
+                console.log(`portal-envs: ${JSON.stringify(rows[0])}`);
+                commit(MutationTypes.SET_CURRENT_PORTAL_ENV, rows[0]);
+            } else {
+                console.log(`portal-envs: ${JSON.stringify(fkprd)}`);
+                commit(MutationTypes.SET_CURRENT_PORTAL_ENV, fkprd);
+            }
         },
         [ActionTypes.CHANGE_PORTAL_ENV]: async ({ commit, dispatch, state }: ActionParameters, payload: ChangePortalEnvAction) => {
             await services.db().updatePortalEnv(payload.env);

@@ -245,23 +245,26 @@ export default Vue.extend({
         },
         goOnboardingFlow(): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {
+                clearHistory: true,
                 frame: "outer-frame",
                 props: {
                     flowName: "onboarding",
                 },
             });
         },
-        goCalibrationFlow(): Promise<any> {
-            return this.$navigateTo(routes.reader.flow, {
+        async goCalibrationFlow(): Promise<void> {
+            await this.$navigateTo(routes.reader.flow, {
+                clearHistory: true,
                 frame: "outer-frame",
                 props: {
                     flowName: "calibration",
                 },
             });
         },
-        goOnboarding(): Promise<any> {
-            return this.$navigateTo(routes.onboarding.assembleStation, {
+        async goOnboarding(): Promise<void> {
+            await this.$navigateTo(routes.onboarding.assembleStation, {
                 frame: "outer-frame",
+                clearHistory: true,
             });
         },
         superConfirm(): Promise<boolean> {
@@ -288,10 +291,12 @@ export default Vue.extend({
                 title: _L("resetDoneGoToOnboarding"),
                 okButtonText: _L("yes"),
                 cancelButtonText: _L("no"),
-            }).then((result) => {
-                if (result) {
-                    // navigate to onboarding
-                    this.$navigateTo(routes.onboarding.assembleStation, {});
+            }).then((yesNo) => {
+                if (yesNo) {
+                    void this.$navigateTo(routes.onboarding.assembleStation, {
+                        frame: "outer-frame",
+                        clearHistory: true,
+                    });
                 }
             });
         },

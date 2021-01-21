@@ -42,6 +42,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { Frame, isIOS } from "@nativescript/core";
+// import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     name: "PlatformHeader",
@@ -103,16 +104,33 @@ export default Vue.extend({
             return c.join(" ");
         },
         haveBackStack(): boolean {
-            const frame = Frame.topmost();
             if (!this.canNavigateBack) {
                 return false;
             }
+            const frame = Frame.topmost();
             if (frame) {
                 console.log("platform-header:backStack", frame.id, frame.backStack.length);
                 return true; // frame.backStack.length > 0;
             }
             return true;
         },
+    },
+    created(): void {
+        /*
+        if (application.android) {
+            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
+                if (this.step > 0) {
+                    args.cancel = true; //this cancels the normal backbutton behaviour
+                    this.step -= 1;
+                    this.animateFrames();
+                    this.title = this.steps[this.step].title;
+                    this.instruction = this.steps[this.step].instruction;
+                    this.buttonText = this.steps[this.step].button;
+                    this.percentDone = (this.step / (this.steps.length - 1)) * 100;
+                }
+            });
+        }
+		*/
     },
     mounted(): void {
         // https://docs.nativescript.org/ui/action-bar

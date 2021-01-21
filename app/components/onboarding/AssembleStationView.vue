@@ -1,60 +1,6 @@
 <template>
     <Page @loaded="onPageLoaded" @unloaded="onUnloaded">
         <PlatformHeader :title="title" :onBack="goBack" :canNavigateSettings="false" />
-        <GridLayout rows="75,*,80" v-if="step > 0">
-            <!-- assembly steps -->
-            <StackLayout row="1">
-                <!-- progress bar at top -->
-                <GridLayout order="1" rows="auto" columns="*" class="top-line-bkgd" v-if="step > 1">
-                    <StackLayout horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
-                </GridLayout>
-                <!-- end progress bar -->
-
-                <Label order="2" v-if="step > 0" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
-
-                <StackLayout order="3" class="m-x-30">
-                    <!-- conditional list needs to be wrapped in StackLayout or else
-                        error occurs about reference node has a different parent -->
-                    <Gridlayout rows="auto,auto,auto,auto,auto,auto" columns="40*,40*" class="checklist" v-if="step == 1">
-                        <Label
-                            v-for="item in checklist"
-                            class="checklist-item"
-                            :key="item.id"
-                            :row="item.row"
-                            :col="item.col"
-                            :text="item.text"
-                        />
-                        <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" :text="'*' + _L('notIncluded')" />
-                    </Gridlayout>
-                </StackLayout>
-
-                <GridLayout order="4" rows="*" columns="*">
-                    <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
-                    <Label
-                        verticalAlignment="middle"
-                        v-if="!displayFrame && noImageText"
-                        class="m-y-30 m-x-20 text-center size-20"
-                        :text="noImageText"
-                    />
-                </GridLayout>
-            </StackLayout>
-            <!-- end assembly steps section -->
-
-            <!-- sticky next button -->
-            <StackLayout row="2" class="m-x-10">
-                <Button v-if="step > 0" class="btn btn-primary btn-padded" :text="buttonText" @tap="goNext"></Button>
-            </StackLayout>
-            <!-- end sticky next button -->
-
-            <!-- final screen -->
-            <StackLayout rowSpan="3" v-if="step == lastStep" height="100%" backgroundColor="white" verticalAlignment="middle">
-                <GridLayout rows="auto, auto" columns="*">
-                    <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
-                    <Label row="1" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
-                </GridLayout>
-            </StackLayout>
-            <!-- end final screen -->
-        </GridLayout>
         <template v-if="step == 0">
             <StackLayout verticalAlignment="bottom" class="m-x-10">
                 <Image class="logo" src="~/images/fieldkit-logo-blue.png"></Image>
@@ -67,6 +13,52 @@
                 <Label :text="_L('skipInstructions')" class="skip" @tap="skip" textWrap="true" />
             </StackLayout>
         </template>
+        <template v-else>
+            <GridLayout rows="*,80">
+                <StackLayout row="0">
+                    <GridLayout rows="auto" columns="*" class="top-line-bkgd" v-if="step > 1">
+                        <StackLayout horizontalAlignment="left" :width="percentDone + '%'" class="top-line"></StackLayout>
+                    </GridLayout>
+
+                    <Label class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
+
+                    <StackLayout class="m-x-30">
+                        <Gridlayout rows="auto,auto,auto,auto,auto,auto" columns="40*,40*" class="checklist" v-if="step == 1">
+                            <Label
+                                v-for="item in checklist"
+                                class="checklist-item"
+                                :key="item.id"
+                                :row="item.row"
+                                :col="item.col"
+                                :text="item.text"
+                            />
+                            <Label row="6" col="1" horizontalAlignment="right" class="m-t-10" :text="'*' + _L('notIncluded')" />
+                        </Gridlayout>
+                    </StackLayout>
+
+                    <GridLayout rows="*" columns="*">
+                        <Image verticalAlignment="middle" v-if="displayFrame" :src="displayFrame"></Image>
+                        <Label
+                            v-if="!displayFrame && noImageText"
+                            verticalAlignment="middle"
+                            class="m-y-30 m-x-20 text-center size-20"
+                            :text="noImageText"
+                        />
+                    </GridLayout>
+                </StackLayout>
+
+                <StackLayout row="1" class="m-x-10" v-if="step > 0">
+                    <Button class="btn btn-primary btn-padded" :text="buttonText" @tap="goNext"></Button>
+                </StackLayout>
+
+                <StackLayout rowSpan="2" v-if="step == lastStep" height="100%" backgroundColor="white" verticalAlignment="middle">
+                    <GridLayout rows="auto, auto" columns="*">
+                        <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
+                        <Label row="1" class="instruction" :text="instruction" lineHeight="4" textWrap="true"></Label>
+                    </GridLayout>
+                </StackLayout>
+            </GridLayout>
+        </template>
     </Page>
 </template>
 
@@ -76,7 +68,6 @@ import SharedComponents from "@/components/shared";
 import routes from "@/routes";
 import AppSettings from "@/wrappers/app-settings";
 import * as animations from "../animations";
-import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     components: {
@@ -115,23 +106,9 @@ export default Vue.extend({
             checklist: createCheckList(),
         };
     },
-    created(): void {
-        if (application.android) {
-            application.android.on(application.AndroidApplication.activityBackPressedEvent, (args: any) => {
-                if (this.step > 0) {
-                    args.cancel = true; //this cancels the normal backbutton behaviour
-                    this.step -= 1;
-                    this.animateFrames();
-                    this.title = this.steps[this.step].title;
-                    this.instruction = this.steps[this.step].instruction;
-                    this.buttonText = this.steps[this.step].button;
-                    this.percentDone = (this.step / (this.steps.length - 1)) * 100;
-                }
-            });
-        }
-    },
     methods: {
         onPageLoaded(): void {
+            console.log("AssembleStationView::loaded");
             if (this.step == this.steps.length - 1) {
                 setTimeout(() => {
                     this.$navigateTo(routes.onboarding.start, {
@@ -184,8 +161,10 @@ export default Vue.extend({
                 this.instruction = this.steps[this.step].instruction;
                 this.buttonText = this.steps[this.step].button;
                 this.percentDone = (this.step / (this.steps.length - 1)) * 100;
-                if (this.step == this.steps.length - 1) {
+                console.log("AssembleStationView::goNext");
+                if (false && this.step == this.steps.length - 1) {
                     setTimeout(() => {
+                        console.log("AssembleStationView::navigateTo");
                         this.$navigateTo(routes.onboarding.start, {
                             frame: "outer-frame",
                             clearHistory: true,
