@@ -152,13 +152,14 @@ export default Vue.extend({
         lastTip: number;
         buttonsTappable: boolean;
     } {
+        const settings: Settings = this.$s.state.portal.settings;
         return {
             newlyDeployed: false,
             unwatch: () => {},
             recentlyDisconnected: false,
             tip: 0,
             lastTip: 3,
-            buttonsTappable: false,
+            buttonsTappable: !(settings.help?.tutorial_guide || false),
         };
     },
     computed: {
@@ -332,7 +333,6 @@ export default Vue.extend({
         dismissTooltip() {
             (this.$refs.scrollview as any).nativeView.isScrollEnabled = true;
             this.buttonsTappable = true;
-
             if (this.currentSettings.help?.tutorial_guide) {
                 this.currentSettings.help.tutorial_guide = false;
                 this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
