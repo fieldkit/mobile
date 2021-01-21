@@ -501,6 +501,7 @@ module.exports = {
         },
         help: {
             help: "Help",
+			productGuide: "Product Guide",
             appVersion: "App Version",
             crashReports: "Crash Reports",
             tutorialGuide: "Tutorial Guide",

@@ -15,6 +15,8 @@
                     v-model="currentSettings.help.tutorial_guide"
                     v-on:change="saveSettings"
                 />
+
+                <SettingsItemText :text="'appSettings.help.productGuide'" @tap="onProductGuide" />
             </StackLayout>
         </ScrollView>
     </Page>
@@ -25,6 +27,7 @@ import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import SettingsItemSlider from "./SettingsItemSlider.vue";
 import SettingsItemText from "./SettingsItemText.vue";
+import * as utils from "@nativescript/core/utils/utils";
 
 export default Vue.extend({
     computed: {
@@ -40,6 +43,9 @@ export default Vue.extend({
     methods: {
         saveSettings() {
             this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+        },
+        onProductGuide() {
+            utils.openUrl("https://www.fieldkit.org/product-guide/");
         },
     },
 });
