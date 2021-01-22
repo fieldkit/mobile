@@ -11,7 +11,7 @@
                                 v-if="currentUser && account.email == currentUser.email"
                                 width="15"
                                 class="v-middle"
-                                src="~/images/Icon_Save.png"
+                                src="~/images/Icon_Save_Account.png"
                             />
                             <StackLayout col="0" row="0" v-else />
                             <StackLayout col="1" row="0">
