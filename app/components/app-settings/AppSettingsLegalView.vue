@@ -6,7 +6,7 @@
                 <SettingsItemText :text="'appSettings.legal.termsOfService'" :cssClass="'top-bordered-item'" @tap="onTermsOfService" />
                 <SettingsItemText :text="'appSettings.legal.privacyPolicy'" @tap="onPrivacyPolicy" />
                 <SettingsItemText :text="'appSettings.legal.dataPolicy'" v-if="false" />
-                <SettingsItemText :text="'appSettings.legal.licenses'" v-if="false" />
+                <SettingsItemText :text="'appSettings.legal.licenses'" @tap="onLicenses" />
             </StackLayout>
         </ScrollView>
     </Page>
@@ -39,6 +39,9 @@ export default Vue.extend({
         },
         onPrivacyPolicy() {
             utils.openUrl("https://www.fieldkit.org/privacy-policy/");
+        },
+        onLicenses() {
+            utils.openUrl("https://www.fieldkit.org/licenses");
         },
     },
 });
