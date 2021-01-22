@@ -56,8 +56,6 @@
                             <Label text="To check for new firmware you need to add an account." class="m-x-15" textWrap="true" />
                             <Button text="Add Account" @tap="addAccount" class="m-x-15" />
                         </template>
-
-                        <ConnectionNote v-if="updateAvailable" :station="station" :stationId="stationId" />
                     </StackLayout>
 
                     <WrapLayout orientation="horizontal" class="m-x-20">
