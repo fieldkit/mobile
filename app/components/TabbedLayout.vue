@@ -1,6 +1,6 @@
 <template>
     <Page actionBarHidden="true">
-        <BottomNavigation id="bottom-nav" @selectedIndexChanged="onSelectedIndexChanged">
+        <BottomNavigation id="bottom-nav" @selectedIndexChanged="onSelectedIndexChanged" ref="bottomNavigation">
             <TabStrip backgroundColor="white">
                 <TabStripItem @tap="tapStations">
                     <Image
@@ -47,12 +47,14 @@
 </template>
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
+import { Frame } from "@nativescript/core";
 import { BottomNavigation } from "@nativescript/core";
 import StationListView from "../components/StationListView.vue";
 import DataSync from "../components/DataSyncView.vue";
 import AppSettingsView from "../components/app-settings/AppSettingsView.vue";
-import { Frame } from "@nativescript/core";
+import { getBus } from "@/components/NavigationBus";
 import { NavigationMutation } from "@/store";
+import routes from "@/routes";
 
 export default Vue.extend({
     name: "TabbedLayout",
@@ -72,6 +74,20 @@ export default Vue.extend({
         this.$s.commit(new NavigationMutation("stations-frame", "StationListView", ""));
         this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
         this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
+
+        getBus().$on("open-settings", (data) => {
+            console.log("open-settings", data);
+            void this.$navigateTo(routes.appSettings[data], {
+                frame: "settings-frame",
+                animated: false,
+                transition: {
+                    duration: 0,
+                },
+            }).then(() => {
+                const view: any = <BottomNavigation>(this.$refs.bottomNavigation as any).nativeView;
+                view.selectedIndex = 2;
+            });
+        });
     },
     methods: {
         onSelectedIndexChanged(args) {

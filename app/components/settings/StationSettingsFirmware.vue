@@ -19,20 +19,24 @@
                             textWrap="true"
                             v-if="!stationFirmware"
                         />
-                        <Label :text="_L('appFirmwareVersion')" class="size-20 m-x-15" />
-                        <Label
-                            :text="_L('firmwareNumber') + ': ' + availableFirmware.simpleNumber"
-                            class="size-15 m-x-15 m-b-20"
-                            textWrap="true"
-                            v-if="availableFirmware && availableFirmware.simpleNumber"
-                        />
-                        <Label
-                            :text="_L('firmwareNumber') + ': --'"
-                            class="size-15 m-x-15 m-b-20"
-                            textWrap="true"
-                            v-if="!availableFirmware || !availableFirmware.simpleNumber"
-                        />
 
+                        <template v-if="!missingFirmware">
+                            <Label :text="_L('appFirmwareVersion')" class="size-20 m-x-15" />
+                            <Label
+                                :text="_L('firmwareNumber') + ': ' + availableFirmware.simpleNumber"
+                                class="size-15 m-x-15 m-b-20"
+                                textWrap="true"
+                                v-if="availableFirmware && availableFirmware.simpleNumber"
+                            />
+                            <Label
+                                :text="_L('firmwareNumber') + ': --'"
+                                class="size-15 m-x-15 m-b-20"
+                                textWrap="true"
+                                v-if="!availableFirmware || !availableFirmware.simpleNumber"
+                            />
+                        </template>
+
+                        <Label v-if="!missingFirmware && !updateAvailable" :text="_L('upToDate')" class="size-20 m-x-15" />
                         <Button
                             v-if="updateAvailable"
                             :text="_L('upgradeFirmware')"
@@ -41,19 +45,22 @@
                             class="btn btn-primary btn-padded"
                         />
 
-                        <Label
-                            v-if="missingFirmware"
-                            text="No firmware downloaded, please add a portal account."
-                            class="size-20 m-x-15"
-                            textWrap="true"
-                        />
-
-                        <Label v-if="!missingFirmware && !updateAvailable" :text="_L('upToDate')" class="size-20 m-x-15" />
+                        // Check for new firmware.
+                        <template v-if="haveAccounts">
+                            <Label v-if="missingFirmware" text="No firmware downloaded" class="m-x-15" textWrap="true" />
+                            <Button :isEnabled="!checking" text="Check for new firmware" @tap="downloadFirmware" class="m-x-15" />
+                            <Label v-if="checking" text="Checking" class="m-x-15" />
+                            <Progress v-if="checking" :value="progress" scaleY="4" class="m-x-15" />
+                        </template>
+                        <template v-else>
+                            <Label text="To check for new firmware you need to add an account." class="m-x-15" textWrap="true" />
+                            <Button text="Add Account" @tap="addAccount" class="m-x-15" />
+                        </template>
 
                         <ConnectionNote v-if="updateAvailable" :station="station" :stationId="stationId" />
                     </StackLayout>
 
-                    <WrapLayout orientation="horizontal" class="m-10 m-b-20">
+                    <WrapLayout orientation="horizontal" class="m-x-20">
                         <Label :text="_L('additionalInfo')" class="size-16 full-width" textWrap="true" />
                         <Label :text="_L('deviceId') + ': ' + station.deviceId" class="size-14 full-width" textWrap="true" />
                     </WrapLayout>
@@ -71,6 +78,7 @@ import SharedComponents from "@/components/shared";
 import UpgradeFirmwareModal from "./UpgradeFirmwareModal.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
+import { getBus } from "@/components/NavigationBus";
 
 export default Vue.extend({
     components: {
@@ -79,25 +87,32 @@ export default Vue.extend({
         ConnectionStatusHeader,
     },
     data(): {
+        checking: boolean;
         canUpgrade: boolean;
         failed: boolean;
         success: boolean;
         sdCard: boolean;
+        progress: number;
     } {
         return {
+            checking: false,
             canUpgrade: true,
             failed: false,
             success: false,
             sdCard: false,
+            progress: 0,
         };
     },
     props: {
         stationId: {
-            required: true,
             type: Number,
+            required: true,
         },
     },
     computed: {
+        haveAccounts(): boolean {
+            return this.$s.state.portal.accounts.length > 0;
+        },
         station(): AvailableStation {
             return this.$s.getters.availableStationsById[this.stationId];
         },
@@ -124,23 +139,13 @@ export default Vue.extend({
         },
     },
     methods: {
-        downloadFirmware(): Promise<void> {
-            const options = {
-                props: {
-                    station: this.station,
-                    stationId: this.stationId,
-                    downloadOnly: true,
-                },
-                fullscreen: true,
-            };
-            this.canUpgrade = false;
-            return this.$showModal(UpgradeFirmwareModal, options).then((value: unknown) => {
-                console.log(`upgrade-done: ${value}`);
-                // We do this to prevent them from tapping again right after.
-                return promiseAfter(10000).then(() => {
-                    // this.canUpgrade = true;
-                });
+        async downloadFirmware(): Promise<void> {
+            this.checking = true;
+            this.progress = 0;
+            await this.$services.StationFirmware().downloadFirmware((tp) => {
+                this.progress = tp.progress;
             });
+            this.checking = false;
         },
         upgradeFirmware(): Promise<void> {
             const options = {
@@ -158,6 +163,10 @@ export default Vue.extend({
                     // this.canUpgrade = true;
                 });
             });
+        },
+        async addAccount(): Promise<void> {
+            console.log("addAccount");
+            getBus().$emit("open-settings", "account");
         },
     },
 });

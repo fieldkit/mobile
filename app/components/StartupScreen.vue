@@ -47,13 +47,13 @@ export default Vue.extend({
             // const route = routes.internal.calibrate;
             // const route = routes.dataSync;
             // const route = routes.developerMenu;
-            // const route = routes.tabbed;
             // const route = routes.reader.flow;
             // const route = routes.appSettings.account;
-            const route = routes.tabbed;
+            // const route = routes.tabbed;
             // const route = routes.onboarding.assembleStation;
             // const route = routes.onboarding.network;
             // const route = routes.onboarding.start;
+            const route = routes.tabbed;
             await this.$navigateTo(route, {
                 clearHistory: true,
                 props: {
