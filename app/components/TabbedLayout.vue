@@ -1,6 +1,6 @@
 <template>
     <Page actionBarHidden="true">
-        <BottomNavigation id="bottom-nav" @selectedIndexChanged="onSelectedIndexChanged" ref="bottomNavigation">
+        <BottomNavigation id="bottom-nav" ref="bottomNavigation" @selectedIndexChanged="onSelectedIndexChanged">
             <TabStrip backgroundColor="white">
                 <TabStripItem @tap="tapStations">
                     <Image
@@ -77,6 +77,7 @@ export default Vue.extend({
 
         getBus().$on("open-settings", (data) => {
             console.log("open-settings", data);
+            // eslint-disable-next-line
             void this.$navigateTo(routes.appSettings[data], {
                 frame: "settings-frame",
                 animated: false,
@@ -84,7 +85,9 @@ export default Vue.extend({
                     duration: 0,
                 },
             }).then(() => {
+                // eslint-disable-next-line
                 const view: any = <BottomNavigation>(this.$refs.bottomNavigation as any).nativeView;
+                // eslint-disable-next-line
                 view.selectedIndex = 2;
             });
         });
