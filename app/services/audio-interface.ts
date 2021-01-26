@@ -45,7 +45,7 @@ export default class AudioInterface {
                 encoder: 3 /* android.media.MediaRecorder.AudioEncoder.AAC */,
             };
         } else {
-            this.extension = ".caf";
+            this.extension = ".m4a";
             this.options = {};
         }
     }
