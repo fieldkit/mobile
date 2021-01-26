@@ -1,7 +1,7 @@
 <template>
     <Page class="page plain">
         <PlatformHeader :title="help.title" icon="~/images/Icon_Save.png" :canNavigateSettings="false" @icon-tapped="onSave" />
-        <GridLayout rows="*,auto">
+        <GridLayout rows="*,auto" class="container">
             <ScrollView row="0">
                 <GridLayout rows="auto,*,auto" v-if="!note.image" class="container">
                     <Label :text="help.instructions" row="0" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
@@ -21,7 +21,7 @@
                 </GridLayout>
             </ScrollView>
 
-            <DockLayout row="1" @tap="maybeDismissKeyboard" class="bottom-container" width="100%" stretchLastChild="false">
+            <DockLayout row="1" @tap="maybeDismissKeyboard" class="container" stretchLastChild="false">
                 <Label :text="new Date() | prettyTime" dock="left" class="m-t-15 m-l-10 m-b-10 size-14 lighter" />
                 <Image width="40" src="~/images/Icon_Mic_Button.png" dock="right" v-if="!note.image" @tap="onAudioTap" />
             </DockLayout>
@@ -132,4 +132,8 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
+
+.container {
+    margin: 5;
+}
 </style>
