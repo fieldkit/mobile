@@ -539,7 +539,7 @@ export class CommonLocations {
 }
 
 export class PhoneNetwork {
-    constructor(public readonly ssid: string | null) {}
+    constructor(public readonly ssid: string | null, public readonly ap: boolean = false) {}
 }
 
 // TODO We have two types with this name.

@@ -3,7 +3,7 @@ import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { CommonLocations, PhoneLocation, PhoneNetwork } from "../types";
 import { MutationTypes, RenameStationMutation } from "../mutations";
-import { ActionTypes, RefreshNetworkAction, NetworkChangedAction } from "../actions";
+import { ActionTypes, RefreshNetworkAction, NetworkChangedAction, StationRepliedAction } from "../actions";
 import { Station } from "../types";
 import { ServiceRef } from "@/services";
 
@@ -36,6 +36,13 @@ const actions = (services: ServiceRef) => {
                 if (!first) {
                     await dispatch(new NetworkChangedAction(network));
                 }
+            }
+        },
+        [ActionTypes.STATION_REPLY]: ({ dispatch, commit }: ActionParameters, payload: StationRepliedAction) => {
+            const statusReply = payload.statusReply?.networkSettings?.connected;
+            console.log("station-reply", statusReply);
+            if (statusReply) {
+                commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(statusReply.ssid, statusReply.create));
             }
         },
     };
