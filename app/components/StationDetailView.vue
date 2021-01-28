@@ -65,12 +65,32 @@
             </ScrollView>
             <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorial_guide">
                 <StationDetailTooltipView
+                    :topPosition="30"
+                    :leftPosition="200"
+                    arrowDirection="up"
+                    :instructionText="_L('tooltipText0')"
+                    :showTooltip="tip === 0"
+                    :class="tip === 0 ? 'active' : ''"
+                    @next-tool-tip="nextTooltip"
+                    @dismiss-tool-tips="dismissTooltip"
+                ></StationDetailTooltipView>
+                <StationDetailTooltipView
+                    :topPosition="160"
+                    :leftPosition="220"
+                    arrowDirection="up"
+                    :instructionText="_L('tooltipText1')"
+                    :showTooltip="tip === 1"
+                    :class="tip === 1 ? 'active' : ''"
+                    @next-tool-tip="nextTooltip"
+                    @dismiss-tool-tips="dismissTooltip"
+                ></StationDetailTooltipView>
+                <StationDetailTooltipView
                     :topPosition="170"
                     :leftPosition="120"
                     arrowDirection="up"
-                    :instructionText="_L('tooltipText1')"
-                    :showTooltip="tip === 0"
-                    :class="tip === 0 ? 'active' : ''"
+                    :instructionText="_L('tooltipText2')"
+                    :showTooltip="tip === 2"
+                    :class="tip === 2 ? 'active' : ''"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
@@ -78,29 +98,19 @@
                     :topPosition="220"
                     :leftPosition="240"
                     arrowDirection="up"
-                    :instructionText="_L('tooltipText2')"
-                    :showTooltip="tip === 1"
-                    :class="tip === 1 ? 'active' : ''"
-                    @next-tool-tip="nextTooltip"
-                    @dismiss-tool-tips="dismissTooltip"
-                ></StationDetailTooltipView>
-                <StationDetailTooltipView
-                    :topPosition="30"
-                    :leftPosition="200"
-                    arrowDirection="up"
                     :instructionText="_L('tooltipText3')"
-                    :showTooltip="tip === 2"
-                    :class="tip === 2 ? 'active' : ''"
+                    :showTooltip="tip === 3"
+                    :class="tip === 3 ? 'active' : ''"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
                 ></StationDetailTooltipView>
                 <StationDetailTooltipView
-                    :topPosition="510"
+                    :topPosition="400"
                     :leftPosition="100"
                     arrowDirection="down"
                     :instructionText="_L('tooltipText4')"
-                    :showTooltip="tip === 3"
-                    :class="tip === 3 ? 'active' : ''"
+                    :showTooltip="tip === 4"
+                    :class="tip === 4 ? 'active' : ''"
                     :showNextButton="false"
                     @next-tool-tip="nextTooltip"
                     @dismiss-tool-tips="dismissTooltip"
@@ -157,7 +167,7 @@ export default Vue.extend({
             unwatch: () => {},
             recentlyDisconnected: false,
             tip: 0,
-            lastTip: 3,
+            lastTip: 4,
             buttonsTappable: !(settings.help?.tutorial_guide || false),
         };
     },
@@ -324,10 +334,6 @@ export default Vue.extend({
         },
         nextTooltip() {
             this.tip++;
-            if (this.lastTip < this.tip) {
-                this.dismissTooltip();
-                this.tip = 0;
-            }
         },
         dismissTooltip() {
             (this.$refs.scrollview as any).nativeView.isScrollEnabled = true;
@@ -336,10 +342,14 @@ export default Vue.extend({
                 this.currentSettings.help.tutorial_guide = false;
                 this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
             }
+            this.tip = 0;
         },
         onPageLoaded() {
             if (this.currentSettings.help?.tutorial_guide) {
-                (this.$refs.scrollview as any).nativeView.isScrollEnabled = false;
+                this.$nextTick(() => {
+                    (this.$refs.scrollview as any).nativeView.scrollToVerticalOffset(0, false);
+                    (this.$refs.scrollview as any).nativeView.isScrollEnabled = false;
+                });
             }
         },
     },

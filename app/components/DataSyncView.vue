@@ -109,10 +109,21 @@
                                 :text="sync.readingsReadyUpload + ' Reading'"
                                 class="readings-label"
                             />
-                            <Label text="Ready to upload" class="transfer-label" />
+                            <Label v-if="userLoggedIn" :text="_L('readyToUpload')" class="transfer-label" />
+                            <StackLayout v-if="!userLoggedIn" @tap="goToLogin">
+                                <Label :text="_L('loginToUpload')" class="transfer-label" />
+                                <Label :text="_L('clickToLogin')" class="transfer-label""/>
+                            </StackLayout>
                         </StackLayout>
                         <StackLayout row="0" col="1" class="container-icon">
-                            <Image class="icon-button" width="20" src="~/images/Icon_Upload.png" @tap="onUpload(sync)" />
+                            <Image
+                                v-if="userLoggedIn"
+                                class="icon-button"
+                                width="20"
+                                src="~/images/Icon_Upload.png"
+                                @tap="onUpload(sync)"
+                            />
+                            <Image v-if="!userLoggedIn" class="icon-button" width="20" src="~/images/Icon_Upload_Disabled.png" />
                         </StackLayout>
                     </GridLayout>
 
@@ -172,6 +183,9 @@ export default Vue.extend({
         syncs(): StationSyncStatus[] {
             return this.$s.getters.syncs;
         },
+        userLoggedIn(): boolean {
+            return this.$s.state.portal.accounts.length > 0;
+        },
     },
     created: function () {
         if (application.android) {
@@ -228,6 +242,9 @@ export default Vue.extend({
         },
         async goToAddStation(): Promise<void> {
             await this.$navigateTo(routes.onboarding.start, {});
+        },
+        async goToLogin(): Promise<void> {
+            await this.$navigateTo(routes.appSettings.accountAdd, {});
         },
     },
 });

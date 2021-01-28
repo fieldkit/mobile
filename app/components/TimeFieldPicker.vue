@@ -1,5 +1,5 @@
 <template>
-    <StackLayout>
+    <StackLayout backgroundColor="white">
         <Label :text="label" class="size-12 field-label" />
         <TimePicker
             :hour="form.hour"
@@ -8,6 +8,7 @@
             maxMinute="59"
             @timeChange="onTimeChanged"
             @loaded="onPickerLoaded"
+            iosPreferredDatePickerStyle="1"
         />
         <Button @tap="onSave">OK</Button>
     </StackLayout>

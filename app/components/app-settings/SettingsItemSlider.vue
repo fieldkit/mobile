@@ -32,7 +32,7 @@ export default Vue.extend({
         },
         description: {
             type: String,
-            required: true,
+            required: false,
         },
         cssClass: {
             type: String,
