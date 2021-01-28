@@ -149,7 +149,7 @@ export default Vue.extend({
         },
         displayedSSID(): string | null {
             const currentSSID = this.$s.state.phone.network?.ssid || null;
-            return currentSSID && currentSSID.length > 0 ? currentSSID.substr(0, 10) + "..." : currentSSID;
+            return currentSSID && currentSSID.length > 10 ? currentSSID.substr(0, 10) + "..." : currentSSID;
         },
     },
     mounted(): void {
