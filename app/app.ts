@@ -66,10 +66,7 @@ function configureVueJs(services: typeof Services): Store {
 
     Vue.filter("prettyDurationSeconds", (value: number): string => {
         const duration = moment.duration(value, "seconds");
-        if (value > 3600) {
-            return moment.utc(duration.asMilliseconds()).format("HH:mm:ss");
-        }
-        return moment.utc(duration.asMilliseconds()).format("mm:ss");
+        return moment.utc(duration.asMilliseconds()).format("HH[h] mm[m]");
     });
 
     Vue.filter("prettyDuration", (value: number): string => {
