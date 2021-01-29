@@ -41,8 +41,8 @@ export default Vue.extend({
         SettingsItemText,
     },
     methods: {
-        saveSettings() {
-            this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
+        async saveSettings(): Promise<void> {
+            await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         onProductGuide() {
             utils.openUrl("https://www.fieldkit.org/product-guide/");

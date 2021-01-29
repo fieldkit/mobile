@@ -49,7 +49,6 @@
                             :isEnabled="station.connected && !busy"
                             @tap="saveStationName"
                         />
-                        <ConnectionNote :station="station" :stationId="stationId" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>

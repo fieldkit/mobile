@@ -139,7 +139,6 @@ module.exports = {
     wifi: "WiFi",
     lora: "LoRa",
     // StationSettingsView.vue
-    stationSettings: "Station Settings",
     // StationSettingsWiFi.vue
     network: "Network",
     uploadSchedule: "Upload Schedule",
@@ -444,6 +443,12 @@ module.exports = {
 	downloadFirmware: "Download Firmware",
 	upgradeFirmware: "Upgrade Firmware",
     batteryLife: "Battery Life",
+	stationSettings: {
+    title: "Station Settings",
+		wifiSchedule: {
+			enable: "Enable Upload over WiFi"
+		}
+	},
     appSettings: {
         title: "Settings",
 		developer: {

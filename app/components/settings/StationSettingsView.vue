@@ -1,6 +1,6 @@
 <template>
     <Page>
-        <PlatformHeader :title="_L('stationSettings')" :subtitle="station.name" :canNavigateSettings="false" />
+        <PlatformHeader :title="_L('stationSettings.title')" :subtitle="station.name" :canNavigateSettings="false" />
         <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">

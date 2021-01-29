@@ -5,7 +5,16 @@
             <ConnectionStatusHeader row="0" :connected="station.connected" />
             <ScrollView row="1">
                 <StackLayout class="body-container">
-                    <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" />
+                    <Label text="Data Upload Schedule" class="size-14 title" />
+                    <Label
+                        text="Set a schedule for your station to bypass the app and upload data straight to the portal. Frequent data upload drains the battery faster, so this option is best for stations powered from the wall."
+                        class="size-12 subtitle"
+                        textWrap="true"
+                    />
+
+                    <SettingsItemSlider :title="'stationSettings.wifiSchedule.enable'" v-model="form.enabled" :enabled="true" />
+
+                    <ScheduleEditor :schedule="form.schedule" @change="onScheduleChange" :complex="false" v-if="form.enabled" />
 
                     <Button
                         class="btn btn-primary btn-padded"
@@ -13,8 +22,6 @@
                         :isEnabled="station.connected && !busy"
                         @tap="saveUploadInterval"
                     />
-
-                    <ConnectionNote :station="station" :stationId="stationId" />
                 </StackLayout>
             </ScrollView>
         </GridLayout>
@@ -25,6 +32,7 @@ import Vue from "vue";
 import { ActionTypes } from "@/store/actions";
 import SharedComponents from "@/components/shared";
 import ScheduleEditor from "../ScheduleEditor.vue";
+import SettingsItemSlider from "../app-settings/SettingsItemSlider.vue";
 import ConnectionNote from "./StationSettingsConnectionNote.vue";
 import { AvailableStation } from "@/store";
 import ConnectionStatusHeader from "~/components/ConnectionStatusHeader.vue";
@@ -33,6 +41,7 @@ export default Vue.extend({
     data(): {
         busy: boolean;
         form: {
+            enabled: boolean;
             schedule: {
                 intervals: {
                     start: number;
@@ -45,6 +54,7 @@ export default Vue.extend({
         return {
             busy: false,
             form: {
+                enabled: false,
                 schedule: {
                     intervals: [
                         {
@@ -67,6 +77,7 @@ export default Vue.extend({
         ...SharedComponents,
         ConnectionNote,
         ScheduleEditor,
+        SettingsItemSlider,
         ConnectionStatusHeader,
     },
     computed: {
@@ -84,15 +95,12 @@ export default Vue.extend({
 
             this.busy = true;
 
-            await this.$s
-                .dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
-                    deviceId: this.station.deviceId,
-                    schedules: { network: this.form.schedule },
-                })
-                .then(() => this.$navigateBack())
-                .finally(() => {
-                    this.busy = false;
-                });
+            await this.$s.dispatch(ActionTypes.CONFIGURE_STATION_SCHEDULES, {
+                deviceId: this.station.deviceId,
+                schedules: { network: this.form.schedule },
+            });
+            this.$navigateBack();
+            this.busy = false;
         },
     },
 });
@@ -102,5 +110,9 @@ export default Vue.extend({
 
 .body-container {
     padding: 20;
+}
+
+.subtitle {
+    padding-bottom: 20;
 }
 </style>

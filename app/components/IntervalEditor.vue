@@ -18,10 +18,12 @@
                 keyboardType="number"
                 autocorrect="false"
                 autocapitalizationType="none"
+                v-if="enabled"
                 @focus="onFocus"
                 @textChange="onQuantityChange"
                 @blur="onBlur"
             />
+            <Label :text="form.quantity" :class="fieldClass" verticalAligment="bottom" v-else />
             <Label
                 v-if="errors.quantity.required"
                 class="validation-error"
@@ -48,6 +50,7 @@
             <DropDown
                 class="drop-down"
                 :items="items"
+                :isEnabled="enabled"
                 :selectedIndex="indexOf(form.duration)"
                 @selectedIndexChanged="onDurationChange"
                 v-if="items"
@@ -76,6 +79,10 @@ export default Vue.extend({
         interval: {
             type: Object as () => Interval,
             required: true,
+        },
+        enabled: {
+            type: Boolean,
+            default: true,
         },
         fullDay: {
             type: Boolean,
@@ -119,7 +126,7 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay);
+        console.log("interval-editor:mounted", JSON.stringify(this.interval), this.fullDay, this.enabled);
         this.items = new ValueList(this.durations);
         this.updateForm(this.interval);
     },

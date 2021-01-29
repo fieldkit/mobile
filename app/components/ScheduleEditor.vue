@@ -1,9 +1,6 @@
 <template>
     <StackLayout verticalAlignment="top" class="schedule-editor">
-        <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
-        <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
-
-        <GridLayout rows="auto" columns="*,*" class="schedule-options">
+        <GridLayout rows="auto" columns="*,*" class="schedule-options" v-if="complex">
             <StackLayout column="0" class="option" @tap="(ev) => changeScheduleType(ev, 0)" v-bind:class="{ selected: isSimple }">
                 <Label text="Simple" />
             </StackLayout>
@@ -16,6 +13,7 @@
             <IntervalEditor
                 :interval="schedule.intervals[0]"
                 :fullDay="true"
+                :enabled="enabled"
                 @change="(interval) => onChangeInterval(0, interval)"
                 @invalid="(value) => onInvalid(0, value)"
             />
@@ -39,6 +37,7 @@
 
                 <IntervalEditor
                     :interval="interval"
+                    :enabled="enabled"
                     @change="(interval) => onChangeInterval(index, interval)"
                     @invalid="(value) => onInvalid(index, value)"
                 />
@@ -66,6 +65,14 @@ export default Vue.extend({
             type: Object as () => Schedule,
             required: true,
         },
+        enabled: {
+            type: Boolean,
+            default: true,
+        },
+        complex: {
+            type: Boolean,
+            default: true,
+        },
     },
     data(): {
         scheduleType: number;
@@ -91,7 +98,7 @@ export default Vue.extend({
         },
     },
     mounted(): void {
-        console.log("schedule-editor:mounted", this.schedule);
+        console.log("schedule-editor:mounted", this.schedule, this.enabled);
         if (this.schedule.intervals.length == 0) throw new Error("one schedule interval required");
         this.scheduleType = this.isScheduleSimple(this.schedule) ? 0 : 1;
     },

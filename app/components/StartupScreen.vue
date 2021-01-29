@@ -55,12 +55,21 @@ export default Vue.extend({
             // const route = routes.onboarding.start;
             const route = routes.tabbed;
             await this.$navigateTo(route, {
+                clearHistory: true,
                 props: {
                     stationId: 1,
                     position: 0,
                 },
-                clearHistory: true,
             });
+            await this.$navigateTo(routes.station.settings.wifiSchedule, {
+                clearHistory: true,
+                frame: "stations-frame",
+                props: {
+                    stationId: 1,
+                    position: 0,
+                },
+            });
+
             return;
         }
 

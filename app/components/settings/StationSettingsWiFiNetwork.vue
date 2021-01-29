@@ -41,8 +41,6 @@
 
                         <ActivityIndicator :busy="busy" row="0" />
 
-                        <ConnectionNote :station="station" />
-
                         <!--
                         <StackLayout class="section-border">
                             <Label :text="wifiUploadText" textWrap="true" lineHeight="4" class="size-18 m-x-15" />

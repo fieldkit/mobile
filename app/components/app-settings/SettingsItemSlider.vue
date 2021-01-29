@@ -49,8 +49,9 @@ export default Vue.extend({
     },
     methods: {
         handleInput(e) {
-            this.$emit("input", !this.content);
-            this.$emit("change", !this.content);
+            console.log("input", !e.object.checked);
+            this.$emit("input", !e.object.checked);
+            this.$emit("change", !e.object.checked);
         },
     },
 });

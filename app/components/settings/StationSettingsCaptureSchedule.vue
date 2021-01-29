@@ -6,6 +6,9 @@
             <ScrollView row="1">
                 <FlexboxLayout flexDirection="column" class="p-t-10">
                     <StackLayout class="editor-container">
+                        <Label :text="_L('dataCaptureSchedule')" class="size-14 title" />
+                        <Label text="Frequent data capture drains the battery at a quicker rate." class="size-12 subtitle" />
+
                         <ScheduleEditor v-if="form.schedule" :schedule="form.schedule" @change="onScheduleChange" />
                     </StackLayout>
 
