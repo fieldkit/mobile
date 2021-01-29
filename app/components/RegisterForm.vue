@@ -134,11 +134,11 @@ export default Vue.extend({
     methods: {
         checkName(): void {
             this.form.v.name.required = this.form.name.length == 0;
-            this.form.v.name.length = this.form.name.length > 0 && this.form.name.length < 256;
+            this.form.v.name.length = this.form.name.length > 256;
         },
         checkEmail(): void {
             this.form.v.email.required = this.form.email.length == 0;
-            this.form.v.email.length = this.form.email.length > 0 && this.form.email.length < 40;
+            this.form.v.email.length = this.form.email.length > 40;
             this.form.v.email.format = this.form.email.length > 0 && !email(this.form.email);
         },
         checkPassword(): void {

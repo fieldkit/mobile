@@ -40,7 +40,7 @@ export default Vue.extend({
             // const route = routes.deploy.notes;
             // const route = routes.deploy.review;
             // const route = routes.stationSettings;
-            const route = routes.station.settings.firmware;
+            // const route = routes.station.settings.firmware;
             // const route = routes.station.settings.wifiNetworks;
             // const route = routes.stationDetail;
             // const route = routes.onboarding.start;
@@ -53,7 +53,7 @@ export default Vue.extend({
             // const route = routes.onboarding.assembleStation;
             // const route = routes.onboarding.network;
             // const route = routes.onboarding.start;
-            // const route = routes.tabbed;
+            const route = routes.tabbed;
             await this.$navigateTo(route, {
                 props: {
                     stationId: 1,
