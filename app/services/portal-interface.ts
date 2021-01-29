@@ -541,13 +541,13 @@ export default class PortalInterface {
                     const abort = axios.CancelToken.source();
                     if (abort) {
                         id = setTimeout(() => abort.cancel("timeout"), req.connectTimeout);
+                        // eslint-disable-next-line
                         axiosRequest.cancelToken = abort.token;
                     }
                 }
 
-                // Ok
                 const promised = axios.request(axiosRequest); // eslint-disable-line
-                // if (!promised) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
+                if (promised == null) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
                 return promised
                     .finally(() => {
                         if (id) {

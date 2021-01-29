@@ -46,6 +46,10 @@ describe("UserAuth", () => {
                 email: "jacob@conservify.org",
             },
         };
+        const statusResponse = {
+            status: 200,
+            data: {},
+        };
         const transmissionResponse = {
             status: 200,
             data: {
@@ -53,16 +57,19 @@ describe("UserAuth", () => {
                 url: "url",
             },
         };
+        const firmwareResponse = {
+            status: 200,
+            data: {
+                firmwares: [],
+            },
+        };
 
         mockedAxios.request
             .mockReturnValueOnce(Promise.resolve(loginResponse))
             .mockReturnValueOnce(Promise.resolve(userResponse))
             .mockReturnValueOnce(Promise.resolve(transmissionResponse))
-            .mockImplementationOnce(() => {
-                // No idea what causes this.
-                throw new Error();
-            })
-            .mockReturnValueOnce(Promise.resolve({ data: { firmwares: [] } }));
+            .mockReturnValueOnce(Promise.resolve(statusResponse))
+            .mockReturnValueOnce(Promise.resolve(firmwareResponse));
 
         await store.dispatch(new LoginAction(user.email, user.password));
 

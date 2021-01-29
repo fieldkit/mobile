@@ -29,6 +29,7 @@ describe("Authentication", () => {
             };
 
             const user = {
+                status: 200,
                 data: {
                     id: 2,
                     email: "jacob@conservify.org",
@@ -36,6 +37,7 @@ describe("Authentication", () => {
             };
 
             const firmware = {
+                status: 200,
                 data: {
                     firmwares: [
                         {
@@ -54,7 +56,13 @@ describe("Authentication", () => {
                 },
             };
 
+            const status = {
+                status: 200,
+                data: {},
+            };
+
             const transmission = {
+                status: 200,
                 data: {
                     token: "token",
                     url: "url",
@@ -65,10 +73,7 @@ describe("Authentication", () => {
                 .mockReturnValueOnce(Promise.resolve(auth))
                 .mockReturnValueOnce(Promise.resolve(user))
                 .mockReturnValueOnce(Promise.resolve(transmission))
-                .mockImplementationOnce(() => {
-                    // No idea what causes this.
-                    throw new Error();
-                })
+                .mockReturnValueOnce(Promise.resolve(status))
                 .mockReturnValueOnce(Promise.resolve(firmware));
 
             services.Conservify().download = jest.fn(() =>
