@@ -37,7 +37,7 @@ export default Vue.extend({
         if (Config.env.developer) {
             // const route = routes.calibration.start;
             // const route = routes.deploy.start;
-            // const route = routes.deploy.notes;
+            const route = routes.deploy.notes;
             // const route = routes.deploy.review;
             // const route = routes.stationSettings;
             // const route = routes.station.settings.firmware;
@@ -53,15 +53,17 @@ export default Vue.extend({
             // const route = routes.onboarding.assembleStation;
             // const route = routes.onboarding.network;
             // const route = routes.onboarding.start;
-            const route = routes.tabbed;
+            // const route = routes.tabbed;
+            if (route != routes.tabbed) {
+                await this.$navigateTo(routes.tabbed, {
+                    clearHistory: true,
+                    props: {
+                        stationId: 1,
+                        position: 0,
+                    },
+                });
+            }
             await this.$navigateTo(route, {
-                clearHistory: true,
-                props: {
-                    stationId: 1,
-                    position: 0,
-                },
-            });
-            await this.$navigateTo(routes.station.settings.wifiSchedule, {
                 clearHistory: true,
                 frame: "stations-frame",
                 props: {
