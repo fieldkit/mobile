@@ -52,7 +52,7 @@ export default class StationFirmware {
 
     public async downloadFirmware(progressCallback: ProgressCallback = NoopProgress, force = false): Promise<void> {
         log.info("downloading firmware");
-        return await this.services
+        await this.services
             .PortalInterface()
             .listFirmware("fk-core")
             .then((firmware) => {

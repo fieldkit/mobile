@@ -45,12 +45,22 @@
                             class="btn btn-primary btn-padded"
                         />
 
-                        // Check for new firmware.
                         <template v-if="haveAccounts">
                             <Label v-if="missingFirmware" text="No firmware downloaded" class="m-x-15" textWrap="true" />
-                            <Button :isEnabled="!checking" text="Check for new firmware" @tap="downloadFirmware" class="m-x-15" />
-                            <Label v-if="checking" text="Checking" class="m-x-15" />
-                            <Progress v-if="checking" :value="progress" scaleY="4" class="m-x-15" />
+                            <Button
+                                :isEnabled="!downloading.checking"
+                                text="Check for new firmware"
+                                @tap="downloadFirmware"
+                                class="m-x-15"
+                            />
+                            <Label v-if="downloading.checking" text="Checking" class="m-x-15" />
+                            <Progress v-if="downloading.checking" :value="progress" scaleY="4" class="m-x-15" />
+                            <Label
+                                v-if="downloading.failed"
+                                text="An error occured checking for firmware. Please ensure that you're online and try again."
+                                class="m-x-15"
+                                textWrap="true"
+                            />
                         </template>
                         <template v-else>
                             <Label text="To check for new firmware you need to add an account." class="m-x-15" textWrap="true" />
@@ -85,7 +95,10 @@ export default Vue.extend({
         ConnectionStatusHeader,
     },
     data(): {
-        checking: boolean;
+        downloading: {
+            checking: boolean;
+            failed: boolean;
+        };
         canUpgrade: boolean;
         failed: boolean;
         success: boolean;
@@ -93,7 +106,10 @@ export default Vue.extend({
         progress: number;
     } {
         return {
-            checking: false,
+            downloading: {
+                checking: false,
+                failed: false,
+            },
             canUpgrade: true,
             failed: false,
             success: false,
@@ -138,12 +154,26 @@ export default Vue.extend({
     },
     methods: {
         async downloadFirmware(): Promise<void> {
-            this.checking = true;
-            this.progress = 0;
-            await this.$services.StationFirmware().downloadFirmware((tp) => {
-                this.progress = tp.progress;
-            });
-            this.checking = false;
+            this.downloading = {
+                checking: true,
+                failed: false,
+            };
+            try {
+                this.progress = 0;
+                await this.$services.StationFirmware().downloadFirmware((tp) => {
+                    this.progress = tp.progress;
+                });
+                this.downloading = {
+                    checking: false,
+                    failed: false,
+                };
+            } catch (err) {
+                console.log("download-firmware error", err);
+                this.downloading = {
+                    checking: false,
+                    failed: true,
+                };
+            }
         },
         upgradeFirmware(): Promise<void> {
             const options = {

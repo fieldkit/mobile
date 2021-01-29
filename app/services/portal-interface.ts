@@ -27,6 +27,7 @@ export interface QueryFields<T> {
     refreshed?: boolean;
     authenticated?: boolean;
     token?: string;
+    connectTimeout?: number;
     data?: T;
 }
 
@@ -253,6 +254,7 @@ export default class PortalInterface {
         return await this.query({
             url: `/firmware?module=${moduleName}`,
         }).then((data) => {
+            console.log("data", data);
             return data as { firmwares: PortalFirmware[] };
         });
     }
@@ -530,13 +532,33 @@ export default class PortalInterface {
                 console.log(`portal query`, req.method || "GET", baseUri + req.url);
                 req.headers = headers;
                 req.url = baseUri + req.url;
+
                 // eslint-disable-next-line
-                const axiosRequest = _.extend(req as any, { timeout: 5000 });
+                const axiosRequest = _.extend(req as any, { timeout: 1000, connectTimeout: 3000 });
+
+                let id: ReturnType<typeof setTimeout> | null = null;
+                if (req.connectTimeout) {
+                    const abort = axios.CancelToken.source();
+                    if (abort) {
+                        id = setTimeout(() => abort.cancel("timeout"), req.connectTimeout);
+                        axiosRequest.cancelToken = abort.token;
+                    }
+                }
+
+                // Ok
                 const promised = axios.request(axiosRequest); // eslint-disable-line
                 // if (!promised) throw new Error(`mocking error on: ${JSON.stringify(req)}`);
                 return promised
+                    .finally(() => {
+                        if (id) {
+                            clearTimeout(id);
+                        }
+                    })
                     .then((response) => {
-                        console.log(`portal reply: ${JSON.stringify(response.data)}`);
+                        console.log(`portal reply: ${JSON.stringify(response.data)} ${JSON.stringify(response)}`);
+                        if (response.status == null) {
+                            throw new Error("query error, no data");
+                        }
                         return response.data as V;
                     })
                     .catch((error: AxiosError) => {
