@@ -181,7 +181,6 @@ export default Vue.extend({
             }
         },
         stopAnimation(): void {
-            this.displayFrame = "";
             clearInterval(this.animateFrameTimer);
         },
         animateFrames(): void {
