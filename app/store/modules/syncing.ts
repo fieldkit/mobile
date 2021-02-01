@@ -93,6 +93,7 @@ const actions = (services: ServiceRef) => {
                     const totalBytes = _.sum(sizes.map((s) => s.size));
 
                     commit(MutationTypes.TRANSFER_OPEN, new OpenProgressMutation(sync.deviceId, true, totalBytes));
+
                     return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
                         const fsFolder = services.fs().getFolder(getFilePath(file.path));
                         const fsFile = fsFolder.getFile(getFileName(file.path));
@@ -144,7 +145,7 @@ const actions = (services: ServiceRef) => {
                 .map((d) => d.size)
                 .sum();
 
-            console.log("syncing:upload", downloads);
+            console.log("syncing:upload", downloads, totalBytes);
 
             commit(MutationTypes.TRANSFER_OPEN, new OpenProgressMutation(sync.deviceId, false, totalBytes));
 
@@ -222,7 +223,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         // This isn't using relevantStreams because these just get
         // uploaded and that's not a problem. This way they can sync,
         // factory reset and then download more data.
-        const uploads = station.streams
+        const uploads = relevantStreams
             .map((stream) => {
                 const firstBlock = stream.portalLastBlock || 0;
                 const lastBlock = stream.downloadLastBlock || 0;

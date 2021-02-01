@@ -433,12 +433,11 @@ export default class DatabaseInterface {
         await this.execute("DELETE FROM streams");
     }
 
-    private updateStream(streamId: number, generationId: string, stream: Stream): Promise<void> {
+    private async updateStream(streamId: number, generationId: string, stream: Stream): Promise<void> {
         const updates: Promise<void>[] = [];
 
         if (stream.deviceSize !== null && stream.deviceFirstBlock !== null && stream.deviceLastBlock !== null) {
             const values = [stream.deviceSize, stream.deviceFirstBlock, stream.deviceLastBlock, stream.updated, generationId, streamId];
-            console.log(`updating stream: device`, values);
             updates.push(
                 this.execute(
                     `UPDATE streams SET device_size = ?, device_first_block = ?, device_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
@@ -456,7 +455,6 @@ export default class DatabaseInterface {
                 generationId,
                 streamId,
             ];
-            console.log(`updating stream: download`, values);
             updates.push(
                 this.execute(
                     `UPDATE streams SET download_size = ?, download_first_block = ?, download_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
@@ -467,7 +465,6 @@ export default class DatabaseInterface {
 
         if (stream.portalSize !== null && stream.portalFirstBlock !== null && stream.portalLastBlock !== null) {
             const values = [stream.portalSize, stream.portalFirstBlock, stream.portalLastBlock, stream.updated, generationId, streamId];
-            console.log(`updating stream: portal`, values);
             updates.push(
                 this.execute(
                     `UPDATE streams SET portal_size = ?, portal_first_block = ?, portal_last_block = ?, updated = ?, generation_id = ? WHERE id = ?`,
@@ -476,10 +473,10 @@ export default class DatabaseInterface {
             );
         }
 
-        return Promise.all(updates).then(() => Promise.resolve());
+        await Promise.all(updates);
     }
 
-    private synchronizeStreams(stationId: number, station: Station, streamRows: StreamTableRow[]): Promise<void> {
+    private async synchronizeStreams(stationId: number, station: Station, streamRows: StreamTableRow[]): Promise<void> {
         const incoming = _.keyBy(station.streams, (m) => m.type);
         const existing = _.keyBy(streamRows, (m) => m.type);
         const adding = _.difference(_.keys(incoming), _.keys(existing));
@@ -488,7 +485,7 @@ export default class DatabaseInterface {
 
         log.verbose("synchronize streams", stationId, adding, removed, keeping);
 
-        return Promise.all([
+        await Promise.all([
             Promise.all(adding.map((name) => this.insertStream(stationId, incoming[name]))),
             Promise.all(removed.map((name) => this.query("DELETE FROM streams WHERE id = ?", [existing[name].id]))),
             Promise.all(
@@ -496,7 +493,7 @@ export default class DatabaseInterface {
                     this.updateStream(existing[name].id, station.generationId, incoming[name].keepingFrom(existing[name]))
                 )
             ),
-        ]).then(() => Promise.resolve());
+        ]);
     }
 
     private async insertStation(newStation: Station): Promise<void> {
@@ -594,7 +591,7 @@ export default class DatabaseInterface {
         );
     }
 
-    public insertDownload(download: DownloadTableRow): Promise<void> {
+    public async insertDownload(download: DownloadTableRow): Promise<void> {
         const values = [
             download.stationId,
             download.deviceId,
@@ -609,7 +606,7 @@ export default class DatabaseInterface {
             download.lastBlock,
         ];
         console.log(`inserting download`, values);
-        return this.execute(
+        return await this.execute(
             `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
 					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             values
@@ -623,7 +620,6 @@ export default class DatabaseInterface {
                     download.stationId,
                     download.type,
                 ];
-                console.log(`updating streams:`, updating);
                 return this.execute(
                     `UPDATE streams SET download_size = COALESCE(download_size, 0) + ?,
 							                download_first_block = MIN(COALESCE(download_first_block, 0xffffffff), ?),
@@ -636,12 +632,12 @@ export default class DatabaseInterface {
             .catch((error) => Promise.reject(new Error(`error inserting download: ${JSON.stringify(error)}`)));
     }
 
-    public markDownloadAsUploaded(download: Download): Promise<void> {
+    public async markDownloadAsUploaded(download: Download): Promise<void> {
         if (download.stationId === null || download.fileType === null) {
             console.log("malformed download row", download.stationId, download.fileType, download);
             throw new Error("malformed download row");
         }
-        return this.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]).then(() => {
+        return await this.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]).then(() => {
             const values = [
                 download.size,
                 download.firstBlock,
@@ -660,11 +656,11 @@ export default class DatabaseInterface {
         });
     }
 
-    private getStationIdByDeviceId(deviceId: string): Promise<number | null> {
+    private async getStationIdByDeviceId(deviceId: string): Promise<number | null> {
         if (!deviceId) {
             return Promise.reject(new Error(`invalid device id`));
         }
-        return this.query<{ id: number }>("SELECT id FROM stations WHERE device_id = ?", [deviceId]).then((rows) => {
+        return await this.query<{ id: number }>("SELECT id FROM stations WHERE device_id = ?", [deviceId]).then((rows) => {
             if (rows.length != 1) {
                 return null;
             }
@@ -699,8 +695,8 @@ export default class DatabaseInterface {
         });
     }
 
-    public addOrUpdateFirmware(firmware: FirmwareTableRow): Promise<void> {
-        return this.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]).then((id) => {
+    public async addOrUpdateFirmware(firmware: FirmwareTableRow): Promise<void> {
+        return await this.query("SELECT id FROM firmware WHERE id = ?", [firmware.id]).then((id) => {
             if (id.length === 1) {
                 return Promise.resolve();
             }

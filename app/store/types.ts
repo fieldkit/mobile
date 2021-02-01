@@ -631,6 +631,7 @@ export class StationSyncStatus {
     ) {}
 
     public withProgress(progress: StationProgress | null): StationSyncStatus {
+        console.log(`with-progress`, progress);
         return new StationSyncStatus(
             this.id,
             this.deviceId,

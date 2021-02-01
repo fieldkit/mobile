@@ -416,7 +416,7 @@ const mutations = {
     [MutationTypes.TRANSFER_OPEN]: (state: NearbyState, payload: OpenProgressMutation) => {
         if (payload.downloading) {
             if (!state.stations[payload.deviceId]) {
-                console.log("warning: no nearby station in transfer open");
+                console.log("warning: no nearby station in transfer open", payload.downloading);
                 if (state.expired[payload.deviceId]) {
                     Vue.set(state.stations, payload.deviceId, state.expired[payload.deviceId]);
                 } else {

@@ -40,7 +40,7 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.STATION_REPLY]: ({ dispatch, commit }: ActionParameters, payload: StationRepliedAction) => {
             const statusReply = payload.statusReply?.networkSettings?.connected;
-            console.log("station-reply", statusReply);
+            console.log("station-reply, station connected", statusReply);
             if (statusReply && statusReply.ssid) {
                 commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(statusReply.ssid, statusReply.create));
             }
