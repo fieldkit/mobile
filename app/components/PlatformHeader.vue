@@ -9,6 +9,14 @@
                 </GridLayout>
                 <ActionItem ios.systemIcon="2" ios.position="right" android.systemIcon="ic_menu_edit" @tap="onSettings" />
             </template>
+            <template v-else-if="canSave">
+                <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
+                <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
+                    <Label row="0" class="title m-t-10 m-b-5 text-center text" :text="title"></Label>
+                    <Label row="1" class="text-center subtitle text" :text="subtitle" textWrap="true" :visible="subtitle"></Label>
+                </GridLayout>
+                <ActionItem ios.systemIcon="3" ios.position="right" android.systemIcon="ic_menu_edit" @tap="raiseSave" />
+            </template>
             <template v-else>
                 <NavigationButton text="Back" :visibility="haveBackStack ? 'visible' : 'collapse'" @tap="raiseBack" />
                 <GridLayout :rows="subtitle ? 'auto,auto' : 'auto'" columns="*">
@@ -42,7 +50,6 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import { Frame, isIOS } from "@nativescript/core";
-// import * as application from "@nativescript/core/application";
 
 export default Vue.extend({
     name: "PlatformHeader",
@@ -79,6 +86,10 @@ export default Vue.extend({
         canNavigateSettings: {
             type: Boolean,
             default: true,
+        },
+        canSave: {
+            type: Boolean,
+            default: false,
         },
         bottomMargin: {
             type: Boolean,
@@ -174,6 +185,10 @@ export default Vue.extend({
         },
         raiseIcon(): void {
             console.log("platform-header:icon-tapped");
+            this.$emit("icon-tapped");
+        },
+        raiseSave(): void {
+            console.log("platform-header:save-tapped");
             this.$emit("icon-tapped");
         },
     },

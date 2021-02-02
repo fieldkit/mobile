@@ -1,6 +1,12 @@
 <template>
     <Page class="page plain">
-        <PlatformHeader :title="help.title" icon="~/images/Icon_Save.png" :canNavigateSettings="false" @icon-tapped="onSave" />
+        <PlatformHeader
+            :title="help.title"
+            icon="~/images/Icon_Save.png"
+            :canNavigateSettings="false"
+            :canSave="true"
+            @icon-tapped="onSave"
+        />
         <GridLayout rows="*,auto" class="container">
             <ScrollView row="0">
                 <GridLayout rows="auto,*,auto" v-if="!note.image" class="container">
