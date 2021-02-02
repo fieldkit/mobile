@@ -40,7 +40,7 @@
                 <SettingsItemIconText
                     :link="'developer'"
                     :text="'appSettings.developer.developer'"
-                    :imageSrc="'~/images/icon_legal_settings.png'"
+                    :imageSrc="'~/images/icon_developer.png'"
                 />
             </StackLayout>
         </ScrollView>
