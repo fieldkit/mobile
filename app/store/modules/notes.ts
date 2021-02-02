@@ -115,7 +115,7 @@ export class Notes {
 
     public attachAudio(key: string | null, audio: NoteMedia): Notes {
         if (!key) {
-            const newAudio = _.uniqBy([...this.photos, audio], (m) => m.path);
+            const newAudio = _.uniqBy([...this.audio, audio], (m) => m.path);
             return new Notes(this.stationId, this.createdAt, new Date(), true, this.location, this.notes, this.photos, newAudio);
         }
 

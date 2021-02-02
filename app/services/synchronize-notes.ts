@@ -102,7 +102,7 @@ export default class SynchronizeNotes {
         const allKeys = _.union(_.flatten([Object.keys(localByKey), Object.keys(portalByKey)]));
 
         console.log(`notes: ${JSON.stringify({ ids, portalByKey, localByKey, allKeys })}`);
-        return await serializePromiseChain(allKeys, (key: string) => {
+        return await serializePromiseChain(allKeys, async (key: string) => {
             if (portalByKey[key]) {
                 if (!localByKey[key]) {
                     // Portal has the media and we gotta download.
@@ -111,14 +111,21 @@ export default class SynchronizeNotes {
                     const contentType = portalByKey[key].contentType;
                     const photo = isPhoto(contentType);
                     const folder = this.fs.getFolder(getFolder(contentType));
-                    const destination = folder.getFile(this.makeFileNameForPortalDownload(key, contentType)).path;
-                    console.log(`notes: downloading portal media`, destination, contentType, key);
-                    return this.portal.downloadStationMedia(portalByKey[key].id, destination).then(() => {
-                        this.store.commit(new AttachNoteMediaMutation(ids.mobile, null, { key: key, path: destination }, !photo));
-                        return [destination, portalByKey[key].id];
-                    });
+                    const destination = folder.getFile(this.makeFileNameForPortalDownload(key, contentType));
+
+                    if (destination.exists && destination.size > 0) {
+                        console.log(`notes: already on disk`, destination.path, contentType, key);
+                        this.store.commit(new AttachNoteMediaMutation(ids.mobile, null, { key: key, path: destination.path }, !photo));
+                        return [destination.path, portalByKey[key].id];
+                    } else {
+                        console.log(`notes: downloading portal media`, destination.path, contentType, key);
+                        return await this.portal.downloadStationMedia(portalByKey[key].id, destination.path).then(() => {
+                            this.store.commit(new AttachNoteMediaMutation(ids.mobile, null, { key: key, path: destination.path }, !photo));
+                            return [destination.path, portalByKey[key].id];
+                        });
+                    }
                 }
-                return Promise.resolve([localByKey[key].path, portalByKey[key].id]);
+                return [localByKey[key].path, portalByKey[key].id];
             }
             const path = localByKey[key].path;
             const contentType = this.getContentType(path);
@@ -146,15 +153,13 @@ export default class SynchronizeNotes {
             siteDescription: mobileNotes.siteDescription,
         };
 
+        console.log(`notes: merging: ${JSON.stringify({ portalExisting, localByKey })}`);
+
         const modifications = _(localByKey)
             .mapValues((value, key) => {
-                console.log(`notes: merging: ${JSON.stringify({ value })}`);
-
                 const photoIds = value.photos.map((m) => media[m.path]).filter((v) => v);
                 const audioIds = value.audio.map((m) => media[m.path]).filter((v) => v);
                 const mediaIds = [...photoIds, ...audioIds];
-
-                console.log(`notes: media-ids ${JSON.stringify({ mediaIds })}`);
 
                 if (portalExisting[key]) {
                     const localBody = value.body;
@@ -170,7 +175,6 @@ export default class SynchronizeNotes {
                         })}`
                     );
                     if (localBody == remoteBody) {
-                        console.log(`identical`);
                         return {
                             creating: null,
                             updating: null,
@@ -180,17 +184,15 @@ export default class SynchronizeNotes {
                     const remoteTime = moment(portalExisting[key].updatedAt);
                     const localTime = moment(mobileNotes.updatedAt);
 
-                    console.log(`notes: times`, remoteTime, localTime);
-
                     if (remoteTime.isAfter(localTime)) {
-                        console.log(`portal wins`, key);
+                        console.log(`notes: portal wins ${JSON.stringify({ key, remoteTime, localTime })}`);
                         this.store.commit(new UpdateNoteMutation(ids.mobile, key, portalExisting[key]));
                         return {
                             creating: null,
                             updating: null,
                         };
                     }
-                    console.log(`notes: mobile wins`, key);
+                    console.log(`notes: mobile wins ${JSON.stringify({ key, remoteTime, localTime })}`);
                     return {
                         creating: null,
                         updating: new ExistingFieldNote(portalExisting[key].id, key, value.body, mediaIds),

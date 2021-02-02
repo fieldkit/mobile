@@ -223,7 +223,7 @@ function makeStationSyncs(state: SyncingState): StationSyncStatus[] {
         // This isn't using relevantStreams because these just get
         // uploaded and that's not a problem. This way they can sync,
         // factory reset and then download more data.
-        const uploads = relevantStreams
+        const uploads = station.streams
             .map((stream) => {
                 const firstBlock = stream.portalLastBlock || 0;
                 const lastBlock = stream.downloadLastBlock || 0;

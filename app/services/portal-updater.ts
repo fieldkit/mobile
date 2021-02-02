@@ -41,14 +41,6 @@ export default class PortalUpdater {
         });
     }
 
-    private async recordError(stationId: number, error: AxiosError): Promise<void> {
-        if (error?.response?.data) {
-            await this.store.dispatch(new PortalErrorAction(stationId, error.response.data as PortalError));
-        } else {
-            await this.store.dispatch(new PortalErrorAction(stationId, { unknown: true, message: error.message }));
-        }
-    }
-
     private async update(station: Station): Promise<void> {
         const id = station.id;
         if (!id) throw new Error(`station id is required`);
@@ -76,8 +68,17 @@ export default class PortalUpdater {
             const ids = new Ids(id, saved.id);
             await this.synchronizeNotes.synchronize(ids);
         } catch (error) {
-            console.log(`error: ${JSON.stringify(error)}`);
+            // eslint-disable-next-line
+            console.log(`update-error:`, error, error?.stack);
             await this.recordError(id, error);
+        }
+    }
+
+    private async recordError(stationId: number, error: AxiosError): Promise<void> {
+        if (error?.response?.data) {
+            await this.store.dispatch(new PortalErrorAction(stationId, error.response.data as PortalError));
+        } else {
+            await this.store.dispatch(new PortalErrorAction(stationId, { unknown: true, message: error.message }));
         }
     }
 }
