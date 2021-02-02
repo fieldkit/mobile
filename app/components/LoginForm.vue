@@ -220,11 +220,6 @@ export default Vue.extend({
     margin-bottom: 8;
 }
 
-.sign-up-label {
-    horizontal-align: center;
-    margin-bottom: 10;
-}
-
 .validation-error {
     color: $fk-tertiary-red;
     border-top-color: $fk-tertiary-red;

@@ -2,7 +2,7 @@
     <Page>
         <PlatformHeader :title="_L('appSettings.account.addAccount')" :canNavigateSettings="false" :canCancel="true" />
         <ScrollView>
-            <FlexboxLayout class="page login-page" flexDirection="column">
+            <FlexboxLayout class="page login-page" justifyContent="space-between">
                 <LoginForm v-if="login" :allowContinueOffline="false" :busy="busy" @saved="onLoginSaved" />
 
                 <RegisterForm v-else />
@@ -75,7 +75,8 @@ export default Vue.extend({
 }
 
 .sign-up-label {
-    horizontal-align: center;
+    font-size: 14;
     margin-bottom: 10;
+    font-weight: bold;
 }
 </style>

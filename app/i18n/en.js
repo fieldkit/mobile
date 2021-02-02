@@ -350,7 +350,7 @@ module.exports = {
     logIn: "Log In",
     signUp: "Sign Up",
     continueOffline: "Continue Offline",
-    needAccount: "Create an account",
+    needAccount: "Create an Account",
     backToLogin: "Back to Log In",
     provideBoth: "Please provide both an email address and password.",
     loginFailed: "Unfortunately we were unable to log you in. Please check your credentials and try again.",

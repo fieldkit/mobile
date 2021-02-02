@@ -89,7 +89,8 @@ export default Vue.extend({
 }
 
 .sign-up-label {
-    horizontal-align: center;
+    font-size: 14;
     margin-bottom: 10;
+    font-weight: bold;
 }
 </style>
