@@ -9,7 +9,7 @@
         />
         <GridLayout rows="*,auto" class="grid-container">
             <ScrollView row="0">
-                <GridLayout rows="auto,*,auto" height="100%" v-if="!note.image" class="container">
+                <GridLayout rows="auto,*,auto" height="95%" v-if="!note.image" class="container">
                     <Label :text="help.instructions" row="0" class="m-x-20 m-y-10 size-12" textWrap="true" width="100%" />
                     <TextView
                         ref="noteBody"
