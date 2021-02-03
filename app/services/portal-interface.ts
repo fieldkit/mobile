@@ -2,8 +2,8 @@ import _ from "lodash";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import { HttpResponse } from "@/wrappers/networking";
 import { AuthenticationError } from "@/lib/errors";
-import { ActionTypes, CurrentUser } from "@/store/actions";
-import { Download, FileTypeUtils } from "@/store/types";
+import { ActionTypes } from "@/store/actions";
+import { Download, FileTypeUtils, CurrentUser } from "@/store/types";
 import { Services, Conservify, FileSystem, OurStore } from "@/services";
 
 type ProgressFunc = (total: number, copied: number, info: never) => void;
@@ -140,11 +140,10 @@ export default class PortalInterface {
             return axios
                 .request({ url: baseUri + "/status" })
                 .then((response) => {
-                    console.log(`portal available: ${JSON.stringify(response)}`);
                     return true;
                 })
                 .catch((error) => {
-                    console.log(`portal available: ${JSON.stringify(error)}`);
+                    console.log(`portal unavailable`);
                     return false;
                 });
         });
@@ -254,7 +253,6 @@ export default class PortalInterface {
         return await this.query({
             url: `/firmware?module=${moduleName}`,
         }).then((data) => {
-            console.log("data", data);
             return data as { firmwares: PortalFirmware[] };
         });
     }

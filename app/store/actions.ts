@@ -227,19 +227,6 @@ export class NetworkChangedAction {
     constructor(public readonly network: PhoneNetwork) {}
 }
 
-export interface CurrentUser {
-    portalId: number;
-    name: string;
-    email: string;
-    usedAt: Date | null;
-    token: string | null;
-    transmission: {
-        token: string;
-        url: string;
-    } | null;
-    lastSync: Date | null;
-}
-
 export class PortalReplyAction implements StationPortalStatus {
     type = ActionTypes.STATION_PORTAL_REPLY;
 

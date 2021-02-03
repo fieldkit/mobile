@@ -214,6 +214,19 @@ export interface PortalEnv {
     ingestionUri: string;
 }
 
+export interface CurrentUser {
+    portalId: number;
+    name: string;
+    email: string;
+    usedAt: Date | null;
+    token: string | null;
+    transmission: {
+        token: string;
+        url: string;
+    } | null;
+    lastSync: Date | null;
+}
+
 export interface Schedules {
     readings: Schedule;
     network: Schedule;
