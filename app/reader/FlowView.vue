@@ -73,12 +73,6 @@ export default Vue.extend({
         this.timer = new Timer(1000, null);
         console.log("flows", flows);
     },
-    onNavigatingTo(): void {
-        if (this.timer) {
-            this.timer.stop();
-            this.timer = null;
-        }
-    },
     methods: {
         async forward(): Promise<void> {
             console.log("forward", this.screen.name, this.screen.navOptions.forward);
@@ -98,7 +92,12 @@ export default Vue.extend({
             console.log("backward", this.screen.name, this.screen.navOptions.backward);
             return this.nav.move(this.screen.navOptions.backward);
         },
-
+        onNavigatingTo(): void {
+            if (this.timer) {
+                this.timer.stop();
+                this.timer = null;
+            }
+        },
         async skip(): Promise<void> {
             console.log("skip", this.screen.name);
             await this.nav.move(NavigationOption.Skip).then(() => {
