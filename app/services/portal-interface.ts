@@ -555,7 +555,7 @@ export default class PortalInterface {
                         }
                     })
                     .then((response) => {
-                        console.log(`portal reply: ${JSON.stringify(response.data)} ${JSON.stringify(response)}`);
+                        console.log(`portal reply: ${JSON.stringify(response.data)}`);
                         if (response.status == null) {
                             throw new Error("query error, no data");
                         }

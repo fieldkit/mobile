@@ -246,7 +246,7 @@ export class PortalReplyAction implements StationPortalStatus {
     public readonly error = null;
 
     constructor(
-        public readonly user: CurrentUser,
+        public readonly userId: number,
         public readonly id: number,
         public readonly portalId: number,
         public readonly ownerId: number

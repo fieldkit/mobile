@@ -37,7 +37,7 @@ describe("portal sync", () => {
         it("should update when changed", async () => {
             expect.assertions(4);
 
-            const payload = new PortalReplyAction(user, 1, 100, 1);
+            const payload = new PortalReplyAction(user.portalId, 1, 100, 1);
 
             expect(store.state.stations.all[0].portalId).toBeNull();
 
@@ -59,7 +59,7 @@ describe("portal sync", () => {
 
             const sm = stations(new ServiceRef(() => $s)) as any;
 
-            const payload = new PortalReplyAction(user, 1, 100, 1);
+            const payload = new PortalReplyAction(user.portalId, 1, 100, 1);
 
             const store = $s.Store();
             const commitSpy = jest.spyOn(store, "commit");

@@ -5,7 +5,6 @@ import { sqliteToJs } from "@/utilities";
 import { Database } from "@/wrappers/sqlite";
 import { Download, FileTypeUtils, Station, Sensor, Module, Stream } from "@/store/types";
 import { NoteMedia } from "@/store/mutations";
-import { CurrentUser } from "@/store/actions";
 import {
     AccountsTableRow,
     DownloadTableRow,
@@ -129,10 +128,10 @@ export default class DatabaseInterface {
         }
     }
 
-    public async updateLastSyncedAt(user: CurrentUser): Promise<void> {
+    public async updateLastSyncedAt(userId: number): Promise<void> {
         try {
-            const values = [new Date(), user.email];
-            await this.execute("UPDATE accounts SET last_synced = ? WHERE email = ?", values);
+            const values = [new Date(), userId];
+            await this.execute("UPDATE accounts SET last_synced = ? WHERE portal_id = ?", values);
         } catch (error) {
             console.log(`error updating last synced`, error);
             throw new Error(`error updating last synced: ${JSON.stringify(error)}`);
@@ -427,6 +426,7 @@ export default class DatabaseInterface {
 
     public async forgetUploads(): Promise<void> {
         await this.execute("UPDATE streams SET portal_size = NULL, portal_first_block = NULL, portal_last_block = NULL");
+        await this.execute("UPDATE downloads SET uploaded = NULL");
     }
 
     public async forgetDownloads(): Promise<void> {

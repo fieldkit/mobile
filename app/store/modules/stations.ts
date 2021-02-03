@@ -443,7 +443,7 @@ const actions = (services: ServiceRef) => {
             if (changed) {
                 commit(MutationTypes.STATION_PORTAL_STATUS, payload);
             }
-            await services.db().updateLastSyncedAt(payload.user);
+            await services.db().updateLastSyncedAt(payload.userId);
         },
     };
 };

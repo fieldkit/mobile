@@ -32,7 +32,6 @@ export default class SynchronizeNotes {
 
                     return this.patchPortal(ids, patch).then(() => {
                         if (merged.modified) {
-                            console.log(`notes: mobile notes modified`);
                             return this.store.dispatch(ActionTypes.SAVE_NOTES, { stationId: ids.mobile });
                         }
                         return Promise.resolve();

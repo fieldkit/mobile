@@ -64,7 +64,7 @@ export default class PortalUpdater {
             }
             console.log(`adding-station: ${JSON.stringify({ userId: user.portalId })}`);
             const saved = await this.portal.addStation(user, params);
-            await this.store.dispatch(new PortalReplyAction(user, id, saved.id, saved.owner.id));
+            await this.store.dispatch(new PortalReplyAction(user.portalId, id, saved.id, saved.owner.id));
             const ids = new Ids(id, saved.id);
             await this.synchronizeNotes.synchronize(ids);
         } catch (error) {

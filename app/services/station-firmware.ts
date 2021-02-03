@@ -56,10 +56,7 @@ export default class StationFirmware {
             .PortalInterface()
             .listFirmware("fk-core")
             .then((firmware) => {
-                log.info(
-                    "firmwares",
-                    _.map(firmware.firmwares, (fw) => fw.id)
-                );
+                log.info(`firmwares: ${JSON.stringify(_.map(firmware.firmwares, (fw) => fw.id))}`);
                 return firmware.firmwares.map((f) => {
                     const local = this.services.FileSystem().getFolder("firmware").getFile(`fk-bundled-fkb-${f.id}.bin`);
                     log.verbose("local", local);
@@ -80,7 +77,7 @@ export default class StationFirmware {
                     .then(() => {
                         const local = this.services.FileSystem().getFile(firmwares[0].path);
                         if (!local.exists || local.size == 0 || force === true) {
-                            log.info("downloading", firmwares[0]);
+                            log.info(`downloading firmware: ${JSON.stringify(firmwares[0])}`, firmwares[0]);
 
                             const downloadProgress = transformProgress(progressCallback, (p) => p);
 
@@ -95,7 +92,7 @@ export default class StationFirmware {
                                 });
                         }
 
-                        log.info("already have", firmwares[0]);
+                        log.info(`already have: ${JSON.stringify(firmwares[0])}`);
 
                         return this.deleteOldFirmware().then(() => {
                             return firmwares[0];
