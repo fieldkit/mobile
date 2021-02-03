@@ -50,7 +50,10 @@ export default Vue.extend({
         });
     },
     destroyed(): void {
-        this.timer.stop();
+        console.log("destroyed");
+        if (this.timer) {
+            this.timer.stop();
+        }
     },
     methods: {
         startOrResume(): Promise<void> {

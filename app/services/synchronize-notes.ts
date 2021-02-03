@@ -42,10 +42,11 @@ export default class SynchronizeNotes {
     }
 
     private async patchPortal(ids: Ids, patch: PatchPortalNotes): Promise<void> {
-        console.log(`patching: ${JSON.stringify({ ids, patch })}`);
         if (patch.creating.length == 0 && patch.notes.length == 0) {
+            console.log(`patching(noop): ${JSON.stringify({ ids, patch })}`);
             return;
         }
+        console.log(`patching: ${JSON.stringify({ ids, patch })}`);
         await this.portal.updateStationNotes(ids.portal, patch);
     }
 

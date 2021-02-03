@@ -1,5 +1,5 @@
 <template>
-    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" navigatingTo="onNavigatingTo">
+    <Page class="page" actionBarHidden="true" @loaded="onPageLoaded" @navigatingTo="onNavigatingTo">
         <GridLayout rows="auto">
             <StackLayout row="0" height="100%" backgroundColor="white" verticalAlignment="middle">
                 <LargeSpinner :label="_L('connecting')" />
@@ -65,15 +65,6 @@ export default Vue.extend({
             }
         });
     },
-    destroyed(): void {
-        if (this.timer) {
-            console.log(`searching:destroyed`);
-            this.timer.cancel();
-            this.timer = null;
-        } else {
-            console.log(`searching:destroyed (no-timer)`);
-        }
-    },
     methods: {
         onPageLoaded(): void {
             if (this.numberOfNearbyStations) {
@@ -81,6 +72,14 @@ export default Vue.extend({
             }
         },
         onNavigatingTo(): void {
+            console.log(`searching:onNavigatingTo`);
+            if (this.timer) {
+                console.log(`searching:left`);
+                this.timer.cancel();
+                this.timer = null;
+            } else {
+                console.log(`searching:left (no-timer)`);
+            }
             this.left = true;
         },
         foundStations(numberStations: number): Promise<Page | void> {

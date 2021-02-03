@@ -1,5 +1,5 @@
 <template>
-    <Page class="page">
+    <Page class="page" @navigatingTo="onNavigatingTo">
         <PlatformHeader
             :title="screen.header.title"
             :canCancel="true"
@@ -73,7 +73,7 @@ export default Vue.extend({
         this.timer = new Timer(1000, null);
         console.log("flows", flows);
     },
-    destroyed(): void {
+    onNavigatingTo(): void {
         if (this.timer) {
             this.timer.stop();
             this.timer = null;

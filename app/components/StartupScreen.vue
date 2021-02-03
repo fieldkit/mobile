@@ -32,9 +32,9 @@ export default Vue.extend({
 
         await initializeApplication(services);
 
-        console.log("developer", Config.env.developer);
-
         if (Config.env.developer) {
+            console.log("developer", Config.env.developer);
+
             // const route = routes.calibration.start;
             // const route = routes.deploy.start;
             // const route = routes.deploy.notes;
@@ -52,9 +52,9 @@ export default Vue.extend({
             // const route = routes.tabbed;
             // const route = routes.onboarding.assembleStation;
             // const route = routes.onboarding.network;
-            // const route = routes.onboarding.start;
+            const route = routes.onboarding.start;
             // const route = routes.tabbed;
-            const route = routes.login;
+            // const route = routes.login;
             if (route != routes.tabbed) {
                 await this.$navigateTo(routes.tabbed, {
                     clearHistory: true,
