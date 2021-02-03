@@ -45,14 +45,7 @@ export class SyncingState {
 
 function querySizes(services: ServiceRef, downloads: PendingDownload[]): Promise<CalculatedSize[]> {
     return serializePromiseChain(downloads, (download: PendingDownload) => {
-        console.log("calculating size:", download.url);
-        return services
-            .queryStation()
-            .calculateDownloadSize(download.url)
-            .then((size: CalculatedSize) => {
-                console.log("size:", download.url, size);
-                return size;
-            });
+        return services.queryStation().calculateDownloadSize(download.url);
     });
 }
 
@@ -94,11 +87,15 @@ const actions = (services: ServiceRef) => {
 
                     commit(MutationTypes.TRANSFER_OPEN, new OpenProgressMutation(sync.deviceId, true, totalBytes));
 
-                    return serializePromiseChain(sync.downloads, (file: PendingDownload) => {
+                    return serializePromiseChain(sync.downloads, async (file: PendingDownload, index: number) => {
+                        const size = sizes[index];
+                        if (size.size == 0) {
+                            return;
+                        }
                         const fsFolder = services.fs().getFolder(getFilePath(file.path));
                         const fsFile = fsFolder.getFile(getFileName(file.path));
                         console.log("syncing:download", file.url, fsFile);
-                        return services
+                        return await services
                             .queryStation()
                             .download(file.url, fsFile.path, (total: number, copied: number) => {
                                 commit(MutationTypes.TRANSFER_PROGRESS, new TransferProgress(sync.deviceId, file.path, total, copied));
