@@ -139,10 +139,10 @@ export default class PortalInterface {
             console.log(`portal query`, "GET", baseUri + "/status");
             return axios
                 .request({ url: baseUri + "/status" })
-                .then((response) => {
+                .then(() => {
                     return true;
                 })
-                .catch((error) => {
+                .catch(() => {
                     console.log(`portal unavailable`);
                     return false;
                 });
