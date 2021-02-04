@@ -1,5 +1,5 @@
 <template>
-    <GridLayout row="auto">
+    <GridLayout row="auto" @loaded="onPageLoaded">
         <StackLayout id="station-status-box-container" :class="'p-t-30 m-20 ' + (loading ? '' : 'bordered-container')" row="0">
             <GridLayout v-show="!loading" rows="auto,auto" columns="*,*" class="m-t-10">
                 <!-- recording time -->
@@ -16,22 +16,22 @@
                     <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
                         <Image width="14" :src="batteryImage" rowSpan="2" col="0" />
                         <Label row="0" col="1" class="m-t-5 m-l-5 size-12" :text="_L('batteryLife')" />
-                        <Label class="m-l-5 m-r-5 size-10 lighter" :text="batteryLevel" row="1" col="1" />
+                        <Label class="m-l-5 m-r-5 size-10 lighter" :text="'batteryLevel'" row="1" col="1" />
                     </GridLayout>
                     <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
                         <Image v-if="station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_memory.png" />
                         <Image v-if="!station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_Memory_Grayed_Out.png" />
-                        <Label row="0" col="1" class="m-t-15 m-l-5 size-12" horizontalAlignment="left" :text="_L('memoryUsed')" />
+                        <Label row="0" col="1" class="m-t-15 m-l-5 size-12" horizontalAlignment="left" :text="_L('memoryAvailable')" />
                         <Label
                             row="1"
                             col="1"
                             class="m-l-5 m-t-2 m-b-5 size-10 lighter"
                             horizontalAlignment="left"
-                            :text="displayConsumedMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
+                            :text="displayAvailableMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
                         />
                         <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
                             <StackLayout row="0" class="memory-bar" />
-                            <StackLayout id="station-memory-bar" row="0" class="memory-bar" horizontalAlignment="left" />
+                            <StackLayout :width="this.displayAvailableMemoryPercent+ '%'" id="station-memory-bar" row="0" class="memory-bar" horizontalAlignment="left" />
                         </GridLayout>
                     </GridLayout>
                 </StackLayout>
@@ -55,14 +55,16 @@
         </StackLayout>
         <AbsoluteLayout v-if="!station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto, auto" columns="40,*">
-                <Image width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Image width="35" v-if="!stationAP" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Image width="35" v-if="!stationAP" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
                 <Label row="0" col="1" class="m-l-10 size-12" :text="_L('notConnected')" />
                 <Label class="m-l-10 m-r-5 size-10 lighter" :text="lastSeen" row="1" col="1" />
             </GridLayout>
         </AbsoluteLayout>
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto" columns="30,*">
-                <Image width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
+                <Image width="25" v-if="!stationAP" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
+                <Image width="25" v-if="!stationAP" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
                 <Label v-if="displayedSSID" row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" />
                 <Label v-else row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ...'" />
             </GridLayout>
@@ -112,6 +114,14 @@ export default Vue.extend({
             if (!this.station.totalMemory) return "";
             return convertBytesToLabel(this.station.totalMemory);
         },
+        displayAvailableMemory(): string {
+            if (!this.station.consumedMemory || !this.station.totalMemory) return "";
+            return convertBytesToLabel(this.station.totalMemory - this.station.consumedMemory);
+        },
+        displayAvailableMemoryPercent(): number {
+            if (!this.station.consumedMemory || !this.station.totalMemory) return 0;
+            return (this.station.totalMemory - this.station.consumedMemory) * 100/this.station.totalMemory;
+        },
         recording(): { time: string; label: string } {
             if (this.station.deployStartTime) {
                 return getLabelledElapsedTime(this.now, this.station.deployStartTime);
@@ -150,6 +160,9 @@ export default Vue.extend({
         displayedSSID(): string | null {
             const currentSSID = this.$s.state.phone.network?.ssid || null;
             return currentSSID && currentSSID.length > 10 ? currentSSID.substr(0, 10) + "..." : currentSSID;
+        },
+        stationAP(): boolean {
+            return Boolean(this.$s.state.phone.network?.ap);
         },
     },
     mounted(): void {
