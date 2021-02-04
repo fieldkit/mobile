@@ -247,17 +247,17 @@ const mutations = {
 
 export interface Settings {
     data?: {
-        auto_sync_station: boolean;
-        auto_sync_portal: boolean;
-        mobile_data_usage: boolean;
+        autoSyncStation: boolean;
+        autoSyncPortal: boolean;
+        mobileDataUsage: boolean;
     };
     notifications?: {
-        push_notifications: boolean;
+        pushNotifications: boolean;
     };
     units?: {
-        unit_system: string;
+        unitSystem: string;
         temperature: string;
-        unit_name: string;
+        unitName: string;
         pressure: string;
         velocity: string;
     };
@@ -268,17 +268,17 @@ export interface Settings {
         microphone: boolean;
     };
     appearance?: {
-        font_size: number;
+        fontSize: number;
         language: string;
-        dark_mode: boolean;
+        darkMode: boolean;
     };
     help?: {
-        app_version: {
+        appVersion: {
             updates: boolean;
-            download_updates: boolean;
+            downloadUpdates: boolean;
         };
-        crash_reports: boolean;
-        tutorial_guide: boolean;
+        crashReports: boolean;
+        tutorialGuide: boolean;
     };
     legal?: {
         //

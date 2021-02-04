@@ -1,16 +1,16 @@
 const settings = {
     data: {
-        auto_sync_station: true,
-        auto_sync_portal: true,
-        mobile_data_usage: true
+        autoSyncStation: true,
+        autoSyncPortal: true,
+        mobileDataUsage: true
     },
     notifications: {
-        push_notifications: true
+        pushNotifications: true
     },
     units: {
-        unit_system: 'imperial',
+        unitSystem: 'imperial',
         temperature: 'c',
-        unit_name: 'mgl',
+        unitName: 'mgl',
         pressure: 'kPa',
         velocity: 'kPa'
     },
@@ -21,17 +21,17 @@ const settings = {
         microphone: true
     },
     appearance: {
-        font_size: 2,
+        fontSize: 2,
         language: 'english',
-        dark_mode: false
+        darkMode: false
     },
     help: {
-        app_version: {
+        appVersion: {
             updates: false,
-            download_updates: true
+            downloadUpdates: true
         },
-        crash_reports: true,
-        tutorial_guide: true
+        crashReports: true,
+        tutorialGuide: true
     },
     legal: {}
 };

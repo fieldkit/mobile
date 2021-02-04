@@ -6,7 +6,7 @@
                 <SettingsItemSlider
                     :title="'appSettings.appearance.darkMode'"
                     :cssClass="'top-bordered-item'"
-                    v-model="currentSettings.appearance.dark_mode"
+                    v-model="currentSettings.appearance.darkMode"
                     v-on:change="saveSettings"
                 />
                 <SettingsItemText :link="'appearanceFontSize'" :text="'appSettings.appearance.fontSize'" v-if="false" />

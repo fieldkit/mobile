@@ -6,13 +6,13 @@
                 <SettingsItemText :link="'helpAppVersion'" :text="'appSettings.help.appVersion'" :cssClass="'top-bordered-item'" />
                 <SettingsItemSlider
                     :title="'appSettings.help.crashReports'"
-                    v-model="currentSettings.help.crash_reports"
+                    v-model="currentSettings.help.crashReports"
                     v-on:change="saveSettings"
                 />
                 <SettingsItemSlider
                     :title="'appSettings.help.tutorialGuide'"
                     :enabled="true"
-                    v-model="currentSettings.help.tutorial_guide"
+                    v-model="currentSettings.help.tutorialGuide"
                     v-on:change="saveSettings"
                 />
 
