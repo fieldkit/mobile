@@ -7,19 +7,19 @@
                     :title="'appSettings.data.autoSyncStationTitle'"
                     :description="'appSettings.data.autoSyncStationDescription'"
                     :cssClass="'top-bordered-item'"
-                    v-model="currentSettings.data.auto_sync_station"
+                    v-model="currentSettings.data.autoSyncStation"
                     v-on:change="saveSettings"
                 />
                 <SettingsItemSlider
                     :title="'appSettings.data.autoSyncPortalTitle'"
                     :description="'appSettings.data.autoSyncPortalDescription'"
-                    v-model="currentSettings.data.auto_sync_portal"
+                    v-model="currentSettings.data.autoSyncPortal"
                     v-on:change="saveSettings"
                 />
                 <SettingsItemSlider
                     :title="'appSettings.data.mobileDataUsageTitle'"
                     :description="'appSettings.data.mobileDataUsageDescription'"
-                    v-model="currentSettings.data.mobile_data_usage"
+                    v-model="currentSettings.data.mobileDataUsage"
                     v-on:change="saveSettings"
                 />
             </StackLayout>

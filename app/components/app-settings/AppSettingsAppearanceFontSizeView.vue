@@ -10,7 +10,7 @@
                     <Label borderColor="#d8dce0" borderRightWidth="1" width="25%" />
                 </FlexboxLayout>
                 <Slider
-                    :value="currentSettings.appearance.font_size"
+                    :value="currentSettings.appearance.fontSize"
                     minValue="0"
                     maxValue="4"
                     opacity="1"
@@ -54,7 +54,7 @@ export default Vue.extend({
             await this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
         },
         async selectFontSize(size): Promise<void> {
-            this.currentSettings.appearance.font_size = Math.round(size.value);
+            this.currentSettings.appearance.fontSize = Math.round(size.value);
             await this.saveSettings();
         },
     },

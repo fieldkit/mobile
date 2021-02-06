@@ -20,7 +20,7 @@
                 <SettingsItemSlider
                     :title="'appSettings.help.downloadUpdatesTitle'"
                     :description="'appSettings.help.downloadUpdatesDescription'"
-                    v-model="currentSettings.help.download_updates"
+                    v-model="currentSettings.help.downloadUpdates"
                     v-on:change="saveSettings"
                 />
             </StackLayout>

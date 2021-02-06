@@ -63,7 +63,7 @@
                     </AbsoluteLayout>
                 </GridLayout>
             </ScrollView>
-            <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorial_guide">
+            <AbsoluteLayout height="100%" width="100%" v-if="currentSettings.help.tutorialGuide">
                 <StationDetailTooltipView
                     :topPosition="30"
                     :leftPosition="200"
@@ -168,7 +168,7 @@ export default Vue.extend({
             recentlyDisconnected: false,
             tip: 0,
             lastTip: 4,
-            buttonsTappable: !(settings.help?.tutorial_guide || false),
+            buttonsTappable: !(settings.help?.tutorialGuide || false),
         };
     },
     computed: {
@@ -338,14 +338,14 @@ export default Vue.extend({
         dismissTooltip() {
             (this.$refs.scrollview as any).nativeView.isScrollEnabled = true;
             this.buttonsTappable = true;
-            if (this.currentSettings.help?.tutorial_guide) {
-                this.currentSettings.help.tutorial_guide = false;
+            if (this.currentSettings.help?.tutorialGuide) {
+                this.currentSettings.help.tutorialGuide = false;
                 this.$s.dispatch(ActionTypes.UPDATE_SETTINGS, this.currentSettings);
             }
             this.tip = 0;
         },
         onPageLoaded() {
-            if (this.currentSettings.help?.tutorial_guide) {
+            if (this.currentSettings.help?.tutorialGuide) {
                 this.$nextTick(() => {
                     (this.$refs.scrollview as any).nativeView.scrollToVerticalOffset(0, false);
                     (this.$refs.scrollview as any).nativeView.isScrollEnabled = false;
