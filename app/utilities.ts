@@ -194,3 +194,7 @@ export function validateStationName(name: string): { required: boolean; long: bo
         any: any,
     };
 }
+
+export function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+    return value !== null && value !== undefined;
+}

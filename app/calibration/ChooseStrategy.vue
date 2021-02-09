@@ -1,35 +1,67 @@
 <template>
-    <ScrollView>
-        <StackLayout class="choice-container">
-            <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
-            <Label
-                class="choice-why"
-                textWrap="true"
-                text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
-            />
+    <ScrollView class="scroll-style" @tap="maybeDismissKeyboard">
+        <GridLayout rows="auto,*,auto" class="choice-container" v-if="strategy == null">
+            <StackLayout row="0">
+                <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
 
-            <StackLayout
-                v-for="(strategy, index) in strategies"
-                :key="index"
-                class="strategy-container"
-                v-bind:class="{ selected: selected === index }"
-                @tap="choose(strategy, index)"
-            >
-                <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
-                <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
+                <Label
+                    class="choice-why"
+                    textWrap="true"
+                    text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
+                />
             </StackLayout>
-        </StackLayout>
+
+            <StackLayout row="1">
+                <StackLayout
+                    v-for="(strategy, index) in strategies"
+                    :key="index"
+                    class="strategy-container"
+                    v-bind:class="{ selected: selected === index }"
+                    @tap="choose(strategy, index)"
+                >
+                    <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
+                    <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
+                </StackLayout>
+            </StackLayout>
+
+            <StackLayout row="2">
+                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="confirmStrategy" :isEnabled="enabled" />
+            </StackLayout>
+        </GridLayout>
+
+        <GridLayout rows="auto,*,auto" class="choice-container" v-else>
+            <StackLayout row="0">
+                <Label class="choice-heading" textWrap="true" text="Calibration Fluids" />
+
+                <Label
+                    class="choice-why"
+                    textWrap="true"
+                    text="The clibration fluids you have may differ from the values below, so please double check them."
+                />
+            </StackLayout>
+
+            <StackLayout row="1">
+                <ReferenceValues :strategy="strategy" @changed="onReferenceValues" />
+            </StackLayout>
+
+            <StackLayout row="2">
+                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="enabled && references != null" />
+            </StackLayout>
+        </GridLayout>
     </ScrollView>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import Header from "./Header.vue";
+import ReferenceValues from "./ReferenceValues.vue";
+import { CalibrationStrategy, CalibrationValue } from "./model";
 
 export default Vue.extend({
     name: "ChooseStrategy",
     components: {
         Header,
+        ReferenceValues,
     },
     props: {
         moduleKey: {
@@ -37,11 +69,15 @@ export default Vue.extend({
             required: true,
         },
         strategies: {
-            type: Array,
+            type: Array as PropType<CalibrationStrategy[]>,
             required: true,
         },
         visual: {
             type: Object,
+            required: true,
+        },
+        enabled: {
+            type: Boolean,
             required: true,
         },
         busy: {
@@ -49,20 +85,39 @@ export default Vue.extend({
             required: true,
         },
     },
-    data(): { selected: number } {
+    data(): {
+        selected: number;
+        strategy: CalibrationStrategy | null;
+        references: CalibrationValue[] | null;
+    } {
         return {
             selected: 0,
+            strategy: null,
+            references: null,
         };
     },
     methods: {
         choose(strategy: any, index: number): void {
-            console.log("choose strategy", index);
             this.selected = index;
-            this.$emit("selected", this.strategies[this.selected]);
         },
-        back(): void {
-            console.log("back");
-            this.$emit("back");
+        confirmStrategy(): void {
+            this.strategy = this.strategies[this.selected];
+            console.log(`confirm-strategy: ${JSON.stringify(this.strategy)}`);
+        },
+        onReferenceValues(references: CalibrationValue[] | null): void {
+            console.log(`reference-values: ${JSON.stringify(references)}`);
+            this.references = references;
+        },
+        done(): void {
+            const strategy = this.strategy;
+            const references = this.references;
+            if (strategy && references) {
+                const adjusted = strategy.adjustReferences(references);
+                this.$emit("done", adjusted);
+            }
+        },
+        maybeDismissKeyboard(): void {
+            //
         },
     },
 });

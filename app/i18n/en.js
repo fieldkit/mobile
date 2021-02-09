@@ -126,7 +126,18 @@ module.exports = {
     longRangeNetwork: "Long Range Network",
     // StationSettingsModule.vue
     moduleTitle: "Module",
-    calibration: "Calibration",
+	calibration: {
+		title: "Calibration",
+		references: {
+			high: "High",
+			middle: "Middle",
+			low: "Low",
+			unknown: "Unknown",
+			atmosphere: "Atmosphere",
+			dry: "EC Dry",
+			single: "EC Single",
+		}
+	},
     calibrateSensor: "Calibrate Sensor",
     calibrationRecommendation: "Calibrate your sensor any time. It is recommended to calibrate every 6 months to a year.",
     noCalibrationNeededSensor: "No calibration needed for this sensor.",
@@ -532,4 +543,5 @@ module.exports = {
         },
         lorem: "Lorem ipsum"
     }
+
 };

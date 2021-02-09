@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
 import { LegacyStation, Module, ModuleStatus } from "../store/types";
-import { _T, convertOldFirmwareResponse } from "../utilities";
+import { _T, convertOldFirmwareResponse, notEmpty } from "../utilities";
 
 export { ModuleStatus };
 
@@ -58,6 +58,17 @@ export class CalibrationPointStep extends CalibrationStep {
         super();
         this.children = visuals.map((v) => new VisualCalibrationStep(v));
     }
+
+    public adjustReference(reference: CalibrationValue): CalibrationPointStep {
+        return new CalibrationPointStep(
+            reference,
+            this.children.map((c) => (<VisualCalibrationStep>c).visual)
+        );
+    }
+}
+
+export class CalibrationReference {
+    constructor(public readonly value: CalibrationValue) {}
 }
 
 export class CalibrationStrategy extends CalibrationStep {
@@ -74,16 +85,32 @@ export class CalibrationStrategy extends CalibrationStep {
         return this.steps;
     }
 
+    private calibrationPointSteps(): CalibrationPointStep[] {
+        return this.steps.filter((step) => step instanceof CalibrationPointStep).map((step) => step as CalibrationPointStep);
+    }
+
+    public get references(): CalibrationReference[] {
+        return this.calibrationPointSteps()
+            .map((step) => new CalibrationReference(step.value))
+            .filter(notEmpty);
+    }
+
     public getStepCalibrationValue(step: CalibrationStep): CalibrationValue {
-        // NOTE Right now all our given step's instances will be grandchildren of us.
-        const containing = _.first(this.steps.filter((p) => p.children.includes(step)));
-        if (containing instanceof CalibrationPointStep) {
-            if (!containing.value) {
-                throw new Error("containing step has invalid calibration value");
-            }
+        // All our possible steps we could be given will be grandchildren of us.
+        const containing = _.first(this.calibrationPointSteps().filter((p) => p.children.includes(step)));
+        if (containing) {
+            if (!containing.value) throw new Error("containing step has invalid calibration value");
             return containing.value;
         }
         throw new Error("containing step has no calibration values");
+    }
+
+    public adjustReferences(references: CalibrationValue[]): CalibrationStrategy {
+        const adjustedSteps = this.calibrationPointSteps().map((step, index) => {
+            if (!references[index]) throw new Error();
+            return step.adjustReference(references[index]);
+        });
+        return new CalibrationStrategy(this.moduleKey, this.heading, this.help, adjustedSteps);
     }
 }
 

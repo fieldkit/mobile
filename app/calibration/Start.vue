@@ -1,12 +1,17 @@
 <template>
     <Page>
         <Header :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <GridLayout rows="auto,*,auto">
+        <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
-            <ChooseStrategy row="1" :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @selected="selected" />
-            <StackLayout row="2">
-                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="currentStation.connected" />
-            </StackLayout>
+            <ChooseStrategy
+                row="1"
+                :moduleKey="moduleKey"
+                :strategies="strategies"
+                :visual="visual"
+                :busy="busy"
+                :enabled="currentStation.connected"
+                @done="done"
+            />
         </GridLayout>
     </Page>
 </template>
@@ -82,15 +87,11 @@ export default Vue.extend({
         },
     },
     methods: {
-        selected(strategy: CalibrationStrategy): void {
-            console.log("strategy", strategy.id);
+        async done(strategy: CalibrationStrategy): Promise<void> {
+            if (!strategy) throw new Error();
+            console.log(`strategy: ${JSON.stringify(strategy)}`);
             this.strategy = strategy;
-        },
-        done(): Promise<any> {
-            if (!this.strategy) {
-                this.strategy = this.strategies[0];
-            }
-            return this.$navigateTo(Calibrate, {
+            await this.$navigateTo(Calibrate, {
                 props: {
                     stationId: this.stationId,
                     position: this.position,
@@ -98,16 +99,16 @@ export default Vue.extend({
                 },
             });
         },
-        back(): Promise<any> {
+        async back(): Promise<void> {
             console.log("Start::back", this.fromSettings);
             if (this.fromSettings) {
-                return this.$navigateTo(StationSettingsModuleList, {
+                await this.$navigateTo(StationSettingsModuleList, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
             } else {
-                return this.$navigateTo(Recalibrate, {
+                await this.$navigateTo(Recalibrate, {
                     props: {
                         stationId: this.stationId,
                     },
