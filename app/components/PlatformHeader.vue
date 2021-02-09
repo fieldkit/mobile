@@ -144,22 +144,24 @@ export default Vue.extend({
 		*/
     },
     mounted(): void {
-        // https://docs.nativescript.org/ui/action-bar
-        console.log(
-            "platform-header:mounted",
-            "ios",
-            this.ios,
-            "settings",
-            this.canNavigateSettings,
-            "back",
-            this.canNavigateBack,
-            "classes",
-            this.classes
-        );
-        // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
-        const frame = Frame.topmost();
-        if (frame) {
-            console.log("platform-header:backStack", frame.id, frame.backStack.length);
+        if (false) {
+            // https://docs.nativescript.org/ui/action-bar
+            console.log(
+                "platform-header:mounted",
+                "ios",
+                this.ios,
+                "settings",
+                this.canNavigateSettings,
+                "back",
+                this.canNavigateBack,
+                "classes",
+                this.classes
+            );
+            // https://docs.nativescript.org/api-reference/classes/_ui_frame_.frame.html
+            const frame = Frame.topmost();
+            if (frame) {
+                console.log("platform-header:backStack", frame.id, frame.backStack.length);
+            }
         }
     },
     methods: {
