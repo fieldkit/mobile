@@ -1,5 +1,5 @@
 <template>
-    <GridLayout row="auto" @loaded="onPageLoaded">
+    <GridLayout row="auto">
         <StackLayout id="station-status-box-container" :class="'p-t-30 m-20 ' + (loading ? '' : 'bordered-container')" row="0">
             <GridLayout v-show="!loading" rows="auto,auto" columns="*,*" class="m-t-10">
                 <!-- recording time -->
@@ -31,7 +31,13 @@
                         />
                         <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
                             <StackLayout row="0" class="memory-bar" />
-                            <StackLayout :width="this.displayAvailableMemoryPercent+ '%'" id="station-memory-bar" row="0" class="memory-bar" horizontalAlignment="left" />
+                            <StackLayout
+                                :width="this.displayAvailableMemoryPercent + '%'"
+                                id="station-memory-bar"
+                                row="0"
+                                class="memory-bar"
+                                horizontalAlignment="left"
+                            />
                         </GridLayout>
                     </GridLayout>
                 </StackLayout>
@@ -120,7 +126,7 @@ export default Vue.extend({
         },
         displayAvailableMemoryPercent(): number {
             if (!this.station.consumedMemory || !this.station.totalMemory) return 0;
-            return (this.station.totalMemory - this.station.consumedMemory) * 100/this.station.totalMemory;
+            return ((this.station.totalMemory - this.station.consumedMemory) * 100) / this.station.totalMemory;
         },
         recording(): { time: string; label: string } {
             if (this.station.deployStartTime) {

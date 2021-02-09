@@ -86,7 +86,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(args) {},
         onLabelLoadedCentered(args) {
             const lbl = args.object as Label;
             if (isAndroid) {
