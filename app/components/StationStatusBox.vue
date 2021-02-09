@@ -4,8 +4,8 @@
             <GridLayout v-show="!loading" rows="auto,auto" columns="*,*" class="m-t-10">
                 <!-- recording time -->
                 <GridLayout row="0" col="0" rows="auto" columns="*" class="m-t-10">
-                    <StackLayout id="outer-circle" :class="station.connected ? 'active' : ''" row="0" />
-                    <StackLayout id="inner-circle" :class="station.connected ? 'active' : ''" row="0">
+                    <StackLayout id="outer-circle" v-bind:class="connectedAndDeployedClasses" row="0" />
+                    <StackLayout id="inner-circle" v-bind:class="connectedAndDeployedClasses" row="0">
                         <Label class="size-20 m-b-3 rec-time rec-time-top" :text="recording.time" />
                         <Label class="size-12 rec-time" :text="recording.label" />
                     </StackLayout>
@@ -109,6 +109,12 @@ export default Vue.extend({
         };
     },
     computed: {
+        connectedAndDeployedClasses(): Record<string, boolean> {
+            return {
+                connected: this.station.connected,
+                deployed: this.station.deployed,
+            };
+        },
         otherData(): OtherData {
             return (this as unknown) as OtherData;
         },
@@ -213,12 +219,20 @@ export default Vue.extend({
     background: $fk-gray-light;
 }
 
-#outer-circle.active,
-#inner-circle.active {
+#outer-circle.connected,
+#inner-circle.connected {
     border-color: $fk-circle-blue;
 }
-#inner-circle.active {
+#inner-circle.connected {
     background: $fk-circle-blue;
+}
+
+#outer-circle.connected.deployed,
+#inner-circle.connected.deployed {
+    border-color: #0a67aa;
+}
+#inner-circle.connected.deployed {
+    background: #0a67aa;
 }
 
 .rec-time {
