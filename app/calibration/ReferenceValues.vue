@@ -12,7 +12,6 @@
 <script lang="ts">
 import _ from "lodash";
 import Vue from "vue";
-import Header from "./Header.vue";
 import { CalibrationStrategy, CalibrationValue } from "./model";
 import { AtlasCalValue } from "./water";
 import { required, decimal } from "vuelidate/lib/validators";
@@ -32,7 +31,8 @@ class ReferenceForm {
     }
 
     public touch(): boolean {
-        const isNumeric = required(this.value) && decimal(this.value);
+        // eslint-disable-next-line
+        const isNumeric: boolean = required(this.value) && decimal(this.value);
         if (isNumeric) {
             const numeric = Number(this.value);
             this.valid = numeric >= this.range[0] && numeric <= this.range[1];
@@ -62,9 +62,6 @@ class Form {
 
 export default Vue.extend({
     name: "ReferenceValues",
-    components: {
-        Header,
-    },
     props: {
         strategy: {
             type: CalibrationStrategy,

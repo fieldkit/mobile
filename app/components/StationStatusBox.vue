@@ -4,8 +4,8 @@
             <GridLayout v-show="!loading" rows="auto,auto" columns="*,*" class="m-t-10">
                 <!-- recording time -->
                 <GridLayout row="0" col="0" rows="auto" columns="*" class="m-t-10">
-                    <StackLayout id="outer-circle" v-bind:class="connectedAndDeployedClasses" row="0" />
-                    <StackLayout id="inner-circle" v-bind:class="connectedAndDeployedClasses" row="0">
+                    <StackLayout id="outer-circle" :class="connectedAndDeployedClasses" row="0" />
+                    <StackLayout id="inner-circle" :class="connectedAndDeployedClasses" row="0">
                         <Label class="size-20 m-b-3 rec-time rec-time-top" :text="recording.time" />
                         <Label class="size-12 rec-time" :text="recording.label" />
                     </StackLayout>
@@ -32,8 +32,8 @@
                         <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
                             <StackLayout row="0" class="memory-bar" />
                             <StackLayout
-                                :width="this.displayAvailableMemoryPercent + '%'"
                                 id="station-memory-bar"
+                                :width="displayAvailableMemoryPercent + '%'"
                                 row="0"
                                 class="memory-bar"
                                 horizontalAlignment="left"
@@ -61,16 +61,16 @@
         </StackLayout>
         <AbsoluteLayout v-if="!station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto, auto" columns="40,*">
-                <Image width="35" v-if="!stationAP" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
-                <Image width="35" v-if="!stationAP" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="!stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="!stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
                 <Label row="0" col="1" class="m-l-10 size-12" :text="_L('notConnected')" />
                 <Label class="m-l-10 m-r-5 size-10 lighter" :text="lastSeen" row="1" col="1" />
             </GridLayout>
         </AbsoluteLayout>
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto" columns="30,*">
-                <Image width="25" v-if="!stationAP" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
-                <Image width="25" v-if="!stationAP" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="!stationAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="!stationAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
                 <Label v-if="displayedSSID" row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" />
                 <Label v-else row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ...'" />
             </GridLayout>
