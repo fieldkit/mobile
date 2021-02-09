@@ -144,6 +144,7 @@ export default Vue.extend({
 		*/
     },
     mounted(): void {
+        // eslint-disable-next-line
         if (false) {
             // https://docs.nativescript.org/ui/action-bar
             console.log(
