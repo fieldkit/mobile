@@ -6,7 +6,7 @@ import { Trace, knownFolders } from "@nativescript/core";
 import { firebase } from "@nativescript/firebase";
 import { crashlytics } from "@nativescript/firebase/crashlytics";
 import { analytics } from "@nativescript/firebase/analytics";
-import { AuthenticationError } from "./errors";
+import { AuthenticationError, QueryThrottledError } from "./errors";
 import { File } from "./fs";
 
 const SaveInterval = 10000;
@@ -87,6 +87,8 @@ function configureGlobalErrorHandling(): void {
 
         Bluebird.onPossiblyUnhandledRejection((reason: Error, _promise: Promise<unknown>) => {
             if (reason instanceof AuthenticationError) {
+                console.log("onPossiblyUnhandledRejection", reason);
+            } else if (reason instanceof QueryThrottledError) {
                 console.log("onPossiblyUnhandledRejection", reason);
             } else {
                 if (/Animation cancelled/.test(reason.message)) {
