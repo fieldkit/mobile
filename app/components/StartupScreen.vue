@@ -33,9 +33,9 @@ export default Vue.extend({
         await initializeApplication(services);
 
         if (Config.env.developer) {
-            console.log("developer", Config.env.developer);
+            console.log("developer", Config.env.developer, "a");
 
-            // const route = routes.calibration.start;
+            const route = routes.calibration.start;
             // const route = routes.deploy.start;
             // const route = routes.deploy.notes;
             // const route = routes.deploy.review;
@@ -44,7 +44,6 @@ export default Vue.extend({
             // const route = routes.station.settings.wifiNetworks;
             // const route = routes.stationDetail;
             // const route = routes.onboarding.start;
-            // const route = routes.internal.calibrate;
             // const route = routes.dataSync;
             // const route = routes.developerMenu;
             // const route = routes.reader.flow;
@@ -52,16 +51,12 @@ export default Vue.extend({
             // const route = routes.tabbed;
             // const route = routes.onboarding.assembleStation;
             // const route = routes.onboarding.network;
-            const route = routes.onboarding.start;
+            // const route = routes.onboarding.start;
             // const route = routes.tabbed;
             // const route = routes.login;
             if (route != routes.tabbed) {
                 await this.$navigateTo(routes.tabbed, {
                     clearHistory: true,
-                    props: {
-                        stationId: 1,
-                        position: 0,
-                    },
                 });
             }
             await this.$navigateTo(route, {
@@ -69,7 +64,7 @@ export default Vue.extend({
                 frame: "stations-frame",
                 props: {
                     stationId: 1,
-                    position: 0,
+                    position: 3,
                 },
             });
 
