@@ -1,5 +1,4 @@
 import Bluebird from "bluebird";
-import { Device } from "@nativescript/core";
 import { Conservify, Services, OurStore } from "@/services";
 import { StartOptions, StopOptions } from "@/wrappers/networking";
 import { Connectivity } from "@/wrappers/connectivity";
@@ -43,7 +42,7 @@ class DiscoveredStation {
 class NetworkMonitor {
     private readonly FixedAddresses: { address: string; port: number }[] = [
         { address: "192.168.2.1", port: 80 },
-        // { address: "192.168.0.100", port: 2380 },
+        ...Config.defaultStations,
     ];
     private readonly store: OurStore;
     private enabled = false;
@@ -160,11 +159,8 @@ export default class DiscoverStation {
             serviceTypeSelf: null,
         };
 
-        // eslint-disable-next-line
-        if (false) {
-            options.serviceNameSelf = Device.uuid;
-            options.serviceTypeSelf = "_fk._tcp";
-        }
+        // options.serviceNameSelf = Device.uuid;
+        // options.serviceTypeSelf = "_fk._tcp";
 
         await this.conservify.start(options);
 

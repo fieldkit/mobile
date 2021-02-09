@@ -16,6 +16,7 @@ function getBlankLocalConfig(): LocalConfig {
         db: {
             drop: false,
         },
+        defaultStations: [],
         defaultUsers: [],
         defaultNetworks: [],
         mapbox: {
