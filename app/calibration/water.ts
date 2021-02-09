@@ -321,6 +321,5 @@ export function Common(): { [index: string]: CommonProperties } {
 }
 
 export default function (): CalibrationStrategy[] {
-    console.log("creating water strategies");
     return [PhQuick(), Ph3(), DissolvedOxygen(), EcDual()];
 }

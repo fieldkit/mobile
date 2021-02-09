@@ -312,15 +312,15 @@ export default class QueryStation {
 
     private readonly queued: { [index: string]: ResolveFunc } = {};
 
-    private trackActivity<T>(options: TrackActivityOptions, factory: () => Promise<T>): Promise<T> {
+    private async trackActivity<T>(options: TrackActivityOptions, factory: () => Promise<T>): Promise<T> {
         const stationKey = this.urlToStationKey(options.url);
         if (this.openQueries[stationKey] === true) {
             if (options.throttle) {
-                console.log(options.url, "throttle");
+                console.log(options.url, "query-station: throttle");
                 return Promise.reject(new QueryThrottledError("throttled"));
             }
             return new Promise((resolve) => {
-                console.log(options.url, "queuing station query");
+                console.log(options.url, "query-station: queuing station query");
                 this.queued[stationKey] = () => resolve(undefined);
             }).then(() => {
                 return this.trackActivity(options, factory);
@@ -343,7 +343,7 @@ export default class QueryStation {
             )
             .finally(() => {
                 if (this.queued[stationKey]) {
-                    console.log("resuming");
+                    console.log("query-station: resuming");
                     const resume = this.queued[stationKey];
                     delete this.queued[stationKey];
                     resume();

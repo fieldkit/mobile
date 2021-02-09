@@ -97,28 +97,24 @@ class NetworkMonitor {
 
     public async tryFixedAddresses(): Promise<void> {
         await Promise.all(
-            this.FixedAddresses.map((fa) =>
-                this.services
-                    .QueryStation()
-                    .getStatus(`http://${fa.address}:${fa.port}/fk/v1`)
-                    .then(
-                        (status) => {
-                            console.log("found device in ap mode", status.status.identity.deviceId);
+            this.FixedAddresses.map(
+                (fa) =>
+                    this.services
+                        .QueryStation()
+                        .getStatus(`http://${fa.address}:${fa.port}/fk/v1`)
+                        .then((status) => {
                             return this.services.DiscoverStation().onFoundService({
                                 type: "_fk._tcp",
                                 name: status.status.identity.deviceId,
                                 host: fa.address,
                                 port: fa.port,
                             });
-                        },
-                        () => {
-                            console.log("no devices in ap mode");
-                        }
-                    )
+                        }),
+                () => {
+                    // ignore error
+                }
             )
-        ).then(() => {
-            return;
-        });
+        );
     }
 }
 

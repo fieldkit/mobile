@@ -68,8 +68,7 @@ export default Vue.extend({
         module(): Module {
             const station: Station = this.$s.getters.stationsById[this.stationId];
             const module = station.modules.find((m) => m.position === this.position);
-            if (!module) throw new Error("unable to find module");
-            console.log("station-module", module.name);
+            if (!module) throw new Error("unable to find module: ${module.name}");
             return module;
         },
         moduleKey(): string {
@@ -80,7 +79,6 @@ export default Vue.extend({
         },
         visual(): CommonProperties {
             const common = Common();
-            console.log(`common: ${this.moduleKey} ${JSON.stringify(common)}`);
             const visual = common[this.moduleKey];
             if (!visual) throw new Error(`missing common module visual: ${this.moduleKey}`);
             return visual;
