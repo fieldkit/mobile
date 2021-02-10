@@ -101,9 +101,10 @@ export default Vue.extend({
             );
             await this.$s.dispatch(action).then(
                 () => {
-                    return this.$navigateTo(routes.onboarding.rename, {
+                    return this.$navigateTo(routes.onboarding.completeSettings, {
                         props: {
                             stationId: this.stationId,
+                            remote: false,
                         },
                     });
                 },
