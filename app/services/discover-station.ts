@@ -1,5 +1,4 @@
 import Bluebird from "bluebird";
-import { Device } from "@nativescript/core";
 import { Conservify, Services, OurStore } from "@/services";
 import { StartOptions, StopOptions } from "@/wrappers/networking";
 import { Connectivity } from "@/wrappers/connectivity";
@@ -43,7 +42,7 @@ class DiscoveredStation {
 class NetworkMonitor {
     private readonly FixedAddresses: { address: string; port: number }[] = [
         { address: "192.168.2.1", port: 80 },
-        // { address: "192.168.0.100", port: 2380 },
+        ...Config.defaultStations,
     ];
     private readonly store: OurStore;
     private enabled = false;
@@ -98,28 +97,24 @@ class NetworkMonitor {
 
     public async tryFixedAddresses(): Promise<void> {
         await Promise.all(
-            this.FixedAddresses.map((fa) =>
-                this.services
-                    .QueryStation()
-                    .getStatus(`http://${fa.address}:${fa.port}/fk/v1`)
-                    .then(
-                        (status) => {
-                            console.log("found device in ap mode", status.status.identity.deviceId);
+            this.FixedAddresses.map(
+                (fa) =>
+                    this.services
+                        .QueryStation()
+                        .getStatus(`http://${fa.address}:${fa.port}/fk/v1`)
+                        .then((status) => {
                             return this.services.DiscoverStation().onFoundService({
                                 type: "_fk._tcp",
                                 name: status.status.identity.deviceId,
                                 host: fa.address,
                                 port: fa.port,
                             });
-                        },
-                        () => {
-                            console.log("no devices in ap mode");
-                        }
-                    )
+                        }),
+                () => {
+                    // ignore error
+                }
             )
-        ).then(() => {
-            return;
-        });
+        );
     }
 }
 
@@ -160,11 +155,8 @@ export default class DiscoverStation {
             serviceTypeSelf: null,
         };
 
-        // eslint-disable-next-line
-        if (false) {
-            options.serviceNameSelf = Device.uuid;
-            options.serviceTypeSelf = "_fk._tcp";
-        }
+        // options.serviceNameSelf = Device.uuid;
+        // options.serviceTypeSelf = "_fk._tcp";
 
         await this.conservify.start(options);
 

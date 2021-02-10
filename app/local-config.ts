@@ -11,6 +11,10 @@ export interface LocalConfig {
         drop: boolean;
     };
     lossBufferDelay: number;
+    defaultStations: {
+        address: string;
+        port: number;
+    }[];
     defaultUsers: {
         email: string;
         password: string;

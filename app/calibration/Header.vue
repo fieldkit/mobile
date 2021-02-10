@@ -1,5 +1,5 @@
 <template>
-    <PlatformHeader :title="title" :subtitle="subtitle" :icon="icon" :onBack="back" />
+    <PlatformHeader :title="title" :subtitle="subtitle" :icon="icon" :onBack="back" :canNavigateSettings="false" />
 </template>
 
 <script lang="ts">
@@ -32,5 +32,3 @@ export default Vue.extend({
     },
 });
 </script>
-
-<style scoped lang="scss"></style>

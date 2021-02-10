@@ -353,9 +353,8 @@ function makeStationFromStatus(statusReply: HttpStatusReply): Station {
 
 type LoadStationsValue = [StationTableRow[], ModuleTableRow[], SensorTableRow[], StreamTableRow[], DownloadTableRow[]];
 
-function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[]> {
-    console.log(`loading stations from database`);
-    return Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
+async function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[]> {
+    return await Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
         (values: LoadStationsValue) => {
             const stations: StationTableRow[] = values[0];
             const moduleRows: ModuleTableRow[] = values[1];

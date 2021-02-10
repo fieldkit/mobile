@@ -152,8 +152,8 @@ cycle-checks:
 webpack: setup webpack-android webpack-ios
 
 checks: setup
-	node_modules/.bin/eslint --ext=ts app
-	node_modules/.bin/eslint --ext=vue app
+	node_modules/.bin/eslint --ext=ts --fix app
+	node_modules/.bin/eslint --ext=vue --fix app
 	$(MAKE) cycle-checks
 
 android-webpack:

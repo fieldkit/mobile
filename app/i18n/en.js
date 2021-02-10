@@ -88,7 +88,7 @@ module.exports = {
     recommended: "Recommended",
     yourWifi: "WiFi Network",
     yourWifiInfo: "Internet",
-    yourWifiDescription: "Syncs station data to your phone only. When you have internet connection later, you can upload it to the FieldKit web portal.",
+    yourWifiDescription: "Add a list of preferred wifi networks to sync station data straight to the FieldKit web portal. If unable to join these networks, it will use its Station Wifi.",
     reconnectInstruction: "To reconnect to your station, go to your mobile phone WiFi settings and select the station's new WiFi name as displayed on the station screen.",
     deploymentLocation: "Deployment Location",
     deploymentLocationInstructions: "What kind of place will you deploy your station? Will the station have internet access?",
@@ -126,7 +126,18 @@ module.exports = {
     longRangeNetwork: "Long Range Network",
     // StationSettingsModule.vue
     moduleTitle: "Module",
-    calibration: "Calibration",
+	calibration: {
+		title: "Calibration",
+		references: {
+			high: "High",
+			middle: "Middle",
+			low: "Low",
+			unknown: "Unknown",
+			atmosphere: "Atmosphere",
+			dry: "EC Dry",
+			single: "EC Single",
+		}
+	},
     calibrateSensor: "Calibrate Sensor",
     calibrationRecommendation: "Calibrate your sensor any time. It is recommended to calibrate every 6 months to a year.",
     noCalibrationNeededSensor: "No calibration needed for this sensor.",
@@ -436,6 +447,7 @@ module.exports = {
     connected: "Connected",
     notConnected: "Not Connected",
     memoryUsed: "Memory used",
+    memoryAvailable: "Available Memory",
     of: "of",
     deploy: "Deploy",
     daysHrsMin: "days hrs min",
@@ -531,4 +543,5 @@ module.exports = {
         },
         lorem: "Lorem ipsum"
     }
+
 };

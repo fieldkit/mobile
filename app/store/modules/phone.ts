@@ -29,8 +29,12 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.REFRESH_NETWORK]: async ({ dispatch, commit, state }: ActionParameters, _payload: RefreshNetworkAction) => {
             const status = await services.conservify().findConnectedNetwork();
             const newSsid = status.connectedWifi?.ssid || null;
+            const oldSsid = state.network?.ssid;
             const first = state.network == null;
-            if (first || newSsid != state.network?.ssid) {
+            if (first || newSsid != oldSsid) {
+                // If you're here chasing some weird issue with WiFI,
+                // the emulator will fight over stations to decide the
+                // active SSID name.
                 const network = new PhoneNetwork(newSsid);
                 commit(MutationTypes.PHONE_NETWORK, network);
                 if (!first) {
@@ -40,7 +44,6 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.STATION_REPLY]: ({ dispatch, commit }: ActionParameters, payload: StationRepliedAction) => {
             const statusReply = payload.statusReply?.networkSettings?.connected;
-            console.log("station-reply, station connected", statusReply);
             if (statusReply && statusReply.ssid) {
                 commit(MutationTypes.PHONE_NETWORK, new PhoneNetwork(statusReply.ssid, statusReply.create));
             }

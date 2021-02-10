@@ -12,14 +12,14 @@
                         :description="'appSettings.data.autoSyncStationDescription'"
                         :cssClass="'top-bordered-item'"
                         class="m-l-20 m-r-20 m-t-30"
-                        v-model="currentSettings.data.auto_sync_station"
+                        v-model="currentSettings.data.autoSyncStation"
                         v-on:change="saveSettings"
                     />
                     <SettingsItemSlider
                         :title="'appSettings.data.mobileDataUsageTitle'"
                         :description="'appSettings.data.mobileDataUsageDescription'"
                         class="m-l-20 m-r-20"
-                        v-model="currentSettings.data.mobile_data_usage"
+                        v-model="currentSettings.data.mobileDataUsage"
                         v-on:change="saveSettings"
                     />
                 </StackLayout>

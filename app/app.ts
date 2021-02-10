@@ -34,15 +34,6 @@ function configureVueJs(services: typeof Services): Store {
         },
     });
 
-    Object.defineProperty(Vue.prototype, "$s", {
-        get: function (this: Vue) {
-            if (this.$store == null) {
-                console.log("$s IS NULL");
-            }
-            return this.$store;
-        },
-    });
-
     Vue.filter("prettyReading", (value: number | undefined): string => {
         if (!value) {
             return "--";
@@ -93,15 +84,6 @@ function configureVueJs(services: typeof Services): Store {
         return "min sec";
     });
 
-    const ServicesPlugin = {
-        // eslint-disable-next-line
-        install(Vue: any /* Vue */): void {
-            // eslint-disable-next-line
-            Vue.prototype.$services = Services;
-        },
-    };
-
-    Vue.use(ServicesPlugin);
     Vue.use(Vuex);
     Vue.use(RadGauge);
 
@@ -122,6 +104,10 @@ function configureVueJs(services: typeof Services): Store {
 
     const store = services.Store();
 
+    // eslint-disable-next-line
+    Vue.prototype.$services = Services;
+    // eslint-disable-next-line
+    Vue.prototype.$s = store;
     // eslint-disable-next-line
     Vue.prototype.$navigateTo = navigatorFactory(store, Vue.prototype.$navigateTo);
 

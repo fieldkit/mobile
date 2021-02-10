@@ -196,7 +196,7 @@ export default class DatabaseInterface {
     private async updateStation(station: Station): Promise<void> {
         if (!station.id) new Error(`no station id in update station`);
 
-        console.log(`updating station: ${JSON.stringify({ name: station.name, deviceId: station.deviceId })}`);
+        // console.log(`updating station: ${JSON.stringify({ name: station.name, deviceId: station.deviceId })}`);
 
         // For the time being, need to not update the fields that are being set individually,
         // as they get overwritten with null if we do. Those include:
@@ -605,7 +605,6 @@ export default class DatabaseInterface {
             download.firstBlock,
             download.lastBlock,
         ];
-        console.log(`inserting download`, values);
         return await this.execute(
             `INSERT INTO downloads (station_id, device_id, generation, path, type, timestamp, url, size, blocks, first_block, last_block)
 					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,

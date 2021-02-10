@@ -4,8 +4,8 @@
             <GridLayout v-show="!loading" rows="auto,auto" columns="*,*" class="m-t-10">
                 <!-- recording time -->
                 <GridLayout row="0" col="0" rows="auto" columns="*" class="m-t-10">
-                    <StackLayout id="outer-circle" :class="station.connected ? 'active' : ''" row="0" />
-                    <StackLayout id="inner-circle" :class="station.connected ? 'active' : ''" row="0">
+                    <StackLayout id="outer-circle" :class="connectedAndDeployedClasses" row="0" />
+                    <StackLayout id="inner-circle" :class="connectedAndDeployedClasses" row="0">
                         <Label class="size-20 m-b-3 rec-time rec-time-top" :text="recording.time" />
                         <Label class="size-12 rec-time" :text="recording.label" />
                     </StackLayout>
@@ -16,22 +16,28 @@
                     <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
                         <Image width="14" :src="batteryImage" rowSpan="2" col="0" />
                         <Label row="0" col="1" class="m-t-5 m-l-5 size-12" :text="_L('batteryLife')" />
-                        <Label class="m-l-5 m-r-5 size-10 lighter" :text="batteryLevel" row="1" col="1" />
+                        <Label class="m-l-5 m-r-5 size-10 lighter" :text="'batteryLevel'" row="1" col="1" />
                     </GridLayout>
                     <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
                         <Image v-if="station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_memory.png" />
                         <Image v-if="!station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_Memory_Grayed_Out.png" />
-                        <Label row="0" col="1" class="m-t-15 m-l-5 size-12" horizontalAlignment="left" :text="_L('memoryUsed')" />
+                        <Label row="0" col="1" class="m-t-15 m-l-5 size-12" horizontalAlignment="left" :text="_L('memoryAvailable')" />
                         <Label
                             row="1"
                             col="1"
                             class="m-l-5 m-t-2 m-b-5 size-10 lighter"
                             horizontalAlignment="left"
-                            :text="displayConsumedMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
+                            :text="displayAvailableMemory + ' ' + _L('of') + ' ' + displayTotalMemory"
                         />
                         <GridLayout row="2" col="1" rows="auto" columns="*" class="memory-bar-container">
                             <StackLayout row="0" class="memory-bar" />
-                            <StackLayout id="station-memory-bar" row="0" class="memory-bar" horizontalAlignment="left" />
+                            <StackLayout
+                                id="station-memory-bar"
+                                :width="displayAvailableMemoryPercent + '%'"
+                                row="0"
+                                class="memory-bar"
+                                horizontalAlignment="left"
+                            />
                         </GridLayout>
                     </GridLayout>
                 </StackLayout>
@@ -55,15 +61,16 @@
         </StackLayout>
         <AbsoluteLayout v-if="!station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto, auto" columns="40,*">
-                <Image width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="!stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
                 <Label row="0" col="1" class="m-l-10 size-12" :text="_L('notConnected')" />
                 <Label class="m-l-10 m-r-5 size-10 lighter" :text="lastSeen" row="1" col="1" />
             </GridLayout>
         </AbsoluteLayout>
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto" columns="30,*">
-                <Image v-if="networkAP" width="25" src="~/images/Icon_Connected_AP.png" rowSpan="2" col="0" />
-                <Image v-if="!networkAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="stationAP" width="25" src="~/images/Icon_Connected_AP.png" rowSpan="2" col="0" />
+                <Image v-if="!stationAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
                 <Label v-if="displayedSSID" row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" />
                 <Label v-else row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ...'" />
             </GridLayout>
@@ -102,6 +109,12 @@ export default Vue.extend({
         };
     },
     computed: {
+        connectedAndDeployedClasses(): Record<string, boolean> {
+            return {
+                connected: this.station.connected,
+                deployed: this.station.deployed,
+            };
+        },
         otherData(): OtherData {
             return (this as unknown) as OtherData;
         },
@@ -112,6 +125,14 @@ export default Vue.extend({
         displayTotalMemory(): string {
             if (!this.station.totalMemory) return "";
             return convertBytesToLabel(this.station.totalMemory);
+        },
+        displayAvailableMemory(): string {
+            if (!this.station.consumedMemory || !this.station.totalMemory) return "";
+            return convertBytesToLabel(this.station.totalMemory - this.station.consumedMemory);
+        },
+        displayAvailableMemoryPercent(): number {
+            if (!this.station.consumedMemory || !this.station.totalMemory) return 0;
+            return ((this.station.totalMemory - this.station.consumedMemory) * 100) / this.station.totalMemory;
         },
         recording(): { time: string; label: string } {
             if (this.station.deployStartTime) {
@@ -152,8 +173,8 @@ export default Vue.extend({
             const currentSSID = this.$s.state.phone.network?.ssid || null;
             return currentSSID && currentSSID.length > 10 ? currentSSID.substr(0, 10) + "..." : currentSSID;
         },
-        networkAP(): boolean {
-            return !!this.$s.state.phone.network?.ap;
+        stationAP(): boolean {
+            return Boolean(this.$s.state.phone.network?.ap);
         },
     },
     mounted(): void {
@@ -198,12 +219,20 @@ export default Vue.extend({
     background: $fk-gray-light;
 }
 
-#outer-circle.active,
-#inner-circle.active {
+#outer-circle.connected,
+#inner-circle.connected {
     border-color: $fk-circle-blue;
 }
-#inner-circle.active {
+#inner-circle.connected {
     background: $fk-circle-blue;
+}
+
+#outer-circle.connected.deployed,
+#inner-circle.connected.deployed {
+    border-color: #0a67aa;
+}
+#inner-circle.connected.deployed {
+    background: #0a67aa;
 }
 
 .rec-time {

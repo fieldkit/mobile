@@ -35,7 +35,6 @@ export default class PortalUpdater {
                 return Promise.resolve();
             }
 
-            console.log(`updating stations`, this.store.state.stations.all.length);
             const allStations = this.store.state.stations.all;
             return serializePromiseChain(allStations, (station: Station) => this.update(station)).then(() => Promise.resolve());
         });

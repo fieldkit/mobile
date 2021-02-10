@@ -1,12 +1,17 @@
 <template>
     <Page>
         <Header :title="visual.title" :subtitle="visual.subtitle" :icon="visual.icon" @back="back" />
-        <GridLayout rows="auto,*,auto">
+        <GridLayout rows="auto,*">
             <ConnectionStatusHeader row="0" :connected="currentStation.connected" />
-            <ChooseStrategy row="1" :moduleKey="moduleKey" :strategies="strategies" :visual="visual" :busy="busy" @selected="selected" />
-            <StackLayout row="2">
-                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="currentStation.connected" />
-            </StackLayout>
+            <ChooseStrategy
+                row="1"
+                :moduleKey="moduleKey"
+                :strategies="strategies"
+                :visual="visual"
+                :busy="busy"
+                :enabled="currentStation.connected"
+                @done="done"
+            />
         </GridLayout>
     </Page>
 </template>
@@ -63,8 +68,7 @@ export default Vue.extend({
         module(): Module {
             const station: Station = this.$s.getters.stationsById[this.stationId];
             const module = station.modules.find((m) => m.position === this.position);
-            if (!module) throw new Error("unable to find module");
-            console.log("station-module", module.name);
+            if (!module) throw new Error("unable to find module: ${module.name}");
             return module;
         },
         moduleKey(): string {
@@ -75,22 +79,17 @@ export default Vue.extend({
         },
         visual(): CommonProperties {
             const common = Common();
-            console.log(`common: ${this.moduleKey} ${JSON.stringify(common)}`);
             const visual = common[this.moduleKey];
             if (!visual) throw new Error(`missing common module visual: ${this.moduleKey}`);
             return visual;
         },
     },
     methods: {
-        selected(strategy: CalibrationStrategy): void {
-            console.log("strategy", strategy.id);
+        async done(strategy: CalibrationStrategy): Promise<void> {
+            if (!strategy) throw new Error();
+            console.log(`strategy: ${JSON.stringify(strategy)}`);
             this.strategy = strategy;
-        },
-        done(): Promise<any> {
-            if (!this.strategy) {
-                this.strategy = this.strategies[0];
-            }
-            return this.$navigateTo(Calibrate, {
+            await this.$navigateTo(Calibrate, {
                 props: {
                     stationId: this.stationId,
                     position: this.position,
@@ -98,16 +97,16 @@ export default Vue.extend({
                 },
             });
         },
-        back(): Promise<any> {
+        async back(): Promise<void> {
             console.log("Start::back", this.fromSettings);
             if (this.fromSettings) {
-                return this.$navigateTo(StationSettingsModuleList, {
+                await this.$navigateTo(StationSettingsModuleList, {
                     props: {
                         stationId: this.stationId,
                     },
                 });
             } else {
-                return this.$navigateTo(Recalibrate, {
+                await this.$navigateTo(Recalibrate, {
                     props: {
                         stationId: this.stationId,
                     },

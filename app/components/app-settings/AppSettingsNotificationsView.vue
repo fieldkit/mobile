@@ -7,7 +7,7 @@
                     :title="'appSettings.notifications.pushNotificationsTitle'"
                     :description="'appSettings.notifications.pushNotificationsDescription'"
                     :cssClass="'top-bordered-item'"
-                    v-model="currentSettings.notifications.push_notifications"
+                    v-model="currentSettings.notifications.pushNotifications"
                     v-on:change="saveSettings"
                 />
             </StackLayout>

@@ -18,7 +18,7 @@
                             class="size-13 text-center p-t-3 b-right"
                             width="82"
                             @loaded="onLabelLoaded"
-                            :class="currentSettings.units.unit_system == 'imperial' ? 'b-active' : ''"
+                            :class="currentSettings.units.unitSystem == 'imperial' ? 'b-active' : ''"
                             @tap="setUnitSystem('imperial')"
                         />
                         <Label
@@ -26,7 +26,7 @@
                             class="size-13 text-center p-t-3"
                             width="82"
                             @loaded="onLabelLoaded"
-                            :class="currentSettings.units.unit_system == 'metric' ? 'b-active' : ''"
+                            :class="currentSettings.units.unitSystem == 'metric' ? 'b-active' : ''"
                             @tap="setUnitSystem('metric')"
                         />
                     </StackLayout>
@@ -85,7 +85,7 @@
                             class="size-13 text-center p-t-3 b-right"
                             width="55"
                             @loaded="onLabelLoaded"
-                            :class="currentSettings.units.unit_name == 'mgl' ? 'b-active' : ''"
+                            :class="currentSettings.units.unitName == 'mgl' ? 'b-active' : ''"
                             @tap="setUnitName('mgl')"
                         />
                         <FlexboxLayout
@@ -93,7 +93,7 @@
                             flexDirection="column"
                             justifyContent="center"
                             width="55"
-                            :class="currentSettings.units.unit_name == 'kgm3' ? 'b-active' : ''"
+                            :class="currentSettings.units.unitName == 'kgm3' ? 'b-active' : ''"
                             @tap="setUnitName('kgm3')"
                         >
                             <HtmlView
@@ -108,7 +108,7 @@
                             class="size-13 text-center"
                             width="55"
                             @loaded="onLabelLoaded"
-                            :class="currentSettings.units.unit_name == 'kgm3' ? 'b-active' : ''"
+                            :class="currentSettings.units.unitName == 'kgm3' ? 'b-active' : ''"
                             @tap="setUnitName('kgm3')"
                         >
                             <FormattedString>
@@ -227,7 +227,7 @@ export default Vue.extend({
             this.saveSettings();
         },
         setUnitName(setting) {
-            this.currentSettings.units.unit_name = setting;
+            this.currentSettings.units.unitName = setting;
             this.saveSettings();
         },
         setPressure(setting) {
@@ -240,18 +240,18 @@ export default Vue.extend({
         },
         setImperial() {
             this.currentSettings.units = {
-                unit_system: "imperial",
+                unitSystem: "imperial",
                 temperature: "f",
-                unit_name: "mgl",
+                unitName: "mgl",
                 pressure: "mBar",
                 velocity: "mBar",
             };
         },
         setMetric() {
             this.currentSettings.units = {
-                unit_system: "metric",
+                unitSystem: "metric",
                 temperature: "c",
-                unit_name: "kgm3",
+                unitName: "kgm3",
                 pressure: "kPa",
                 velocity: "kPa",
             };
