@@ -17,15 +17,15 @@
                             ></Label>
                             <Label v-if="!sync.location" text="Unknown Location" class="station-location"></Label>
                             <template v-if="!sync.connected">
-                                <StackLayout class="station-connection station-disconnected" orientation="horizontal">
-                                    <Image width="20" src="~/images/Icon_not_Connected.png"></Image>
+                                <StackLayout class="station-connection station-disconnected m-t-5" orientation="horizontal">
+                                    <Image width="30" src="~/images/Icon_Wifi_Not_Connected.png"></Image>
                                     <Label text="Not Connected" class="connected-label" />
                                     <Label :text="'Since ' + prettyDate(sync.lastSeen)" class="connected-since" />
                                 </StackLayout>
                             </template>
                             <template v-else>
-                                <StackLayout class="station-connection station-connected" orientation="horizontal">
-                                    <Image width="20" src="~/images/Icon_Connected.png"></Image>
+                                <StackLayout class="station-connection station-connected m-t-5" orientation="horizontal">
+                                    <Image width="30" src="~/images/Icon_Connected_AP.png"></Image>
                                     <Label text="Station Connected" class="connected-label" />
                                 </StackLayout>
                             </template>
