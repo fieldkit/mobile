@@ -61,7 +61,7 @@
         </StackLayout>
         <AbsoluteLayout v-if="!station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto, auto" columns="40,*">
-                <Image v-if="!stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
                 <Image v-if="!stationAP" width="35" src="~/images/Icon_Wifi_Not_Connected.png" rowSpan="2" col="0" />
                 <Label row="0" col="1" class="m-l-10 size-12" :text="_L('notConnected')" />
                 <Label class="m-l-10 m-r-5 size-10 lighter" :text="lastSeen" row="1" col="1" />
@@ -69,7 +69,7 @@
         </AbsoluteLayout>
         <AbsoluteLayout v-if="station.connected" width="170" class="p-8 bordered-container" verticalAlignment="top">
             <GridLayout rows="auto" columns="30,*">
-                <Image v-if="!stationAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
+                <Image v-if="stationAP" width="25" src="~/images/Icon_Connected_AP.png" rowSpan="2" col="0" />
                 <Image v-if="!stationAP" width="25" src="~/images/Icon_Wifi_Connected.png" rowSpan="2" col="0" />
                 <Label v-if="displayedSSID" row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ' + displayedSSID" />
                 <Label v-else row="0" col="1" class="m-l-10 size-12" :text="_L('wifi') + ': ...'" />
