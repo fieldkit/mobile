@@ -17,9 +17,6 @@ export default Vue.extend({
             required: true,
         },
     },
-    mounted(): void {
-        console.log("md-node", this.node);
-    },
 });
 </script>
 
@@ -27,10 +24,44 @@ export default Vue.extend({
 @import "~/_app-variables";
 
 StackLayout {
-    // background-color: green;
 }
 
 GridLayout {
-    // background-color: red;
+}
+
+.md-tree {
+    padding: 20;
+    color: $fk-primary-black;
+    text-align: center;
+    font-size: 16;
+}
+
+.md-heading {
+    color: $fk-primary-black;
+    text-align: center;
+    font-size: 16;
+    font-weight: bold;
+    font-size: 18;
+    margin-bottom: 20;
+}
+
+.md-heading-0 {
+    font-size: 18pt;
+}
+
+.md-heading-1 {
+    font-size: 8pt;
+}
+
+.md-list {
+    margin-top: 20;
+}
+
+.md-list-item {
+    color: $fk-primary-black;
+    text-align: left;
+    font-size: 16;
+    margin-right: 30;
+    margin-left: 30;
 }
 </style>

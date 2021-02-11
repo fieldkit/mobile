@@ -1,16 +1,6 @@
 <template>
     <StackLayout class="simple-screen">
-        <StackLayout v-if="body.headings.length > 0" class="headings-container">
-            <Label v-for="(heading, index) in body.headings" :key="index" class="heading" :text="heading" lineHeight="4" textWrap="true" />
-        </StackLayout>
-
-        <StackLayout v-if="body.lines.length > 0" class="body-container">
-            <Label v-for="(line, index) in body.lines" :key="index" class="body" :text="line" lineHeight="4" textWrap="true" />
-        </StackLayout>
-
-        <StackLayout v-if="body.items.length > 0" class="items-container">
-            <Label v-for="(item, index) in body.items" :key="index" class="item" :text="item" lineHeight="4" textWrap="true" />
-        </StackLayout>
+        <Markdown :text="screen.body" />
 
         <StackLayout v-if="image" class="image-container">
             <Image verticalAlignment="middle" :src="'~/images/reader' + image.url" />
@@ -20,11 +10,14 @@
 
 <script lang="ts">
 import Vue, { PropType } from "vue";
+import Markdown from "./Markdown.vue";
 import { Body, SimpleScreen, parseBody } from "./model";
 
 export default Vue.extend({
     name: "SimpleScreen",
-    components: {},
+    components: {
+        Markdown,
+    },
     props: {
         screen: {
             type: Object as PropType<SimpleScreen>,
