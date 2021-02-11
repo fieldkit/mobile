@@ -38,7 +38,12 @@ const actions = (services: ServiceRef) => {
                 const network = new PhoneNetwork(newSsid);
                 commit(MutationTypes.PHONE_NETWORK, network);
                 if (!first) {
-                    await dispatch(new NetworkChangedAction(network));
+                    const emulator = _.includes([oldSsid, newSsid], "AndroidWifi");
+                    if (!emulator) {
+                        await dispatch(new NetworkChangedAction(network));
+                    } else {
+                        console.log("emulator detected, skip wifi change");
+                    }
                 }
             }
         },
