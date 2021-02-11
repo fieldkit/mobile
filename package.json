@@ -36,12 +36,20 @@
         "nativescript-vue": "^2.8.3",
         "nativescript-vue-devtools": "^1.4.0",
         "protobufjs": "^6.10.2",
+        "remark": "^13.0.0",
+        "remark-gfm": "^1.0.0",
+        "remark-grid-tables": "^2.1.1",
+        "remark-parse": "^9.0.0",
         "str-render": "0.0.2",
         "typescript-json-validator": "^2.4.2",
+        "unified": "^9.2.0",
+        "unist-util-stringify-position": "^2.0.3",
+        "unist-util-visit": "^2.0.3",
         "vue-class-component": "^7.2.3",
         "vue-property-decorator": "^9.1.2",
         "vuelidate": "^0.7.6",
-        "vuex": "^3.6.2"
+        "vuex": "^3.6.2",
+        "zwitch": "^1.0.5"
     },
     "devDependencies": {
         "@babel/cli": "^7.12.13",

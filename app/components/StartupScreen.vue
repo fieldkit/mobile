@@ -35,7 +35,7 @@ export default Vue.extend({
         if (Config.env.developer) {
             console.log("developer", Config.env.developer, "a");
 
-            const route = routes.calibration.start;
+            // const route = routes.calibration.start;
             // const route = routes.deploy.start;
             // const route = routes.deploy.notes;
             // const route = routes.deploy.review;
@@ -46,7 +46,7 @@ export default Vue.extend({
             // const route = routes.onboarding.start;
             // const route = routes.dataSync;
             // const route = routes.developerMenu;
-            // const route = routes.reader.flow;
+            const route = routes.reader.flow;
             // const route = routes.appSettings.account;
             // const route = routes.tabbed;
             // const route = routes.onboarding.assembleStation;
@@ -65,6 +65,7 @@ export default Vue.extend({
                 props: {
                     stationId: 1,
                     position: 3,
+                    flowName: "onboarding",
                 },
             });
 
