@@ -1,7 +1,5 @@
 <template>
-    <StackLayout>
-        <MarkdownNode v-if="tree" :node="tree" />
-    </StackLayout>
+    <MarkdownNode v-if="tree" :node="tree" />
 </template>
 
 <script lang="ts">

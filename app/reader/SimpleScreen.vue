@@ -41,40 +41,4 @@ export default Vue.extend({
 
 <style scoped lang="scss">
 @import "~/_app-variables";
-
-.headings-container {
-    padding: 30;
-    background-color: blue;
-}
-.heading {
-    color: $fk-primary-black;
-    text-align: center;
-    font-size: 16;
-    margin-right: 30;
-    margin-left: 30;
-    font-weight: bold;
-    font-size: 18;
-}
-
-.body-container {
-    padding: 30;
-}
-.body {
-    color: $fk-primary-black;
-    text-align: center;
-    font-size: 16;
-    margin-right: 30;
-    margin-left: 30;
-}
-
-.items-container {
-    padding: 30;
-}
-.item {
-    color: $fk-primary-black;
-    text-align: left;
-    font-size: 16;
-    margin-right: 30;
-    margin-left: 30;
-}
 </style>

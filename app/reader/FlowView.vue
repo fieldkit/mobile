@@ -76,14 +76,10 @@ export default Vue.extend({
     methods: {
         async onForward(): Promise<void> {
             console.log("forward", this.screen.name, this.screen.navOptions.forward);
-            await this.nav.move(this.screen.navOptions.forward).then((done) => {
+            await this.nav.move(this.screen.navOptions.forward).then(async (done) => {
                 if (done) {
-                    console.log("done");
-                    // TODO: pass via prop?
-                    return this.$navigateTo(routes.tabbed, {
-                        frame: "outer-frame",
-                        // clearHistory: true,
-                    });
+                    console.log("flow-view: done");
+                    await this.leave();
                 }
                 return;
             });
@@ -99,20 +95,18 @@ export default Vue.extend({
             }
         },
         async onSkip(): Promise<void> {
-            console.log("skip", this.screen.name);
-            await this.nav.move(NavigationOption.Skip).then(() => {
-                // TODO: pass via prop?
-                return this.$navigateTo(routes.tabbed, {
-                    frame: "outer-frame",
-                    // clearHistory: true,
-                });
-            });
+            console.log("flow-view: skip", this.screen.name);
+            await this.nav.move(NavigationOption.Skip);
+            await this.leave();
         },
         async onGuide(): Promise<void> {
             await Promise.resolve();
         },
         async onCancel(): Promise<void> {
-            console.log("cancel", this.screen.name);
+            console.log("flow-view: cancel", this.screen.name);
+            await this.leave();
+        },
+        async leave(): Promise<void> {
             // TODO: pass via prop?
             await this.$navigateTo(routes.tabbed, {
                 frame: "outer-frame",
