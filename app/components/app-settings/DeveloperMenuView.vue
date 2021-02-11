@@ -41,8 +41,7 @@
 
                 <Label :text="_L('appSettings.developer.notice')" textWrap="true" class="danger-notice" />
 
-                <Button class="btn btn-primary btn-padded" :text="_L('deleteDB')" @tap="deleteDB" />
-                <Button class="btn btn-primary btn-padded" :text="_L('deleteFiles')" @tap="deleteFiles" />
+                <Button class="btn btn-primary btn-padded" text="Reset Data" @tap="deleteAll" />
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
             </FlexboxLayout>
@@ -305,12 +304,22 @@ export default Vue.extend({
                 props: {},
             });
         },
-        async deleteDB(): Promise<void> {
+        async deleteAll(): Promise<void> {
             const confirmation = await this.superConfirm();
             if (!confirmation) {
                 return;
             }
 
+            await this.deleteDB();
+            await this.deleteFiles();
+
+            await alert({
+                title: _L("devOptions"),
+                message: _L("dbDeleted"),
+                okButtonText: _L("ok"),
+            });
+        },
+        async deleteDB(): Promise<void> {
             console.log("deleting database");
 
             await Services.CreateDb()
@@ -324,27 +333,10 @@ export default Vue.extend({
 
                     return Services.Store()
                         .dispatch(ActionTypes.LOAD)
-                        .then(() => {
-                            return alert({
-                                title: _L("devOptions"),
-                                message: _L("dbDeleted"),
-                                okButtonText: _L("ok"),
-                            });
-                        });
+                        .then(() => {});
                 });
-        },
-        listPhoneFiles(path: string): Promise<any> {
-            return listAllFiles(path).then((fs) => {
-                return fs.map((e) => {
-                    console.log(e.path);
-                });
-            });
         },
         async deleteFiles(): Promise<void> {
-            const confirmation = await this.superConfirm();
-            if (!confirmation) {
-                return;
-            }
             const rootFolder = knownFolders.documents();
             const diagnosticsFolder = rootFolder.getFolder("diagnostics");
             const firmwareFolder = rootFolder.getFolder("firmware");
@@ -371,13 +363,14 @@ export default Vue.extend({
                             .map((f) => f.path)
                             .value()
                     );
-
-                    return alert({
-                        title: _L("devOptions"),
-                        message: _L("filesRemoved"),
-                        okButtonText: _L("ok"),
-                    });
                 });
+        },
+        listPhoneFiles(path: string): Promise<any> {
+            return listAllFiles(path).then((fs) => {
+                return fs.map((e) => {
+                    console.log(e.path);
+                });
+            });
         },
         crash(): void {
             console.log("send crash");
