@@ -11,7 +11,7 @@
 <script lang="ts">
 import Vue, { PropType } from "vue";
 import Markdown from "./Markdown.vue";
-import { Body, SimpleScreen, parseBody } from "./model";
+import { SimpleScreen } from "./model";
 
 export default Vue.extend({
     name: "SimpleScreen",
@@ -37,9 +37,6 @@ export default Vue.extend({
                 return null;
             }
             return this.screen.images[this.frame % this.screen.images.length];
-        },
-        body(): Body {
-            return parseBody(this.screen.body);
         },
     },
     methods: {},

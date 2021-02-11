@@ -92,11 +92,10 @@ export class FlowNavigator {
 
     constructor(data: FlowFile, name: string) {
         const byKey = _.keyBy(data.data.flows, (f) => f.name);
-        if (!byKey[name]) {
-            throw new Error(`no flow: ${name}`);
-        }
+        if (!byKey[name]) throw new Error(`no flow: ${name}`);
         this.flow = byKey[name];
         this.screens = data.data.screens.filter((screen) => screen.name.indexOf(name) == 0);
+        if (this.screens.length == 0) throw new Error(`no screens: ${name}`);
         this.screens.sort((a, b) => {
             return screenOrder(a) - screenOrder(b);
         });
@@ -148,20 +147,4 @@ export class FlowNavigator {
     public get screen(): VisibleScreen {
         return this.visible;
     }
-}
-
-export class Body {
-    constructor(public readonly headings: string[], public readonly lines: string[], public readonly items: string[]) {}
-}
-
-export function parseBody(body: string): Body {
-    const isHeading = (line: string) => line[0] == "#";
-    const isItem = (line: string) => line[0] == "-";
-    const isSpecial = (line: string) => isHeading(line) || isItem(line);
-
-    const raw = body.split("\n").map((line) => line.trim());
-    const lines = raw.filter((line) => !isSpecial(line));
-    const headings = raw.filter((line) => isHeading(line)).map((line) => line.substr(1).trim());
-    const items = raw.filter((line) => isItem(line)).map((line) => line.substr(1).trim());
-    return new Body(headings, lines, items);
 }
