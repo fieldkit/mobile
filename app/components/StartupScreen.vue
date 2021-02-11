@@ -45,8 +45,8 @@ export default Vue.extend({
             // const route = routes.stationDetail;
             // const route = routes.onboarding.start;
             // const route = routes.dataSync;
-            // const route = routes.developerMenu;
-            const route = routes.reader.flow;
+            // const route = routes.reader.flow;
+            const route = routes.developerMenu;
             // const route = routes.appSettings.account;
             // const route = routes.tabbed;
             // const route = routes.onboarding.assembleStation;

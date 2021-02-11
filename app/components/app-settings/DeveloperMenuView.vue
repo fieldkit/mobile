@@ -17,8 +17,6 @@
                 <Button class="btn btn-primary btn-padded" :text="_L('uploadDiagnostics')" @tap="uploadDiagnostics" />
                 <Button class="btn btn-primary btn-padded" :text="'Sync Portal'" @tap="syncPortal" :isEnabled="!syncing" />
 
-                <Button class="btn btn-primary btn-padded" :text="'Onboarding Flow'" @tap="goOnboardingFlow" v-if="beta" />
-                <Button class="btn btn-primary btn-padded" :text="'Calibration Flow'" @tap="goCalibrationFlow" v-if="beta" />
                 <Button class="btn btn-primary btn-padded" :text="'Real Onboarding'" @tap="goOnboarding" v-if="beta" />
                 <Button class="btn btn-primary btn-padded" :text="_L('resetOnboarding')" @tap="resetOnboarding" v-if="beta" />
 
@@ -44,6 +42,10 @@
                 <Button class="btn btn-primary btn-padded" text="Reset Data" @tap="deleteAll" />
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
+
+                <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta">
+                    <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />
+                </StackLayout>
             </FlexboxLayout>
         </Scrollview>
     </Page>
@@ -72,6 +74,9 @@ import Recalibrate from "../onboarding/Recalibrate.vue";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 import SharedComponents from "@/components/shared";
 
+import flows from "@/data/flows.json";
+import { FlowFile } from "@/reader/model";
+
 interface EnvOption {
     display: string;
     value: string;
@@ -89,11 +94,13 @@ export default Vue.extend({
         status: StatusMessages[];
         syncing: boolean;
         busy: boolean;
+        flows: FlowFile;
     } {
         return {
             status: [],
             syncing: false,
             busy: false,
+            flows: flows,
         };
     },
     components: {
@@ -132,6 +139,9 @@ export default Vue.extend({
         },
         discoveryRunning(): boolean {
             return Services.DiscoverStation().monitoring;
+        },
+        flowNames(): string[] {
+            return flows.data.flows.map((f) => f.name);
         },
     },
     methods: {
@@ -242,21 +252,12 @@ export default Vue.extend({
         async restartDiscovery(): Promise<void> {
             await Services.DiscoverStation().restart();
         },
-        goOnboardingFlow(): Promise<any> {
+        openFlow(name: string): Promise<any> {
             return this.$navigateTo(routes.reader.flow, {
                 clearHistory: true,
                 frame: "outer-frame",
                 props: {
-                    flowName: "onboarding",
-                },
-            });
-        },
-        async goCalibrationFlow(): Promise<void> {
-            await this.$navigateTo(routes.reader.flow, {
-                clearHistory: true,
-                frame: "outer-frame",
-                props: {
-                    flowName: "calibration",
+                    flowName: name,
                 },
             });
         },
@@ -498,5 +499,11 @@ export default Vue.extend({
     padding-left: 20;
     padding-right: 20;
     line-height: 4;
+}
+
+.flows {
+    .flow {
+        background-color: orange;
+    }
 }
 </style>
