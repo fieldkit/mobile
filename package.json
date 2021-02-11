@@ -10,6 +10,7 @@
         "@nativescript/imagepicker": "^1.0.2",
         "@nstudio/nativescript-checkbox": "^2.0.4",
         "@sinonjs/fake-timers": "^6.0.1",
+        "@types/unist": "^2.0.3",
         "@vue/devtools": "^5.3.4",
         "ajv": "^6.12.6",
         "axios": "^0.21.1",

@@ -1,6 +1,6 @@
 <template>
     <StackLayout>
-        <MarkdownNode :node="tree" v-if="tree" />
+        <MarkdownNode v-if="tree" :node="tree" />
     </StackLayout>
 </template>
 

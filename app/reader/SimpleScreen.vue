@@ -28,9 +28,6 @@ export default Vue.extend({
             required: true,
         },
     },
-    data() {
-        return {};
-    },
     computed: {
         image(): { url: string } | null {
             if (this.screen.images.length == 0) {
@@ -39,7 +36,6 @@ export default Vue.extend({
             return this.screen.images[this.frame % this.screen.images.length];
         },
     },
-    methods: {},
 });
 </script>
 

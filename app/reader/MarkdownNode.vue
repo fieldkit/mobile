@@ -1,6 +1,6 @@
 <template>
-    <component v-bind:is="node.type" v-bind="node.props">
-        <MarkdownNode v-for="(child, index) in node.children" :node="child" v-bind:key="index" />
+    <component :is="node.type" v-bind="node.props">
+        <MarkdownNode v-for="(child, index) in node.children" :key="index" :node="child" />
     </component>
 </template>
 

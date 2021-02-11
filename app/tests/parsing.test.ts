@@ -2,53 +2,38 @@ import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { transform } from "@/reader/parsing";
 
-function debug(node) {
-    console.log(JSON.stringify(node, null, 2));
-}
-
 describe("reader parsing", () => {
     describe("basic", () => {
-        it("should parse multiline text", async () => {
+        it("should parse simple text", async () => {
             const actual = await transform("Hello, world");
 
-            if (false) {
-                debug(actual);
+            expect(actual).toEqual({
+                type: "StackLayout",
+                props: {
+                    class: "md-tree",
+                },
+                children: [
+                    {
+                        type: "StackLayout",
+                        props: {
+                            class: "md-paragraph",
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "Hello, world",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                ],
+            });
+        });
 
-                debug(await transform("Hello, world"));
-
-                debug(await transform("# Hello"));
-
-                debug(await transform("Hello, world\n\n# Ok"));
-
-                debug(
-                    await transform(`
-1. A
-2. B
-3. C
-`)
-                );
-
-                debug(
-                    await transform(`
-Ok
-
-| a | b  |
-| a | b
-| - | :- |
-
-
-LEFT         | RIGHT
------------- | -------------
-A            | B
-A            | B
-
-Cool
-`)
-                );
-            }
-
-            debug(
-                await transform(`
+        it("should parse complete example", async () => {
+            const actual = await transform(`
 # Heading
 
 ## Another header
@@ -59,8 +44,131 @@ LEFT         | RIGHT
 ------------ | -------------
 A            | B
 A            | B
-`)
-            );
+`);
+
+            expect(actual).toEqual({
+                type: "StackLayout",
+                props: {
+                    class: "md-tree",
+                },
+                children: [
+                    {
+                        type: "StackLayout",
+                        props: {
+                            class: "md-heading md-heading-${node.depth}",
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "Heading",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        type: "StackLayout",
+                        props: {
+                            class: "md-heading md-heading-${node.depth}",
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "Another header",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        type: "StackLayout",
+                        props: {
+                            class: "md-paragraph",
+                        },
+                        children: [
+                            {
+                                type: "Label",
+                                props: {
+                                    text: "Paragraph of text, hello there how are you doing I hope this finds you well.",
+                                    textWrap: true,
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        type: "GridLayout",
+                        props: {
+                            class: "md-grid",
+                            rows: "auto",
+                            columns: "*,*",
+                        },
+                        children: [
+                            {
+                                type: "StackLayout",
+                                props: {
+                                    col: 0,
+                                    class: "md-column",
+                                },
+                                children: [
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "LEFT",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "A",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "A",
+                                            textWrap: true,
+                                        },
+                                    },
+                                ],
+                            },
+                            {
+                                type: "StackLayout",
+                                props: {
+                                    col: 1,
+                                    class: "md-column",
+                                },
+                                children: [
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "RIGHT",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "B",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "B",
+                                            textWrap: true,
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
         });
     });
 });
