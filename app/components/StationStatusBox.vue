@@ -16,7 +16,7 @@
                     <GridLayout rows="auto, auto" columns="15*,85*" class="m-t-20">
                         <Image width="14" :src="batteryImage" rowSpan="2" col="0" />
                         <Label row="0" col="1" class="m-t-5 m-l-5 size-12" :text="_L('batteryLife')" />
-                        <Label class="m-l-5 m-r-5 size-10 lighter" :text="'batteryLevel'" row="1" col="1" />
+                        <Label class="m-l-5 m-r-5 size-10 lighter" :text="batteryLevel" row="1" col="1" />
                     </GridLayout>
                     <GridLayout rows="auto, auto, auto" columns="15*,85*" class="m-t-5">
                         <Image v-if="station.connected" col="0" rowSpan="3" width="15" src="~/images/Icon_memory.png" />
