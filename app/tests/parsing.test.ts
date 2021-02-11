@@ -1,8 +1,11 @@
 import _ from "lodash";
 import { describe, expect, it } from "@jest/globals";
 import { transform } from "@/reader/parsing";
-// import { promises as fsPromises } from "fs";
-// await fsPromises.writeFile("temp.json", JSON.stringify(actual, null, 4));
+import { promises as fsPromises } from "fs";
+
+export async function saveJson(obj: unknown) {
+    await fsPromises.writeFile("temp.json", JSON.stringify(obj, null, 4));
+}
 
 describe("reader parsing", () => {
     describe("basic", () => {
@@ -46,6 +49,7 @@ LEFT         | RIGHT
 ------------ | -------------
 A            | B
 A            | B
+
 `);
 
             expect(actual).toEqual({
@@ -263,14 +267,14 @@ A            | B
             });
         });
 
-        it("should parse grid style 2", async () => {
+        it("should parse grid style 3", async () => {
             const actual = await transform(`
 
-LEFT             | RIGHT
----------------|-------------
-1. Flour         | 500g
-2. Water       | 220g
-3. Salt           | 1/4 tsp
+| LEFT           | RIGHT    |
+|----------------|----------|
+| 1. Flour       | 500g     |
+| 2. Water       | 220g     |
+| 3. Salt        | 1/4 tsp  |
 
 `);
 
@@ -302,6 +306,27 @@ LEFT             | RIGHT
                                             textWrap: true,
                                         },
                                     },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "1. Flour",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "2. Water",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "3. Salt",
+                                            textWrap: true,
+                                        },
+                                    },
                                 ],
                             },
                             {
@@ -318,82 +343,131 @@ LEFT             | RIGHT
                                             textWrap: true,
                                         },
                                     },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "500g",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "220g",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "1/4 tsp",
+                                            textWrap: true,
+                                        },
+                                    },
                                 ],
                             },
                         ],
                     },
+                ],
+            });
+        });
+
+        it("should parse grid style 2", async () => {
+            const actual = await transform(`
+
+| LEFT           | RIGHT
+| ---------------|-------------
+| 1. Flour       | 500g
+| 2. Water       | 220g
+| 3. Salt        | 1/4 tsp
+
+`);
+
+            expect(actual).toEqual({
+                type: "StackLayout",
+                props: {
+                    class: "md-tree",
+                },
+                children: [
                     {
-                        type: "StackLayout",
+                        type: "GridLayout",
                         props: {
-                            class: "md-list",
+                            class: "md-grid",
+                            rows: "auto",
+                            columns: "*,*",
                         },
                         children: [
                             {
                                 type: "StackLayout",
                                 props: {
-                                    class: "md-list-item",
+                                    col: 0,
+                                    class: "md-column",
                                 },
                                 children: [
                                     {
-                                        type: "StackLayout",
+                                        type: "Label",
                                         props: {
-                                            class: "md-paragraph",
+                                            text: "LEFT",
+                                            textWrap: true,
                                         },
-                                        children: [
-                                            {
-                                                type: "Label",
-                                                props: {
-                                                    text: "Flour         | 500g",
-                                                    textWrap: true,
-                                                },
-                                            },
-                                        ],
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "1. Flour",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "2. Water",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "3. Salt",
+                                            textWrap: true,
+                                        },
                                     },
                                 ],
                             },
                             {
                                 type: "StackLayout",
                                 props: {
-                                    class: "md-list-item",
+                                    col: 1,
+                                    class: "md-column",
                                 },
                                 children: [
                                     {
-                                        type: "StackLayout",
+                                        type: "Label",
                                         props: {
-                                            class: "md-paragraph",
+                                            text: "RIGHT",
+                                            textWrap: true,
                                         },
-                                        children: [
-                                            {
-                                                type: "Label",
-                                                props: {
-                                                    text: "Water       | 220g",
-                                                    textWrap: true,
-                                                },
-                                            },
-                                        ],
                                     },
-                                ],
-                            },
-                            {
-                                type: "StackLayout",
-                                props: {
-                                    class: "md-list-item",
-                                },
-                                children: [
                                     {
-                                        type: "StackLayout",
+                                        type: "Label",
                                         props: {
-                                            class: "md-paragraph",
+                                            text: "500g",
+                                            textWrap: true,
                                         },
-                                        children: [
-                                            {
-                                                type: "Label",
-                                                props: {
-                                                    text: "Salt           | 1/4 tsp",
-                                                    textWrap: true,
-                                                },
-                                            },
-                                        ],
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "220g",
+                                            textWrap: true,
+                                        },
+                                    },
+                                    {
+                                        type: "Label",
+                                        props: {
+                                            text: "1/4 tsp",
+                                            textWrap: true,
+                                        },
                                     },
                                 ],
                             },
