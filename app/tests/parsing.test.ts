@@ -118,13 +118,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "LEFT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -148,13 +148,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "RIGHT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -208,13 +208,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "LEFT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -238,13 +238,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "RIGHT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -299,13 +299,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "LEFT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -336,13 +336,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "RIGHT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -404,13 +404,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "LEFT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -441,13 +441,13 @@ A            | B
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "RIGHT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -561,13 +561,13 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "LEFT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {
@@ -598,13 +598,13 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                                     class: "md-column",
                                 },
                                 children: [
-                                    {
+                                    /*{
                                         type: "Label",
                                         props: {
                                             text: "RIGHT",
                                             textWrap: true,
                                         },
-                                    },
+                                    },*/
                                     {
                                         type: "Label",
                                         props: {

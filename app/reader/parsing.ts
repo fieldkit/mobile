@@ -44,8 +44,9 @@ function createContext(): Context {
             // the first thing we do is transpose that then we wrap
             // each column in a StackLayout with the col assigned.
             const rows = basic(node, parent, context);
+            const headerless = _.tail(rows);
             const transpose = (m) => m[0].map((x, i) => m.map((x) => x[i]));
-            const columns = transpose(rows);
+            const columns = transpose(headerless);
             const wrapped = columns.map(
                 (column, index): MdNode => {
                     return {
