@@ -780,7 +780,7 @@
                 },
                 "simple": [
                     {
-                        "body": "# Heading\n\n## Another header\n\nParagraph of text, hello there how are you doing I hope this finds you well.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| 1. Flour       | 500g       |\n| 2. Water       | 220g       |\n| 3. Salt        | 1/4 tsp    |\n\nTables don't need to line up exactly in this editor, though that makes things easier to read.",
+                        "body": "# Heading\n\n## Another header\n\nParagraph of text, hello there how are you doing I hope this finds you well.\n\n| LEFT           | RIGHT      |\n|----------------|------------|\n| 1. Flour       | 500g       |\n| 2. Water       | 220g       |\n| 3. Salt        | 1/4 tsp    |\n\nTables don't need to line up exactly in this editor, though that makes things easier to read. The left hand side pipes are important if you're using lists. Another thing you may notice is that LEFT and RIGHT. It's annoying, but the headers are required (cause this is a table) and so we will hide them, but they're necessary for the parser we're using.",
                         "images": []
                     }
                 ]
