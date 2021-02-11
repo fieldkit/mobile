@@ -30,7 +30,8 @@ export default Vue.extend({
     },
     props: {
         stationId: {
-            type: String,
+            type: Number,
+            required: true,
         },
     },
     data(): {} {
