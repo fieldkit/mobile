@@ -15,6 +15,8 @@ export interface Screen {
     locale: string;
     forward: string;
     skip: string | null;
+    guideTitle: string | null;
+    guideUrl: string | null;
     header: Header;
     simple: SimpleScreen[];
 }
@@ -22,7 +24,7 @@ export interface Screen {
 export interface Flow {
     id: string;
     name: string;
-    show_progress: boolean;
+    showProgress: boolean;
 }
 
 export interface FlowFile {

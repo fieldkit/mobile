@@ -7,6 +7,8 @@ import Jimp from "jimp";
 
 import flowSchema from "../app/data/flow-schema";
 
+import * as convertKeys from "convert-keys";
+
 const baseUrl = "https://strapi.conservify.org";
 
 function download(): Promise<any> {
@@ -24,6 +26,8 @@ function download(): Promise<any> {
                 locale
                 forward
                 skip
+				guide_title
+				guide_url
                 header { title subtitle }
                 simple {
                     body
@@ -82,7 +86,7 @@ async function downloadAllPhotos(flows: any): Promise<any> {
 
 async function main() {
     console.log("downloading...");
-    const incoming = await download();
+    const incoming = convertKeys.toCamel(await download());
 
     console.log("verifying...");
     await flowSchema.validate(incoming);

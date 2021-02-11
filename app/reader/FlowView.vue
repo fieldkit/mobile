@@ -5,8 +5,8 @@
             :canCancel="true"
             :canNavigateSettings="false"
             :canNavigateBack="screen.navOptions.backward.allowed"
-            :onBack="backward"
-            :onCancel="cancel"
+            :onBack="onBackward"
+            :onCancel="onCancel"
         />
         <GridLayout rows="auto,*,auto" class="container">
             <FlowProgress row="0" :progress="progress" />
@@ -18,9 +18,10 @@
                     class="btn btn-primary btn-padded"
                     :text="screen.forward"
                     :isEnabled="screen.navOptions.forward.allowed"
-                    @tap="forward"
+                    @tap="onForward"
                 />
-                <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="skip" />
+                <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="onSkip" />
+                <Label v-if="screen.guide_title" :text="screen.guide_title" class="skip" textWrap="true" @tap="onGuide" />
             </StackLayout>
         </GridLayout>
     </Page>
@@ -71,10 +72,9 @@ export default Vue.extend({
     },
     mounted(): void {
         this.timer = new Timer(1000, null);
-        console.log("flows", flows);
     },
     methods: {
-        async forward(): Promise<void> {
+        async onForward(): Promise<void> {
             console.log("forward", this.screen.name, this.screen.navOptions.forward);
             await this.nav.move(this.screen.navOptions.forward).then((done) => {
                 if (done) {
@@ -88,7 +88,7 @@ export default Vue.extend({
                 return;
             });
         },
-        backward(): Promise<boolean> {
+        onBackward(): Promise<boolean> {
             console.log("backward", this.screen.name, this.screen.navOptions.backward);
             return this.nav.move(this.screen.navOptions.backward);
         },
@@ -98,7 +98,7 @@ export default Vue.extend({
                 this.timer = null;
             }
         },
-        async skip(): Promise<void> {
+        async onSkip(): Promise<void> {
             console.log("skip", this.screen.name);
             await this.nav.move(NavigationOption.Skip).then(() => {
                 // TODO: pass via prop?
@@ -108,7 +108,10 @@ export default Vue.extend({
                 });
             });
         },
-        async cancel(): Promise<void> {
+        async onGuide(): Promise<void> {
+            await Promise.resolve();
+        },
+        async onCancel(): Promise<void> {
             console.log("cancel", this.screen.name);
             // TODO: pass via prop?
             await this.$navigateTo(routes.tabbed, {

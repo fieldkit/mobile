@@ -3,7 +3,7 @@ import * as yup from "yup";
 const flowSchema = yup.object().shape({
     id: yup.string().required(),
     name: yup.string().required(),
-    show_progress: yup.boolean().required(),
+    showProgress: yup.boolean().required(),
 });
 
 const screenSchema = yup.object().shape({
@@ -12,6 +12,8 @@ const screenSchema = yup.object().shape({
     locale: yup.string().required(),
     forward: yup.string().required(),
     skip: yup.string().nullable(),
+    guideTitle: yup.string().nullable(),
+    guideUrl: yup.string().url().nullable(),
     header: yup.object().shape({
         title: yup.string().required(),
         subtitle: yup.string().required(),

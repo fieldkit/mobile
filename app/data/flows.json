@@ -4,17 +4,17 @@
             {
                 "id": "1",
                 "name": "onboarding",
-                "show_progress": true
+                "showProgress": true
             },
             {
                 "id": "2",
                 "name": "deploy",
-                "show_progress": true
+                "showProgress": true
             },
             {
                 "id": "3",
                 "name": "calibration",
-                "show_progress": false
+                "showProgress": false
             }
         ],
         "screens": [
@@ -24,6 +24,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -48,6 +50,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -75,6 +79,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -99,6 +105,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -123,6 +131,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -147,6 +157,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -171,6 +183,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -195,6 +209,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -222,6 +238,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -246,6 +264,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -270,6 +290,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Onboarding",
                     "subtitle": "Assemble Station"
@@ -294,6 +316,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Weather"
@@ -318,6 +342,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Weather"
@@ -342,6 +368,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Weather"
@@ -366,6 +394,8 @@
                 "locale": "en_US",
                 "forward": "Complete Setup",
                 "skip": "",
+                "guideTitle": "Need more help? View Product Guide",
+                "guideUrl": "https://www.fielkit.org/product-guide",
                 "header": {
                     "title": "Calibration",
                     "subtitle": "Weather"
@@ -390,6 +420,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "pH"
@@ -414,6 +446,8 @@
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
                 "skip": "",
+                "guideTitle": "Need more help? View Product Guide",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "pH"
@@ -438,6 +472,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Conductivity"
@@ -462,6 +498,8 @@
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
                 "skip": "Need more help? View Product Guide ",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Conductivity"
@@ -486,6 +524,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Dissolved Oxygen"
@@ -510,6 +550,8 @@
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
                 "skip": "Need more help? View Product Guide",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Dissolved Oxygen"
@@ -534,6 +576,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Water Temperature"
@@ -558,6 +602,8 @@
                 "locale": "en_US",
                 "forward": "Complete Setup",
                 "skip": "Need more help? View Product Guide",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Water Temperature"
@@ -582,6 +628,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Distance"
@@ -606,6 +654,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Distance"
@@ -633,6 +683,8 @@
                 "locale": "en_US",
                 "forward": "Complete Setup",
                 "skip": "Need more help? View Product Guide",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Distance"
@@ -657,6 +709,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Weather"
@@ -684,6 +738,8 @@
                 "locale": "en_US",
                 "forward": "Next",
                 "skip": "Skip this step",
+                "guideTitle": null,
+                "guideUrl": null,
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Weather"
