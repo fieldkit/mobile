@@ -287,8 +287,7 @@ export default class CalibrationService {
             })
             .then(
                 (response) => {
-                    console.log("cal:response", response);
-                    console.log("cal:response", response.body);
+                    console.log(`cal:response ${JSON.stringify(response.body)}`);
 
                     if (response && response.body && response.body.length == 0) {
                         log.info(url, "calibration query success", "<empty>");

@@ -25,7 +25,7 @@ import { Services } from "@/services";
 import { Notification } from "~/store/modules/notifications";
 import { Notes } from "@/store/modules/notes";
 
-const log = Config.logger("DbInterface");
+const log = Config.logger("db");
 
 export default class DatabaseInterface {
     constructor(private readonly services: Services) {}
@@ -98,12 +98,12 @@ export default class DatabaseInterface {
 
     public async setStationPortalId(station: { id: number; portalId: number; ownerId: number }): Promise<boolean> {
         if (!station.portalId) {
-            console.log(`no portal id`);
+            log.error(`no portal id`);
             throw new Error(`no portal id`);
         }
 
         if (!station.ownerId) {
-            console.log(`no owner id`);
+            log.error(`no owner id`);
             throw new Error(`no owner id`);
         }
 
@@ -115,15 +115,15 @@ export default class DatabaseInterface {
             if (rows.length == 0) throw new Error(`setting portal-id for unknown station`);
             const existing = rows[0];
             if (existing.portalId == station.portalId && existing.userId == station.ownerId) {
-                console.log(`reply-same: ${JSON.stringify({ existing, station })}`);
+                log.verbose(`reply-same: ${JSON.stringify({ existing, station })}`);
                 return false;
             }
 
-            console.log(`reply-changed: ${JSON.stringify({ existing, station })}`);
+            log.info(`reply-changed: ${JSON.stringify({ existing, station })}`);
             await this.updateStationPortalId(station.id, station.portalId, station.ownerId);
             return true;
         } catch (error) {
-            console.log(`error setting portal id`, error);
+            log.error(`error setting portal id`, error);
             throw new Error(`error setting portal id: ${JSON.stringify(error)}`);
         }
     }
@@ -133,7 +133,7 @@ export default class DatabaseInterface {
             const values = [new Date(), userId];
             await this.execute("UPDATE accounts SET last_synced = ? WHERE portal_id = ?", values);
         } catch (error) {
-            console.log(`error updating last synced`, error);
+            log.error(`error updating last synced`, error);
             throw new Error(`error updating last synced: ${JSON.stringify(error)}`);
         }
     }
@@ -157,12 +157,12 @@ export default class DatabaseInterface {
         try {
             const parsed = JSON.parse(db) as Record<string, unknown>;
             if (parsed["name"] == saving["name"] && parsed["name"] && saving["name"]) {
-                console.log(`same-error: ${JSON.stringify({ db, saving })}`);
-                console.log(`same-error: ${JSON.stringify({ existing: parsed["name"], saving: saving["name"] })}`);
+                log.verbose(`same-error: ${JSON.stringify({ db, saving })}`);
+                log.verbose(`same-error: ${JSON.stringify({ existing: parsed["name"], saving: saving["name"] })}`);
                 return true;
             }
         } catch (error) {
-            console.log(`error parsing portal error '${db}':`, error);
+            log.info(`error parsing portal error '${db}':`, error);
         }
         return false;
     }
@@ -175,15 +175,15 @@ export default class DatabaseInterface {
             if (rows.length == 0) throw new Error(`setting portal-error for unknown station`);
 
             if (this.samePortalError(rows[0].portalHttpError, error)) {
-                console.log(`error-same: ${JSON.stringify({ existing: rows[0].portalHttpError, updating: error })}`);
+                log.verbose(`error-same: ${JSON.stringify({ existing: rows[0].portalHttpError, updating: error })}`);
                 return false;
             }
 
-            console.log(`error-change: ${JSON.stringify({ existing: rows[0].portalHttpError, updating: error })}`);
+            log.info(`error-change: ${JSON.stringify({ existing: rows[0].portalHttpError, updating: error })}`);
             await this.updateStationPortalError(station.id, error);
             return true;
         } catch (error) {
-            console.log(`error setting portal error:`, error);
+            log.error(`error setting portal error:`, error);
             throw new Error(`error setting portal error ${JSON.stringify(error)}`);
         }
     }
@@ -195,8 +195,6 @@ export default class DatabaseInterface {
 
     private async updateStation(station: Station): Promise<void> {
         if (!station.id) new Error(`no station id in update station`);
-
-        // console.log(`updating station: ${JSON.stringify({ name: station.name, deviceId: station.deviceId })}`);
 
         // For the time being, need to not update the fields that are being set individually,
         // as they get overwritten with null if we do. Those include:
@@ -248,7 +246,7 @@ export default class DatabaseInterface {
                 }
                 const keeping = rows[0];
                 if (rows.length > 1) {
-                    console.log(`deleting duplicate modules ${deviceId} ${rows.length}`);
+                    log.info(`deleting duplicate modules ${deviceId} ${rows.length}`);
                     return this.execute("DELETE FROM sensors WHERE module_id IN (SELECT id FROM modules WHERE device_id = ? AND id != ?)", [
                         deviceId,
                         keeping,
@@ -296,8 +294,8 @@ export default class DatabaseInterface {
             "INSERT INTO modules (module_id, device_id, name, interval, position, station_id, flags, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             values
         ).catch((error) => {
-            console.log(`error inserting module: ${JSON.stringify(error)}`);
-            console.log(`error inserting values: ${JSON.stringify({ values: values })}`);
+            log.error(`error inserting module: ${JSON.stringify(error)}`);
+            log.error(`error inserting values: ${JSON.stringify({ values: values })}`);
             return Promise.reject(new Error(`error inserting module: ${JSON.stringify(error)}`));
         });
     }
@@ -363,8 +361,6 @@ export default class DatabaseInterface {
         const adding = _.difference(_.keys(incoming), _.keys(allExisting));
         const removed = _.difference(_.keys(stationExisting), _.keys(incoming));
         const keeping = _.intersection(_.keys(allExisting), _.keys(incoming));
-
-        // console.log("modules", station.modules);
 
         log.info(
             `synchronize modules`,
@@ -497,7 +493,7 @@ export default class DatabaseInterface {
     }
 
     private async insertStation(newStation: Station): Promise<void> {
-        console.log(`inserting station: ${JSON.stringify({ name: newStation.name, deviceId: newStation.deviceId })}`);
+        log.info(`inserting station: ${JSON.stringify({ name: newStation.name, deviceId: newStation.deviceId })}`);
         await this.execute(
             `INSERT INTO stations (
 				device_id, generation_id, name, archived, url, status,
@@ -563,7 +559,7 @@ export default class DatabaseInterface {
                 });
             })
             .then(() => {
-                console.log(`station updated: ${JSON.stringify({ deviceId: station.deviceId })}`);
+                log.verbose(`station updated: ${JSON.stringify({ deviceId: station.deviceId })}`);
             });
     }
 
@@ -633,7 +629,7 @@ export default class DatabaseInterface {
 
     public async markDownloadAsUploaded(download: Download): Promise<void> {
         if (download.stationId === null || download.fileType === null) {
-            console.log("malformed download row", download.stationId, download.fileType, download);
+            log.error("malformed download row", download.stationId, download.fileType, download);
             throw new Error("malformed download row");
         }
         return await this.query("UPDATE downloads SET uploaded = ? WHERE id = ?", [new Date(), download.id]).then(() => {
@@ -644,7 +640,7 @@ export default class DatabaseInterface {
                 download.stationId,
                 FileTypeUtils.toString(download.fileType),
             ];
-            console.log(`mark as download updating streams:`, values);
+            log.info(`mark as download updating streams:`, values);
             return this.execute(
                 `UPDATE streams SET portal_size = COALESCE(portal_size, 0) + ?,
 						            portal_first_block = MIN(COALESCE(portal_first_block, 0xffffffff), ?),
@@ -761,10 +757,10 @@ export default class DatabaseInterface {
     public checkSettings(): Promise<void> {
         return this.getSettings().then((rows) => {
             if (rows.length == 0) {
-                console.log("settings: initializing");
+                log.info("settings: initializing");
                 return this.insertSettings(Settings);
             } else {
-                console.log("existing settings: ", rows[0]);
+                log.info("existing settings: ", rows[0]);
                 return;
             }
         });
@@ -793,14 +789,14 @@ export default class DatabaseInterface {
             new Date(),
             JSON.stringify(settings),
         ]).catch((error) => {
-            console.log(`error inserting settings: ${JSON.stringify(error)}`);
+            log.error(`error inserting settings: ${JSON.stringify(error)}`);
             throw new Error(`error inserting settings: ${JSON.stringify(error)}`);
         });
     }
 
     public async updateSettings(settings: Record<string, unknown>): Promise<void> {
         return await this.execute("UPDATE settings SET settings = ?", [JSON.stringify(settings)]).catch((error) => {
-            console.log(`error updating settings: ${JSON.stringify(error)}`);
+            log.error(`error updating settings: ${JSON.stringify(error)}`);
             throw new Error(`error updating settings: ${JSON.stringify(error)}`);
         });
     }
@@ -824,7 +820,7 @@ export default class DatabaseInterface {
     }
 
     public async removeAccount(email: string): Promise<void> {
-        console.log(`deleting ${email}`);
+        log.error(`deleting ${email}`);
         await this.execute(`DELETE FROM accounts WHERE email = ?`, [email]);
     }
 
@@ -884,7 +880,7 @@ export default class DatabaseInterface {
     }
 
     public async addNotification(notification: Notification): Promise<void> {
-        console.log("addNotifications", notification);
+        log.info("add-notifications", notification);
         await this.query<{ id: number }>(`SELECT id FROM notifications WHERE key = ?`, [notification.key])
             .then((maybeId) => {
                 if (maybeId.length == 0) {
@@ -909,7 +905,7 @@ export default class DatabaseInterface {
     }
 
     public async updateNotification(notification: Notification): Promise<void> {
-        console.log("updateNotification", notification);
+        log.info("update-notification", notification);
         await this.query<NotificationsTableRow>(`SELECT * FROM notifications WHERE key = ?`, [notification.key])
             .then((maybe) => {
                 if (maybe.length > 0) {
@@ -943,7 +939,7 @@ export default class DatabaseInterface {
             const values = [row.time, row.mutation, row.payload, row.before, row.after];
             await this.execute("INSERT INTO store_log (time, mutation, payload, before, after) VALUES (?, ?, ?, ?, ?)", values);
         } catch (error) {
-            console.log(`add-store-log error`, error);
+            log.error(`add-store-log error`, error);
         }
     }
 
@@ -953,7 +949,7 @@ export default class DatabaseInterface {
             await this.execute("DELETE FROM modules WHERE module_id IS NULL");
             await this.purgeOldLogs();
         } catch (error) {
-            console.log(`cleanup error`, error);
+            log.error(`cleanup error`, error);
         }
     }
 
@@ -963,16 +959,16 @@ export default class DatabaseInterface {
         const values = [epoch];
 
         const before = await this.query<{ nlogs: number }>("SELECT COUNT(*) AS nlogs FROM store_log");
-        console.log(`database-logs before ${JSON.stringify(before)}`);
+        log.info(`database-logs before ${JSON.stringify(before)}`);
 
         await this.execute("DELETE FROM store_log WHERE time < ?", values);
 
         const after = await this.query<{ nlogs: number }>("SELECT COUNT(*) AS nlogs FROM store_log");
-        console.log(`database-logs after ${JSON.stringify(after)}`);
+        log.info(`database-logs after ${JSON.stringify(after)}`);
 
         await this.execute("VACUUM");
 
-        console.log(`database-logs ready`);
+        log.info(`database-logs ready`);
     }
 
     public async getAllMedia(): Promise<NoteMedia[]> {
@@ -983,7 +979,7 @@ export default class DatabaseInterface {
             if (filled.stationId === 0) throw new Error(`failed to hydrate notes`);
             return filled;
         });
-        console.log(`notes: ${JSON.stringify(notes)}`);
+        log.info(`notes: ${JSON.stringify(notes)}`);
         return _.flatten(notes.map((notes) => notes.allMedia()));
     }
 }
