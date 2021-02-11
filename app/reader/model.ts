@@ -78,6 +78,16 @@ export class VisibleScreen {
     public get simple(): SimpleScreen[] {
         return this.screen.simple;
     }
+
+    public get guide(): { url: string; title: string } | null {
+        if (this.screen.guideTitle && this.screen.guideUrl) {
+            return {
+                title: this.screen.guideTitle,
+                url: this.screen.guideUrl,
+            };
+        }
+        return null;
+    }
 }
 
 function screenOrder(screen: Screen): number {

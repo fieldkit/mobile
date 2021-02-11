@@ -26,8 +26,8 @@
                     :isEnabled="screen.navOptions.forward.allowed"
                     @tap="onForward"
                 />
+                <Label v-if="screen.guide" :text="screen.guide.title" class="guide" textWrap="true" @tap="onGuide(screen.guide.url)" />
                 <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="onSkip" />
-                <Label v-if="screen.guide_title" :text="screen.guide_title" class="skip" textWrap="true" @tap="onGuide" />
             </StackLayout>
         </GridLayout>
     </Page>
@@ -42,6 +42,7 @@ import routes from "@/routes";
 import flows from "@/data/flows.json";
 import { Timer } from "@/common/timer";
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
+import * as utils from "@nativescript/core/utils/utils";
 
 export default Vue.extend({
     name: "FlowView",
@@ -70,6 +71,7 @@ export default Vue.extend({
             return this.timer?.counter || 0;
         },
         screen(): VisibleScreen {
+            console.log("screen", this.nav.screen);
             return this.nav.screen;
         },
         progress(): number {
@@ -105,7 +107,8 @@ export default Vue.extend({
             await this.nav.move(NavigationOption.Skip);
             await this.leave();
         },
-        async onGuide(): Promise<void> {
+        async onGuide(url: string): Promise<void> {
+            utils.openUrl(url);
             await Promise.resolve();
         },
         async onCancel(): Promise<void> {
@@ -113,10 +116,8 @@ export default Vue.extend({
             await this.leave();
         },
         async leave(): Promise<void> {
-            // TODO: pass via prop?
             await this.$navigateTo(routes.tabbed, {
                 frame: "outer-frame",
-                // clearHistory: true,
             });
         },
     },
@@ -129,10 +130,19 @@ export default Vue.extend({
     width: 115;
     padding-top: 10;
     padding-bottom: 10;
-    background-color: white;
     font-size: 14;
     font-weight: bold;
     text-align: center;
+    // background-color: blue;
+}
+
+.guide {
+    padding-top: 10;
+    padding-bottom: 10;
+    font-size: 14;
+    font-weight: bold;
+    text-align: center;
+    // background-color: orange;
 }
 
 .center-container {
