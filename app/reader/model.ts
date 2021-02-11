@@ -90,6 +90,14 @@ export class FlowNavigator {
     private visible: VisibleScreen;
     private index = 0;
 
+    public get progress(): number {
+        return (this.index / (this.screens.length - 1)) * 100.0;
+    }
+
+    public get key(): string {
+        return `key-${this.index}`;
+    }
+
     constructor(data: FlowFile, name: string) {
         const byKey = _.keyBy(data.data.flows, (f) => f.name);
         if (!byKey[name]) throw new Error(`no flow: ${name}`);
@@ -113,10 +121,6 @@ export class FlowNavigator {
     private recreate(): Promise<boolean> {
         this.visible = this.createVisibleScreen();
         return Promise.resolve(false);
-    }
-
-    public get progress(): number {
-        return (this.index / (this.screens.length - 1)) * 100.0;
     }
 
     public move(option: NavigationOption): Promise<boolean> {

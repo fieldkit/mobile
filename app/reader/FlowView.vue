@@ -11,7 +11,13 @@
         <GridLayout rows="auto,*,auto" class="container">
             <FlowProgress row="0" :progress="progress" />
             <ScrollView row="1" class="container">
-                <SimpleScreen v-if="screen.simple.length >= 1" :screen="screen.simple[0]" :frame="frame" class="simple-screen-container" />
+                <SimpleScreen
+                    v-if="screen.simple.length >= 1"
+                    :screen="screen.simple[0]"
+                    :frame="frame"
+                    class="simple-screen-container"
+                    v-bind:key="nav.key"
+                />
             </ScrollView>
             <StackLayout row="2" class="m-x-10">
                 <Button
