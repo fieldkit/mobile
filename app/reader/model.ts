@@ -102,12 +102,16 @@ export class FlowNavigator {
         const byKey = _.keyBy(data.data.flows, (f) => f.name);
         if (!byKey[name]) throw new Error(`no flow: ${name}`);
         this.flow = byKey[name];
-        this.screens = data.data.screens.filter((screen) => screen.name.indexOf(name) == 0);
+        this.screens = data.data.screens.filter((screen) => this.getFlowForScreen(screen.name) == name);
         if (this.screens.length == 0) throw new Error(`no screens: ${name}`);
         this.screens.sort((a, b) => {
             return screenOrder(a) - screenOrder(b);
         });
         this.visible = this.createVisibleScreen();
+    }
+
+    private getFlowForScreen(name: string): string {
+        return name.replace(/\.\d+$/, "");
     }
 
     private createVisibleScreen(): VisibleScreen {
