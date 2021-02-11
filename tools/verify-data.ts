@@ -91,7 +91,9 @@ async function main() {
     console.log("verifying...");
     await flowSchema.validate(incoming);
 
-    await downloadAllPhotos(incoming);
+    if (!_.includes(process.argv, "--json")) {
+        await downloadAllPhotos(incoming);
+    }
 
     console.log("looks good!");
     await fsPromises.writeFile("../app/data/flows.json", JSON.stringify(incoming, null, 4));

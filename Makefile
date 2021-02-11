@@ -20,7 +20,10 @@ setup: .setup-completed $(APP)/app/secrets.ts $(APP)/node_modules
 	pip3 install requests
 
 refresh-cms-data:
-	cd tools && npm install && npm run start
+	cd tools && npm install && npm run refresh-all
+
+refresh-cms-json:
+	cd tools && npm install && npm run refresh-json
 
 update:
 	$(ANDROID)/sdkmanager --update --verbose

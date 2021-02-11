@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "ts-node verify-data.ts"
+        "refresh-all": "ts-node verify-data.ts",
+        "refresh-json": "ts-node verify-data.ts --json"
     },
     "author": "",
     "license": "ISC",

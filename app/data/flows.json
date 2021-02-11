@@ -15,6 +15,11 @@
                 "id": "3",
                 "name": "calibration",
                 "showProgress": false
+            },
+            {
+                "id": "4",
+                "name": "examples",
+                "showProgress": false
             }
         ],
         "screens": [
@@ -324,7 +329,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Connect Rain Gauge\nTurn over the Weather Sensor Board, and insert the RJ11 jack from the Rain Gauge into the slot on the Weather Sensor Board marked “RAIN.”",
+                        "body": "#Connect Rain Gauge\nTurn over the Weather Sensor Board, and insert the RJ11 jack from the Rain Gauge into the slot on the Weather Sensor Board marked “RAIN.”",
                         "images": [
                             {
                                 "url": "/uploads/TI_32_ea3474ae96.png"
@@ -350,7 +355,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Connect Anemometer and Wind Vane\nInsert the RJ11 jack from the Wind Vane into the slot on the Weather Sensor Board marked “WIND.” Insert the RJ11 jack from the Anemometer into the Wind Vane so that they are connected.",
+                        "body": "#Connect Anemometer and Wind Vane\nInsert the RJ11 jack from the Wind Vane into the slot on the Weather Sensor Board marked “WIND.” Insert the RJ11 jack from the Anemometer into the Wind Vane so that they are connected.",
                         "images": [
                             {
                                 "url": "/uploads/TI_35_77a7e23703.png"
@@ -376,7 +381,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Place Stevenson Screen\nInsert the Weather Sensor Board into the Stevenson Screen. Attach the enclosed board to the Arm.",
+                        "body": "#Place Stevenson Screen\nInsert the Weather Sensor Board into the Stevenson Screen. Attach the enclosed board to the Arm.",
                         "images": [
                             {
                                 "url": "/uploads/TI_37_d407eb532d.png"
@@ -395,14 +400,14 @@
                 "forward": "Complete Setup",
                 "skip": "",
                 "guideTitle": "Need more help? View Product Guide",
-                "guideUrl": "https://www.fielkit.org/product-guide",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
                 "header": {
                     "title": "Calibration",
                     "subtitle": "Weather"
                 },
                 "simple": [
                     {
-                        "body": "Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the Weather Module Board.",
+                        "body": "#Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the Weather Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_38_5c371cef29.png"
@@ -480,7 +485,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Do you have everything?\nCollect the Conductivity Probe.\n\nThe Conductivity Module Board should already be attached to your station.",
+                        "body": "#Do you have everything?\nCollect the Conductivity Probe.\n\n##The Conductivity Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_44_d448775f78.png"
@@ -497,16 +502,16 @@
                 "name": "onboarding.ec.02",
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
-                "skip": "Need more help? View Product Guide ",
-                "guideTitle": null,
-                "guideUrl": null,
+                "skip": "",
+                "guideTitle": "Need more help? View Product Guide ",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Conductivity"
                 },
                 "simple": [
                     {
-                        "body": "Attach to Station\nScrew the Conductivity Probe cable into the Conductivity Module Board.",
+                        "body": "#Attach to Station\nScrew the Conductivity Probe cable into the Conductivity Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_46_249a8d8dd5.png"
@@ -532,7 +537,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Do you have everything?\nCollect the Dissolved Oxygen Probe.\n\nThe Dissolved Oxygen Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\nCollect the Dissolved Oxygen Probe.\n\n## The Dissolved Oxygen Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_48_764d104c39.png"
@@ -549,16 +554,16 @@
                 "name": "onboarding.do.02",
                 "locale": "en_US",
                 "forward": "Calibrate Sensors",
-                "skip": "Need more help? View Product Guide",
-                "guideTitle": null,
-                "guideUrl": null,
+                "skip": "",
+                "guideTitle": "Need more help? View Product Guide",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Dissolved Oxygen"
                 },
                 "simple": [
                     {
-                        "body": "Attach to Station\nScrew the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
+                        "body": "#Attach to Station\n##Screw the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_50_8834adfd6d.png"
@@ -584,7 +589,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Do you have everything?\nCollect the Water Temperature Probe.\n\nThe Water Temperature Module Board should already be attached to your station.",
+                        "body": "#Do you have everything?\nCollect the Water Temperature Probe.\n\n##The Water Temperature Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_52_6bd200df41.png"
@@ -601,16 +606,16 @@
                 "name": "onboarding.watertemp.02",
                 "locale": "en_US",
                 "forward": "Complete Setup",
-                "skip": "Need more help? View Product Guide",
-                "guideTitle": null,
-                "guideUrl": null,
+                "skip": "",
+                "guideTitle": "Need more help? View Product Guide",
+                "guideUrl": "https://www.fieldkit.org/product-guide/set-up-station/#set-up-modules",
                 "header": {
                     "title": "Set Up",
                     "subtitle": "Water Temperature"
                 },
                 "simple": [
                     {
-                        "body": "Attach to Station\nScrew the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
+                        "body": "#Attach to Station\nScrew the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_54_144e3748ce.png"
@@ -636,7 +641,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Do you have everything?\nCollect the Distance Pack:\n\nA) CAT5 Cable\nB) Distance Sensor Board\nC) Ultrasonic Rangefinder     \n\nThe Distance Module Board should already be attached to your station.",
+                        "body": "#Do you have everything?\nCollect the Distance Pack:\n\nA) CAT5 Cable\nB) Distance Sensor Board\nC) Ultrasonic Rangefinder     \n\n##The Distance Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_56_69c1d0dd93.png"
@@ -662,7 +667,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Insert CAT5 Cable\nInsert one end of the CAT5 cable. Make sure you insert it the right way round.",
+                        "body": "#Insert CAT5 Cable\nInsert one end of the CAT5 cable. Make sure you insert it the right way round.",
                         "images": [
                             {
                                 "url": "/uploads/TI_58_8615906cb3.png"
@@ -691,7 +696,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the distance module board.",
+                        "body": "#Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the distance module board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_61_d487cfcc1b.png"
@@ -717,7 +722,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Do you have everything?\nCollect the Weather Pack:\n\nA) Stevenson Screen + Arm\nB) Weather Sensor Board\nC) CAT5 Cable\nD) Rain Gauge + Arm\nE) Anemometer and Wind Vane + Arm\nF) Mounting Pole (a) + (b)\nG) Hose Clamps\nH) Screws\n\nThe Weather Module Board should already be attached to your station.",
+                        "body": "#Do you have everything?\nCollect the Weather Pack:\n\nA) Stevenson Screen + Arm\nB) Weather Sensor Board\nC) CAT5 Cable\nD) Rain Gauge + Arm\nE) Anemometer and Wind Vane + Arm\nF) Mounting Pole (a) + (b)\nG) Hose Clamps\nH) Screws\n\n##The Weather Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_26_2e8af5beca.png"
@@ -746,7 +751,7 @@
                 },
                 "simple": [
                     {
-                        "body": "Insert CAT5 Cable\nInsert one end of the CAT5 cable into the Weather Sensor Board. Make sure you insert it the right way round.",
+                        "body": "#Insert CAT5 Cable\nInsert one end of the CAT5 cable into the Weather Sensor Board. Make sure you insert it the right way round.",
                         "images": [
                             {
                                 "url": "/uploads/TI_29_04490e357c.png"
@@ -758,6 +763,25 @@
                                 "url": "/uploads/TI_31_182d1a91b6.png"
                             }
                         ]
+                    }
+                ]
+            },
+            {
+                "id": "39",
+                "name": "examples.01",
+                "locale": "en_US",
+                "forward": "Forward",
+                "skip": "Skip",
+                "guideTitle": "Guide",
+                "guideUrl": "https://www.google.com",
+                "header": {
+                    "title": "Example Title",
+                    "subtitle": "Example Subtitle"
+                },
+                "simple": [
+                    {
+                        "body": "# Heading\n\n## Another header\n\nParagraph of text, hello there how are you doing I hope this finds you well.\n\nLEFT             | RIGHT\n---------------|-------------\n1. Flour         | 500g\n2. Water       | 220g\n3. Salt           | 1/4 tsp\n\nTables don't need to line up exactly in this editor, though that makes things easier to read.",
+                        "images": []
                     }
                 ]
             }
