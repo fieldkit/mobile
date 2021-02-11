@@ -57,7 +57,7 @@ A            | B
                     {
                         type: "StackLayout",
                         props: {
-                            class: "md-heading md-heading-${node.depth}",
+                            class: "md-heading md-heading-1",
                         },
                         children: [
                             {
@@ -72,7 +72,7 @@ A            | B
                     {
                         type: "StackLayout",
                         props: {
-                            class: "md-heading md-heading-${node.depth}",
+                            class: "md-heading md-heading-2",
                         },
                         children: [
                             {
@@ -430,7 +430,7 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                     {
                         type: "StackLayout",
                         props: {
-                            class: "md-heading md-heading-${node.depth}",
+                            class: "md-heading md-heading-1",
                         },
                         children: [
                             {
@@ -445,7 +445,7 @@ Tables don't need to line up exactly in this editor, though that makes things ea
                     {
                         type: "StackLayout",
                         props: {
-                            class: "md-heading md-heading-${node.depth}",
+                            class: "md-heading md-heading-2",
                         },
                         children: [
                             {

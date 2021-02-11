@@ -78,7 +78,7 @@ function createContext(): Context {
         },
         heading: (node, parent, context): MdNode => {
             const children = basic(node, parent, context);
-            return { type: "StackLayout", props: { class: "md-heading md-heading-${node.depth}" }, children: children };
+            return { type: "StackLayout", props: { class: `md-heading md-heading-${node.depth}` }, children: children };
         },
     };
 

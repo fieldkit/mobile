@@ -30,6 +30,7 @@ GridLayout {
 }
 
 .md-tree {
+    // background-color: #a0a0a0;
     padding: 20;
     color: $fk-primary-black;
     text-align: center;
@@ -39,21 +40,22 @@ GridLayout {
 .md-heading {
     color: $fk-primary-black;
     text-align: center;
-    font-size: 16;
     font-weight: bold;
-    font-size: 18;
     margin-bottom: 20;
 }
 
-.md-heading-0 {
-    font-size: 18pt;
+.md-heading-1 {
+    // background-color: #ddbb00;
+    font-size: 18;
 }
 
-.md-heading-1 {
-    font-size: 8pt;
+.md-heading-2 {
+    // background-color: #aabb00;
+    font-size: 12;
 }
 
 .md-list {
+    // background-color: #00a0a0;
     margin-top: 20;
 }
 
@@ -63,5 +65,11 @@ GridLayout {
     font-size: 16;
     margin-right: 30;
     margin-left: 30;
+}
+
+.md-grid {
+    // background-color: #00aa00;
+    margin-top: 20;
+    margin-bottom: 20;
 }
 </style>
