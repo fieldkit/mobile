@@ -2,39 +2,39 @@ module.exports = {
     modules: {
         water: {
             ec: {
-                name: "Water Conductivity",
+                name: "Conductivity",
                 sensors: {
                     ec: "Conductivity",
                     tds: "Total Dissolved Solids",
-                    salinity: "Salinity"
-                }
+                    salinity: "Salinity",
+                },
             },
             ph: {
-                name: "Water pH",
+                name: "pH",
                 sensors: {
-                    ph: "pH"
-                }
+                    ph: "pH",
+                },
             },
             do: {
-                name: "Water Dissolved Oxygen",
+                name: "Dissolved Oxygen",
                 sensors: {
-                    do: "Dissolved Oxygen"
-                }
+                    do: "Dissolved Oxygen",
+                },
             },
             temp: {
                 name: "Water Temperature",
                 sensors: {
-                    temp: "Temperature"
-                }
+                    temp: "Temperature",
+                },
             },
             orp: {
-                name: "Water ORP",
+                name: "ORP",
                 sensors: {
-                    orp: "ORP"
-                }
+                    orp: "ORP",
+                },
             },
             unknown: {
-                name: "Water"
+                name: "Water",
             },
         },
         weather: {
@@ -55,8 +55,8 @@ module.exports = {
                 wind_2m_avg_speed: "Wind Average Speed (2 min)",
                 wind_2m_avg_dir: "Wind Average Direction (2 min)",
                 rain_this_hour: "Rain This Hour",
-                rain_prev_hour: "Rain Previous Hour"
-            }
+                rain_prev_hour: "Rain Previous Hour",
+            },
         },
         distance: {
             name: "Distance",
@@ -64,8 +64,8 @@ module.exports = {
                 distance_0: "Distance 0",
                 distance_1: "Distance 1",
                 distance_2: "Distance 2",
-                calibration: "Calibration"
-            }
+                calibration: "Calibration",
+            },
         },
         diagnostics: {
             name: "Diagnostics",
@@ -78,8 +78,8 @@ module.exports = {
                 battery_power: "Battery Power",
                 free_memory: "Free Memory",
                 uptime: "Uptime",
-                temperature: "Temperature"
-            }
+                temperature: "Temperature",
+            },
         },
         random: {
             name: "Random",
@@ -93,8 +93,8 @@ module.exports = {
                 random_6: "Random 6",
                 random_7: "Random 7",
                 random_8: "Random 8",
-                random_9: "Random 9"
-            }
-        }
-    }
-}
+                random_9: "Random 9",
+            },
+        },
+    },
+};
