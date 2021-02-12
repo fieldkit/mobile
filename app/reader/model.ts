@@ -94,6 +94,16 @@ function screenOrder(screen: Screen): number {
     return Number(screen.name.replace(/[a-z.]+/, ""));
 }
 
+function getFlowForScreen(name: string): string {
+    return name.replace(/\.\d+$/, "");
+}
+
+export function getFlowNames(flowFile: FlowFile): string[] {
+    const screenNames = flowFile.data.screens.map((s) => s.name);
+    const flowsFromScreens = screenNames.map((name) => getFlowForScreen(name));
+    return _.uniq(flowsFromScreens);
+}
+
 export class FlowNavigator {
     public readonly flow: Flow;
     private screens: Screen[];
@@ -110,18 +120,20 @@ export class FlowNavigator {
 
     constructor(data: FlowFile, name: string) {
         const byKey = _.keyBy(data.data.flows, (f) => f.name);
-        if (!byKey[name]) throw new Error(`no flow: ${name}`);
+        if (!byKey[name]) {
+            this.flow = {
+                id: "virtual",
+                name: name,
+                showProgress: true,
+            };
+        }
         this.flow = byKey[name];
-        this.screens = data.data.screens.filter((screen) => this.getFlowForScreen(screen.name) == name);
+        this.screens = data.data.screens.filter((screen) => getFlowForScreen(screen.name) == name);
         if (this.screens.length == 0) throw new Error(`no screens: ${name}`);
         this.screens.sort((a, b) => {
             return screenOrder(a) - screenOrder(b);
         });
         this.visible = this.createVisibleScreen();
-    }
-
-    private getFlowForScreen(name: string): string {
-        return name.replace(/\.\d+$/, "");
     }
 
     private createVisibleScreen(): VisibleScreen {

@@ -75,7 +75,7 @@ import DiagnosticsModal from "./DiagnosticsModal.vue";
 import SharedComponents from "@/components/shared";
 
 import flows from "@/data/flows.json";
-import { FlowFile } from "@/reader/model";
+import { FlowFile, getFlowNames } from "@/reader/model";
 
 interface EnvOption {
     display: string;
@@ -141,7 +141,7 @@ export default Vue.extend({
             return Services.DiscoverStation().monitoring;
         },
         flowNames(): string[] {
-            return flows.data.flows.map((f) => f.name);
+            return getFlowNames(flows);
         },
     },
     methods: {
