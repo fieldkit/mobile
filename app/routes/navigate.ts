@@ -1,13 +1,16 @@
 import _ from "lodash";
 import { Component } from "vue";
+import { VueConstructor } from "vue/types/vue";
+import { Page } from "@nativescript/core";
+import { NavigationEntryVue } from "nativescript-vue";
 import { NavigationMutation } from "@/store/mutations";
 import { Store } from "@/store/our-store";
 import { Frame } from "@nativescript/core";
 
 export interface NavigateOptions {
-    clearHistory: boolean | null;
-    props: Record<string, unknown> | null;
-    frame: string | null;
+    clearHistory: boolean | undefined;
+    props: Record<string, any> | undefined;
+    frame: string | undefined;
 }
 
 export interface RouteState {
@@ -53,11 +56,11 @@ export class Route {
     }
 }
 
-// eslint-disable-next-line
-type NavigateToFunc = (page: any, options: NavigateOptions | null) => Promise<void>;
+export type NavigateToFunc = (component: VueConstructor | Route, options?: NavigationEntryVue, cb?: () => Page) => Promise<Page>;
 
 function addDefaults(options: NavigateOptions | null): NavigateOptions {
     const frame = Frame.topmost();
+    if (!frame) throw new Error(`no top frame`);
     const defaults = {
         frame: frame ? frame.id : null,
         transition: {
@@ -69,17 +72,20 @@ function addDefaults(options: NavigateOptions | null): NavigateOptions {
 
 export default function navigatorFactory(store: Store, navigateTo: NavigateToFunc) {
     // eslint-disable-next-line
-    return (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<void> => {
+    return async (pageOrRoute: Route | any, options: NavigateOptions | null): Promise<void> => {
         const withDefaults = addDefaults(options);
         if (pageOrRoute instanceof Route) {
             // eslint-disable-next-line
             const page = pageOrRoute.page as any;
             // eslint-disable-next-line
             store.commit(new NavigationMutation(withDefaults.frame || "", page.options.name || "", page.options.__file || ""));
-            return navigateTo(pageOrRoute.page, withDefaults);
+            await navigateTo(pageOrRoute.page as VueConstructor, withDefaults);
+        } else {
+            store.commit(
+                // eslint-disable-next-line
+                new NavigationMutation(withDefaults.frame || "", pageOrRoute.options.name || "", pageOrRoute.options.__file || "")
+            );
+            await navigateTo(pageOrRoute, withDefaults);
         }
-        // eslint-disable-next-line
-        store.commit(new NavigationMutation(withDefaults.frame || "", pageOrRoute.options.name || "", pageOrRoute.options.__file || ""));
-        return navigateTo(pageOrRoute, withDefaults);
     };
 }

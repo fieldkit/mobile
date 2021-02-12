@@ -7,8 +7,6 @@ import { OurStore } from "@/store";
 
 type showModal = (component: typeof Vue, options?: ModalOptions) => Promise<unknown>;
 
-export type navigateTo = (component: VueConstructor | Route, options?: NavigationEntryVue, cb?: () => Page) => Promise<Page>;
-
 declare module "vue/types/vue" {
     interface Vue {
         $navigateTo: navigateTo; // (where: any, options: any): Promise<void>;

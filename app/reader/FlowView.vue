@@ -40,7 +40,7 @@ import Vue, { PropType } from "vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import PlatformHeader from "@/components/PlatformHeader";
-import routes, { SavedRoute } from "@/routes";
+import { navigateKnown, KnownRoute } from "@/routes";
 import { Timer } from "@/common/timer";
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 import { getFlows } from "./download";
@@ -59,21 +59,15 @@ export default Vue.extend({
             required: true,
         },
         finished: {
-            type: Object as PropType<SavedRoute>,
+            type: Object as PropType<KnownRoute>,
             default: () => {
-                return {
-                    name: "tabbed",
-                    props: {},
-                };
+                return KnownRoute.Main;
             },
         },
         skipped: {
-            type: Object as PropType<SavedRoute>,
+            type: Object as PropType<KnownRoute>,
             default: () => {
-                return {
-                    name: "tabbed",
-                    props: {},
-                };
+                return KnownRoute.Main;
             },
         },
     },
@@ -139,11 +133,8 @@ export default Vue.extend({
             console.log("flow-view: cancel", this.screen.name);
             await this.leave(this.skipped);
         },
-        async leave(route: SavedRoute): Promise<void> {
-            await this.$navigateTo(routes[route.name], {
-                frame: "outer-frame",
-                props: route.props,
-            });
+        async leave(route: KnownRoute): Promise<void> {
+            await navigateKnown(this.$navigateTo, route);
         },
     },
 });

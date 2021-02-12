@@ -43,7 +43,7 @@
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
-                <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" />
+                <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" :isEnabled="!busy" />
 
                 <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
                     <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />
@@ -66,7 +66,7 @@ import Config from "@/config";
 
 import { serializePromiseChain } from "@/utilities";
 import { DownloadsDirectory, getFilePath, getFileName, listAllFiles } from "@/lib/fs";
-import routes from "@/routes";
+import routes, { KnownRoute } from "@/routes";
 import Services from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import { testWithFiles } from "@/lib/testing";
@@ -263,12 +263,15 @@ export default Vue.extend({
                 frame: "outer-frame",
                 props: {
                     flowName: name,
+                    finished: KnownRoute.Developer,
+                    skipped: KnownRoute.Developer,
                 },
             });
         },
         async loadFlows(): Promise<void> {
+            this.busy = true;
             this.flows = await download("https://strapi.conservify.org");
-            await Promise.resolve();
+            this.busy = false;
         },
         async goOnboarding(): Promise<void> {
             await this.$navigateTo(routes.onboarding.assembleStation, {

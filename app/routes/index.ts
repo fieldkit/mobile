@@ -52,11 +52,47 @@ import CompleteSettings from "~/components/onboarding/CompleteSettings.vue";
 
 import TabbedLayout from "~/components/TabbedLayout.vue";
 
-import { inferNames, Route } from "./navigate";
+import { getBus } from "@/components/NavigationBus";
+import { inferNames, NavigateToFunc, Route } from "./navigate";
+// import { Frame } from "@nativescript/core";
 
 export interface SavedRoute {
-    name: string;
-    props: Record<string, unknown>;
+    go(): Promise<void>;
+}
+
+export enum KnownRoute {
+    Main = "main",
+    AppSettings = "appSettings",
+    Developer = "developer",
+}
+
+const knownRoutes = {
+    [KnownRoute.Main]: async (navigateTo: NavigateToFunc): Promise<void> => {
+        await navigateTo(routes.tabbed, {
+            frame: "outer-frame",
+        });
+    },
+    [KnownRoute.AppSettings]: async (navigateTo: NavigateToFunc): Promise<void> => {
+        await navigateTo(routes.tabbed, {
+            clearHistory: true,
+            frame: "outer-frame",
+        });
+        getBus().$emit("open-settings", "list");
+    },
+    [KnownRoute.Developer]: async (navigateTo: NavigateToFunc): Promise<void> => {
+        await navigateTo(routes.tabbed, {
+            clearHistory: true,
+            frame: "outer-frame",
+        });
+        getBus().$emit("open-settings", "developer");
+    },
+};
+
+export async function navigateKnown(navigateFn: NavigateToFunc, route: KnownRoute): Promise<void> {
+    const handler = knownRoutes[route];
+    if (!handler) throw new Error(`no such route`);
+    console.log(`navigate: route ${route}`);
+    await handler(navigateFn);
 }
 
 const routes = {

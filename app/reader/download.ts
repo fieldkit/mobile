@@ -42,8 +42,8 @@ export async function download(baseUrl: string): Promise<FlowFile> {
         method: "POST",
         url: baseUrl + "/graphql",
         data: query,
-        transformResponse: (res) => {
-            const fixed = res.replace(String.fromCharCode(8232), "\\n");
+        transformResponse: (res: string): unknown => {
+            const fixed: string = res.replace(String.fromCharCode(8232), "\\n");
             return JSON.parse(fixed);
         },
     });

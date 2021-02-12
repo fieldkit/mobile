@@ -75,10 +75,10 @@ export default Vue.extend({
         this.$s.commit(new NavigationMutation("data-frame", "DataSync", ""));
         this.$s.commit(new NavigationMutation("settings-frame", "AppSettingsView", ""));
 
-        getBus().$on("open-settings", (data) => {
-            console.log("open-settings", data);
+        getBus().$on("open-settings", (name: string | null) => {
+            console.log("open-settings", name);
             // eslint-disable-next-line
-            void this.$navigateTo(routes.appSettings[data], {
+            void this.$navigateTo(routes.appSettings[name || "list"], {
                 frame: "settings-frame",
                 animated: false,
                 transition: {

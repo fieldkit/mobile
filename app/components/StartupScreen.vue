@@ -59,6 +59,7 @@ export default Vue.extend({
                     clearHistory: true,
                 });
             }
+            /*
             await this.$navigateTo(route, {
                 clearHistory: true,
                 frame: "stations-frame",
@@ -68,6 +69,7 @@ export default Vue.extend({
                     flowName: "onboarding",
                 },
             });
+			*/
 
             return;
         }
