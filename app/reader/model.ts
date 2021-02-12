@@ -110,6 +110,12 @@ export class FlowNavigator {
     private visible: VisibleScreen;
     private index = 0;
 
+    static None = new FlowNavigator({ data: { flows: [], screens: [] } }, "");
+
+    public get ready(): boolean {
+        return this.screens.length > 0;
+    }
+
     public get progress(): number {
         return (this.index / (this.screens.length - 1)) * 100.0;
     }
@@ -129,7 +135,6 @@ export class FlowNavigator {
         }
         this.flow = byKey[name];
         this.screens = data.data.screens.filter((screen) => getFlowForScreen(screen.name) == name);
-        if (this.screens.length == 0) throw new Error(`no screens: ${name}`);
         this.screens.sort((a, b) => {
             return screenOrder(a) - screenOrder(b);
         });

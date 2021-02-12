@@ -329,7 +329,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Connect Rain Gauge\nTurn over the Weather Sensor Board, and insert the RJ11 jack from the Rain Gauge into the slot on the Weather Sensor Board marked “RAIN.”",
+                        "body": "# Connect Rain Gauge\n\nTurn over the Weather Sensor Board, and insert the RJ11 jack from the Rain Gauge into the slot on the Weather Sensor Board marked “RAIN.”",
                         "images": [
                             {
                                 "url": "/uploads/TI_32_ea3474ae96.png"
@@ -355,7 +355,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Connect Anemometer and Wind Vane\nInsert the RJ11 jack from the Wind Vane into the slot on the Weather Sensor Board marked “WIND.” Insert the RJ11 jack from the Anemometer into the Wind Vane so that they are connected.",
+                        "body": "# Connect Anemometer and Wind Vane\n\nInsert the RJ11 jack from the Wind Vane into the slot on the Weather Sensor Board marked “WIND.” Insert the RJ11 jack from the Anemometer into the Wind Vane so that they are connected.",
                         "images": [
                             {
                                 "url": "/uploads/TI_35_77a7e23703.png"
@@ -381,7 +381,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Place Stevenson Screen\nInsert the Weather Sensor Board into the Stevenson Screen. Attach the enclosed board to the Arm.",
+                        "body": "# Place Stevenson Screen\n\nInsert the Weather Sensor Board into the Stevenson Screen. Attach the enclosed board to the Arm.",
                         "images": [
                             {
                                 "url": "/uploads/TI_37_d407eb532d.png"
@@ -407,7 +407,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the Weather Module Board.",
+                        "body": "# Attach to Station\n\nMake sure that the other end of the CAT5 cable is securely inserted into the Weather Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_38_5c371cef29.png"
@@ -433,7 +433,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Do you have everything?\nCollect the pH Probe.\n\n##The pH Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the pH Probe.\n\n## The pH Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_41_ee59861b57.png"
@@ -459,7 +459,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Attach to Station\nScrew the pH Probe cable into the pH Module Board.",
+                        "body": "# Attach to Station\n\nScrew the pH Probe cable into the pH Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_42_c6bf2633fc.png"
@@ -485,7 +485,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Do you have everything?\nCollect the Conductivity Probe.\n\n##The Conductivity Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\nCollect the Conductivity Probe.\n\n## The Conductivity Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_44_d448775f78.png"
@@ -511,7 +511,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Attach to Station\nScrew the Conductivity Probe cable into the Conductivity Module Board.",
+                        "body": "# Attach to Station\n\nScrew the Conductivity Probe cable into the Conductivity Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_46_249a8d8dd5.png"
@@ -563,7 +563,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Attach to Station\n##Screw the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
+                        "body": "# Attach to Station\n## Screw the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_50_8834adfd6d.png"
@@ -589,7 +589,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Do you have everything?\nCollect the Water Temperature Probe.\n\n##The Water Temperature Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the Water Temperature Probe.\n\n## The Water Temperature Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_52_6bd200df41.png"
@@ -615,7 +615,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Attach to Station\nScrew the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
+                        "body": "# Attach to Station\n\nScrew the Dissolved Oxygen Probe cable into the Dissolved Oxygen Module Board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_54_144e3748ce.png"
@@ -641,7 +641,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Do you have everything?\nCollect the Distance Pack:\n\nA) CAT5 Cable\nB) Distance Sensor Board\nC) Ultrasonic Rangefinder     \n\n##The Distance Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\nCollect the Distance Pack:\n\nA) CAT5 Cable\nB) Distance Sensor Board\nC) Ultrasonic Rangefinder     \n\n## The Distance Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_56_69c1d0dd93.png"
@@ -667,7 +667,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Insert CAT5 Cable\nInsert one end of the CAT5 cable. Make sure you insert it the right way round.",
+                        "body": "# Insert CAT5 Cable\nInsert one end of the CAT5 cable. Make sure you insert it the right way round.",
                         "images": [
                             {
                                 "url": "/uploads/TI_58_8615906cb3.png"
@@ -696,7 +696,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the distance module board.",
+                        "body": "# Attach to Station\nMake sure that the other end of the CAT5 cable is securely inserted into the distance module board.",
                         "images": [
                             {
                                 "url": "/uploads/TI_61_d487cfcc1b.png"
@@ -722,7 +722,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Do you have everything?\nCollect the Weather Pack:\n\nA) Stevenson Screen + Arm\nB) Weather Sensor Board\nC) CAT5 Cable\nD) Rain Gauge + Arm\nE) Anemometer and Wind Vane + Arm\nF) Mounting Pole (a) + (b)\nG) Hose Clamps\nH) Screws\n\n##The Weather Module Board should already be attached to your station.",
+                        "body": "# Do you have everything?\n\nCollect the Weather Pack:\n\nA) Stevenson Screen + Arm\nB) Weather Sensor Board\nC) CAT5 Cable\nD) Rain Gauge + Arm\nE) Anemometer and Wind Vane + Arm\nF) Mounting Pole (a) + (b)\nG) Hose Clamps\nH) Screws\n\n## The Weather Module Board should already be attached to your station.",
                         "images": [
                             {
                                 "url": "/uploads/TI_26_2e8af5beca.png"
@@ -751,7 +751,7 @@
                 },
                 "simple": [
                     {
-                        "body": "#Insert CAT5 Cable\nInsert one end of the CAT5 cable into the Weather Sensor Board. Make sure you insert it the right way round.",
+                        "body": "# Insert CAT5 Cable\n\nInsert one end of the CAT5 cable into the Weather Sensor Board. Make sure you insert it the right way round.",
                         "images": [
                             {
                                 "url": "/uploads/TI_29_04490e357c.png"

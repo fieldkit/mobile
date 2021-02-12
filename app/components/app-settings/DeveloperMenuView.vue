@@ -43,7 +43,9 @@
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
-                <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta">
+                <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" />
+
+                <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
                     <Button class="btn btn-primary btn-padded flow" :text="'Flow: ' + name" @tap="openFlow(name)" />
                 </StackLayout>
             </FlexboxLayout>
@@ -74,8 +76,8 @@ import Recalibrate from "../onboarding/Recalibrate.vue";
 import DiagnosticsModal from "./DiagnosticsModal.vue";
 import SharedComponents from "@/components/shared";
 
-import flows from "@/data/flows.json";
 import { FlowFile, getFlowNames } from "@/reader/model";
+import { download } from "@/reader/download";
 
 interface EnvOption {
     display: string;
@@ -94,13 +96,13 @@ export default Vue.extend({
         status: StatusMessages[];
         syncing: boolean;
         busy: boolean;
-        flows: FlowFile;
+        flows: FlowFile | null;
     } {
         return {
             status: [],
             syncing: false,
             busy: false,
-            flows: flows,
+            flows: null,
         };
     },
     components: {
@@ -141,7 +143,10 @@ export default Vue.extend({
             return Services.DiscoverStation().monitoring;
         },
         flowNames(): string[] {
-            return getFlowNames(flows);
+            if (this.flows) {
+                return getFlowNames(this.flows);
+            }
+            return [];
         },
     },
     methods: {
@@ -260,6 +265,10 @@ export default Vue.extend({
                     flowName: name,
                 },
             });
+        },
+        async loadFlows(): Promise<void> {
+            this.flows = await download("https://strapi.conservify.org");
+            await Promise.resolve();
         },
         async goOnboarding(): Promise<void> {
             await this.$navigateTo(routes.onboarding.assembleStation, {

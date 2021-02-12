@@ -1,35 +1,37 @@
 <template>
     <Page class="page" @navigatingTo="onNavigatingTo">
-        <PlatformHeader
-            :title="screen.header.title"
-            :canCancel="true"
-            :canNavigateSettings="false"
-            :canNavigateBack="screen.navOptions.backward.allowed"
-            :onBack="onBackward"
-            :onCancel="onCancel"
-        />
-        <GridLayout rows="auto,*,auto" class="container">
-            <FlowProgress row="0" :progress="progress" />
-            <ScrollView row="1" class="container">
-                <SimpleScreen
-                    v-if="screen.simple.length >= 1"
-                    :screen="screen.simple[0]"
-                    :frame="frame"
-                    class="simple-screen-container"
-                    v-bind:key="nav.key"
-                />
-            </ScrollView>
-            <StackLayout row="2" class="m-x-10">
-                <Button
-                    class="btn btn-primary btn-padded"
-                    :text="screen.forward"
-                    :isEnabled="screen.navOptions.forward.allowed"
-                    @tap="onForward"
-                />
-                <Label v-if="screen.guide" :text="screen.guide.title" class="guide" textWrap="true" @tap="onGuide(screen.guide.url)" />
-                <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="onSkip" />
-            </StackLayout>
-        </GridLayout>
+        <template v-if="ready">
+            <PlatformHeader
+                :title="screen.header.title"
+                :canCancel="true"
+                :canNavigateSettings="false"
+                :canNavigateBack="screen.navOptions.backward.allowed"
+                :onBack="onBackward"
+                :onCancel="onCancel"
+            />
+            <GridLayout rows="auto,*,auto" class="container">
+                <FlowProgress row="0" :progress="progress" />
+                <ScrollView row="1" class="container">
+                    <SimpleScreen
+                        v-if="screen.simple.length >= 1"
+                        :screen="screen.simple[0]"
+                        :frame="frame"
+                        class="simple-screen-container"
+                        v-bind:key="nav.key"
+                    />
+                </ScrollView>
+                <StackLayout row="2" class="m-x-10">
+                    <Button
+                        class="btn btn-primary btn-padded"
+                        :text="screen.forward"
+                        :isEnabled="screen.navOptions.forward.allowed"
+                        @tap="onForward"
+                    />
+                    <Label v-if="screen.guide" :text="screen.guide.title" class="guide" textWrap="true" @tap="onGuide(screen.guide.url)" />
+                    <Label v-if="screen.skip" :text="screen.skip" class="skip" textWrap="true" @tap="onSkip" />
+                </StackLayout>
+            </GridLayout>
+        </template>
     </Page>
 </template>
 
@@ -38,10 +40,10 @@ import Vue, { PropType } from "vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import PlatformHeader from "@/components/PlatformHeader";
-import flows from "@/data/flows.json";
 import routes, { SavedRoute } from "@/routes";
 import { Timer } from "@/common/timer";
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
+import { getFlows } from "./download";
 import * as utils from "@nativescript/core/utils/utils";
 
 export default Vue.extend({
@@ -58,16 +60,20 @@ export default Vue.extend({
         },
         finished: {
             type: Object as PropType<SavedRoute>,
-            default: {
-                name: "tabbed",
-                props: {},
+            default: () => {
+                return {
+                    name: "tabbed",
+                    props: {},
+                };
             },
         },
         skipped: {
             type: Object as PropType<SavedRoute>,
-            default: {
-                name: "tabbed",
-                props: {},
+            default: () => {
+                return {
+                    name: "tabbed",
+                    props: {},
+                };
             },
         },
     },
@@ -76,23 +82,27 @@ export default Vue.extend({
         timer: Timer | null;
     } {
         return {
-            nav: new FlowNavigator(flows, this.flowName),
+            nav: FlowNavigator.None,
             timer: null,
         };
     },
     computed: {
+        ready(): boolean {
+            return this.nav.ready;
+        },
         frame(): number {
             return this.timer?.counter || 0;
         },
         screen(): VisibleScreen {
-            console.log("screen", this.nav.screen);
             return this.nav.screen;
         },
         progress(): number {
             return this.nav.progress;
         },
     },
-    mounted(): void {
+    async mounted(): Promise<void> {
+        const flows = await getFlows();
+        this.nav = new FlowNavigator(flows, this.flowName);
         this.timer = new Timer(1000, null);
     },
     methods: {
