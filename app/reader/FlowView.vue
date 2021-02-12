@@ -34,12 +34,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import Vue, { PropType } from "vue";
 import FlowProgress from "./FlowProgress.vue";
 import SimpleScreen from "./SimpleScreen.vue";
 import PlatformHeader from "@/components/PlatformHeader";
-import routes from "@/routes";
 import flows from "@/data/flows.json";
+import routes, { SavedRoute } from "@/routes";
 import { Timer } from "@/common/timer";
 import { FlowNavigator, NavigationOption, VisibleScreen } from "./model";
 import * as utils from "@nativescript/core/utils/utils";
@@ -55,6 +55,20 @@ export default Vue.extend({
         flowName: {
             type: String,
             required: true,
+        },
+        finished: {
+            type: Object as PropType<SavedRoute>,
+            default: {
+                name: "tabbed",
+                props: {},
+            },
+        },
+        skipped: {
+            type: Object as PropType<SavedRoute>,
+            default: {
+                name: "tabbed",
+                props: {},
+            },
         },
     },
     data(): {
@@ -87,7 +101,7 @@ export default Vue.extend({
             await this.nav.move(this.screen.navOptions.forward).then(async (done) => {
                 if (done) {
                     console.log("flow-view: done");
-                    await this.leave();
+                    await this.leave(this.finished);
                 }
                 return;
             });
@@ -105,7 +119,7 @@ export default Vue.extend({
         async onSkip(): Promise<void> {
             console.log("flow-view: skip", this.screen.name);
             await this.nav.move(NavigationOption.Skip);
-            await this.leave();
+            await this.leave(this.skipped);
         },
         async onGuide(url: string): Promise<void> {
             utils.openUrl(url);
@@ -113,11 +127,12 @@ export default Vue.extend({
         },
         async onCancel(): Promise<void> {
             console.log("flow-view: cancel", this.screen.name);
-            await this.leave();
+            await this.leave(this.skipped);
         },
-        async leave(): Promise<void> {
-            await this.$navigateTo(routes.tabbed, {
+        async leave(route: SavedRoute): Promise<void> {
+            await this.$navigateTo(routes[route.name], {
                 frame: "outer-frame",
+                props: route.props,
             });
         },
     },

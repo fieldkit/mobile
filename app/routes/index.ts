@@ -54,6 +54,11 @@ import TabbedLayout from "~/components/TabbedLayout.vue";
 
 import { inferNames, Route } from "./navigate";
 
+export interface SavedRoute {
+    name: string;
+    props: Record<string, unknown>;
+}
+
 const routes = {
     login: new Route(Login, { login: true }),
     tabbed: new Route(TabbedLayout, {}),
