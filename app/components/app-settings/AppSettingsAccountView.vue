@@ -34,15 +34,16 @@
                         </GridLayout>
                         <StackLayout v-if="opened(account)" class="details-container">
                             <Label :text="'Last synchronized at ' + prettyTime(account.lastSynced)" />
-                            <Button text="Log Out" v-if="account.token && false" />
-                            <Button text="Log In" v-if="!account.token && false" />
+                            <Button class="btn" text="Log Out" v-if="account.token && false" />
+                            <Button class="btn" text="Log In" v-if="!account.token && false" />
                             <Button
+                                class="btn"
                                 text="Switch"
                                 @tap="onChooseAccount(account)"
                                 v-if="!currentUser || currentUser.email != account.email"
                             />
-                            <Button text="Remove" @tap="onRemove(account)" />
-                            <Button text="Sync" @tap="onSync(account)" />
+                            <Button class="btn" text="Remove" @tap="onRemove(account)" />
+                            <Button class="btn" text="Sync" @tap="onSync(account)" />
                         </StackLayout>
                     </StackLayout>
                     <GridLayout rows="50" columns="20, *" @tap="addAccount" class="m-t-15 m-r-20 m-l-20">
@@ -205,7 +206,7 @@ export default Vue.extend({
 .details-container {
     margin-top: 10;
     padding-top: 15;
-    padding-bottom: 10;
+    padding-bottom: 5;
     border-top-color: $fk-gray-lighter;
     border-top-width: 1;
 }
