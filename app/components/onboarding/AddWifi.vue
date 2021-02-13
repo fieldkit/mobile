@@ -13,18 +13,12 @@
 
                     <StackLayout row="2" class="field-container">
                         <Label text="SSID" />
-                        <TextField class="text-field" v-model="form.ssid" autocorrect="false" autocapitalizationType="none" />
+                        <TextField class="input" v-model="form.ssid" autocorrect="false" autocapitalizationType="none" />
                     </StackLayout>
 
                     <StackLayout row="3" class="field-container">
                         <Label text="Password" />
-                        <TextField
-                            class="text-field"
-                            v-model="form.password"
-                            autocorrect="false"
-                            autocapitalizationType="none"
-                            secure="true"
-                        />
+                        <TextField class="input" v-model="form.password" autocorrect="false" autocapitalizationType="none" secure="true" />
                     </StackLayout>
                 </GridLayout>
             </ScrollView>
@@ -137,9 +131,6 @@ export default Vue.extend({
 <style scoped lang="scss">
 @import "~/_app-variables";
 
-.text-field {
-    //
-}
 .small {
     width: 50;
     margin: 20;

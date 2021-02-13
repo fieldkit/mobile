@@ -103,3 +103,12 @@ h1 {
 .fa {
     font-family: "FontAwesome";
 }
+
+TextField {
+    border-bottom-color: $fk-gray-lighter;
+    border-bottom-width: 1;
+    color: $fk-primary-black;
+    padding-bottom: 5;
+    width: 100%;
+    font-size: 18;
+}
