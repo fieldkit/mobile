@@ -102,5 +102,20 @@ export default Vue.extend({
     border-top-color: $fk-tertiary-red;
     border-top-width: 2;
     padding-top: 5;
+    padding-bottom: 5;
+}
+
+.ns-ios .heading {
+    margin-top: 10;
+}
+
+.ns-ios TextField {
+    margin-left: 10;
+    margin-top: 10;
+    margin-bottom: 10;
+}
+
+.ns-android TextField {
+    margin-bottom: 10;
 }
 </style>

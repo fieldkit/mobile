@@ -24,9 +24,13 @@ export default Vue.extend({
 
 .disconnect-warning {
     padding-top: 10;
+    padding-bottom: 10;
     color: $fk-primary-black;
     font-size: 16;
     background-color: #fddb7a;
-    height: 40;
+}
+
+.ns-ios .disconnect-warning {
+    margin-top: 5;
 }
 </style>

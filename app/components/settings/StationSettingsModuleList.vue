@@ -89,6 +89,7 @@ export default Vue.extend({
     margin: 5;
     text-decoration: underline;
 }
+
 .hint-color {
     color: $fk-gray-hint;
 }

@@ -22,6 +22,11 @@
                     <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
                     <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
                 </StackLayout>
+
+                <!-- This is so dumb. This keeps the final container
+                from expanding in weird ways. No idea why and no time
+                to dig deeper. -->
+                <Label text=" " />
             </StackLayout>
 
             <StackLayout row="2">
@@ -130,7 +135,7 @@ export default Vue.extend({
     text-align: center;
     color: #2c3e50;
     font-size: 18px;
-    padding: 20;
+    padding-bottom: 20;
 }
 .choice-why {
     text-align: center;
@@ -162,5 +167,8 @@ export default Vue.extend({
 .strategy-container .help {
     font-size: 14px;
     color: #2c3e50;
+}
+.btn-padded {
+    margin-top: 10;
 }
 </style>

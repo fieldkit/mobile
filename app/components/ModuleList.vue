@@ -4,8 +4,14 @@
             <template v-if="!m.internal">
                 <StackLayout class="bordered-container p-10 m-b-10">
                     <GridLayout rows="auto" columns="15*,70*,15*">
-                        <Image col="0" width="40" horizontalAlignment="left" :src="getModuleImage(m, station.connected)"></Image>
-                        <Label col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-16" textWrap="true" />
+                        <Image
+                            col="0"
+                            width="40"
+                            horizontalAlignment="left"
+                            :src="getModuleImage(m, station.connected)"
+                            class="module-icon"
+                        />
+                        <Label col="1" :text="getModuleName(m)" verticalAlignment="middle" class="size-16 module-name" textWrap="true" />
 
                         <FlexboxLayout
                             col="2"
@@ -177,16 +183,16 @@ export default Vue.extend({
     margin: 5;
     text-decoration: underline;
 }
+
 .hint-color {
     color: $fk-gray-hint;
 }
+
 .station-disconnected Label {
     opacity: 0.5;
 }
-.expand-button-container {
-    /* background-color: #afefef; */
-}
-.expand-button {
-    /* background-color: #efefaf; */
+
+.ns-ios .module-name {
+    padding-left: 10;
 }
 </style>
