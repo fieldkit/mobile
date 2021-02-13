@@ -6,6 +6,7 @@ import { MutationTypes, RenameStationMutation } from "../mutations";
 import { ActionTypes, RefreshNetworkAction, NetworkChangedAction, StationRepliedAction } from "../actions";
 import { Station } from "../types";
 import { ServiceRef } from "@/services";
+import Config from "@/config";
 
 export class PhoneState {
     network: PhoneNetwork | null = null;
@@ -38,7 +39,7 @@ const actions = (services: ServiceRef) => {
                 const network = new PhoneNetwork(newSsid);
                 commit(MutationTypes.PHONE_NETWORK, network);
                 if (!first) {
-                    const emulator = _.includes([oldSsid, newSsid], "AndroidWifi");
+                    const emulator = _.includes([oldSsid, newSsid], "AndroidWifi") || Config.emulator;
                     if (!emulator) {
                         await dispatch(new NetworkChangedAction(network));
                     } else {

@@ -1,6 +1,7 @@
 export interface LocalConfig {
     dev: boolean;
     beta: boolean;
+    emulator: boolean;
     debugging: {
         machine: string | null;
     };

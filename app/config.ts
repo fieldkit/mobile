@@ -8,6 +8,7 @@ function getBlankLocalConfig(): LocalConfig {
         },
         dev: false,
         beta: false,
+        emulator: false,
         baseUri: "http://192.168.0.100:8080",
         ingestionUri: "http://192.168.0.100:8080/ingestion",
         debugging: {
