@@ -58,8 +58,8 @@
                             />
                             <Label text="Ready to download from station" class="transfer-label" />
                         </StackLayout>
-                        <StackLayout v-if="sync.connected" row="0" col="1" class="container-icon">
-                            <Image class="icon-button" width="20" src="~/images/Icon_Download.png" @tap="onDownload(sync)" />
+                        <StackLayout v-if="sync.connected" row="0" col="1" class="container-icon" @tap="onDownload(sync)">
+                            <Image class="icon-button" width="20" src="~/images/Icon_Download.png" />
                         </StackLayout>
                     </GridLayout>
 
@@ -115,14 +115,8 @@
                                 <Label :text="_L('clickToLogin')" class="transfer-label" />
                             </StackLayout>
                         </StackLayout>
-                        <StackLayout row="0" col="1" class="container-icon">
-                            <Image
-                                v-if="userLoggedIn"
-                                class="icon-button"
-                                width="20"
-                                src="~/images/Icon_Upload.png"
-                                @tap="onUpload(sync)"
-                            />
+                        <StackLayout row="0" col="1" class="container-icon" @tap="onUpload(sync)">
+                            <Image v-if="userLoggedIn" class="icon-button" width="20" src="~/images/Icon_Upload.png" />
                             <Image v-if="!userLoggedIn" class="icon-button" width="20" src="~/images/Icon_Upload_Disabled.png" />
                         </StackLayout>
                     </GridLayout>
@@ -266,6 +260,7 @@ export default Vue.extend({
     padding-bottom: 10;
     border-top-color: $fk-gray-lighter;
     border-top-width: 1;
+    background-color: green;
 }
 .connected-since {
     padding-left: 5;
