@@ -3,7 +3,7 @@
         <StackLayout v-for="(ref, index) in form.references" :key="index" class="reference-container">
             <Label col="1" class="m-t-5 m-l-5 heading" :text="_L(ref.label)" textWrap="true" />
 
-            <TextField v-model="ref.value" autocorrect="false" autocapitalizationType="none" @textChange="onChange(ref)" class="input" />
+            <TextField v-model="ref.value" autocorrect="false" autocapitalizationType="none" class="input" @textChange="onChange(ref)" />
 
             <Label v-show="!ref.valid" class="validation-error" horizontalAlignment="left" text="A number is required." textWrap="true" />
         </StackLayout>
