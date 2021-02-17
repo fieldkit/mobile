@@ -85,10 +85,6 @@ export class CalibrationStrategy extends CalibrationStep {
         return this.steps;
     }
 
-    private calibrationPointSteps(): CalibrationPointStep[] {
-        return this.steps.filter((step) => step instanceof CalibrationPointStep).map((step) => step as CalibrationPointStep);
-    }
-
     public get references(): CalibrationReference[] {
         return this.calibrationPointSteps()
             .map((step) => new CalibrationReference(step.value))
@@ -111,6 +107,14 @@ export class CalibrationStrategy extends CalibrationStep {
             return step.adjustReference(references[index]);
         });
         return new CalibrationStrategy(this.moduleKey, this.heading, this.help, adjustedSteps);
+    }
+
+    public get numberOfCalibrationPoints(): number {
+        return this.calibrationPointSteps().length;
+    }
+
+    private calibrationPointSteps(): CalibrationPointStep[] {
+        return this.steps.filter((step) => step instanceof CalibrationPointStep).map((step) => step as CalibrationPointStep);
     }
 }
 
@@ -139,8 +143,15 @@ export class ModuleCalibration {
         this.image = module.image;
         const effective = status || module.status;
         this.canCalibrate = !!effective?.calibration && haveStrategies;
-        this.isCalibrated = (effective?.calibration?.total || 0) > 0;
+        this.isCalibrated = ModuleCalibration.isCalibrated(config);
         this.needsCalibration = this.canCalibrate && !this.isCalibrated;
+    }
+
+    private static isCalibrated(config: ModuleConfiguration | null): boolean {
+        if (!config) return false;
+        if (!config.calibration) return false;
+        if (!config.calibration.type) return false;
+        return true;
     }
 }
 

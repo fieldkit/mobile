@@ -9,16 +9,37 @@ import { CurrentUser, PortalState } from "./portal";
 import { FirmwareState } from "./firmware";
 import { NotificationsState } from "./notifications";
 import { MediaState } from "./media";
-import { ServiceInfo, ModuleStatus, Station, AvailableStation, LegacyStation, StationSyncStatus, DiscoveringStation } from "../types";
+import {
+    ServiceInfo,
+    ModuleConfiguration,
+    Station,
+    AvailableStation,
+    LegacyStation,
+    StationSyncStatus,
+    DiscoveringStation,
+} from "../types";
 import { StationCalibration } from "../../calibration";
 
 export class StationsState {
     all: Station[] = [];
 }
 
+export class PendingCalibrationPoint {
+    constructor(public readonly references: number[], public readonly uncalibrated: number[]) {}
+}
+
+export class PendingCalibration {
+    constructor(public readonly moduleId: string, public readonly points: PendingCalibrationPoint[] = []) {}
+
+    public append(pcp: PendingCalibrationPoint): PendingCalibration {
+        return new PendingCalibration(this.moduleId, [...this.points, pcp]);
+    }
+}
+
 export class CalibrationState {
-    status: { [index: string]: ModuleStatus } = {};
+    status: { [index: string]: ModuleConfiguration } = {};
     connected: { [index: string]: ServiceInfo } = {};
+    pending: { [index: string]: PendingCalibration } = {};
 }
 
 export interface GlobalState {
