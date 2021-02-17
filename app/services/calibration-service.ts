@@ -338,13 +338,11 @@ export default class CalibrationService {
             throw new Error(`calibration error, no cal ${JSON.stringify(reply)}`);
         }
 
-        const status = fixupModuleConfiguration(Buffer.from(reply.calibration.configuration));
-        if (!status) {
-            console.log(`calibration error, unexpected reply`, JSON.stringify(reply));
-            throw new Error(`calibration error, unexpected reply ${JSON.stringify(reply)}`);
-        }
+        const configuration = fixupModuleConfiguration(
+            reply.calibration.configuration ? Buffer.from(reply.calibration.configuration) : null
+        );
 
-        return status;
+        return configuration;
     }
 
     private handlePotentialRetryReply(

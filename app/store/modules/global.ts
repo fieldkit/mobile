@@ -37,7 +37,7 @@ export class PendingCalibration {
 }
 
 export class CalibrationState {
-    status: { [index: string]: ModuleConfiguration } = {};
+    configurations: { [index: string]: ModuleConfiguration } = {};
     connected: { [index: string]: ServiceInfo } = {};
     pending: { [index: string]: PendingCalibration } = {};
 }

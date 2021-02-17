@@ -31,7 +31,7 @@ export class Module {
         public readonly position: number,
         public readonly moduleId: ModuleId,
         public readonly flags: number,
-        public readonly config: ModuleConfiguration | null,
+        public readonly configuration: ModuleConfiguration | null,
         public readonly sensors: Sensor[]
     ) {
         this.internal = flags > 0;

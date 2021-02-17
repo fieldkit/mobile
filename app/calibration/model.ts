@@ -137,13 +137,13 @@ export class ModuleCalibration {
     public readonly isCalibrated: boolean;
     public readonly needsCalibration: boolean;
 
-    constructor(module: Module, config: ModuleConfiguration | null, haveStrategies: boolean) {
+    constructor(module: Module, configuration: ModuleConfiguration | null, haveStrategies: boolean) {
         this.name = _T(convertOldFirmwareResponse(module) + ".name");
         this.position = module.position || 0;
         this.image = module.image;
-        const effective = config || module.config;
+        const effective = configuration || module.configuration;
         this.canCalibrate = !!effective?.calibration && haveStrategies;
-        this.isCalibrated = ModuleCalibration.isCalibrated(config);
+        this.isCalibrated = ModuleCalibration.isCalibrated(configuration);
         this.needsCalibration = this.canCalibrate && !this.isCalibrated;
     }
 

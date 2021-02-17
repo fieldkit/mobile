@@ -8,20 +8,20 @@ import { ServiceRef } from "@/services";
 import { CalibrationState, PendingCalibration, PendingCalibrationPoint, GlobalGetters } from "./global";
 import { calibrationStrategies, StationCalibration, AtlasCalValue } from "@/calibration";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
-import CalibrationService, { WireAtlasReply } from "@/services/calibration-service";
+import CalibrationService from "@/services/calibration-service";
 import { unixNow } from "@/utilities";
 
-type PossibleCalibrations = WireAtlasReply;
+type ActionParameters = ActionContext<CalibrationState, never>;
+
+type ModuleType = Module<CalibrationState, never>;
+
+type ModuleConfiguration = DataProto.ModuleConfiguration;
 
 export class ClearAtlasCalibration {
     public readonly type: string = ActionTypes.CLEAR_SENSOR_CALIBRATION;
 
     constructor(public readonly deviceId: string, public readonly moduleId: string, public readonly position: number) {}
 }
-
-type ActionParameters = ActionContext<CalibrationState, never>;
-
-type ModuleType = Module<CalibrationState, never>;
 
 export class CalibrateAtlas {
     public readonly type: string = ActionTypes.CALIBRATE_SENSOR;
@@ -50,7 +50,7 @@ const getters = {
         rootGetters: GlobalGetters
     ): { [index: number]: StationCalibration } => {
         return _(rootGetters.legacyStations)
-            .map((station) => new StationCalibration(station, state.status, calibrationStrategies()))
+            .map((station) => new StationCalibration(station, state.configurations, calibrationStrategies()))
             .keyBy((k) => k.id)
             .value();
     },
@@ -107,8 +107,8 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.STATIONS_LOADED]: ({ commit, dispatch, state }: ActionParameters, stations: Station[]) => {
             return stations.map((station) =>
                 station.modules.map((m) => {
-                    if (m.config) {
-                        commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, status: m.config });
+                    if (m.configuration) {
+                        commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, configuration: m.configuration });
                     }
                 })
             );
@@ -116,7 +116,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
             return payload.statusReply.modules.map((m) => {
                 if (m.configuration) {
-                    commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, status: m.configuration });
+                    commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, configuration: m.configuration });
                 }
             });
         },
@@ -127,7 +127,7 @@ const actions = (services: ServiceRef) => {
             const url = `${info.url}/modules/${payload.position}`;
             return await service.clearCalibration(url).then((cleared) => {
                 console.log("cal:", "cleared", payload.moduleId, cleared);
-                return commit(MutationTypes.CLEARED_CALIBRATION, { moduleId: payload.moduleId, status: cleared });
+                return commit(MutationTypes.CLEARED_CALIBRATION, { moduleId: payload.moduleId, configuration: cleared });
             });
         },
         [ActionTypes.CALIBRATE_BEGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: CalibrateBegin) => {
@@ -179,14 +179,14 @@ const mutations = {
     [MutationTypes.LOSE]: (state: CalibrationState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, null);
     },
-    [MutationTypes.CALIBRATION_REFRESH]: (state: CalibrationState, payload: { moduleId: string; status: PossibleCalibrations }) => {
-        Vue.set(state.status, payload.moduleId, payload.status);
+    [MutationTypes.CALIBRATION_REFRESH]: (state: CalibrationState, payload: { moduleId: string; configuration: ModuleConfiguration }) => {
+        Vue.set(state.configurations, payload.moduleId, payload.configuration);
     },
     [MutationTypes.CALIBRATION_BEGIN]: (state: CalibrationState, payload: { moduleId: string }) => {
         Vue.set(state.pending, payload.moduleId, new PendingCalibration(payload.moduleId));
     },
-    [MutationTypes.CLEARED_CALIBRATION]: (state: CalibrationState, payload: { moduleId: string; status: PossibleCalibrations }) => {
-        Vue.set(state.status, payload.moduleId, payload.status);
+    [MutationTypes.CLEARED_CALIBRATION]: (state: CalibrationState, payload: { moduleId: string; configuration: ModuleConfiguration }) => {
+        Vue.set(state.configurations, payload.moduleId, payload.configuration);
         Vue.set(state.pending, payload.moduleId, new PendingCalibration(payload.moduleId));
     },
     [MutationTypes.CALIBRATION_POINT]: (state: CalibrationState, payload: { moduleId: string; point: PendingCalibrationPoint }) => {

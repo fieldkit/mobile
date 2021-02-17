@@ -95,8 +95,8 @@ export default Vue.extend({
                 console.log(`cal-module-full: ${JSON.stringify(mod)}`);
 
                 const moduleId = mod.moduleId;
-                const moduleCalibration = this.$s.state.cal.status[moduleId] || null;
-                if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
+                const configuration = this.$s.state.cal.configurations[moduleId] || null;
+                if (!configuration) throw new Error(`module configuration missing: ${this.stationId} ${this.position}`);
 
                 const displaySensor = mod.sensors[0];
                 const stationSensors = _.fromPairs(
@@ -121,7 +121,7 @@ export default Vue.extend({
                     displaySensor.unitOfMeasure,
                     displaySensor.reading,
                     calibrationValue,
-                    moduleCalibration,
+                    configuration,
                     stationSensors
                 );
             } catch (error) {
