@@ -82,7 +82,7 @@ export default Vue.extend({
     methods: {
         onChange(reference: ReferenceForm): void {
             if (this.form.touch()) {
-                console.log(`on-change: ${JSON.stringify(reference)}`);
+                // console.log(`on-change: ${JSON.stringify(reference)}`);
                 this.$emit(
                     "changed",
                     this.form.references.map((r) => r.toCalValue())

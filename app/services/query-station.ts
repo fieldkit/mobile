@@ -74,16 +74,16 @@ export default class QueryStation {
         }
     }
 
-    public getStatus(address: string, locate: PhoneLocation | null = null): Promise<HttpStatusReply> {
+    public async getStatus(address: string, locate: PhoneLocation | null = null): Promise<HttpStatusReply> {
         const message = this.buildLocateMessage(QueryType.QUERY_STATUS, locate);
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public takeReadings(address: string, locate: PhoneLocation, options: QueryOptions = {}): Promise<HttpStatusReply> {
+    public async takeReadings(address: string, locate: PhoneLocation | null, options: QueryOptions = {}): Promise<HttpStatusReply> {
         const message = this.buildLocateMessage(QueryType.QUERY_TAKE_READINGS, locate);
-        return this.stationQuery(address, message, options).then((reply) => {
+        return await this.stationQuery(address, message, options).then((reply) => {
             return this.fixupStatus(reply);
         });
     }

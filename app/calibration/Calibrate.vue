@@ -1,5 +1,5 @@
 <template>
-    <Page @loaded="onPageLoaded">
+    <Page>
         <template v-if="activeStep">
             <Header
                 :title="activeStep.visual.title"
@@ -89,15 +89,13 @@ export default Vue.extend({
             try {
                 const station = this.station;
                 if (!station) throw new Error(`station missing: ${this.stationId}`);
+
                 const mod = station.modules.find((m) => m.position == this.position);
                 if (!mod) throw new Error(`module missing: ${this.stationId} ${this.position} ${JSON.stringify(station.modules)}`);
-
-                console.log(`module-full: ${JSON.stringify(mod)}`);
+                console.log(`cal-module-full: ${JSON.stringify(mod)}`);
 
                 const moduleId = mod.moduleId;
                 const moduleCalibration = this.$s.state.cal.status[moduleId] || null;
-
-                console.log(`module-cal: ${JSON.stringify(moduleCalibration)}`);
                 if (!moduleCalibration) throw new Error(`module calibration missing: ${this.stationId} ${this.position}`);
 
                 const displaySensor = mod.sensors[0];
@@ -111,11 +109,9 @@ export default Vue.extend({
                     )
                 ) as { [index: string]: number };
 
-                console.log(`station-sensors: ${JSON.stringify(stationSensors)}`);
+                console.log(`cal-station-sensors: ${JSON.stringify(stationSensors)}`);
 
                 const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
-
-                console.log(`cal-value: ${JSON.stringify(calibrationValue)}`);
 
                 return new CalibratingSensor(
                     this.stationId,
@@ -129,7 +125,7 @@ export default Vue.extend({
                     stationSensors
                 );
             } catch (error) {
-                console.log(`calibration error: ${error}`, error ? error.stack : null);
+                console.log(`cal-error: ${error}`, error ? error.stack : null);
                 return null;
             }
         },
@@ -148,9 +144,6 @@ export default Vue.extend({
         },
     },
     methods: {
-        onPageLoaded(args): void {
-            // console.log("cal:", "strategy", this.strategy);
-        },
         getLastStep(): VisualCalibrationStep {
             const all = this.getAllVisualSteps();
             return all[all.length - 1];
@@ -164,12 +157,10 @@ export default Vue.extend({
         },
         onDone(ev: any, step: CalibrationStep): Promise<void> {
             this.completed.push(step);
-            console.log("cal:", "done", step);
             if (this.getRemainingSteps().length > 0) {
                 return Promise.resolve();
             }
 
-            console.log("cal", "finished");
             return this.notifySuccess().then(() => {
                 return this.navigateBack();
             });

@@ -102,13 +102,13 @@ export default Vue.extend({
         },
     },
     mounted(this: any) {
-        console.log("cal:waiting:", "mounted", this.step, this.visual);
+        // console.log("cal:waiting:", "mounted", this.step, this.visual);
         this.timer = new Timer(1000, () => {
             this.now = new Date();
         });
     },
     destroyed(this: any) {
-        console.log("cal:waiting:", "destroyed");
+        // console.log("cal:waiting:", "destroyed");
         this.timer.stop();
     },
     methods: {
