@@ -1,9 +1,9 @@
 import _ from "lodash";
 import { CalibrationVisual, HasVisual } from "./visuals";
-import { LegacyStation, Module, ModuleStatus } from "../store/types";
+import { LegacyStation, Module, ModuleConfiguration } from "../store/types";
 import { _T, convertOldFirmwareResponse, notEmpty } from "../utilities";
 
-export { ModuleStatus };
+export { ModuleConfiguration };
 
 export class Ids {
     private static c = 0;
@@ -24,7 +24,7 @@ export class CalibratingSensor {
         public readonly unitOfMeasure: string,
         public readonly reading: number | null,
         public readonly calibrationValue: CalibrationValue,
-        public readonly moduleCalibration: ModuleStatus | null,
+        public readonly moduleCalibration: ModuleConfiguration | null,
         public readonly sensors: { [index: string]: number }
     ) {}
 }
@@ -127,7 +127,7 @@ export class CalibrationStrategies {
     }
 }
 
-export type ModuleStatusByModuleId = { [index: string]: ModuleStatus };
+export type ModuleConfigurationByModuleId = { [index: string]: ModuleConfiguration };
 
 export class ModuleCalibration {
     public readonly name: string;
@@ -137,11 +137,11 @@ export class ModuleCalibration {
     public readonly isCalibrated: boolean;
     public readonly needsCalibration: boolean;
 
-    constructor(module: Module, status: ModuleStatus | null, haveStrategies: boolean) {
+    constructor(module: Module, config: ModuleConfiguration | null, haveStrategies: boolean) {
         this.name = _T(convertOldFirmwareResponse(module) + ".name");
         this.position = module.position || 0;
         this.image = module.image;
-        const effective = status || module.status;
+        const effective = config || module.config;
         this.canCalibrate = !!effective?.calibration && haveStrategies;
         this.isCalibrated = ModuleCalibration.isCalibrated(config);
         this.needsCalibration = this.canCalibrate && !this.isCalibrated;
@@ -161,7 +161,7 @@ export class StationCalibration {
     public readonly connected: boolean;
     public readonly modules: ModuleCalibration[] = [];
 
-    constructor(station: LegacyStation, statuses: ModuleStatusByModuleId, calibrationStrategies: CalibrationStrategies) {
+    constructor(station: LegacyStation, configurations: ModuleConfigurationByModuleId, calibrationStrategies: CalibrationStrategies) {
         if (!station.id) throw new Error("missing station id");
         this.id = station.id;
         this.name = station.name;
@@ -170,14 +170,8 @@ export class StationCalibration {
             .filter((m) => !m.internal)
             .map((m) => {
                 const haveStrategies = calibrationStrategies.getModuleStrategies(m.name).length > 0;
-                return new ModuleCalibration(m, statuses[m.moduleId], haveStrategies);
+                return new ModuleCalibration(m, configurations[m.moduleId], haveStrategies);
             });
-
-        const status = {
-            modules: this.modules.map((m) => [m.name, m.isCalibrated]),
-            self: this,
-        };
-        console.log(`station-calibration ${JSON.stringify(status)}`);
     }
 
     get completed(): boolean {

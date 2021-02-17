@@ -2,7 +2,7 @@ import _ from "lodash";
 import Config from "@/config";
 import { promiseAfter } from "@/utilities";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
-import { fixupCalibrationStatus, AtlasStatus } from "@/store/http-types";
+import { fixupModuleConfiguration, ModuleConfiguration } from "@/store/http-types";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 export * from "./atlas-types";
 
@@ -29,7 +29,7 @@ export interface CalibrationAttempt {
 export default class CalibrationService {
     constructor(private readonly conservify: Conservify) {}
 
-    public clearCalibration(address: string): Promise<AtlasStatus> {
+    public clearCalibration(address: string): Promise<ModuleConfiguration> {
         const message = AtlasQuery.create({
             type: AtlasQueryType.QUERY_NONE,
             calibration: {
@@ -102,7 +102,20 @@ export default class CalibrationService {
         return data.reference;
     }
 
-    public calibrateSensor(address: string, data: CalibrationAttempt): Promise<AtlasStatus> {
+    public async calibrate(address: string, data: Buffer): Promise<void> {
+        const message = AtlasQuery.create({
+            type: AtlasQueryType.QUERY_NONE,
+            calibration: {
+                operation: AtlasCalibrationOperation.CALIBRATION_SET,
+                configuration: data,
+            },
+        });
+        await this.stationQuery(address, message).then((reply) => {
+            return this.fixupReply(reply);
+        });
+    }
+
+    public calibrateSensor(address: string, data: CalibrationAttempt): Promise<ModuleConfiguration> {
         const adjusted = this.applyCompensation(data);
         const message = AtlasQuery.create({
             type: AtlasQueryType.QUERY_NONE,
@@ -314,18 +327,18 @@ export default class CalibrationService {
         return null;
     }
 
-    private fixupReply(reply: AtlasProto.WireAtlasReply): AtlasStatus {
+    private fixupReply(reply: AtlasProto.WireAtlasReply): ModuleConfiguration {
         if (reply.errors && reply.errors.length > 0) {
             console.log(`calibration error`, JSON.stringify(reply));
             throw new Error(`calibration error ${JSON.stringify(reply)}`);
         }
 
-        if (!reply.calibration) {
+        if (!reply.calibration || !reply.calibration.configuration) {
             console.log(`calibration error, no cal`, JSON.stringify(reply));
             throw new Error(`calibration error, no cal ${JSON.stringify(reply)}`);
         }
 
-        const status = fixupCalibrationStatus(reply);
+        const status = fixupModuleConfiguration(Buffer.from(reply.calibration.configuration));
         if (!status) {
             console.log(`calibration error, unexpected reply`, JSON.stringify(reply));
             throw new Error(`calibration error, unexpected reply ${JSON.stringify(reply)}`);
@@ -339,9 +352,7 @@ export default class CalibrationService {
         url: string,
         message: AtlasProto.WireAtlasQuery
     ): Promise<AtlasProto.WireAtlasReply> {
-        if (!reply) {
-            throw new Error(`expected calibration status reply`);
-        }
+        if (!reply) throw new Error(`expected calibration status reply`);
         if (reply.type != ReplyType.REPLY_RETRY) {
             return Promise.resolve(reply);
         }

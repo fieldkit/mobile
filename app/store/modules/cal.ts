@@ -3,7 +3,7 @@ import Vue from "vue";
 import { ActionContext, Module } from "vuex";
 import { ActionTypes, StationRepliedAction } from "../actions";
 import { MutationTypes } from "../mutations";
-import { Station, ServiceInfo, ModuleStatus } from "../types";
+import { Station, ServiceInfo } from "../types";
 import { ServiceRef } from "@/services";
 import { CalibrationState, PendingCalibration, PendingCalibrationPoint, GlobalGetters } from "./global";
 import { calibrationStrategies, StationCalibration, AtlasCalValue } from "@/calibration";
@@ -50,9 +50,7 @@ const getters = {
         rootGetters: GlobalGetters
     ): { [index: number]: StationCalibration } => {
         return _(rootGetters.legacyStations)
-            .map((station) => {
-                return new StationCalibration(station, state.status, calibrationStrategies());
-            })
+            .map((station) => new StationCalibration(station, state.status, calibrationStrategies()))
             .keyBy((k) => k.id)
             .value();
     },

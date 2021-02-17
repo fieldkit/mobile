@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { decodeAndPrepare, HttpStatusReply, ReplyStream, NetworkInfo, ModuleStatus } from "./http-types";
+import { decodeAndPrepare, HttpStatusReply, ReplyStream, NetworkInfo, ModuleConfiguration } from "./http-types";
 import { StreamTableRow, DownloadTableRow } from "./row-types";
 import { Location } from "./map-types";
 
@@ -31,7 +31,7 @@ export class Module {
         public readonly position: number,
         public readonly moduleId: ModuleId,
         public readonly flags: number,
-        public readonly status: ModuleStatus | null,
+        public readonly config: ModuleConfiguration | null,
         public readonly sensors: Sensor[]
     ) {
         this.internal = flags > 0;

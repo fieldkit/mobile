@@ -85,48 +85,6 @@ function EcCommon(): CommonProperties {
     };
 }
 
-const PhQuick = (): CalibrationStrategy => {
-    const phCommon = PhCommon();
-
-    return new CalibrationStrategy("modules.water.ph", _L("quickCalibration"), _L("quickCalibration"), [
-        new CalibrationPointStep(new AtlasCalValue(6.86, PhRange, commands.PhMiddle), [
-            new CheckVisual(Check, {
-                ...phCommon,
-                heading: _L("quickPhCalibration"),
-                done: _L("next"),
-                skip: _L("skip"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("quickPhCalibration"),
-                instructions: _L("haveYourQuickSolution"),
-                image: "~/images/TI_11.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("quickPhCalibration"),
-                instructions: _L("rinseWithDeionizedWater"),
-                image: "~/images/TI_12-A.jpg",
-                done: _L("next"),
-            }),
-            new PrepareVisual(Prepare, {
-                ...phCommon,
-                heading: _L("quickPhCalibration"),
-                instructions: _L("placeProbeInSolutionWithTemp"),
-                image: "~/images/TI_13-C.jpg",
-                done: _L("startTimer"),
-            }),
-            new WaitVisual(Wait, {
-                ...phCommon,
-                seconds: 120,
-                heading: _L("quickPhCalibration"),
-                done: _L("calibrate"),
-            }),
-        ]),
-    ]);
-};
-
 const Ph3 = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
@@ -321,5 +279,5 @@ export function Common(): { [index: string]: CommonProperties } {
 }
 
 export default function (): CalibrationStrategy[] {
-    return [PhQuick(), Ph3(), DissolvedOxygen(), EcDual()];
+    return [Ph3(), DissolvedOxygen(), EcDual()];
 }

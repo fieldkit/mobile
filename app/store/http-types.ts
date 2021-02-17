@@ -1,11 +1,10 @@
 /* eslint @typescript-eslint/no-non-null-assertion: "off" */
 import { fk_app } from "fk-app-protocol/fk-app";
 import { fk_atlas } from "fk-atlas-protocol/fk-atlas";
+import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 import Long from "long";
 
 const HttpReply = fk_app.HttpReply;
-const AtlasReply = fk_atlas.WireAtlasReply;
-const SensorType = fk_atlas.SensorType;
 
 export interface LiveSensorReading {
     sensor: SensorCapabilities;
@@ -29,16 +28,14 @@ export interface AtlasStatus {
     };
 }
 
-export type ModuleStatus = AtlasStatus;
-
-export type CalibrationStatus = AtlasStatus | null;
+export type ModuleConfiguration = DataProto.ModuleConfiguration;
 
 export interface ModuleCapabilities {
     name: string;
     deviceId: string;
     position: number;
     flags: number;
-    status: CalibrationStatus;
+    status: ModuleConfiguration;
     sensors: SensorCapabilities[];
 }
 
@@ -148,7 +145,7 @@ export interface ModuleStatusReply {
     name: string;
     flags: number;
     sensors: fk_app.SensorCapabilities[];
-    status: AtlasStatus | null;
+    status: ModuleConfiguration | null;
 }
 
 export interface HttpStatusReply {
@@ -169,77 +166,40 @@ export function decodeAndPrepare(reply: Buffer, serialized: SerializedStatus): H
     return prepareReply(HttpReply.decodeDelimited(reply), serialized);
 }
 
-export function fixupCalibrationStatus(reply: fk_atlas.WireAtlasReply): AtlasStatus {
-    /* Maybe ModuleStatus? */
-    if (!reply.calibration) {
-        throw new Error(`reply has no calibration`);
-    }
-
-    let total: number | null = null;
-    switch (reply.calibration.type) {
-        case SensorType.SENSOR_PH:
-            total = numberOfOnes(reply.calibration.ph || 0);
-            break;
-        case SensorType.SENSOR_TEMP:
-            total = numberOfOnes(reply.calibration.temp || 0);
-            break;
-        case SensorType.SENSOR_ORP:
-            total = numberOfOnes(reply.calibration.orp || 0);
-            break;
-        case SensorType.SENSOR_DO:
-            total = numberOfOnes(reply.calibration.dissolvedOxygen || 0);
-            break;
-        case SensorType.SENSOR_EC:
-            total = numberOfOnes(reply.calibration.ec || 0);
-            break;
-        case SensorType.SENSOR_NONE:
-            throw new Error(`unexpected calibration type`);
-        default:
-            throw new Error(`unexpected calibration type`);
-    }
-
-    if (total === null) {
-        throw new Error(`unexpected calibration type`);
-    }
-
-    return {
-        type: reply.calibration.type,
-        calibration: {
-            total: total,
-        },
-    };
+export function fixupModuleConfiguration(buffer: Buffer): ModuleConfiguration {
+    return DataProto.ModuleConfiguration.decodeDelimited(buffer);
 }
 
 function toHexString(value: Uint8Array): string {
     return Buffer.from(value).toString("hex");
 }
 
-function translateModule(m: fk_app.IModuleCapabilities | null, moduleStatuses: ModuleStatuses): ModuleStatusReply {
+function translateModule(m: fk_app.IModuleCapabilities | null, moduleConfigurations: ModuleConfigurations): ModuleStatusReply {
     if (!m) throw new Error(`malformed reply: null module`);
     if (!m.name) throw new Error(`malformed reply: no module name`);
     if (!m.sensors) throw new Error(`malformed reply: no module name`);
     if (!m.id) throw new Error(`malformed reply: no module id`);
 
-    const maybeDecodeStatus = (m: fk_app.IModuleCapabilities): CalibrationStatus => {
-        if (m.name && m.status && m.status.length > 0) {
+    const maybeDecodeConfig = (m: fk_app.IModuleCapabilities): ModuleConfiguration | null => {
+        if (m.name && m.configuration && m.configuration.length > 0) {
             if (m.name.indexOf(`modules.water.`) == 0) {
-                return fixupCalibrationStatus(AtlasReply.decode(Buffer.from(m.status)));
+                return fixupModuleConfiguration(Buffer.from(m.configuration));
             } else {
-                console.log(`unknown module status`, m);
+                console.log(`unknown module config`, m);
             }
         }
         return null;
     };
 
     const moduleId = toHexString(m.id);
-    const status = maybeDecodeStatus(m) || moduleStatuses[moduleId];
-    if (status) {
-        moduleStatuses[moduleId] = status;
+    const config = maybeDecodeConfig(m) || moduleConfigurations[moduleId];
+    if (config) {
+        moduleConfigurations[moduleId] = config;
     }
 
     return {
         moduleId: moduleId,
-        status: status,
+        status: config,
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
         name: m.name,
         position: m.position!,
@@ -247,11 +207,11 @@ function translateModule(m: fk_app.IModuleCapabilities | null, moduleStatuses: M
     };
 }
 
-type ModuleStatuses = { [index: string]: ModuleStatus };
+type ModuleConfigurations = { [index: string]: ModuleConfiguration };
 
-function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings, moduleStatuses: ModuleStatuses): LiveModuleReadings {
+function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings, moduleConfigurations: ModuleConfigurations): LiveModuleReadings {
     return {
-        module: translateModule(lmr.module || null, moduleStatuses),
+        module: translateModule(lmr.module || null, moduleConfigurations),
         readings: lmr.readings!.map((lsr) => {
             return {
                 sensor: new fk_app.SensorCapabilities(lsr.sensor),
@@ -261,10 +221,10 @@ function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings, moduleStat
     };
 }
 
-function translateLiveReadings(lr: fk_app.ILiveReadings, moduleStatuses: ModuleStatuses): LiveReadings {
+function translateLiveReadings(lr: fk_app.ILiveReadings, moduleConfigurations: ModuleConfigurations): LiveReadings {
     return {
         time: translateLong(lr.time),
-        modules: lr.modules!.map((lmr) => translateLiveModuleReadings(lmr, moduleStatuses)),
+        modules: lr.modules!.map((lmr) => translateLiveModuleReadings(lmr, moduleConfigurations)),
     };
 }
 
@@ -358,7 +318,7 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
         };
     }
 
-    const moduleStatuses: { [index: string]: ModuleStatus } = {};
+    const moduleConfigurations: { [index: string]: ModuleConfiguration } = {};
 
     const prepared = {
         type: reply.type,
@@ -420,8 +380,8 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
             readings: translateSchedule(reply.schedules.readings),
             network: translateSchedule(reply.schedules.network),
         },
-        modules: reply.modules.map((m: fk_app.IModuleCapabilities) => translateModule(m, moduleStatuses)),
-        liveReadings: reply.liveReadings.map((lr: fk_app.ILiveReadings) => translateLiveReadings(lr, moduleStatuses)),
+        modules: reply.modules.map((m: fk_app.IModuleCapabilities) => translateModule(m, moduleConfigurations)),
+        liveReadings: reply.liveReadings.map((lr: fk_app.ILiveReadings) => translateLiveReadings(lr, moduleConfigurations)),
         streams: reply.streams.map(
             (s: fk_app.IDataStream): ReplyStream => {
                 return {
@@ -453,8 +413,10 @@ export function prepareReply(reply: fk_app.HttpReply, serialized: SerializedStat
     return prepared;
 }
 
+/*
 function numberOfOnes(n: number): number {
     n = n - ((n >> 1) & 0x55555555);
     n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
     return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
 }
+*/

@@ -21,7 +21,7 @@ import {
 import { ActionTypes, StationRepliedAction, PortalReplyAction, PortalErrorAction } from "@/store/actions";
 import { HasLocation } from "@/store/map-types";
 import { StationTableRow, ModuleTableRow, SensorTableRow, StreamTableRow, DownloadTableRow } from "@/store/row-types";
-import { HttpStatusReply, AtlasStatus } from "@/store/http-types";
+import { HttpStatusReply, ModuleConfiguration } from "@/store/http-types";
 import { StationsState, GlobalState } from "./global";
 import { ServiceRef, DatabaseInterface } from "@/services";
 
@@ -279,7 +279,7 @@ class StationDatabaseFactory {
                             )
                     )
                     .value();
-                const status = this.parseModuleStatus(moduleRow.status);
+                const configuration = this.parseModuleConfiguration(moduleRow.status);
                 return new Module(
                     moduleRow.id,
                     moduleRow.stationId,
@@ -287,7 +287,7 @@ class StationDatabaseFactory {
                     moduleRow.position || 0,
                     moduleRow.moduleId,
                     moduleRow.flags,
-                    status,
+                    configuration,
                     sensors
                 );
             })
@@ -300,14 +300,14 @@ class StationDatabaseFactory {
         return new Station(this.getCreationFields(this.stationRow), modules, streams, downloads);
     }
 
-    private parseModuleStatus(column: string | null): AtlasStatus | null {
+    private parseModuleConfiguration(column: string | null): ModuleConfiguration | null {
         if (!column || column.length === 0) {
             return null;
         }
         try {
-            return JSON.parse(column) as AtlasStatus;
+            return JSON.parse(column) as ModuleConfiguration;
         } catch (e) {
-            console.log("malformed module status", column);
+            console.log("malformed module configuration", column);
         }
         return null;
     }
