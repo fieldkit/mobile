@@ -131,14 +131,7 @@ const actions = (services: ServiceRef) => {
             });
         },
         [ActionTypes.CALIBRATE_BEGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: CalibrateBegin) => {
-            const info = state.connected[payload.deviceId];
-            if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);
-            const service = new CalibrationService(services.conservify());
-            const url = `${info.url}/modules/${payload.position}`;
-            return await service.clearCalibration(url).then((cleared) => {
-                console.log("cal:", "cleared", payload.moduleId, cleared);
-                return commit(MutationTypes.CLEARED_CALIBRATION, { moduleId: payload.moduleId, status: cleared });
-            });
+            return commit(MutationTypes.CALIBRATION_BEGIN, { moduleId: payload.moduleId });
         },
         [ActionTypes.CALIBRATE_SENSOR]: async ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
             const moduleId = payload.moduleId;
@@ -188,6 +181,9 @@ const mutations = {
     },
     [MutationTypes.CALIBRATION_REFRESH]: (state: CalibrationState, payload: { moduleId: string; status: PossibleCalibrations }) => {
         Vue.set(state.status, payload.moduleId, payload.status);
+    },
+    [MutationTypes.CALIBRATION_BEGIN]: (state: CalibrationState, payload: { moduleId: string }) => {
+        Vue.set(state.pending, payload.moduleId, new PendingCalibration(payload.moduleId));
     },
     [MutationTypes.CLEARED_CALIBRATION]: (state: CalibrationState, payload: { moduleId: string; status: PossibleCalibrations }) => {
         Vue.set(state.status, payload.moduleId, payload.status);
