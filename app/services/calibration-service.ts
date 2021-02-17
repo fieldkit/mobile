@@ -2,7 +2,7 @@ import _ from "lodash";
 import Config from "@/config";
 import { promiseAfter } from "@/utilities";
 import { Conservify, HttpResponse } from "@/wrappers/networking";
-import { fixupModuleConfiguration, ModuleConfiguration } from "@/store/http-types";
+import { fixupModuleConfiguration, EmptyModuleConfig, ModuleConfiguration } from "@/store/http-types";
 import { fk_atlas as AtlasProto } from "fk-atlas-protocol/fk-atlas";
 export * from "./atlas-types";
 
@@ -29,7 +29,7 @@ export interface CalibrationAttempt {
 export default class CalibrationService {
     constructor(private readonly conservify: Conservify) {}
 
-    public clearCalibration(address: string): Promise<ModuleConfiguration> {
+    public async clearCalibration(address: string): Promise<ModuleConfiguration> {
         const message = AtlasQuery.create({
             type: AtlasQueryType.QUERY_NONE,
             calibration: {
@@ -37,7 +37,7 @@ export default class CalibrationService {
             },
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message).then((reply) => {
             return this.fixupReply(reply);
         });
     }
@@ -342,7 +342,7 @@ export default class CalibrationService {
             reply.calibration.configuration ? Buffer.from(reply.calibration.configuration) : null
         );
 
-        return configuration;
+        return configuration || EmptyModuleConfig;
     }
 
     private handlePotentialRetryReply(

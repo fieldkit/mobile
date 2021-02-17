@@ -166,11 +166,11 @@ export function decodeAndPrepare(reply: Buffer, serialized: SerializedStatus): H
     return prepareReply(HttpReply.decodeDelimited(reply), serialized);
 }
 
-const EmptyConfig: ModuleConfiguration = new DataProto.ModuleConfiguration();
+export const EmptyModuleConfig: ModuleConfiguration = new DataProto.ModuleConfiguration();
 
 export function fixupModuleConfiguration(buffer: Buffer | null): ModuleConfiguration | null {
     if (!buffer || buffer.length == 0) {
-        return EmptyConfig;
+        return null;
     }
     return DataProto.ModuleConfiguration.decodeDelimited(buffer);
 }
@@ -194,7 +194,7 @@ function translateModule(m: fk_app.IModuleCapabilities | null, moduleConfigurati
 
     return {
         moduleId: moduleId,
-        configuration: config,
+        configuration: config || EmptyModuleConfig,
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
         name: m.name,
         position: m.position!,

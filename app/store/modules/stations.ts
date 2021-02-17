@@ -355,7 +355,7 @@ type LoadStationsValue = [StationTableRow[], ModuleTableRow[], SensorTableRow[],
 
 async function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[]> {
     return await Promise.all([db.getAll(), db.getModuleAll(), db.getSensorAll(), db.getStreamAll(), db.getDownloadAll()]).then(
-        (values: LoadStationsValue) => {
+        async (values: LoadStationsValue) => {
             const stations: StationTableRow[] = values[0];
             const moduleRows: ModuleTableRow[] = values[1];
             const sensorsRows: SensorTableRow[] = values[2];
@@ -378,8 +378,8 @@ async function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[
             const downloads: { [index: number]: DownloadTableRow[] } = _.groupBy(downloadsRows, (s) => s.stationId);
 
             // TODO Handle generation changes.
-            return Promise.all(
-                stations.map((stationRow) => {
+            return await Promise.all(
+                stations.map(async (stationRow) => {
                     const factory = new StationDatabaseFactory(stationRow, modules, sensors, streams, downloads);
                     const station = factory.create();
                     if (!station.id) throw new Error(`no station id on db station`);
@@ -387,7 +387,7 @@ async function loadStationsFromDatabase(db: DatabaseInterface): Promise<Station[
                         return Promise.resolve([station]);
                     }
                     console.log(`archiving station: ${JSON.stringify(station)}`);
-                    return db.archiveStation(station.id).then(() => {
+                    return await db.archiveStation(station.id).then(() => {
                         return [];
                     });
                 })
