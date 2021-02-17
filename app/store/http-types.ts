@@ -166,7 +166,12 @@ export function decodeAndPrepare(reply: Buffer, serialized: SerializedStatus): H
     return prepareReply(HttpReply.decodeDelimited(reply), serialized);
 }
 
-export function fixupModuleConfiguration(buffer: Buffer): ModuleConfiguration {
+const EmptyConfig: ModuleConfiguration = new DataProto.ModuleConfiguration();
+
+export function fixupModuleConfiguration(buffer: Buffer | null): ModuleConfiguration | null {
+    if (!buffer || buffer.length == 0) {
+        return EmptyConfig;
+    }
     return DataProto.ModuleConfiguration.decodeDelimited(buffer);
 }
 
@@ -180,21 +185,11 @@ function translateModule(m: fk_app.IModuleCapabilities | null, moduleConfigurati
     if (!m.sensors) throw new Error(`malformed reply: no module name`);
     if (!m.id) throw new Error(`malformed reply: no module id`);
 
-    const maybeDecodeConfig = (m: fk_app.IModuleCapabilities): ModuleConfiguration | null => {
-        if (m.name && m.configuration && m.configuration.length > 0) {
-            if (m.name.indexOf(`modules.water.`) == 0) {
-                return fixupModuleConfiguration(Buffer.from(m.configuration));
-            } else {
-                console.log(`unknown module config`, m);
-            }
-        }
-        return null;
-    };
-
     const moduleId = toHexString(m.id);
-    const config = maybeDecodeConfig(m) || moduleConfigurations[moduleId];
-    if (config) {
-        moduleConfigurations[moduleId] = config;
+    const fromReply = fixupModuleConfiguration(m.configuration ? Buffer.from(m.configuration) : null);
+    const config = fromReply || moduleConfigurations[moduleId];
+    if (fromReply) {
+        moduleConfigurations[moduleId] = fromReply;
     }
 
     return {
