@@ -102,7 +102,7 @@ export default class CalibrationService {
         return data.reference;
     }
 
-    public async calibrate(address: string, data: Buffer): Promise<void> {
+    public async calibrate(address: string, data: Buffer): Promise<ModuleConfiguration> {
         const message = AtlasQuery.create({
             type: AtlasQueryType.QUERY_NONE,
             calibration: {
@@ -110,7 +110,7 @@ export default class CalibrationService {
                 configuration: data,
             },
         });
-        await this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message).then((reply) => {
             return this.fixupReply(reply);
         });
     }

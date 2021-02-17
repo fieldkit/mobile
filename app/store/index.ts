@@ -111,8 +111,8 @@ function customizeLogger(appendLog: AppendStoreLog) {
                 return false;
             }
 
-            if (mutation.type == MutationTypes.CALIBRATION_REFRESH) {
-                console.log("mutation:", mutation.type, JSON.stringify(stateAfter.cal));
+            if (mutation.type == MutationTypes.MODULE_CONFIGURATION || mutation.type == MutationTypes.CLEARED_CALIBRATION) {
+                console.log("mutation:", mutation.type, JSON.stringify(mutation.payload), JSON.stringify(stateAfter.cal));
                 return false;
             }
 

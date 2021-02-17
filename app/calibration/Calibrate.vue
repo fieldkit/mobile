@@ -92,7 +92,7 @@ export default Vue.extend({
 
                 const mod = station.modules.find((m) => m.position == this.position);
                 if (!mod) throw new Error(`module missing: ${this.stationId} ${this.position} ${JSON.stringify(station.modules)}`);
-                console.log(`cal-module-full: ${JSON.stringify(mod)}`);
+                // console.log(`cal-module-full: ${JSON.stringify(mod)}`);
 
                 const moduleId = mod.moduleId;
                 const configuration = this.$s.state.cal.configurations[moduleId] || null;
@@ -109,7 +109,7 @@ export default Vue.extend({
                     )
                 ) as { [index: string]: number };
 
-                console.log(`cal-station-sensors: ${JSON.stringify(stationSensors)}`);
+                // console.log(`cal-station-sensors: ${JSON.stringify(stationSensors)}`);
 
                 const calibrationValue = this.strategy.getStepCalibrationValue(this.activeStep);
 

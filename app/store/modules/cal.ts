@@ -108,7 +108,7 @@ const actions = (services: ServiceRef) => {
             return stations.map((station) =>
                 station.modules.map((m) => {
                     if (m.configuration) {
-                        commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, configuration: m.configuration });
+                        commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: m.moduleId, configuration: m.configuration });
                     }
                 })
             );
@@ -116,7 +116,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
             return payload.statusReply.modules.map((m) => {
                 if (m.configuration) {
-                    commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, configuration: m.configuration });
+                    commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: m.moduleId, configuration: m.configuration });
                 }
             });
         },
@@ -163,7 +163,9 @@ const actions = (services: ServiceRef) => {
 
                 const service = new CalibrationService(services.conservify());
                 const url = `${info.url}/modules/${payload.position}`;
-                await service.calibrate(url, encoded);
+                const reply = await service.calibrate(url, encoded);
+
+                commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: moduleId, configuration: reply });
             }
         },
     };
@@ -179,7 +181,7 @@ const mutations = {
     [MutationTypes.LOSE]: (state: CalibrationState, info: ServiceInfo) => {
         Vue.set(state.connected, info.deviceId, null);
     },
-    [MutationTypes.CALIBRATION_REFRESH]: (state: CalibrationState, payload: { moduleId: string; configuration: ModuleConfiguration }) => {
+    [MutationTypes.MODULE_CONFIGURATION]: (state: CalibrationState, payload: { moduleId: string; configuration: ModuleConfiguration }) => {
         Vue.set(state.configurations, payload.moduleId, payload.configuration);
     },
     [MutationTypes.CALIBRATION_BEGIN]: (state: CalibrationState, payload: { moduleId: string }) => {
