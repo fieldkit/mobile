@@ -81,8 +81,8 @@ export class LinearCalibrationCurve extends CalibrationCurve {
 
     public calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients {
         const n = pending.points.length;
-        const x = pending.points.map((p) => p.references[0]);
-        const y = pending.points.map((p) => p.uncalibrated[0]);
+        const x = pending.points.map((p) => p.uncalibrated[0]);
+        const y = pending.points.map((p) => p.references[0]);
         const indices = _.range(0, n);
         const xMean = _.mean(x);
         const yMean = _.mean(y);
