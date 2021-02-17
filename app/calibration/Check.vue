@@ -8,31 +8,31 @@
                 class="existing-calibration"
                 text="This sensor doesn't appear to have been calibrated."
                 textWrap="true"
-                v-if="existing.calibration.total == 0"
+                v-if="calibrationPoints == 0"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 1-point strategy."
                 textWrap="true"
-                v-if="existing.calibration.total == 1"
+                v-if="calibrationPoints == 1"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 2-point strategy."
                 textWrap="true"
-                v-if="existing.calibration.total == 2"
+                v-if="calibrationPoints == 2"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 3-point strategy."
                 textWrap="true"
-                v-if="existing.calibration.total == 3"
+                v-if="calibrationPoints == 3"
             />
             <Label
                 class="existing-calibration"
                 text="This sensor appears to have been calibrated using a 4-point strategy."
                 textWrap="true"
-                v-if="existing.calibration.total == 4"
+                v-if="calibrationPoints == 4"
             />
 
             <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
@@ -88,6 +88,9 @@ export default Vue.extend({
         },
         existing(): ModuleConfiguration | null {
             return this.sensor.moduleCalibration;
+        },
+        calibrationPoints(): number {
+            return this.sensor.moduleCalibration?.calibration?.points?.length || 0;
         },
     },
     methods: {
