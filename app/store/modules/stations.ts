@@ -223,7 +223,7 @@ class StationStatusFactory {
                                 moduleReply.module.position || 0,
                                 moduleReply.module.moduleId,
                                 moduleReply.module.flags,
-                                moduleReply.module.status,
+                                moduleReply.module.configuration,
                                 sensors
                             );
                         })
@@ -244,7 +244,7 @@ class StationStatusFactory {
                     moduleReply.position || 0,
                     moduleReply.moduleId,
                     moduleReply.flags,
-                    moduleReply.status,
+                    moduleReply.configuration,
                     sensors
                 );
             })

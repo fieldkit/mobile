@@ -115,8 +115,8 @@ const actions = (services: ServiceRef) => {
         },
         [ActionTypes.STATION_REPLY]: ({ commit, dispatch, state }: ActionParameters, payload: StationRepliedAction) => {
             return payload.statusReply.modules.map((m) => {
-                if (m.status) {
-                    commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, status: m.status });
+                if (m.configuration) {
+                    commit(MutationTypes.CALIBRATION_REFRESH, { moduleId: m.moduleId, status: m.configuration });
                 }
             });
         },

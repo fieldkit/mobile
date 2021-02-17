@@ -145,7 +145,7 @@ export interface ModuleStatusReply {
     name: string;
     flags: number;
     sensors: fk_app.SensorCapabilities[];
-    status: ModuleConfiguration | null;
+    configuration: ModuleConfiguration | null;
 }
 
 export interface HttpStatusReply {
@@ -199,7 +199,7 @@ function translateModule(m: fk_app.IModuleCapabilities | null, moduleConfigurati
 
     return {
         moduleId: moduleId,
-        status: config,
+        configuration: config,
         sensors: m.sensors.map((s) => new fk_app.SensorCapabilities(s)),
         name: m.name,
         position: m.position!,
