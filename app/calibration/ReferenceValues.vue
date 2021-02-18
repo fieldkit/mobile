@@ -13,7 +13,7 @@
 import _ from "lodash";
 import Vue from "vue";
 import { CalibrationStrategy, CalibrationValue } from "./model";
-import { AtlasCalValue } from "./water";
+import { WaterCalValue } from "./water";
 import { required, decimal } from "vuelidate/lib/validators";
 
 class ReferenceForm {
@@ -23,7 +23,7 @@ class ReferenceForm {
     public range: [number, number];
 
     constructor(public readonly calibrationValue: CalibrationValue) {
-        const calValue = <AtlasCalValue>calibrationValue;
+        const calValue = <WaterCalValue>calibrationValue;
         this.value = `${calValue.reference}`;
         this.label = calValue.label;
         this.range = calValue.range;
@@ -44,8 +44,8 @@ class ReferenceForm {
 
     public toCalValue(): CalibrationValue {
         if (!this.valid) throw new Error("toCalValue: invalid value");
-        const calValue = <AtlasCalValue>this.calibrationValue;
-        return new AtlasCalValue(Number(this.value), this.range, calValue.command);
+        const calValue = <WaterCalValue>this.calibrationValue;
+        return new WaterCalValue(Number(this.value), this.range, calValue.command);
     }
 }
 

@@ -6,7 +6,7 @@ import { MutationTypes } from "../mutations";
 import { Station, ServiceInfo } from "../types";
 import { ServiceRef } from "@/services";
 import { CalibrationState, PendingCalibration, PendingCalibrationPoint, GlobalGetters } from "./global";
-import { calibrationStrategies, StationCalibration, AtlasCalValue } from "@/calibration";
+import { calibrationStrategies, StationCalibration, WaterCalValue } from "@/calibration";
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 import CalibrationService from "@/services/calibration-service";
 import { unixNow } from "@/utilities";
@@ -17,20 +17,20 @@ type ModuleType = Module<CalibrationState, never>;
 
 type ModuleConfiguration = DataProto.ModuleConfiguration;
 
-export class ClearAtlasCalibration {
+export class ClearWaterCalibration {
     public readonly type: string = ActionTypes.CLEAR_SENSOR_CALIBRATION;
 
     constructor(public readonly deviceId: string, public readonly moduleId: string, public readonly position: number) {}
 }
 
-export class CalibrateAtlas {
+export class CalibrateWater {
     public readonly type: string = ActionTypes.CALIBRATE_SENSOR;
 
     constructor(
         public readonly deviceId: string,
         public readonly moduleId: string,
         public readonly position: number,
-        public readonly value: AtlasCalValue,
+        public readonly value: WaterCalValue,
         public readonly compensations: { temperature: number | null },
         public readonly expectedPoints: number
     ) {}
@@ -120,7 +120,7 @@ const actions = (services: ServiceRef) => {
                 }
             });
         },
-        [ActionTypes.CLEAR_SENSOR_CALIBRATION]: async ({ commit, dispatch, state }: ActionParameters, payload: ClearAtlasCalibration) => {
+        [ActionTypes.CLEAR_SENSOR_CALIBRATION]: async ({ commit, dispatch, state }: ActionParameters, payload: ClearWaterCalibration) => {
             const info = state.connected[payload.deviceId];
             if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);
             const service = new CalibrationService(services.conservify());
@@ -133,7 +133,7 @@ const actions = (services: ServiceRef) => {
         [ActionTypes.CALIBRATE_BEGIN]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateBegin) => {
             return commit(MutationTypes.CALIBRATION_BEGIN, { moduleId: payload.moduleId });
         },
-        [ActionTypes.CALIBRATE_SENSOR]: async ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
+        [ActionTypes.CALIBRATE_SENSOR]: async ({ commit, dispatch, state }: ActionParameters, payload: CalibrateWater) => {
             const moduleId = payload.moduleId;
             const info = state.connected[payload.deviceId];
             if (!info) throw new Error(`no info for nearby station ${payload.deviceId}`);

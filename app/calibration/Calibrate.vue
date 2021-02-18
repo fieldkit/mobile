@@ -43,8 +43,8 @@ import Recalibrate from "../components/onboarding/Recalibrate.vue";
 import StationSettingsModules from "../components/settings/StationSettingsModuleList.vue";
 
 import { CalibrationStep, VisualCalibrationStep, CalibrationStrategy, CalibratingSensor } from "./model";
-import { ClearAtlasCalibration, CalibrateBegin, CalibrateAtlas } from "../store/modules/cal";
-import { AtlasCalValue } from "./water";
+import { ClearWaterCalibration, CalibrateBegin, CalibrateWater } from "../store/modules/cal";
+import { WaterCalValue } from "./water";
 
 import { LegacyStation } from "@/store";
 
@@ -215,7 +215,7 @@ export default Vue.extend({
                 if (!sensor) {
                     return Promise.resolve();
                 }
-                const action = new ClearAtlasCalibration(this.deviceId, sensor.moduleId, this.position);
+                const action = new ClearWaterCalibration(this.deviceId, sensor.moduleId, this.position);
                 console.log("cal:", "clearing", action);
                 this.busy = true;
                 return this.$s
@@ -250,11 +250,11 @@ export default Vue.extend({
                 temperature: maybeWaterTemp || null,
             };
             const calibrationValue = this.strategy.getStepCalibrationValue(step);
-            const action = new CalibrateAtlas(
+            const action = new CalibrateWater(
                 this.deviceId,
                 sensor.moduleId,
                 this.position,
-                calibrationValue as AtlasCalValue,
+                calibrationValue as WaterCalValue,
                 compensations,
                 this.strategy.numberOfCalibrationPoints
             );
