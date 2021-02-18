@@ -130,7 +130,7 @@ const actions = (services: ServiceRef) => {
                 return commit(MutationTypes.CLEARED_CALIBRATION, { moduleId: payload.moduleId, configuration: cleared });
             });
         },
-        [ActionTypes.CALIBRATE_BEGIN]: async ({ commit, dispatch, state }: ActionParameters, payload: CalibrateBegin) => {
+        [ActionTypes.CALIBRATE_BEGIN]: ({ commit, dispatch, state }: ActionParameters, payload: CalibrateBegin) => {
             return commit(MutationTypes.CALIBRATION_BEGIN, { moduleId: payload.moduleId });
         },
         [ActionTypes.CALIBRATE_SENSOR]: async ({ commit, dispatch, state }: ActionParameters, payload: CalibrateAtlas) => {
