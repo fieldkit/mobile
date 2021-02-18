@@ -1,6 +1,6 @@
 <template>
     <StackLayout height="100%" backgroundColor="white" verticalAlignment="middle">
-        <GridLayout rows="*,80,60" columns="*">
+        <GridLayout rows="*" columns="*">
             <StackLayout row="0" verticalAlignment="middle">
                 <Image row="0" src="~/images/Icon_Warning_error.png" class="small"></Image>
                 <Label row="1" :text="_L('calibrationFailed')" class="instruction-heading"></Label>

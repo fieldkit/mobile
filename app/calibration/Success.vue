@@ -1,6 +1,6 @@
 <template>
     <StackLayout height="100%" backgroundColor="white" verticalAlignment="middle">
-        <GridLayout rows="auto, auto" columns="*">
+        <GridLayout rows="auto,auto" columns="*">
             <Image row="0" src="~/images/Icon_Success.png" class="small"></Image>
             <Label row="1" :text="text" class="instruction-heading"></Label>
         </GridLayout>

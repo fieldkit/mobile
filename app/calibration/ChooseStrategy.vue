@@ -1,59 +1,64 @@
 <template>
-    <ScrollView class="scroll-style" @tap="maybeDismissKeyboard">
-        <GridLayout rows="auto,*,auto" class="choice-container" v-if="strategy == null">
-            <StackLayout row="0">
-                <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
+    <GridLayout rows="*,auto">
+        <ScrollView row="0" class="scroll-style" @tap="maybeDismissKeyboard">
+            <GridLayout rows="auto,*" class="choice-container" v-if="strategy == null">
+                <StackLayout row="0">
+                    <Label class="choice-heading" textWrap="true" text="Choose Calibration Type" />
 
-                <Label
-                    class="choice-why"
-                    textWrap="true"
-                    text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
-                />
-            </StackLayout>
-
-            <StackLayout row="1">
-                <StackLayout
-                    v-for="(strategy, index) in strategies"
-                    :key="index"
-                    class="strategy-container"
-                    v-bind:class="{ selected: selected === index }"
-                    @tap="choose(strategy, index)"
-                >
-                    <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
-                    <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
+                    <Label
+                        class="choice-why"
+                        textWrap="true"
+                        text="For accurate data, set your module boards' baseline. More calibration points mean more precise readings."
+                    />
                 </StackLayout>
 
-                <!-- This is so dumb. This keeps the final container
-                from expanding in weird ways. No idea why and no time
-                to dig deeper. -->
-                <Label text=" " />
-            </StackLayout>
+                <StackLayout row="1">
+                    <StackLayout
+                        v-for="(strategy, index) in strategies"
+                        :key="index"
+                        class="strategy-container"
+                        v-bind:class="{ selected: selected === index }"
+                        @tap="choose(strategy, index)"
+                    >
+                        <Label col="1" class="m-t-5 m-l-5 heading" :text="strategy.heading" textWrap="true" />
+                        <Label col="1" class="m-t-5 m-l-5 help" :text="strategy.help" textWrap="true" />
+                    </StackLayout>
 
-            <StackLayout row="2">
-                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="confirmStrategy" :isEnabled="enabled" />
-            </StackLayout>
-        </GridLayout>
+                    <!-- This is so dumb. This keeps the final
+                container from expanding in weird ways. No idea why
+                and no time to dig deeper. Might be unnecessary after
+                the layout changes to move button to the bottom. -->
+                    <Label text=" " />
+                </StackLayout>
+            </GridLayout>
 
-        <GridLayout rows="auto,*,auto" class="choice-container" v-else>
-            <StackLayout row="0">
-                <Label class="choice-heading" textWrap="true" text="Calibration Fluids" />
+            <GridLayout rows="auto,*" class="choice-container" v-else>
+                <StackLayout row="0">
+                    <Label class="choice-heading" textWrap="true" text="Calibration Fluids" />
 
-                <Label
-                    class="choice-why"
-                    textWrap="true"
-                    text="The clibration fluids you have may differ from the values below, so please double check them."
-                />
-            </StackLayout>
+                    <Label
+                        class="choice-why"
+                        textWrap="true"
+                        text="The clibration fluids you have may differ from the values below, so please double check them."
+                    />
+                </StackLayout>
 
-            <StackLayout row="1">
-                <ReferenceValues :strategy="strategy" @changed="onReferenceValues" />
-            </StackLayout>
-
-            <StackLayout row="2">
-                <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="enabled && references != null" />
-            </StackLayout>
-        </GridLayout>
-    </ScrollView>
+                <StackLayout row="1">
+                    <ReferenceValues :strategy="strategy" @changed="onReferenceValues" />
+                </StackLayout>
+            </GridLayout>
+        </ScrollView>
+        <StackLayout row="1">
+            <Button
+                class="btn btn-primary btn-padded"
+                :text="visual.done"
+                @tap="confirmStrategy"
+                :isEnabled="enabled"
+                v-if="strategy == null"
+            />
+            <Button class="btn btn-primary btn-padded" :text="visual.done" @tap="done" :isEnabled="enabled && references != null" v-else />
+        </StackLayout>
+    </GridLayout>
 </template>
 
 <script lang="ts">

@@ -1,6 +1,6 @@
 <template>
     <StackLayout>
-        <GridLayout rows="*,80">
+        <GridLayout rows="*,auto">
             <StackLayout row="0">
                 <ProgressBarAndStatus :connected="sensor.connected" :progress="progress" />
                 <Label class="instruction-heading" :text="visual.heading" lineHeight="4" textWrap="true" />
