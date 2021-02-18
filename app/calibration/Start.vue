@@ -87,7 +87,7 @@ export default Vue.extend({
     methods: {
         async done(strategy: CalibrationStrategy): Promise<void> {
             if (!strategy) throw new Error();
-            console.log(`strategy: ${JSON.stringify(strategy)}`);
+            console.log(`strategy: ${strategy.moduleKey} ${strategy.heading}`);
             this.strategy = strategy;
             await this.$navigateTo(Calibrate, {
                 props: {

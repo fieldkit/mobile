@@ -19,9 +19,14 @@ const commands = {
     PhLow: new CalibrationCommand("calibration.references.low"),
     PhMiddle: new CalibrationCommand("calibration.references.middle"),
     PhHigh: new CalibrationCommand("calibration.references.high"),
-    DoAtmosphere: new CalibrationCommand("calibration.references.atmosphere"),
-    EcDry: new CalibrationCommand("calibration.references.dry"),
-    EcSingle: new CalibrationCommand("calibration.references.single"),
+
+    DoLow: new CalibrationCommand("calibration.references.low"),
+    DoMiddle: new CalibrationCommand("calibration.references.middle"),
+    DoHigh: new CalibrationCommand("calibration.references.high"),
+
+    EcLow: new CalibrationCommand("calibration.references.low"),
+    EcMiddle: new CalibrationCommand("calibration.references.middle"),
+    EcHigh: new CalibrationCommand("calibration.references.high"),
 };
 
 export class WaterCalValue extends CalibrationValue {
@@ -166,7 +171,63 @@ const DissolvedOxygen = (): CalibrationStrategy => {
     const doCommon = DoCommon();
 
     return new CalibrationStrategy("modules.water.do", _L("waterDissolvedOxygen"), _L("waterDissolvedOxygen"), [
-        new CalibrationPointStep(new WaterCalValue(0.0, DoRange, commands.DoAtmosphere), [
+        new CalibrationPointStep(new WaterCalValue(0.0, DoRange, commands.DoLow), [
+            new CheckVisual(Check, {
+                ...doCommon,
+                heading: _L("dissovedOxygenCalibration"),
+                done: _L("next"),
+                skip: _L("skip"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...doCommon,
+                heading: _L("dissovedOxygenCalibration"),
+                instructions: _L("dryProbeBefore"),
+                image: "~/images/TI_16-A.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...doCommon,
+                heading: _L("dissovedOxygenCalibration"),
+                instructions: _L("holdProbeOut"),
+                image: "~/images/TI_16-B.jpg",
+                done: _L("next"),
+            }),
+            new WaitVisual(Wait, {
+                ...doCommon,
+                seconds: 120,
+                heading: _L("dissovedOxygenCalibration"),
+                done: _L("calibrate"),
+            }),
+        ]),
+        new CalibrationPointStep(new WaterCalValue(0.0, DoRange, commands.DoMiddle), [
+            new CheckVisual(Check, {
+                ...doCommon,
+                heading: _L("dissovedOxygenCalibration"),
+                done: _L("next"),
+                skip: _L("skip"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...doCommon,
+                heading: _L("dissovedOxygenCalibration"),
+                instructions: _L("dryProbeBefore"),
+                image: "~/images/TI_16-A.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...doCommon,
+                heading: _L("dissovedOxygenCalibration"),
+                instructions: _L("holdProbeOut"),
+                image: "~/images/TI_16-B.jpg",
+                done: _L("next"),
+            }),
+            new WaitVisual(Wait, {
+                ...doCommon,
+                seconds: 120,
+                heading: _L("dissovedOxygenCalibration"),
+                done: _L("calibrate"),
+            }),
+        ]),
+        new CalibrationPointStep(new WaterCalValue(0.0, DoRange, commands.DoHigh), [
             new CheckVisual(Check, {
                 ...doCommon,
                 heading: _L("dissovedOxygenCalibration"),
@@ -201,7 +262,7 @@ const EcDual = (): CalibrationStrategy => {
     const ecCommon = EcCommon();
 
     return new CalibrationStrategy("modules.water.ec", _L("waterConductivity"), _L("waterConductivity"), [
-        new CalibrationPointStep(new WaterCalValue(0.0, EcRange, commands.EcDry), [
+        new CalibrationPointStep(new WaterCalValue(0.0, EcRange, commands.EcLow), [
             new CheckVisual(Check, {
                 ...ecCommon,
                 heading: _L("waterConductivity"),
@@ -229,7 +290,36 @@ const EcDual = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(12880, EcRange, commands.EcSingle), [
+        new CalibrationPointStep(new WaterCalValue(12880 / 2, EcRange, commands.EcMiddle), [
+            new PrepareVisual(Prepare, {
+                ...ecCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("haveYourConductivitySolution"),
+                image: "~/images/TI_11.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...ecCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("rinseWithDeionizedWater"),
+                image: "~/images/TI_12-A.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...ecCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("placeInAndStabilizeWithTemp"),
+                image: "~/images/TI_13-C.jpg",
+                done: _L("next"),
+            }),
+            new WaitVisual(Wait, {
+                ...ecCommon,
+                seconds: 120,
+                heading: _L("dissovedOxygenCalibration"),
+                done: _L("calibrate"),
+            }),
+        ]),
+        new CalibrationPointStep(new WaterCalValue(12880, EcRange, commands.EcHigh), [
             new PrepareVisual(Prepare, {
                 ...ecCommon,
                 heading: _L("part2Wet"),

@@ -76,7 +76,6 @@ export default Vue.extend({
         };
     },
     mounted(): void {
-        console.log("cal:", "strategy", this.strategy, this.strategy.references);
         this.form = new Form(this.strategy.references.map((r) => new ReferenceForm(r.value)));
     },
     methods: {

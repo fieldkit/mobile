@@ -112,16 +112,15 @@ export default Vue.extend({
         },
         confirmStrategy(): void {
             this.strategy = this.strategies[this.selected];
-            console.log(`confirm-strategy: ${JSON.stringify(this.strategy)}`);
         },
         onReferenceValues(references: CalibrationValue[] | null): void {
-            console.log(`reference-values: ${JSON.stringify(references)}`);
             this.references = references;
         },
         done(): void {
             const strategy = this.strategy;
             const references = this.references;
             if (strategy && references) {
+                console.log(`done: ${strategy.moduleKey} ${strategy.heading} ${JSON.stringify(references)}`);
                 const adjusted = strategy.adjustReferences(references);
                 this.$emit("done", adjusted);
             }
