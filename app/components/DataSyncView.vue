@@ -260,7 +260,6 @@ export default Vue.extend({
     padding-bottom: 10;
     border-top-color: $fk-gray-lighter;
     border-top-width: 1;
-    background-color: green;
 }
 .connected-since {
     padding-left: 5;
