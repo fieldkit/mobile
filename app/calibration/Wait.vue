@@ -18,7 +18,8 @@
                 :animated="true"
                 :elapsed="remaining"
                 :unitOfMeasure="sensor.unitOfMeasure"
-                :reading="sensor.reading"
+                :calibrated="sensor.calibrated"
+                :uncalibrated="sensor.uncalibrated"
             />
         </StackLayout>
         <StackLayout row="1">

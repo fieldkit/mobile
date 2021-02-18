@@ -268,9 +268,9 @@ export default class DatabaseInterface {
 
     private async insertSensor(moduleId: string, sensor: Sensor): Promise<void> {
         await this.getModulePrimaryKey(moduleId).then((modulePrimaryKey) => {
-            const values = [modulePrimaryKey, sensor.name, sensor.position, sensor.unitOfMeasure, 0, sensor.reading];
+            const values = [modulePrimaryKey, sensor.name, sensor.position, sensor.unitOfMeasure, 0, sensor.reading, sensor.uncalibrated];
             return this.execute(
-                "INSERT INTO sensors (module_id, name, position, unit, frequency, current_reading) VALUES (?, ?, ?, ?, ?, ?)",
+                "INSERT INTO sensors (module_id, name, position, unit, frequency, reading, uncalibrated) VALUES (?, ?, ?, ?, ?, ?, ?)",
                 values
             ).catch((error) => Promise.reject(new Error(`error inserting sensor: ${JSON.stringify(error)}`)));
         });
@@ -311,11 +311,11 @@ export default class DatabaseInterface {
         log.verbose("synchronize sensors", adding, removed, keeping);
 
         function getTrend(name: string): number {
-            if (!existing[name] || !incoming[name] || !existing[name].currentReading || !incoming[name].reading) {
+            if (!existing[name] || !incoming[name] || !existing[name].reading || !incoming[name].reading) {
                 return 0;
             }
             // eslint-disable-next-line
-            const previous = Math.round((existing[name]!.currentReading || 0) * 10) / 10;
+            const previous = Math.round((existing[name]!.reading || 0) * 10) / 10;
             // eslint-disable-next-line
             const current = Math.round((incoming[name]!.reading || 0) * 10) / 10;
             return current == previous ? 0 : current > previous ? 1 : -1;
@@ -330,14 +330,16 @@ export default class DatabaseInterface {
                         return {
                             id: existing[name].id,
                             reading: incoming[name].reading,
+                            uncalibrated: incoming[name].uncalibrated,
                             position: incoming[name].position,
                             trend: getTrend(name),
                         };
                     })
                     .filter((update) => update.reading != null)
                     .map((update) =>
-                        this.execute("UPDATE sensors SET current_reading = ?, trend = ?, position = ? WHERE id = ?", [
+                        this.execute("UPDATE sensors SET reading = ?, uncalibrated = ?, trend = ?, position = ? WHERE id = ?", [
                             update.reading,
+                            update.uncalibrated,
                             update.trend,
                             update.position,
                             update.id,

@@ -22,3 +22,5 @@ export * from "./20201123_140043_add_sensor_number.ts";
 export * from "./20201129_145857_add_station_user_id.ts";
 export * from "./20201130_191611_add_user_details.ts";
 export * from "./20210119_173542_add_last_synced.ts";
+export * from "./20210217_180557_add_uncalibrated_column.ts";
+export * from "./20210217_180912_rename_current_reading.ts";

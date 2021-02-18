@@ -212,6 +212,7 @@ class StationStatusFactory {
                                             sensorReply.sensor.number,
                                             sensorReply.sensor.unitOfMeasure,
                                             sensorReply.value,
+                                            sensorReply.uncalibrated,
                                             null
                                         )
                                 )
@@ -235,7 +236,9 @@ class StationStatusFactory {
         return _(statusReply.modules)
             .map((moduleReply) => {
                 const sensors = _(moduleReply.sensors)
-                    .map((sensorReply) => new Sensor(null, sensorReply.name, sensorReply.number, sensorReply.unitOfMeasure, null, null))
+                    .map(
+                        (sensorReply) => new Sensor(null, sensorReply.name, sensorReply.number, sensorReply.unitOfMeasure, null, null, null)
+                    )
                     .value();
                 return new Module(
                     null,
@@ -274,7 +277,8 @@ class StationDatabaseFactory {
                                 sensorRow.name,
                                 sensorRow.position,
                                 sensorRow.unit,
-                                sensorRow.currentReading,
+                                sensorRow.reading,
+                                sensorRow.uncalibrated,
                                 sensorRow.trend
                             )
                     )

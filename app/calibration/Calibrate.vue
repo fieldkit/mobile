@@ -120,6 +120,7 @@ export default Vue.extend({
                     this.position,
                     displaySensor.unitOfMeasure,
                     displaySensor.reading,
+                    displaySensor.uncalibrated,
                     calibrationValue,
                     configuration,
                     stationSensors

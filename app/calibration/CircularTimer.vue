@@ -1,14 +1,17 @@
 <template>
     <GridLayout rows="auto,auto" columns="*" class="timer-container">
         <GridLayout row="0" class="inner-circle">
-            <FlexboxLayout verticalAlignment="middle" justifyContent="center" v-if="reading">
+            <FlexboxLayout verticalAlignment="middle" justifyContent="center" v-if="uncalibrated">
                 <Label
                     :text="unitOfMeasure"
                     verticalAlignment="bottom"
                     class="m-r-5 m-t-5 size-14 calibration-unit"
                     v-show="unitOfMeasure && unitIsPrefix"
                 />
-                <Label flexShrink="0.25" :text="reading | prettyReading" verticalAlignment="bottom" class="size-26" />
+                <StackLayout flexShrink="0.25" verticalAlignment="bottom">
+                    <Label :text="uncalibrated | prettyReading" class="size-26" />
+                    <Label :text="calibrated | prettyReading" class="" />
+                </StackLayout>
                 <Label
                     :text="unitOfMeasure"
                     verticalAlignment="bottom"
@@ -48,7 +51,11 @@ export default Vue.extend({
             type: Number,
             required: true,
         },
-        reading: {
+        calibrated: {
+            type: Number,
+            default: null,
+        },
+        uncalibrated: {
             type: Number,
             default: null,
         },

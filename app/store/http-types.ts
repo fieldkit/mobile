@@ -9,6 +9,7 @@ const HttpReply = fk_app.HttpReply;
 export interface LiveSensorReading {
     sensor: SensorCapabilities;
     value: number;
+    uncalibrated: number;
 }
 
 export interface LiveModuleReadings {
@@ -211,6 +212,7 @@ function translateLiveModuleReadings(lmr: fk_app.ILiveModuleReadings, moduleConf
             return {
                 sensor: new fk_app.SensorCapabilities(lsr.sensor),
                 value: lsr.value!,
+                uncalibrated: lsr.uncalibrated!,
             };
         }),
     };
