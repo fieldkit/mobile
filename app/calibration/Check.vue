@@ -37,6 +37,9 @@
 
             <Label class="existing-calibration" text="You may also clear any calibration data for this sensor." textWrap="true" />
 
+            <Label class="debugging-title" text="Debugging:" textWrap="true" />
+            <Label class="calibration-debugging" :text="debugging" textWrap="true" />
+
             <Button class="btn btn-padded" text="Clear" :isEnabled="!busy" @tap="clear" />
         </StackLayout>
         <StackLayout row="1">
@@ -92,6 +95,9 @@ export default Vue.extend({
         calibrationPoints(): number {
             return this.sensor.moduleCalibration?.calibration?.points?.length || 0;
         },
+        debugging(): string {
+            return JSON.stringify(this.sensor.moduleCalibration);
+        },
     },
     methods: {
         back(): void {
@@ -123,8 +129,19 @@ export default Vue.extend({
 .existing-calibration {
     color: $fk-primary-black;
     text-align: center;
+    margin-top: 20;
     margin-right: 20;
     margin-left: 20;
     font-size: 16;
+}
+.debugging-title {
+    font-size: 14;
+    font-weight: bold;
+    margin-top: 20;
+    margin-right: 20;
+    margin-left: 20;
+}
+.calibration-debugging {
+    padding: 20;
 }
 </style>
