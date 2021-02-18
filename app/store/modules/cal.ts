@@ -62,6 +62,16 @@ export abstract class CalibrationCurve {
     public abstract calculateCoefficients(pending: PendingCalibration): DataProto.CalibrationCoefficients;
 }
 
+function acceptableCoefficient(value: number): boolean {
+    if (value === null || isNaN(value)) return false;
+    return Math.abs(value) > 0.0001;
+}
+
+function acceptableOffset(value: number): boolean {
+    if (value === null || isNaN(value)) return false;
+    return true;
+}
+
 export class LinearCalibrationCurve extends CalibrationCurve {
     public calculate(pending: PendingCalibration): DataProto.Calibration {
         const points = pending.points.map(
@@ -94,8 +104,8 @@ export class LinearCalibrationCurve extends CalibrationCurve {
         const m = numer / denom;
         const b = yMean - m * xMean;
         console.log(`cal:coeff ${JSON.stringify({ x, y, xMean, yMean, numerParts, denomParts, numer, denom, b, m })}`);
-        if (m === null || b == null || isNaN(m) || isNaN(b)) throw new CalibrationError(`calibration failed`);
-        if (m === 0) throw new CalibrationError(`calibration failed`);
+        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed`);
+        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed`);
         return new DataProto.CalibrationCoefficients({ values: [b, m] });
     }
 }
