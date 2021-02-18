@@ -43,6 +43,8 @@
                 <Button class="btn btn-primary btn-padded" text="Forget Uploads" @tap="forgetUploads" />
                 <Button class="btn btn-primary btn-padded" text="Forget Downloads" @tap="forgetDownloads" />
 
+                <Button class="btn btn-primary btn-padded" text="Zones" @tap="testZones" />
+
                 <Button class="btn btn-primary btn-padded" text="Flows" @tap="loadFlows" :isEnabled="!busy" />
 
                 <StackLayout v-for="(name, i) in flowNames" v-bind:key="i" class="flows" v-if="beta && flows">
@@ -478,6 +480,53 @@ export default Vue.extend({
         update(message: string): void {
             console.log(`examine: ${message}`);
             this.status.push(new StatusMessages(message));
+        },
+        async testZones(): Promise<void> {
+            await this.asyncExamples();
+
+            if ((global as any).Zone) {
+                console.log("have Zone");
+                Zone.current
+                    .fork({
+                        name: "task-ids",
+                        properties: {
+                            id: Math.random(),
+                        },
+                    })
+                    .run(async () => {
+                        console.log("starting", Zone.current.get("id"));
+                        await this.asyncExamples();
+                        console.log("done");
+                    });
+            } else {
+                console.log("no Zone");
+            }
+        },
+        async asyncExamples(): Promise<void> {
+            try {
+                await new Promise((resolve) => {
+                    console.log("test-1");
+                    resolve("done");
+                });
+            } catch (error) {
+                console.log("test-1 error", error);
+            }
+
+            try {
+                await new Promise((resolve, reject) => {
+                    console.log("test-2");
+                    reject("fail");
+                });
+            } catch (error) {
+                console.log("test-2 error", error);
+            }
+
+            try {
+                const response = await axios.request({ url: "https://api.fieldkit.org/status", timeout: 3000 });
+                console.log("test-3", response.data);
+            } catch (error) {
+                console.log("test-3 error", error);
+            }
         },
     },
 });

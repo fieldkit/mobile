@@ -3,6 +3,12 @@ import i18n from "@/lib/tns-i18n-deep";
 // and this default language initialization does not override that
 i18n("en");
 
+// It's important to import this way and avoid mixing zone.js with the
+// dist paths, from what I can tell.
+import "zone.js/dist/zone";
+import "zone.js/dist/zone-error";
+import "zone.js/dist/zone-bluebird";
+
 import moment from "moment";
 import Bluebird from "bluebird";
 import Vue from "nativescript-vue";
