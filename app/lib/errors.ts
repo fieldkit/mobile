@@ -69,3 +69,16 @@ export class HttpError extends Error {
         return error?.http === true;
     }
 }
+
+export class CalibrationError extends Error {
+    public readonly calibration = true;
+
+    constructor(message: string) {
+        super(message);
+    }
+
+    public static isInstance(error: CalibrationError): boolean {
+        if (!error) return false;
+        return error?.calibration === true;
+    }
+}

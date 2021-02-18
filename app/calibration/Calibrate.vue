@@ -241,7 +241,7 @@ export default Vue.extend({
             }
 
             const sensor: CalibratingSensor | null = this.sensor;
-            console.log("cal:", "sensor", sensor);
+            console.log(`cal-sensor: ${JSON.stringify(sensor)}`);
             if (!sensor || !sensor.moduleCalibration) {
                 throw new Error(`no sensor calibration: ${JSON.stringify(sensor)}`);
             }
@@ -259,14 +259,14 @@ export default Vue.extend({
                 this.strategy.numberOfCalibrationPoints
             );
 
-            console.log(`cal: calibrate ${JSON.stringify(action)}`);
+            console.log(`cal-action: ${JSON.stringify(action)}`);
             this.busy = true;
             await this.$s
                 .dispatch(action)
                 .then(
                     (calibrated) => {
                         console.log("cal:", "calibrated");
-                        return Promise.resolve(this.onDone(ev, step));
+                        return this.onDone(ev, step);
                     },
                     (err) => {
                         console.log("cal:error", err, err ? err.stack : null);

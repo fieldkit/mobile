@@ -10,6 +10,7 @@ import { calibrationStrategies, StationCalibration, WaterCalValue } from "@/cali
 import { fk_data as DataProto } from "fk-data-protocol/fk-data";
 import CalibrationService from "@/services/calibration-service";
 import { unixNow } from "@/utilities";
+import { CalibrationError } from "@/lib/errors";
 
 type ActionParameters = ActionContext<CalibrationState, never>;
 
@@ -93,6 +94,8 @@ export class LinearCalibrationCurve extends CalibrationCurve {
         const m = numer / denom;
         const b = yMean - m * xMean;
         console.log(`cal:coeff ${JSON.stringify({ x, y, xMean, yMean, numerParts, denomParts, numer, denom, b, m })}`);
+        if (m === null || b == null || isNaN(m) || isNaN(b)) throw new CalibrationError(`calibration failed`);
+        if (m === 0) throw new CalibrationError(`calibration failed`);
         return new DataProto.CalibrationCoefficients({ values: [b, m] });
     }
 }
@@ -149,23 +152,30 @@ const actions = (services: ServiceRef) => {
             const pending = state.pending[moduleId];
             const completed = pending.points.length == payload.expectedPoints;
             if (completed) {
-                const curve = getCurveForSensor();
-                const calibration = curve.calculate(pending);
-                console.log(`cal-done: ${JSON.stringify(calibration)}`);
+                try {
+                    const curve = getCurveForSensor();
+                    const calibration = curve.calculate(pending);
+                    console.log(`cal-done: ${JSON.stringify(calibration)}`);
 
-                const config = DataProto.ModuleConfiguration.create({
-                    calibration: calibration,
-                });
+                    const config = DataProto.ModuleConfiguration.create({
+                        calibration: calibration,
+                    });
 
-                const encoded = Buffer.from(DataProto.ModuleConfiguration.encodeDelimited(config).finish());
-                const hex = encoded.toString("hex");
-                console.log(`cal-hex`, encoded.length, hex);
+                    const encoded = Buffer.from(DataProto.ModuleConfiguration.encodeDelimited(config).finish());
+                    const hex = encoded.toString("hex");
+                    console.log(`cal-hex`, encoded.length, hex);
 
-                const service = new CalibrationService(services.conservify());
-                const url = `${info.url}/modules/${payload.position}`;
-                const reply = await service.calibrate(url, encoded);
+                    const service = new CalibrationService(services.conservify());
+                    const url = `${info.url}/modules/${payload.position}`;
+                    const reply = await service.calibrate(url, encoded);
 
-                commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: moduleId, configuration: reply });
+                    commit(MutationTypes.MODULE_CONFIGURATION, { moduleId: moduleId, configuration: reply });
+                } catch (error) {
+                    if (CalibrationError.isInstance(error)) {
+                        console.log(`calibration failed:`, error);
+                    }
+                    throw error;
+                }
             }
         },
     };
