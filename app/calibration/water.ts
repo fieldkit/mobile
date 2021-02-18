@@ -10,6 +10,7 @@ type Range = [number, number];
 const PhRange: Range = [0, 14];
 const DoRange: Range = [0, 100000];
 const EcRange: Range = [0, 100000];
+const OrpRange: Range = [0, 100000];
 
 export class CalibrationCommand {
     constructor(public readonly key: string) {}
@@ -27,6 +28,10 @@ const commands = {
     EcLow: new CalibrationCommand("calibration.references.low"),
     EcMiddle: new CalibrationCommand("calibration.references.middle"),
     EcHigh: new CalibrationCommand("calibration.references.high"),
+
+    OrpLow: new CalibrationCommand("calibration.references.low"),
+    OrpMiddle: new CalibrationCommand("calibration.references.middle"),
+    OrpHigh: new CalibrationCommand("calibration.references.high"),
 };
 
 export class WaterCalValue extends CalibrationValue {
@@ -77,6 +82,17 @@ function EcCommon(): CommonProperties {
         title: _L("setup"),
         subtitle: _L("waterConductivity"),
         icon: "~/images/Icon_WaterConductivity_Module.png",
+        done: _L("next"),
+    };
+}
+
+function OrpCommon(): CommonProperties {
+    return {
+        sensor: "orp",
+        unitOfMeasure: "",
+        title: _L("setup"),
+        subtitle: _L("waterOrp"),
+        icon: "~/images/Icon_WaterConductivity_Module.png", // WRONG
         done: _L("next"),
     };
 }
@@ -167,7 +183,7 @@ const Ph3 = (): CalibrationStrategy => {
     ]);
 };
 
-const DissolvedOxygen = (): CalibrationStrategy => {
+const Do3 = (): CalibrationStrategy => {
     const doCommon = DoCommon();
 
     return new CalibrationStrategy("modules.water.do", _L("waterDissolvedOxygen"), _L("waterDissolvedOxygen"), [
@@ -258,7 +274,7 @@ const DissolvedOxygen = (): CalibrationStrategy => {
     ]);
 };
 
-const EcDual = (): CalibrationStrategy => {
+const Ec3 = (): CalibrationStrategy => {
     const ecCommon = EcCommon();
 
     return new CalibrationStrategy("modules.water.ec", _L("waterConductivity"), _L("waterConductivity"), [
@@ -351,14 +367,108 @@ const EcDual = (): CalibrationStrategy => {
     ]);
 };
 
+const Orp3 = (): CalibrationStrategy => {
+    const orpCommon = OrpCommon();
+
+    return new CalibrationStrategy("modules.water.orp", _L("modules.water.orp.name"), _L("modules.water.orp.name"), [
+        new CalibrationPointStep(new WaterCalValue(0.0, OrpRange, commands.OrpLow), [
+            new CheckVisual(Check, {
+                ...orpCommon,
+                heading: _L("modules.water.orp.name"),
+                done: _L("next"),
+                skip: _L("skip"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part1Dry"),
+                instructions: _L("dryProbeBefore"),
+                image: "~/images/TI_16-A.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part1Dry"),
+                instructions: _L("holdProbeOut"),
+                image: "~/images/TI_16-B.jpg",
+                done: _L("next"),
+            }),
+            new WaitVisual(Wait, {
+                ...orpCommon,
+                seconds: 120,
+                heading: _L("orpCalibration"),
+                done: _L("calibrate"),
+            }),
+        ]),
+        new CalibrationPointStep(new WaterCalValue(12880 / 2, OrpRange, commands.OrpMiddle), [
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("haveYourConductivitySolution"),
+                image: "~/images/TI_11.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("rinseWithDeionizedWater"),
+                image: "~/images/TI_12-A.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("placeInAndStabilizeWithTemp"),
+                image: "~/images/TI_13-C.jpg",
+                done: _L("next"),
+            }),
+            new WaitVisual(Wait, {
+                ...orpCommon,
+                seconds: 120,
+                heading: _L("orpCalibration"),
+                done: _L("calibrate"),
+            }),
+        ]),
+        new CalibrationPointStep(new WaterCalValue(12880, OrpRange, commands.OrpHigh), [
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("haveYourConductivitySolution"),
+                image: "~/images/TI_11.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("rinseWithDeionizedWater"),
+                image: "~/images/TI_12-A.jpg",
+                done: _L("next"),
+            }),
+            new PrepareVisual(Prepare, {
+                ...orpCommon,
+                heading: _L("part2Wet"),
+                instructions: _L("placeInAndStabilizeWithTemp"),
+                image: "~/images/TI_13-C.jpg",
+                done: _L("next"),
+            }),
+            new WaitVisual(Wait, {
+                ...orpCommon,
+                seconds: 120,
+                heading: _L("orpCalibration"),
+                done: _L("calibrate"),
+            }),
+        ]),
+    ]);
+};
+
 export function Common(): { [index: string]: CommonProperties } {
     return {
         "modules.water.ph": PhCommon(),
         "modules.water.ec": EcCommon(),
         "modules.water.do": DoCommon(),
+        "modules.water.orp": OrpCommon(),
     };
 }
 
 export default function (): CalibrationStrategy[] {
-    return [Ph3(), DissolvedOxygen(), EcDual()];
+    return [Ph3(), Do3(), Ec3(), Orp3()];
 }

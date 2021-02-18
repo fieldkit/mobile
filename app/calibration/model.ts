@@ -142,8 +142,7 @@ export class ModuleCalibration {
         this.name = _T(convertOldFirmwareResponse(module) + ".name");
         this.position = module.position || 0;
         this.image = module.image;
-        const effective = configuration || module.configuration;
-        this.canCalibrate = !!effective?.calibration && haveStrategies;
+        this.canCalibrate = haveStrategies;
         this.isCalibrated = ModuleCalibration.isCalibrated(configuration);
         this.needsCalibration = this.canCalibrate && !this.isCalibrated;
     }
