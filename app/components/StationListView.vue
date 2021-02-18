@@ -21,8 +21,8 @@
                 >
                     <Label row="0" col="0" :text="station.name" :class="'station-name ' + (station.connected ? '' : 'disconnected')" />
                     <Label row="1" col="0" :text="getDeployStatus(station)" :class="'m-t-5 ' + (station.connected ? '' : 'disconnected')" />
-                    <Image v-if="station.connected" col="1" rowSpan="2" width="30" src="~/images/Icon_Connected_AP.png" />
-                    <Image v-if="!station.connected" col="1" rowSpan="2" width="30" src="~/images/Icon_Wifi_Not_Connected.png" />
+                    <Image v-if="station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Connected_AP.png" />
+                    <Image v-if="!station.connected" col="1" rowSpan="2" width="37" src="~/images/Icon_Wifi_Not_Connected.png" />
                 </GridLayout>
                 <Label v-if="!scanning" text="Double tap to scan for stations." textWrap="true" class="scan-notice" />
                 <Label v-if="scanning" text="Scanning" textWrap="true" class="scan-notice" />
