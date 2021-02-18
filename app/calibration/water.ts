@@ -35,7 +35,12 @@ const commands = {
 };
 
 export class WaterCalValue extends CalibrationValue {
-    constructor(public readonly reference: number, public readonly range: Range, public readonly command: CalibrationCommand) {
+    constructor(
+        public readonly index: number,
+        public readonly reference: number,
+        public readonly range: Range,
+        public readonly command: CalibrationCommand
+    ) {
         super();
     }
 
@@ -101,7 +106,7 @@ const Ph3 = (): CalibrationStrategy => {
     const phCommon = PhCommon();
 
     return new CalibrationStrategy("modules.water.ph", _L("threePointCalibration"), _L("threePointCalibration"), [
-        new CalibrationPointStep(new WaterCalValue(7, PhRange, commands.PhMiddle), [
+        new CalibrationPointStep(new WaterCalValue(0, 7, PhRange, commands.PhMiddle), [
             new CheckVisual(Check, {
                 ...phCommon,
                 heading: _L("threePointCalibration"),
@@ -136,7 +141,7 @@ const Ph3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(4, PhRange, commands.PhLow), [
+        new CalibrationPointStep(new WaterCalValue(1, 4, PhRange, commands.PhLow), [
             new PrepareVisual(Prepare, {
                 ...phCommon,
                 heading: _L("lowPointCalibration"),
@@ -158,7 +163,7 @@ const Ph3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(10, PhRange, commands.PhHigh), [
+        new CalibrationPointStep(new WaterCalValue(2, 10, PhRange, commands.PhHigh), [
             new PrepareVisual(Prepare, {
                 ...phCommon,
                 heading: _L("highPointCalibration"),
@@ -187,7 +192,7 @@ const Do3 = (): CalibrationStrategy => {
     const doCommon = DoCommon();
 
     return new CalibrationStrategy("modules.water.do", _L("waterDissolvedOxygen"), _L("waterDissolvedOxygen"), [
-        new CalibrationPointStep(new WaterCalValue(0.0, DoRange, commands.DoLow), [
+        new CalibrationPointStep(new WaterCalValue(0, 0.0, DoRange, commands.DoLow), [
             new CheckVisual(Check, {
                 ...doCommon,
                 heading: _L("dissovedOxygenCalibration"),
@@ -215,7 +220,7 @@ const Do3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(0.0, DoRange, commands.DoMiddle), [
+        new CalibrationPointStep(new WaterCalValue(1, 0.0, DoRange, commands.DoMiddle), [
             new CheckVisual(Check, {
                 ...doCommon,
                 heading: _L("dissovedOxygenCalibration"),
@@ -243,7 +248,7 @@ const Do3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(0.0, DoRange, commands.DoHigh), [
+        new CalibrationPointStep(new WaterCalValue(2, 0.0, DoRange, commands.DoHigh), [
             new CheckVisual(Check, {
                 ...doCommon,
                 heading: _L("dissovedOxygenCalibration"),
@@ -278,7 +283,7 @@ const Ec3 = (): CalibrationStrategy => {
     const ecCommon = EcCommon();
 
     return new CalibrationStrategy("modules.water.ec", _L("waterConductivity"), _L("waterConductivity"), [
-        new CalibrationPointStep(new WaterCalValue(0.0, EcRange, commands.EcLow), [
+        new CalibrationPointStep(new WaterCalValue(0, 0.0, EcRange, commands.EcLow), [
             new CheckVisual(Check, {
                 ...ecCommon,
                 heading: _L("waterConductivity"),
@@ -306,7 +311,7 @@ const Ec3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(12880 / 2, EcRange, commands.EcMiddle), [
+        new CalibrationPointStep(new WaterCalValue(1, 12880 / 2, EcRange, commands.EcMiddle), [
             new PrepareVisual(Prepare, {
                 ...ecCommon,
                 heading: _L("part2Wet"),
@@ -335,7 +340,7 @@ const Ec3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(12880, EcRange, commands.EcHigh), [
+        new CalibrationPointStep(new WaterCalValue(2, 12880, EcRange, commands.EcHigh), [
             new PrepareVisual(Prepare, {
                 ...ecCommon,
                 heading: _L("part2Wet"),
@@ -371,7 +376,7 @@ const Orp3 = (): CalibrationStrategy => {
     const orpCommon = OrpCommon();
 
     return new CalibrationStrategy("modules.water.orp", _L("modules.water.orp.name"), _L("modules.water.orp.name"), [
-        new CalibrationPointStep(new WaterCalValue(0.0, OrpRange, commands.OrpLow), [
+        new CalibrationPointStep(new WaterCalValue(0, 0.0, OrpRange, commands.OrpLow), [
             new CheckVisual(Check, {
                 ...orpCommon,
                 heading: _L("modules.water.orp.name"),
@@ -399,7 +404,7 @@ const Orp3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(12880 / 2, OrpRange, commands.OrpMiddle), [
+        new CalibrationPointStep(new WaterCalValue(1, 12880 / 2, OrpRange, commands.OrpMiddle), [
             new PrepareVisual(Prepare, {
                 ...orpCommon,
                 heading: _L("part2Wet"),
@@ -428,7 +433,7 @@ const Orp3 = (): CalibrationStrategy => {
                 done: _L("calibrate"),
             }),
         ]),
-        new CalibrationPointStep(new WaterCalValue(12880, OrpRange, commands.OrpHigh), [
+        new CalibrationPointStep(new WaterCalValue(2, 12880, OrpRange, commands.OrpHigh), [
             new PrepareVisual(Prepare, {
                 ...orpCommon,
                 heading: _L("part2Wet"),

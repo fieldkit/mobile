@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { NearbyState } from "./nearby";
 import { MapState } from "./map";
 import { NavigationState } from "./nav";
@@ -25,14 +26,16 @@ export class StationsState {
 }
 
 export class PendingCalibrationPoint {
-    constructor(public readonly references: number[], public readonly uncalibrated: number[]) {}
+    constructor(public readonly index: number, public readonly references: number[], public readonly uncalibrated: number[]) {}
 }
 
 export class PendingCalibration {
     constructor(public readonly moduleId: string, public readonly points: PendingCalibrationPoint[] = []) {}
 
     public append(pcp: PendingCalibrationPoint): PendingCalibration {
-        return new PendingCalibration(this.moduleId, [...this.points, pcp]);
+        const newPoints = _.clone(this.points);
+        newPoints[pcp.index] = pcp;
+        return new PendingCalibration(this.moduleId, newPoints);
     }
 }
 

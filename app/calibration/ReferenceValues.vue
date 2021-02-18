@@ -45,7 +45,7 @@ class ReferenceForm {
     public toCalValue(): CalibrationValue {
         if (!this.valid) throw new Error("toCalValue: invalid value");
         const calValue = <WaterCalValue>this.calibrationValue;
-        return new WaterCalValue(Number(this.value), this.range, calValue.command);
+        return new WaterCalValue(calValue.index, Number(this.value), this.range, calValue.command);
     }
 }
 

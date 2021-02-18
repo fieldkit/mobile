@@ -146,7 +146,7 @@ const actions = (services: ServiceRef) => {
             const sm = lr.modules.find((m) => m.module.moduleId == moduleId);
             if (!sm) throw new Error(`no module: ${JSON.stringify(payload)}`);
             const values = sm.readings.map((r) => r.value);
-            const pcp = new PendingCalibrationPoint([payload.value.reference], values);
+            const pcp = new PendingCalibrationPoint(payload.value.index, [payload.value.reference], values);
             commit(MutationTypes.CALIBRATION_POINT, { moduleId: moduleId, point: pcp });
 
             const pending = state.pending[moduleId];
