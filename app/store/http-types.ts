@@ -173,7 +173,12 @@ export function fixupModuleConfiguration(buffer: Buffer | null): ModuleConfigura
     if (!buffer || buffer.length == 0) {
         return null;
     }
-    return DataProto.ModuleConfiguration.decodeDelimited(buffer);
+    try {
+        return DataProto.ModuleConfiguration.decodeDelimited(buffer);
+    } catch (error) {
+        console.log(`invalid-module-configuration: ${buffer.toString("hex")}`);
+        return null;
+    }
 }
 
 function toHexString(value: Uint8Array): string {
