@@ -114,6 +114,10 @@ export class CalibrationStrategy extends CalibrationStep {
         return this.calibrationPointSteps().length;
     }
 
+    public get linear(): boolean {
+        return !/modules.water.ec/.test(this.moduleKey);
+    }
+
     private calibrationPointSteps(): CalibrationPointStep[] {
         return this.steps.filter((step) => step instanceof CalibrationPointStep).map((step) => step as CalibrationPointStep);
     }

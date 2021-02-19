@@ -228,6 +228,7 @@ export default function (rawServices: Services): OurStore {
     });
 
     const dispatchOriginal: Dispatch = store.dispatch;
+    // eslint-disable-next-line
     store.dispatch = (type: string, payload?: any, options?: DispatchOptions): Promise<any> => {
         // console.log("DISPATCH", type);
         return dispatchOriginal(type, payload, options);

@@ -32,7 +32,8 @@ export class CalibrateWater {
         public readonly position: number,
         public readonly value: WaterCalValue,
         public readonly compensations: { temperature: number | null },
-        public readonly expectedPoints: number
+        public readonly expectedPoints: number,
+        public readonly linear: boolean
     ) {}
 }
 
@@ -65,6 +66,7 @@ export abstract class CalibrationCurve {
                     uncalibrated: p.uncalibrated,
                 })
         );
+        if (points.length == 0) throw new CalibrationError(`calibration failed: empty`);
         const coefficients = this.calculateCoefficients(pending);
         return DataProto.Calibration.create({
             type: this.curveType,
@@ -105,9 +107,9 @@ export class ExponentialCalibrationCurve extends CalibrationCurve {
         const xySum = _.sum(indices.map((i) => x[i] * y[i]));
         const m = (n * xySum - xSum * ySum) / (n * xxSum - xSum * xSum);
         const b = ySum / n - (m * xSum) / n;
-        console.log(`cal:coeff ${JSON.stringify({ x, y })}`);
-        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed`);
-        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed`);
+        console.log(`cal:exponential ${JSON.stringify({ x, y, n, xSum, ySum, xxSum, xySum })}`);
+        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
+        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [b, m] });
     }
 }
@@ -130,16 +132,18 @@ export class LinearCalibrationCurve extends CalibrationCurve {
         const denom = _.sum(denomParts);
         const m = numer / denom;
         const b = yMean - m * xMean;
-        console.log(`cal:coeff ${JSON.stringify({ x, y, xMean, yMean, numerParts, denomParts, numer, denom, b, m })}`);
-        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed`);
-        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed`);
+        console.log(`cal:linear ${JSON.stringify({ x, y, xMean, yMean, numerParts, denomParts, numer, denom, b, m })}`);
+        if (!acceptableCoefficient(m)) throw new CalibrationError(`calibration failed: m=${m}`);
+        if (!acceptableOffset(b)) throw new CalibrationError(`calibration failed: b=${b}`);
         return new DataProto.CalibrationCoefficients({ values: [b, m] });
     }
 }
 
-function getCurveForSensor(): CalibrationCurve {
+function getCurveForSensor(curveType: DataProto.CurveType): CalibrationCurve {
+    if (curveType == DataProto.CurveType.CURVE_EXPONENTIAL) {
+        return new ExponentialCalibrationCurve();
+    }
     return new LinearCalibrationCurve();
-    // throw new Error(`no curve for type: ${type}`);
 }
 
 const actions = (services: ServiceRef) => {
@@ -190,7 +194,9 @@ const actions = (services: ServiceRef) => {
             const completed = pending.points.length == payload.expectedPoints;
             if (completed) {
                 try {
-                    const curve = getCurveForSensor();
+                    const curve = getCurveForSensor(
+                        payload.linear ? DataProto.CurveType.CURVE_LINEAR : DataProto.CurveType.CURVE_EXPONENTIAL
+                    );
                     const calibration = curve.calculate(pending);
                     console.log(`cal-done: ${JSON.stringify(calibration)}`);
 
