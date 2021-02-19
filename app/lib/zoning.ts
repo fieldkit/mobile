@@ -1,6 +1,3 @@
-import "zone.js/dist/zone";
-import { Zone /*, ZoneDelegate, ZoneSpec, Task */ } from "zone.js/dist/zone";
-
 export function makeTaskId(length: number): string {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const charactersLength = characters.length;
@@ -11,13 +8,20 @@ export function makeTaskId(length: number): string {
     return id;
 }
 
-export function getZone(): Zone {
-    return global["Zone"] as Zone;
+export function getZone() {
+    // eslint-disable-next-line
+    return global["Zone"];
 }
 
 export async function zoned(callback: () => Promise<void>): Promise<void> {
-    await getZone()
-        .current.fork({
+    const zone = getZone();
+    if (!zone) {
+        console.log("zone: warning no zone");
+        await callback();
+        return;
+    }
+    await zone.current
+        .fork({
             name: "task-ids",
             properties: {
                 taskId: `task-${makeTaskId(6)}`,

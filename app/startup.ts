@@ -9,7 +9,11 @@ import { promiseAfter, zoned } from "@/lib";
 
 function updateStore(store: OurStore): Promise<void> {
     promiseAfter(1000)
-        .then(() => zoned(() => store.dispatch(ActionTypes.REFRESH)))
+        .then(() =>
+            zoned(async () => {
+                await store.dispatch(ActionTypes.REFRESH);
+            })
+        )
         .catch((error) => {
             console.log(`refresh:error: ${JSON.stringify(error)}`, error);
         })

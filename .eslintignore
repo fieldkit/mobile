@@ -14,6 +14,9 @@ fixtures.js
 app/tests/setup.ts
 app/tests/utilities.ts
 
+# No idea why zone.js is such a pain in the ass with their types.
+app/lib/zoning.ts
+
 # TODO
 app/reader/parsing.ts
 app/reader/SimpleScreen.vue
