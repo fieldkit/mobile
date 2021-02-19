@@ -88,95 +88,95 @@ export default class QueryStation {
         });
     }
 
-    public startDataRecording(address: string): Promise<HttpStatusReply> {
+    public async startDataRecording(address: string): Promise<HttpStatusReply> {
         const message = fk_app.HttpQuery.create({
             type: QueryType.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: true },
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public stopDataRecording(address: string): Promise<HttpStatusReply> {
+    public async stopDataRecording(address: string): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_RECORDING_CONTROL,
             recording: { modifying: true, enabled: false },
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public scanNearbyNetworks(address: string): Promise<HttpStatusReply> {
+    public async scanNearbyNetworks(address: string): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_SCAN_NETWORKS,
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public scanModules(address: string): Promise<HttpStatusReply> {
+    public async scanModules(address: string): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_SCAN_MODULES,
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public configureSchedule(address: string, schedules: Schedules): Promise<HttpStatusReply> {
+    public async configureSchedule(address: string, schedules: Schedules): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             schedules: { modifying: true, ...schedules },
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public sendNetworkSettings(address: string, networks: NetworkInfo[]): Promise<HttpStatusReply> {
+    public async sendNetworkSettings(address: string, networks: NetworkInfo[]): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             networkSettings: { networks: networks },
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public sendLoraSettings(address: string, lora: LoraSettings): Promise<HttpStatusReply> {
+    public async sendLoraSettings(address: string, lora: LoraSettings): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             loraSettings: { appEui: lora.appEui, appKey: lora.appKey },
         });
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public configureName(address: string, name: string): Promise<HttpStatusReply> {
+    public async configureName(address: string, name: string): Promise<HttpStatusReply> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             identity: { name: name },
         });
 
-        return this.stationQuery(address, message).then((reply) => {
+        return await this.stationQuery(address, message, { throttle: false }).then((reply) => {
             return this.fixupStatus(reply);
         });
     }
 
-    public calculateDownloadSize(url: string): Promise<CalculatedSize> {
-        return this.trackActivity({ url: url, throttle: false }, () => {
+    public async calculateDownloadSize(url: string): Promise<CalculatedSize> {
+        return await this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .json({
                     method: "HEAD",
@@ -208,8 +208,8 @@ export default class QueryStation {
         });
     }
 
-    public queryLogs(url: string): Promise<string> {
-        return this.trackActivityAndThrottle(url, () => {
+    public async queryLogs(url: string): Promise<string> {
+        return await this.trackActivityAndThrottle(url, () => {
             return this.conservify
                 .text({
                     url: url + "/download/logs",
@@ -226,8 +226,8 @@ export default class QueryStation {
         });
     }
 
-    public download(url: string, path: string, progress: ProgressCallback): Promise<HttpResponse> {
-        return this.trackActivity({ url: url, throttle: false }, () => {
+    public async download(url: string, path: string, progress: ProgressCallback): Promise<HttpResponse> {
+        return await this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .download({
                     method: "GET",
@@ -246,8 +246,8 @@ export default class QueryStation {
         });
     }
 
-    public uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<FirmwareResponse> {
-        return this.trackActivity({ url: url, throttle: false }, () => {
+    public async uploadFirmware(url: string, path: string, progress: ProgressCallback): Promise<FirmwareResponse> {
+        return await this.trackActivity({ url: url, throttle: false }, () => {
             return this.conservify
                 .upload({
                     method: "POST",
@@ -263,7 +263,7 @@ export default class QueryStation {
         });
     }
 
-    public uploadViaApp(address: string): Promise<void> {
+    public async uploadViaApp(address: string): Promise<void> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             transmission: {
@@ -275,14 +275,14 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message)
+        return await this.stationQuery(address, message, { throttle: false })
             .then((reply) => {
                 return this.fixupStatus(reply);
             })
             .then(() => Promise.resolve());
     }
 
-    public uploadOverWifi(address: string, transmissionUrl: string, transmissionToken: string): Promise<void> {
+    public async uploadOverWifi(address: string, transmissionUrl: string, transmissionToken: string): Promise<void> {
         const message = HttpQuery.create({
             type: QueryType.QUERY_CONFIGURE,
             transmission: {
@@ -297,7 +297,7 @@ export default class QueryStation {
             time: unixNow(),
         });
 
-        return this.stationQuery(address, message)
+        return await this.stationQuery(address, message, { throttle: false })
             .then((reply) => {
                 return this.fixupStatus(reply);
             })
@@ -360,9 +360,9 @@ export default class QueryStation {
      * HTTP request and handling any necessary translations/conversations for
      * request/response bodies.
      */
-    private stationQuery(url: string, message: fk_app.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
+    private async stationQuery(url: string, message: fk_app.HttpQuery, options: QueryOptions = {}): Promise<StationQuery> {
         const finalOptions = _.extend({ url: url, throttle: true }, options);
-        return this.trackActivity(finalOptions, () => {
+        return await this.trackActivity(finalOptions, () => {
             const binaryQuery = HttpQuery.encodeDelimited(message as fk_app.IHttpQuery).finish();
             log.info(url, "querying", JSON.stringify(message));
 
