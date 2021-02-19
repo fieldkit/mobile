@@ -23,7 +23,7 @@ esac
 
 rm app/migrations/index.js
 
-for f in app/migrations/2020*; do
+for f in app/migrations/20*; do
 	FN=`basename $f`
-	echo "export * from './${FN}';" >> app/migrations/index.js
+	echo "export * from \"./${FN}\";" >> app/migrations/index.js
 done
