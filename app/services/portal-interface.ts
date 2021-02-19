@@ -432,8 +432,12 @@ export default class PortalInterface {
                 .then(
                     (response: HttpResponse) => {
                         console.log("station-media-upload:", response.body);
+                        let data: unknown = response.body;
+                        if (response.body instanceof Buffer) {
+                            data = JSON.parse(response.body.toString());
+                        }
                         return {
-                            data: JSON.parse(response.body.toString()) as { id: number },
+                            data: data as { id: number },
                             status: response.statusCode,
                         };
                     },
