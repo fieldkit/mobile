@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Vuex, { Store, Dispatch, DispatchOptions } from "vuex";
+import { zoned } from "@/lib";
 import createLogger from "./logger";
 import Config from "@/config";
 
@@ -229,9 +230,10 @@ export default function (rawServices: Services): OurStore {
 
     const dispatchOriginal: Dispatch = store.dispatch;
     // eslint-disable-next-line
-    store.dispatch = (type: string, payload?: any, options?: DispatchOptions): Promise<any> => {
-        // console.log("DISPATCH", type);
-        return dispatchOriginal(type, payload, options);
+    store.dispatch = async (type: string, payload?: any, options?: DispatchOptions): Promise<any> => {
+        await zoned(async () => {
+            await dispatchOriginal(type, payload, options);
+        });
     };
 
     return store;

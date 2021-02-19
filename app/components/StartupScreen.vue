@@ -10,6 +10,7 @@ import ServicesSingleton from "@/services/singleton";
 import AppSettings from "@/wrappers/app-settings";
 import Config from "@/config";
 import routes from "@/routes";
+import { zoned } from "@/lib";
 
 function getFirstRoute(services: Services): Route {
     const appSettings = new AppSettings();
@@ -30,7 +31,9 @@ export default Vue.extend({
 
         console.log("startup loaded");
 
-        await initializeApplication(services);
+        await zoned(async () => {
+            await initializeApplication(services);
+        });
 
         if (Config.env.developer) {
             console.log("developer", Config.env.developer);

@@ -61,21 +61,23 @@ class NetworkMonitor {
 
         console.log("network-monitor: starting", this.enabled);
 
-        Connectivity.startMonitoring((newType) => {
-            try {
-                console.log("network-monitor: connectivity", Connectivity.typeToString(newType));
+        Connectivity.startMonitoring((newType) => async () => {
+            await zoned(async () => {
+                try {
+                    console.log("network-monitor: connectivity", Connectivity.typeToString(newType));
 
-                switch (newType) {
-                    case Connectivity.connectionType.wifi:
-                        this.handleWifiChange();
-                        break;
-                    default:
-                        break;
+                    switch (newType) {
+                        case Connectivity.connectionType.wifi:
+                            this.handleWifiChange();
+                            break;
+                        default:
+                            break;
+                    }
+                    await this.issue();
+                } catch (e) {
+                    log.error("network-monitor", e);
                 }
-                void this.issue();
-            } catch (e) {
-                log.error("network-monitor", e);
-            }
+            });
         });
 
         void this.watch();

@@ -20,6 +20,10 @@ export async function zoned(callback: () => Promise<void>): Promise<void> {
         await callback();
         return;
     }
+    if (zone.current.get("taskId")) {
+        await callback();
+        return;
+    }
     await zone.current
         .fork({
             name: "task-ids",
@@ -70,5 +74,5 @@ export async function zoned(callback: () => Promise<void>): Promise<void> {
 export function getTaskId(): string {
     const zone = getZone();
     if (!zone) return "<nozone>";
-    return zone.current.get("taskId") || `<noid-${zone.current.name}>`;
+    return zone.current.get("taskId") || `ROOT`;
 }

@@ -28,9 +28,6 @@ import { CheckBox } from "@nstudio/nativescript-checkbox";
 
 import StartupScreen from "./components/StartupScreen";
 
-// import { zoned } from "./lib/zoning";
-// import { Zone } from "zone.js/dist/zone";
-
 function configureVueJs(services: typeof Services): Store {
     Vue.registerElement("DropDown", () => DropDown);
 
